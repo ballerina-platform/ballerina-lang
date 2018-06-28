@@ -64,9 +64,9 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
 
         String delimiter = "";
         for (String poppedToken : poppedTokens) {
-            if (poppedTokens.contains(UtilSymbolKeys.DOT_SYMBOL_KEY)
-                    || poppedTokens.contains(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)
-                    || poppedTokens.contains(UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY)) {
+            if (poppedToken.equals(UtilSymbolKeys.DOT_SYMBOL_KEY)
+                    || poppedToken.equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)
+                    || poppedToken.equals(UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY)) {
                 delimiter = poppedToken;
             }
         }

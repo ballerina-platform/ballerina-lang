@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.util.sorters.CompletionItemSorter;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,16 +43,16 @@ public class ServiceContextResolver extends AbstractItemResolver {
         if (this.isAnnotationStart(completionContext)) {
             completionItems.addAll(CompletionItemResolver
                     .getResolverByClass(ParserRuleAnnotationAttachmentResolver.class).resolveItems(completionContext));
-        } else if (parserRuleContext != null) {
-            AbstractItemResolver resolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
-            if (resolver != null) {
-                completionItems.addAll(resolver.resolveItems(completionContext));
-            }
-        } else {
+        } else if (parserRuleContext == null || parserRuleContext instanceof BallerinaParser.ServiceDefinitionContext) {
             this.populateBasicTypes(completionItems, completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
             CompletionItemSorter itemSorter =
                     ItemSorters.getSorterByClass(completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY).getClass());
             itemSorter.sortItems(completionContext, completionItems);
+        } else {
+            AbstractItemResolver resolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
+            if (resolver != null) {
+                completionItems.addAll(resolver.resolveItems(completionContext));
+            }
         }
         return completionItems;
     }

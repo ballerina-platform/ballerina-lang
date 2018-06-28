@@ -38,18 +38,6 @@ documentation {
 public native function openFile(@sensitive string path, @sensitive Mode accessMode) returns @tainted ByteChannel;
 
 documentation {
-    Opens a socket from a specified network location.
-
-    P{{host}} Remote server domain/IP
-    P{{port}} Remote server port
-    P{{options}} Connection stream that bridge the client and the server
-    R{{}} Socket which will allow to communicate with a remote server or error
-}
-public native function openSocket(@sensitive string host,
-                                  @sensitive int port,
-                                  SocketProperties options) returns @tainted Socket|error;
-
-documentation {
     Opens a secure socket connection with a remote server.
 
     P{{host}} Remote server domain/IP
