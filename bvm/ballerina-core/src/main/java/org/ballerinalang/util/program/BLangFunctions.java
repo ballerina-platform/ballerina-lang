@@ -33,9 +33,6 @@ import org.ballerinalang.bre.bvm.SyncCallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
-import org.ballerinalang.persistence.ConnectionException;
-import org.ballerinalang.persistence.PendingCheckpoints;
-import org.ballerinalang.persistence.PersistenceUtils;
 import org.ballerinalang.model.InterruptibleNativeCallableUnit;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
@@ -43,11 +40,13 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BCallableFuture;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.ActiveStates;
-import org.ballerinalang.persistence.CorrelationUtil;
-import org.ballerinalang.persistence.FailedStates;
-import org.ballerinalang.persistence.State;
-import org.ballerinalang.persistence.StateStore;
+import org.ballerinalang.persistence.ConnectionException;
+import org.ballerinalang.persistence.PersistenceUtils;
+import org.ballerinalang.persistence.states.ActiveStates;
+import org.ballerinalang.persistence.states.FailedStates;
+import org.ballerinalang.persistence.states.PendingCheckpoints;
+import org.ballerinalang.persistence.states.State;
+import org.ballerinalang.persistence.FileBasedStore;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo.WorkerSet;
@@ -267,7 +266,7 @@ public class BLangFunctions {
                     String instanceId = (String) o;
                     WorkerExecutionContext runnableContext = PersistenceUtils.getMainPackageContext(parentCtx);
                     if (interruptibleNativeCallableUnit.persistBeforeOperation()) {
-                        StateStore.getInstance().persistState(instanceId, new State(runnableContext));
+                        FileBasedStore.persistState(instanceId, new State(runnableContext));
                     }
                     if (interruptibleNativeCallableUnit.persistAfterOperation()) {
                         PendingCheckpoints.addCheckpoint(instanceId, (runnableContext.ip + 1));
@@ -438,8 +437,8 @@ public class BLangFunctions {
         } catch (ConnectionException e) {
             State state = new State(parentCtx);
             state.setIp(parentCtx.ip);
-            FailedStates.add(CorrelationUtil.getInstanceId(parentCtx), state);
-            ActiveStates.remove(CorrelationUtil.getInstanceId(parentCtx));
+            FailedStates.add(PersistenceUtils.getInstanceId(parentCtx), state);
+            ActiveStates.remove(PersistenceUtils.getInstanceId(parentCtx));
             BLangScheduler.workerCountDown();
             return null;
         } catch (Throwable e) {

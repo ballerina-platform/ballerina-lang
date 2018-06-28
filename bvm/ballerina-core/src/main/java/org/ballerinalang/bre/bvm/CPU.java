@@ -18,7 +18,6 @@
 package org.ballerinalang.bre.bvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.ballerinalang.persistence.PendingCheckpoints;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BAttachedFunction;
 import org.ballerinalang.model.types.BField;
@@ -70,8 +69,9 @@ import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.model.values.StructureType;
-import org.ballerinalang.persistence.State;
-import org.ballerinalang.persistence.StateStore;
+import org.ballerinalang.persistence.states.PendingCheckpoints;
+import org.ballerinalang.persistence.states.State;
+import org.ballerinalang.persistence.FileBasedStore;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.AttachedFunctionInfo;
@@ -193,7 +193,7 @@ public class CPU {
                     String instanceId = (String) o;
                     if (PendingCheckpoints.isCheckpoint(instanceId, ctx.ip)) {
                         if (ctx.callableUnitInfo.getPkgPath().equals(".")) {
-                            StateStore.getInstance().persistState(instanceId, new State(ctx));
+                            FileBasedStore.persistState(instanceId, new State(ctx));
                         }
                     }
                 }

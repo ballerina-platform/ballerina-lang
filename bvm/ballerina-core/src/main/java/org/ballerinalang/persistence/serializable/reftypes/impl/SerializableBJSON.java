@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,15 +17,20 @@
  */
 package org.ballerinalang.persistence.serializable.reftypes.impl;
 
-import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
-import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.persistence.serializable.SerializableState;
+import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.Base64;
 
+/**
+ * Implementation of @{@link SerializableRefType} to serialize and deserialize {@link BJSON} objects.
+ *
+ * @since 0.976.0
+ */
 public class SerializableBJSON implements SerializableRefType {
 
     private String jsonContent;
@@ -47,7 +52,6 @@ public class SerializableBJSON implements SerializableRefType {
         } else {
             jsonString = "'" + jsonString + "'";
         }
-        BJSON bjson = new BJSON(jsonString);
-        return bjson;
+        return new BJSON(jsonString);
     }
 }

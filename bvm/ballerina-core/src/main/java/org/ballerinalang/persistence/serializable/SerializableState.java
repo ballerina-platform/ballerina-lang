@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -20,9 +20,9 @@ package org.ballerinalang.persistence.serializable;
 import com.google.gson.Gson;
 import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.persistence.PersistenceUtils;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
-import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 
@@ -31,6 +31,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class represents a serializable state. This holds the required functionality to persist the context.
+ *
+ * @since 0.976.0
+ */
 public class SerializableState {
 
     private String instanceId;
@@ -54,15 +59,13 @@ public class SerializableState {
 
     public static SerializableState deserialize(String json) {
         Gson gson = PersistenceUtils.getGson();
-        SerializableState serializableState = gson.fromJson(json, SerializableState.class);
-        return serializableState;
+        return gson.fromJson(json, SerializableState.class);
     }
 
     public SerializableState(WorkerExecutionContext executionContext) {
         if (executionContext == null) {
             return;
         }
-//        serializationId = UUID.randomUUID().toString();
         serializationId = "s_";
         currentContextKey = serializationId + executionContext.hashCode();
         SerializableContext serializableContext = new SerializableContext(currentContextKey, executionContext, this);
@@ -76,8 +79,7 @@ public class SerializableState {
 
     public WorkerExecutionContext getExecutionContext(ProgramFile programFile) {
         SerializableContext serializableContext = sContexts.get(currentContextKey);
-        WorkerExecutionContext context = serializableContext.getWorkerExecutionContext(programFile, this);
-        return context;
+        return serializableContext.getWorkerExecutionContext(programFile, this);
     }
 
     public String addContext(WorkerExecutionContext context) {
@@ -94,8 +96,7 @@ public class SerializableState {
 
     public WorkerExecutionContext getContext(String contextKey, ProgramFile programFile) {
         SerializableContext serializableContext = sContexts.get(contextKey);
-        WorkerExecutionContext context = serializableContext.getWorkerExecutionContext(programFile, this);
-        return context;
+        return serializableContext.getWorkerExecutionContext(programFile, this);
     }
 
     public String addRespContext(CallableWorkerResponseContext responseContext) {
@@ -112,12 +113,12 @@ public class SerializableState {
 
     public CallableWorkerResponseContext getResponseContext(
             String respCtxKey, ProgramFile programFile, CallableUnitInfo callableUnitInfo) {
-        CallableWorkerResponseContext responseContext = PersistenceUtils.tempRespContexts.get(respCtxKey);
+        CallableWorkerResponseContext responseContext = PersistenceUtils.getTempRespContexts().get(respCtxKey);
         if (responseContext == null) {
             SerializableRespContext serializableRespContext = sRespContexts.get(respCtxKey);
             responseContext =
                     serializableRespContext.getResponseContext(programFile, callableUnitInfo, this);
-            PersistenceUtils.tempRespContexts.put(respCtxKey, responseContext);
+            PersistenceUtils.getTempRespContexts().put(respCtxKey, responseContext);
         }
         return responseContext;
     }
@@ -127,7 +128,6 @@ public class SerializableState {
             return null;
         }
         ArrayList<Object> refFields = new ArrayList<>(bRefFields.length);
-//        Object[] refFields = new Object[bRefFields.length];
         for (int i = 0; i < bRefFields.length; i++) {
             BRefType refType = bRefFields[i];
             refFields.add(i, serialize(refType));
@@ -151,15 +151,14 @@ public class SerializableState {
         if (o == null || PersistenceUtils.isSerializable(o)) {
             return o;
         } else if (o instanceof BRefType) {
-            SerializedKey serializedKey = addRefType((BRefType) o);
-            return serializedKey;
+            return addRefType((BRefType) o);
         } else {
             return null;
         }
     }
 
     public Object deserialize(Object o, ProgramFile programFile) {
-        if (o == null || !(o instanceof SerializedKey)) {
+        if (!(o instanceof SerializedKey)) {
             return o;
         } else {
             SerializedKey key = (SerializedKey) o;
@@ -186,26 +185,4 @@ public class SerializableState {
         }
         return null;
     }
-
-//    public String addBStruct(BStruct bStruct) {
-//        String bStructKey = serializationId + bStruct.hashCode();
-//        if (sBStructs.containsKey(bStructKey)) {
-//            return bStructKey;
-//        }
-//        SerializableBStruct serializableBStruct = new SerializableBStruct(bStruct, this);
-//        sBStructs.put(bStructKey, serializableBStruct);
-//        return bStructKey;
-//    }
-//
-//    public BStruct getBStruct(String bStructKey, ProgramFile programFile) {
-//        Map<String, BStruct> bStructs = StateStore.tempBStructs.get(serializationId);
-//        BStruct bStruct = bStructs.get(bStructKey);
-//        if (bStruct != null) {
-//            return bStruct;
-//        }
-//        SerializableBStruct serializableBStruct = sBStructs.get(bStructKey);
-//        bStruct = (BStruct) serializableBStruct.getBRefType(programFile, this);
-//        bStructs.put(bStructKey, bStruct);
-//        return bStruct;
-//    }
 }

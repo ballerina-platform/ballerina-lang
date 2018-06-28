@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -21,6 +21,11 @@ import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 
+/**
+ * This class represents a serializable Ballerina response context.
+ *
+ * @since 0.976.0
+ */
 public class SerializableRespContext {
 
     public String key;

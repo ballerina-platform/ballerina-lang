@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,10 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.persistence;
+package org.ballerinalang.persistence.states;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 
+/**
+ * Represents execution state for given @{@link WorkerExecutionContext}.
+ *
+ * @since 0.976.0
+ */
 public class State {
 
     private WorkerExecutionContext context;

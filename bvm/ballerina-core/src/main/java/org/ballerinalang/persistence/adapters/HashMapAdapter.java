@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -31,7 +31,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class HashMapAdapter implements JsonSerializer<HashMap<String, Object>>, JsonDeserializer<HashMap<String, Object>> {
+/**
+ * This implements @{@link JsonSerializer} to serialize and deserialize @{@link HashMap} objects.
+ *
+ * @since 0.976.0
+ */
+public class HashMapAdapter implements JsonSerializer<HashMap<String, Object>>,
+        JsonDeserializer<HashMap<String, Object>> {
 
     public JsonElement serialize(HashMap<String, Object> map, Type type, JsonSerializationContext context) {
         JsonObject result = new JsonObject();
@@ -47,13 +53,12 @@ public class HashMapAdapter implements JsonSerializer<HashMap<String, Object>>, 
             }
             result.add(key, wrapper);
         }
-
         return result;
     }
 
-    public HashMap<String, Object> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+    public HashMap<String, Object> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
         JsonObject jsonObject = json.getAsJsonObject();
-        HashMap<String, Object> map = new HashMap<String, Object>();
+        HashMap<String, Object> map = new HashMap<>();
         Set<Map.Entry<String, JsonElement>> entries = jsonObject.entrySet();
         try {
             for (Map.Entry<String, JsonElement> entry : entries) {
@@ -68,8 +73,8 @@ public class HashMapAdapter implements JsonSerializer<HashMap<String, Object>>, 
                     map.put(key, o);
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            throw new JsonParseException("Unknown element type found after deserialize the element.", e);
         }
         return map;
     }

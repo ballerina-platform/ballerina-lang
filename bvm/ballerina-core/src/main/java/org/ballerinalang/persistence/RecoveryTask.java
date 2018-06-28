@@ -17,11 +17,9 @@
  */
 package org.ballerinalang.persistence;
 
-import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.persistence.State;
-import org.ballerinalang.persistence.StateStore;
+import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 
@@ -48,7 +46,7 @@ public class RecoveryTask implements Runnable {
         System.out.println("RecoveryTask: Starting saved states...");
         Debugger debugger = new Debugger(programFile);
         initDebugger(programFile, debugger);
-        List<State> states = StateStore.getInstance().getStates(programFile);
+        List<State> states = FileBasedStore.getStates(programFile);
         if (states == null) {
             return;
         }

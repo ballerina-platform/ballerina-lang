@@ -15,17 +15,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.persistence.serializable;
+package org.ballerinalang.persistence.states;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * This class is a representation of serialized data key.
+ * This is used to manage the @{@link State}s which were failed due to errors.
  *
  * @since 0.976.0
  */
-public class SerializedKey {
-    public String key;
+public class FailedStates {
 
-    public SerializedKey(String key) {
-        this.key = key;
+    private static Map<String, List<State>> states = new HashMap<>();
+
+    public static void add(String instanceId, State state) {
+        List<State> stateList = states.computeIfAbsent(instanceId, k -> new ArrayList<>());
+        stateList.add(state);
+    }
+
+    public static List<State> get(String instanceId) {
+        return states.get(instanceId);
+    }
+
+    public static void remove(String instanceId) {
+        states.remove(instanceId);
     }
 }

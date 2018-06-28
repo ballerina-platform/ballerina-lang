@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -19,12 +19,13 @@ package org.ballerinalang.persistence.serializable.reftypes.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
-import org.ballerinalang.persistence.serializable.NativeDataKey;
-import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.persistence.StateStore;
+import org.ballerinalang.persistence.PersistenceUtils;
+import org.ballerinalang.persistence.PersistenceUtils;
+import org.ballerinalang.persistence.serializable.NativeDataKey;
+import org.ballerinalang.persistence.serializable.SerializableState;
+import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
@@ -33,6 +34,11 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * Implementation of @{@link SerializableRefType} to serialize and deserialize {@link BStruct} objects.
+ *
+ * @since 0.976.0
+ */
 public class SerializableBStruct implements SerializableRefType {
 
     private String pkgPath;
@@ -48,7 +54,8 @@ public class SerializableBStruct implements SerializableRefType {
     private byte[][] byteFields;
     private ArrayList<Object> refFields;
 
-    public SerializableBStruct() {}
+    public SerializableBStruct() {
+    }
 
     public SerializableBStruct(BStruct bStruct, SerializableState state) {
 
@@ -86,7 +93,7 @@ public class SerializableBStruct implements SerializableRefType {
         PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
         if (packageInfo == null) {
             throw new BallerinaException(pkgPath + " not found in program file: " +
-                    programFile.getProgramFilePath().toString());
+                                                 programFile.getProgramFilePath().toString());
         }
 
         StructureTypeInfo structInfo = packageInfo.getStructInfo(structName);
@@ -104,8 +111,8 @@ public class SerializableBStruct implements SerializableRefType {
 
             Object v = state.deserialize(o, programFile);
             if (v instanceof NativeDataKey) {
-                StateStore.getDataMapper().
-                        mapNativeData(state.getSerializationId(), (NativeDataKey) o, bStruct);
+                PersistenceUtils.getDataMapper().mapNativeData(state.getSerializationId(),
+                                                               (NativeDataKey) o, bStruct);
                 bStruct.nativeData.put(key, null);
             } else {
                 bStruct.nativeData.put(key, v);
@@ -128,7 +135,6 @@ public class SerializableBStruct implements SerializableRefType {
 
     public static SerializableBStruct deserialize(String jsonString) {
         Gson gson = new GsonBuilder().create();
-        SerializableBStruct serializableBStruct = gson.fromJson(jsonString, SerializableBStruct.class);
-        return serializableBStruct;
+        return gson.fromJson(jsonString, SerializableBStruct.class);
     }
 }
