@@ -86,6 +86,7 @@ ASCENDING   : 'ascending' ;
 DESCENDING  : 'descending' ;
 
 TYPE_INT        : 'int' ;
+TYPE_BYTE       : 'byte' ;
 TYPE_FLOAT      : 'float' ;
 TYPE_BOOL       : 'boolean' ;
 TYPE_STRING     : 'string' ;
@@ -162,7 +163,6 @@ ADD     : '+' ;
 SUB     : '-' ;
 MUL     : '*' ;
 DIV     : '/' ;
-POW     : '^' ;
 MOD     : '%';
 
 // Relational operators
@@ -176,6 +176,11 @@ GT_EQUAL    : '>=' ;
 LT_EQUAL    : '<=' ;
 AND         : '&&' ;
 OR          : '||' ;
+
+// Bitwise Operators
+
+BITAND  : '&' ;
+BITXOR  : '^' ;
 
 // Additional symbols 
 

@@ -23,7 +23,6 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResource;
@@ -210,7 +209,7 @@ class WebSubResourceDispatcher {
      * @throws BallerinaConnectorException if an error occurs retrieving the payload, or the payload is not JSON
      */
     private static BJSON retrieveJsonBody(BValue httpRequest) {
-        BStruct entityStruct = extractEntity((BStruct) httpRequest);
+        BMap<String, BValue> entityStruct = extractEntity((BMap<String, BValue>) httpRequest);
         if (entityStruct != null) {
             if (entityStruct.getNativeData(MESSAGE_DATA_SOURCE) instanceof BJSON) {
                 return (BJSON) (entityStruct.getNativeData(MESSAGE_DATA_SOURCE));

@@ -18,7 +18,9 @@
 
 package org.ballerinalang.nativeimpl.runtime;
 
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 
 /**
  * AuthContext represents and holds the authentication information.
@@ -27,28 +29,28 @@ import org.ballerinalang.model.values.BStruct;
  */
 public class AuthContext {
 
-    public static final int AUTH_SCHEME_STRING_FIELD_INDEX = 0;
-    public static final int AUTH_TOKEN_STRING_FIELD_INDEX = 1;
+    public static final String AUTH_SCHEME_KEY = "scheme";
+    public static final String AUTH_TOKEN_KEY = "authToken";
 
-    private BStruct authContextStruct;
+    private BMap<String, BValue> authContextStruct;
 
-    public AuthContext(BStruct authContextStruct) {
+    public AuthContext(BMap<String, BValue> authContextStruct) {
         this.authContextStruct = authContextStruct;
     }
 
     public String getScheme() {
-        return authContextStruct.getStringField(AUTH_SCHEME_STRING_FIELD_INDEX);
+        return authContextStruct.get(AUTH_SCHEME_KEY).stringValue();
     }
 
     public void setScheme(String authType) {
-        authContextStruct.setStringField(AUTH_SCHEME_STRING_FIELD_INDEX, authType);
+        authContextStruct.put(AUTH_SCHEME_KEY, new BString(authType));
     }
 
     public String getAuthToken() {
-        return authContextStruct.getStringField(AUTH_TOKEN_STRING_FIELD_INDEX);
+        return authContextStruct.get(AUTH_TOKEN_KEY).stringValue();
     }
 
     public void setAuthToken(String authToken) {
-        authContextStruct.setStringField(AUTH_TOKEN_STRING_FIELD_INDEX, authToken);
+        authContextStruct.put(AUTH_TOKEN_KEY, new BString(authToken));
     }
 }

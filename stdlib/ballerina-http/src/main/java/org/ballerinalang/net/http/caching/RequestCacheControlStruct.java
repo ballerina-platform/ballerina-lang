@@ -19,19 +19,21 @@
 package org.ballerinalang.net.http.caching;
 
 import org.ballerinalang.bre.bvm.BLangVMStructs;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 
 import java.util.Map;
 
-import static org.ballerinalang.net.http.HttpConstants.REQ_CACHE_CONTROL_MAX_AGE_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.REQ_CACHE_CONTROL_MAX_STALE_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.REQ_CACHE_CONTROL_MIN_FRESH_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.REQ_CACHE_CONTROL_NO_CACHE_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.REQ_CACHE_CONTROL_NO_STORE_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.REQ_CACHE_CONTROL_NO_TRANSFORM_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.REQ_CACHE_CONTROL_ONLY_IF_CACHED_INDEX;
-import static org.ballerinalang.net.http.HttpUtil.FALSE;
+import static org.ballerinalang.net.http.HttpConstants.REQ_CACHE_CONTROL_MAX_AGE_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.REQ_CACHE_CONTROL_MAX_STALE_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.REQ_CACHE_CONTROL_MIN_FRESH_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.REQ_CACHE_CONTROL_NO_CACHE_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.REQ_CACHE_CONTROL_NO_STORE_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.REQ_CACHE_CONTROL_NO_TRANSFORM_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.REQ_CACHE_CONTROL_ONLY_IF_CACHED_FIELD;
 import static org.ballerinalang.net.http.HttpUtil.TRUE;
 
 /**
@@ -42,64 +44,64 @@ import static org.ballerinalang.net.http.HttpUtil.TRUE;
  */
 public class RequestCacheControlStruct {
 
-    private BStruct requestCacheControl;
+    private BMap<String, BValue> requestCacheControl;
 
     public RequestCacheControlStruct(StructureTypeInfo structInfo) {
         requestCacheControl = BLangVMStructs.createBStruct(structInfo);
 
         // Initialize the struct fields to default values we use
-        requestCacheControl.setBooleanField(REQ_CACHE_CONTROL_NO_TRANSFORM_INDEX, 1);
-        requestCacheControl.setIntField(REQ_CACHE_CONTROL_MAX_AGE_INDEX, -1);
-        requestCacheControl.setIntField(REQ_CACHE_CONTROL_MAX_STALE_INDEX, -1);
-        requestCacheControl.setIntField(REQ_CACHE_CONTROL_MIN_FRESH_INDEX, -1);
+        requestCacheControl.put(REQ_CACHE_CONTROL_NO_TRANSFORM_FIELD, new BBoolean(TRUE));
+        requestCacheControl.put(REQ_CACHE_CONTROL_MAX_AGE_FIELD, new BInteger(-1));
+        requestCacheControl.put(REQ_CACHE_CONTROL_MAX_STALE_FIELD, new BInteger(-1));
+        requestCacheControl.put(REQ_CACHE_CONTROL_MIN_FRESH_FIELD, new BInteger(-1));
     }
 
-    public RequestCacheControlStruct(BStruct requestCacheControl) {
+    public RequestCacheControlStruct(BMap<String, BValue> requestCacheControl) {
         this.requestCacheControl = requestCacheControl;
 
         // Initialize the struct fields to default values we use
-        requestCacheControl.setBooleanField(REQ_CACHE_CONTROL_NO_TRANSFORM_INDEX, 1);
-        requestCacheControl.setIntField(REQ_CACHE_CONTROL_MAX_AGE_INDEX, -1);
-        requestCacheControl.setIntField(REQ_CACHE_CONTROL_MAX_STALE_INDEX, -1);
-        requestCacheControl.setIntField(REQ_CACHE_CONTROL_MIN_FRESH_INDEX, -1);
+        requestCacheControl.put(REQ_CACHE_CONTROL_NO_TRANSFORM_FIELD, new BBoolean(TRUE));
+        requestCacheControl.put(REQ_CACHE_CONTROL_MAX_AGE_FIELD, new BInteger(-1));
+        requestCacheControl.put(REQ_CACHE_CONTROL_MAX_STALE_FIELD, new BInteger(-1));
+        requestCacheControl.put(REQ_CACHE_CONTROL_MIN_FRESH_FIELD, new BInteger(-1));
     }
 
-    public BStruct getStruct() {
+    public BMap<String, BValue> getStruct() {
         return requestCacheControl;
     }
 
     public RequestCacheControlStruct setNoCache(boolean noCache) {
-        requestCacheControl.setBooleanField(REQ_CACHE_CONTROL_NO_CACHE_INDEX, noCache ? TRUE : FALSE);
+        requestCacheControl.put(REQ_CACHE_CONTROL_NO_CACHE_FIELD, new BBoolean(noCache));
         return this;
     }
 
     public RequestCacheControlStruct setNoStore(boolean noStore) {
-        requestCacheControl.setBooleanField(REQ_CACHE_CONTROL_NO_STORE_INDEX, noStore ? TRUE : FALSE);
+        requestCacheControl.put(REQ_CACHE_CONTROL_NO_STORE_FIELD, new BBoolean(noStore));
         return this;
     }
 
     public RequestCacheControlStruct setNoTransform(boolean noTransform) {
-        requestCacheControl.setBooleanField(REQ_CACHE_CONTROL_NO_TRANSFORM_INDEX, noTransform ? TRUE : FALSE);
+        requestCacheControl.put(REQ_CACHE_CONTROL_NO_TRANSFORM_FIELD, new BBoolean(noTransform));
         return this;
     }
 
     public RequestCacheControlStruct setOnlyIfCached(boolean onlyIfCached) {
-        requestCacheControl.setBooleanField(REQ_CACHE_CONTROL_ONLY_IF_CACHED_INDEX, onlyIfCached ? TRUE : FALSE);
+        requestCacheControl.put(REQ_CACHE_CONTROL_ONLY_IF_CACHED_FIELD, new BBoolean(onlyIfCached));
         return this;
     }
 
     public RequestCacheControlStruct setMaxAge(long maxAge) {
-        requestCacheControl.setIntField(REQ_CACHE_CONTROL_MAX_AGE_INDEX, maxAge);
+        requestCacheControl.put(REQ_CACHE_CONTROL_MAX_AGE_FIELD, new BInteger(maxAge));
         return this;
     }
 
     public RequestCacheControlStruct setMaxStale(long maxStale) {
-        requestCacheControl.setIntField(REQ_CACHE_CONTROL_MAX_STALE_INDEX, maxStale);
+        requestCacheControl.put(REQ_CACHE_CONTROL_MAX_STALE_FIELD, new BInteger(maxStale));
         return this;
     }
 
     public RequestCacheControlStruct setMinFresh(long minFresh) {
-        requestCacheControl.setIntField(REQ_CACHE_CONTROL_MIN_FRESH_INDEX, minFresh);
+        requestCacheControl.put(REQ_CACHE_CONTROL_MIN_FRESH_FIELD, new BInteger(minFresh));
         return this;
     }
 
@@ -109,25 +111,25 @@ public class RequestCacheControlStruct {
         controlDirectives.forEach((directive, value) -> {
             switch (directive) {
                 case NO_CACHE:
-                    requestCacheControl.setBooleanField(REQ_CACHE_CONTROL_NO_CACHE_INDEX, TRUE);
+                    requestCacheControl.put(REQ_CACHE_CONTROL_NO_CACHE_FIELD, new BBoolean(TRUE));
                     break;
                 case NO_STORE:
-                    requestCacheControl.setBooleanField(REQ_CACHE_CONTROL_NO_STORE_INDEX, TRUE);
+                    requestCacheControl.put(REQ_CACHE_CONTROL_NO_STORE_FIELD, new BBoolean(TRUE));
                     break;
                 case NO_TRANSFORM:
-                    requestCacheControl.setBooleanField(REQ_CACHE_CONTROL_NO_TRANSFORM_INDEX, TRUE);
+                    requestCacheControl.put(REQ_CACHE_CONTROL_NO_TRANSFORM_FIELD, new BBoolean(TRUE));
                     break;
                 case ONLY_IF_CACHED:
-                    requestCacheControl.setBooleanField(REQ_CACHE_CONTROL_ONLY_IF_CACHED_INDEX, TRUE);
+                    requestCacheControl.put(REQ_CACHE_CONTROL_ONLY_IF_CACHED_FIELD, new BBoolean(TRUE));
                     break;
                 case MAX_AGE:
-                    requestCacheControl.setIntField(REQ_CACHE_CONTROL_MAX_AGE_INDEX, Long.parseLong(value));
+                    requestCacheControl.put(REQ_CACHE_CONTROL_MAX_AGE_FIELD, new BInteger(Long.parseLong(value)));
                     break;
                 case MAX_STALE:
-                    requestCacheControl.setIntField(REQ_CACHE_CONTROL_MAX_STALE_INDEX, Long.parseLong(value));
+                    requestCacheControl.put(REQ_CACHE_CONTROL_MAX_STALE_FIELD, new BInteger(Long.parseLong(value)));
                     break;
                 case MIN_FRESH:
-                    requestCacheControl.setIntField(REQ_CACHE_CONTROL_MIN_FRESH_INDEX, Long.parseLong(value));
+                    requestCacheControl.put(REQ_CACHE_CONTROL_MIN_FRESH_FIELD, new BInteger(Long.parseLong(value)));
                     break;
                 default:
                     break;

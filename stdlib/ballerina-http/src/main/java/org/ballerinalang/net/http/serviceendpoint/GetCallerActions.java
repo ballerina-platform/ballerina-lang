@@ -21,7 +21,8 @@ package org.ballerinalang.net.http.serviceendpoint;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -44,9 +45,9 @@ public class GetCallerActions extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct endpoint = (BStruct) context.getRefArgument(0);
-        BStruct connection = (BStruct) endpoint.getRefField(
-                                        org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_INDEX);
+        BMap<String, BValue> endpoint = (BMap<String, BValue>) context.getRefArgument(0);
+        BMap<String, BValue> connection = (BMap<String, BValue>) endpoint.get(
+                                        org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_FIELD);
         context.setReturnValues(connection);
     }
 }

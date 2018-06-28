@@ -26,9 +26,9 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -89,7 +89,7 @@ public class BlockingExecute extends AbstractExecute {
     
     @Override
     public void execute(Context context) {
-        BStruct serviceStub = (BStruct) context.getRefArgument(SERVICE_STUB_REF_INDEX);
+        BMap<String, BValue> serviceStub = (BMap<String, BValue>) context.getRefArgument(SERVICE_STUB_REF_INDEX);
         if (serviceStub == null) {
             notifyErrorReply(context, "Error while getting connector. gRPC service stub " +
                     "is not initialized properly");
@@ -149,7 +149,7 @@ public class BlockingExecute extends AbstractExecute {
                             .getProgramFile(), outputDescriptor.getName(), getBalType(outputDescriptor.getName(),
                             context));
                     // Set response headers, when response headers exists in the message context.
-                    BStruct headerStruct = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(),
+                    BMap<String, BValue> headerStruct = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(),
                             PROTOCOL_STRUCT_PACKAGE_GRPC, "Headers");
                     Metadata respMetadata = headerCapture.get();
                     if (respMetadata != null) {

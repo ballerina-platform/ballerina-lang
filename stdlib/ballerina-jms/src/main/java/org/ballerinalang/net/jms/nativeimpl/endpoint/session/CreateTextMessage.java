@@ -24,7 +24,8 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -67,7 +68,7 @@ public class CreateTextMessage extends AbstractBlockinAction {
 
         Message jmsMessage;
 
-        BStruct bStruct = BLangConnectorSPIUtil.createBStruct(context, Constants.BALLERINA_PACKAGE_JMS,
+        BMap<String, BValue> bStruct = BLangConnectorSPIUtil.createBStruct(context, Constants.BALLERINA_PACKAGE_JMS,
                                                               Constants.JMS_MESSAGE_STRUCT_NAME);
         try {
             jmsMessage = session.createTextMessage(content);

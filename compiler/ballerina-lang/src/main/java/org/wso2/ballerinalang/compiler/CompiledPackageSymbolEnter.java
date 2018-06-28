@@ -69,6 +69,7 @@ import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo.Kind;
 import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
+import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
@@ -279,6 +280,8 @@ public class CompiledPackageSymbolEnter {
                 return new UTF8CPEntry(strValue);
             case CP_ENTRY_INTEGER:
                 return new IntegerCPEntry(dataInStream.readLong());
+            case CP_ENTRY_BYTE:
+                return new ByteCPEntry(dataInStream.readByte());
             case CP_ENTRY_FLOAT:
                 return new FloatCPEntry(dataInStream.readDouble());
             case CP_ENTRY_STRING:
@@ -561,6 +564,12 @@ public class CompiledPackageSymbolEnter {
                 litExpr.value = integerCPEntry.getValue();
                 litExpr.typeTag = TypeTags.INT;
                 break;
+            case TypeDescriptor.SIG_BYTE:
+                valueCPIndex = dataInStream.readInt();
+                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
+                litExpr.value = byteCPEntry.getValue();
+                litExpr.typeTag = TypeTags.BYTE;
+                break;
             case TypeDescriptor.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
@@ -786,6 +795,10 @@ public class CompiledPackageSymbolEnter {
                 valueCPIndex = dataInStream.readInt();
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
                 return integerCPEntry.getValue();
+            case TypeDescriptor.SIG_BYTE:
+                valueCPIndex = dataInStream.readInt();
+                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
+                return byteCPEntry.getValue();
             case TypeDescriptor.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
@@ -1048,6 +1061,8 @@ public class CompiledPackageSymbolEnter {
             switch (typeChar) {
                 case 'I':
                     return symTable.intType;
+                case 'W':
+                    return symTable.byteType;
                 case 'F':
                     return symTable.floatType;
                 case 'S':

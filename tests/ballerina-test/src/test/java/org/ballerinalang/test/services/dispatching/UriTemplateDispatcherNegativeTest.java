@@ -23,6 +23,7 @@ import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.Test;
+import java.io.File;
 
 /**
  * Test class for testing negative cases for path params.
@@ -36,8 +37,8 @@ public class UriTemplateDispatcherNegativeTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*two resources have the same addressable URI, echo2 and echo1.*")
     public void testTwoResourcesWithSamePathWithPathParam() {
-        compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
-                "test-src/services/dispatching/uri-template-matching-negative-1.bal").getPath());
+        compileResult = BCompileUtil.compile(new File(getClass().getClassLoader().getResource(
+                "test-src/services/dispatching/uri-template-matching-negative-1.bal").getPath()).getAbsolutePath());
         BServiceUtil.runService(compileResult);
     }
 }

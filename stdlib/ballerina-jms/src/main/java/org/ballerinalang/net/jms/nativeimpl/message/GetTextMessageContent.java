@@ -22,8 +22,9 @@ package org.ballerinalang.net.jms.nativeimpl.message;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -54,7 +55,7 @@ public class GetTextMessageContent extends AbstractBlockinAction {
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
 
-        BStruct messageStruct  = ((BStruct) context.getRefArgument(0));
+        BMap<String, BValue> messageStruct  = ((BMap<String, BValue>) context.getRefArgument(0));
         Message jmsMessage = JMSUtils.getJMSMessage(messageStruct);
 
         String messageContent = null;

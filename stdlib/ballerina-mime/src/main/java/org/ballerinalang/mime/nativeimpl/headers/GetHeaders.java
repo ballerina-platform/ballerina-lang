@@ -22,8 +22,9 @@ import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -51,7 +52,7 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 public class GetHeaders extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
+        BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
         String headerName = context.getStringArgument(FIRST_PARAMETER_INDEX);
         if (entityStruct.getNativeData(ENTITY_HEADERS) == null) {
             throw new BallerinaException("Http Header does not exist!");

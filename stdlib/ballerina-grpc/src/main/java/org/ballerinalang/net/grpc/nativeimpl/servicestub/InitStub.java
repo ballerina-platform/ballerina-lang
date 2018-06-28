@@ -25,7 +25,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -79,8 +78,8 @@ import static org.ballerinalang.net.grpc.GrpcConstants.STUB_TYPE_STRING_INDEX;
 public class InitStub extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        BStruct serviceStub = (BStruct) context.getRefArgument(SERVICE_STUB_REF_INDEX);
-        BStruct clientEndpoint = (BStruct) context.getRefArgument(CLIENT_ENDPOINT_REF_INDEX);
+        BMap<String, BValue> serviceStub = (BMap<String, BValue>) context.getRefArgument(SERVICE_STUB_REF_INDEX);
+        BMap<String, BValue> clientEndpoint = (BMap<String, BValue>) context.getRefArgument(CLIENT_ENDPOINT_REF_INDEX);
         Channel channel = (Channel) clientEndpoint.getNativeData(CHANNEL_KEY);
         String stubType = context.getStringArgument(STUB_TYPE_STRING_INDEX);
         String descriptorKey = context.getStringArgument(DESCRIPTOR_KEY_STRING_INDEX);

@@ -19,7 +19,8 @@ package org.ballerinalang.net.websub;
 
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
 
 /**
@@ -33,7 +34,7 @@ public class WebSubEmptyCallableUnitCallback implements CallableUnitCallback {
     }
 
     @Override
-    public void notifyFailure(BStruct error) {
+    public void notifyFailure(BMap<String, BValue> error) {
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
 
     }

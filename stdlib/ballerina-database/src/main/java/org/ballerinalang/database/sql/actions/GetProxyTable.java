@@ -23,7 +23,8 @@ import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -54,7 +55,7 @@ public class GetProxyTable extends AbstractSQLAction {
     @Override
     public void execute(Context context) {
 
-        BStruct bConnector = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
         String tableName = context.getStringArgument(0);
         BStructureType structType = getStructType(context, 1);
         SQLDatasource datasource = (SQLDatasource) bConnector.getNativeData(Constants.CALLER_ACTIONS);

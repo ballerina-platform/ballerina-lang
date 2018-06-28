@@ -779,7 +779,7 @@ public class LSNodeVisitor extends BLangNodeVisitor {
         // No implementation
     }
 
-    public void visit(BLangFieldBasedAccess.BLangStructFieldAccessExpr fieldAccessExpr) {
+    public void visit(BLangIndexBasedAccess.BLangStructFieldAccessExpr fieldAccessExpr) {
         // No implementation
     }
 

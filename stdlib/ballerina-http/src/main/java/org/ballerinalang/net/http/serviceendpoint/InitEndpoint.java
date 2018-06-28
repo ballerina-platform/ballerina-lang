@@ -27,7 +27,7 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -86,7 +86,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
 
             context.setReturnValues((BValue) null);
         } catch (Throwable throwable) {
-            BStruct errorStruct = HttpUtil.getError(context, throwable);
+            BMap<String, BValue> errorStruct = HttpUtil.getError(context, throwable);
             context.setReturnValues(errorStruct);
         }
 

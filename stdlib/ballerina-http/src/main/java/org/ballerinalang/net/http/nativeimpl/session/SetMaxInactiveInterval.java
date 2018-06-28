@@ -21,7 +21,8 @@ package org.ballerinalang.net.http.nativeimpl.session;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -49,7 +50,7 @@ public class SetMaxInactiveInterval extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) throws IllegalFormatException {
         try {
-            BStruct sessionStruct  = ((BStruct) context.getRefArgument(0));
+            BMap<String, BValue> sessionStruct  = ((BMap<String, BValue>) context.getRefArgument(0));
             int timeInterval = (int) context.getIntArgument(0);
             Session session = (Session) sessionStruct.getNativeData(HttpConstants.HTTP_SESSION);
 
