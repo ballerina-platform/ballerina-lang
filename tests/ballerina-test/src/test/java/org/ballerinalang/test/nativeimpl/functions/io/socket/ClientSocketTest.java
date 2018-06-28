@@ -23,8 +23,8 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -160,8 +160,9 @@ public class ClientSocketTest {
         int port = ThreadLocalRandom.current().nextInt(33000, 46000);
         BValue[] args = { new BString("localhost"), new BInteger(MockSocketServer.SERVER_PORT), new BInteger(port) };
         final BValue[] returns = BRunUtil.invokeStateful(socketClient, "openSocketConnectionWithProps", args);
-        final BStruct socket = (BStruct) returns[0];
-        Assert.assertEquals(socket.getIntField(1), port, "Client port didn't bind to assign port.");
+        final BMap<String, BValue> socket = (BMap<String, BValue>) returns[0];
+        Assert.assertEquals(((BInteger) socket.get("localPort")).intValue(), port,
+                "Client port didn't bind to assign port.");
         args = new BValue[] { socket };
         BRunUtil.invokeStateful(socketClient, "close", args);
     }

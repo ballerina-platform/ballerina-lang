@@ -21,7 +21,8 @@ package org.ballerinalang.nativeimpl.socket.client;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
@@ -53,11 +54,11 @@ public class Close extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct socket;
+        BMap<String, BValue> socket;
         try {
-            socket = (BStruct) context.getRefArgument(0);
+            socket = (BMap<String, BValue>) context.getRefArgument(0);
             ByteChannel byteChannel = (ByteChannel) socket.getNativeData(IOConstants.CLIENT_SOCKET_NAME);
-            BStruct byteChannelStruct = (BStruct) socket.getRefField(0);
+            BMap<String, BValue> byteChannelStruct = (BMap<String, BValue>) socket.get(IOConstants.BYTE_CHANNEL_NAME);
             Channel channel = (Channel) byteChannelStruct.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             byteChannel.close();
             channel.close();

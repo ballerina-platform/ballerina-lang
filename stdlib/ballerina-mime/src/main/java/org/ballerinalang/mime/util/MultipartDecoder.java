@@ -20,9 +20,12 @@ package org.ballerinalang.mime.util;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
+
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.jvnet.mimepull.MIMEConfig;
 import org.jvnet.mimepull.MIMEMessage;
@@ -31,12 +34,13 @@ import org.jvnet.mimepull.MIMEPart;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
 import static org.ballerinalang.mime.util.Constants.BOUNDARY;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_STRUCT;
-import static org.ballerinalang.mime.util.Constants.CONTENT_ID_INDEX;
+import static org.ballerinalang.mime.util.Constants.CONTENT_ID_FIELD;
 import static org.ballerinalang.mime.util.Constants.ENTITY;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.FIRST_ELEMENT;
@@ -60,7 +64,8 @@ public class MultipartDecoder {
      * @param contentType Content-Type of the top level message
      * @param inputStream Represent input stream coming from the request/response
      */
-    public static void parseBody(Context context, BStruct entity, String contentType, InputStream inputStream) {
+    public static void parseBody(Context context, BMap<String, BValue> entity, String contentType,
+                                 InputStream inputStream) {
         try {
             List<MIMEPart> mimeParts = decodeBodyParts(contentType, inputStream);
             if (mimeParts != null && !mimeParts.isEmpty()) {
@@ -115,11 +120,14 @@ public class MultipartDecoder {
      * @param entity    Represent top level entity that the body parts needs to be attached to
      * @param mimeParts List of decoded mime parts
      */
-    private static void populateBallerinaParts(Context context, BStruct entity, List<MIMEPart> mimeParts) {
-        ArrayList<BStruct> bodyParts = new ArrayList<>();
+    private static void populateBallerinaParts(Context context, BMap<String, BValue> entity,
+                                               List<MIMEPart> mimeParts) {
+        ArrayList<BMap<String, BValue>> bodyParts = new ArrayList<>();
         for (final MIMEPart mimePart : mimeParts) {
-            BStruct partStruct = BLangConnectorSPIUtil.createObject(context, PROTOCOL_PACKAGE_MIME, ENTITY);
-            BStruct mediaType = BLangConnectorSPIUtil.createObject(context, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
+            BMap<String, BValue> partStruct =
+                    BLangConnectorSPIUtil.createObject(context, PROTOCOL_PACKAGE_MIME, ENTITY);
+            BMap<String, BValue> mediaType =
+                    BLangConnectorSPIUtil.createObject(context, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
             populateBodyPart(context, mimePart, partStruct, mediaType);
             bodyParts.add(partStruct);
         }
@@ -134,7 +142,8 @@ public class MultipartDecoder {
      * @param partStruct Represent a ballerina body part that needs to be filled with data
      * @param mediaType  Represent the content type of the body part
      */
-    private static void populateBodyPart(Context context, MIMEPart mimePart, BStruct partStruct, BStruct mediaType) {
+    private static void populateBodyPart(Context context, MIMEPart mimePart, BMap<String, BValue> partStruct,
+                                         BMap<String, BValue> mediaType) {
         partStruct.addNativeData(ENTITY_HEADERS, HeaderUtil.setBodyPartHeaders(mimePart.getAllHeaders(),
                 new DefaultHttpHeaders()));
         populateContentLength(mimePart, partStruct);
@@ -142,28 +151,30 @@ public class MultipartDecoder {
         populateContentType(mimePart, partStruct, mediaType);
         List<String> contentDispositionHeaders = mimePart.getHeader(HttpHeaderNames.CONTENT_DISPOSITION.toString());
         if (HeaderUtil.isHeaderExist(contentDispositionHeaders)) {
-            BStruct contentDisposition = BLangConnectorSPIUtil.createObject(context, PROTOCOL_PACKAGE_MIME,
-                    CONTENT_DISPOSITION_STRUCT);
+            BMap<String, BValue> contentDisposition =
+                    BLangConnectorSPIUtil.createObject(context, PROTOCOL_PACKAGE_MIME, CONTENT_DISPOSITION_STRUCT);
             populateContentDisposition(partStruct, contentDispositionHeaders, contentDisposition);
         }
         EntityBodyHandler.populateBodyContent(partStruct, mimePart);
     }
 
-    private static void populateContentDisposition(BStruct partStruct, List<String> contentDispositionHeaders,
-                                                   BStruct contentDisposition) {
+    private static void populateContentDisposition(BMap<String, BValue> partStruct,
+                                                   List<String> contentDispositionHeaders,
+                                                   BMap<String, BValue> contentDisposition) {
         MimeUtil.setContentDisposition(contentDisposition, partStruct, contentDispositionHeaders
                 .get(FIRST_ELEMENT));
     }
 
-    private static void populateContentType(MIMEPart mimePart, BStruct partStruct, BStruct mediaType) {
+    private static void populateContentType(MIMEPart mimePart, BMap<String, BValue> partStruct,
+                                            BMap<String, BValue> mediaType) {
         MimeUtil.setContentType(mediaType, partStruct, mimePart.getContentType());
     }
 
-    private static void populateContentId(MIMEPart mimePart, BStruct partStruct) {
-        partStruct.setStringField(CONTENT_ID_INDEX, mimePart.getContentId());
+    private static void populateContentId(MIMEPart mimePart, BMap<String, BValue> partStruct) {
+        partStruct.put(CONTENT_ID_FIELD, new BString(mimePart.getContentId()));
     }
 
-    private static void populateContentLength(MIMEPart mimePart, BStruct partStruct) {
+    private static void populateContentLength(MIMEPart mimePart, BMap<String, BValue> partStruct) {
         List<String> lengthHeaders = mimePart.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
         if (HeaderUtil.isHeaderExist(lengthHeaders)) {
             MimeUtil.setContentLength(partStruct, Integer.parseInt(lengthHeaders.get(FIRST_ELEMENT)));

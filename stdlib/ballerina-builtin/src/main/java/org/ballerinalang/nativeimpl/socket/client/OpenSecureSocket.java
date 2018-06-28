@@ -21,7 +21,10 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.SocketIOChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
@@ -48,6 +51,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -55,6 +59,18 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
+
+import static org.ballerinalang.nativeimpl.io.IOConstants.BYTE_CHANNEL_NAME;
+import static org.ballerinalang.nativeimpl.socket.SocketConstants.ADDRESS_FIELD;
+import static org.ballerinalang.nativeimpl.socket.SocketConstants.CERT_PASS_OPTION_FIELD;
+import static org.ballerinalang.nativeimpl.socket.SocketConstants.KEY_STORE_OPTION_FIELD;
+import static org.ballerinalang.nativeimpl.socket.SocketConstants.KEY_STORE_PASS_OPTION_FIELD;
+import static org.ballerinalang.nativeimpl.socket.SocketConstants.LOCAL_ADDRESS_FIELD;
+import static org.ballerinalang.nativeimpl.socket.SocketConstants.LOCAL_PORT_OPTION_FIELD;
+import static org.ballerinalang.nativeimpl.socket.SocketConstants.PORT_FIELD;
+import static org.ballerinalang.nativeimpl.socket.SocketConstants.SSL_PROTOCOL_OPTION_FIELD;
+import static org.ballerinalang.nativeimpl.socket.SocketConstants.TRUST_STORE_OPTION_FIELD;
+import static org.ballerinalang.nativeimpl.socket.SocketConstants.TRUST_STORE_PASS_OPTION_FIELD;
 
 /**
  * Native function to open a secure client socket.
@@ -90,9 +106,9 @@ public class OpenSecureSocket extends BlockingNativeCallableUnit {
             log.debug("Remote host: " + host);
             log.debug("Remote port: " + port);
         }
-        final BStruct options = (BStruct) context.getRefArgument(0);
+        final BMap<String, BValue> options = (BMap<String, BValue>) context.getRefArgument(0);
         Socket socket;
-        BStruct socketStruct;
+        BMap<String, BValue> socketStruct;
         try {
             SSLContext sslContext = getSslContext(options);
             SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
@@ -110,14 +126,14 @@ public class OpenSecureSocket extends BlockingNativeCallableUnit {
                 log.error("Socket is not a SSLSocket instance.");
                 throw new RuntimeException("Failed to get a SSLSocket instance.");
             }
-            String ciphers = options.getStringField(SocketConstants.CIPHERS_OPTION_FIELD_INDEX);
+            String ciphers = options.get(SocketConstants.CIPHERS_OPTION_FIELD).stringValue();
             if (ciphers != null && !ciphers.isEmpty()) {
                 if (log.isDebugEnabled()) {
                     log.debug("Setting ciphers: " + ciphers);
                 }
                 sslSocket.setEnabledCipherSuites(ciphers.replaceAll("\\s+", "").split(SEPARATOR));
             }
-            String enabledProtocols = options.getStringField(SocketConstants.SSL_ENABLED_PROTOCOLS_OPTION_FIELD_INDEX);
+            String enabledProtocols = options.get(SocketConstants.SSL_ENABLED_PROTOCOLS_OPTION_FIELD).stringValue();
             if (enabledProtocols != null && !enabledProtocols.isEmpty()) {
                 if (log.isDebugEnabled()) {
                     log.debug("Enabled protocols: " + enabledProtocols);
@@ -137,27 +153,29 @@ public class OpenSecureSocket extends BlockingNativeCallableUnit {
         }
     }
 
-    private BStruct createReturnStruct(Context context, SSLSocket sslSocket, ByteChannel channel) throws IOException {
+    private BMap<String, BValue> createReturnStruct(Context context, SSLSocket sslSocket, ByteChannel channel)
+            throws IOException {
         PackageInfo ioPackageInfo = context.getProgramFile().getPackageInfo(SOCKET_PACKAGE);
         // Create ByteChannel Struct
         StructureTypeInfo channelStructInfo = ioPackageInfo.getStructInfo(BYTE_CHANNEL_STRUCT_TYPE);
         Channel ballerinaSocketChannel = new SocketIOChannel(channel, 0);
-        BStruct channelStruct = BLangVMStructs.createBStruct(channelStructInfo, ballerinaSocketChannel);
+        BMap<String, BValue> channelStruct = BLangVMStructs.createBStruct(channelStructInfo, ballerinaSocketChannel);
         channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, ballerinaSocketChannel);
 
         // Create Socket Struct
         StructureTypeInfo socketStructInfo = ioPackageInfo.getStructInfo(SOCKET_STRUCT_TYPE);
-        BStruct socketStruct = BLangVMStructs.createBStruct(socketStructInfo);
-        socketStruct.setRefField(0, channelStruct);
-        socketStruct.setIntField(0, sslSocket.getPort());
-        socketStruct.setIntField(1, sslSocket.getLocalPort());
-        socketStruct.setStringField(0, sslSocket.getInetAddress().getHostAddress());
-        socketStruct.setStringField(1, sslSocket.getLocalAddress().getHostAddress());
+        BMap<String, BValue> socketStruct = BLangVMStructs.createBStruct(socketStructInfo);
+        socketStruct.put(BYTE_CHANNEL_NAME, channelStruct);
+        socketStruct.put(PORT_FIELD, new BInteger(sslSocket.getPort()));
+        socketStruct.put(LOCAL_PORT_OPTION_FIELD, new BInteger(sslSocket.getLocalPort()));
+        socketStruct.put(ADDRESS_FIELD, new BString(sslSocket.getInetAddress().getHostAddress()));
+        socketStruct.put(LOCAL_ADDRESS_FIELD,
+                new BString(sslSocket.getLocalAddress().getHostAddress()));
         socketStruct.addNativeData(IOConstants.CLIENT_SOCKET_NAME, channel);
         return socketStruct;
     }
 
-    private SSLContext getSslContext(BStruct options)
+    private SSLContext getSslContext(BMap<String, BValue> options)
             throws UnrecoverableKeyException, CertificateException, NoSuchAlgorithmException, KeyStoreException,
             IOException, KeyManagementException {
         String algorithm = Security.getProperty("ssl.KeyManagerFactory.algorithm");
@@ -167,15 +185,15 @@ public class OpenSecureSocket extends BlockingNativeCallableUnit {
         if (log.isDebugEnabled()) {
             log.debug("SSL algorithm : " + algorithm);
         }
-        String keyStorePath = options.getStringField(SocketConstants.KEY_STORE_OPTION_FIELD_INDEX);
-        String keyStorePass = options.getStringField(SocketConstants.KEY_STORE_PASS_OPTION_FIELD_INDEX);
-        String trustStorePath = options.getStringField(SocketConstants.TRUST_STORE_OPTION_FIELD_INDEX);
-        String trustStorePass = options.getStringField(SocketConstants.TRUST_STORE_PASS_OPTION_FIELD_INDEX);
-        String certPassword = options.getStringField(SocketConstants.CERT_PASS_OPTION_FIELD_INDEX);
-        String protocol = options.getStringField(SocketConstants.SSL_PROTOCOL_OPTION_FIELD_INDEX);
+        String keyStorePath = options.get(KEY_STORE_OPTION_FIELD).stringValue();
+        String keyStorePass = options.get(KEY_STORE_PASS_OPTION_FIELD).stringValue();
+        String trustStorePath = options.get(TRUST_STORE_OPTION_FIELD).stringValue();
+        String trustStorePass = options.get(TRUST_STORE_PASS_OPTION_FIELD).stringValue();
+        String certPassword = options.get(CERT_PASS_OPTION_FIELD).stringValue();
+        String protocol = options.get(SSL_PROTOCOL_OPTION_FIELD).stringValue();
         String sslProtocol = (protocol == null || protocol.isEmpty()) ?
                 SocketConstants.DEFAULT_SSL_PROTOCOL :
-                options.getStringField(SocketConstants.SSL_PROTOCOL_OPTION_FIELD_INDEX);
+                options.get(SocketConstants.SSL_PROTOCOL_OPTION_FIELD).stringValue();
         if (log.isDebugEnabled()) {
             log.debug("KeyStore path: " + keyStorePath);
             log.debug("TrustStore path: " + trustStorePath);

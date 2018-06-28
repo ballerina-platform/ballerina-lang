@@ -22,7 +22,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -47,7 +48,7 @@ public class GetLastAccessedTime extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         try {
-            BStruct sessionStruct  = ((BStruct) context.getRefArgument(0));
+            BMap<String, BValue> sessionStruct  = ((BMap<String, BValue>) context.getRefArgument(0));
             Session session = (Session) sessionStruct.getNativeData(HttpConstants.HTTP_SESSION);
             if (session != null  && session.isValid()) {
                 context.setReturnValues(new BInteger(session.getLastAccessedTime()));

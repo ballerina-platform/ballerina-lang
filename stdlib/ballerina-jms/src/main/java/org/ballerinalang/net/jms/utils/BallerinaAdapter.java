@@ -20,9 +20,12 @@
 package org.ballerinalang.net.jms.utils;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +54,8 @@ public class BallerinaAdapter {
         return verifyNativeObject(context, struct.getName(), objectClass, messageNativeData);
     }
 
-    public static <T> T getNativeObject(BStruct struct, String objectId, Class<T> objectClass, Context context) {
+    public static <T> T getNativeObject(BMap<String, BValue> struct, String objectId, Class<T> objectClass,
+                                        Context context) {
         Object messageNativeData = struct.getNativeData(objectId);
         return verifyNativeObject(context, struct.getType().getName(), objectClass, messageNativeData);
     }
@@ -69,16 +73,16 @@ public class BallerinaAdapter {
         throw new BallerinaException(message + " " + throwable.getMessage(), throwable, context);
     }
 
-    private static BStruct createErrorRecord(Context context, String errorMsg, JMSException e) {
-        BStruct errorStruct =
+    private static BMap<String, BValue> createErrorRecord(Context context, String errorMsg, JMSException e) {
+        BMap<String, BValue> errorStruct =
                 BLangConnectorSPIUtil.createBStruct(context, BALLERINA_BUILTIN_PKG, STRUCT_GENERIC_ERROR);
-        errorStruct.setStringField(0, errorMsg + " " + e.getMessage());
+        errorStruct.put(BLangVMErrors.ERROR_MESSAGE_FIELD, new BString(errorMsg + " " + e.getMessage()));
         return errorStruct;
     }
 
     public static void returnError(String errorMessage, Context context, JMSException e) {
         LOGGER.error(errorMessage, e);
-        BStruct errorRecord = createErrorRecord(context, errorMessage, e);
+        BMap<String, BValue> errorRecord = createErrorRecord(context, errorMessage, e);
         context.setReturnValues(errorRecord);
     }
 }

@@ -81,11 +81,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttrib
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -754,12 +754,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Generate code the struct literal.
         for (BLangRecordKeyValue keyValue : structLiteral.keyValuePairs) {
             BLangRecordKey key = keyValue.key;
-            Operand fieldIndex = key.fieldSymbol.varIndex;
+            genNode(key.expr, this.env);
 
             genNode(keyValue.valueExpr, this.env);
 
             int opcode = getOpcode(key.fieldSymbol.type.tag, InstructionCodes.IFIELDSTORE);
-            emit(opcode, structRegIndex, fieldIndex, keyValue.valueExpr.regIndex);
+            emit(opcode, structRegIndex, key.expr.regIndex, keyValue.valueExpr.regIndex);
         }
     }
 
@@ -795,20 +795,21 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldVarRef fieldVarRef) {
-        RegIndex fieldIndex = fieldVarRef.varSymbol.varIndex;
+        String fieldName = fieldVarRef.varSymbol.name.value;
+        RegIndex fieldNameRegIndex = createStringLiteral(fieldName, null, env);
 
         // This is a connector field.
         // the connector reference must be stored in the current reference register index.
         Operand varRegIndex = getOperand(0);
         if (varAssignment) {
             int opcode = getOpcode(fieldVarRef.type.tag, InstructionCodes.IFIELDSTORE);
-            emit(opcode, varRegIndex, fieldIndex, fieldVarRef.regIndex);
+            emit(opcode, varRegIndex, fieldNameRegIndex, fieldVarRef.regIndex);
             return;
         }
 
         int opcode = getOpcode(fieldVarRef.type.tag, InstructionCodes.IFIELDLOAD);
         RegIndex exprRegIndex = calcAndGetExprRegIndex(fieldVarRef);
-        emit(opcode, varRegIndex, fieldIndex, exprRegIndex);
+        emit(opcode, varRegIndex, fieldNameRegIndex, exprRegIndex);
     }
 
     @Override
@@ -852,14 +853,16 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(fieldAccessExpr.expr, this.env);
         Operand varRefRegIndex = fieldAccessExpr.expr.regIndex;
 
+        genNode(fieldAccessExpr.indexExpr, this.env);
+        Operand keyRegIndex = fieldAccessExpr.indexExpr.regIndex;
+
         int opcode;
-        Operand fieldIndex = fieldAccessExpr.varSymbol.varIndex;
         if (variableStore) {
             opcode = getOpcode(fieldAccessExpr.symbol.type.tag, InstructionCodes.IFIELDSTORE);
-            emit(opcode, varRefRegIndex, fieldIndex, fieldAccessExpr.regIndex);
+            emit(opcode, varRefRegIndex, keyRegIndex, fieldAccessExpr.regIndex);
         } else {
             opcode = getOpcode(fieldAccessExpr.symbol.type.tag, InstructionCodes.IFIELDLOAD);
-            emit(opcode, varRefRegIndex, fieldIndex, calcAndGetExprRegIndex(fieldAccessExpr));
+            emit(opcode, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(fieldAccessExpr));
         }
 
         this.varAssignment = variableStore;
@@ -3240,6 +3243,7 @@ public class CodeGenerator extends BLangNodeVisitor {
      * @return String registry index of the generated string
      */
     private RegIndex createStringLiteral(String value, RegIndex regIndex, SymbolEnv env) {
+        // TODO: remove RegIndex arg
         BLangLiteral prefixLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         prefixLiteral.value = value;
         prefixLiteral.typeTag = TypeTags.STRING;

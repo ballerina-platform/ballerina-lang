@@ -16,13 +16,14 @@
 
 package org.ballerinalang.test.nativeimpl.functions.regex;
 
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -94,8 +95,9 @@ public class RegexTest {
         BValue[] args = { new BString("[") };
         BValue[] returns = BRunUtil.invoke(result, "invalidPattern", args);
         Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0).replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
+        Assert.assertTrue(returns[0] instanceof BMap);
+        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+        Assert.assertEquals(errorMsg.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
                 "Unclosed character class near index 0\n[\n^");
     }
 
@@ -104,8 +106,9 @@ public class RegexTest {
         BValue[] args = { new BString(s1), new BString("[") };
         BValue[] returns = BRunUtil.invoke(result, "matches", args);
         Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0).replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
+        Assert.assertTrue(returns[0] instanceof BMap);
+        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+        Assert.assertEquals(errorMsg.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
                 "Unclosed character class near index 0\n[\n^");
     }
 

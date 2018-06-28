@@ -18,7 +18,9 @@
 
 package org.ballerinalang.nativeimpl.runtime;
 
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 
 /**
  * InvocationContext represents and holds the current invocation information.
@@ -27,28 +29,28 @@ import org.ballerinalang.model.values.BStruct;
  */
 public class InvocationContext {
 
-    public static final int INVOCATION_ID_STRING_FIELD_INDEX = 0;
-    private BStruct invocationContextStruct;
+    public static final String INVOCATION_ID_KEY = "id";
+    private BMap<String, BValue> invocationContextStruct;
     private UserPrincipal userPrincipal;
     private AuthContext authContext;
 
-    public InvocationContext(BStruct invocationContextStruct, UserPrincipal userPrincipal, AuthContext
-            authenticationContext) {
+    public InvocationContext(BMap<String, BValue> invocationContextStruct, UserPrincipal userPrincipal,
+            AuthContext authenticationContext) {
         this.invocationContextStruct = invocationContextStruct;
         this.authContext = authenticationContext;
         this.userPrincipal = userPrincipal;
     }
 
-    public BStruct getInvocationContextStruct() {
+    public BMap<String, BValue> getInvocationContextStruct() {
         return invocationContextStruct;
     }
 
     public String getId() {
-        return invocationContextStruct.getStringField(INVOCATION_ID_STRING_FIELD_INDEX);
+        return invocationContextStruct.get(INVOCATION_ID_KEY).stringValue();
     }
 
     public void setId(String id) {
-        invocationContextStruct.setStringField(INVOCATION_ID_STRING_FIELD_INDEX, id);
+        invocationContextStruct.put(INVOCATION_ID_KEY, new BString(id));
     }
 
     public AuthContext getAuthContext() {
