@@ -227,7 +227,7 @@ public class BByteArrayValueTest {
     public void testByteArrayReturn() {
         byte[] a = ByteArrayUtils.hexStringToByteArray("aaabcfccadafcd341a4bdfabcd8912df");
         byte[] b = ByteArrayUtils.decodeBase64("aGVsbG8gYmFsbGVyaW5hICEhIQ==");
-        byte[] c = new byte[]{3,4,5,6,7,8,9};
+        byte[] c = new byte[]{3, 4, 5, 6, 7, 8, 9};
         BValue[] returns = BRunUtil.invoke(result, "testByteArrayReturn", new BValue[]{});
         Assert.assertEquals(returns.length, 3);
         Assert.assertSame(returns[0].getClass(), BByteArray.class);
