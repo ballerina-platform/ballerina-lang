@@ -88,7 +88,7 @@ public class WebSocketClientHandshakeHandler extends ChannelInboundHandlerAdapte
                 channel.pipeline().addLast(Constants.MESSAGE_QUEUE_HANDLER, messageQueueHandler);
             }
             WebSocketInboundFrameHandler inboundFrameHandler = new WebSocketInboundFrameHandler(false, secure,
-                    requestedUri, null,  handshaker.actualSubprotocol(), connectorFuture, messageQueueHandler);
+                    requestedUri, handshaker.actualSubprotocol(), connectorFuture, messageQueueHandler);
             channel.pipeline().addLast(Constants.WEBSOCKET_FRAME_HANDLER, inboundFrameHandler);
             channel.pipeline().remove(Constants.WEBSOCKET_CLIENT_HANDSHAKE_HANDLER);
             ctx.fireChannelActive();

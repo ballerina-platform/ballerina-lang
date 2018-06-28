@@ -36,6 +36,8 @@ import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.util.server.websocket.WebSocketRemoteServer;
 
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -104,17 +106,55 @@ public class WebSocketClientHandshakeFunctionalityTestCase {
         Assert.assertEquals(throwable.getMessage(), "Invalid subprotocol. Actual: null. Expected one of: xmlx,jsonx");
     }
 
+    @Test(description = "Test the sub protocol negotiation with the remote server with 0 length of sub protocols")
+    public void testConnectToServerWithoutSubProtocols() throws InterruptedException {
+        WebSocketClientConnectorConfig configuration = new WebSocketClientConnectorConfig(WEBSOCKET_REMOTE_SERVER_URL);
+        String[] zeroLengthSubProtocols = {};
+        configuration.setSubProtocols(zeroLengthSubProtocols);
+        HandshakeResult result = connectAndGetHandshakeResult(configuration);
+        Throwable throwable = result.getThrowable();
+
+        Assert.assertNotNull(result.getWebSocketConnection());
+        Assert.assertNull(throwable);
+        Assert.assertTrue(result.webSocketConnection.isOpen());
+    }
+
     @Test(description = "Test whether client can send custom headers and receive.")
     public void testSendAndReceiveCustomHeaders() throws InterruptedException {
         WebSocketClientConnectorConfig configuration = new WebSocketClientConnectorConfig(WEBSOCKET_REMOTE_SERVER_URL);
-        configuration.addHeader("x-ack-custom-header", "true");
+        int maxHeadersCount = 3;
+        String customHeaderKey = "x-custom-header-key-";
+        String customHeaderValue = "x-custom-header-value-";
+
+        // Adding headers using addHeader()
+        configuration.addHeader(customHeaderKey + 0, customHeaderValue + 0);
+
+        // Adding custom headers using addHeaders()
+        Map<String, String> customHeaderMap = new HashMap<>();
+        for (int i = 1; i < maxHeadersCount; i++) {
+            customHeaderMap.put(customHeaderKey + i, customHeaderValue + i);
+        }
+        configuration.addHeaders(customHeaderMap);
+
+        // Check all the headers are avaliable in the configuration
+        for (int i = 0; i < maxHeadersCount; i++) {
+            Assert.assertTrue(configuration.getHeaders().contains(customHeaderKey + i));
+        }
+
+        Assert.assertTrue(configuration.containsHeader(customHeaderKey + 0));
+
         HandshakeResult result = connectAndGetHandshakeResult(configuration);
         HttpCarbonResponse response = result.getHandshakeResponse();
 
         Assert.assertNull(result.getThrowable());
         Assert.assertNotNull(result.getWebSocketConnection());
         Assert.assertNotNull(response);
-        Assert.assertEquals(response.getHeader("x-custom-header-return"), "custom-header");
+
+        // Check received custom headers
+        String returnStr = "-return";
+        for (int i = 0; i < maxHeadersCount; i++) {
+            Assert.assertEquals(response.getHeader(customHeaderKey + i + returnStr), customHeaderValue + i + returnStr);
+        }
     }
 
     @Test(description = "Test the behavior of client connector when auto read is false.")
@@ -132,7 +172,7 @@ public class WebSocketClientHandshakeFunctionalityTestCase {
         WebSocketTestClientConnectorListener connectorListener = result.getConnectorListener();
         String textReceived = null;
         try {
-            textReceived = connectorListener.getReceivedTextToClient();
+            textReceived = connectorListener.getReceivedTextMessageToClient().getText();
             Assert.fail("Expected exception");
         } catch (NoSuchElementException ex) {
             Assert.assertTrue(true, "Expected exception thrown");
@@ -199,7 +239,7 @@ public class WebSocketClientHandshakeFunctionalityTestCase {
         connectorListener.setCountDownLatch(latch);
         webSocketConnection.readNextFrame();
         latch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, TimeUnit.SECONDS);
-        return connectorListener.getReceivedTextToClient();
+        return connectorListener.getReceivedTextMessageToClient().getText();
     }
 
     private String[] sendTextMessages(WebSocketConnection webSocketConnection, int noOfMsgs)

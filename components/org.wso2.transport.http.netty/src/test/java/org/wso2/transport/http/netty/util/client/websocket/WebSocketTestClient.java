@@ -101,7 +101,7 @@ public class WebSocketTestClient {
     /**
      * Handshake with WebSocket server.
      *
-     * @throws URISyntaxException throws if there is an error in the URI syntax.
+     * @throws URISyntaxException   throws if there is an error in the URI syntax.
      * @throws InterruptedException throws if the connecting the server is interrupted.
      */
     public void handshake() throws URISyntaxException, InterruptedException {
@@ -110,22 +110,7 @@ public class WebSocketTestClient {
         HttpHeaders headers = new DefaultHttpHeaders();
         customHeaders.forEach(headers::add);
         try {
-            WebSocketClientHandshaker clientHandshaker = WebSocketClientHandshakerFactory
-                    .newHandshaker(uri, WebSocketVersion.V13, subProtocol, true, headers);
-            clientFrameHandler = new WebSocketTestClientFrameHandler(clientHandshaker);
-
-            Bootstrap clientBootstrap = new Bootstrap();
-            clientBootstrap.group(eventLoopGroup).channel(NioSocketChannel.class)
-                    .handler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        protected void initChannel(SocketChannel ch) {
-                            ChannelPipeline pipeline = ch.pipeline();
-                            pipeline.addLast(new HttpClientCodec(),
-                                      new HttpObjectAggregator(maxContentLength),
-                                      WebSocketClientCompressionHandler.INSTANCE,
-                                    clientFrameHandler);
-                        }
-                    });
+            Bootstrap clientBootstrap = getClientBootstrap(uri, eventLoopGroup, headers);
             channel = clientBootstrap.connect(uri.getHost(), uri.getPort()).sync().channel();
             handshakeSuccessful = clientFrameHandler.handshakeFuture().sync().isSuccess();
             logger.debug("WebSocket Handshake successful : " + handshakeSuccessful);
@@ -135,8 +120,27 @@ public class WebSocketTestClient {
         }
     }
 
+    private Bootstrap getClientBootstrap(URI uri, EventLoopGroup eventLoopGroup, HttpHeaders headers) {
+        WebSocketClientHandshaker clientHandshaker = WebSocketClientHandshakerFactory
+                .newHandshaker(uri, WebSocketVersion.V13, subProtocol, true, headers);
+        clientFrameHandler = new WebSocketTestClientFrameHandler(clientHandshaker);
+
+        Bootstrap clientBootstrap = new Bootstrap();
+        clientBootstrap.group(eventLoopGroup).channel(NioSocketChannel.class)
+                .handler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel ch) {
+                        ChannelPipeline pipeline = ch.pipeline();
+                        pipeline.addLast(new HttpClientCodec(), new HttpObjectAggregator(maxContentLength),
+                                         WebSocketClientCompressionHandler.INSTANCE, clientFrameHandler);
+                    }
+                });
+        return clientBootstrap;
+    }
+
     /**
      * Send text to the server.
+     *
      * @param text text need to be sent.
      */
     public void sendText(String text) throws InterruptedException {
@@ -149,6 +153,7 @@ public class WebSocketTestClient {
 
     /**
      * Send binary data to server.
+     *
      * @param buf buffer containing the data need to be sent.
      */
     public void sendBinary(ByteBuffer buf) throws InterruptedException {
@@ -161,6 +166,7 @@ public class WebSocketTestClient {
 
     /**
      * Send a ping message to the server.
+     *
      * @param buf content of the ping message to be sent.
      */
     public void sendPing(ByteBuffer buf) throws InterruptedException {
@@ -175,7 +181,7 @@ public class WebSocketTestClient {
      * Send close frame to the remote backend.
      *
      * @param statusCode Status code to close the connection.
-     * @param reason Reason to close the connection.
+     * @param reason     Reason to close the connection.
      * @return this {@link WebSocketTestClient}.
      * @throws InterruptedException if connection is interrupted while sending the message.
      */
@@ -199,7 +205,7 @@ public class WebSocketTestClient {
             logger.error("Channel is null. Cannot send text.");
             throw new IllegalArgumentException("Cannot find the channel to write");
         }
-        channel.writeAndFlush(Unpooled.wrappedBuffer(new byte[]{1, 2, 3, 4})).sync();
+        channel.writeAndFlush(Unpooled.wrappedBuffer(new byte[] { 1, 2, 3, 4 })).sync();
         return this;
     }
 
@@ -223,7 +229,7 @@ public class WebSocketTestClient {
      * @return true if connection is still open.
      */
     public boolean isOpen() {
-       return channel.isOpen();
+        return channel.isOpen();
     }
 
     /**

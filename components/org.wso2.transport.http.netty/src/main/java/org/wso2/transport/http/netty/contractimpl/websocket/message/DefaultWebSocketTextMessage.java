@@ -31,11 +31,6 @@ public class DefaultWebSocketTextMessage extends DefaultWebSocketMessage impleme
     private final String text;
     private final boolean isFinalFragment;
 
-    public DefaultWebSocketTextMessage(String text) {
-        this.text = text;
-        this.isFinalFragment = true;
-    }
-
     public DefaultWebSocketTextMessage(String text, boolean isFinalFragment) {
         this.text = text;
         this.isFinalFragment = isFinalFragment;

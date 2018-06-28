@@ -55,6 +55,7 @@ public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage impleme
     private final ChannelHandlerContext ctx;
     private final FullHttpRequest httpRequest;
     private final ServerConnectorFuture connectorFuture;
+    private final boolean secureConnection;
     private boolean cancelled = false;
     private boolean handshakeStarted = false;
     private HttpCarbonRequest request;
@@ -65,7 +66,6 @@ public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage impleme
         this.connectorFuture = connectorFuture;
         this.secureConnection = ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null;
         this.httpRequest = httpRequest;
-        this.sessionID = WebSocketUtil.getChannelId(ctx);
     }
 
     @Override
@@ -125,7 +125,7 @@ public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage impleme
         }
 
         try {
-            int responseStatusCode = statusCode >= 400 && statusCode < 500 ? statusCode : 400;
+            int responseStatusCode = statusCode >= 400 && statusCode < 600 ? statusCode : 400;
             ChannelFuture responseFuture;
             if (closeReason != null) {
                 ByteBuf content = Unpooled.wrappedBuffer(closeReason.getBytes(StandardCharsets.UTF_8));
@@ -151,6 +151,15 @@ public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage impleme
         return handshakeStarted;
     }
 
+    @Override public boolean isSecure() {
+        return secureConnection;
+    }
+
+    @Override
+    public String getConnectionId() {
+        return WebSocketUtil.getChannelId(ctx);
+    }
+
     private ServerHandshakeFuture handleHandshake(WebSocketServerHandshaker handshaker, int idleTimeout,
                                                   HttpHeaders headers) {
         DefaultServerHandshakeFuture handshakeFuture = new DefaultServerHandshakeFuture();
@@ -165,7 +174,7 @@ public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage impleme
             if (future.isSuccess() && future.cause() == null) {
                 MessageQueueHandler messageQueueHandler = new MessageQueueHandler();
                 WebSocketInboundFrameHandler frameHandler = new WebSocketInboundFrameHandler(true, secureConnection,
-                        target, listenerInterface, handshaker.selectedSubprotocol(), connectorFuture,
+                        target, handshaker.selectedSubprotocol(), connectorFuture,
                         messageQueueHandler);
                 configureFrameHandlingPipeline(idleTimeout, messageQueueHandler, frameHandler);
                 handshakeFuture.notifySuccess(frameHandler.getWebSocketConnection());
@@ -180,6 +189,7 @@ public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage impleme
     private void configureFrameHandlingPipeline(int idleTimeout, MessageQueueHandler messageQueueHandler,
                                                 WebSocketInboundFrameHandler frameHandler) {
         ChannelPipeline pipeline = ctx.pipeline();
+        pipeline.remove(Constants.WEBSOCKET_SERVER_HANDSHAKE_HANDLER);
         if (idleTimeout > 0) {
             pipeline.replace(Constants.IDLE_STATE_HANDLER, Constants.IDLE_STATE_HANDLER,
                              new IdleStateHandler(idleTimeout, idleTimeout, idleTimeout,

@@ -32,9 +32,6 @@ public class DefaultServerHandshakeFuture implements ServerHandshakeFuture {
     private WebSocketConnection webSocketConnection = null;
     private ServerHandshakeListener serverHandshakeListener;
 
-    public DefaultServerHandshakeFuture() {
-    }
-
     @Override
     public ServerHandshakeFuture setHandshakeListener(ServerHandshakeListener serverHandshakeListener) {
         this.serverHandshakeListener = serverHandshakeListener;

@@ -43,12 +43,16 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Test the expected functionality of server while handshaking with a client.
+ */
 public class WebSocketServerHandshakeFunctionalityTestCase {
 
     private static final int countdownLatchTimeout = 10;
     private DefaultHttpWsConnectorFactory httpConnectorFactory;
     private ServerConnector serverConnector;
     private WebSocketServerHandshakeFunctionalityListener listener;
+    private ServerConnectorFuture serverConnectorFuture;
 
     @BeforeClass
     public void setup() throws InterruptedException {
@@ -58,9 +62,28 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
         httpConnectorFactory = new DefaultHttpWsConnectorFactory();
         serverConnector = httpConnectorFactory.createServerConnector(TestUtil.getDefaultServerBootstrapConfig(),
                                                                      listenerConfiguration);
-        ServerConnectorFuture connectorFuture = serverConnector.start();
-        connectorFuture.setWebSocketConnectorListener(listener = new WebSocketServerHandshakeFunctionalityListener());
-        connectorFuture.sync();
+        serverConnectorFuture = serverConnector.start();
+        serverConnectorFuture.setWebSocketConnectorListener(
+                listener = new WebSocketServerHandshakeFunctionalityListener());
+        serverConnectorFuture.sync();
+    }
+
+    @Test(description = "Check the successful handshake")
+    public void testSuccessfulHandshake() throws URISyntaxException, InterruptedException {
+        CountDownLatch serverHandshakeCountDownLatch = new CountDownLatch(1);
+        listener.setHandshakeCompleteCountDownLatch(serverHandshakeCountDownLatch);
+        WebSocketTestClient testClient = createClientAndHandshake("x-handshake", null);
+        serverHandshakeCountDownLatch.await(TestUtil.WEBSOCKET_TEST_IDLE_TIMEOUT, TimeUnit.SECONDS);
+        WebSocketConnection webSocketConnection = listener.getCurrentWebSocketConnection();
+
+        Assert.assertNotNull(webSocketConnection);
+        Assert.assertNotNull(webSocketConnection.getId());
+        Assert.assertNotNull(webSocketConnection.getHost()); // Host can be changed in different environments
+        Assert.assertEquals(webSocketConnection.getPort(), TestUtil.SERVER_CONNECTOR_PORT);
+        Assert.assertTrue(webSocketConnection.isOpen());
+        Assert.assertFalse(webSocketConnection.isSecure());
+
+        testClient.closeChannel();
     }
 
     @Test(description = "Check whether the correct sub protocol is chosen by the server with the given sequence.")
@@ -95,6 +118,8 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
     public void testCancelHandshake() throws URISyntaxException, InterruptedException {
         WebSocketTestClient testClient = new WebSocketTestClient();
         testClient.handshake();
+
+        testClient.closeChannel();
     }
 
     @Test
@@ -111,6 +136,8 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
         for (String testMsg: testMsgArray) {
             Assert.assertEquals(readNextTextFrame(testClient, webSocketConnection), testMsg);
         }
+
+        testClient.closeChannel();
     }
 
     @Test(description = "Test connection closure due to idle timeout in server.")
@@ -123,6 +150,7 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
         Assert.assertEquals(closeFrame.reasonText(), "Connection Idle Timeout");
 
         testClient.sendCloseFrame(closeFrame.statusCode(), null).closeChannel();
+        testClient.closeChannel();
     }
 
 
@@ -144,6 +172,37 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
         Assert.assertNull(urlConn.getHeaderField("sec-websocket-accept"));
 
         urlConn.disconnect();
+    }
+
+    @Test(priority = 1)
+    public void testListerNotSetInMessageReading() throws URISyntaxException, InterruptedException {
+        CountDownLatch serverHandshakeCountDownLatch = new CountDownLatch(1);
+        listener.setHandshakeCompleteCountDownLatch(serverHandshakeCountDownLatch);
+        WebSocketTestClient testClient = createClientAndHandshake("x-handshake", null);
+        testClient.handshake();
+        serverConnectorFuture.setWebSocketConnectorListener(null);
+        serverHandshakeCountDownLatch.await(TestUtil.WEBSOCKET_TEST_IDLE_TIMEOUT, TimeUnit.SECONDS);
+        listener.getCurrentWebSocketConnection().startReadingFrames();
+
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        testClient.setCountDownLatch(countDownLatch);
+        testClient.sendText("hi");
+        countDownLatch.await(TestUtil.WEBSOCKET_TEST_IDLE_TIMEOUT, TimeUnit.SECONDS);
+        CloseWebSocketFrame closeWebSocketFrame = testClient.getReceivedCloseFrame();
+
+        Assert.assertNotNull(closeWebSocketFrame);
+        Assert.assertEquals(closeWebSocketFrame.statusCode(), 1011);
+        Assert.assertEquals(closeWebSocketFrame.reasonText(), "Encountered an unexpected condition");
+
+        testClient.closeChannel();
+    }
+
+    @Test(priority = 2,
+          expectedExceptions = WebSocketHandshakeException.class,
+          expectedExceptionsMessageRegExp = "Invalid handshake response getStatus: 500 Internal Server Error")
+    public void testListenerNotSetInHandshake() throws URISyntaxException, InterruptedException {
+        serverConnectorFuture.setWebSocketConnectorListener(null);
+        createClientAndHandshake("x-handshake", null);
     }
 
     @AfterClass

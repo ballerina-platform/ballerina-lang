@@ -48,8 +48,6 @@ import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSo
 import org.wso2.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
 import org.wso2.transport.http.netty.listener.MessageQueueHandler;
 
-import java.net.InetSocketAddress;
-
 /**
  * Abstract WebSocket frame handler for WebSocket server and client.
  */
@@ -60,7 +58,6 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     private final boolean isServer;
     private final boolean secureConnection;
     private final String target;
-    private final String interfaceId;
     private final String negotiatedSubProtocol;
     private final WebSocketConnectorFuture connectorFuture;
     private final MessageQueueHandler messageQueueHandler;
@@ -68,17 +65,15 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     private boolean closeFrameReceived;
     private boolean closeInitialized;
     private DefaultWebSocketConnection webSocketConnection;
-    private ChannelHandlerContext ctx;
     private ChannelPromise closePromise;
     private WebSocketFrameType continuationFrameType;
 
-    public WebSocketInboundFrameHandler(boolean isServer, boolean secureConnection, String target, String interfaceId,
+    public WebSocketInboundFrameHandler(boolean isServer, boolean secureConnection, String target,
                                         String negotiatedSubProtocol, WebSocketConnectorFuture connectorFuture,
                                         MessageQueueHandler messageQueueHandler) {
         this.isServer = isServer;
         this.secureConnection = secureConnection;
         this.target = target;
-        this.interfaceId = interfaceId;
         this.negotiatedSubProtocol = negotiatedSubProtocol;
         this.connectorFuture = connectorFuture;
         this.messageQueueHandler = messageQueueHandler;
@@ -121,7 +116,6 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) {
-        this.ctx = ctx;
         webSocketConnection = new DefaultWebSocketConnection(ctx, this, messageQueueHandler, secureConnection,
                                                              negotiatedSubProtocol);
     }
@@ -267,16 +261,7 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
 
     private void setupCommonProperties(DefaultWebSocketMessage webSocketMessage) {
         webSocketMessage.setTarget(target);
-        webSocketMessage.setListenerInterface(interfaceId);
-        webSocketMessage.setIsSecureConnection(secureConnection);
         webSocketMessage.setWebSocketConnection(webSocketConnection);
-        webSocketMessage.setSessionID(webSocketConnection.getId());
         webSocketMessage.setIsServerMessage(isServer);
-        webSocketMessage.setProperty(Constants.LISTENER_PORT,
-                                     ((InetSocketAddress) ctx.channel().localAddress()).getPort());
-        webSocketMessage.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
-        webSocketMessage.setProperty(
-                Constants.LOCAL_NAME, ((InetSocketAddress) ctx.channel().localAddress()).getHostName());
     }
-
 }

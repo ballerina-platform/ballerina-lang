@@ -118,4 +118,18 @@ public interface WebSocketInitMessage extends WebSocketMessage {
      * @return true if the handshake has been started.
      */
     boolean isHandshakeStarted();
+
+    /**
+     * Check whether the connection is secure or not.
+     *
+     * @return true if the connection is secure.
+     */
+    boolean isSecure();
+
+    /**
+     * Retrieve the connection ID.
+     *
+     * @return the connection ID.
+     */
+    String getConnectionId();
 }
