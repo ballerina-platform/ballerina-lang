@@ -273,7 +273,7 @@ public class CPU {
                     case InstructionCodes.BACONST:
                         cpIndex = operands[0];
                         i = operands[1];
-                        sf.refRegs[i] = getByteArray((BlobCPEntry) ctx.constPool[cpIndex]);
+                        sf.refRegs[i] = new BByteArray(((BlobCPEntry) ctx.constPool[cpIndex]).getValue());
                         break;
     
                     case InstructionCodes.IMOVE:
@@ -777,15 +777,6 @@ public class CPU {
                 handleError(ctx);
             }
         }
-    }
-
-    private static BByteArray getByteArray(BlobCPEntry blobCPEntry) {
-        byte[] bytes = blobCPEntry.getValue();
-        BByteArray byteArray = new BByteArray();
-        for (int index = 0; index < bytes.length; index++) {
-            byteArray.add(index, bytes[index]);
-        }
-        return byteArray;
     }
 
     private static WorkerExecutionContext invokeCallable(WorkerExecutionContext ctx, BFunctionPointer fp,

@@ -46,10 +46,7 @@ public class ToByteArray extends BlockingNativeCallableUnit {
             String string = ctx.getStringArgument(0);
             String encoding = ctx.getStringArgument(1);
             byte[] bytes = string.getBytes(encoding);
-            BByteArray byteArray = new BByteArray();
-            for (int i = 0; i < bytes.length; i++) {
-                byteArray.add(i, bytes[i]);
-            }
+            BByteArray byteArray = new BByteArray(bytes);
             ctx.setReturnValues(byteArray);
         } catch (UnsupportedEncodingException e) {
             throw new BallerinaException("Unsupported Encoding", e);
