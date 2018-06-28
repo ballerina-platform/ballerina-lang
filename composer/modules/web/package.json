@@ -138,7 +138,7 @@
     "reconnecting-websocket": "^3.2.2",
     "rimraf": "^2.6.2",
     "semantic-ui-less": "^2.2.14",
-    "semantic-ui-react": "^0.78.3",
+    "semantic-ui-react": "^0.81.2",
     "swagger-editor-dist": "^3.1.18",
     "uuid": "^3.1.0",
     "vscode-ws-jsonrpc": "0.0.1-alpha.5",

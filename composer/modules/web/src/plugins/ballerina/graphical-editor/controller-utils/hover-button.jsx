@@ -17,7 +17,7 @@
  */
 
 import React from 'react';
-import { Button } from 'semantic-ui-react';
+import { Button, Menu, Popup, Transition } from 'semantic-ui-react';
 import ImageUtils from 'plugins/ballerina/diagram/image-util';
 
 class HoverButton extends React.Component {
@@ -33,7 +33,9 @@ class HoverButton extends React.Component {
             isMenuActive: active,
         });
     }
-
+    handleRef(ref) {
+        this.triggerRef = ref;
+    }
     render() {
         const { children, size } = this.props;
         const buttonSize = 30;
@@ -43,17 +45,39 @@ class HoverButton extends React.Component {
             left: this.props.style.left - (buttonSize / 2),
         };
         return (
-            <div style={style}>
+            <div style={style} ref={ref => this.handleRef(ref)}>
                 <Button
                     size={size}
                     compact
                     onClick={() => {
                         this.setMenuVisibility(true);
                     }}
+                    
                 ><i className='fw'>{ImageUtils.getCodePoint('add')}</i>
-
                 </Button>
-                {this.state.isMenuActive ? children : ''}
+                <Transition visible={this.state.isMenuActive} animation='scale' duration={200}>
+                    <Popup
+                        open={this.state.isMenuActive}
+                        on='focus'
+                        context={this.triggerRef}
+                        hoverable
+                        basic
+                        hideOnScroll
+                        position='top left'
+                        horizontalOffset={-15}
+                        verticalOffset={-25}
+                        onClose={() => {
+                            this.setMenuVisibility(false);
+                        }}
+                        style={{
+                            padding: 0,
+                        }}
+                    >
+                        <Menu vertical>
+                            {children}
+                        </Menu>
+                    </Popup>
+                </Transition>
             </div>
         );
     }

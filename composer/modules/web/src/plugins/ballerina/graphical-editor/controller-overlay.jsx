@@ -77,20 +77,7 @@ class ControllerOverlay extends React.Component {
     renderControllers(model, controllers, region) {
         model.trigger('render-menu', { content: controllers, region });
     }
-    
-    renderActionBox({ left, top }, onDelete, onJumptoCodeLine) {
-        return (
-            <ActionBox
-                onDelete={onDelete}
-                onJumptoCodeLine={onJumptoCodeLine}
-                show
-                style={{
-                    top,
-                    left,
-                }}
-            />
-        );
-    }
+
     /**
      * Renders view for a controller overlay.
      *

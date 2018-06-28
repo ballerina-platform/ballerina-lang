@@ -31,7 +31,7 @@ class MainRegion extends React.Component {
         const items = ControllerUtil.convertToAddItems(WorkerTools, model.getBody());
         const top = bBox.y + bBox.h - 20;
         const left = viewState.components['statement-box'].x;
-
+        
         return (
             <HoverButton
                 style={{
@@ -39,7 +39,9 @@ class MainRegion extends React.Component {
                     left,
                 }}
             >
-                {items}
+                <Menu vertical>
+                    {items}
+                </Menu>
             </HoverButton>
         );
     }
@@ -116,5 +118,5 @@ export default {
         actionBox: ActionBox,
         else: Else,
     },
-    name: 'If',
+    name: 'Lifeline',
 };

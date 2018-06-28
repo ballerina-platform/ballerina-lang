@@ -53,12 +53,16 @@ class HoverGroup extends React.Component {
                     });
                 }}
                 onMouseLeave={(e) => {
-                    this.props.model.viewState.hovered = false;
-                    this.props.model.viewState.hoveredRegion = undefined;
-                    this.props.model.trigger('mouse-leave', {
-                        origin: this.props.model,
-                        region: this.props.region,
-                    });
+                    const tagName = e.relatedTarget.tagName;
+                    // ignore mouse leave event if it its moving to a html node
+                    if (tagName !== 'DIV' && tagName !== 'A' && tagName !== 'SPAN') {
+                        this.props.model.viewState.hovered = false;
+                        this.props.model.viewState.hoveredRegion = undefined;
+                        this.props.model.trigger('mouse-leave', {
+                            origin: this.props.model,
+                            region: this.props.region,
+                        });
+                    }
                 }}
             >
                 {children}
