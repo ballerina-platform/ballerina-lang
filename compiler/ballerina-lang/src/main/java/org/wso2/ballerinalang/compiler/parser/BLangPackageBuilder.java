@@ -3133,7 +3133,8 @@ public class BLangPackageBuilder {
             // If sealed keyword used, explicit sealing is not allowed
             boolean isSealed = Arrays.stream(sizes).anyMatch(size -> size != -1);
             if (isSealed) {
-                dlog.error(pos, DiagnosticCode.INVALID_DECLARATION_OF_SEALED_TYPE);
+                dlog.error(pos, DiagnosticCode.INVALID_USAGE_OF_SEALED_TYPE,
+                        "can not explicitly seal array when using 'sealed' keyword");
                 return;
             }
             Arrays.fill(((BLangArrayType) typeNode).sizes, -1);

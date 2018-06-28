@@ -275,7 +275,7 @@ public class Types {
             // Both types are array types
             BArrayType lhsArrayType = (BArrayType) target;
             BArrayType rhsArrayType = (BArrayType) source;
-            if (lhsArrayType.getState() == BArrayState.UNSEALED) {
+            if (lhsArrayType.state == BArrayState.UNSEALED) {
                 return isArrayTypesAssignable(rhsArrayType.eType, lhsArrayType.eType);
             }
             return checkSealedArraySizeEquality(rhsArrayType, lhsArrayType)
@@ -339,7 +339,7 @@ public class Types {
             // Both types are array types
             BArrayType lhsArrayType = (BArrayType) target;
             BArrayType rhsArrayType = (BArrayType) source;
-            if (lhsArrayType.getState() == BArrayState.UNSEALED) {
+            if (lhsArrayType.state == BArrayState.UNSEALED) {
                 return checkArrayEquality(lhsArrayType.eType, rhsArrayType.eType);
             }
             return checkSealedArraySizeEquality(rhsArrayType, lhsArrayType)
@@ -352,7 +352,6 @@ public class Types {
 
     public boolean checkSealedArraySizeEquality(BArrayType rhsArrayType, BArrayType lhsArrayType) {
         return lhsArrayType.size == rhsArrayType.size;
-        // TODO: 6/22/18 ANOUKH Check the array equality
     }
 
     public boolean checkStructEquivalency(BType rhsType, BType lhsType) {

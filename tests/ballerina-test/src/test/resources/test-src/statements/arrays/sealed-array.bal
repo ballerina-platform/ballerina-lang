@@ -152,3 +152,35 @@ function mockFunction(boolean[3] sealedArray) returns (boolean[3], string[2]) {
     sealed string[] sealedStrArray = ["Sam", "Smith"];
     return (sealedArray, sealedStrArray);
 }
+
+// Runtime Exceptions
+
+function invalidIndexAccess(int index) {
+    boolean[3] x1 = [true, false, true];
+    boolean x2 = x1[index];
+}
+
+function assignedArrayInvalidIndexAccess() {
+    int[3] x1 = [1, 2, 3];
+    int[] x2 = x1;
+    x2[4] = 10;
+}
+
+// Match Statments
+
+function unionAndMatchStatementSealedArray(float[4] x) returns string {
+    return unionTest(x);
+}
+
+function unionAndMatchStatementUnsealedArray(float[] x) returns string {
+    return unionTest(x);
+}
+
+function unionTest(boolean | int[] | float[4] | float[] x) returns string {
+    match x {
+        boolean k => return "matched boolean";
+        int[] k => return "matched int array";
+        float[4] k => return "matched sealed float array size 4";
+        float[] k => return "matched float array";
+    }
+}

@@ -153,6 +153,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
@@ -628,8 +629,10 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         BLangLiteral arraySizeLiteral = new BLangLiteral();
         arraySizeLiteral.pos = arrayLiteral.pos;
-        arraySizeLiteral.value =
-                (arrayLiteral.type.tag == TypeTags.ARRAY) ? ((BArrayType) arrayLiteral.type).size : -1L;
+        arraySizeLiteral.value = -1L;
+        if (arrayLiteral.type.tag == TypeTags.ARRAY && ((BArrayType) arrayLiteral.type).state != BArrayState.UNSEALED) {
+            arraySizeLiteral.value = (long) ((BArrayType) arrayLiteral.type).size;
+        }
         arraySizeLiteral.type = symTable.intType;
         genNode(arraySizeLiteral, this.env);
 

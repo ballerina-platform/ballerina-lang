@@ -44,10 +44,10 @@ public class BFloatArray extends BNewArray {
 
     public BFloatArray(int size) {
         if (size != -1) {
-            this.size = capacity = size;
+            this.size = maxArraySize = size;
         }
         values = (double[]) newArrayInstance(Double.TYPE);
-        super.arrayType = new BArrayType(BTypes.typeFloat);
+        super.arrayType = new BArrayType(BTypes.typeFloat, size);
     }
 
     public void add(long index, double value) {

@@ -44,10 +44,10 @@ public class BBooleanArray extends BNewArray {
 
     public BBooleanArray(int size) {
         if (size != -1) {
-            this.size = capacity = size;
+            this.size = maxArraySize = size;
         }
         values = (int[]) newArrayInstance(Integer.TYPE);
-        super.arrayType = new BArrayType(BTypes.typeBoolean);
+        super.arrayType = new BArrayType(BTypes.typeBoolean, size);
     }
 
     public void add(long index, int value) {

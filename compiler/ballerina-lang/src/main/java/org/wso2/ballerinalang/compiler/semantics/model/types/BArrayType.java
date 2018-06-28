@@ -30,11 +30,12 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 public class BArrayType extends BType implements ArrayType {
 
     private static final String SEMI_COLON = ";";
+
     public BType eType;
 
     public int size = -1;
 
-    private BArrayState state = BArrayState.UNSEALED;
+    public BArrayState state = BArrayState.UNSEALED;
 
     public BArrayType(BType elementType) {
         super(TypeTags.ARRAY, null);
@@ -62,10 +63,6 @@ public class BArrayType extends BType implements ArrayType {
         return size;
     }
 
-    public BArrayState getState() {
-        return state;
-    }
-
     @Override
     public BType getElementType() {
         return eType;
@@ -84,13 +81,14 @@ public class BArrayType extends BType implements ArrayType {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(eType.toString());
-        String tempSize = size == -2 ? "" : String.valueOf(size);
+        String tempSize = (state == BArrayState.OPEN_SEALED) ? "" : String.valueOf(size);
         if (sb.indexOf("[") != -1) {
-            return size != -1 ?
+            return (state != BArrayState.UNSEALED) ?
                     sb.insert(sb.indexOf("["), "[" + tempSize + "]").toString() :
                     sb.insert(sb.indexOf("["), "[]").toString();
         } else {
-            return size != -1 ? sb.append("[").append(tempSize).append("]").toString() : sb.append("[]").toString();
+            return (state != BArrayState.UNSEALED) ?
+                    sb.append("[").append(tempSize).append("]").toString() : sb.append("[]").toString();
         }
     }
 }

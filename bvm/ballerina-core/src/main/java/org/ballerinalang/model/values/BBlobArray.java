@@ -43,10 +43,10 @@ public class BBlobArray extends BNewArray {
 
     public BBlobArray(int size) {
         if (size != -1) {
-            this.size = capacity = size;
+            this.size = maxArraySize = size;
         }
         values = (byte[][]) newArrayInstance(byte[].class);
-        super.arrayType = new BArrayType(BTypes.typeBlob);
+        super.arrayType = new BArrayType(BTypes.typeBlob, size);
     }
 
     public void add(long index, byte[] value) {

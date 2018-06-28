@@ -130,6 +130,9 @@ public class BArrayType extends BType implements BIndexedType {
     public boolean equals(Object obj) {
         if (obj instanceof BArrayType) {
             BArrayType other = (BArrayType) obj;
+            if (other.size != -1 && this.size != other.size) {
+                return false;
+            }
             return this.elementType.equals(other.elementType);
         }
 

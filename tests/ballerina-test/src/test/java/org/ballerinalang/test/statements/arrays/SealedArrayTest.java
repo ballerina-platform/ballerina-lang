@@ -22,8 +22,10 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -39,7 +41,7 @@ public class SealedArrayTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/statements/arrays/sealed-array.bal");
-        resultNegative = BCompileUtil.compile("test-src/statements/arrays/negative-sealed-array.bal");
+        resultNegative = BCompileUtil.compile("test-src/statements/arrays/sealed-array-negative.bal");
     }
 
     @Test
@@ -181,6 +183,33 @@ public class SealedArrayTest {
     }
 
     @Test
+    public void testUnionAndMatchStatement() {
+        BFloatArray bFloatArray = new BFloatArray(4);
+        bFloatArray.add(0, 01.0);
+        bFloatArray.add(0, 12.2);
+        bFloatArray.add(0, 23.3);
+        bFloatArray.add(0, 34.4);
+        BValue[] args = {bFloatArray};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "unionAndMatchStatementSealedArray", args);
+        Assert.assertFalse(
+                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
+        Assert.assertEquals(returnValues[0].stringValue(),
+                "matched sealed float array size 4", "Couldn't match sealed array type");
+
+        bFloatArray = new BFloatArray();
+        bFloatArray.add(0, 01.0);
+        bFloatArray.add(0, 12.2);
+        bFloatArray.add(0, 23.3);
+        bFloatArray.add(0, 34.4);
+        BValue[] args2 = {bFloatArray};
+        returnValues = BRunUtil.invoke(compileResult, "unionAndMatchStatementUnsealedArray", args2);
+        Assert.assertFalse(
+                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
+        Assert.assertEquals(returnValues[0].stringValue(),
+                "matched float array", "Couldn't match unsealed array type");
+    }
+
+    @Test
     public void testNegativeSealedArrays() {
         BAssertUtil.validateError(resultNegative, 0, "array index out of range: index: '5', size: '5'", 19, 30);
         BAssertUtil.validateError(resultNegative, 1, "array index out of range: index: '5', size: '5'", 25, 33);
@@ -193,13 +222,28 @@ public class SealedArrayTest {
         BAssertUtil.validateError(
                 resultNegative, 5, "array index out of range: index: '5', size: '5'", 38, 18);
         BAssertUtil.validateError(
-                resultNegative, 6, "sealed keyword is not allowed for type ", 39, 5);
+                resultNegative, 6, "invalid usage of sealed keyword: 'right hand side array literal expected'", 39, 5);
         BAssertUtil.validateError(
                 resultNegative, 7, "incompatible types: expected 'int[3]', found 'int[]'", 46, 17);
         BAssertUtil.validateError(
                 resultNegative, 8, "incompatible types: expected 'boolean[4]', found 'boolean[3]'", 52, 47);
         BAssertUtil.validateError(
                 resultNegative, 9, "incompatible types: expected 'string[2]', found 'string[]'", 52, 34);
+    }
+
+    @Test(description = "Test accessing invalid index of sealed array",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*message: index number too large: 5.*")
+    public void invalidIndexAccess() {
+        BValue[] args = {new BInteger(5)};
+        BRunUtil.invoke(compileResult, "invalidIndexAccess", args);
+    }
+
+    @Test(description = "Test accessing invalid index of sealed array when assigned to unsealed array",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*message: index number too large: 4.*")
+    public void assignedArrayInvalidIndexAccess() {
+        BRunUtil.invoke(compileResult, "assignedArrayInvalidIndexAccess");
     }
 
 }

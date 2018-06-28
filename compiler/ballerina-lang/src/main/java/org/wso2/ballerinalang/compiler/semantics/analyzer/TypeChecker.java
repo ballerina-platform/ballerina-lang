@@ -264,7 +264,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // var a = []; and var a = [1,2,3,4]; are illegal statements, because we cannot infer the type here.
         BType actualType = symTable.errType;
 
-        if (expType.tag == TypeTags.ANY) {
+        if (expType.tag == TypeTags.ANY) { // TODO disallow array literal in unions?
             dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
             resultType = symTable.errType;
             return;
@@ -277,9 +277,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
         } else if (expTypeTag == TypeTags.ARRAY) {
             BArrayType arrayType = (BArrayType) expType;
-            if (arrayType.getState() == BArrayState.OPEN_SEALED) {
+            if (arrayType.state == BArrayState.OPEN_SEALED) {
                 arrayType.size = arrayLiteral.exprs.size();
-            } else if (arrayType.getState() != BArrayState.UNSEALED && arrayType.size != arrayLiteral.exprs.size()) {
+            } else if (arrayType.state != BArrayState.UNSEALED && arrayType.size != arrayLiteral.exprs.size()) {
                 dlog.error(arrayLiteral.pos,
                         DiagnosticCode.MISMATCHING_ARRAY_LITERAL_VALUES, arrayType.size, arrayLiteral.exprs.size());
                 resultType = symTable.errType;
@@ -308,7 +308,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 actualType = superType;
             }
-            actualType = new BArrayType(actualType);
+            actualType = new BArrayType(actualType, null, arrayLiteral.exprs.size(), BArrayState.UNSEALED);
         }
 
         resultType = types.checkType(arrayLiteral, actualType, expType);

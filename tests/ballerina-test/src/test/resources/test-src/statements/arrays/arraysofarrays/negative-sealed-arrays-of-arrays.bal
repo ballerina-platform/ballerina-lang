@@ -26,9 +26,9 @@ function threeDimensionArrayDeclarationAndAccess() {
     int[][] x2 = x1[1];
     int[][] x3 = x1[2];
     int[] x4 = x1[1][2];
-    int[] x5 = x1[1][3];
+    int[] x5 = x1[1][3]; // only 1st dimension is sealed
     int x6 = x1[1][2][2];
-    int x7 = x1[1][2][3];
+    int x7 = x1[1][2][3]; // only 1st dimension is sealed
 }
 
 function threeDimensionArrayValueAssigning(){

@@ -42,7 +42,7 @@ public class BRefValueArray extends BNewArray {
         if (type.getTag() == TypeTags.ARRAY_TAG) {
             BArrayType arrayType = (BArrayType) type;
             if (arrayType.getSize() != -1) {
-                this.size = capacity = arrayType.getSize();
+                this.size = maxArraySize = arrayType.getSize();
             }
             values = (BRefType[]) newArrayInstance(BRefType.class);
             Arrays.fill(values, type.getZeroValue());

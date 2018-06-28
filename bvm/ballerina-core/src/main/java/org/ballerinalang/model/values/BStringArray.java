@@ -46,11 +46,11 @@ public class BStringArray extends BNewArray {
 
     public BStringArray(int size) {
         if (size != -1) {
-            this.size = capacity = size;
+            this.size = maxArraySize = size;
         }
         values = (String[]) newArrayInstance(String.class);
         Arrays.fill(values, BLangConstants.STRING_EMPTY_VALUE);
-        super.arrayType = new BArrayType(BTypes.typeString);
+        super.arrayType = new BArrayType(BTypes.typeString, size);
     }
 
     public void add(long index, String value) {

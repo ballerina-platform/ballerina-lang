@@ -44,10 +44,10 @@ public class BIntArray extends BNewArray {
 
     public BIntArray(int size) {
         if (size != -1) {
-            this.size = capacity = size;
+            this.size = maxArraySize = size;
         }
         values = (long[]) newArrayInstance(Long.TYPE);
-        super.arrayType = new BArrayType(BTypes.typeInt);
+        super.arrayType = new BArrayType(BTypes.typeInt, size);
     }
 
     public void add(long index, long value) {
