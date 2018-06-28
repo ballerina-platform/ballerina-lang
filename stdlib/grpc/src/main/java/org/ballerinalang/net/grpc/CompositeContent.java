@@ -71,16 +71,6 @@ public class CompositeContent {
         return op.value;
     }
 
-    public void skipBytes(int length) {
-        execute(new ReadOperation() {
-            @Override
-            public int readInternal(ByteBuf buffer, int length) {
-                buffer.skipBytes(length);
-                return 0;
-            }
-        }, length);
-    }
-
     public void readBytes(final byte[] dest, final int destOffset, int length) {
         execute(new ReadOperation() {
             int currentOffset = destOffset;

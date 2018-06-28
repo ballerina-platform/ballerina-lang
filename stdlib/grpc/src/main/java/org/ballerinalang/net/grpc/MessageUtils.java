@@ -205,7 +205,7 @@ public class MessageUtils {
         }
     }
 
-    public static void setNestedMessages(Descriptors.Descriptor resMessage, MessageRegistry messageRegistry) {
+    static void setNestedMessages(Descriptors.Descriptor resMessage, MessageRegistry messageRegistry) {
         for (Descriptors.Descriptor nestedType : resMessage.getNestedTypes()) {
             messageRegistry.addMessageDescriptor(nestedType.getName(), nestedType);
         }

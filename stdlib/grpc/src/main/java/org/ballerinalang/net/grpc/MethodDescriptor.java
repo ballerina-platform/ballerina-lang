@@ -185,24 +185,6 @@ public final class MethodDescriptor {
     }
 
     /**
-     * Returns the marshaller for the request type.
-     *
-     * @return request marshaller instance.
-     */
-    public Marshaller getRequestMarshaller() {
-        return requestMarshaller;
-    }
-
-    /**
-     * Returns the marshaller for the response type.
-     *
-     * @return response marshaller instance.
-     */
-    public Marshaller getResponseMarshaller() {
-        return responseMarshaller;
-    }
-
-    /**
      * Returns the schema descriptor for this method.
      *
      * @return method schema descriptor.

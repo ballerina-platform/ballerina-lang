@@ -18,9 +18,9 @@
 package org.ballerinalang.net.grpc.exception;
 
 /**
- * Exception that is thrown when error comes while client setup.
+ * Exception thrown when runtime failure occurred at client side.
  *
- * @since 1.0.0
+ * @since 0.980.0
  */
 public class ClientRuntimeException extends RuntimeException {
 

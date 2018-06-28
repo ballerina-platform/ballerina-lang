@@ -20,7 +20,7 @@ package org.ballerinalang.net.grpc.exception;
 import org.ballerinalang.net.grpc.Status;
 
 /**
- * {@link Status} in Exception form, for propagating Status information via exceptions.
+ * Propagating Status information via exceptions.
  * <p>
  * Referenced from grpc-java implementation.
  * <p>
