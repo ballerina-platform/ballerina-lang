@@ -18,9 +18,9 @@
 
 package org.ballerinalang.test.nativeimpl.functions.io.bytes;
 
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.nativeimpl.io.events.EventContext;
-import org.ballerinalang.nativeimpl.io.utils.IOUtils;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.events.EventContext;
+import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.testng.Assert;

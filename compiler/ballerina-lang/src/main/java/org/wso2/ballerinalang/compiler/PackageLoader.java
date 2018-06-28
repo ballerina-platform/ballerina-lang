@@ -274,7 +274,6 @@ public class PackageLoader {
             return packageNode;
         }
 
-        addImportPkg(packageNode, Names.BUILTIN_ORG.value, Names.RUNTIME_PACKAGE.value, Names.EMPTY.value);
         define(packageNode);
         return packageNode;
     }
