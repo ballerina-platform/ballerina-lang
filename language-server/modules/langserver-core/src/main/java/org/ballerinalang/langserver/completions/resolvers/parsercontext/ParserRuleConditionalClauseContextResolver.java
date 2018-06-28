@@ -17,15 +17,17 @@
 */
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.filters.PackageActionFunctionAndTypesFilter;
+import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.ballerinalang.langserver.completions.util.sorters.ConditionalStatementItemSorter;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -34,7 +36,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,19 +45,24 @@ import java.util.stream.Collectors;
  */
 public class ParserRuleConditionalClauseContextResolver extends AbstractItemResolver {
     
-    private static final String IF_KEY_WORD = "if";
-
-    private static final String WHILE_KEY_WORD = "while";
-    
     @Override
     public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        List<SymbolInfo> symbolInfos =
-                this.filterConditionalSymbols(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
-
-        if (CommonUtil.isWithinBrackets(completionContext, Arrays.asList(IF_KEY_WORD, WHILE_KEY_WORD))) {
-            this.populateCompletionItemList(symbolInfos, completionItems);
+        Either<List<CompletionItem>, List<SymbolInfo>> itemList;
+        if (isInvocationOrFieldAccess(completionContext)) {
+            itemList = SymbolFilters.getFilterByClass(PackageActionFunctionAndTypesFilter.class)
+                    .filterItems(completionContext);
+        } else {
+            List<SymbolInfo> symbolInfoList =
+                    this.filterConditionalSymbols(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
+            itemList = Either.forRight(symbolInfoList);
             this.populateTrueFalseKeywords(completionItems);
+        }
+        
+        if (itemList.isLeft()) {
+            completionItems.addAll(itemList.getLeft());
+        } else {
+            this.populateCompletionItemList(itemList.getRight(), completionItems);
         }
 
         ItemSorters.getSorterByClass(ConditionalStatementItemSorter.class)
@@ -78,7 +84,7 @@ public class ParserRuleConditionalClauseContextResolver extends AbstractItemReso
     private void populateTrueFalseKeywords(List<CompletionItem> completionItems) {
         CompletionItem trueItem = new CompletionItem();
         CompletionItem falseItem = new CompletionItem();
-        
+
         trueItem.setLabel(ItemResolverConstants.TRUE_KEYWORD);
         trueItem.setInsertText(ItemResolverConstants.TRUE_KEYWORD);
         trueItem.setDetail(ItemResolverConstants.KEYWORD_TYPE);
@@ -86,7 +92,7 @@ public class ParserRuleConditionalClauseContextResolver extends AbstractItemReso
         falseItem.setLabel(ItemResolverConstants.FALSE_KEYWORD);
         falseItem.setInsertText(ItemResolverConstants.FALSE_KEYWORD);
         falseItem.setDetail(ItemResolverConstants.KEYWORD_TYPE);
-        
+
         completionItems.add(trueItem);
         completionItems.add(falseItem);
     }
