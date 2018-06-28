@@ -79,7 +79,7 @@ import java.util.Stack;
 /**
  * Class responsible for desugar an iterable chain into actual Ballerina code.
  *
- * @since 0.961.0
+ * @since 0.980.0
  */
 public class StreamingCodeDesugar extends BLangNodeVisitor {
 
@@ -344,44 +344,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         //Output object creation
         BLangRecordLiteral outputEventRecordLiteral = ASTBuilderUtil.createEmptyRecordLiteral(selectClause.pos,
                 outputEventTypeVariable.type);
-        List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValueList = new ArrayList<>();
-
-        List<? extends SelectExpressionNode> selectExprList = selectClause.getSelectExpressions();
-        for (SelectExpressionNode expressionNode : selectExprList) {
-            BLangSelectExpression selectExpression = (BLangSelectExpression) expressionNode;
-            BLangRecordLiteral.BLangRecordKeyValue recordKeyValue = (BLangRecordLiteral.BLangRecordKeyValue)
-                    TreeBuilder.createRecordKeyValue();
-
-            if (selectExpression.getIdentifier() != null) {
-                BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-                varRef.variableName = ASTBuilderUtil.createIdentifier(selectClause.pos,
-                        selectExpression.getIdentifier());
-                recordKeyValue.key = new BLangRecordLiteral.BLangRecordKey(varRef);
-                recordKeyValue.key.fieldSymbol = getOutputEventFieldSymbol(outputEventTypeVariable,
-                        selectExpression.getIdentifier());
-            } else {
-                BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-                varRef.variableName = ((BLangFieldBasedAccess) selectExpression.getExpression()).field;
-                recordKeyValue.key = new BLangRecordLiteral.BLangRecordKey(varRef);
-                recordKeyValue.key.fieldSymbol = getOutputEventFieldSymbol(outputEventTypeVariable,
-                        ((BLangFieldBasedAccess) selectExpression.getExpression()).field.value);
-            }
-
-            if (selectExpression.getExpression() instanceof BLangFieldBasedAccess) {
-                BLangFieldBasedAccess fieldAccessExpr = ((BLangFieldBasedAccess) selectExpression.getExpression());
-                BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(selectExpression.pos,
-                        typeCastingVariable.symbol);
-                BLangExpression selectFieldExpression = ASTBuilderUtil.createFieldAccessExpr(varRef,
-                        fieldAccessExpr.field);
-                ((BLangFieldBasedAccess) selectFieldExpression).symbol = fieldAccessExpr.symbol;
-                (selectFieldExpression).type = fieldAccessExpr.type;
-                recordKeyValue.valueExpr = selectFieldExpression;
-            } else {
-                recordKeyValue.valueExpr = (BLangLiteral) selectExpression.getExpression();
-            }
-
-            recordKeyValueList.add(recordKeyValue);
-        }
+        List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValueList = getFieldListInSelectClause(selectClause.pos,
+                selectClause.getSelectExpressions(), typeCastingVariable.symbol);
 
         BVarSymbol outputEventVarSymbol = new BVarSymbol(0,
                 new Name(getVariableName(OUTPUT_EVENT_SELECTOR_PARAM_REFERENCE)),
@@ -403,17 +367,9 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 outputEventObjectVariable.symbol);
         lambdaBody.stmts.add(returnStmt);
 
-
         //Create event simple selector definition
         BVarSymbol nextProcessInvokableTypeVarSymbol = nextProcessVarSymbolStack.pop();
-        List<BAttachedFunction> attachedFunctionsList = ((BObjectTypeSymbol)
-                (nextProcessInvokableTypeVarSymbol).type.tsymbol).attachedFuncs;
-        BInvokableSymbol nextProcessInvokableSymbol = null;
-        for (BAttachedFunction attachedFunction : attachedFunctionsList) {
-            if (attachedFunction.funcName.toString().equals(NEXT_PROCESS_METHOD_NAME)) {
-                nextProcessInvokableSymbol = attachedFunction.symbol;
-            }
-        }
+        BInvokableSymbol nextProcessInvokableSymbol = getNextProcessFunctionSymbol(nextProcessInvokableTypeVarSymbol);
 
         BLangSimpleVarRef nextProcessSimpleVarRef = ASTBuilderUtil.createVariableRef(selectClause.pos,
                 nextProcessInvokableTypeVarSymbol);
@@ -476,7 +432,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         streamSubscriberLambdaFunction.function = streamSubscriberLambdaFunctionNode;
         BLangBlockStmt lambdaBody = ASTBuilderUtil.createBlockStmt(streamingInput.pos);
 
-
         BVarSymbol lambdaParameterVarSymbol = new BVarSymbol(0, new Name(getVariableName(INPUT_STREAM_PARAM_REFERENCE)),
                 lambdaParameterType.tsymbol.pkgID, lambdaParameterType, env.scope.owner);
 
@@ -510,7 +465,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         List<BLangExpression> args = new ArrayList<>();
         args.add(lambdaParameterSimpleVarRef);
 
-
         BLangInvocation streamEventBuilderMethodInvocation = ASTBuilderUtil.
                 createInvocationExprForMethod(streamingInput.pos, streamEventBuilderInvokableSymbol, args,
                         symResolver);
@@ -530,15 +484,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         lambdaBody.stmts.add(streamEventArrayTypeVariableDef);
 
         //Function invocation to call output process
-        BVarSymbol filterInvokableTypeVarSymbol = nextProcessVarSymbolStack.pop();
-        List<BAttachedFunction> attachedFunctionsList = ((BObjectTypeSymbol)
-                (filterInvokableTypeVarSymbol).type.tsymbol).attachedFuncs;
-        BInvokableSymbol nextProcessInvokableSymbol = null;
-        for (BAttachedFunction attachedFunction : attachedFunctionsList) {
-            if (attachedFunction.funcName.toString().equals(NEXT_PROCESS_METHOD_NAME)) {
-                nextProcessInvokableSymbol = attachedFunction.symbol;
-            }
-        }
+        BVarSymbol nextProcessInvokableTypeVarSymbol = nextProcessVarSymbolStack.pop();
+        BInvokableSymbol nextProcessInvokableSymbol = getNextProcessFunctionSymbol(nextProcessInvokableTypeVarSymbol);
 
         BLangSimpleVarRef streamEventArrayRef = ASTBuilderUtil.createVariableRef(streamingInput.pos,
                 streamEventArrayTypeVarSymbol);
@@ -551,7 +498,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
 
         nextProcessMethodInvocation.expr = ASTBuilderUtil.createVariableRef(streamingInput.pos,
-                filterInvokableTypeVarSymbol);
+                nextProcessInvokableTypeVarSymbol);
         BLangExpressionStmt nextProcessExpressionStmt = (BLangExpressionStmt) TreeBuilder.
                 createExpressionStatementNode();
         nextProcessExpressionStmt.pos = streamingInput.pos;
@@ -560,7 +507,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         //Set lambda body
         streamSubscriberLambdaFunctionNode.body = lambdaBody;
-        streamSubscriberLambdaFunctionNode.closureVarSymbols.add(filterInvokableTypeVarSymbol);
+        streamSubscriberLambdaFunctionNode.closureVarSymbols.add(nextProcessInvokableTypeVarSymbol);
         streamSubscriberLambdaFunctionNode.closureVarSymbols.add(inputStreamLambdaFunctionVariable.symbol);
         streamSubscriberLambdaFunctionNode.desugared = false;
         streamSubscriberLambdaFunction.pos = streamingInput.pos;
@@ -614,7 +561,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         filterLambdaFunction.pos = where.pos;
         filterLambdaFunction.type = symTable.anyType;
 
-
         //Create type casting for the filter variable
         BVarSymbol typeCastingVarSymbol = new BVarSymbol(0,
                 new Name(getVariableName(lambdaFunctionVariable.getName().getValue())),
@@ -655,14 +601,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         //Create event filter definition
         BVarSymbol nextProcessInvokableTypeVarSymbol = nextProcessVarSymbolStack.pop();
-        List<BAttachedFunction> attachedFunctionsList = ((BObjectTypeSymbol)
-                (nextProcessInvokableTypeVarSymbol).type.tsymbol).attachedFuncs;
-        BInvokableSymbol nextProcessInvokableSymbol = null;
-        for (BAttachedFunction attachedFunction : attachedFunctionsList) {
-            if (attachedFunction.funcName.toString().equals(NEXT_PROCESS_METHOD_NAME)) {
-                nextProcessInvokableSymbol = attachedFunction.symbol;
-            }
-        }
+        BInvokableSymbol nextProcessInvokableSymbol = getNextProcessFunctionSymbol(nextProcessInvokableTypeVarSymbol);
 
         BLangSimpleVarRef nextProcessSimpleVarRef = ASTBuilderUtil.createVariableRef(where.pos,
                 nextProcessInvokableTypeVarSymbol);
@@ -808,5 +747,62 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             }
         }
         return null;
+    }
+
+    private BInvokableSymbol getNextProcessFunctionSymbol(BVarSymbol nextProcessInvokableTypeVarSymbol) {
+        List<BAttachedFunction> attachedFunctionsList = ((BObjectTypeSymbol)
+                (nextProcessInvokableTypeVarSymbol).type.tsymbol).attachedFuncs;
+        for (BAttachedFunction attachedFunction : attachedFunctionsList) {
+            if (attachedFunction.funcName.toString().equals(NEXT_PROCESS_METHOD_NAME)) {
+                return attachedFunction.symbol;
+            }
+        }
+
+        return null;
+    }
+
+    private List<BLangRecordLiteral.BLangRecordKeyValue> getFieldListInSelectClause
+            (DiagnosticPos pos, List<? extends SelectExpressionNode> selectExprList,
+             BVarSymbol typeCastedVariableSymbol) {
+
+        List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValueList = new ArrayList<>();
+
+        for (SelectExpressionNode expressionNode : selectExprList) {
+            BLangSelectExpression selectExpression = (BLangSelectExpression) expressionNode;
+            BLangRecordLiteral.BLangRecordKeyValue recordKeyValue = (BLangRecordLiteral.BLangRecordKeyValue)
+                    TreeBuilder.createRecordKeyValue();
+
+            if (selectExpression.getIdentifier() != null) {
+                BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+                varRef.variableName = ASTBuilderUtil.createIdentifier(pos,
+                        selectExpression.getIdentifier());
+                recordKeyValue.key = new BLangRecordLiteral.BLangRecordKey(varRef);
+                recordKeyValue.key.fieldSymbol = getOutputEventFieldSymbol(outputEventTypeVariable,
+                        selectExpression.getIdentifier());
+            } else {
+                BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+                varRef.variableName = ((BLangFieldBasedAccess) selectExpression.getExpression()).field;
+                recordKeyValue.key = new BLangRecordLiteral.BLangRecordKey(varRef);
+                recordKeyValue.key.fieldSymbol = getOutputEventFieldSymbol(outputEventTypeVariable,
+                        ((BLangFieldBasedAccess) selectExpression.getExpression()).field.value);
+            }
+
+            if (selectExpression.getExpression() instanceof BLangFieldBasedAccess) {
+                BLangFieldBasedAccess fieldAccessExpr = ((BLangFieldBasedAccess) selectExpression.getExpression());
+                BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(selectExpression.pos,
+                        typeCastedVariableSymbol);
+                BLangExpression selectFieldExpression = ASTBuilderUtil.createFieldAccessExpr(varRef,
+                        fieldAccessExpr.field);
+                ((BLangFieldBasedAccess) selectFieldExpression).symbol = fieldAccessExpr.symbol;
+                (selectFieldExpression).type = fieldAccessExpr.type;
+                recordKeyValue.valueExpr = selectFieldExpression;
+            } else {
+                recordKeyValue.valueExpr = (BLangLiteral) selectExpression.getExpression();
+            }
+
+            recordKeyValueList.add(recordKeyValue);
+        }
+
+        return recordKeyValueList;
     }
 }

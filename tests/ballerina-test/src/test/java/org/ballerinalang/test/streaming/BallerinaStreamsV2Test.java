@@ -29,7 +29,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This contains methods to test filter & select behaviour in Ballerina Streaming V2
+ * This contains methods to test filter & select behaviour in Ballerina Streaming V2.
  *
  * @since 0.980.0
  */
