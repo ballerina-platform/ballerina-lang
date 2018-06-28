@@ -58,6 +58,20 @@ public class DataChannelTest {
         Assert.assertEquals(value, ((BInteger) result[0]).intValue());
     }
 
+    @Test(description = "read and write var integers")
+    public void processVarInteger() {
+        String sourceToWrite = currentDirectoryPath + "/varint.bin";
+        //Will initialize the channel
+        int value = 2;
+        BValue[] args = {new BInteger(value), new BString(sourceToWrite)};
+        BRunUtil.invokeStateful(dataChannel, "testWriteVarInt", args);
+
+        BValue[] args2 = {new BString(sourceToWrite)};
+        BValue[] result = BRunUtil.invokeStateful(dataChannel, "testReadVarInt", args2);
+
+        Assert.assertEquals(value, ((BInteger) result[0]).intValue());
+    }
+
     @Test(description = "read and write fixed size float values")
     public void processFixedFloat() {
         String sourceToWrite = currentDirectoryPath + "/float.bin";
