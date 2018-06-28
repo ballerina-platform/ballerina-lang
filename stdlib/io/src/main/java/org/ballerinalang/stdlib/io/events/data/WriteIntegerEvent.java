@@ -66,7 +66,7 @@ public class WriteIntegerEvent implements Event {
     public EventResult get() {
         NumericResult result;
         try {
-            channel.writeFixedLong(value, representation);
+            channel.writeLong(value, representation);
             result = new NumericResult(context);
         } catch (IOException e) {
             log.error("Error occurred while writing int", e);
