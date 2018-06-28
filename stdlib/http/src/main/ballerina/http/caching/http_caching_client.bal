@@ -87,13 +87,11 @@ documentation {
 }
 public type HttpCachingClient object {
 
-    public {
-        string serviceUri;
-        ClientEndpointConfig config;
-        CallerActions httpClient;
-        HttpCache cache;
-        CacheConfig cacheConfig;
-    }
+    public string serviceUri;
+    public ClientEndpointConfig config;
+    public CallerActions httpClient;
+    public HttpCache cache;
+    public CacheConfig cacheConfig;
 
     documentation {
         Takes a service URL, a `CliendEndpointConfig` and a `CacheConfig` and builds an HTTP client capable of

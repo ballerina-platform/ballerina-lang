@@ -24,10 +24,9 @@ documentation {
     F{{httpListener}} HTTP Listener instance
 }
 public type SecureListener object {
-    public {
-        SecureEndpointConfiguration config;
-        Listener httpListener;
-    }
+
+    public SecureEndpointConfiguration config;
+    public Listener httpListener;
 
     new() {
         httpListener = new;
@@ -286,9 +285,7 @@ documentation {
 }
 public type SecureListenerActions object {
 
-    public {
-        Connection httpCallerActions;
-    }
+    public Connection httpCallerActions;
 
     documentation {
         The secure listener caller actions initializer.

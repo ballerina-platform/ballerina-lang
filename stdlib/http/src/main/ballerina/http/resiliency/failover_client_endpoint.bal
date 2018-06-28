@@ -24,14 +24,10 @@ documentation {
 }
 public type FailoverClient object {
 
-    public {
-        string epName;
-        FailoverClientEndpointConfiguration failoverClientConfig;
-    }
+    public string epName;
+    public FailoverClientEndpointConfiguration failoverClientConfig;
 
-    private {
-        Client httpEP;
-    }
+    private Client httpEP;
 
     documentation {
         Initializes the endpoint using the configurations provided.

@@ -27,10 +27,9 @@ documentation {
     F{{authzCache}} `Cache` instance, which is optional
 }
 public type HttpAuthzHandler object {
-    public {
-        auth:AuthStoreProvider authStoreProvider;
-        cache:Cache? authzCache;
-    }
+    public auth:AuthStoreProvider authStoreProvider;
+    public cache:Cache? authzCache;
+
     public new (authStoreProvider, authzCache) {
     }
 

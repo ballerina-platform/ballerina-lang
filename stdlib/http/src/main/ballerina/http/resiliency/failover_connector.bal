@@ -69,11 +69,10 @@ documentation {
 }
 public type FailoverActions object {
 
-    public {
-        string serviceUri;
-        ClientEndpointConfig config;
-        FailoverInferredConfig failoverInferredConfig;
-    }
+    public string serviceUri;
+    public ClientEndpointConfig config;
+    public FailoverInferredConfig failoverInferredConfig;
+
     documentation {
         Failover caller actions which provides failover capabilities to an HTTP client endpoint.
 

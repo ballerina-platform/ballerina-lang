@@ -138,14 +138,12 @@ documentation {
 }
 public type CircuitBreakerClient object {
 
-    public {
-        string serviceUri;
-        ClientEndpointConfig config;
-        CircuitBreakerInferredConfig circuitBreakerInferredConfig;
-        CallerActions httpClient;
-        CircuitHealth circuitHealth;
-        CircuitState currentCircuitState = CB_CLOSED_STATE;
-    }
+    public string serviceUri;
+    public ClientEndpointConfig config;
+    public CircuitBreakerInferredConfig circuitBreakerInferredConfig;
+    public CallerActions httpClient;
+    public CircuitHealth circuitHealth;
+    public CircuitState currentCircuitState = CB_CLOSED_STATE;
 
     documentation {
         A Circuit Breaker implementation which can be used to gracefully handle network failures.

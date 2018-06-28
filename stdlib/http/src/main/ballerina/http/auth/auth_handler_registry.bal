@@ -21,9 +21,8 @@ documentation {
     F{{httpAuthHandlers}} map for auth handlers. key = auth provider id
 }
 public type AuthHandlerRegistry object {
-    private {
-        map<HttpAuthnHandler> httpAuthHandlers;
-    }
+    private map<HttpAuthnHandler> httpAuthHandlers;
+
     public new () {
     }
 

@@ -19,7 +19,5 @@ documentation {
      This can be used as a reference to fetch the results of the submission.
 }
 public type HttpFuture object {
-    private {
-       int value; // dummy value to prevent pattern ordering issue when matching results
-    }
+    private int value; // dummy value to prevent pattern ordering issue when matching results
 };

@@ -29,12 +29,11 @@ documentation {
     F{{httpClient}}  HTTP client for outbound HTTP requests
 }
 public type RetryClient object {
-    public {
-        string serviceUri;
-        ClientEndpointConfig config;
-        RetryConfig retryConfig;
-        CallerActions httpClient;
-    }
+
+    public string serviceUri;
+    public ClientEndpointConfig config;
+    public RetryConfig retryConfig;
+    public CallerActions httpClient;
 
     documentation {
         Provides the HTTP actions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client

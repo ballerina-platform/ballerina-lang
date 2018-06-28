@@ -33,19 +33,15 @@ documentation {
 }
 public type Response object {
 
-    public {
-        int statusCode = 200;
-        string reasonPhrase;
-        string server;
-        string resolvedRequestedURI;
-        ResponseCacheControl? cacheControl;
-    }
+    public int statusCode = 200;
+    public string reasonPhrase;
+    public string server;
+    public string resolvedRequestedURI;
+    public ResponseCacheControl? cacheControl;
 
-    private {
-        int receivedTime;
-        int requestTime;
-        mime:Entity entity;
-    }
+    private int receivedTime;
+    private int requestTime;
+    private mime:Entity entity;
 
     public new() {
         self.entity = createNewEntity();

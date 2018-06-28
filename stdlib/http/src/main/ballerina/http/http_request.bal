@@ -31,19 +31,15 @@ documentation {
 }
 public type Request object {
 
-    public {
-        string rawPath;
-        string method;
-        string httpVersion;
-        string userAgent;
-        string extraPathInfo;
-        RequestCacheControl? cacheControl;
-    }
+    public string rawPath;
+    public string method;
+    public string httpVersion;
+    public string userAgent;
+    public string extraPathInfo;
+    public RequestCacheControl? cacheControl;
 
-    private {
-        mime:Entity entity;
-        boolean dirtyRequest;
-    }
+    private mime:Entity entity;
+    private boolean dirtyRequest;
 
     public new() {
         self.dirtyRequest = false;

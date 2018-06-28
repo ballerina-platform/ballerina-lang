@@ -23,11 +23,9 @@ documentation {
 }
 public type HttpCache object {
 
-    private {
-        cache:Cache cache;
-        CachingPolicy policy = CACHE_CONTROL_AND_VALIDATORS;
-        boolean isShared;
-    }
+    public cache:Cache cache;
+    public CachingPolicy policy = CACHE_CONTROL_AND_VALIDATORS;
+    public boolean isShared;
 
     function isAllowedToCache (Response response) returns boolean {
         if (self.policy == CACHE_CONTROL_AND_VALIDATORS) {

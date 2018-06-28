@@ -30,14 +30,13 @@ documentation {
     F{{failover}} Whether to fail over in case of a failure
 }
 public type LoadBalancerActions object {
-   public {
-       string serviceUri;
-       ClientEndpointConfig config;
-       CallerActions[] loadBalanceClientsArray;
-       string algorithm;
-       int nextIndex;
-       boolean failover;
-   }
+
+   public string serviceUri;
+   public ClientEndpointConfig config;
+   public CallerActions[] loadBalanceClientsArray;
+   public string algorithm;
+   public int nextIndex;
+   public boolean failover;
 
    documentation {
         Load Balancer adds an additional layer to the HTTP client to make network interactions more resilient.

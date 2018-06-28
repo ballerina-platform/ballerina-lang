@@ -24,9 +24,8 @@ documentation {
     F{{authHandlerRegistry}} `AuthHandlerRegistry` instance
 }
 public type AuthnHandlerChain object {
-    private {
-        AuthHandlerRegistry authHandlerRegistry;
-    }
+    private AuthHandlerRegistry authHandlerRegistry;
+
     public new (authHandlerRegistry) {
     }
 

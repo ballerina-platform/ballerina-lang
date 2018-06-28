@@ -29,10 +29,9 @@ documentation {
     F{{authStoreProvider}} AuthStoreProvider instance
 }
 public type HttpBasicAuthnHandler object {
-    public {
-        string name;
-        auth:AuthStoreProvider authStoreProvider;
-    }
+    public string name;
+    public auth:AuthStoreProvider authStoreProvider;
+
     public new(authStoreProvider) {
         name = "basic";
     }

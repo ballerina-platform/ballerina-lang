@@ -29,16 +29,12 @@ documentation {
 }
 public type Listener object {
 
-    public {
-        @readonly Remote remote;
-        @readonly Local local;
-        @readonly string protocol;
-    }
+    @readonly public Remote remote;
+    @readonly public Local local;
+    @readonly public string protocol;
 
-    private {
-        Connection conn;
-        ServiceEndpointConfiguration config;
-    }
+    private Connection conn;
+    private ServiceEndpointConfiguration config;
 
     documentation {
         Gets invoked during package initialization to initialize the endpoint.
@@ -196,19 +192,16 @@ documentation {
     F{{attributes}} A `map` to store connection related attributes
 }
 public type WebSocketListener object {
-    public {
-        @readonly string id;
-        @readonly string negotiatedSubProtocol;
-        @readonly boolean isSecure;
-        @readonly boolean isOpen;
-        @readonly map attributes;
-    }
 
-    private {
-        WebSocketConnector conn;
-        ServiceEndpointConfiguration config;
-        Listener httpEndpoint;
-    }
+    @readonly public string id;
+    @readonly public string negotiatedSubProtocol;
+    @readonly public boolean isSecure;
+    @readonly public boolean isOpen;
+    @readonly public map attributes;
+
+    private WebSocketConnector conn;
+    private ServiceEndpointConfiguration config;
+    private Listener httpEndpoint;
 
     public new() {
     }

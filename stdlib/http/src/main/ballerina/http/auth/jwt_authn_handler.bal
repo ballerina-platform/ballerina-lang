@@ -25,10 +25,10 @@ documentation {
     F{{jwtAuthenticator}} `JWTAuthenticator` instance
 }
 public type HttpJwtAuthnHandler object {
-    public {
-        string name;
-        auth:JWTAuthProvider jwtAuthenticator;
-    }
+
+    public string name;
+    public auth:JWTAuthProvider jwtAuthenticator;
+
     public new (jwtAuthenticator) {
         name = "jwt";
     }

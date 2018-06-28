@@ -23,10 +23,9 @@ documentation {
     F{{secureListener}} Secure HTTP Listener instance
 }
 public type APIListener object {
-    public {
-        SecureEndpointConfiguration config;
-        SecureListener secureListener;
-    }
+
+    public SecureEndpointConfiguration config;
+    public SecureListener secureListener;
 
     new() {
         secureListener = new;
@@ -90,9 +89,7 @@ documentation {
 }
 public type APIListenerActions object {
 
-    public {
-        Connection httpCallerActions;
-    }
+    public Connection httpCallerActions;
 
     documentation {
         The api listener caller actions initializer.

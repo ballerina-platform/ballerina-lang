@@ -19,10 +19,10 @@ documentation {
     The caller actions for responding to client requests.
 }
 public type Connection object {
-    private {
-        ServiceEndpointConfiguration config;
-        FilterContext? filterContext;
-    }
+
+    private ServiceEndpointConfiguration config;
+    private FilterContext? filterContext;
+
     documentation {
         Sends the outbound response to the caller.
 

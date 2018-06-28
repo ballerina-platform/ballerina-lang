@@ -23,13 +23,11 @@ documentation {
     F{{loadBalanceClientConfig}} The configurations for the load balance client endpoint
 }
 public type LoadBalanceClient object {
-    public {
-        string epName;
-        LoadBalanceClientEndpointConfiguration loadBalanceClientConfig;
-    }
-    private {
-        Client httpEP;
-    }
+
+    public string epName;
+    public LoadBalanceClientEndpointConfiguration loadBalanceClientConfig;
+
+    private Client httpEP;
 
     documentation {
         The initialization function for the load balance client endpoint.
