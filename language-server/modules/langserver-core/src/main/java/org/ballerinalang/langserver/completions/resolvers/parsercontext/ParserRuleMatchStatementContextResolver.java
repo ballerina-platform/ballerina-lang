@@ -41,6 +41,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -120,13 +122,14 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
         return completionItems;
     }
 
-    private String getMatchFieldsSnippet(BUnionType bUnionType) {
-        Set<BType> memberTypes = bUnionType.getMemberTypes();
+    private String getMatchFieldsSnippet(BType bType) {
+        final Set<BType> memberTypes = bType instanceof BUnionType ? ((BUnionType) bType).getMemberTypes() :
+                new LinkedHashSet<>(Collections.singletonList(bType));
         StringBuilder fieldsSnippet = new StringBuilder("{");
         fieldsSnippet.append(LINE_SEPARATOR);
 
-        memberTypes.forEach(bType -> fieldsSnippet
-                .append("\t").append(bType.toString()).append(" => {")
+        memberTypes.forEach(type -> fieldsSnippet
+                .append("\t").append(type.toString()).append(" => {")
                 .append(LINE_SEPARATOR)
                 .append("\t\t")
                 .append(LINE_SEPARATOR)
@@ -189,27 +192,17 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
     
     private void fillInvokableSymbolMatchSnippet(BInvokableSymbol bInvokableSymbol,
                                                   List<CompletionItem> completionItems) {
-        BType returnType = bInvokableSymbol.getReturnType();
-        if (returnType instanceof BUnionType && bInvokableSymbol.receiverSymbol == null) {
-            BUnionType unionType = (BUnionType) returnType;
-            CompletionItem completionItem = getFunctionCompletionItem(bInvokableSymbol,
-                    this.getMatchFieldsSnippet(unionType));
-            completionItems.add(completionItem);
-        } else if (!(bInvokableSymbol instanceof BOperatorSymbol) && bInvokableSymbol.receiverSymbol == null
+        BType returnType = bInvokableSymbol.getType().getReturnType();
+        if (!(bInvokableSymbol instanceof BOperatorSymbol) && bInvokableSymbol.receiverSymbol == null
                 && !bInvokableSymbol.getName().getValue().contains("<")) {
-            CompletionItem completionItem = getFunctionCompletionItem(bInvokableSymbol);
+            CompletionItem completionItem = getFunctionCompletionItem(bInvokableSymbol,
+                    this.getMatchFieldsSnippet(returnType));
             completionItems.add(completionItem);
         }
     }
     
     private void fillVarSymbolMatchSnippet(BVarSymbol varSymbol, List<CompletionItem> completionItems) {
         BType symbolType = varSymbol.getType();
-        if (symbolType instanceof BUnionType) {
-            BUnionType unionType = (BUnionType) symbolType;
-            completionItems.add(getVariableCompletionItem(varSymbol,
-                    this.getMatchFieldsSnippet(unionType)));
-        } else {
-            completionItems.add(getVariableCompletionItem(varSymbol));
-        }
+        completionItems.add(getVariableCompletionItem(varSymbol, this.getMatchFieldsSnippet(symbolType)));
     }
 }
