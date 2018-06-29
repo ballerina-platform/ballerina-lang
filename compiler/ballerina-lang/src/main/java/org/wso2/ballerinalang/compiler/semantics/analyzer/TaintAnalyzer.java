@@ -1574,7 +1574,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             // function body to a sensitive parameter). Hence, instead of adding error to table, directly generate the
             // error and fail the compilation.
             if (paramIndex == ALL_UNTAINTED_TABLE_ENTRY_INDEX && (analyzerPhase == AnalyzerPhase.INITIAL_ANALYSIS
-                    || analyzerPhase == AnalyzerPhase.INITIAL_ANALYSIS
                     || analyzerPhase == AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS)) {
                 taintErrorSet.forEach(error -> this.dlog.error(error.pos, error.diagnosticCode, error.paramName));
             } else {
