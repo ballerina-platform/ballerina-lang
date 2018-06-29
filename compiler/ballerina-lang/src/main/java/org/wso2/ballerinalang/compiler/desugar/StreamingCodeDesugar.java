@@ -211,27 +211,13 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangVariable lambdaFunctionVariable = this.createAnyTypeVariable(oldFunctionVariable.symbol.name.getValue(),
                 lambdaFunction.pos, env);
 
-        //Create new lambda function to process the output events
-        BLangLambdaFunction outputLambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
-        BLangFunction outputLambdaFunctionNode = ASTBuilderUtil.createFunction(lambdaFunction.pos,
-                getFunctionName(FUNC_CALLER));
-        outputLambdaFunction.function = outputLambdaFunctionNode;
-        BLangBlockStmt lambdaBody = ASTBuilderUtil.createBlockStmt(lambdaFunction.pos);
-
-        //New Lambda Function
-        outputLambdaFunctionNode.requiredParams.add(lambdaFunctionVariable);
-        outputLambdaFunctionNode.returnTypeNode = ASTBuilderUtil.createTypeNode(symTable.nilType);
         BLangValueType returnType = new BLangValueType();
         returnType.setTypeKind(TypeKind.NIL);
-        outputLambdaFunctionNode.setReturnTypeNode(returnType);
-        defineFunction(outputLambdaFunctionNode, env.enclPkg);
 
-        outputLambdaFunctionNode.body = lambdaBody;
-        outputLambdaFunctionNode.closureVarSymbols = closureVarSymbols;
-        outputLambdaFunctionNode.desugared = false;
-        outputLambdaFunction.pos = lambdaFunction.pos;
-        outputLambdaFunction.type = symTable.anyType;
-
+        //Create new lambda function to process the output events
+        BLangLambdaFunction outputLambdaFunction = createLambdaFunction(lambdaFunction.pos, lambdaFunctionVariable,
+                closureVarSymbols, returnType);
+        BLangBlockStmt lambdaBody = outputLambdaFunction.function.body;
 
         //Create type casting for the output variable
         BVarSymbol typeCastingVarSymbol = new BVarSymbol(0,
@@ -276,7 +262,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 createVariable(lambdaFunction.pos, getVariableName(OUTPUT_FUNC_REFERENCE),
                         outputLambdaFunction.type, outputLambdaFunction,
                         outputLambdaFunction.function.symbol);
-        outputStreamFunctionVariable.typeNode = ASTBuilderUtil.createTypeNode(outputLambdaFunctionNode.type);
+        outputStreamFunctionVariable.typeNode = ASTBuilderUtil.createTypeNode(outputLambdaFunction.function.type);
         BLangVariableDef outputStreamFunctionVarDef = ASTBuilderUtil.createVariableDef(lambdaFunction.pos,
                 outputStreamFunctionVariable);
 
@@ -340,24 +326,15 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 this.createStreamEventTypeVariable(getVariableName(SIMPLE_SELECT_LAMBDA_PARAM_REFERENCE),
                         selectClause.pos, env);
 
-        //Create new lambda function to process the output events
-        BLangLambdaFunction simpleSelectLambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
-        BLangFunction simpleSelectLambdaFunctionNode = ASTBuilderUtil.createFunction(selectClause.pos,
-                getFunctionName(FUNC_CALLER));
-        simpleSelectLambdaFunction.function = simpleSelectLambdaFunctionNode;
-        BLangBlockStmt lambdaBody = ASTBuilderUtil.createBlockStmt(selectClause.pos);
-        simpleSelectLambdaFunctionNode.requiredParams.add(lambdaFunctionVariable);
-        simpleSelectLambdaFunctionNode.returnTypeNode = ASTBuilderUtil.createTypeNode(symTable.anyType);
+        Set<BVarSymbol> closureVarSymbols = new LinkedHashSet<>();
+        closureVarSymbols.add(lambdaFunctionVariable.symbol);
         BLangValueType returnType = new BLangValueType();
         returnType.setTypeKind(TypeKind.ANY);
-        simpleSelectLambdaFunctionNode.setReturnTypeNode(returnType);
-        defineFunction(simpleSelectLambdaFunctionNode, env.enclPkg);
 
-        simpleSelectLambdaFunctionNode.body = lambdaBody;
-        simpleSelectLambdaFunctionNode.closureVarSymbols.add(lambdaFunctionVariable.symbol);
-        simpleSelectLambdaFunctionNode.desugared = false;
-        simpleSelectLambdaFunction.pos = selectClause.pos;
-        simpleSelectLambdaFunction.type = simpleSelectLambdaFunctionNode.symbol.type;
+        //Create new lambda function to process the output events
+        BLangLambdaFunction simpleSelectLambdaFunction = createLambdaFunction(selectClause.pos, lambdaFunctionVariable,
+                closureVarSymbols, returnType);
+        BLangBlockStmt lambdaBody = simpleSelectLambdaFunction.function.body;
 
         //Create type casting for the filter variable
         BVarSymbol typeCastingVarSymbol = new BVarSymbol(0,
@@ -614,24 +591,16 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BLangVariable lambdaFunctionVariable =
                 this.createAnyTypeVariable(getVariableName(FILTER_LAMBDA_PARAM_REFERENCE), where.pos, env);
 
-        //Create new lambda function to process the output events
-        BLangLambdaFunction filterLambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
-        BLangFunction filterLambdaFunctionNode = ASTBuilderUtil.createFunction(where.pos,
-                getFunctionName(FUNC_CALLER));
-        filterLambdaFunction.function = filterLambdaFunctionNode;
-        BLangBlockStmt lambdaBody = ASTBuilderUtil.createBlockStmt(where.pos);
-        filterLambdaFunctionNode.requiredParams.add(lambdaFunctionVariable);
-        filterLambdaFunctionNode.returnTypeNode = ASTBuilderUtil.createTypeNode(symTable.booleanType);
+
         BLangValueType returnType = new BLangValueType();
         returnType.setTypeKind(TypeKind.BOOLEAN);
-        filterLambdaFunctionNode.setReturnTypeNode(returnType);
-        defineFunction(filterLambdaFunctionNode, env.enclPkg);
+        Set<BVarSymbol> closureVarSymbols = new LinkedHashSet<>();
+        closureVarSymbols.add(lambdaFunctionVariable.symbol);
 
-        filterLambdaFunctionNode.body = lambdaBody;
-        filterLambdaFunctionNode.closureVarSymbols.add(lambdaFunctionVariable.symbol);
-        filterLambdaFunctionNode.desugared = false;
-        filterLambdaFunction.pos = where.pos;
-        filterLambdaFunction.type = symTable.anyType;
+        //Create new lambda function to process the output events
+        BLangLambdaFunction filterLambdaFunction = createLambdaFunction(where.pos, lambdaFunctionVariable,
+                closureVarSymbols, returnType);
+        BLangBlockStmt lambdaBody = filterLambdaFunction.function.body;
 
         //Create type casting for the filter variable
         BVarSymbol typeCastingVarSymbol = new BVarSymbol(0,
@@ -876,5 +845,27 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         }
 
         return recordKeyValueList;
+    }
+
+    private BLangLambdaFunction createLambdaFunction(DiagnosticPos pos, BLangVariable lambdaFunctionVariable,
+                                                     Set<BVarSymbol> closureVarSymbols, BLangValueType returnType) {
+
+        BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
+        BLangFunction filterLambdaFunctionNode = ASTBuilderUtil.createFunction(pos,
+                getFunctionName(FUNC_CALLER));
+        lambdaFunction.function = filterLambdaFunctionNode;
+        BLangBlockStmt lambdaBody = ASTBuilderUtil.createBlockStmt(pos);
+        filterLambdaFunctionNode.requiredParams.add(lambdaFunctionVariable);
+        filterLambdaFunctionNode.returnTypeNode = ASTBuilderUtil.createTypeNode(symTable.booleanType);
+        filterLambdaFunctionNode.setReturnTypeNode(returnType);
+        defineFunction(filterLambdaFunctionNode, env.enclPkg);
+
+        filterLambdaFunctionNode.body = lambdaBody;
+        filterLambdaFunctionNode.closureVarSymbols = closureVarSymbols;
+        filterLambdaFunctionNode.desugared = false;
+        lambdaFunction.pos = pos;
+        lambdaFunction.type = symTable.anyType;
+
+        return lambdaFunction;
     }
 }
