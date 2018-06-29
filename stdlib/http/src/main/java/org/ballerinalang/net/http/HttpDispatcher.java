@@ -26,12 +26,7 @@ import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
-import org.ballerinalang.model.values.BBlob;
-import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.model.values.*;
 import org.ballerinalang.net.uri.URIUtil;
 import org.ballerinalang.runtime.message.BlobDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
@@ -244,10 +239,10 @@ public class HttpDispatcher {
                     BXML bxml = EntityBodyHandler.constructXmlDataSource(inRequestEntity);
                     EntityBodyHandler.addMessageDataSource(inRequestEntity, bxml);
                     return bxml;
-                case TypeTags.BLOB_TAG:
+                case TypeTags.ARRAY_TAG:
                     BlobDataSource blobDataSource = EntityBodyHandler.constructBlobDataSource(inRequestEntity);
                     EntityBodyHandler.addMessageDataSource(inRequestEntity, blobDataSource);
-                    return new BBlob(blobDataSource != null ? blobDataSource.getValue() : new byte[0]);
+                    return new BByteArray(blobDataSource != null ? blobDataSource.getValue() : new byte[0]);
                 case TypeTags.OBJECT_TYPE_TAG:
                 case TypeTags.RECORD_TYPE_TAG:
                     bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
