@@ -69,7 +69,6 @@ class ControllerOverlay extends React.Component {
     onMouseLeave({ origin, region }) {
         // clean up previous menu items
         origin.trigger('render-menu', { content: null, region });
-        this.forceUpdate();
     }
 
     renderControllers(model, controllers, region) {

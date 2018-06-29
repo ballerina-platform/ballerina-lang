@@ -338,9 +338,9 @@ class IfStatementDecorator extends React.Component {
                 <HoverGroup model={this.props.model} region='main'>
                     <rect
                         x={p6X - 25}
-                        y={p6Y - 85}
+                        y={p6Y - 25}
                         width={50}
-                        height={100}
+                        height={25}
                         className='invisible-rect'
                     />
                 </HoverGroup>
