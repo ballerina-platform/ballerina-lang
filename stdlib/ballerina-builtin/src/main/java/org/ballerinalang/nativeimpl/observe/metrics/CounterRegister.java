@@ -43,8 +43,8 @@ public class CounterRegister extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct bStruct = (BStruct) context.getRefArgument(0);
-        Counter counter = (Counter) bStruct.getNativeData(Constants.COUNTER_NATIVE_INSTANCE_KEY);
+        Counter counter = (Counter) bStruct.getNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY);
         Counter registeredCounter = counter.register();
-        bStruct.addNativeData(Constants.COUNTER_NATIVE_INSTANCE_KEY, registeredCounter);
+        bStruct.addNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY, registeredCounter);
     }
 }

@@ -114,8 +114,8 @@ public interface Gauge extends Metric {
         }
     }
 
-    default void register() {
-        DefaultMetricRegistry.getInstance().gauge(getId());
+    default Gauge register() {
+        return DefaultMetricRegistry.getInstance().register(this);
     }
 
     /**

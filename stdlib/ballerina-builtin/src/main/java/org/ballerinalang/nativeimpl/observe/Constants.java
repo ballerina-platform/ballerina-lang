@@ -30,7 +30,7 @@ public final class Constants {
     public static final String COUNTER = "Counter";
     public static final String SNAPSHOT = "Snapshot";
     public static final String PERCENTILE_VALUE = "PercentileValue";
-    public static final String COUNTER_NATIVE_INSTANCE_KEY = "__counter_native_instance__";
+    public static final String METRIC_NATIVE_INSTANCE_KEY = "__metric_native_instance__";
 
     public static final String GAUGE_VALUE_SUFFIX = "_value";
 

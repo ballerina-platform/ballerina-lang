@@ -90,7 +90,7 @@ public class RollingHistogram {
     public RollingHistogram(Clock clock, StatisticConfig statisticConfig) {
         this.clock = clock;
         this.statisticConfig = statisticConfig;
-        int ageBuckets = statisticConfig.getBuckets();
+        int ageBuckets = (int) statisticConfig.getBuckets();
         ringBuffer = new DoubleRecorder[ageBuckets];
         for (int i = 0; i < ageBuckets; i++) {
             ringBuffer[i] = new DoubleRecorder(statisticConfig.getPercentilePrecision());

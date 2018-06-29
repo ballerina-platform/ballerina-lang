@@ -21,11 +21,18 @@ package org.ballerinalang.nativeimpl.task;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.model.values.BClosure;
+import org.ballerinalang.model.values.BFunctionPointer;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.program.BLangFunctions;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * This class invokes the Ballerina onTrigger function, and if an error occurs while invoking that function, it invokes
@@ -37,20 +44,33 @@ public class TaskExecutor {
                                FunctionRefCPEntry onErrorFunction, ProgramFile programFile) {
         boolean isErrorFnCalled = false;
         try {
+            BStruct task = (BStruct) parentCtx.getRefArgument(0);
+            BFunctionPointer triggerFunction = (BFunctionPointer) task.getRefField(0);
+            List<BValue> onTriggerFunctionArgs = new ArrayList<>();
+            for (BClosure closure : triggerFunction.getClosureVars()) {
+                onTriggerFunctionArgs.add(closure.value());
+            }
             // Invoke the onTrigger function.
             BValue[] results = BLangFunctions.invokeCallable(onTriggerFunction.getFunctionInfo(),
-                    new BValue[0]);
+                    onTriggerFunctionArgs.toArray(new BValue[onTriggerFunctionArgs.size()]));
             // If there are results, that mean an error has been returned
             if (onErrorFunction != null && results.length > 0 && results[0] != null) {
                 isErrorFnCalled = true;
-                BLangFunctions.invokeCallable(onErrorFunction.getFunctionInfo(), results);
+                BFunctionPointer errorFunction = (BFunctionPointer) task.getRefField(1);
+                List<BValue> onErrorFunctionArgs = new ArrayList<>();
+                for (BClosure closure : errorFunction.getClosureVars()) {
+                    onErrorFunctionArgs.add(closure.value());
+                }
+                onErrorFunctionArgs.addAll(Arrays.asList(results));
+                BLangFunctions.invokeCallable(onErrorFunction.getFunctionInfo(),
+                        onErrorFunctionArgs.toArray(new BValue[onErrorFunctionArgs.size()]));
             }
         } catch (BLangRuntimeException e) {
 
             //Call the onError function in case of error.
             if (onErrorFunction != null && !isErrorFnCalled) {
                 BLangFunctions.invokeCallable(onErrorFunction.getFunctionInfo(),
-                        new BValue[] { BLangVMErrors.createError(parentCtx, e.getMessage()) });
+                        new BValue[]{BLangVMErrors.createError(parentCtx, e.getMessage())});
             }
         }
     }

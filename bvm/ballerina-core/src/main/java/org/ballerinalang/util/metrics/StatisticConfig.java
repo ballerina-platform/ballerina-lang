@@ -51,7 +51,7 @@ public class StatisticConfig {
     /**
      * The number of buckets used to implement the sliding time window.
      */
-    private int buckets = 5;
+    private long buckets = 5;
 
     /**
      * Get percentiles.
@@ -88,7 +88,7 @@ public class StatisticConfig {
      *
      * @return The number of buckets
      */
-    public int getBuckets() {
+    public long getBuckets() {
         return buckets;
     }
 
@@ -166,7 +166,7 @@ public class StatisticConfig {
          * @param buckets number of buckets used to implement the sliding time window
          * @return This builder.
          */
-        public Builder buckets(int buckets) {
+        public Builder buckets(long buckets) {
             if (buckets <= 0) {
                 throw new IllegalArgumentException("buckets cannot be " + buckets + ". It must be greater than zero.");
             }

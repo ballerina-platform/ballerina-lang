@@ -20,13 +20,11 @@ package org.ballerinalang.nativeimpl.observe.metrics;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.observe.Constants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.metrics.Counter;
 
 /**
@@ -41,8 +39,7 @@ import org.ballerinalang.util.metrics.Counter;
                 structPackage = Constants.OBSERVE_PACKAGE_PATH),
         args = {
                 @Argument(name = "amount", type = TypeKind.INT)
-        },
-        returnType = @ReturnType(type = TypeKind.INT)
+        }
 )
 public class CounterNativeIncrement extends BlockingNativeCallableUnit {
 
@@ -50,8 +47,7 @@ public class CounterNativeIncrement extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct bStruct = (BStruct) context.getRefArgument(0);
         long amount = context.getIntArgument(0);
-        Counter counter = (Counter) bStruct.getNativeData(Constants.COUNTER_NATIVE_INSTANCE_KEY);
+        Counter counter = (Counter) bStruct.getNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY);
         counter.increment(amount);
-        context.setReturnValues(new BInteger(counter.getValue()));
     }
 }

@@ -46,6 +46,6 @@ public class CounterInitialize extends BlockingNativeCallableUnit {
                 .description(bStruct.getStringField(1))
                 .tags(Utils.toStringMap((BMap) bStruct.getRefField(0)))
                 .build();
-        bStruct.addNativeData(Constants.COUNTER_NATIVE_INSTANCE_KEY, counter);
+        bStruct.addNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY, counter);
     }
 }

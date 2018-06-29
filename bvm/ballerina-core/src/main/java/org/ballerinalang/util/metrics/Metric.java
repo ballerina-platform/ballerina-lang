@@ -29,6 +29,9 @@ public interface Metric {
      */
     MetricId getId();
 
+
+    Metric register();
+
     /**
      * Builder for metrics.
      *

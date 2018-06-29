@@ -55,6 +55,7 @@ public class DefaultGauge extends AbstractMetric implements Gauge {
         this(id, Clock.DEFAULT, statisticConfigs);
     }
 
+
     private void updateHistogram(double value) {
         count.increment();
         sum.add(value);

@@ -20,31 +20,31 @@ package org.ballerinalang.nativeimpl.observe.metrics;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.observe.Constants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.metrics.Counter;
+import org.ballerinalang.util.metrics.Gauge;
 
 /**
- * This is the getValue function native implementation of the Counter object.
+ * This is the register function native implementation of the Gauge object.
  */
+
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
-        functionName = "getValue",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.COUNTER,
+        functionName = "register",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.GAUGE,
                 structPackage = Constants.OBSERVE_PACKAGE_PATH),
-        returnType = @ReturnType(type = TypeKind.INT)
+        isPublic = true
 )
+public class GaugeRegister extends BlockingNativeCallableUnit {
 
-public class CounterGetValue extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct bStruct = (BStruct) context.getRefArgument(0);
-        Counter counter = (Counter) bStruct.getNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY);
-        context.setReturnValues(new BInteger(counter.getValue()));
+        Gauge gauge = (Gauge) bStruct.getNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY);
+        Gauge registeredCounter = gauge.register();
+        bStruct.addNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY, registeredCounter);
     }
 }
