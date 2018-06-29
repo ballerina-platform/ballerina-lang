@@ -33,10 +33,11 @@ type TeacherOutput record{
 
 int index = 0;
 stream<Teacher> inputStream;
-stream<TeacherOutput> outputStream;
+stream<Teacher> outputStream;
+stream<TeacherOutput> finalOutputStream;
 TeacherOutput[] globalEmployeeArray = [];
 
-function startSelectQuery() returns (TeacherOutput[]) {
+function startPipelineQuery() returns (TeacherOutput[]) {
 
     Teacher[] teachers = [];
     Teacher t1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Ananda College" };
@@ -46,9 +47,9 @@ function startSelectQuery() returns (TeacherOutput[]) {
     teachers[1] = t2;
     teachers[2] = t3;
 
-    testSelectQuery();
+    testPipelineQuery();
 
-    outputStream.subscribe(printTeachers);
+    finalOutputStream.subscribe(printTeachers);
     foreach t in teachers {
         inputStream.publish(t);
     }
@@ -58,13 +59,19 @@ function startSelectQuery() returns (TeacherOutput[]) {
     return globalEmployeeArray;
 }
 
-function testSelectQuery() {
+function testPipelineQuery() {
 
     forever {
-        from inputStream
-        select inputStream.name as TeacherName, inputStream.age
-        => (TeacherOutput[] emp) {
+        from inputStream where inputStream.age > 25
+        select inputStream.name, inputStream.age, inputStream.status, inputStream.batch, inputStream.school
+        => (Teacher[] emp) {
             outputStream.publish(emp);
+        }
+
+        from outputStream
+        select outputStream.name as TeacherName, outputStream.age
+        => (TeacherOutput[] emp) {
+            finalOutputStream.publish(emp);
         }
     }
 }

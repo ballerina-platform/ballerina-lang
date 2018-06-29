@@ -16,12 +16,7 @@
 
 import ballerina/runtime;
 import ballerina/io;
-import ballerina/time;
 import ballerina/streams;
-
-type Avg record {
-    float age;
-};
 
 type Teacher record {
     string name;
@@ -31,78 +26,49 @@ type Teacher record {
     string school;
 };
 
-int sumValue = 0;
-int employeeIndex = 0;
-stream<Teacher> teacherStream1;
-stream<streams:StreamEvent> outputStream;
-streams:EventType evType = "ALL";
-streams:LengthWindow lengthWindow = streams:lengthWindow(5, outputStream, evType);
+int index = 0;
+stream<Teacher> inputStream;
+stream<Teacher> outputStream;
+Teacher[] globalEmployeeArray = [];
 
-function startFilterQuery() {
+function startFilterQuery() returns (Teacher[]) {
 
     Teacher[] teachers = [];
-    teachers[0] = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-    teachers[1] = { name: "Shareek", age: 33, status: "single", batch: "LK1998", school: "Thomas College" };
-    teachers[2] = { name: "Nimal", age: 44, status: "married", batch: "LK1988", school: "Ananda College" };
-    teachers[3] = { name: "Kamal", age: 34, status: "married", batch: "LK1988", school: "Ananda College" };
-    teachers[4] = { name: "Nisala", age: 64, status: "married", batch: "LK1988", school: "Ananda College" };
-    teachers[5] = { name: "Supuni", age: 40, status: "married", batch: "LK1988", school: "Ananda College" };
-    teachers[6] = { name: "Joe", age: 45, status: "married", batch: "LK1988", school: "Ananda College" };
-    teachers[7] = { name: "Micheal", age: 60, status: "married", batch: "LK1988", school: "Ananda College" };
-    teachers[8] = { name: "Rambo", age: 30, status: "married", batch: "LK1988", school: "Ananda College" };
-    teachers[9] = { name: "Alex", age: 25, status: "married", batch: "LK1988", school: "Ananda College" };
+    Teacher t1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Ananda College" };
+    Teacher t2 = { name: "Mohan", age: 45, status: "single", batch: "LK2014", school: "Hindu College" };
+    Teacher t3 = { name: "Shareek", age: 50, status: "single", batch: "LK2014", school: "Zahira College" };
+    teachers[0] = t1;
+    teachers[1] = t2;
+    teachers[2] = t3;
 
-    teacherStream1.subscribe(filterTeachers);
-    outputStream.subscribe(nextProcess);
+    testFilterQuery();
+
+    outputStream.subscribe(printTeachers);
     foreach t in teachers {
-        teacherStream1.publish(t);
+        inputStream.publish(t);
     }
 
     runtime:sleep(1000);
+    io:println("output: ", globalEmployeeArray);
+    return globalEmployeeArray;
 }
 
+function testFilterQuery() {
 
-function filterTeachers(Teacher t) {
-    float sum = 0;
-    lock {
-        if (lengthWindow.eventType == "CURRENT"){
-            outputStream.publish(createStreamEvent("CURRENT", t));
-        } else if (lengthWindow.eventType == "EXPIRED") {
-            if (lengthWindow.counter > 4){
-                any event = lengthWindow.getEventToBeExpired();
-                Teacher teacher = check <Teacher>event;
-                outputStream.publish(createStreamEvent("EXPIRED", teacher));
-            }
-        } else if (lengthWindow.eventType == "ALL") {
-            outputStream.publish(createStreamEvent("CURRENT", t));
-            if (lengthWindow.counter > 4){
-                any event = lengthWindow.getEventToBeExpired();
-                Teacher teacher = check <Teacher>event;
-                outputStream.publish(createStreamEvent("EXPIRED", teacher));
-            }
+    forever {
+        from inputStream where inputStream.age > 25
+        select inputStream.name, inputStream.age, inputStream.status, inputStream.batch, inputStream.school
+        => (Teacher[] emp) {
+            outputStream.publish(emp);
         }
-
-        lengthWindow.add(t);
     }
 }
 
-function createStreamEvent(streams:EventType evType, any evObject) returns (streams:StreamEvent) {
-    streams:StreamEvent streamEvent = { eventType: evType, eventObject: evObject };
-    return streamEvent;
+function printTeachers(Teacher e) {
+    addToGlobalEmployeeArray(e);
 }
 
-// Below code segment is written to perform the aggregations
-function nextProcess(streams:StreamEvent t) {
-
-    Teacher teacher = check <Teacher>t.eventObject;
-    if (t.eventType == "CURRENT") {
-        sumValue += teacher.age;
-    } else if (t.eventType == "EXPIRED"){
-        sumValue -= teacher.age;
-    } else if (t.eventType == "RESET"){
-        sumValue = 0;
-    }
-
-    io:println(t);
-    io:println(sumValue);
+function addToGlobalEmployeeArray(Teacher e) {
+    globalEmployeeArray[index] = e;
+    index = index + 1;
 }

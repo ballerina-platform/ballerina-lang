@@ -29,23 +29,23 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This contains methods to test filter & select behaviour in Ballerina Streaming V2.
+ * This contains methods to test the query pipeline behaviour in Ballerina Streaming V2.
  *
  * @since 0.980.0
  */
-public class BallerinaStreamsV2Test {
+public class BallerinaStreamsV2PipelineTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
         System.setProperty("enable.siddhiRuntime", "false");
-        result = BCompileUtil.compile("test-src/streaming/streamingv2-select-with-filter-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/streamingv2-pipeline-test.bal");
     }
 
     @Test(description = "Test filter streaming query")
-    public void testSelectorWithFilterQuery() {
-        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startSelectQuery");
+    public void testPipelineQuery() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startPipelineQuery");
         System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 

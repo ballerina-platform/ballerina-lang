@@ -29,23 +29,23 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This contains methods to test filter & select behaviour in Ballerina Streaming V2.
+ * This contains methods to test filter behaviour in Ballerina Streaming V2.
  *
  * @since 0.980.0
  */
-public class BallerinaStreamsV2Test {
+public class BallerinaStreamsV2FilterTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
         System.setProperty("enable.siddhiRuntime", "false");
-        result = BCompileUtil.compile("test-src/streaming/streamingv2-select-with-filter-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/streamingv2-filter-test.bal");
     }
 
     @Test(description = "Test filter streaming query")
-    public void testSelectorWithFilterQuery() {
-        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startSelectQuery");
+    public void testFilterQuery() {
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startFilterQuery");
         System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputEmployeeEvents);
 
@@ -54,9 +54,9 @@ public class BallerinaStreamsV2Test {
         BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
         BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[1];
 
-        Assert.assertEquals(employee0.get("TeacherName").stringValue(), "Mohan");
+        Assert.assertEquals(employee0.get("name").stringValue(), "Mohan");
         Assert.assertEquals(((BInteger) employee0.get("age")).intValue(), 45);
-        Assert.assertEquals(employee1.get("TeacherName").stringValue(), "Shareek");
+        Assert.assertEquals(employee1.get("name").stringValue(), "Shareek");
         Assert.assertEquals(((BInteger) employee1.get("age")).intValue(), 50);
     }
 }
