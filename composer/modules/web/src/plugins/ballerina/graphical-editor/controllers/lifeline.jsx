@@ -55,5 +55,5 @@ export default {
     regions: {
         main: MainRegion,
     },
-    name: 'Function',
+    name: 'Lifeline',
 };
