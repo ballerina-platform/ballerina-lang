@@ -52,12 +52,25 @@ public class CreateMemoryChannel extends AbstractNativeChannel {
     private static final int MESSAGE_CONTENT_INDEX = 0;
 
     /**
+     * Shrink the byte array to fit with the given content.
+     *
+     * @param array byte array with elements initialized.
+     * @return byte array which is shrunk.
+     */
+    private byte[] shrink(BByteArray array) {
+        int contentLength = (int) array.size();
+        byte[] content = new byte[contentLength];
+        System.arraycopy(array.getBytes(), 0, content, 0, contentLength);
+        return content;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
     public Channel inFlow(Context context) throws BallerinaException {
         try {
-            byte[] content = ((BByteArray) context.getRefArgument(MESSAGE_CONTENT_INDEX)).getValues();
+            byte[] content = shrink(((BByteArray) context.getRefArgument(MESSAGE_CONTENT_INDEX)));
             ByteArrayInputStream contentStream = new ByteArrayInputStream(content);
             ReadableByteChannel readableByteChannel = Channels.newChannel(contentStream);
             return new BlobIOChannel(new BlobChannel(readableByteChannel));

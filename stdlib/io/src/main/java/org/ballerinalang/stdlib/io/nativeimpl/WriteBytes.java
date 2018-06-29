@@ -99,7 +99,7 @@ public class WriteBytes implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         BMap<String, BValue> channel = (BMap<String, BValue>) context.getRefArgument(BYTE_CHANNEL_INDEX);
-        byte[] content = ((BByteArray) context.getRefArgument(CONTENT_INDEX)).getValues();
+        byte[] content = ((BByteArray) context.getRefArgument(CONTENT_INDEX)).getBytes();
         int offset = (int) context.getIntArgument(START_OFFSET_INDEX);
         Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);

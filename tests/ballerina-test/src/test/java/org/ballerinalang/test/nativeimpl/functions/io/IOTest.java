@@ -102,21 +102,21 @@ public class IOTest {
         args = new BValue[]{new BInteger(numberOfBytesToRead)};
         BValue[] returns = BRunUtil.invokeStateful(bytesInputOutputProgramFile, "readBytes", args);
         readBytes = (BByteArray) returns[0];
-        Assert.assertEquals(expectedBytes, readBytes.getValues());
+        Assert.assertEquals(expectedBytes, readBytes.getBytes());
 
         //Reads the next three bytes "456"
         expectedBytes = "456".getBytes();
         args = new BValue[]{new BInteger(numberOfBytesToRead)};
         returns = BRunUtil.invokeStateful(bytesInputOutputProgramFile, "readBytes", args);
         readBytes = (BByteArray) returns[0];
-        Assert.assertEquals(expectedBytes, readBytes.getValues());
+        Assert.assertEquals(expectedBytes, readBytes.getBytes());
 
         //Request for a get, the bytes will be empty
         expectedBytes = new byte[0];
         args = new BValue[]{new BInteger(numberOfBytesToRead)};
         returns = BRunUtil.invokeStateful(bytesInputOutputProgramFile, "readBytes", args);
         readBytes = (BByteArray) returns[0];
-        Assert.assertEquals(expectedBytes, readBytes.getValues());
+        Assert.assertEquals(expectedBytes, readBytes.getBytes());
 
         BRunUtil.invokeStateful(bytesInputOutputProgramFile, "close");
     }
