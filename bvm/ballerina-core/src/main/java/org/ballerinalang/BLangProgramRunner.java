@@ -61,7 +61,7 @@ public class BLangProgramRunner {
 
 //        Debugger debugger = new Debugger(programFile);
 //        initDebugger(programFile, debugger);
-//        List<State> states = FileBasedStore.getInstance().getStates(programFile);
+//        List<State> states = PersistenceStore.getInstance().getStates(programFile);
 //        if (states == null) {
 //            return;
 //        }

@@ -22,6 +22,11 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.InterruptibleNativeCallableUnit;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
+/**
+ * Native implementation for check point the execution context.
+ *
+ * @since 0.976.0
+ */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "runtime",
         functionName = "checkpoint",

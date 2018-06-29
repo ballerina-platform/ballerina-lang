@@ -40,11 +40,11 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BCallableFuture;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.FileBasedStore;
 import org.ballerinalang.persistence.PersistenceUtils;
 import org.ballerinalang.persistence.states.PendingCheckpoints;
 import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.runtime.Constants;
+import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo.WorkerSet;
@@ -265,13 +265,14 @@ public class BLangFunctions {
         if (callableUnitInfo.isNative()) {
             NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();
             if (nativeCallable instanceof InterruptibleNativeCallableUnit) {
-                InterruptibleNativeCallableUnit interruptibleNativeCallableUnit = (InterruptibleNativeCallableUnit) nativeCallable;
+                InterruptibleNativeCallableUnit interruptibleNativeCallableUnit
+                        = (InterruptibleNativeCallableUnit) nativeCallable;
                 Object o = parentCtx.globalProps.get("instance.id");
                 if (o != null && o instanceof String) {
                     String instanceId = (String) o;
                     WorkerExecutionContext runnableContext = PersistenceUtils.getMainPackageContext(parentCtx);
                     if (interruptibleNativeCallableUnit.persistBeforeOperation()) {
-                        FileBasedStore.persistState(instanceId, new State(runnableContext));
+                        PersistenceStore.persistState(instanceId, new State(runnableContext));
                     }
                     if (interruptibleNativeCallableUnit.persistAfterOperation()) {
                         PendingCheckpoints.addCheckpoint(instanceId, (runnableContext.ip + 1));

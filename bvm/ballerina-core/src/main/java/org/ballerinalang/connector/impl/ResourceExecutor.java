@@ -25,10 +25,10 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.FileBasedStore;
 import org.ballerinalang.persistence.states.ActiveStates;
 import org.ballerinalang.persistence.states.FailedStates;
 import org.ballerinalang.persistence.states.State;
+import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.observability.ObserverContext;
@@ -103,7 +103,7 @@ public class ResourceExecutor {
         }
 
         stateList = FailedStates.get(instanceId);
-        FileBasedStore.removeFailedStates(instanceId);
+        PersistenceStore.removeFailedStates(instanceId);
         if (stateList != null && !stateList.isEmpty()) {
             State state = stateList.get(0);
             if (injectConnection(state, bValues)) {
