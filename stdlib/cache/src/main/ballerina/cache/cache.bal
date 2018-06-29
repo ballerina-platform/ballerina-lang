@@ -45,8 +45,8 @@ documentation { Represents a cache. }
 public type Cache object {
 
     private int capacity;
-    private map<CacheEntry> entries;
-    private int expiryTimeMillis;
+    map<CacheEntry> entries;
+    int expiryTimeMillis;
     private float evictionFactor;
 
     public new(expiryTimeMillis = 900000, capacity = 100, evictionFactor = 0.25) {

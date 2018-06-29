@@ -26,7 +26,7 @@ type InitiatorClientConfig record {
 };
 
 type InitiatorClientEP object {
-    private http:Client httpClient;
+    http:Client httpClient;
 
     function init(InitiatorClientConfig conf) {
         endpoint http:Client httpEP {
@@ -47,7 +47,7 @@ type InitiatorClientEP object {
 };
 
 type InitiatorClient object {
-    private InitiatorClientEP clientEP;
+    InitiatorClientEP clientEP;
 
     new() {
 

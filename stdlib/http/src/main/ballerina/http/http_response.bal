@@ -39,8 +39,8 @@ public type Response object {
     public string resolvedRequestedURI;
     public ResponseCacheControl? cacheControl;
 
-    private int receivedTime;
-    private int requestTime;
+    int receivedTime;
+    int requestTime;
     private mime:Entity entity;
 
     public new() {
