@@ -32,7 +32,7 @@ service<http:WebSocketService> echo bind echoEP {
     onText(endpoint caller, string text) {
     }
 
-    onBinary(endpoint caller, blob text, boolean final) {
+    onBinary(endpoint caller, byte[] text, boolean final) {
     }
 
     onClose(endpoint caller, int val, string text) {
@@ -41,10 +41,10 @@ service<http:WebSocketService> echo bind echoEP {
     onIdleTimeout(endpoint caller) {
     }
 
-    onPing(endpoint caller, blob so) {
+    onPing(endpoint caller, byte[] so) {
     }
 
-    onPong(endpoint caller, blob yes) {
+    onPong(endpoint caller, byte[] yes) {
     }
 
     onError(endpoint caller, error err) {

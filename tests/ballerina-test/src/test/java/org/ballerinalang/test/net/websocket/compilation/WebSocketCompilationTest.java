@@ -88,8 +88,9 @@ public class WebSocketCompilationTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/net/websocket/compilation/fail_onBinary.bal");
 
         assertExpectedDiagnosticsLength(compileResult, 1);
-        BAssertUtil.validateError(compileResult, 0, "Invalid resource signature for onBinary resource in service " +
-                "echo: The second parameter should be a blob", 30, 5);
+        BAssertUtil.validateError(compileResult, 0,
+                                  "Invalid resource signature for onBinary resource in service echo: The second " +
+                                          "parameter should be a byte[]", 30, 5);
     }
 
     @Test(description = "Invalid signature for onPing and onPong resources")
@@ -97,12 +98,14 @@ public class WebSocketCompilationTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/net/websocket/compilation/fail_onPing_onPong.bal");
 
         assertExpectedDiagnosticsLength(compileResult, 3);
-        BAssertUtil.validateError(compileResult, 0, "Invalid resource signature for onPing resource in service " +
-                "echo: The second parameter should be a blob", 30, 5);
+        BAssertUtil.validateError(compileResult, 0,
+                                  "Invalid resource signature for onPing resource in service echo: The second " +
+                                          "parameter should be a byte[]", 30, 5);
         BAssertUtil.validateError(compileResult, 1, "Invalid resource signature for onPong resource in service " +
                 "echo: Expected parameter count = 2", 33, 5);
-        BAssertUtil.validateError(compileResult, 2, "Invalid resource signature for onPong resource in service " +
-                "echo: The second parameter should be a blob", 33, 5);
+        BAssertUtil.validateError(compileResult, 2,
+                                  "Invalid resource signature for onPong resource in service echo: The second " +
+                                          "parameter should be a byte[]", 33, 5);
     }
 
     @Test(description = "Invalid signature for onClose resource")

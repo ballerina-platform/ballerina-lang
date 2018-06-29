@@ -26,7 +26,7 @@ service<http:WebSocketClientService> echo {
     onText(endpoint conn, string text) {
     }
 
-    onBinary(endpoint conn, blob text, boolean final) {
+    onBinary(endpoint conn, byte[] text, boolean final) {
 
     }
 
@@ -37,10 +37,10 @@ service<http:WebSocketClientService> echo {
     onIdleTimeout(endpoint conn) {
 
     }
-    onPing(endpoint conn, blob so) {
+    onPing(endpoint conn, byte[] so) {
 
     }
-    onPong(endpoint conn, blob yes) {
+    onPong(endpoint conn, byte[] yes) {
 
     }
 }

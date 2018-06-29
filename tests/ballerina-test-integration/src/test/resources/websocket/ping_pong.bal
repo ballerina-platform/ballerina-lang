@@ -21,7 +21,7 @@ import ballerina/log;
 @final string REMOTE_BACKEND_URL = "ws://localhost:15500/websocket";
 @final string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
 @final string data = "data";
-@final blob APPLICATION_DATA = data.toBlob("UTF-8");
+@final byte[] APPLICATION_DATA = data.toByteArray("UTF-8");
 
 @http:WebSocketServiceConfig {
     path: "/pingpong/ws"
@@ -78,13 +78,13 @@ service<http:WebSocketService> PingPongTestService bind { port: 9090 } {
         }
     }
 
-    onPing(endpoint wsEp, blob localData) {
+    onPing(endpoint wsEp, byte[] localData) {
         wsEp->pong(localData) but {
             error e => io:println("Error sending server pong")
         };
     }
 
-    onPong(endpoint wsEp, blob localData) {
+    onPong(endpoint wsEp, byte[] localData) {
         wsEp->pushText("pong-from-you") but {
             error e => io:println("server text error")
         };
@@ -101,14 +101,14 @@ service<http:WebSocketClientService> clientCallbackService {
         };
     }
 
-    onPing(endpoint wsEp, blob localData) {
+    onPing(endpoint wsEp, byte[] localData) {
         endpoint http:WebSocketListener serverEp = getAssociatedListener(wsEp);
         serverEp->pushText("ping-from-remote-server-received") but {
             error e => io:println("error sending client text")
         };
     }
 
-    onPong(endpoint wsEp, blob localData) {
+    onPong(endpoint wsEp, byte[] localData) {
         endpoint http:WebSocketListener serverEp = getAssociatedListener(wsEp);
         serverEp->pushText("pong-from-remote-server-received") but {
             error e => io:println("error sending client text")
