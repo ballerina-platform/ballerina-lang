@@ -2,7 +2,7 @@ import ballerina/io;
 
 io:CSVChannel? csvChannel;
 
-type Employee {
+type Employee record {
     string id;
     string name;
     float salary;

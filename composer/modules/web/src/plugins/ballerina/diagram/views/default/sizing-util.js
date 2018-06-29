@@ -567,6 +567,17 @@ class SizingUtil {
         this.sizeStatement(node.getSource(true, true), viewState);
     }
 
+    /**
+     * Calculate dimention of PostIncrementNode nodes.
+     *
+     * @param {object} node
+     *
+     */
+    sizePostIncrementNode(node) {
+        const viewState = node.viewState;
+        this.sizeStatement(node.getSource(true, true), viewState);
+    }
+
 
     /**
      * Calculate dimention of Service nodes.

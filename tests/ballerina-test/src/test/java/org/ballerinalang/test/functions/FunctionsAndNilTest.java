@@ -21,7 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -33,6 +33,7 @@ import org.testng.annotations.Test;
 public class FunctionsAndNilTest {
 
     private CompileResult result;
+    private static final String ERROR_MESSAGE_FIELD = "message";
 
     @BeforeClass
     public void setup() {
@@ -63,9 +64,9 @@ public class FunctionsAndNilTest {
         returns = BRunUtil.invoke(result, "funcReturnNilOrError", params);
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].getClass(), BStruct.class);
-        BStruct errorValue = (BStruct) returns[0];
-        Assert.assertEquals("dummy error message", errorValue.getStringField(0));
+        Assert.assertEquals(returns[0].getClass(), BMap.class);
+        BMap<String, BValue> errorValue = (BMap<String, BValue>) returns[0];
+        Assert.assertEquals("dummy error message", errorValue.get(ERROR_MESSAGE_FIELD).stringValue());
     }
 
     @Test(description = "Test functions that returns nil type")
@@ -80,9 +81,9 @@ public class FunctionsAndNilTest {
         returns = BRunUtil.invoke(result, "funcReturnOptionallyError", params);
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].getClass(), BStruct.class);
-        BStruct errorValue = (BStruct) returns[0];
-        Assert.assertEquals("dummy error message", errorValue.getStringField(0));
+        Assert.assertEquals(returns[0].getClass(), BMap.class);
+        BMap<String, BValue> errorValue = (BMap<String, BValue>) returns[0];
+        Assert.assertEquals("dummy error message", errorValue.get(ERROR_MESSAGE_FIELD).stringValue());
     }
 
     @Test(description = "Test functions that returns nil type")

@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
@@ -29,6 +30,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
+import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -500,6 +502,17 @@ public class StringTest {
         BValue[] returns = BRunUtil.invoke(result, "toBlob", args);
         Assert.assertEquals(((BBlob) returns[0]).blobValue(), content.getBytes("UTF-8"),
                 "Produced Blob value is wrong");
+    }
+
+    @Test
+    public void testToByteArray() throws UnsupportedEncodingException {
+        String content = "Sample Ballerina Byte Array Content";
+        byte[] bytes = content.getBytes("UTF-8");
+        BValue[] args = {new BString(content), new BString("UTF-8")};
+        BValue[] returns = BRunUtil.invoke(result, "toByteArray", args);
+        BByteArray bByteArray = (BByteArray) returns[0];
+        Assert.assertEquals(bByteArray.size(), bytes.length);
+        ByteArrayUtils.assertJBytesWithBBytes(bytes, bByteArray.getBytes());
     }
 
     @Test

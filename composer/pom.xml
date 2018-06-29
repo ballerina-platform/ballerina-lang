@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.974.1-SNAPSHOT</version>
+        <version>0.976.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -89,9 +89,8 @@
     <modules>
         <module>modules/server</module>
         <module>modules/web</module>
-        <!-- Re-enable this once source gen is fixed for new language syntax changes -->
-        <!--module>modules/js-tests</module-->
-        <module>integration-tests</module>
+        <module>modules/integration-tests</module>
+        <module>modules/distribution</module>
     </modules>
 
 </project>

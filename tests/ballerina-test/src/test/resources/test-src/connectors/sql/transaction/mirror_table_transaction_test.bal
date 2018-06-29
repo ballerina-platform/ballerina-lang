@@ -2,11 +2,11 @@ import ballerina/jdbc;
 import ballerina/io;
 import ballerina/runtime;
 
-type ResultCount {
+type ResultCount record {
     int COUNTVAL,
 };
 
-type CustomersTrx {
+type CustomersTrx record {
     string firstName,
     string lastName,
     int registrationID,
@@ -14,7 +14,7 @@ type CustomersTrx {
     string country,
 };
 
-type CustomersTrx2 {
+type CustomersTrx2 record {
     int customerId,
     string firstName,
     string lastName,

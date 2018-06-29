@@ -126,7 +126,7 @@ function funcWithNilDefaultParamExpr_1(string? s = null) returns string? {
     return s;
 }
 
-type Student {
+type Student record {
     int a;
 };
 

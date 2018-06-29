@@ -1,6 +1,6 @@
 
 type DummyEndpoint object {
-    public function init ({} conf) {
+    public function init (record {} conf) {
     }
 
     public function getCallerActions () returns (DummyClient) {

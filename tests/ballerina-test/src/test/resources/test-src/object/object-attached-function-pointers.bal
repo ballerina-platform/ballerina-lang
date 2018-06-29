@@ -34,7 +34,7 @@ type Person object {
     }
 
     function attachedFn6(int a, float b) returns (int) {
-        var foo = attachedFn3;
+        var foo = self.attachedFn3;
         return a + <int>b + foo(43, 10.8);
     }
 
@@ -101,3 +101,107 @@ function test7() returns (int) {
     var foo = p.attachedFn7;
     return foo(43, 10.8);
 }
+
+public type FooObj object {
+    private {
+        (function(string[]) returns string) fp1;
+        (function(int[]) returns int) fp2;
+    }
+    new (fp1, fp2){
+        string[] s = ["abc", "afg"];
+        int[] i = [1,2,3,4,5];
+        string a = fp1(s);
+        int b = fp2(i);
+    }
+
+    public function processStrArray(string[] vals) returns string{
+        return fp1(vals);
+    }
+
+    public function processIntArray(int[] vals) returns int{
+        return fp2(vals);
+    }
+};
+
+
+function test8() returns (string, int) {
+    string[] s = ["B", "A"];
+    int[] i = [1,2,3,4,5];
+    var foo = (string[] v) => string { return v[1];};
+    var bar = (int[] v) => int { return v[1];};
+    FooObj fooObj = new (foo, bar);
+    _ = fooObj.processStrArray(s);
+    var x = fooObj.processStrArray;
+    string q = x(s);
+    _ = fooObj.processIntArray(i);
+    var y = fooObj.processIntArray;
+    int r = y(i);
+
+    return(q, r);
+}
+
+function test9() returns string {
+    string[] vals = ["finally", "ballerina"];
+    O1 o1 = new ((string[] v) => string { return vals[0]; });
+    O2 o2 = new(o1.process);
+    O3 o3 = new(o2.process);
+    O4 o4 = new(o3.process);
+    O5 o5 = new(o4.process);
+    return o5.process(vals);
+}
+
+public type O1 object {
+    private {
+        (function(string[]) returns string) fpO1;
+    }
+    new (fpO1){
+    }
+
+    public function process(string[] vals) returns string{
+        return fpO1(vals);
+    }
+};
+
+public type O2 object {
+    private {
+        (function(string[]) returns string) fpO2;
+    }
+    new (fpO2){}
+
+    public function process(string[] vals) returns string{
+        return fpO2(vals);
+    }
+};
+
+public type O3 object {
+    private {
+        (function(string[]) returns string) fpO3;
+    }
+    new (fpO3){}
+
+    public function process(string[] vals) returns string{
+        return fpO3(vals);
+    }
+};
+
+public type O4 object {
+    private {
+        (function(string[]) returns string) fpO4;
+    }
+    new (fpO4){}
+
+    public function process(string[] vals) returns string{
+        return fpO4(vals);
+    }
+};
+
+public type O5 object {
+    private {
+        (function(string[]) returns string) fpO5;
+    }
+    new (fpO5){}
+
+    public function process(string[] vals) returns string{
+        return fpO5(vals);
+    }
+};

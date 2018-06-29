@@ -1,4 +1,4 @@
-type Person {
+type Person record {
     int id,
     int age = -1,
     float salary,
@@ -6,21 +6,21 @@ type Person {
     boolean married,
 };
 
-type Order {
+type Order record {
     int personId,
     int orderId,
     string items,
     float amount,
 };
 
-type OrderDetails {
+type OrderDetails record {
     int orderId,
     string personName,
     string items,
     float amount,
 };
 
-type Student {
+type Student record {
     string name,
     int index,
     int age = -1,

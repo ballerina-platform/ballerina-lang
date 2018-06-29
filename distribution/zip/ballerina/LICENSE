@@ -93,7 +93,7 @@ org.wso2.carbon.core-5.1.0.jar                                                  
 org.wso2.carbon.messaging-2.3.7.jar                                             bundle         apache2   12373
 org.wso2.carbon.metrics.core-2.3.7.jar                                          bundle         apache2   19934
 org.wso2.securevault-1.0.0-wso2v2.jar                                           bundle         apache2   3537
-org.wso2.transport.http.netty-6.0.196.jar                                       bundle         apache2   19937
+org.wso2.transport.http.netty-6.0.197.jar                                       bundle         apache2   19937
 org.wso2.transport.local-file-system-6.0.53.jar                                 bundle         apache2   19936
 protobuf-java-3.5.1.jar                                                         bundle         bsd3      3167
 quartz-2.3.0.jar                                                                bundle         apache2   2337

@@ -719,6 +719,22 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangEndpoint endpointNode) {
         setPreviousNode(endpointNode);
+
+        DiagnosticPos identifierPos = HoverUtil.getIdentifierPosition(endpointNode);
+        if (HoverUtil.isMatchingPosition(identifierPos, this.position)) {
+            this.context.put(NodeContextKeys.NODE_KEY, endpointNode);
+            this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
+            this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, endpointNode.symbol.name.getValue());
+            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, endpointNode.symbol.pkgID);
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, ContextConstants.ENDPOINT);
+            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, ContextConstants.ENDPOINT);
+            this.context.put(NodeContextKeys.VAR_NAME_OF_NODE_KEY, endpointNode.symbol.name.getValue());
+            this.context.put(NodeContextKeys.NODE_OWNER_KEY, endpointNode.symbol.owner.name.getValue());
+            this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, endpointNode.symbol.owner.pkgID);
+            setTerminateVisitor(true);
+            return;
+        }
+
         if (endpointNode.endpointTypeNode != null) {
             this.acceptNode(endpointNode.endpointTypeNode);
         }

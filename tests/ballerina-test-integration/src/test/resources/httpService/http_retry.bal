@@ -106,12 +106,12 @@ service<http:Service> mockHelloService bind serviceEndpoint {
                                     var childBlobContent = childPart.getBlob();
                                 }
                                 io:println(bodyPart.getContentType());
-                                bodyPart.setBodyParts(childParts, contentType = bodyPart.getContentType());
+                                bodyPart.setBodyParts(untaint childParts, contentType = untaint bodyPart.getContentType());
                             } else {
                                 var bodyPartBlobContent = bodyPart.getBlob();
                             }
                         }
-                        response.setBodyParts(bodyParts, contentType = req.getContentType());
+                        response.setBodyParts(untaint bodyParts, contentType = untaint req.getContentType());
                     }
                 }
             } else {

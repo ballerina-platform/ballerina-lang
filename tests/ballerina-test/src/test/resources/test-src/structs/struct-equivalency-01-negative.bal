@@ -1,11 +1,11 @@
 
-public type person01 {
+public type person01 record {
     int age;
     string name;
     string address;
 };
 
-public type employee01 {
+public type employee01 record {
     int age;
     string name;
     string zipcode = "95134";
@@ -18,13 +18,13 @@ function testEqOfStructsInSamePackage01() returns (string) {
     return p.name;
 }
 
-public type person02 {
+public type person02 record {
     int age;
     string name;
     string address;
 };
 
-public type employee02 {
+public type employee02 record {
     int age;
     string name;
     int address;
@@ -37,13 +37,13 @@ function testEqOfStructsInSamePackage02() returns (string) {
     return p.name;
 }
 
-public type person03 {
+public type person03 record {
     int age;
     string name;
     string address;
 };
 
-public type employee03 {
+public type employee03 record {
     int age;
     string name;
 };
@@ -55,14 +55,14 @@ function testEqOfStructsInSamePackage03() returns (string) {
     return p.name;
 }
 
-type person06 {
+type person06 record {
     int age;
     string name;
     int address;
     string id;
 };
 
-type employee06 {
+type employee06 record {
     int age;
     string name;
     string address;

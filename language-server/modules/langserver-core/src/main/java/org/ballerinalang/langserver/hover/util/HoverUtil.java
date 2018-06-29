@@ -22,10 +22,12 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.model.Whitespace;
+import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
@@ -42,9 +44,11 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -398,6 +402,39 @@ public class HoverUtil {
     }
 
     /**
+     * Calculate and returns identifier position of this BLangEndpoint.
+     *
+     * @param endpointNode BLangEndpoint
+     * @return position
+     */
+    public static DiagnosticPos getIdentifierPosition(BLangEndpoint endpointNode) {
+        DiagnosticPos epPosition = endpointNode.getPosition();
+        DiagnosticPos position = new DiagnosticPos(epPosition.src, epPosition.sLine, epPosition.eLine, epPosition.sCol,
+                                                   epPosition.eCol);
+        Set<Whitespace> wsSet = endpointNode.getWS();
+        if (wsSet != null && wsSet.size() > 1) {
+            Whitespace[] wsArray = new Whitespace[wsSet.size()];
+            wsSet.toArray(wsArray);
+            Arrays.sort(wsArray);
+            int endpointKeywordLength = wsArray[0].getPrevious().length();
+            int beforeIdentifierWSLength = wsArray[1].getWs().length();
+            if (endpointNode.symbol.type != null && endpointNode.symbol.type.tsymbol != null) {
+                BTypeSymbol bTypeSymbol = endpointNode.symbol.type.tsymbol;
+                PackageID pkgID = bTypeSymbol.pkgID;
+                int packagePrefixLen = (pkgID != PackageID.DEFAULT
+                        && pkgID.name != Names.BUILTIN_PACKAGE
+                        && pkgID.name != Names.DEFAULT_PACKAGE)
+                        ? (pkgID.name.value + ":").length()
+                        : 0;
+                position.sCol += (beforeIdentifierWSLength + packagePrefixLen + bTypeSymbol.name.value.length() +
+                        endpointKeywordLength);
+            }
+            position.eCol += position.sCol + endpointNode.symbol.name.value.length();
+        }
+        return position;
+    }
+
+    /**
      * Calculate and returns identifier position of this BlangVariable.
      *
      * @param varNode BLangVariable
@@ -410,14 +447,22 @@ public class HoverUtil {
             BLangType typeNode = varNode.getTypeNode();
             int beforeIdentifierWSLength = getLowestIndexedWS(wsSet).getWs().length();
             if (varNode.symbol.type != null && varNode.symbol.type.tsymbol != null) {
+                BTypeSymbol bTypeSymbol = varNode.symbol.type.tsymbol;
+                PackageID pkgID = bTypeSymbol.pkgID;
+                int packagePrefixLen = (pkgID != PackageID.DEFAULT
+                        && pkgID.name != Names.BUILTIN_PACKAGE
+                        && pkgID.name != Names.DEFAULT_PACKAGE)
+                        ? (pkgID.name.value + ":").length()
+                        : 0;
                 if (typeNode instanceof BLangConstrainedType) {
                     int typeSpecifierSymbolLength = 2;
                     int typeSpecifierLength = typeSpecifierSymbolLength + getTotalWhitespaceLen(typeNode.getWS());
-                    position.sCol += ((BLangConstrainedType) typeNode).type.type.tsymbol.name.value.length() +
-                            ((BLangConstrainedType) typeNode).constraint.type.tsymbol.name.value.length() +
-                            typeSpecifierLength + beforeIdentifierWSLength;
+                    position.sCol +=
+                            packagePrefixLen + ((BLangConstrainedType) typeNode).type.type.tsymbol.name.value.length() +
+                                    ((BLangConstrainedType) typeNode).constraint.type.tsymbol.name.value.length() +
+                                    typeSpecifierLength + beforeIdentifierWSLength;
                 } else {
-                    position.sCol += varNode.symbol.type.tsymbol.name.value.length() + beforeIdentifierWSLength;
+                    position.sCol += packagePrefixLen + bTypeSymbol.name.value.length() + beforeIdentifierWSLength;
                 }
             } else if (typeNode != null && typeNode instanceof BLangArrayType && typeNode.type instanceof BArrayType) {
                 int arraySpecifierSymbolLength = 2;

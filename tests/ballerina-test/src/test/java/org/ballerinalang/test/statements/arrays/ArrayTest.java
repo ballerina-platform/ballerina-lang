@@ -127,7 +127,7 @@ public class ArrayTest {
 
         BXMLItem[] xmlArray = { new BXMLItem("<foo/>"), new BXMLItem("<bar>hello</bar>") };
         BRefValueArray bXmlArray = new BRefValueArray(xmlArray, BTypes.typeXML);
-        Assert.assertEquals(bXmlArray.stringValue(), "[<foo/>, <bar>hello</bar>]");
+        Assert.assertEquals(bXmlArray.stringValue(), "[<foo></foo>, <bar>hello</bar>]");
     }
 
     @Test(description = "Test arrays with errors")

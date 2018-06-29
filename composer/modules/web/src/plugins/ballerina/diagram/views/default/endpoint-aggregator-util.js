@@ -42,6 +42,10 @@ class EndpointAggregatorUtil {
     }
 
     aggregateAllVisibleEndpoints(node) {
+        if (!node.body) {
+            return;
+        }
+
         const visibleOuterEndpoints = TreeUtil.getAllEndpoints(node.parent);
         const invocationStmts = [];
 

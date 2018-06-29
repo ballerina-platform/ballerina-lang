@@ -1,4 +1,4 @@
-type Person {
+type Person record {
     string name;
     int age;
     Person? parent;
@@ -10,7 +10,7 @@ type Person {
     boolean alive;
 };
 
-type Student {
+type Student record {
     string name;
     int age;
 };
@@ -27,7 +27,7 @@ function testStructToStruct () returns (Student) {
     return s;
 }
 
-type Info {
+type Info record {
     blob infoBlob;
 };
 

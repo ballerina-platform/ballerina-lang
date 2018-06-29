@@ -36,4 +36,9 @@ public class TransactionConstants {
     public static final int DEFAULT_RETRY_COUNT = 3;
 
     public static final String DEFAULT_COORDINATION_TYPE = "2pc";
+
+    // TransactionContext struct field names
+    public static final String TRANSACTION_ID = "transactionId";
+    public static final String CORDINATION_TYPE = "coordinationType";
+    public static final String REGISTER_AT_URL = "registerAtURL";
 }

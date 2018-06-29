@@ -26,7 +26,7 @@ service<http:Service> backEndService bind { port: 9091 } {
     }
     sendByteChannel(endpoint client, http:Request req) {
         io:ByteChannel byteChannel = check req.getByteChannel();
-        _ = client->respond(byteChannel);
+        _ = client->respond(untaint byteChannel);
     }
 
     @http:ResourceConfig {
@@ -39,19 +39,19 @@ service<http:Service> backEndService bind { port: 9091 } {
             string baseType = mediaType.getBaseType();
             if (mime:TEXT_PLAIN == baseType) {
                 string textValue = check req.getTextPayload();
-                _ = client->respond(textValue);
+                _ = client->respond(untaint textValue);
             } else if (mime:APPLICATION_XML == baseType) {
                 xml xmlValue = check req.getXmlPayload();
-                _ = client->respond(xmlValue);
+                _ = client->respond(untaint xmlValue);
             } else if (mime:APPLICATION_JSON == baseType) {
                 json jsonValue = check req.getJsonPayload();
-                _ = client->respond(jsonValue);
+                _ = client->respond(untaint jsonValue);
             } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
                 blob blobValue = check req.getBinaryPayload();
-                _ = client->respond(blobValue);
+                _ = client->respond(untaint blobValue);
             } else if (mime:MULTIPART_FORM_DATA == baseType) {
                 mime:Entity[] bodyParts = check req.getBodyParts();
-                _ = client->respond(bodyParts);
+                _ = client->respond(untaint bodyParts);
             }
         } else {
             _ = client->respond(());
@@ -80,7 +80,7 @@ service<http:Service> testService bind { port: 9090 } {
         //Request as message
         response = check clientEP->get("/test1/greeting", message = httpReq);
         value = value + check response.getTextPayload();
-        _ = client->respond(value);
+        _ = client->respond(untaint value);
     }
 
     @http:ResourceConfig {
@@ -107,7 +107,7 @@ service<http:Service> testService bind { port: 9090 } {
             }
         }
 
-        _ = client->respond(value);
+        _ = client->respond(untaint value);
     }
 
     @http:ResourceConfig {
@@ -127,7 +127,7 @@ service<http:Service> testService bind { port: 9090 } {
         json jsonValue = check jsonResponse.getJsonPayload();
         value = value + jsonValue.toString();
 
-        _ = client->respond(value);
+        _ = client->respond(untaint value);
     }
 
     @http:ResourceConfig {
@@ -141,7 +141,7 @@ service<http:Service> testService bind { port: 9090 } {
         http:Response textResponse = check clientEP->post("/test1/directPayload", binaryValue);
         value = check textResponse.getPayloadAsString();
 
-        _ = client->respond(value);
+        _ = client->respond(untaint value);
     }
 
     @http:ResourceConfig {
@@ -151,10 +151,10 @@ service<http:Service> testService bind { port: 9090 } {
     testPostWithByteChannel(endpoint client, http:Request req) {
         string value;
         io:ByteChannel byteChannel = check req.getByteChannel();
-        http:Response res = check clientEP->post("/test1/byteChannel", byteChannel);
+        http:Response res = check clientEP->post("/test1/byteChannel", untaint byteChannel);
         value = check res.getPayloadAsString();
 
-        _ = client->respond(value);
+        _ = client->respond(untaint value);
     }
 
     @http:ResourceConfig {
@@ -184,6 +184,6 @@ service<http:Service> testService bind { port: 9090 } {
                 value = value + textVal;
             }
         }
-        _ = client->respond(value);
+        _ = client->respond(untaint value);
     }
 }

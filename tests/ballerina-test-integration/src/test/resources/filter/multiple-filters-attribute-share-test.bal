@@ -99,7 +99,7 @@ service<http:Service> echo bind echoEP {
     }
 }
 
-public type FilterDto {
+public type FilterDto record {
     boolean authenticated;
     string username;
 };

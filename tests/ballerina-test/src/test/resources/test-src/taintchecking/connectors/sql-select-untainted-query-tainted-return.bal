@@ -1,6 +1,6 @@
 import ballerina/mysql;
 
-type Employee {
+type Employee record {
     int id;
     string name;
 };

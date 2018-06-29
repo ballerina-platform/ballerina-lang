@@ -96,7 +96,7 @@ Underscores = "_"+
 HexNumeral = 0 [xX] {HexDigits}
 HexDigits = {HexDigit} ({HexDigitOrUnderscore}* {HexDigit})?
 HexDigit = [0-9a-fA-F]
-HexDigitOrUnderscore = HexDigit | '_'
+HexDigitOrUnderscore = {HexDigit} | '_'
 
 OctalNumeral = 0 {Underscores}? {OctalDigits}
 OctalDigits = {OctalDigit} ({OctalDigitOrUnderscore}* {OctalDigit})?

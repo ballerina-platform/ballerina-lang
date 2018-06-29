@@ -17,20 +17,20 @@
 import ballerina/runtime;
 import ballerina/io;
 
-type RoomTempInfo {
+type RoomTempInfo record {
     int deviceID;
     int roomNo;
     float temp;
 };
 
-type RegulatorInfo {
+type RegulatorInfo record {
     int deviceID;
     int roomNo;
     float tempSet;
     boolean isOn;
 };
 
-type TempDiffInfo {
+type TempDiffInfo record {
     int roomNo;
     float tempDifference;
 };
@@ -94,14 +94,14 @@ function runPatternQuery1() returns (TempDiffInfo[]) {
     return tempDiffInfoArray;
 }
 
-type RegulatorState {
+type RegulatorState record {
     int deviceId;
     int roomNo;
     float tempSet;
     string userAction;
 };
 
-type RoomKeyAction {
+type RoomKeyAction record {
     int roomNo;
     string userAction;
 };

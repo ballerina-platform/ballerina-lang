@@ -24,6 +24,7 @@ import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.util.TextRange;
@@ -150,7 +151,8 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
             // Get the current module.
             Module module = ModuleUtilCore.findModuleForPsiElement(data.psiFile);
             // Set the default value of source root as the project base path.
-            String sourceRoot = data.psiFile.getProject().getBasePath();
+            Project project = data.psiFile.getProject();
+            String sourceRoot = project.getBasePath();
 
             // Get the file name (if the file is in project root) or the package name.
             String fileName = data.packageNameNode;
@@ -166,6 +168,12 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
             }
 
             try {
+                // We need to set the "ballerina.home" property before invoking this method. Otherwise the
+                // compilation will fail with a NPE.
+                String sdkHomePath = BallerinaSdkService.getInstance(project).getSdkHomePath(null);
+                if (sdkHomePath != null) {
+                    System.setProperty("ballerina.home", sdkHomePath);
+                }
                 // Get the list of diagnostics.
                 return (List<Diagnostic>) method.invoke(null, urlClassLoader, sourceRoot, fileName);
             } catch (Exception e) {

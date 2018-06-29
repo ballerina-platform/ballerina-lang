@@ -41,17 +41,18 @@ public class ServiceSkeletonTest {
 
     @BeforeClass
     public void setup() {
+        sourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
         System.setProperty("java.util.logging.manager", "org.ballerinalang.logging.BLogManager");
         System.setProperty("java.util.logging.config.file", "logging.properties");
-        System.setProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT, System.getProperty("user.dir")
-                                                                     + "/src/test/resources");
+        System.setProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT, sourceRoot);
     }
 
     @Test
     public void testBefore() {
         cleanup();
         BTestRunner bTestRunner = new BTestRunner();
-        bTestRunner.runTest(sourceRoot + "service.skeleton", new Path[]{Paths.get("service-skeleton-test.bal")}, new
+        bTestRunner.runTest(Paths.get(sourceRoot, "service.skeleton").toString(),
+                            new Path[]{Paths.get("service-skeleton-test.bal")}, new
                 ArrayList<>());
         Assert.assertEquals(bTestRunner.getTesterinaReport().getTestSummary(".", "passed"), 1);
     }

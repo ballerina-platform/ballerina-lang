@@ -450,3 +450,37 @@ function buildRequest(http:Request|string|xml|json|blob|io:ByteChannel|mime:Enti
     return request;
 }
 
+endpoint http:NonListener mockEP {
+    port: 9090
+};
+
+endpoint http:Client clientEP {
+    url: "http://localhost:8080",
+    circuitBreaker: {
+        rollingWindow: {
+            timeWindowMillis: 10000,
+            bucketSizeMillis: 2000
+        },
+        failureThreshold: 0.3,
+        resetTimeMillis: 1000,
+        statusCodes: [500, 502, 503]
+    },
+    timeoutMillis: 2000
+};
+
+@http:ServiceConfig { basePath: "/cb" }
+service<http:Service> circuitBreakerService bind mockEP {
+
+    @http:ResourceConfig {
+        path: "/getState"
+    }
+    getState(endpoint caller, http:Request req) {
+        http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>clientEP.getCallerActions();
+        http:CircuitState currentState = cbClient.getCurrentState();
+        http:Response res = new;
+        if (currentState == http:CB_CLOSED_STATE) {
+            res.setPayload("Circuit Breaker is in CLOSED state");
+            _ = caller->respond(res);
+        }
+    }
+}

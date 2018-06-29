@@ -1,7 +1,7 @@
 
 import expressions.typecast.foo.bar;
 
-public type Person {
+public type Person record {
     string name,
     int age,
     Person? parent,

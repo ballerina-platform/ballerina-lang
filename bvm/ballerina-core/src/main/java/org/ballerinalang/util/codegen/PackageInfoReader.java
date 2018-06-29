@@ -40,6 +40,7 @@ import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
@@ -65,6 +66,7 @@ import org.ballerinalang.util.codegen.attributes.TaintTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.BlobCPEntry;
+import org.ballerinalang.util.codegen.cpentries.ByteCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPool;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
@@ -157,6 +159,10 @@ public class PackageInfoReader {
             case CP_ENTRY_INTEGER:
                 long longVal = dataInStream.readLong();
                 return new IntegerCPEntry(longVal);
+
+            case CP_ENTRY_BYTE:
+                byte byteVal = dataInStream.readByte();
+                return new ByteCPEntry(byteVal);
 
             case CP_ENTRY_FLOAT:
                 double doubleVal = dataInStream.readDouble();
@@ -278,7 +284,6 @@ public class PackageInfoReader {
 
     public void readPackageInfo() throws IOException {
         PackageInfo packageInfo = new PackageInfo();
-        packageInfo.pkgIndex = programFile.currentPkgIndex++;
 
         // Read constant pool in the package.
         readConstantPool(packageInfo);
@@ -304,10 +309,13 @@ public class PackageInfoReader {
                 getPackagePath(orgNameCPEntry.getValue(), pkgNameCPEntry.getValue(), pkgVersionCPEntry.getValue());
 
         packageInfo.setProgramFile(programFile);
-        programFile.addPackageInfo(packageInfo.pkgPath, packageInfo);
 
         // Read import package entries
-        readImportPackageInfoEntries();
+        readImportPackageInfoEntries(packageInfo);
+
+        packageInfo.pkgIndex = programFile.currentPkgIndex++;
+
+        programFile.addPackageInfo(packageInfo.pkgPath, packageInfo);
 
         // Read type def info entries
         readTypeDefInfoEntries(packageInfo);
@@ -345,12 +353,20 @@ public class PackageInfoReader {
         packageInfo.complete();
     }
 
-    private void readImportPackageInfoEntries() throws IOException {
+    private void readImportPackageInfoEntries(PackageInfo packageInfo) throws IOException {
         int impPkgCount = dataInStream.readShort();
         for (int i = 0; i < impPkgCount; i++) {
-            dataInStream.readInt();
-            dataInStream.readInt();
-            dataInStream.readInt();
+            int orgNameCPIndex = dataInStream.readInt();
+            UTF8CPEntry orgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(orgNameCPIndex);
+
+            int pkgNameCPIndex = dataInStream.readInt();
+            UTF8CPEntry pkgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgNameCPIndex);
+
+            int pkgVersionCPIndex = dataInStream.readInt();
+            UTF8CPEntry pkgVersionCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgVersionCPIndex);
+
+            this.getPackageInfo(getPackagePath(orgNameCPEntry.getValue(),
+                    pkgNameCPEntry.getValue(), pkgVersionCPEntry.getValue()));
         }
     }
 
@@ -1128,25 +1144,14 @@ public class PackageInfoReader {
                     break;
 
                 case InstructionCodes.FPLOAD: {
-                    h = codeStream.readInt();
-                    i = codeStream.readInt();
-                    j = codeStream.readInt();
-                    k = codeStream.readInt();
-                    int[] operands = new int[4 + (k * 2)];
-                    operands[0] = h;
-                    operands[1] = i;
-                    operands[2] = j;
-                    operands[3] = k;
-                    for (int x = 0; x < (k * 2); x++) {
-                        operands[x + 4] = codeStream.readInt();
-                    }
-                    packageInfo.addInstruction(InstructionFactory.get(opcode, operands));
+                    readFunctionPointerLoadInstruction(packageInfo, codeStream, opcode);
                     break;
                 }
                 case InstructionCodes.ICONST:
                 case InstructionCodes.FCONST:
                 case InstructionCodes.SCONST:
-                case InstructionCodes.LCONST:
+                case InstructionCodes.BICONST:
+                case InstructionCodes.BACONST:
                 case InstructionCodes.IMOVE:
                 case InstructionCodes.FMOVE:
                 case InstructionCodes.SMOVE:
@@ -1163,6 +1168,7 @@ public class PackageInfoReader {
                 case InstructionCodes.TR_END:
                 case InstructionCodes.ARRAYLEN:
                 case InstructionCodes.INEWARRAY:
+                case InstructionCodes.BINEWARRAY:
                 case InstructionCodes.FNEWARRAY:
                 case InstructionCodes.SNEWARRAY:
                 case InstructionCodes.BNEWARRAY:
@@ -1189,11 +1195,13 @@ public class PackageInfoReader {
                 case InstructionCodes.NEWJSON:
                 case InstructionCodes.NEWMAP:
                 case InstructionCodes.I2ANY:
+                case InstructionCodes.BI2ANY:
                 case InstructionCodes.F2ANY:
                 case InstructionCodes.S2ANY:
                 case InstructionCodes.B2ANY:
                 case InstructionCodes.L2ANY:
                 case InstructionCodes.ANY2I:
+                case InstructionCodes.ANY2BI:
                 case InstructionCodes.ANY2F:
                 case InstructionCodes.ANY2S:
                 case InstructionCodes.ANY2B:
@@ -1207,7 +1215,9 @@ public class PackageInfoReader {
                 case InstructionCodes.I2F:
                 case InstructionCodes.I2S:
                 case InstructionCodes.I2B:
+                case InstructionCodes.I2BI:
                 case InstructionCodes.I2JSON:
+                case InstructionCodes.BI2I:
                 case InstructionCodes.F2I:
                 case InstructionCodes.F2S:
                 case InstructionCodes.F2B:
@@ -1227,8 +1237,6 @@ public class PackageInfoReader {
                 case InstructionCodes.DT2XML:
                 case InstructionCodes.DT2JSON:
                 case InstructionCodes.T2MAP:
-                case InstructionCodes.XML2JSON:
-                case InstructionCodes.JSON2XML:
                 case InstructionCodes.XMLATTRS2MAP:
                 case InstructionCodes.ANY2SCONV:
                 case InstructionCodes.S2XML:
@@ -1245,6 +1253,7 @@ public class PackageInfoReader {
                     break;
 
                 case InstructionCodes.IALOAD:
+                case InstructionCodes.BIALOAD:
                 case InstructionCodes.FALOAD:
                 case InstructionCodes.SALOAD:
                 case InstructionCodes.BALOAD:
@@ -1252,24 +1261,13 @@ public class PackageInfoReader {
                 case InstructionCodes.RALOAD:
                 case InstructionCodes.JSONALOAD:
                 case InstructionCodes.IASTORE:
+                case InstructionCodes.BIASTORE:
                 case InstructionCodes.FASTORE:
                 case InstructionCodes.SASTORE:
                 case InstructionCodes.BASTORE:
                 case InstructionCodes.LASTORE:
                 case InstructionCodes.RASTORE:
                 case InstructionCodes.JSONASTORE:
-                case InstructionCodes.IFIELDLOAD:
-                case InstructionCodes.FFIELDLOAD:
-                case InstructionCodes.SFIELDLOAD:
-                case InstructionCodes.BFIELDLOAD:
-                case InstructionCodes.LFIELDLOAD:
-                case InstructionCodes.RFIELDLOAD:
-                case InstructionCodes.IFIELDSTORE:
-                case InstructionCodes.FFIELDSTORE:
-                case InstructionCodes.SFIELDSTORE:
-                case InstructionCodes.BFIELDSTORE:
-                case InstructionCodes.LFIELDSTORE:
-                case InstructionCodes.RFIELDSTORE:
                 case InstructionCodes.MAPSTORE:
                 case InstructionCodes.JSONLOAD:
                 case InstructionCodes.JSONSTORE:
@@ -1303,6 +1301,14 @@ public class PackageInfoReader {
                 case InstructionCodes.FLT:
                 case InstructionCodes.ILE:
                 case InstructionCodes.FLE:
+                case InstructionCodes.IAND:
+                case InstructionCodes.BIAND:
+                case InstructionCodes.IOR:
+                case InstructionCodes.BIOR:
+                case InstructionCodes.IXOR:
+                case InstructionCodes.BIXOR:
+                case InstructionCodes.BISHL:
+                case InstructionCodes.BISHR:
                 case InstructionCodes.XMLATTRLOAD:
                 case InstructionCodes.XMLATTRSTORE:
                 case InstructionCodes.S2QNAME:
@@ -1446,25 +1452,55 @@ public class PackageInfoReader {
         }
     }
 
-    private void resolveCPEntries(PackageInfo currentPackageInfo) {
+    private void readFunctionPointerLoadInstruction(PackageInfo packageInfo, DataInputStream codeStream, int opcode)
+            throws IOException {
+        int h;
+        int i;
+        int j;
+        int k;
+        h = codeStream.readInt();
+        i = codeStream.readInt();
+        j = codeStream.readInt();
+        k = codeStream.readInt();
+        int[] operands;
+        if (k == 0) { // no additional reading is needed
+            operands = new int[4];
+            operands[0] = h;
+            operands[1] = i;
+            operands[2] = j;
+            operands[3] = k;
+        } else { //this is a closure related scenario, so read the closure indexes
+            operands = new int[4 + k];
+            operands[0] = h;
+            operands[1] = i;
+            operands[2] = j;
+            operands[3] = k;
+            for (int x = 0; x < k; x++) {
+                operands[x + 4] = codeStream.readInt();
+            }
+        }
+        packageInfo.addInstruction(InstructionFactory.get(opcode, operands));
+    }
+
+    void resolveCPEntries(PackageInfo currentPackageInfo) {
         for (ConstantPoolEntry cpEntry : unresolvedCPEntries) {
             PackageInfo packageInfo;
             StructureRefCPEntry structureRefCPEntry;
             switch (cpEntry.getEntryType()) {
                 case CP_ENTRY_PACKAGE:
                     PackageRefCPEntry pkgRefCPEntry = (PackageRefCPEntry) cpEntry;
-                    packageInfo = programFile.getPackageInfo(pkgRefCPEntry.getPackageName());
+                    packageInfo = this.getPackageInfo(pkgRefCPEntry.getPackageName());
                     pkgRefCPEntry.setPackageInfo(packageInfo);
                     break;
                 case CP_ENTRY_FUNCTION_REF:
                     FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) cpEntry;
-                    packageInfo = programFile.getPackageInfo(funcRefCPEntry.getPackagePath());
+                    packageInfo = this.getPackageInfo(funcRefCPEntry.getPackagePath());
                     FunctionInfo functionInfo = packageInfo.getFunctionInfo(funcRefCPEntry.getFunctionName());
                     funcRefCPEntry.setFunctionInfo(functionInfo);
                     break;
                 case CP_ENTRY_STRUCTURE_REF:
                     structureRefCPEntry = (StructureRefCPEntry) cpEntry;
-                    packageInfo = programFile.getPackageInfo(structureRefCPEntry.getPackagePath());
+                    packageInfo = this.getPackageInfo(structureRefCPEntry.getPackagePath());
                     CustomTypeInfo structureTypeInfo = packageInfo.getStructureTypeInfo(
                             structureRefCPEntry.getStructureName());
                     structureRefCPEntry.setStructureTypeInfo(structureTypeInfo);
@@ -1563,6 +1599,11 @@ public class PackageInfoReader {
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) constantPool.getCPEntry(valueCPIndex);
                 defaultValue.setIntValue(integerCPEntry.getValue());
                 break;
+            case TypeSignature.SIG_BYTE:
+                valueCPIndex = dataInStream.readInt();
+                ByteCPEntry byteCPEntry = (ByteCPEntry) constantPool.getCPEntry(valueCPIndex);
+                defaultValue.setByteValue(byteCPEntry.getValue());
+                break;
             case TypeSignature.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) constantPool.getCPEntry(valueCPIndex);
@@ -1599,6 +1640,10 @@ public class PackageInfoReader {
             case TypeSignature.SIG_INT:
                 long intValue = defaultValue.getIntValue();
                 value = new BInteger(intValue);
+                break;
+            case TypeSignature.SIG_BYTE:
+                byte byteValue = defaultValue.getByteValue();
+                value = new BByte(byteValue);
                 break;
             case TypeSignature.SIG_FLOAT:
                 double floatValue = defaultValue.getFloatValue();
@@ -1689,6 +1734,8 @@ public class PackageInfoReader {
             switch (typeChar) {
                 case 'I':
                     return BTypes.typeInt;
+                case 'W':
+                    return BTypes.typeByte;
                 case 'F':
                     return BTypes.typeFloat;
                 case 'S':

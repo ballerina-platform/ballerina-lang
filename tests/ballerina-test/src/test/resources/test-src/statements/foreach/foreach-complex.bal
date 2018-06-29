@@ -16,7 +16,7 @@ function concatTwoInts (int i, int j) {
     output = output + i + ":" + j + " ";
 }
 
-type Week {
+type Week record {
     string[] days;
 };
 
@@ -62,7 +62,7 @@ function testIntRangeSimpleArity2(int a, int b) returns (string){
 
 int gx = 0;
 
-type data {
+type data record {
     int sx;
 };
 

@@ -5,7 +5,7 @@ import ballerina/http;
 //=====================================
 //============Client Config============
 //=====================================
-public type {{cut info.title " "}}ClientConfig {
+public type {{cut info.title " "}}ClientConfig record {
     string serviceUrl,
     http:ClientEndpointConfig clientConfig,
 };

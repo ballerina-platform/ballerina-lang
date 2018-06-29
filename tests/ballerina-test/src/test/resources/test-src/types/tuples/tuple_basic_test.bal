@@ -42,7 +42,7 @@ function basicTupleTest () returns (string) {
     return exFlow;
 }
 
-type FooStruct {
+type FooStruct record {
     string x;
 };
 

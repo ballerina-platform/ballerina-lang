@@ -17,11 +17,11 @@
 import ballerina/runtime;
 import ballerina/io;
 
-type ClientRequest {
+type ClientRequest record {
     string host;
 };
 
-type RequestCount {
+type RequestCount record {
     string host;
     int count;
     boolean test;

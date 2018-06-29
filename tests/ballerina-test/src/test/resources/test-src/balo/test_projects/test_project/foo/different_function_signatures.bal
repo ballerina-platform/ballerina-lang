@@ -52,7 +52,7 @@ public function funcWithNilDefaultParamExpr_1(string? s = null) returns string? 
     return s;
 }
 
-public type Student {
+public type Student record {
     int a;
 };
 

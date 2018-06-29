@@ -40,6 +40,8 @@ import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -187,7 +189,11 @@ public class BTestRunner {
 
         AtomicBoolean shouldSkip = new AtomicBoolean();
 
-        testSuites.forEach((packageName, suite) -> {
+        LinkedList<String> keys = new LinkedList<>(testSuites.keySet());
+        Collections.sort(keys);
+
+        keys.forEach(packageName -> {
+            TestSuite suite = testSuites.get(packageName);
             outStream.println("---------------------------------------------------------------------------");
             outStream.println("Running Tests of Package: " + packageName);
             outStream.println("---------------------------------------------------------------------------");

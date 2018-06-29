@@ -62,8 +62,7 @@ resourceParameterList
     ;
 
 callableUnitBody
-    : LEFT_BRACE endpointDeclaration* statement* RIGHT_BRACE
-    | LEFT_BRACE endpointDeclaration* workerDeclaration+ RIGHT_BRACE
+    : LEFT_BRACE endpointDeclaration* (statement* | workerDeclaration+) RIGHT_BRACE
     ;
 
 
@@ -200,7 +199,7 @@ typeName
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeNameLabel
     |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                            # objectTypeNameLabel
-    |   RECORD? LEFT_BRACE fieldDefinitionList RIGHT_BRACE                  # recordTypeNameLabel
+    |   RECORD LEFT_BRACE fieldDefinitionList RIGHT_BRACE                  # recordTypeNameLabel
     ;
 
 fieldDefinitionList
@@ -228,6 +227,7 @@ userDefineTypeName
 valueTypeName
     :   TYPE_BOOL
     |   TYPE_INT
+    |   TYPE_BYTE
     |   TYPE_FLOAT
     |   TYPE_STRING
     |   TYPE_BLOB
@@ -582,7 +582,6 @@ expression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   (ADD | SUB | NOT | LENGTHOF | UNTAINT) expression                   # unaryExpression
     |   LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS   # bracedOrTupleExpression
-    |   expression POW expression                                           # binaryPowExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
     |   expression (ADD | SUB) expression                                   # binaryAddSubExpression
     |   expression (LT_EQUAL | GT_EQUAL | GT | LT) expression               # binaryCompareExpression
@@ -595,12 +594,22 @@ expression
     |	expression matchExpression										    # matchExprExpression
     |	CHECK expression										            # checkedExpression
     |   expression ELVIS expression                                         # elvisExpression
+    |   expression (BITAND | PIPE | BITXOR) expression                      # bitwiseExpression
+    |   expression (shiftExpression) expression                             # bitwiseShiftExpression
     |   typeName                                                            # typeAccessExpression
     ;
 
 awaitExpression
     :   AWAIT expression                                                    # awaitExpr
     ;
+
+shiftExpression
+    : GT shiftExprPredicate GT
+    | LT shiftExprPredicate LT
+    | GT shiftExprPredicate GT shiftExprPredicate GT
+    ;
+
+shiftExprPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
 matchExpression
     :   BUT LEFT_BRACE matchExpressionPatternClause (COMMA matchExpressionPatternClause)* RIGHT_BRACE

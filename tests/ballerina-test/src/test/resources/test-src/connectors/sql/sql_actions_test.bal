@@ -3,35 +3,35 @@ import ballerina/jdbc;
 import ballerina/time;
 import ballerina/io;
 
-type ResultCustomers {
+type ResultCustomers record {
     string FIRSTNAME,
 };
 
-type ResultCustomers2 {
+type ResultCustomers2 record {
     string FIRSTNAME,
     string LASTNAME,
 };
 
-type ResultIntType {
+type ResultIntType record {
     int INT_TYPE,
 };
 
-type ResultBlob {
+type ResultBlob record {
     blob BLOB_TYPE,
 };
 
-type ResultDataType {
+type ResultDataType record {
     int INT_TYPE,
     int LONG_TYPE,
     float FLOAT_TYPE,
     float DOUBLE_TYPE,
 };
 
-type ResultCount {
+type ResultCount record {
     int COUNTVAL,
 };
 
-type ResultArrayType {
+type ResultArrayType record {
     int[] INT_ARRAY,
     int[] LONG_ARRAY,
     float[] DOUBLE_ARRAY,
@@ -40,14 +40,14 @@ type ResultArrayType {
     float[] FLOAT_ARRAY,
 };
 
-type ResultDates {
+type ResultDates record {
     string DATE_TYPE,
     string TIME_TYPE,
     string TIMESTAMP_TYPE,
     string DATETIME_TYPE,
 };
 
-type ResultBalTypes {
+type ResultBalTypes record {
     int INT_TYPE,
     int LONG_TYPE,
     float FLOAT_TYPE,
@@ -59,7 +59,7 @@ type ResultBalTypes {
     float REAL_TYPE,
 };
 
-type Employee {
+type Employee record {
     int id,
     string name,
     string address,

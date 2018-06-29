@@ -116,7 +116,7 @@ public class BinaryFileWriter {
                 .toByteArray()), execFileName);
         ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
         processorServiceLoader.forEach(plugin -> {
-            plugin.codeGenerated(execFilePath);
+            plugin.codeGenerated(packageNode.packageID, execFilePath);
         });
     }
 
@@ -153,7 +153,7 @@ public class BinaryFileWriter {
             this.sourceDirectory.saveCompiledPackage(compiledPackage, destDirPath, compiledPackageFileName);
         } catch (IOException e) {
             String msg = "error writing the compiled package(balo) of '" +
-                         packageID + "' to '" + destDirPath + "': " + e.getMessage();
+                    packageID + "' to '" + destDirPath + "': " + e.getMessage();
             throw new BLangCompilerException(msg, e);
         }
     }

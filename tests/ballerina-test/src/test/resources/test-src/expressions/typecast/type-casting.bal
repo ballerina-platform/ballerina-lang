@@ -129,7 +129,7 @@ function testStringToJson(string s) returns (json) {
     return s;
 }
 
-type Person {
+type Person record {
     string name;
     int age;
     map address;
@@ -141,7 +141,7 @@ type Person {
     boolean alive;
 };
 
-type Student {
+type Student record {
     string name;
     int age;
     map address;
@@ -252,7 +252,7 @@ function testIncompatibleJsonToBoolean() returns (boolean) {
     return value;
 }
 
-type Address {
+type Address record {
     string city;
     string country;
 };
@@ -368,12 +368,12 @@ function testAnyNullToXml() returns (xml) {
     return value;
 }
 
-type A {
+type A record {
     string x;
     int y;
 };
 
-type B {
+type B record {
     string x;
 };
 
@@ -545,7 +545,7 @@ function testAnyToTableWithErrors() returns (table | error) {
     return casted;
 }
 
-type Employee {
+type Employee record {
     int id;
     string name;
 };

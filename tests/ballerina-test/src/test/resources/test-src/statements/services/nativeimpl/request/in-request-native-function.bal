@@ -104,7 +104,7 @@ service<http:Service> hello bind mockEP {
     addheader(endpoint caller, http:Request inReq, string key, string value) {
         http:Request req = new;
         req.addHeader(untaint key, value);
-        string result = req.getHeader(untaint key);
+        string result = untaint req.getHeader(untaint key);
         http:Response res = new;
         res.setJsonPayload({ lang: result });
         _ = caller->respond(res);
@@ -116,7 +116,7 @@ service<http:Service> hello bind mockEP {
     echo1(endpoint caller, http:Request req) {
         http:Response res = new;
         string method = req.method;
-        res.setTextPayload(method);
+        res.setTextPayload(untaint method);
         _ = caller->respond(res);
     }
 
@@ -126,7 +126,7 @@ service<http:Service> hello bind mockEP {
     echo2(endpoint caller, http:Request req) {
         http:Response res = new;
         string url = req.rawPath;
-        res.setTextPayload(url);
+        res.setTextPayload(untaint url);
         _ = caller->respond(res);
     }
 
@@ -136,7 +136,7 @@ service<http:Service> hello bind mockEP {
     echo3(endpoint caller, http:Request req) {
         http:Response res = new;
         string url = req.rawPath;
-        res.setTextPayload(url);
+        res.setTextPayload(untaint url);
         _ = caller->respond(res);
     }
 
@@ -145,7 +145,7 @@ service<http:Service> hello bind mockEP {
     }
     getHeader(endpoint caller, http:Request req) {
         http:Response res = new;
-        string header = req.getHeader("content-type");
+        string header = untaint req.getHeader("content-type");
         res.setJsonPayload({ value: header });
         _ = caller->respond(res);
     }
@@ -173,7 +173,7 @@ service<http:Service> hello bind mockEP {
                 res.statusCode = 500;
             }
             json payload => {
-                res.setJsonPayload(payload.lang);
+                res.setJsonPayload(untaint payload.lang);
             }
         }
         _ = caller->respond(res);
@@ -189,7 +189,7 @@ service<http:Service> hello bind mockEP {
                 res.setTextPayload("Error occurred");
                 res.statusCode = 500;
             }
-            string payload => res.setTextPayload(payload);
+            string payload => res.setTextPayload(untaint payload);
         }
         _ = caller->respond(res);
     }
@@ -206,7 +206,7 @@ service<http:Service> hello bind mockEP {
             }
             xml xmlPayload => {
                 var name = xmlPayload.getTextValue();
-                res.setTextPayload(name);
+                res.setTextPayload(untaint name);
             }
         }
         _ = caller->respond(res);
@@ -224,7 +224,7 @@ service<http:Service> hello bind mockEP {
             }
             blob blobPayload => {
                 string name = blobPayload.toString("UTF-8");
-                res.setTextPayload(name);
+                res.setTextPayload(untaint name);
             }
         }
         _ = caller->respond(res);
@@ -288,7 +288,7 @@ service<http:Service> hello bind mockEP {
         http:Request req = new;
         req.setHeader(untaint key, "abc");
         req.setHeader(untaint key, value);
-        string result = req.getHeader(untaint key);
+        string result = untaint req.getHeader(untaint key);
 
         http:Response res = new;
         res.setJsonPayload({ value: result });
@@ -301,7 +301,7 @@ service<http:Service> hello bind mockEP {
     SetJsonPayload(endpoint caller, http:Request inReq, string value) {
         http:Request req = new;
         json jsonStr = { lang: value };
-        req.setJsonPayload(jsonStr);
+        req.setJsonPayload(untaint jsonStr);
         var returnResult = req.getJsonPayload();
         http:Response res = new;
         match returnResult {
@@ -310,7 +310,7 @@ service<http:Service> hello bind mockEP {
                 res.statusCode = 500;
             }
             json payload => {
-                res.setJsonPayload(payload);
+                res.setJsonPayload(untaint payload);
             }
         }
         _ = caller->respond(res);
@@ -321,14 +321,14 @@ service<http:Service> hello bind mockEP {
     }
     SetStringPayload(endpoint caller, http:Request inReq, string value) {
         http:Request req = new;
-        req.setTextPayload(value);
+        req.setTextPayload(untaint value);
         http:Response res = new;
         match req.getTextPayload() {
             error err => {
                 res.setTextPayload("Error occurred");
                 res.statusCode = 500;
             }
-            string payload => res.setJsonPayload({ lang: payload });
+            string payload => res.setJsonPayload({ lang: untaint payload });
         }
         _ = caller->respond(res);
     }
@@ -347,7 +347,7 @@ service<http:Service> hello bind mockEP {
                 res.statusCode = 500;
             }
             xml xmlPayload => {
-                var name = xmlPayload.getTextValue();
+                var name = untaint xmlPayload.getTextValue();
                 res.setJsonPayload({ lang: name });
             }
         }
@@ -369,7 +369,7 @@ service<http:Service> hello bind mockEP {
                 res.statusCode = 500;
             }
             blob blobPayload => {
-                string name = blobPayload.toString("UTF-8");
+                string name = untaint blobPayload.toString("UTF-8");
                 res.setJsonPayload({ lang: name });
             }
         }

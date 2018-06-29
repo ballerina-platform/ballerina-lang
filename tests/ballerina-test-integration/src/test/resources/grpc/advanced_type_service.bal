@@ -80,18 +80,18 @@ service HelloWorld bind ep {
     }
 }
 
-type Person {
+type Person record {
     string name;
     Address address;
 };
 
-type Address {
+type Address record {
     int postalCode;
     string state;
     string country;
 };
 
-type StockQuote {
+type StockQuote record {
     string symbol;
     string name;
     float last;
@@ -99,14 +99,14 @@ type StockQuote {
     float high;
 };
 
-type StockRequest {
+type StockRequest record {
     string name;
 };
 
-type StockQuotes {
+type StockQuotes record {
     StockQuote[] stock;
 };
 
-type StockNames {
+type StockNames record {
     string[] names;
 };

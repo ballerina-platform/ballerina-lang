@@ -1,11 +1,11 @@
-type Person {
+type Person record {
     string firstName;
     string lastName;
     int age;
     string city;
 };
 
-type Employee {
+type Employee record {
     string name;
     int age;
     string address;

@@ -3,7 +3,7 @@ import eq2;
 import req;
 import req2;
 
-public type person1 {
+public type person1 record {
     int age;
     string name;
     string address;
@@ -31,7 +31,7 @@ public function <person1 p> setSSN (string ssn) {
     p.ssn = ssn;
 }
 
-public type employee1 {
+public type employee1 record {
     int age;
     string name;
     string address;
@@ -74,7 +74,7 @@ function testEquivalenceOfPrivateStructsInSamePackage () returns (string) {
     return p.getSSN();
 }
 
-public type person2 {
+public type person2 record {
     int age;
     string name;
     string address;
@@ -99,7 +99,7 @@ public function <person2 p> setSSN (string ssn) {
     p.ssn = ssn;
 }
 
-public type employee2 {
+public type employee2 record {
     int age;
     string name;
     string address;
@@ -149,7 +149,7 @@ function testEqOfPublicStructs () returns (string) {
 }
 
 
-public type employee3 {
+public type employee3 record {
     int age;
     string name;
     string address;
@@ -200,7 +200,7 @@ function testEqOfPublicStructs2 () returns (string) {
 
 
 
-type userA {
+type userA record {
     int age;
     string name;
 };
@@ -213,7 +213,7 @@ function <userA ua> getAge () returns (int) {
     return ua.age;
 }
 
-type userB {
+type userB record {
     int age;
     string name;
     string address;
@@ -227,7 +227,7 @@ function <userB ub> getAge () returns (int) {
     return ub.age;
 }
 
-type userFoo {
+type userFoo record {
     int age;
     string name;
     string address;
@@ -255,7 +255,7 @@ function testRuntimeEqPrivateStructsInSamePackage () returns (string) {
 }
 
 
-public type userPA {
+public type userPA record {
     int age;
     string name;
 };
@@ -268,7 +268,7 @@ public function <userPA ua> getAge () returns (int) {
     return ua.age;
 }
 
-public type userPB {
+public type userPB record {
     int age;
     string name;
     string address;
@@ -282,7 +282,7 @@ public function <userPB ub> getAge () returns (int) {
     return ub.age;
 }
 
-public type userPFoo {
+public type userPFoo record {
     int age;
     string name;
     string address;
@@ -340,7 +340,7 @@ function testRuntimeEqPublicStructs1 () returns (string) {
     }
 }
 
-type personC {
+type personC record {
     string name;
     addressStruct address;
 };
@@ -353,7 +353,7 @@ function <personC p> getAddress() returns (string){
     return p.address.toString();
 }
 
-type addressStruct {
+type addressStruct record {
     int no;
     string city;
 };
@@ -362,7 +362,7 @@ function <addressStruct ad> toString() returns (string){
     return ad.no + ad.city;
 }
 
-type officeAddressStruct {
+type officeAddressStruct record {
     int no;
     string city;
     string department;
@@ -404,7 +404,7 @@ function testStructEquivalencyWithFunctionType () returns (string, string) {
     return (s1,s2);
 }
 
-type AnyStruct {
+type AnyStruct record {
 };
 
 function <AnyStruct a> shout (AnotherAnyStruct aa) returns (string) {
@@ -420,7 +420,7 @@ function <AnyStruct a> call () returns (AnotherAnyStruct) {
     return {} ;
 }
 
-type SomeStruct {
+type SomeStruct record {
     string s;
 };
 
@@ -437,9 +437,9 @@ function <SomeStruct b> call () returns (SomeOtherStruct) {
     return { s : "return"};
 }
 
-type SomeOtherStruct {
+type SomeOtherStruct record {
     string s;
 };
 
-type AnotherAnyStruct {
+type AnotherAnyStruct record {
 };

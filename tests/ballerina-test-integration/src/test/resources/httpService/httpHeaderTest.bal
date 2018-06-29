@@ -21,7 +21,7 @@ service<http:Service> headerService bind headerServiceEP {
         req.setHeader("core", "aaa");
         req.addHeader("core", "bbb");
 
-        var result = stockqEP -> get("/sample/stocks", message = req);
+        var result = stockqEP -> get("/sample/stocks", message = untaint req);
         match result {
             http:Response clientResponse => {
                 _ = conn -> respond(clientResponse);
@@ -48,7 +48,7 @@ service<http:Service> headerService bind headerServiceEP {
                     payload = {"response":"person header not available"};
                 }
                 http:Response res = new;
-                res.setJsonPayload(payload);
+                res.setJsonPayload(untaint payload);
                 _ = conn -> respond(res);
             }
             any|() => {}
@@ -78,7 +78,7 @@ service<http:Service> quoteService bind stockServiceEP {
             payload = {"response":"core header not available"};
         }
         http:Response res = new;
-        res.setJsonPayload(payload);
+        res.setJsonPayload(untaint payload);
         _ = conn -> respond(res);
     }
 

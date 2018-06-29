@@ -168,7 +168,7 @@ function xmlTest() returns (int, int, map) {
     return (nodeCount, elementCount, m);
 }
 
-type person {
+type person record {
     string name;
     int age;
 };

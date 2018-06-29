@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ObjectTypeInfo;
 import org.ballerinalang.util.codegen.TypeInfo;
@@ -40,7 +40,7 @@ public class BObjectType extends BStructureType {
      * @param flags flags of the object type
      */
     public BObjectType(ObjectTypeInfo objectTypeInfo, String typeName, String pkgPath, int flags) {
-        super(typeName, pkgPath, flags, BStruct.class);
+        super(typeName, pkgPath, flags, BMap.class);
         this.objectTypeInfo = objectTypeInfo;
     }
 
@@ -55,7 +55,7 @@ public class BObjectType extends BStructureType {
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BStruct(this);
+        return (V) new BMap<>(this);
     }
 
     @Override

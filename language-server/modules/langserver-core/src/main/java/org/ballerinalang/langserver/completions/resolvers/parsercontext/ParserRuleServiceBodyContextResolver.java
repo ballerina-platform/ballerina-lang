@@ -18,9 +18,7 @@
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
-import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
-import org.ballerinalang.langserver.completions.resolvers.AnnotationAttachmentResolver;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
@@ -37,16 +35,15 @@ import java.util.List;
 public class ParserRuleServiceBodyContextResolver extends AbstractItemResolver {
 
     @Override
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        if (this.isAnnotationContext(completionContext)) {
-            completionContext.put(CompletionKeys.ATTACHMENT_POINT_NODE_TYPE_KEY, "resource");
-            completionItems.addAll(CompletionItemResolver.getResolverByClass(AnnotationAttachmentResolver.class)
-                    .resolveItems(completionContext));
+        if (this.isAnnotationStart(ctx)) {
+            completionItems.addAll(CompletionItemResolver
+                    .getResolverByClass(ParserRuleAnnotationAttachmentResolver.class).resolveItems(ctx));
         } else {
             fillBindKeyword(completionItems);
         }
-        ItemSorters.getSorterByClass(DefaultItemSorter.class).sortItems(completionContext, completionItems);
+        ItemSorters.getSorterByClass(DefaultItemSorter.class).sortItems(ctx, completionItems);
 
         return completionItems;
     }

@@ -69,7 +69,7 @@ function arrayTest(int[][] yy) returns (int) {
     return yy[0][1];
 }
 
-type B {
+type B record {
     int x;
 };
 
@@ -156,15 +156,15 @@ function testFloatArrayIterator() returns float {
 
 
 
-function testBlobArrayIterator() returns blob {
-    blob[][][] sss;
-    blob[][] ss;
-    blob[] s;
+function testByteArrayIterator() returns byte[] {
+    byte[][][][] sss;
+    byte[][][] ss;
+    byte[][] s;
     s[3] = base16 `aa`;
     ss[2] = s;
     sss[5] = ss;
 
-    blob a;
+    byte[] a;
     foreach s1 in sss {
         foreach s2 in ss {
             foreach s3 in s2 {
@@ -195,6 +195,6 @@ function testRefArrayIterator() returns A {
     return a;
 }
 
-type A {
+type A record {
     string name;
 };
