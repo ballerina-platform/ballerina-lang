@@ -110,14 +110,14 @@ rem find the version of the jdk
 
 set CMD=RUN %*
 
-:checkJdk18
-"%JAVA_HOME%\bin\java" -version 2>&1 | findstr /r "[1.8.|9.|10.]" >NUL
-IF ERRORLEVEL 1 goto unknownJdk
-"%JAVA_HOME%\bin\java" -version 2>&1 | findstr /r "[1.8.]" >NUL
-IF ERRORLEVEL 0 goto jdk8AndHigher
+:checkJdk8AndHigher
+set JVER=
+for /f tokens^=2-5^ delims^=.-_^" %%j in ('"%JAVA_HOME%\bin\java" -fullversion 2^>^&1') do set "JVER=%%j%%k"
+set JAVA_MODULES=
 rem In, JDK9 or above need to import 'java.corba' module
-set JAVA_MODULES="--add-modules java.corba"
-goto jdk8AndHigher
+if %JVER% GEQ 90 set JAVA_MODULES="--add-modules java.corba"
+if %JVER% GEQ 18 goto jdk8AndHigher
+goto unknownJdk
 
 :unknownJdk
 echo Ballerina is supported only on JDK 1.8 and above
