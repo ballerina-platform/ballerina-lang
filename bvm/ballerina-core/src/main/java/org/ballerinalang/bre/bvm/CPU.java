@@ -3234,8 +3234,7 @@ public class CPU {
             return checkUnionCast(rhsValue, lhsType);
         }
 
-        if (getElementType(lhsType).getTag() == TypeTags.JSON_TAG
-                && getElementType(rhsType).getTag() == TypeTags.JSON_TAG) {
+        if (getElementType(rhsType).getTag() == TypeTags.JSON_TAG) {
             return checkJSONCast(((BJSON) rhsValue).value(), rhsType, lhsType);
         }
 
