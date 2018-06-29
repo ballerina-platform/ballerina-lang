@@ -76,10 +76,6 @@ public class TypeSignatureReader<T> {
                 int endIndex = index + 1;
                 int j = index + 1;
                 while (chars[j] != ';') {
-                    if (!Character.isDigit(chars[j]) && chars[j] != '-') {
-                        endIndex = chars.length;
-                        break;
-                    }
                     endIndex++;
                     j++;
                 }
