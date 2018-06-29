@@ -93,6 +93,10 @@ function toBlob(string l, string m) returns (blob) {
     return l.toBlob(m);
 }
 
+function toByteArray(string l, string m) returns (byte[]) {
+    return l.toByteArray(m);
+}
+
 function testEncodeDecode(string content) returns (string|error) {
     match content.base64Encode() {
         string returnString => return returnString.base64Decode();
