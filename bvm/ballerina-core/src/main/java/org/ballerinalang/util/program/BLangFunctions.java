@@ -46,7 +46,7 @@ import org.ballerinalang.persistence.states.ActiveStates;
 import org.ballerinalang.persistence.states.FailedStates;
 import org.ballerinalang.persistence.states.PendingCheckpoints;
 import org.ballerinalang.persistence.states.State;
-import org.ballerinalang.persistence.FileBasedStore;
+import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo.WorkerSet;
@@ -260,13 +260,14 @@ public class BLangFunctions {
         if (callableUnitInfo.isNative()) {
             NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();
             if (nativeCallable instanceof InterruptibleNativeCallableUnit) {
-                InterruptibleNativeCallableUnit interruptibleNativeCallableUnit = (InterruptibleNativeCallableUnit) nativeCallable;
+                InterruptibleNativeCallableUnit interruptibleNativeCallableUnit
+                        = (InterruptibleNativeCallableUnit) nativeCallable;
                 Object o = parentCtx.globalProps.get("instance.id");
                 if (o != null && o instanceof String) {
                     String instanceId = (String) o;
                     WorkerExecutionContext runnableContext = PersistenceUtils.getMainPackageContext(parentCtx);
                     if (interruptibleNativeCallableUnit.persistBeforeOperation()) {
-                        FileBasedStore.persistState(instanceId, new State(runnableContext));
+                        PersistenceStore.persistState(instanceId, new State(runnableContext));
                     }
                     if (interruptibleNativeCallableUnit.persistAfterOperation()) {
                         PendingCheckpoints.addCheckpoint(instanceId, (runnableContext.ip + 1));
@@ -337,19 +338,11 @@ public class BLangFunctions {
 
         List<WorkerExecutionContext> preparedContexts = new ArrayList<>();
         for (int i = 1; i < generalWorkersCount; i++) {
-//            preparedContexts.add(prepareWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerSet.generalWorkers[i],
-//                    wdi, initWorkerLocalData, initWorkerCAI, false, observerContext));
             executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerSet.generalWorkers[i],
                     wdi, initWorkerLocalData, initWorkerCAI, false, observerContext);
         }
         WorkerExecutionContext runInCallerCtx = executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, 
                 workerSet.generalWorkers[0], wdi, initWorkerLocalData, initWorkerCAI, true, observerContext);
-//        PersistenceUtils.persistableContexts.addAll(preparedContexts);
-//        PersistenceUtils.persistableContexts.add(runInCallerCtx);
-//        for (WorkerExecutionContext preparedContext : preparedContexts) {
-//            BLangScheduler.schedule(preparedContext);
-//        }
-
         if (waitForResponse) {
             BLangScheduler.executeNow(runInCallerCtx);
             respCallback.waitForResponse();

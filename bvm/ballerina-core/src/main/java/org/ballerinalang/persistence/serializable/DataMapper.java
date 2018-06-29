@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -19,66 +19,35 @@ package org.ballerinalang.persistence.serializable;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.persistence.serializable.LocalPropKey;
-import org.ballerinalang.persistence.serializable.NativeDataKey;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class holds mapping of data required for store native data.
+ *
+ * @since 0.976.0
+ */
 public class DataMapper {
 
     private Map<String, Map<NativeDataKey, List<BStruct>>> nativeDataMappings = new HashMap<>();
     private Map<String, Map<LocalPropKey, List<WorkerExecutionContext>>> localPropMappings = new HashMap<>();
 
     public void mapNativeData(String stateId, NativeDataKey key, BStruct bStruct) {
-        Map<NativeDataKey, List<BStruct>> stateNativeData = nativeDataMappings.get(stateId);
-        if (stateNativeData == null) {
-            stateNativeData = new HashMap<>();
-            nativeDataMappings.put(stateId, stateNativeData);
-        }
+        Map<NativeDataKey, List<BStruct>> stateNativeData = nativeDataMappings
+                .computeIfAbsent(stateId, k -> new HashMap<>());
 
-        List<BStruct> bStructs = stateNativeData.get(key);
-        if (bStructs == null) {
-            bStructs = new ArrayList<BStruct>();
-            stateNativeData.put(key, bStructs);
-        }
+        List<BStruct> bStructs = stateNativeData.computeIfAbsent(key, k -> new ArrayList<>());
         bStructs.add(bStruct);
     }
 
-    public List<BStruct> getNativeDataMappings(String stateId, NativeDataKey key) {
-        Map<NativeDataKey, List<BStruct>> stateNativeData = nativeDataMappings.get(stateId);
-        if (stateNativeData == null) {
-            return null;
-        }
-        return stateNativeData.get(key);
-    }
-
     public void mapLocalProp(String stateId, LocalPropKey key, WorkerExecutionContext context) {
-        Map<LocalPropKey, List<WorkerExecutionContext>> stateLocalProps = localPropMappings.get(stateId);
-        if (stateLocalProps == null) {
-            stateLocalProps = new HashMap<>();
-            localPropMappings.put(stateId, stateLocalProps);
-        }
+        Map<LocalPropKey, List<WorkerExecutionContext>> stateLocalProps = localPropMappings
+                .computeIfAbsent(stateId, k -> new HashMap<>());
 
-        List<WorkerExecutionContext> contexts = stateLocalProps.get(key);
-        if (contexts == null) {
-            contexts = new ArrayList<WorkerExecutionContext>();
-            stateLocalProps.put(key, contexts);
-        }
+        List<WorkerExecutionContext> contexts = stateLocalProps.computeIfAbsent(key, k -> new ArrayList<>());
         contexts.add(context);
-    }
-
-    public List<WorkerExecutionContext> getLocalPropMappings(String stateId, LocalPropKey key) {
-        Map<LocalPropKey, List<WorkerExecutionContext>> stateLocalProps = localPropMappings.get(stateId);
-        if (stateLocalProps == null) {
-            return null;
-        }
-        return stateLocalProps.get(key);
-    }
-
-    public void inject(String dataIdentifier, Object data) {
-
     }
 }

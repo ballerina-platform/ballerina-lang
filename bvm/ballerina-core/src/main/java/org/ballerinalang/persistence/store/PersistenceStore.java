@@ -16,12 +16,13 @@
  * under the License.
  *
  */
-package org.ballerinalang.persistence;
+package org.ballerinalang.persistence.store;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.persistence.PersistenceUtils;
 import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.states.State;
-import org.ballerinalang.persistence.store.StorageProvider;
+import org.ballerinalang.persistence.store.impl.FileBasedProvider;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.program.BLangVMUtils;
@@ -31,13 +32,16 @@ import java.util.List;
 
 /**
  * Representation of store which will be used to persist @{@link State}s in given storage.
+ *
+ * @since 0.976.0
+ *
  */
-public class FileBasedStore {
+public class PersistenceStore {
 
     private static StorageProvider storageProvider;
 
     public static void init() {
-        storageProvider = new StateStore();
+        storageProvider = new FileBasedProvider();
     }
 
     public static void persistState(String instanceId, State state) {

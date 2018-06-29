@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.persistence;
+package org.ballerinalang.persistence.store.impl;
 
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.persistence.states.State;
@@ -35,10 +35,10 @@ import java.util.Objects;
  *
  * @since 0.976.0
  */
-public class StateStore implements StorageProvider {
+public class FileBasedProvider implements StorageProvider {
 
     private static final String BASE_PATH = "states";
-    private static final Logger log = LoggerFactory.getLogger(StateStore.class);
+    private static final Logger log = LoggerFactory.getLogger(FileBasedProvider.class);
 
     @Override
     public void persistState(String instanceId, String workerName, String stateString) {

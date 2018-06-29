@@ -20,13 +20,13 @@ package org.ballerinalang.net.http.nativeimpl.request;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.persistence.ConnectionException;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.persistence.ConnectionException;
 
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;

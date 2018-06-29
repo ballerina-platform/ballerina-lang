@@ -71,7 +71,7 @@ import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.persistence.states.PendingCheckpoints;
 import org.ballerinalang.persistence.states.State;
-import org.ballerinalang.persistence.FileBasedStore;
+import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.AttachedFunctionInfo;
@@ -193,7 +193,7 @@ public class CPU {
                     String instanceId = (String) o;
                     if (PendingCheckpoints.isCheckpoint(instanceId, ctx.ip)) {
                         if (ctx.callableUnitInfo.getPkgPath().equals(".")) {
-                            FileBasedStore.persistState(instanceId, new State(ctx));
+                            PersistenceStore.persistState(instanceId, new State(ctx));
                         }
                     }
                 }

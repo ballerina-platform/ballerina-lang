@@ -22,7 +22,6 @@ import com.google.gson.GsonBuilder;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.persistence.PersistenceUtils;
-import org.ballerinalang.persistence.PersistenceUtils;
 import org.ballerinalang.persistence.serializable.NativeDataKey;
 import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;

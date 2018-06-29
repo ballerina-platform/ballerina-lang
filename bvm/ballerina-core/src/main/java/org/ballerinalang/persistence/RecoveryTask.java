@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -20,14 +20,24 @@ package org.ballerinalang.persistence;
 import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.persistence.states.State;
+import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+/**
+ * This is the task which is used to recover persisted states during startup.
+ *
+ * @since 0.976.0
+ */
 public class RecoveryTask implements Runnable {
 
     private ProgramFile programFile;
+
+    private static final Logger logger = LoggerFactory.getLogger(RecoveryTask.class);
 
     public RecoveryTask(ProgramFile programFile) {
         this.programFile = programFile;
@@ -35,21 +45,13 @@ public class RecoveryTask implements Runnable {
 
     @Override
     public void run() {
-
-        System.out.println("RecoveryTask: Waiting for runtime startup...");
-        try {
-            Thread.sleep(8000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println("RecoveryTask: Starting saved states...");
         Debugger debugger = new Debugger(programFile);
         initDebugger(programFile, debugger);
-        List<State> states = FileBasedStore.getStates(programFile);
+        List<State> states = PersistenceStore.getStates(programFile);
         if (states == null) {
             return;
         }
+        logger.debug("RecoveryTask: Starting saved states.");
         for (State state : states) {
             WorkerExecutionContext context = state.getContext();
             // As we don't have any running context at this point, none of the contexts can run in caller.
@@ -58,7 +60,6 @@ public class RecoveryTask implements Runnable {
             context.runInCaller = false;
             BLangScheduler.schedule(context);
         }
-
     }
 
     private void initDebugger(ProgramFile programFile, Debugger debugger) {

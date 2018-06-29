@@ -17,6 +17,13 @@
  */
 package org.ballerinalang.model;
 
+/**
+ * Class represents Interruptible @{@link NativeCallableUnit} which is used to decide the persistence of
+ * @{@link NativeCallableUnit}
+ *
+ * @since 0.976.0
+ *
+ */
 public interface InterruptibleNativeCallableUnit extends NativeCallableUnit {
 
     boolean persistBeforeOperation();

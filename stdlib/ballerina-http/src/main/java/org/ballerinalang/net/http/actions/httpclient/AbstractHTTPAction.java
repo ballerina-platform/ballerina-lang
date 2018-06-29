@@ -30,7 +30,6 @@ import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.model.InterruptibleNativeCallableUnit;
-import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.http.AcceptEncodingConfig;

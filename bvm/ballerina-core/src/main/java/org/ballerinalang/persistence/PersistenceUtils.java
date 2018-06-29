@@ -20,19 +20,20 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.persistence.adapters.ArrayListAdapter;
-import org.ballerinalang.persistence.adapters.HashMapAdapter;
-import org.ballerinalang.persistence.adapters.RefTypeAdaptor;
-import org.ballerinalang.persistence.serializable.DataMapper;
-import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBJSON;
-import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBStruct;
-import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.persistence.adapters.ArrayListAdapter;
+import org.ballerinalang.persistence.adapters.HashMapAdapter;
+import org.ballerinalang.persistence.adapters.RefTypeAdaptor;
+import org.ballerinalang.persistence.serializable.DataMapper;
 import org.ballerinalang.persistence.serializable.SerializableState;
+import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
+import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBJSON;
+import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBStruct;
+import org.ballerinalang.persistence.store.PersistenceStore;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -40,6 +41,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Util class with helper methods for persistence functionality.
+ *
+ * @since 0.976.0
+ *
+ */
 public class PersistenceUtils {
 
     public static final String INSTANCE_ID = "b7a.instance.id";
@@ -72,14 +79,14 @@ public class PersistenceUtils {
         if (stateRefTypes == null) {
             return null;
         }
-        else return stateRefTypes.get(key);
+        return stateRefTypes.get(key);
     }
 
-    public synchronized static void init() {
+    public static synchronized void init() {
         if (initialized) {
             return;
         }
-        FileBasedStore.init();
+        PersistenceStore.init();
         serializableClasses.add(String.class.getName());
         serializableClasses.add(Integer.class.getName());
         serializableClasses.add(Long.class.getName());
