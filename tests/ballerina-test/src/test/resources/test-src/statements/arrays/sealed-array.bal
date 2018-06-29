@@ -206,3 +206,32 @@ function accessIndexOfMatchedSealedArray(int[] | int[3] x, int index) returns in
         }
     }
 }
+
+// JSON Arrays
+
+function createJSONSealedArray() returns int {
+    json[5] sealedArray = [false, "abc", "12", -12, "."];
+    return lengthof sealedArray;
+}
+
+function createJSONSealedArrayWithLabel() returns int {
+    sealed json[] sealedArray = [false, "abc", "12", -12, "."];
+    return lengthof sealedArray;
+}
+
+function invalidIndexJSONArray(int index) {
+    json[3] x1 = [true, 12, false];
+    x1[index] = 100.1;
+}
+
+function invalidIndexReferenceJSONArray() {
+    json[3] x1 = [1, true, "3"];
+    json[] x2 = x1;
+    x2[3] = 1.0;
+}
+
+function createJSONDefaultSealedArray() returns (json[], int) {
+    json[5] sealedArray;
+    return (sealedArray, lengthof sealedArray);
+}
+

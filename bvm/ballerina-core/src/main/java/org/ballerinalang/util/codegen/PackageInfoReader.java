@@ -1167,7 +1167,6 @@ public class PackageInfoReader {
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.TR_END:
                 case InstructionCodes.ARRAYLEN:
-                case InstructionCodes.JSONNEWARRAY:
                 case InstructionCodes.NEWSTRUCT:
                 case InstructionCodes.ITR_NEW:
                 case InstructionCodes.ITR_HAS_NEXT:
@@ -1346,6 +1345,7 @@ public class PackageInfoReader {
                 case InstructionCodes.BNEWARRAY:
                 case InstructionCodes.LNEWARRAY:
                 case InstructionCodes.RNEWARRAY:
+                case InstructionCodes.JSONNEWARRAY:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

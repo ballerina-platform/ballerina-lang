@@ -302,6 +302,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BArrayType arrayType = (BArrayType) expType;
             if (arrayType.state == BArrayState.OPEN_SEALED) {
                 arrayType.size = arrayLiteral.exprs.size();
+                arrayType.state = BArrayState.CLOSED_SEALED;
             } else if (arrayType.state != BArrayState.UNSEALED && arrayType.size != arrayLiteral.exprs.size()) {
                 dlog.error(arrayLiteral.pos,
                         DiagnosticCode.MISMATCHING_ARRAY_LITERAL_VALUES, arrayType.size, arrayLiteral.exprs.size());
@@ -473,6 +474,10 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Check type compatibility
+        if (expType.tag == TypeTags.ARRAY && ((BArrayType) expType).state == BArrayState.OPEN_SEALED) {
+            dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_USAGE_OF_SEALED_TYPE, "can not infer array size");
+            return;
+        }
         resultType = types.checkType(varRefExpr, actualType, expType);
     }
 

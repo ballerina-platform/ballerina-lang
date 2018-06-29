@@ -73,3 +73,15 @@ function unionTestInvalidOrderedMatch(boolean | int[] | float[4] | float[] x) re
         float[4] k => return "matched sealed float array size 4";
     }
 }
+
+function invalidJSONArrays() {
+    json[4] x1 = [1, true];
+    json[4] x2 = [1, 1.5, true, false, "abc"];
+    json[4] x3 = [1, 1.5, true, false];
+    x3[3] = 12;
+    x3[4] = 12;
+    json[3] x4 = [1, true, "3"];
+    sealed json[] x5 = x4;
+    json[] x6 = [1, true, "3"];
+    json[3] x7 = x6;
+}

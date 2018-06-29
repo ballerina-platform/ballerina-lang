@@ -637,12 +637,14 @@ public class CPU {
                     case InstructionCodes.JSONNEWARRAY:
                         i = operands[0];
                         j = operands[1];
+                        k = operands[2];
                         // This is a temporary solution to create n-valued JSON array
                         StringJoiner stringJoiner = new StringJoiner(",", "[", "]");
-                        for (int index = 0; index < sf.longRegs[j]; index++) {
+                        int size = (int) sf.longRegs[k] == -1 ? (int) sf.longRegs[j] : (int) sf.longRegs[k];
+                        for (int index = 0; index < size; index++) {
                             stringJoiner.add(null);
                         }
-                        sf.refRegs[i] = new BJSON(stringJoiner.toString());
+                        sf.refRegs[i] = new BJSON(stringJoiner.toString(), (int) sf.longRegs[k]);
                         break;
     
                     case InstructionCodes.NEWSTRUCT:

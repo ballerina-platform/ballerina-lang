@@ -678,7 +678,19 @@ public class CodeGenerator extends BLangNodeVisitor {
         arraySizeLiteral.value = (long) argExprs.size();
         arraySizeLiteral.type = symTable.intType;
         genNode(arraySizeLiteral, this.env);
-        emit(InstructionCodes.JSONNEWARRAY, arrayLiteral.regIndex, arraySizeLiteral.regIndex);
+
+        BLangLiteral sealedSizeLiteral = new BLangLiteral();
+        sealedSizeLiteral.pos = arrayLiteral.pos;
+        sealedSizeLiteral.value = -1L;
+        if (arrayLiteral.type.tag == TypeTags.ARRAY &&
+                ((BArrayType) arrayLiteral.type).state != BArrayState.UNSEALED) {
+            sealedSizeLiteral.value = (long) ((BArrayType) arrayLiteral.type).size;
+        }
+        sealedSizeLiteral.type = symTable.intType;
+        genNode(sealedSizeLiteral, this.env);
+
+        emit(InstructionCodes.JSONNEWARRAY,
+                arrayLiteral.regIndex, arraySizeLiteral.regIndex, sealedSizeLiteral.regIndex);
 
         for (int i = 0; i < argExprs.size(); i++) {
             BLangExpression argExpr = argExprs.get(i);

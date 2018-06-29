@@ -123,6 +123,25 @@ public class SealedArrayTest {
     }
 
     @Test
+    public void testCreateJSONSealedArray() {
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "createJSONSealedArray");
+        Assert.assertFalse(
+                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
+        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Length didn't match");
+
+        returnValues = BRunUtil.invoke(compileResult, "createJSONSealedArrayWithLabel");
+        Assert.assertFalse(
+                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
+        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Length didn't match");
+
+        returnValues = BRunUtil.invoke(compileResult, "createJSONDefaultSealedArray");
+        Assert.assertFalse(
+                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
+        Assert.assertEquals(returnValues[0].stringValue(), "[null,null,null,null,null]", "Length didn't match");
+        Assert.assertEquals(((BInteger) returnValues[1]).intValue(), 5, "Length didn't match");
+    }
+
+    @Test
     public void testCreateAnySealedArray() {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "createAnySealedArray");
         Assert.assertFalse(
@@ -277,6 +296,16 @@ public class SealedArrayTest {
         BAssertUtil.validateError(
                 resultNegative, 12, "unreachable pattern: preceding patterns are too" +
                         " general or the pattern ordering is not correct", 73, 9);
+        BAssertUtil.validateError(
+                resultNegative, 13, "size mismatch in sealed array. expected '4', but found '2'", 78, 18);
+        BAssertUtil.validateError(
+                resultNegative, 14, "size mismatch in sealed array. expected '4', but found '5'", 79, 18);
+        BAssertUtil.validateError(
+                resultNegative, 15, "array index out of range: index: '4', size: '4'", 82, 8);
+        BAssertUtil.validateError(
+                resultNegative, 16, "invalid usage of sealed keyword: 'can not infer array size'", 84, 24);
+        BAssertUtil.validateError(
+                resultNegative, 17, "incompatible types: expected 'json[3]', found 'json[]'", 86, 18);
     }
 
     @Test(description = "Test accessing invalid index of sealed array",
@@ -304,6 +333,27 @@ public class SealedArrayTest {
         bIntArray.add(0, 5);
         BValue[] args = {bIntArray, new BInteger(5)};
         BRunUtil.invoke(compileResult, "accessIndexOfMatchedSealedArray", args);
+    }
+
+    @Test(description = "Test accessing invalid index of sealed array matched union type",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp =
+                    ".*message: failed to set element to json: index number too large: size: 3 index: 4.*")
+    public void accessInvalidIndexJSONArray() {
+        BInteger bInteger = new BInteger(1);
+        BInteger bInteger2 = new BInteger(4);
+        BValue[] args = {bInteger};
+        BValue[] args2 = {bInteger2};
+        BRunUtil.invoke(compileResult, "invalidIndexJSONArray", args);
+        BRunUtil.invoke(compileResult, "invalidIndexJSONArray", args2);
+    }
+
+    @Test(description = "Test accessing invalid index of sealed array matched union type",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp =
+                    ".*message: failed to set element to json: index number too large: size: 3 index: 3.*")
+    public void invalidIndexReferenceJSONArray() {
+        BRunUtil.invoke(compileResult, "invalidIndexReferenceJSONArray");
     }
 
     @Test

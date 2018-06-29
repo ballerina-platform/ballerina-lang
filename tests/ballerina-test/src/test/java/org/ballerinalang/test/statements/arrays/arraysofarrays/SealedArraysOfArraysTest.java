@@ -132,5 +132,15 @@ public class SealedArraysOfArraysTest {
                 resultNegative, 12, "incompatible types: expected 'int[3]', found 'int[]'", 47, 25);
         BAssertUtil.validateError(
                 resultNegative, 13, "array index out of range: index: '4', size: '3'", 52, 11);
+        BAssertUtil.validateError(
+                resultNegative, 14, "incompatible types: expected 'json[2]', found 'json[]'", 60, 12);
+        BAssertUtil.validateError(
+                resultNegative, 15, "incompatible types: expected 'json[3][3]', found 'boolean'", 63, 13);
+        BAssertUtil.validateError(
+                resultNegative, 16, "array index out of range: index: '2', size: '2'", 63, 8);
+        BAssertUtil.validateError(
+                resultNegative, 17, "array index out of range: index: '4', size: '3'", 64, 14);
+        BAssertUtil.validateError(
+                resultNegative, 18, "array index out of range: index: '4', size: '3'", 68, 14);
     }
 }
