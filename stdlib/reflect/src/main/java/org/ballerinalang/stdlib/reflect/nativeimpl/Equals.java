@@ -103,6 +103,7 @@ public class Equals extends BlockingNativeCallableUnit {
         switch (lhsValue.getType().getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.INT_TAG:
+            case TypeTags.BYTE_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.TYPEDESC_TAG:
