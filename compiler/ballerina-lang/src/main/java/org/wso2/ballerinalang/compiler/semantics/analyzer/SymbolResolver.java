@@ -832,6 +832,17 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     private boolean isMemberAccessAllowed(SymbolEnv env, BSymbol symbol) {
-        return env.enclPkg.symbol.pkgID == symbol.pkgID || Symbols.isPublic(symbol);
+        if (Symbols.isPublic(symbol)) {
+            return true;
+        }
+        if (!Symbols.isFlagOn(symbol.flags, Flags.PRIVATE)) {
+            return env.enclPkg.symbol.pkgID == symbol.pkgID;
+        }
+        if (env.enclTypeDefinition != null) {
+            return env.enclTypeDefinition.symbol == symbol.owner;
+        }
+        return env.enclInvokable != null && env.enclInvokable.symbol.receiverSymbol != null
+                && env.enclInvokable.symbol.receiverSymbol.type.tsymbol == symbol.owner;
+
     }
 }
