@@ -35,6 +35,7 @@ import java.util.Map;
 /**
  * Interface to initiate processing of incoming remote calls for streaming services.
  * This is used in client and bidirectional streaming services.
+ * @since 0.980.0
  */
 public class StreamingServerCallHandler extends ServerCallHandler {
 

@@ -26,6 +26,7 @@ import java.util.Queue;
  * <p>
  * Referenced from grpc-java implementation.
  * <p>
+ * @since 0.980.0
  */
 public class CompositeContent {
 

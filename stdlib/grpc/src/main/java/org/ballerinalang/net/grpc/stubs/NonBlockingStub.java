@@ -30,7 +30,7 @@ import org.wso2.transport.http.netty.contract.HttpClientConnector;
 /**
  * This class handles Non Blocking client connection.
  *
- * @since 1.0.0
+ * @since 0.980.0
  */
 public class NonBlockingStub extends AbstractStub {
 

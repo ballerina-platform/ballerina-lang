@@ -56,7 +56,7 @@ import static org.ballerinalang.net.http.HttpConstants.STRUCT_GENERIC_ERROR;
 /**
  * This class handles Blocking client connection.
  *
- * @since 1.0.0
+ * @since 0.980.0
  */
 public class BlockingStub extends AbstractStub {
 
