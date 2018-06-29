@@ -177,6 +177,12 @@
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/ballerina-observability-jar/META-INF/ballerina
+            </directory>
+            <outputDirectory>src</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <files>
@@ -253,6 +259,7 @@
                 <include>org.ballerinalang:ballerina-launcher:jar</include>
                 <include>org.ballerinalang:ballerina-config:jar</include>
                 <include>org.ballerinalang:ballerina-logging:jar</include>
+                <include>org.ballerinalang:ballerina-observability:jar</include>
                 <include>org.ballerinalang:strip-bouncycastle:jar</include>
                 <include>org.ballerinalang:ballerina-packerina:jar</include>
                 <include>org.ballerinalang:ballerina-cli-utils:jar</include>

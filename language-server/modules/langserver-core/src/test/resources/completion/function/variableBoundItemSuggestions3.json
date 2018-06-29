@@ -246,7 +246,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"setBodyParts(mime:Entity bodyParts, string contentType \u003d multipart/form-data)",
+      "label":"setBodyParts(mime:Entity[] bodyParts, string contentType \u003d multipart/form-data)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",

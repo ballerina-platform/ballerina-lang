@@ -27,7 +27,7 @@ import OverlayComponentsRenderingUtil from './../utils/overlay-component-renderi
 import ActionBox from './action-box';
 import ActiveArbiter from './active-arbiter';
 import ArrowDecorator from '../decorators/arrow-decorator';
-
+import HoverGroup from 'plugins/ballerina/graphical-editor/controller-utils/hover-group';
 
 class LifeLine extends React.Component {
 
@@ -102,7 +102,7 @@ class LifeLine extends React.Component {
         const isDefaultWorker = this.props.title === 'default';
         const actionBbox = new SimpleBBox();
         actionBbox.w = isDefaultWorker ? (DesignerDefaults.actionBox.width + 15) / 4
-          : ((3 * DesignerDefaults.actionBox.width) - 14) / 4;
+            : ((3 * DesignerDefaults.actionBox.width) - 14) / 4;
         actionBbox.h = DesignerDefaults.actionBox.height;
         actionBbox.x = bBox.x + ((bBox.w - actionBbox.w) / 2);
         actionBbox.y = bBox.y + 20;
@@ -141,17 +141,17 @@ class LifeLine extends React.Component {
                 className={`${lineClass} life-line`}
             />
             {this.props.icon &&
-            <g onClick={this.handleConnectorProps}>
-                <text
-                    x={startX - (iconSize / 2)}
-                    y={bBox.y - 5}
-                    fontFamily='font-ballerina'
-                    fontSize={iconSize}
-                    className={`${lineClass} life-line-icon`}
-                >
-                    {this.props.icon}
-                </text>
-            </g>
+                <g onClick={this.handleConnectorProps}>
+                    <text
+                        x={startX - (iconSize / 2)}
+                        y={bBox.y - 5}
+                        fontFamily='font-ballerina'
+                        fontSize={iconSize}
+                        className={`${lineClass} life-line-icon`}
+                    >
+                        {this.props.icon}
+                    </text>
+                </g>
             }
             <line
                 x1={bBox.x}
@@ -176,6 +176,15 @@ class LifeLine extends React.Component {
                 fontWeight='400'
                 className={`${lineClass} life-line-title`}
             >{identifier}</text>
+            <HoverGroup model={this.props.model} region='main'>
+                <rect
+                    x={bBox.x}
+                    y={bBox.y}
+                    width={bBox.w}
+                    height={bBox.h}
+                    className='invisible-rect'
+                />
+            </HoverGroup>
             {this.props.onDelete &&
                 <ActionBox
                     show={this.state.active}
@@ -185,13 +194,13 @@ class LifeLine extends React.Component {
                     isDefaultWorker={isDefaultWorker}
                 />
             }
-            { (!TreeUtils.isForkJoin(this.props.model.parent) &&
-              (isDefaultWorker || TreeUtils.isWorker(this.props.model))) &&
-              <ArrowDecorator
-                  start={{ x: startX, y: startY }}
-                  end={{ x: startX, y: startY }}
-                  classNameArrow={`${lineClass} client-invocation-arrow`}
-              />
+            {(!TreeUtils.isForkJoin(this.props.model.parent) &&
+                (isDefaultWorker || TreeUtils.isWorker(this.props.model))) &&
+                <ArrowDecorator
+                    start={{ x: startX, y: startY }}
+                    end={{ x: startX, y: startY }}
+                    classNameArrow={`${lineClass} client-invocation-arrow`}
+                />
             }
         </g>);
     }
