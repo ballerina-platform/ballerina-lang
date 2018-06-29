@@ -329,7 +329,8 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
 
     private void notifyEndpointProcessors(BType endpointType, List<BLangAnnotationAttachment> attachments,
                                           BiConsumer<CompilerPlugin, List<AnnotationAttachmentNode>> notifier) {
-        DefinitionID endpointID = new DefinitionID(endpointType.tsymbol.pkgID.name.value,
+        DefinitionID endpointID = new DefinitionID(endpointType.tsymbol.pkgID.orgName.value,
+                endpointType.tsymbol.pkgID.name.value + ":" + endpointType.tsymbol.pkgID.version.value,
                 endpointType.tsymbol.name.value);
         final List<CompilerPlugin> compilerPlugins = endpointProcessorMap.get(endpointID);
         if (compilerPlugins == null) {
