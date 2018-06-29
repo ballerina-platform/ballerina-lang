@@ -72,7 +72,10 @@ class ControllerOverlay extends React.Component {
     }
 
     renderControllers(model, controllers, region) {
-        model.trigger('render-menu', { content: controllers, region });
+        // wait for existing state modifications to complete
+        setTimeout(() => {
+            model.trigger('render-menu', { content: controllers, region });
+        }, 0);
     }
 
     /**
