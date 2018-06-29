@@ -72,7 +72,8 @@ public enum Snippet {
 
     PUBLIC_BLOCK("public {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}"),
 
-    RECORD_SNIPPET("type ${1:RecordName} {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR + "};"),
+    RECORD_SNIPPET("type ${1:RecordName} record {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR
+            + "};"),
 
     RESOURCE("${1:newResource} (endpoint ${2:caller}, ${3:http:Request request}) {" + CommonUtil.LINE_SEPARATOR
             + "\t${4}" + CommonUtil.LINE_SEPARATOR + "}"),

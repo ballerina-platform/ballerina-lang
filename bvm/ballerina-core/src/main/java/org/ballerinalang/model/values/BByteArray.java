@@ -63,6 +63,10 @@ public class BByteArray extends BNewArray {
         return values[(int) index];
     }
 
+    public byte[] getBytes() {
+        return values.clone();
+    }
+
     @Override
     public BType getType() {
         return arrayType;

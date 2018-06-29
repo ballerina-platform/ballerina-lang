@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.io.socket;
+package org.ballerinalang.stdlib.io.socket.client;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -34,20 +34,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Native function to ShutdownInput in a socket.
+ * Native function to ShutdownOutput in a socket.
  *
  * @since 0.970.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
-        functionName = "shutdownInput",
+        functionName = "shutdownOutput",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Socket", structPackage = "ballerina/io"),
         returnType = { @ReturnType(type = TypeKind.RECORD, structType = "error")},
         isPublic = true
 )
-public class ShutdownInput extends BlockingNativeCallableUnit {
+public class ShutdownOutput extends BlockingNativeCallableUnit {
 
-    private static final Logger log = LoggerFactory.getLogger(ShutdownInput.class);
+    private static final Logger log = LoggerFactory.getLogger(ShutdownOutput.class);
 
     @Override
     public void execute(Context context) {
@@ -58,10 +58,10 @@ public class ShutdownInput extends BlockingNativeCallableUnit {
             Channel channel = (Channel) byteChannelStruct.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             if (channel instanceof SocketIOChannel) {
                 SocketIOChannel socketIOChannel = (SocketIOChannel) channel;
-                socketIOChannel.shutdownInput();
+                socketIOChannel.shutdownOutput();
             }
         } catch (Throwable e) {
-            String message = "Failed to shutdown input in socket:" + e.getMessage();
+            String message = "Failed to shutdown output in socket:" + e.getMessage();
             log.error(message, e);
             context.setReturnValues(IOUtils.createError(context, message));
         }
