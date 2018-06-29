@@ -105,6 +105,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private static final String CREATE_SIMPLE_SELECT_METHOD_NAME = "createSimpleSelect";
     private static final String EVENT_OBJECT_VARIABLE_NAME = "eventObject";
     private static final String BUILD_STREAM_EVENT_METHOD_NAME = "buildStreamEvent";
+    private static final String STREAM_PUBLISH_METHOD_NAME = "stream.publish";
+    private static final String STREAM_SUBSCRIBE_METHOD_NAME = "stream.subscribe";
 
     private static final CompilerContext.Key<StreamingCodeDesugar> STREAMING_DESUGAR_KEY =
             new CompilerContext.Key<>();
@@ -242,7 +244,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 createExpressionStatementNode();
         eventPublisherStatement.pos = lambdaFunction.pos;
         BInvokableSymbol publisherMethodSymbol = (BInvokableSymbol) symTable.rootScope.lookup(names.
-                fromString("stream.publish")).symbol;
+                fromString(STREAM_PUBLISH_METHOD_NAME)).symbol;
 
         List<BLangVariable> variables = new ArrayList<>(1);
         variables.add(typeCastingVariable);
@@ -459,14 +461,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             ((BLangWhere) beforeWhereNode).accept(this);
         }
 
-        //Construct lambda function which consumes events
-        BLangLambdaFunction streamSubscriberLambdaFunction = (BLangLambdaFunction) TreeBuilder.
-                createLambdaFunctionNode();
-        BLangFunction streamSubscriberLambdaFunctionNode = ASTBuilderUtil.createFunction(streamingInput.pos,
-                getFunctionName(FUNC_CALLER));
-        streamSubscriberLambdaFunction.function = streamSubscriberLambdaFunctionNode;
-        BLangBlockStmt lambdaBody = ASTBuilderUtil.createBlockStmt(streamingInput.pos);
-
+        BVarSymbol nextProcessInvokableTypeVarSymbol = nextProcessVarSymbolStack.pop();
         BVarSymbol lambdaParameterVarSymbol = new BVarSymbol(0, new Name(getVariableName(INPUT_STREAM_PARAM_REFERENCE)),
                 lambdaParameterType.tsymbol.pkgID, lambdaParameterType, env.scope.owner);
 
@@ -474,17 +469,17 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 getVariableName(INPUT_STREAM_PARAM_REFERENCE), lambdaParameterType, null, lambdaParameterVarSymbol);
         inputStreamLambdaFunctionVariable.typeNode = ASTBuilderUtil.createTypeNode(lambdaParameterType);
 
+        Set<BVarSymbol> closureVarSymbols = new LinkedHashSet<>();
+        closureVarSymbols.add(nextProcessInvokableTypeVarSymbol);
+        closureVarSymbols.add(inputStreamLambdaFunctionVariable.symbol);
 
-        //New Lambda Function
-        streamSubscriberLambdaFunctionNode.requiredParams.add(inputStreamLambdaFunctionVariable);
-        streamSubscriberLambdaFunctionNode.returnTypeNode = ASTBuilderUtil.createTypeNode(symTable.nilType);
         BLangValueType returnType = new BLangValueType();
         returnType.setTypeKind(TypeKind.NIL);
-        streamSubscriberLambdaFunction.type = streamSubscriberLambdaFunctionNode.type;
-        streamSubscriberLambdaFunctionNode.setReturnTypeNode(returnType);
-        defineFunction(streamSubscriberLambdaFunctionNode, env.enclPkg);
 
-        //Implement the lambdaBody
+        //Construct lambda function which consumes events
+        BLangLambdaFunction streamSubscriberLambdaFunction = createLambdaFunction(streamingInput.pos,
+                inputStreamLambdaFunctionVariable, closureVarSymbols, returnType);
+        BLangBlockStmt lambdaBody = streamSubscriberLambdaFunction.function.body;
 
         //Event conversion to StreamEvent
         BLangSimpleVarRef lambdaParameterSimpleVarRef = ASTBuilderUtil.createVariableRef(streamingInput.pos,
@@ -519,7 +514,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         lambdaBody.stmts.add(streamEventArrayTypeVariableDef);
 
         //Function invocation to call output process
-        BVarSymbol nextProcessInvokableTypeVarSymbol = nextProcessVarSymbolStack.pop();
         BInvokableSymbol nextProcessInvokableSymbol = getNextProcessFunctionSymbol(nextProcessInvokableTypeVarSymbol);
 
         BLangSimpleVarRef streamEventArrayRef = ASTBuilderUtil.createVariableRef(streamingInput.pos,
@@ -540,20 +534,12 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         nextProcessExpressionStmt.expr = nextProcessMethodInvocation;
         lambdaBody.stmts.add(nextProcessExpressionStmt);
 
-        //Set lambda body
-        streamSubscriberLambdaFunctionNode.body = lambdaBody;
-        streamSubscriberLambdaFunctionNode.closureVarSymbols.add(nextProcessInvokableTypeVarSymbol);
-        streamSubscriberLambdaFunctionNode.closureVarSymbols.add(inputStreamLambdaFunctionVariable.symbol);
-        streamSubscriberLambdaFunctionNode.desugared = false;
-        streamSubscriberLambdaFunction.pos = streamingInput.pos;
-        streamSubscriberLambdaFunction.type = symTable.anyType;
-
         //Create function call - stream1.subscribe(lambda_function)
         BLangExpressionStmt inputStreamSubscribeStatement = (BLangExpressionStmt) TreeBuilder.
                 createExpressionStatementNode();
         inputStreamSubscribeStatement.pos = streamingInput.pos;
         BInvokableSymbol subscribeMethodSymbol = (BInvokableSymbol) symTable.rootScope.
-                lookup(names.fromString("stream.subscribe"))
+                lookup(names.fromString(STREAM_SUBSCRIBE_METHOD_NAME))
                 .symbol;
         List<BLangExpression> variables = new ArrayList<>(1);
         variables.add(streamSubscriberLambdaFunction);
@@ -799,7 +785,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             }
         }
 
-        return null;
+        throw new IllegalStateException("Couldn't evaluate the process method of the next processor : " +
+                (nextProcessInvokableTypeVarSymbol).type.toString());
     }
 
     private List<BLangRecordLiteral.BLangRecordKeyValue> getFieldListInSelectClause
