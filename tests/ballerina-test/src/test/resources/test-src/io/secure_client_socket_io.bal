@@ -2,7 +2,7 @@ import ballerina/io;
 
 io:Socket socket;
 
-function openSocketConnection (string host, int port, io:SocketProperties prop) {
+function openSocketConnection(string host, int port, io:SocketProperties prop) {
     var result = io:openSecureSocket(host, port, prop);
     match result {
         io:Socket s => {
@@ -14,11 +14,11 @@ function openSocketConnection (string host, int port, io:SocketProperties prop) 
     }
 }
 
-function closeSocket () {
+function closeSocket() {
     error? err = socket.close();
 }
 
-function write (blob content) returns (int | error) {
+function write(byte[] content) returns (int|error) {
     io:ByteChannel channel = socket.channel;
     var result = channel.write(content, 0);
     match result {
@@ -31,11 +31,11 @@ function write (blob content) returns (int | error) {
     }
 }
 
-function read (int size) returns (blob, int) | error {
+function read(int size) returns (byte[], int)|error {
     io:ByteChannel channel = socket.channel;
     var result = channel.read(size);
-    match result{
-        (blob , int)  content => {
+    match result {
+        (byte[], int) content => {
             var (bytes, numberOfBytes) = content;
             return (bytes, numberOfBytes);
         }
