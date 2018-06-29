@@ -18,7 +18,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ImageUtil from '../../../../image-util';
-import './action-box.css';
 import { withDragStateKnowledge } from '../../../../../drag-drop/util';
 import { Button } from 'semantic-ui-react';
 
@@ -39,12 +38,8 @@ class ActionBox extends React.Component {
      */
     render() {
         const iconSize = 38;
-        const style = {
-            position: 'absolute',
-            ...this.props.style,
-            left:  this.props.style.left - iconSize,
-        };
-        return (<div style={style}>
+
+        return (<div style={{ position: 'absolute', left: -iconSize, ...this.props.style }}>
             <Button.Group>
                 <Button
                     onClick={this.props.disableButtons.delete ? () => {} : this.props.onDelete}
