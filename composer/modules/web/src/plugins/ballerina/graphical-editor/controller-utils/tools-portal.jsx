@@ -18,6 +18,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
 
 class ToolsPortal extends React.Component {
     constructor(props) {
@@ -26,12 +27,12 @@ class ToolsPortal extends React.Component {
     }
 
     componentDidMount() {
-        const menuRoot = document.getElementsByClassName('canvas-container')[0];
+        const menuRoot = this.context.getGraphicalEditorContainer();
         menuRoot.appendChild(this.el);
     }
 
     componentWillUnmount() {
-        const menuRoot = document.getElementsByClassName('canvas-container')[0];
+        const menuRoot = this.context.getGraphicalEditorContainer();
         menuRoot.removeChild(this.el);
     }
 
@@ -42,5 +43,9 @@ class ToolsPortal extends React.Component {
         );
     }
 }
+
+ToolsPortal.contextTypes = {
+    getGraphicalEditorContainer: PropTypes.instanceOf(Object).isRequired,
+};
 
 export default ToolsPortal;

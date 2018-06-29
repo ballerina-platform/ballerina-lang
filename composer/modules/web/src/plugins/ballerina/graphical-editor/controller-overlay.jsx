@@ -103,7 +103,6 @@ class ControllerOverlay extends React.Component {
                 }
             }
         });
-
         return null;
     }
 }
