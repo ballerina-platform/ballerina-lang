@@ -56,9 +56,9 @@ public class TargetErrorHandler {
     private static Logger log = LoggerFactory.getLogger(TargetErrorHandler.class);
     private HttpResponseFuture httpResponseFuture;
     private SourceInteractiveState state;
+    private static final String CLIENT_ERROR = "Error in HTTP client: ";
 
-    public TargetErrorHandler(HttpResponseFuture httpResponseFuture) {
-        this.httpResponseFuture = httpResponseFuture;
+    public TargetErrorHandler() {
         this.state = CONNECTED;
     }
 
@@ -67,7 +67,7 @@ public class TargetErrorHandler {
             case CONNECTED:
                 httpResponseFuture.notifyHttpListener(
                         new ServerConnectorException(REMOTE_SERVER_CLOSED_BEFORE_INITIATING_OUTBOUND_REQUEST));
-                log.error(REMOTE_SERVER_CLOSED_BEFORE_INITIATING_OUTBOUND_REQUEST);
+                log.debug(REMOTE_SERVER_CLOSED_BEFORE_INITIATING_OUTBOUND_REQUEST);
                 break;
             case SENDING_ENTITY_BODY:
                 // HttpResponseFuture will be notified asynchronously via Target channel.
@@ -85,7 +85,7 @@ public class TargetErrorHandler {
             case ENTITY_BODY_RECEIVED:
                 break;
             default:
-                log.error("Unexpected state detected ", state);
+                log.error(CLIENT_ERROR + "Unexpected state detected ", state);
         }
     }
 
@@ -96,17 +96,17 @@ public class TargetErrorHandler {
                         IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_REQUEST,
                         HttpResponseStatus.GATEWAY_TIMEOUT.code()));
                 // Error is notified to server connector. Debug log is to make transport layer aware
-                log.debug(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_REQUEST);
+                log.debug(CLIENT_ERROR + IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_REQUEST);
                 break;
             case SENDING_ENTITY_BODY:
                 // HttpResponseFuture will be notified asynchronously via Target channel.
-                log.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST);
+                log.error(CLIENT_ERROR + IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST);
                 break;
             case ENTITY_BODY_SENT:
                 httpResponseFuture.notifyHttpListener(new EndpointTimeOutException(channelID,
                         IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
                         HttpResponseStatus.GATEWAY_TIMEOUT.code()));
-                log.error(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE);
+                log.error(CLIENT_ERROR + IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE);
                 break;
             case RECEIVING_ENTITY_BODY:
                 handleIncompleteInboundResponse(inboundResponseMsg,
@@ -115,7 +115,7 @@ public class TargetErrorHandler {
             case ENTITY_BODY_RECEIVED:
                 break;
             default:
-                log.error("Unexpected state detected ", state);
+                log.error(CLIENT_ERROR + "Unexpected state detected ", state);
         }
     }
 

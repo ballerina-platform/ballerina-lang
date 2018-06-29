@@ -155,9 +155,9 @@ public class TargetChannel {
         targetHandler.setOutboundRequestMsg(httpCarbonMessage);
         targetHandler.setConnectionManager(connectionManager);
         targetHandler.setTargetChannel(this);
-        targetErrorHandler = new TargetErrorHandler(httpInboundResponseFuture);
-        targetHandler.setTargetErrorHandler(targetErrorHandler);
 
+        targetErrorHandler = targetHandler.getTargetErrorHandler();
+        targetErrorHandler.setResponseFuture(httpInboundResponseFuture);
         this.httpInboundResponseFuture = httpInboundResponseFuture;
     }
 

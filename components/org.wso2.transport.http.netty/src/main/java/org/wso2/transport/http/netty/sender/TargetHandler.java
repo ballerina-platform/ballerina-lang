@@ -68,6 +68,10 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private boolean idleTimeoutTriggered;
     private TargetErrorHandler targetErrorHandler;
 
+    public TargetHandler() {
+        targetErrorHandler = new TargetErrorHandler();
+    }
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
@@ -297,7 +301,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    public void setTargetErrorHandler(TargetErrorHandler targetErrorHandler) {
-        this.targetErrorHandler = targetErrorHandler;
+    public TargetErrorHandler getTargetErrorHandler() {
+        return targetErrorHandler;
     }
 }
