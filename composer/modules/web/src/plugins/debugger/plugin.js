@@ -114,7 +114,7 @@ class DebuggerPlugin extends Plugin {
                     region: REGIONS.LEFT_PANEL,
                     // region specific options for left-panel views
                     regionOptions: {
-                        activityBarIcon: 'bug',
+                        activityBarIcon: 'start',
                         panelTitle: 'Debugger',
                         panelActions: [
                             {
