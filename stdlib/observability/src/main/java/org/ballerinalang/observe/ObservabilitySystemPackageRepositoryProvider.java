@@ -14,32 +14,26 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ *
  */
+package org.ballerinalang.observe;
 
-package org.ballerina.testobserve.extension.noop;
-
-import io.opentracing.SpanContext;
-
-import java.util.Collections;
-import java.util.Map;
+import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.spi.SystemPackageRepositoryProvider;
+import org.wso2.ballerinalang.compiler.packaging.repo.JarRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 
 /**
- * A no-op implementation of a SpanContext.
+ * This represents the standard Ballerina built-in system package repository provider.
+ * 
+ * @since 0.94
  */
-public interface NoopSpanContext extends SpanContext {
-}
-
-final class NoopSpanContextImpl implements NoopSpanContext {
-    static final NoopSpanContextImpl INSTANCE = new NoopSpanContextImpl();
+@JavaSPIService("org.ballerinalang.spi.SystemPackageRepositoryProvider")
+public class ObservabilitySystemPackageRepositoryProvider implements SystemPackageRepositoryProvider {
 
     @Override
-    public Iterable<Map.Entry<String, String>> baggageItems() {
-        return Collections.emptyList();
+    public Repo loadRepository() {
+        return new JarRepo(SystemPackageRepositoryProvider.getClassUri(this));
     }
 
-    @Override
-    public String toString() {
-        return NoopSpanContext.class.getSimpleName();
-    }
 }
-

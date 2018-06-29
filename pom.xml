@@ -594,6 +594,24 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-observability</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-observability</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-observability</artifactId>
+                <version>${ballerina.version}</version>
+                <classifier>ballerina-binary-repo</classifier>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>strip-bouncycastle</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -1481,6 +1499,7 @@
                 <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
+                <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/jdbc</module>
                 <module>stdlib/database/mysql</module>
@@ -1554,6 +1573,7 @@
                 <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
+                <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/jdbc</module>
                 <module>stdlib/database/mysql</module>
@@ -1623,6 +1643,7 @@
                 <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
+                <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/jdbc</module>
                 <module>stdlib/database/mysql</module>

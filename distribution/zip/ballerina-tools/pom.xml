@@ -142,6 +142,12 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-observability</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>testerina-core</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
@@ -242,6 +248,7 @@
                                 ballerina-mime,
                                 ballerina-transactions,
                                 ballerina-websub,
+                                ballerina-observability,
                                 composer-server-distribution,
                                 connectors,
                                 testerina-core,
@@ -315,6 +322,9 @@
                                     <directory>${project.build.directory}/extracted-distributions/ballerina-websub-jar/META-INF/ballerina</directory>
                                 </resource>
                                 <resource>
+                                    <directory>${project.build.directory}/extracted-distributions/ballerina-observability-jar/META-INF/ballerina</directory>
+                                </resource>
+                                <resource>
                                     <directory>${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/ballerina</directory>
                                 </resource>
                             </resources>
@@ -374,6 +384,11 @@
                     <dependency>
                         <groupId>org.ballerinalang</groupId>
                         <artifactId>ballerina-transactions</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.ballerinalang</groupId>
+                        <artifactId>ballerina-observability</artifactId>
                         <version>${project.version}</version>
                     </dependency>
                 </dependencies>
