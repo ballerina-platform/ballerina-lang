@@ -435,7 +435,7 @@ public class MimeUtilityFunctionTest {
         BMap<String, BValue> errorStruct = (BMap<String, BValue>) returns[0];
         Assert.assertEquals(errorStruct.get(ERROR_MESSAGE_FIELD).stringValue(),
                 "Byte channel is not available but payload can be obtain either" +
-                        " as xml, json, string or byte array type");
+                        " as xml, json, string or byte[] type");
     }
 
     @Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +

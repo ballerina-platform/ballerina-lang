@@ -648,7 +648,7 @@ documentation {
         Converts given blob to a string.
 
         P{{encoding}} Encoding to used in blob conversion to string
-        R{{}} String representation of the given blob
+        R{{}} String representation of the given byte[]
     }
 public native function byteArrayToString(byte[] b, string encoding) returns string;
 

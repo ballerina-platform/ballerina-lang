@@ -50,7 +50,7 @@ public class ServerSocketTest {
         serverBal = BCompileUtil.compileAndSetup("test-src/io/server_socket_io.bal");
     }
 
-    //@Test(description = "Check server socket accept functionality.")
+    @Test(description = "Check server socket accept functionality.")
     public void testSeverSocketAccept() {
         int port = ThreadLocalRandom.current().nextInt(47000, 51000);
         String welcomeMsg = "Hello Ballerina";

@@ -40,6 +40,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Unit tests for client socket.
  */
+@Test(groups = { "broken" })
 public class ClientSocketTest {
 
     private static final Logger log = LoggerFactory.getLogger(ClientSocketTest.class);
