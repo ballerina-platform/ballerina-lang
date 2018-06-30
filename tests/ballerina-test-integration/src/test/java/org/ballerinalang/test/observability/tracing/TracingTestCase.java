@@ -18,7 +18,10 @@
 
 package org.ballerinalang.test.observability.tracing;
 
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
+import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.testng.Assert;
@@ -28,7 +31,11 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
+import java.util.List;
+import java.util.Optional;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -37,7 +44,9 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  */
 public class TracingTestCase {
 
-    private ServerInstance serverInstance;
+    private ServerInstance serverInstanceOne;
+    private ServerInstance serverInstanceTwo;
+    private ServerInstance serverInstanceThree;
     private static final String BASEDIR = System.getProperty("basedir");
     private static final String RESOURCE_LOCATION = "src" + File.separator + "test" + File.separator +
             "resources" + File.separator + "observability" + File.separator + "tracing" + File.separator;
@@ -48,8 +57,17 @@ public class TracingTestCase {
 
     @BeforeClass
     private void setup() throws Exception {
-        serverInstance = ServerInstance.initBallerinaServer();
-        String balFile = new File(RESOURCE_LOCATION + "trace-test.bal").getAbsolutePath();
+        serverInstanceOne = ServerInstance.initBallerinaServer(9090);
+        startBallerinaService(serverInstanceOne, "trace-test-ootb.bal");
+        serverInstanceTwo = ServerInstance.initBallerinaServer(9091);
+        startBallerinaService(serverInstanceTwo, "trace-test-user-trace-false.bal");
+        serverInstanceThree = ServerInstance.initBallerinaServer(9092);
+        startBallerinaService(serverInstanceThree, "trace-test-user-trace-true.bal");
+    }
+
+    private void startBallerinaService(ServerInstance serverInstance, String serviceName)
+            throws IOException, BallerinaTestException {
+        String balFile = new File(RESOURCE_LOCATION + serviceName).getAbsolutePath();
         serverInstance.setArguments(
                 new String[]{balFile, "--observe", "-e", "b7a.observability.tracing.name=BMockTracer"});
 
@@ -66,11 +84,66 @@ public class TracingTestCase {
     }
 
     @Test
-    public void testSpanWithTwoResources() throws Exception {
-        HttpClientRequest.doGet("http://localhost:9090/echoService/resourceOne");
+    public void testOOTBTracing() throws Exception {
+        final String service = "http://localhost:9090/echoService/";
+        HttpClientRequest.doGet(service + "resourceOne");
         Thread.sleep(1000);
-        Assert.assertEquals(HttpClientRequest.doGet(
-                "http://localhost:9090/echoService/getFinishedSpansCount").getData(), "5");
+        Type type = new TypeToken<List<BMockSpan>>() {
+        }.getType();
+        String data = HttpClientRequest.doGet(service + "getMockTracers").getData();
+        PrintStream out = System.out;
+        out.println(data);
+        List<BMockSpan> mockSpans = new Gson().fromJson(data, type);
+
+        Assert.assertEquals(mockSpans.size(), 5, "Mismatch in number of spans reported.");
+        Assert.assertEquals(mockSpans.stream()
+                .filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 2, "Mismatch in number of root spans.");
+    }
+
+    @Test
+    public void testObservePackageUserTraceFalse() throws Exception {
+        final String service = "http://localhost:9091/echoService/";
+        HttpClientRequest.doGet(service + "resourceOne");
+        Thread.sleep(1000);
+        Type type = new TypeToken<List<BMockSpan>>() {
+        }.getType();
+        String data = HttpClientRequest.doGet(service + "getMockTracers").getData();
+        PrintStream out = System.out;
+        out.println(data);
+        List<BMockSpan> mockSpans = new Gson().fromJson(data, type);
+
+        Assert.assertEquals(mockSpans.size(), 7, "Mismatch in number of spans reported.");
+        Assert.assertEquals(mockSpans.stream()
+                .filter(bMockSpan ->
+                        bMockSpan.getParentId() == 0).count(), 2, "Mismatch in number of root spans.");
+    }
+
+    @Test
+    public void testObservePackageUserTraceTrue() throws Exception {
+        final String service = "http://localhost:9092/echoService/";
+        HttpClientRequest.doGet(service + "resourceOne");
+        Thread.sleep(1000);
+        Type type = new TypeToken<List<BMockSpan>>() {
+        }.getType();
+        String data = HttpClientRequest.doGet(service + "getMockTracers").getData();
+        PrintStream out = System.out;
+        out.println(data);
+        List<BMockSpan> mockSpans = new Gson().fromJson(data, type);
+
+        Assert.assertEquals(mockSpans.size(), 7, "Mismatch in number of spans reported.");
+
+        Assert.assertEquals(mockSpans.stream()
+                .filter(bMockSpan ->
+                        bMockSpan.getParentId() == 0).count(), 3, "Mismatch in number of root spans.");
+
+        Optional<BMockSpan> uSpanTwo = mockSpans.stream()
+                .filter(bMockSpan -> bMockSpan.getOperationName().equals("uSpanTwo")).findFirst();
+
+        Assert.assertTrue(uSpanTwo.isPresent());
+        uSpanTwo.ifPresent(bMockSpan -> {
+            Assert.assertEquals(bMockSpan.getTags().get("Allowed"), "Successful", "Tag not found");
+            Assert.assertNull(bMockSpan.getTags().get("Disallowed"), "Unexpected tag found");
+        });
     }
 
     private static void copyFile(File source, File dest) throws IOException {
@@ -79,6 +152,8 @@ public class TracingTestCase {
 
     @AfterClass
     private void cleanup() throws Exception {
-        serverInstance.stopServer();
+        serverInstanceOne.stopServer();
+        serverInstanceTwo.stopServer();
+        serverInstanceThree.stopServer();
     }
 }
