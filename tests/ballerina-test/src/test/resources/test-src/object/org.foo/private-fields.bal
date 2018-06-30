@@ -1,11 +1,9 @@
 
 public type userFoo object {
-    public {
-        int age;
-        string name;
-        string address;
-        string zipcode = "23468";
-    }
+    public int age;
+    public string name;
+    public string address;
+    public string zipcode = "23468";
 
     public function getName() returns (string);
 
@@ -21,35 +19,27 @@ public function userFoo::getAge () returns (int) {
 }
 
 public type user object {
-    public {
-        int age;
-        string name;
-        string address;
-        string zipcode = "23468";
-    }
+    public int age;
+    public string name;
+    public string address;
+    public string zipcode = "23468";
 };
 
 public type person object {
-    public {
-        int age;
-        string name;
-    }
-    private {
-        string ssn;
-        int id;
-    }
+    public int age;
+    public string name;
+
+    string ssn;
+    int id;
 };
 
 type student object {
-    public {
-        int age;
-        string name;
-    }
-    private {
-        string ssn;
-        int id;
-        int schoolId;
-    }
+    public int age;
+    public string name;
+
+    string ssn;
+    int id;
+    int schoolId;
 };
 
 public function newPerson() returns (person) {
@@ -69,10 +59,8 @@ public function newUser() returns (user) {
 }
 
 public type FooObj object {
-    public {
-        int age;
-        string name;
-    }
+    public int age;
+    public string name;
 
     public function getName() returns (string);
 };

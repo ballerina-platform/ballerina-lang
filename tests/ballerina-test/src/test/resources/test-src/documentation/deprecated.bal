@@ -19,9 +19,7 @@ deprecated {
   This Object is deprecated use `File2` instead.
 }
 public type File object {
-    public {
-        string path;
-    }
+    public string path;
 
     public function open(string accessMode) returns boolean;
 };
@@ -45,11 +43,9 @@ F{{a}} annotation `field a` documentation
 F{{b}} annotation `field b` documentation
 F{{c}} annotation `field c` documentation}
 type Tst object {
-    public {
-        string a;
-        string b;
-        string c;
-    }
+    public string a;
+    public string b;
+    public string c;
 };
 
 documentation { Documentation for Test annotation

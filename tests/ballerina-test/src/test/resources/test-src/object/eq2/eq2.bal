@@ -1,14 +1,12 @@
 
 public type employee object {
-    public {
-        int age;
-        string name;
-        string address;
-        string zipcode = "95134";
-        string ssn;
-        int id;
-        int employeeId = 123456;
-    }
+    public int age;
+    public string name;
+    public string address;
+    public string zipcode = "95134";
+    public string ssn;
+    public int id;
+    public int employeeId = 123456;
 
     public function getName() returns (string);
 
@@ -42,10 +40,8 @@ public function employee::getEmployeeId() returns (int) {
 }
 
 public type FooObj object {
-    public {
-        int age;
-        string name;
-    }
+    public int age;
+    public string name;
 
     public function getName() returns (string);
 };

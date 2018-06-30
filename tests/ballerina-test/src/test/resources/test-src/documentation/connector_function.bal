@@ -3,10 +3,8 @@ F{{url}} url for endpoint
 F{{path}} path for endpoint
 }
 type TestConnector object {
-    public {
-        string url;
-        string path;
-    }
+    public string url;
+    public string path;
 
     documentation {Test Connector action testAction R{{value}} whether successful or not}
     public function testAction() returns boolean;

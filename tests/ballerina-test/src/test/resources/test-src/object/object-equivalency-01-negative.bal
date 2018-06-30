@@ -1,18 +1,18 @@
 
 public type person01 object {
-    public {
-        int age;
-        string name;
-        string address;
-    }
+
+    public int age;
+    public string name;
+    public string address;
+
 };
 
 public type employee01 object {
-    public {
-        int age;
-        string name;
-        string zipcode = "95134";
-    }
+
+    public int age;
+    public string name;
+    public string zipcode = "95134";
+
     new (age, name) {}
 };
 
@@ -24,19 +24,19 @@ function testEqOfObjectsInSamePackage01() returns (string) {
 }
 
 public type person02 object {
-    public {
-        int age;
-        string name;
-        string address;
-    }
+
+    public int age;
+    public string name;
+    public string address;
+
 };
 
 public type employee02 object {
-    public {
-        int age;
-        string name;
-        int address;
-    }
+
+    public int age;
+    public string name;
+    public int address;
+
     new (age, name) {}
 };
 
@@ -48,18 +48,18 @@ function testEqOfObjectsInSamePackage02() returns (string) {
 }
 
 public type person03 object {
-    public {
-        int age;
-        string name;
-        string address;
-    }
+
+    public int age;
+    public string name;
+    public string address;
+
 };
 
 public type employee03 object {
-    public {
-        int age;
-        string name;
-    }
+
+    public int age;
+    public string name;
+
     new (age, name) {}
 };
 
@@ -71,23 +71,23 @@ function testEqOfObjectsInSamePackage03() returns (string) {
 }
 
 public type person04 object {
-    public {
-        int age;
-        string name;
-        string address;
-    }
+
+    public int age;
+    public string name;
+    public string address;
+
 };
 
 public type employee04 object {
-    public {
-        int age;
-        string name;
-        string address;
-    }
-    private {
-        int id;
-        string ss;
-    }
+
+    public int age;
+    public string name;
+    public string address;
+
+
+    private int id;
+    private string ss;
+
     new (age, name) {}
 };
 
@@ -100,25 +100,25 @@ function testEqOfObjectsInSamePackage04() returns (string) {
 
 
 public type person05 object {
-    public {
-        int age;
-        string name;
-    }
-    private {
-        string address;
-        string id;
-    }
+
+    public int age;
+    public string name;
+
+
+    private string address;
+    private string id;
+
     new (age, name) {}
 };
 
 public type employee05 object {
-    public {
-        int age;
-        string name;
-        string address;
-        string id;
-        string ssn;
-    }
+
+    public int age;
+    public string name;
+    public string address;
+    public string id;
+    public string ssn;
+
     new (age, name) {}
 };
 
@@ -130,22 +130,22 @@ function testEqOfObjectsInSamePackage05() returns (string) {
 }
 
 type person06 object {
-    public {
-        int age;
-        string name;
-        int address;
-        string id;
-    }
+
+    public int age;
+    public string name;
+    public int address;
+    public string id;
+
 };
 
 type employee06 object {
-    public {
-        int age;
-        string name;
-        string address;
-        string id;
-        string ssn;
-    }
+
+    public int age;
+    public string name;
+    public string address;
+    public string id;
+    public string ssn;
+
     new (age, name) {}
 };
 
@@ -158,13 +158,13 @@ function testEqOfObjectsInSamePackage06() returns (string) {
 
 
 public type person07 object {
-    public {
-        int age;
-        string name;
-        string address;
-        string zipcode = "95134";
-        string ssn;
-    }
+
+    public int age;
+    public string name;
+    public string address;
+    public string zipcode = "95134";
+    public string ssn;
+
     public function getAge() returns (int);
 
     public function getName() returns (string);
@@ -185,13 +185,13 @@ public function person07::setSSN(string s) {
 }
 
 public type employee07 object {
-    public {
-        int age;
-        string name;
-        string address;
-        string zipcode = "95134";
-        string ssn;
-    }
+
+    public int age;
+    public string name;
+    public string address;
+    public string zipcode = "95134";
+    public string ssn;
+
 
     new (age, name) {}
 
@@ -217,13 +217,13 @@ function testEqOfObjectsInSamePackage07() returns (string) {
 
 
 public type person08 object {
-    public {
-        int age;
-        string name;
-        string address;
-        string zipcode = "95134";
-        string ssn;
-    }
+
+    public int age;
+    public string name;
+    public string address;
+    public string zipcode = "95134";
+    public string ssn;
+
 
     public function getAge() returns (int);
 
@@ -245,13 +245,13 @@ public function person08::setSSN(string s) {
 }
 
 public type employee08 object {
-    public {
-        int age;
-        string name;
-        string address;
-        string zipcode = "95134";
-        string ssn;
-    }
+
+    public int age;
+    public string name;
+    public string address;
+    public string zipcode = "95134";
+    public string ssn;
+
 
     new (age, name) {}
 
@@ -283,13 +283,13 @@ function testEqOfObjectsInSamePackage08() returns (string) {
 
 
 public type person09 object {
-    public {
-        int age;
-        string name;
-        string address;
-        string zipcode = "95134";
-        string ssn;
-    }
+
+    public int age;
+    public string name;
+    public string address;
+    public string zipcode = "95134";
+    public string ssn;
+
 
     public function getAge() returns (int);
 
@@ -311,13 +311,13 @@ public function person09::setSSN(string s) {
 }
 
 public type employee09 object {
-    public {
-        int age;
-        string name;
-        string address;
-        string zipcode = "95134";
-        string ssn;
-    }
+
+    public int age;
+    public string name;
+    public string address;
+    public string zipcode = "95134";
+    public string ssn;
+
 
     new (age, name) {}
 

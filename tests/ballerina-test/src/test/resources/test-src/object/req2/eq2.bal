@@ -1,10 +1,8 @@
 
 public type userPB object {
-    public {
-        int age;
-        string name;
-        string address;
-    }
+    public int age;
+    public string name;
+    public string address;
 
     new () {}
 

@@ -1,26 +1,20 @@
 
 public type officer object {
-    public {
-        int age;
-        string name = "hidden, private";
-        string address;
-        string zipcode = "23468";
-    }
-    private {
-        int ssn;
-    }
+    public int age;
+    public string name = "hidden, private";
+    public string address;
+    public string zipcode = "23468";
+
+    private int ssn;
 };
 
 public type userBar object {
-    public {
-        int age;
-        string name = "hidden, private";
-        string address;
-        string zipcode = "23468";
-    }
-    private {
-        int ssn;
-    }
+    public int age;
+    public string name = "hidden, private";
+    public string address;
+    public string zipcode = "23468";
+
+    private int ssn;
 
     public new (name) {}
 
@@ -44,10 +38,8 @@ public function userBar::getZipcode() returns (string) {
 }
 
 public type BarObj object {
-    public {
-        int age;
-        string name;
-    }
+    public int age;
+    public string name;
 
     public function getName() returns (string);
 

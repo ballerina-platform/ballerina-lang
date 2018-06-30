@@ -126,9 +126,7 @@ function assignFiniteValueAsDefaultParam(State cd = "on") returns State {
 
 type Channel object {
 
-    public {
-      State? b,
-    }
+    public State? b,
 
     new (b = "off", boolean a = true){
         State o =  "on";

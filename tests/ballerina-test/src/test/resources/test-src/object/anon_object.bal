@@ -41,7 +41,6 @@ type employee object {
         public string day = "01";
         public string year = "1970";
         } dateOfBirth;
-    }
 
     new (fname, lname, age, address, dateOfBirth) {}
 };
@@ -88,7 +87,7 @@ public function Person::getKind() returns string {
 }
 
 function testObjectEquivalencyBetweenAnonAndNormalObject() returns (int, string, string) {
-    object { public int age; public string name;public int length; public string kind; }
+    object { public int age; public string name;public int length; public string kind;
     public new (age, name, string value) {
         kind = " hello " + value;
     }

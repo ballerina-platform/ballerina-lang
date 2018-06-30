@@ -65,10 +65,8 @@ public function funcWithNilDefaultParamExpr_2(Student? s = ()) returns Student? 
 
 public type Employee object {
 
-    public {
-        string name;
-        int salary;
-    }
+    public string name;
+    public int salary;
 
     public new (name = "supun", salary = 100) {
     }
@@ -80,9 +78,7 @@ public type Employee object {
 
 
 public type Person object {
-    public {
-        int age,
-    }
+    public int age,
 
     public function test1(int a = 77, string n = "inner default") returns (int, string);
 

@@ -36,9 +36,7 @@ public function ABCClient::testAction2() returns string {
 }
 
 public type Client object {
-    public {
-        ABCClient abcClient;
-    }
+    public ABCClient abcClient;
 
     public function init(ClientEndpointConfiguration config);
 

@@ -13,9 +13,7 @@ documentation { Documentation for File type
 F{{path}} file path. Example: ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
 }
 public type File object {
-    public {
-        string path;
-    }
+    public string path;
 
     public function open(string accessMode) returns boolean;
 };

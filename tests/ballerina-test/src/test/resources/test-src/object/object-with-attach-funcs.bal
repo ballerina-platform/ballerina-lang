@@ -9,8 +9,8 @@ type Person object {
     public int age = 10,
     public string name = "sample name";
 
-    private int year = 50;
-    private string month = "february";
+    int year = 50;
+    string month = "february";
 
     new (year, int count, name = "sample value1", string val1 = "default value") {
         age = age + count;

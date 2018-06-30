@@ -1,10 +1,8 @@
 string exFlow = "";
 
 type DummyEndpoint object {
-    public {
-        string prop1;
-        int prop2;
-    }
+    public string prop1;
+    public int prop2;
 
     public function init (DummyEndpointConfig conf) {
         exFlow = exFlow + "init:DummyEndpoint;";
@@ -37,7 +35,7 @@ public type DummyEndpointConfig record {
 };
 
 type DummyClient object {
-    public {string conf1; }
+    public string conf1;
 
     public function invoke1 (string a, int b) {
         exFlow = exFlow + "invoke1:DummyClient;";

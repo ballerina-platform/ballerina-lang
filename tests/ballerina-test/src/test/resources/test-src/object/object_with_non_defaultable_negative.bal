@@ -14,7 +14,7 @@ type Person object {
     public int age = 10,
 
 
-    private string month = "february";
+    string month = "february";
 
 
     new (age) {

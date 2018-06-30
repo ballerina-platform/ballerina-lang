@@ -1,11 +1,9 @@
 
 public type userPFoo object {
-    public {
-        int age;
-        string name;
-        string address;
-        string zipcode = "23468";
-    }
+    public int age;
+    public string name;
+    public string address;
+    public string zipcode = "23468";
 
     public new (age, name, address) {}
 

@@ -722,18 +722,14 @@ public type T3 record {
 };
 
 public type O1 object {
-  public {
-    int x;
-    int y;
-  }
+  public int x;
+  public int y;
 };
 
 public type O2 object {
-  public {
-    int x;
-    int y;
-    int z;
-  }
+  public int x;
+  public int y;
+  public int z;
 };
 
 function testObjectRecordConversion1() returns T3 {
