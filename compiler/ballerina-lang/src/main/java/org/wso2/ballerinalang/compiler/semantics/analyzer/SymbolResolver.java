@@ -841,8 +841,13 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (env.enclTypeDefinition != null) {
             return env.enclTypeDefinition.symbol == symbol.owner;
         }
-        return env.enclInvokable != null && env.enclInvokable.symbol.receiverSymbol != null
-                && env.enclInvokable.symbol.receiverSymbol.type.tsymbol == symbol.owner;
+        return isMemberAllowed(env, symbol);
+    }
 
+    private boolean isMemberAllowed(SymbolEnv env, BSymbol symbol) {
+        return env != null && (env.enclInvokable != null
+                && env.enclInvokable.symbol.receiverSymbol != null
+                && env.enclInvokable.symbol.receiverSymbol.type.tsymbol == symbol.owner
+                || isMemberAllowed(env.enclEnv, symbol));
     }
 }
