@@ -22,7 +22,7 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -46,7 +46,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Test class for secure client socket related actions.
  */
-//@Test(groups = { "broken" })
+@Test(groups = { "broken" })
 public class SecureClientSocketTest {
 
     private static final Logger log = LoggerFactory.getLogger(SecureClientSocketTest.class);
@@ -153,15 +153,16 @@ public class SecureClientSocketTest {
         final String newline = System.lineSeparator();
         String content = "Hello World" + newline;
         final byte[] contentBytes = content.getBytes();
-        BValue[] args = { new BBlob(contentBytes)};
+        BValue[] args = { new BByteArray(contentBytes)};
         final BValue[] writeReturns = BRunUtil.invokeStateful(socketClient, "write", args);
         BInteger returnedSize = (BInteger) writeReturns[0];
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Write content size is not match.");
         args = new BValue[] { new BInteger(content.length()) };
         final BValue[] readReturns = BRunUtil.invokeStateful(socketClient, "read", args);
-        final BBlob readContent = (BBlob) readReturns[0];
+        final BByteArray readContent = (BByteArray) readReturns[0];
         returnedSize = (BInteger) readReturns[1];
-        Assert.assertEquals(readContent.stringValue(), content, "Return content are not match with written content.");
+        Assert.assertEquals(new String((readContent).getBytes()), content,
+                "Return content are not match with written content.");
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Read size not match with the request size");
     }
 

@@ -17,6 +17,7 @@
 import ballerina/io;
 import ballerina/internal;
 import ballerina/log;
+import ballerina/mime;
 import ballerina/time;
 
 string TEST_CONTENT = "Hello";
@@ -152,7 +153,7 @@ function testWriteFile(string pathValue) returns error? {
     internal:Path filePath = new(pathValue);
     string absolutePath = filePath.getPathValue();
     io:ByteChannel channel = io:openFile(absolutePath, "rw");
-    var result = channel.write(TEST_CONTENT.toBlob("UTF-8"), 0);
+    var result = channel.write(TEST_CONTENT.toByteArray("UTF-8"), 0);
     return channel.close();
 }
 
@@ -161,9 +162,9 @@ function testReadFile(string pathValue) returns boolean {
     var readResult = channel.read(100);
     _ = channel.close();
     match readResult {
-        (blob, int) byteContent => {
+        (byte[], int) byteContent => {
             var (bytes, numberOfBytes) = byteContent;
-            return bytes.toString("UTF-8") == TEST_CONTENT;
+            return mime:byteArrayToString(bytes, "UTF-8") == TEST_CONTENT;
         }
         error err => {
             log:printError("Error occurred while reading content: " + pathValue, err = err);
