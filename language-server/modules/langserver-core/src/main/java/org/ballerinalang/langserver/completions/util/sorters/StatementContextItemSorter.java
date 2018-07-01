@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.langserver.completions.util.sorters;
 
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.List;
@@ -35,8 +35,8 @@ public class StatementContextItemSorter extends CompletionItemSorter {
      */
     @Override
     public void sortItems(LSServiceOperationContext ctx, List<CompletionItem> completionItems) {
-        int startTokenIndex = ctx.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY).getStart().getTokenIndex();
-        int stopTokenIndex = ctx.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY).getStop().getTokenIndex();
+        int startTokenIndex = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getStart().getTokenIndex();
+        int stopTokenIndex = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getStop().getTokenIndex();
         if (startTokenIndex > 0 && stopTokenIndex < 0) {
             completionItems.clear();
         }

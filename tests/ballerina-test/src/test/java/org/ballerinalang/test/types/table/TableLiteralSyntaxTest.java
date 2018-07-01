@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.test.types.table;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -32,10 +33,12 @@ import org.testng.annotations.Test;
 public class TableLiteralSyntaxTest {
 
     private CompileResult result;
+    private CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/table/table_literal_syntax.bal");
+        resultNegative = BCompileUtil.compile("test-src/types/table/table_literal_syntax_negative.bal");
     }
 
     @Test
@@ -102,5 +105,16 @@ public class TableLiteralSyntaxTest {
     public void testTableAddOnConstrainedTableWithViolation2() {
         BValue[] returns = BRunUtil.invoke(result, "testTableAddOnConstrainedTableWithViolation2");
         Assert.assertTrue((returns[0]).stringValue().contains("Unique index or primary key violation:"));
+    }
+
+    @Test(description = "Test table remove with function pointer of invalid return type")
+    public void testTableReturnNegativeCases() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 6);
+        BAssertUtil.validateError(resultNegative, 0, "undefined column 'married2' for table of type 'Person'", 14, 24);
+        BAssertUtil.validateError(resultNegative, 1, "undefined field 'married2' in struct 'Person'", 16, 10);
+        BAssertUtil.validateError(resultNegative, 2, "undefined field 'married2' in struct 'Person'", 17, 9);
+        BAssertUtil.validateError(resultNegative, 3, "undefined field 'married2' in struct 'Person'", 18, 9);
+        BAssertUtil.validateError(resultNegative, 4, "incompatible types: expected 'Person', found 'int'", 32, 10);
+        BAssertUtil.validateError(resultNegative, 5, "incompatible types: expected 'Person', found 'int'", 32, 13);
     }
 }

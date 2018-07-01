@@ -17,17 +17,26 @@ package org.ballerinalang.langserver;
 
 import org.ballerinalang.langserver.command.CommandExecutor;
 import org.ballerinalang.langserver.command.ExecuteCommandKeys;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.WorkspaceSymbolParams;
 import org.eclipse.lsp4j.services.WorkspaceService;
+import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -47,7 +56,38 @@ class BallerinaWorkspaceService implements WorkspaceService {
     @Override
     public CompletableFuture<List<? extends SymbolInformation>> symbol(WorkspaceSymbolParams params) {
         List<SymbolInformation> symbols = new ArrayList<>();
+        LSServiceOperationContext symbolsContext = new LSServiceOperationContext();
+        Map<String, Object[]> compUnits = new HashMap<>();
+        this.workspaceDocumentManager.getAllFilePaths().forEach(path -> {
+            symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
+            symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, path.toUri().toString());
+            List<BLangPackage> bLangPackage = LSCompiler.getBLangPackage(symbolsContext, workspaceDocumentManager,
+                                                                         false,
+                                                                         LSCustomErrorStrategy.class, false);
+            if (bLangPackage != null) {
+                bLangPackage.forEach(aPackage -> aPackage.compUnits.forEach(compUnit -> {
+                    String unitName = compUnit.getName();
+                    String sourceRoot = LSCompiler.getSourceRoot(path);
+                    String basePath = sourceRoot + File.separator + compUnit.getPosition().src.getPackageName();
+                    String hash = generateHash(compUnit, basePath);
+                    compUnits.put(hash, new Object[]{
+                            new File(basePath + File.separator + unitName).toURI(), compUnit});
+                }));
+            }
+        });
+
+        compUnits.values().forEach(compilationUnit -> {
+            symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
+            symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, compilationUnit[0].toString());
+            symbolsContext.put(DocumentServiceKeys.SYMBOL_QUERY, params.getQuery());
+            SymbolFindingVisitor visitor = new SymbolFindingVisitor(symbolsContext);
+            ((BLangCompilationUnit) compilationUnit[1]).accept(visitor);
+        });
         return CompletableFuture.completedFuture(symbols);
+    }
+
+    private String generateHash(BLangCompilationUnit compUnit, String basePath) {
+        return compUnit.getPosition().getSource().pkgID.toString() + "$" + basePath + "$" + compUnit.getName();
     }
 
     @Override

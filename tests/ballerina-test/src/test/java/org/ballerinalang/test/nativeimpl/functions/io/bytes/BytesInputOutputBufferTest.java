@@ -17,10 +17,10 @@
 
 package org.ballerinalang.test.nativeimpl.functions.io.bytes;
 
-import org.ballerinalang.nativeimpl.io.BallerinaIOException;
-import org.ballerinalang.nativeimpl.io.IOConstants;
-import org.ballerinalang.nativeimpl.io.channels.base.Buffer;
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.channels.base.Buffer;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.testng.Assert;

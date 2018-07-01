@@ -66,7 +66,11 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
     public void reportFailedPredicate(Parser parser, FailedPredicateException e) {
         setContextException(parser);
         DiagnosticPos pos = getPosition(getMissingSymbol(parser));
-        dlog.error(pos, DiagnosticCode.FAILED_PREDICATE, e.getMessage());
+        if (parser.getContext() instanceof BallerinaParser.ShiftExprPredicateContext) {
+            dlog.error(pos, DiagnosticCode.INVALID_SHIFT_OPERATOR);
+        } else {
+            dlog.error(pos, DiagnosticCode.FAILED_PREDICATE, e.getMessage());
+        }
     }
 
     @Override

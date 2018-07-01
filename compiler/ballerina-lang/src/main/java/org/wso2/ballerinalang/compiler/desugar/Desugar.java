@@ -76,12 +76,12 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -168,7 +168,9 @@ import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -193,6 +195,7 @@ public class Desugar extends BLangNodeVisitor {
     private static final String QUERY_TABLE_WITH_JOIN_CLAUSE = "queryTableWithJoinClause";
     private static final String QUERY_TABLE_WITHOUT_JOIN_CLAUSE = "queryTableWithoutJoinClause";
     private static final String CREATE_FOREVER = "startForever";
+    private static final String BASE_64 = "base64";
 
     private SymbolTable symTable;
     private SymbolResolver symResolver;
@@ -929,7 +932,38 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLiteral literalExpr) {
+        if (TypeTags.BYTE_ARRAY == literalExpr.typeTag) { // this is blob literal as byte array
+            result = rewriteBlobLiteral(literalExpr);
+            return;
+        }
         result = literalExpr;
+    }
+
+    private BLangNode rewriteBlobLiteral(BLangLiteral literalExpr) {
+        String[] result = getBlobTextValue((String) literalExpr.value);
+        if (BASE_64.equals(result[0])) {
+            literalExpr.value = Base64.getDecoder().decode(result[1].getBytes(StandardCharsets.UTF_8));
+        } else {
+            literalExpr.value = hexStringToByteArray(result[1]);
+        }
+        return literalExpr;
+    }
+
+    private String[] getBlobTextValue(String blobLiteralNodeText) {
+        String nodeText = blobLiteralNodeText.replaceAll(" ", "");
+        String[] result = new String[2];
+        result[0] = nodeText.substring(0, nodeText.indexOf('`'));
+        result[1] = nodeText.substring(nodeText.indexOf('`') + 1, nodeText.lastIndexOf('`'));
+        return result;
+    }
+
+    private static byte[] hexStringToByteArray(String str) {
+        int len = str.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(str.charAt(i), 16) << 4) + Character.digit(str.charAt(i + 1), 16));
+        }
+        return data;
     }
 
     @Override
@@ -1092,7 +1126,7 @@ public class Desugar extends BLangNodeVisitor {
                     fieldAccessExpr.field, (BVarSymbol) fieldAccessExpr.symbol);
         } else {
             fieldAccessExpr.expr = rewriteExpr(fieldAccessExpr.expr);
-            
+            BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
             BType varRefType = fieldAccessExpr.expr.type;
             if (varRefType.tag == TypeTags.OBJECT || varRefType.tag == TypeTags.RECORD) {
                 if (fieldAccessExpr.symbol instanceof BInvokableSymbol &&
@@ -1100,17 +1134,14 @@ public class Desugar extends BLangNodeVisitor {
                     targetVarRef = new BLangStructFunctionVarRef(fieldAccessExpr.expr,
                             (BVarSymbol) fieldAccessExpr.symbol);
                 } else {
-                    targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos,
-                            fieldAccessExpr.expr, (BVarSymbol) fieldAccessExpr.symbol);
+                    targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
+                            (BVarSymbol) fieldAccessExpr.symbol);
                 }
             } else if (varRefType.tag == TypeTags.MAP) {
-                BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
                 targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
             } else if (varRefType.tag == TypeTags.JSON) {
-                BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
                 targetVarRef = new BLangJSONAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
             } else if (varRefType.tag == TypeTags.XML) {
-                BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
                 targetVarRef = new BLangXMLAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
                         fieldAccessExpr.fieldKind);
             }
@@ -1133,8 +1164,8 @@ public class Desugar extends BLangNodeVisitor {
         indexAccessExpr.expr = rewriteExpr(indexAccessExpr.expr);
         BType varRefType = indexAccessExpr.expr.type;
         if (varRefType.tag == TypeTags.OBJECT || varRefType.tag == TypeTags.RECORD) {
-            targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos,
-                    indexAccessExpr.expr, (BVarSymbol) indexAccessExpr.symbol);
+            targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
+                    indexAccessExpr.indexExpr, (BVarSymbol) indexAccessExpr.symbol);
         } else if (varRefType.tag == TypeTags.MAP) {
             targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos,
                     indexAccessExpr.expr, indexAccessExpr.indexExpr, !indexAccessExpr.type.isNullable());
@@ -1249,6 +1280,18 @@ public class Desugar extends BLangNodeVisitor {
         binaryExpr.rhsExpr = rewriteExpr(binaryExpr.rhsExpr);
         result = binaryExpr;
 
+        // Check for bitwise shift operator and add type conversion to int
+        if (isBitwiseShiftOperation(binaryExpr)) {
+            if (TypeTags.BYTE == binaryExpr.rhsExpr.type.tag) {
+                binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
+                        symTable.intType);
+            }
+            if (TypeTags.BYTE == binaryExpr.lhsExpr.type.tag) {
+                binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
+                        symTable.intType);
+            }
+        }
+
         // Check lhs and rhs type compatibility
         if (binaryExpr.lhsExpr.type.tag == binaryExpr.rhsExpr.type.tag) {
             return;
@@ -1276,6 +1319,29 @@ public class Desugar extends BLangNodeVisitor {
             binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr,
                     binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
         }
+    }
+
+    /**
+     * This method checks whether given binary expression is related to shift operation.
+     * If its true, then both lhs and rhs of the binary expression will be converted to 'int' type.
+     *
+     *      byte a = 12;
+     *      byte b = 34;
+     *      int i = 234;
+     *      int j = -4;
+     *
+     *      true: where binary expression's expected type is 'int'
+     *      int i1 = a >> b;
+     *      int i2 = a << b;
+     *      int i3 = a >> i;
+     *      int i4 = a << i;
+     *      int i5 = i >> j;
+     *      int i6 = i << j;
+     *
+     */
+    private boolean isBitwiseShiftOperation(BLangBinaryExpr binaryExpr) {
+        return binaryExpr.opKind == OperatorKind.BITWISE_LEFT_SHIFT ||
+                binaryExpr.opKind == OperatorKind.BITWISE_RIGHT_SHIFT;
     }
 
     public void visit(BLangElvisExpr elvisExpr) {
@@ -1454,7 +1520,9 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStructFieldAccessExpr fieldAccessExpr) {
-        result = fieldAccessExpr;
+        BType expType = fieldAccessExpr.type;
+        fieldAccessExpr.type = symTable.anyType;
+        result = addConversionExprIfRequired(fieldAccessExpr, expType);
     }
 
     @Override
@@ -2274,30 +2342,18 @@ public class Desugar extends BLangNodeVisitor {
         BType type = varNode.type;
         // Don't need to create an empty init expressions if the type allows null.
         if (type.isNullable()) {
-            return null;
+            return getNullLiteral();
         }
 
         switch (type.tag) {
             case TypeTags.INT:
-                BLangLiteral intDefault = (BLangLiteral) TreeBuilder.createLiteralExpression();
-                intDefault.value = Long.parseLong("0");
-                intDefault.type = symTable.intType;
-                return intDefault;
+                return getIntLiteral(0);
             case TypeTags.FLOAT:
-                BLangLiteral floatDefault = (BLangLiteral) TreeBuilder.createLiteralExpression();
-                floatDefault.value = Double.parseDouble("0");
-                floatDefault.type = symTable.floatType;
-                return floatDefault;
+                return getFloatLiteral(0);
             case TypeTags.BOOLEAN:
-                BLangLiteral booleanDefault = (BLangLiteral) TreeBuilder.createLiteralExpression();
-                booleanDefault.value = Boolean.parseBoolean("false");
-                booleanDefault.type = symTable.booleanType;
-                return booleanDefault;
+                return getBooleanLiteral(false);
             case TypeTags.STRING:
-                BLangLiteral stringDefault = (BLangLiteral) TreeBuilder.createLiteralExpression();
-                stringDefault.value = "";
-                stringDefault.type = symTable.stringType;
-                return stringDefault;
+                return getStringLiteral("");
             case TypeTags.BLOB:
                 BLangLiteral blobDefault = (BLangLiteral) TreeBuilder.createLiteralExpression();
                 blobDefault.value = new byte[0];

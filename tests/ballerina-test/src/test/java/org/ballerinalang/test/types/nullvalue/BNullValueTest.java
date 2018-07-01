@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.types.nullvalue;
 
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -25,7 +26,6 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -156,10 +156,10 @@ public class BNullValueTest {
     public void testArrayOfNulls() {
         BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testArrayOfNulls", new BValue[]{});
         Assert.assertEquals(vals.length, 4);
-        Assert.assertTrue(vals[0] instanceof BStruct);
-        Assert.assertTrue(vals[1] instanceof BStruct);
+        Assert.assertTrue(vals[0] instanceof BMap);
+        Assert.assertTrue(vals[1] instanceof BMap);
         Assert.assertEquals(vals[2], null);
-        Assert.assertTrue(vals[3] instanceof BStruct);
+        Assert.assertTrue(vals[3] instanceof BMap);
     }
 
     @Test(description = "Test map of null values")
@@ -191,8 +191,9 @@ public class BNullValueTest {
     void testNullMapAccessWithConversion() {
         BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testNullMapAccessWithConversion", new BValue[]{});
         Assert.assertEquals(vals.length, 1);
-        Assert.assertTrue(vals[0] instanceof BStruct);
-        Assert.assertEquals(((BStruct) vals[0]).getStringField(0), "'null' cannot be cast to 'int'");
+        Assert.assertTrue(vals[0] instanceof BMap);
+        String errorMsg = ((BMap<String, BValue>) vals[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+        Assert.assertEquals(errorMsg, "'null' cannot be cast to 'int'");
     }
 
     @Test(description = "Test negative test cases")

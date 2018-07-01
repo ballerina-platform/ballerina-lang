@@ -19,7 +19,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
-import ActionBox from './action-box';
+import HoverGroup from 'plugins/ballerina/graphical-editor/controller-utils/hover-group';
 import SimpleBBox from './../../../../../model/view/simple-bounding-box';
 import './statement-decorator.css';
 import Breakpoint from './breakpoint';
@@ -171,49 +171,60 @@ class StatementDecorator extends React.Component {
                     this.myRoot = group;
                 }}
             >
-                <line
-                    x1={bBox.getCenterX()}
-                    y1={hiderTop}
-                    x2={bBox.getCenterX()}
-                    y2={hiderBottom}
-                    className='life-line-hider'
-                />
-                { children }
-                <DropZone
-                    model={this.props.model}
-                    x={dropZone.x}
-                    y={dropZone.y}
-                    width={dropZone.w}
-                    height={dropZone.h}
-                    baseComponent='rect'
-                    dropTarget={this.props.model.parent}
-                    dropBefore={this.props.model}
-                    renderUponDragStart
-                    enableDragBg
-                    enableCenterOverlayLine
-                />
-                <g className='statement-body' onClick={e => this.onJumpToCodeLine()}>
-                    {tooltip}
-                    <text
-                        x={text.x}
-                        y={text.y}
-                        className={textClassName}
-                        onClick={e => this.onJumpToCodeLine()}
-                    >
-                        {_.trimEnd(expression, ';')}
-                    </text>
-                </g>
-                {/* <ActionBox
-                    bBox={actionBoxBbox}
-                    show={this.state.active}
-                    isBreakpoint={isBreakpoint}
-                    onDelete={() => this.onDelete()}
-                    onJumptoCodeLine={() => this.onJumpToCodeLine()}
-                    onBreakpointClick={() => this.props.onBreakpointClick()}
-                /> */}
-                {isBreakpoint && this.renderBreakpointIndicator()}
-                {this.props.children}
-            </g>);
+                <HoverGroup model={this.props.model} region='main'>
+                    <line
+                        x1={bBox.getCenterX()}
+                        y1={hiderTop}
+                        x2={bBox.getCenterX()}
+                        y2={hiderBottom}
+                        className='life-line-hider'
+                    />
+                    {children}
+                    <DropZone
+                        model={this.props.model}
+                        x={dropZone.x}
+                        y={dropZone.y}
+                        width={dropZone.w}
+                        height={dropZone.h}
+                        baseComponent='rect'
+                        dropTarget={this.props.model.parent}
+                        dropBefore={this.props.model}
+                        renderUponDragStart
+                        enableDragBg
+                        enableCenterOverlayLine
+                    />
+                    <g className='statement-body' onClick={e => this.onJumpToCodeLine()}>
+                        {tooltip}
+                        <text
+                            x={text.x}
+                            y={text.y}
+                            className={textClassName}
+                            onClick={e => this.onJumpToCodeLine()}
+                        >
+                            {_.trimEnd(expression, ';')}
+                        </text>
+                    </g>
+                    {/* <ActionBox
+                        bBox={actionBoxBbox}
+                        show={this.state.active}
+                        isBreakpoint={isBreakpoint}
+                        onDelete={() => this.onDelete()}
+                        onJumptoCodeLine={() => this.onJumpToCodeLine()}
+                        onBreakpointClick={() => this.props.onBreakpointClick()}
+                    /> */}
+                    {isBreakpoint && this.renderBreakpointIndicator()}
+                    {this.props.children}
+                    <rect
+                        x={bBox.x - 10}
+                        y={bBox.y}
+                        width={bBox.w + 10}
+                        height={bBox.h}
+                        fillOpacity={0}
+                        cursor='pointer'
+                    />
+                </HoverGroup>
+            </g>
+        );
     }
 
 }

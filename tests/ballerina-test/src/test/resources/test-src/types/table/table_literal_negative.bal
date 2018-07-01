@@ -26,13 +26,3 @@ function testTableRemoveInvalidFunctionPointer() returns (int, json) {
 function isBellow35Invalid(Person p) {
     p.age = 10;
 }
-
-function testTableLiteralDataWithInit() returns (int) {
-    table<Person> t1 = table {
-        { primarykey id, primarykey salary, name, age, married },
-        [1, 1]
-    };
-
-    int count = t1.count();
-    return count;
-}

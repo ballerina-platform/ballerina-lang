@@ -948,24 +948,26 @@ public class BLangPackageBuilder {
         BLangRecordLiteral recordLiteral = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
         List<BLangTableLiteral.BLangTableColumn> keyNames = tableLiteralNodes.peek().columns;
         List<ExpressionNode> recordValues = exprNodeListStack.pop();
-        int index = 0;
-        for (ExpressionNode expr : recordValues) {
-            BLangRecordKeyValue keyValue = (BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
-            //Value
-            keyValue.valueExpr = (BLangExpression) expr;
-            //key
-            BLangSimpleVarRef keyExpr = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-            keyExpr.pos = pos;
-            keyExpr.addWS(ws);
-            IdentifierNode identifierNode = TreeBuilder.createIdentifierNode();
-            identifierNode.setValue(keyNames.get(index).columnName);
-            keyExpr.variableName = (BLangIdentifier) identifierNode;
-            keyValue.key = new BLangRecordKey(keyExpr);
-            //Key-Value pair
-            recordLiteral.keyValuePairs.add(keyValue);
-            ++index;
+        if (keyNames.size() == recordValues.size()) {
+            int index = 0;
+            for (ExpressionNode expr : recordValues) {
+                BLangRecordKeyValue keyValue = (BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
+                //Value
+                keyValue.valueExpr = (BLangExpression) expr;
+                //key
+                BLangSimpleVarRef keyExpr = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+                keyExpr.pos = pos;
+                keyExpr.addWS(ws);
+                IdentifierNode identifierNode = TreeBuilder.createIdentifierNode();
+                identifierNode.setValue(keyNames.get(index).columnName);
+                keyExpr.variableName = (BLangIdentifier) identifierNode;
+                keyValue.key = new BLangRecordKey(keyExpr);
+                //Key-Value pair
+                recordLiteral.keyValuePairs.add(keyValue);
+                ++index;
+            }
+            this.tableLiteralNodes.peek().tableDataRows.add(recordLiteral);
         }
-        this.tableLiteralNodes.peek().tableDataRows.add(recordLiteral);
     }
 
     void endTableDataRow() {

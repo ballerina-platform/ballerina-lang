@@ -26,13 +26,14 @@ import org.eclipse.lsp4j.InsertTextFormat;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Completion Item resolver for the resource definition context.
  */
 public class ParserRuleResourceDefinitionContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         CompletionItem resource = new CompletionItem();
         resource.setLabel(ItemResolverConstants.RESOURCE_TYPE);
         resource.setInsertText(Snippet.RESOURCE.toString());

@@ -157,7 +157,7 @@ if [ "$CMD" = "--java.debug" ]; then
   echo "Please start the remote debugging client to continue..."
 fi
 
-jdk_18=`$JAVA_HOME/bin/java -version 2>&1 | grep "1.[8|9]"`
+jdk_18=`$JAVA_HOME/bin/java -version 2>&1 | grep "[1.8|9|10]"`
 if [ "$jdk_18" = "" ]; then
    echo "Error: Ballerina is supported only on JDK 1.8 and above"
    exit 1
