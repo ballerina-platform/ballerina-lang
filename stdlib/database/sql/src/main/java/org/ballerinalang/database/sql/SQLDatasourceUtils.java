@@ -32,6 +32,7 @@ import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -602,8 +603,8 @@ public class SQLDatasourceUtils {
 
     private static byte[] getByteArray(BValue value) {
         byte[] val = null;
-        if (value instanceof BBlob) {
-            val = ((BBlob) value).blobValue();
+        if (value instanceof BByteArray) {
+            val = ((BByteArray) value).getBytes();
         } else if (value instanceof BString) {
             val = getBytesFromBase64String(value.stringValue());
         }
@@ -978,8 +979,6 @@ public class SQLDatasourceUtils {
             return Constants.SQLDataTypes.DOUBLE;
         case TypeTags.BOOLEAN_TAG:
             return Constants.SQLDataTypes.BOOLEAN;
-        case TypeTags.BLOB_TAG:
-            return Constants.SQLDataTypes.BLOB;
         default:
             throw new BallerinaException(
                     "unsupported data type as direct value for sql operation, use sql:Parameter: " + value.getName());
