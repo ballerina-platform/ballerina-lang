@@ -6,9 +6,9 @@ type Person object {
     public string name,
     // If you need to have a field with own type, you need to make that field defaultable. Here we have made 'parent' field defaultable by making it nullable.
     public Person? parent,
-    // Private fields are only visible within the object and it's functions.
+    // Private fields are only visible within the object and its functions.
     private string email = "default@abc.com",
-    // Protected fields(means no access modifiers) are visible within same package.
+    // Protected fields (i.e., no access modifiers) are visible within the same package.
     string address = "No 20, Palm grove",
 };
 
