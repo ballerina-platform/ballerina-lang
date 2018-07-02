@@ -546,6 +546,18 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-mb</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-mb</artifactId>
+                <version>${ballerina.version}</version>
+                <classifier>ballerina-binary-repo</classifier>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-h2</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -1499,6 +1511,7 @@
                 <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
+                <module>stdlib/mb</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/jdbc</module>
@@ -1573,6 +1586,7 @@
                 <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
+                <module>stdlib/mb</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/jdbc</module>
@@ -1645,6 +1659,7 @@
                 <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
+                <module>stdlib/mb</module>
                 <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/jdbc</module>
