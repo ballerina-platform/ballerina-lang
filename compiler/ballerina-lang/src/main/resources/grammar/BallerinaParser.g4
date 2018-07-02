@@ -67,7 +67,8 @@ callableUnitBody
 
 
 functionDefinition
-    :   (PUBLIC)? (NATIVE)? FUNCTION ((Identifier | typeName) DOUBLE_COLON)? callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   (PUBLIC)? (NATIVE)? FUNCTION (typeName DOUBLE_COLON)? callableUnitSignature (callableUnitBody | SEMICOLON)
+    |   FUNCTION (Identifier DOUBLE_COLON)? callableUnitSignature callableUnitBody
     ;
 
 lambdaFunction
