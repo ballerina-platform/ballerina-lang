@@ -30,8 +30,9 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventExecutor;
+import org.ballerinalang.stdlib.io.events.EventRegister;
 import org.ballerinalang.stdlib.io.events.EventResult;
+import org.ballerinalang.stdlib.io.events.Register;
 import org.ballerinalang.stdlib.io.events.records.DelimitedRecordWriteEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
@@ -96,9 +97,9 @@ public class WriteTextRecord implements NativeCallableUnit {
         EventContext eventContext = new EventContext(context, callback);
         DelimitedRecordWriteEvent recordWriteEvent = new DelimitedRecordWriteEvent(delimitedRecordChannel, content,
                 eventContext);
-        EventExecutor exec = new EventExecutor(channel.hashCode(), recordWriteEvent, WriteTextRecord::writeResponse);
-        exec.execute();
-//        IOUtils.write(delimitedRecordChannel, content, eventContext, WriteTextRecord::writeResponse);
+        Register register = EventRegister.getFactory().register(delimitedRecordChannel.id(),
+                delimitedRecordChannel.isSelectable(), recordWriteEvent, WriteTextRecord::writeResponse);
+        register.submit();
     }
 
     @Override
