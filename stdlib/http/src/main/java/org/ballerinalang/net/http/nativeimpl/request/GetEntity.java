@@ -21,15 +21,10 @@ package org.ballerinalang.net.http.nativeimpl.request;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.persistence.ConnectionException;
-
-import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
 
 /**
  * Get the 'Entity' of the inbound request with the body.
@@ -46,10 +41,6 @@ import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
 public class GetEntity extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        BStruct httpMessageStruct = (BStruct) context.getRefArgument(HTTP_MESSAGE_INDEX);
-        if (httpMessageStruct == null || httpMessageStruct.getNativeData(TRANSPORT_MESSAGE) == null) {
-            throw new ConnectionException("Incoming message is not set.");
-        }
         context.setReturnValues(HttpUtil.getEntity(context, true, true));
     }
 }
