@@ -357,7 +357,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean isReceiverAttached = ctx.valueTypeName() != null;
+        boolean isReceiverAttached = ctx.valueTypeName() != null || ctx.builtInReferenceTypeName() != null;
 
         this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, nativeFunc,
                 bodyExists, isReceiverAttached, false);
