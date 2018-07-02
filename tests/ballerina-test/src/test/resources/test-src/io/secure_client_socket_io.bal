@@ -18,7 +18,7 @@ function closeSocket() {
     error? err = socket.close();
 }
 
-function write(byte[] content) returns (int|error) {
+function write(byte[] content) returns int|error {
     io:ByteChannel channel = socket.channel;
     var result = channel.write(content, 0);
     match result {

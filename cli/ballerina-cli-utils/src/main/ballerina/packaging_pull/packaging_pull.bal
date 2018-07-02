@@ -212,7 +212,7 @@ documentation {
     P{{startOffset}} Offset
     R{{}} number of bytes written.
 }
-function writeBytes (io:ByteChannel channel, byte[] content, int startOffset) returns (int) {
+function writeBytes (io:ByteChannel channel, byte[] content, int startOffset) returns int {
     int numberOfBytesWritten = check (channel.write(content, startOffset));
     return numberOfBytesWritten;
 }
