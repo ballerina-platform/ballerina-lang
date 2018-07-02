@@ -29,7 +29,7 @@ public type StringReader object {
       P{{encoding}} encoding of the characters of the content
     }
     public new(string content, string encoding = "UTF-8") {
-        blob contentBytes = content.toBlob(encoding);
+        byte[] contentBytes = content.toByteArray(encoding);
         ByteChannel byteChannel = createMemoryChannel(contentBytes);
         channel = new CharacterChannel(byteChannel, encoding);
     }

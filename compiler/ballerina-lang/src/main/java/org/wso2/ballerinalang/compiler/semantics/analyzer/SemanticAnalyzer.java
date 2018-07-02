@@ -192,6 +192,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private BType expType;
     private DiagnosticCode diagCode;
     private BType resType;
+    private boolean isSiddhiRuntimeEnabled;
 
     private Map<BLangBlockStmt, SymbolEnv> blockStmtEnvMap = new HashMap<>();
 
@@ -1196,14 +1197,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     //Streaming related methods.
 
     public void visit(BLangForever foreverStatement) {
+
+        isSiddhiRuntimeEnabled = foreverStatement.isSiddhiRuntimeEnabled();
+        foreverStatement.setEnv(env);
         for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
             analyzeStmt((BLangStatement) streamingQueryStatement, env);
         }
 
-        //Validate output attribute names with stream/struct
-        for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
-            checkOutputAttributes((BLangStatement) streamingQueryStatement);
-            validateOutputAttributeTypes((BLangStatement) streamingQueryStatement);
+        if (isSiddhiRuntimeEnabled) {
+            //Validate output attribute names with stream/struct
+            for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
+                checkOutputAttributes((BLangStatement) streamingQueryStatement);
+                validateOutputAttributeTypes((BLangStatement) streamingQueryStatement);
+            }
         }
     }
 
@@ -1328,11 +1334,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBinaryExpr binaryExpr) {
-        ExpressionNode leftExpression = binaryExpr.getLeftExpression();
-        ((BLangExpression) leftExpression).accept(this);
+        if (isSiddhiRuntimeEnabled) {
+            ExpressionNode leftExpression = binaryExpr.getLeftExpression();
+            ((BLangExpression) leftExpression).accept(this);
 
-        ExpressionNode rightExpression = binaryExpr.getRightExpression();
-        ((BLangExpression) rightExpression).accept(this);
+            ExpressionNode rightExpression = binaryExpr.getRightExpression();
+            ((BLangExpression) rightExpression).accept(this);
+        } else {
+            this.typeChecker.checkExpr(binaryExpr, env);
+        }
     }
 
     @Override
@@ -1388,7 +1398,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangSelectExpression selectExpression) {
         ExpressionNode expressionNode = selectExpression.getExpression();
-        ((BLangExpression) expressionNode).accept(this);
+        if (!isSiddhiRuntimeEnabled) {
+            this.typeChecker.checkExpr((BLangExpression) expressionNode, env);
+        } else {
+            ((BLangExpression) expressionNode).accept(this);
+        }
     }
 
     @Override
@@ -1428,23 +1442,32 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
-        // ignore
+        if (!isSiddhiRuntimeEnabled) {
+            this.typeChecker.checkExpr(indexAccessExpr, env);
+        }
     }
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
-        // ignore
+        if (!isSiddhiRuntimeEnabled) {
+            this.typeChecker.checkExpr(varRefExpr, env);
+        }
     }
 
     @Override
     public void visit(BLangLiteral literalExpr) {
-        //ignore
+        if (!isSiddhiRuntimeEnabled) {
+            this.typeChecker.checkExpr(literalExpr, env);
+        }
     }
 
     @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
-        //ignore
+        if (!isSiddhiRuntimeEnabled) {
+            this.typeChecker.checkExpr(ternaryExpr, env);
+        }
     }
+
 
     @Override
     public void visit(BLangTableLiteral tableLiteral) {
@@ -1778,7 +1801,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 variableList.add(variableName);
             }
         } else {
-            List<BField> fields = ((BStructureType) ((BStreamType) ((BLangSimpleVarRef)
+            List<BField> fields = ((BStructureType) ((BStreamType) ((BLangExpression)
                     (((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput()).
                             getStreamReference()).type).constraint).fields;
 
@@ -1866,7 +1889,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         }
                     } else {
                         List<BField> inputStreamFields = ((BStructureType) ((BStreamType)
-                                ((BLangSimpleVarRef) (((BLangStreamingQueryStatement) streamingQueryStatement).
+                                ((BLangExpression) (((BLangStreamingQueryStatement) streamingQueryStatement).
                                         getStreamingInput()).getStreamReference()).type).constraint).fields;
 
                         for (int i = 0; i < inputStreamFields.size(); i++) {
