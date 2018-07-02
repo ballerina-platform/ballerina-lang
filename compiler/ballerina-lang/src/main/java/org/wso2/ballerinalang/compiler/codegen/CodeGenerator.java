@@ -3011,8 +3011,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             tryCatchErrorRangeFromIPStack.pop();
         }
 
-        while (!tryCatchErrorRangeFromIPStack.empty() && !tryCatchErrorRangeToIPStack.empty() &&
-                tryCatchErrorRangeToIPStack.peek() != -1) {
+        while (!tryCatchErrorRangeFromIPStack.empty() && !tryCatchErrorRangeToIPStack.empty()
+                && tryCatchErrorRangeToIPStack.peek() != -1) {
             unhandledErrorRangeList.add(new int[]{tryCatchErrorRangeFromIPStack.pop(),
                                                     tryCatchErrorRangeToIPStack.pop()});
         }
