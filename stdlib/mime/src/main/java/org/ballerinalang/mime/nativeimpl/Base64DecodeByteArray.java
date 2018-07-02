@@ -42,7 +42,7 @@ public class Base64DecodeByteArray extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        byte[] b = ((BByteArray) context.getRefArgument(0)).getBytes();
-        decodeBlob(context, b, false);
+        byte[] byteArray = ((BByteArray) context.getRefArgument(0)).getBytes();
+        decodeBlob(context, byteArray, false);
     }
 }

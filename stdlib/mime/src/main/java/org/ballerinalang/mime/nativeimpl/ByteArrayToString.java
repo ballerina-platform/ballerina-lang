@@ -48,8 +48,8 @@ public class ByteArrayToString extends BlockingNativeCallableUnit {
         try {
             String encoding = context.getStringArgument(0);
             byte[] arr = ((BByteArray) context.getRefArgument(0)).getBytes();
-            String s = new String(arr, encoding);
-            context.setReturnValues(new BString(s));
+            String convertedString = new String(arr, encoding);
+            context.setReturnValues(new BString(convertedString));
         } catch (UnsupportedEncodingException e) {
             throw new BallerinaException("Unsupported Encoding of Blob", e);
         }

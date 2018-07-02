@@ -645,23 +645,23 @@ documentation {
 public native function getContentDispositionObject(string contentDisposition) returns ContentDisposition;
 
 documentation {
-        Converts given blob to a string.
+        Converts given byte[] to a string.
 
-        P{{encoding}} Encoding to used in blob conversion to string
+        P{{encoding}} Encoding to used in byte[] conversion to string
         R{{}} String representation of the given byte[]
     }
 public native function byteArrayToString(byte[] b, string encoding) returns string;
 
 documentation {
-        Encode a given blob with Base64 encoding scheme.
+        Encode a given byte[] with Base64 encoding scheme.
 
-        R{{}} Return an encoded blob
+        R{{}} Return an encoded byte[]
     }
 public native function base64EncodeByteArray(byte[] b) returns byte[];
 
 documentation {
-        Decode a given blob with Base64 encoding scheme.
+        Decode a given byte[] with Base64 encoding scheme.
 
-        R{{}} Return a decoded blob
+        R{{}} Return a decoded byte[]
     }
 public native function base64DecodeByteArray(byte[] b) returns byte[];
