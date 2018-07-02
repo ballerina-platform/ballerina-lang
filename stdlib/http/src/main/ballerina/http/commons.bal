@@ -146,11 +146,11 @@ function populateMultipartRequest(Request inRequest) returns Request {
                 foreach childPart in childParts {
                     // When performing passthrough scenarios, message needs to be built before
                     // invoking the endpoint to create a message datasource.
-                    var childBlobContent = childPart.getBlob();
+                    var childBlobContent = childPart.getByteArray();
                 }
                 bodyPart.setBodyParts(childParts, contentType = bodyPart.getContentType());
             } else {
-                var bodyPartBlobContent = bodyPart.getBlob();
+                var bodyPartBlobContent = bodyPart.getByteArray();
             }
         }
         inRequest.setBodyParts(bodyParts, contentType = inRequest.getContentType());

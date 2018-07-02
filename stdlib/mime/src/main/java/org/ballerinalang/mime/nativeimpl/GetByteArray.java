@@ -25,7 +25,7 @@ import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -47,12 +47,13 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "mime",
-        functionName = "getBlob",
+        functionName = "getByteArray",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina/mime"),
-        returnType = {@ReturnType(type = TypeKind.BLOB), @ReturnType(type = TypeKind.RECORD)},
+        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
+                @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
-public class GetBlob extends BlockingNativeCallableUnit {
+public class GetByteArray extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
@@ -82,7 +83,7 @@ public class GetBlob extends BlockingNativeCallableUnit {
                 entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
             }
             EntityBodyHandler.addMessageDataSource(entityStruct, result);
-            context.setReturnValues(new BBlob(result != null ? result.getValue() : new byte[0]));
+            context.setReturnValues(new BByteArray(result != null ? result.getValue() : new byte[0]));
         } catch (Throwable e) {
             context.setReturnValues(MimeUtil.createError
                     (context, "Error occurred while extracting blob data from entity : " + e.getMessage()));
