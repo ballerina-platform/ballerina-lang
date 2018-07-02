@@ -39,7 +39,7 @@ public class RecordTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/record/record.bal");
+        compileResult = BCompileUtil.compile("test-src/record/sealed_record.bal");
     }
 
     @Test(description = "Test using expressions as index for record arrays")
