@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -285,9 +286,9 @@ public class TableTest {
     public void testGetComplexTypes() {
         BValue[] returns = BRunUtil.invoke(result, "testGetComplexTypes", connectionArgs);
         Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals((returns[0]).stringValue(), "wso2 ballerina blob test.");
+        Assert.assertEquals(new String(((BByteArray) returns[0]).getBytes()), "wso2 ballerina blob test.");
         Assert.assertEquals((returns[1]).stringValue(), "very long text");
-        Assert.assertEquals((returns[2]).stringValue(), "wso2 ballerina binary test.");
+        Assert.assertEquals(new String(((BByteArray) returns[2]).getBytes()), "wso2 ballerina binary test.");
     }
 
     @Test(groups = {TABLE_TEST, MYSQL_NOT_SUPPORTED}, description = "Check array data types.")
@@ -526,7 +527,7 @@ public class TableTest {
     public void testBlobData() {
         BValue[] returns = BRunUtil.invoke(result,  "testBlobData", connectionArgs);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals((returns[0]).stringValue(), "wso2 ballerina blob test.");
+        Assert.assertEquals(new String(((BByteArray) returns[0]).getBytes()), "wso2 ballerina blob test.");
     }
 
     @Test(groups = TABLE_TEST, description = "Check values retrieved with column alias.")
@@ -711,7 +712,7 @@ public class TableTest {
     @Test(groups = TABLE_TEST, description = "Check blob binary and clob types types.")
     public void testComplexTypeInsertAndRetrieval() {
         BValue[] returns = BRunUtil.invoke(result, "testComplexTypeInsertAndRetrieval", connectionArgs);
-        Assert.assertEquals(returns.length, 5);
+        Assert.assertEquals(returns.length, 6);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
         String expectedJson, expectedXML;
@@ -754,7 +755,7 @@ public class TableTest {
         }
         Assert.assertEquals((returns[2]).stringValue(), expectedJson);
         Assert.assertEquals((returns[3]).stringValue(), expectedXML);
-        Assert.assertEquals((returns[4]).stringValue(), "100|Sample Text|Sample Text|200|nil|nil|");
+        Assert.assertEquals((returns[4]).stringValue(), "100|nonNil|Sample Text|200|nil|nil|");
     }
 
     @Test(groups = TABLE_TEST, description = "Check result sets with same column name or complex name.")
@@ -839,7 +840,7 @@ public class TableTest {
         Assert.assertEquals(((BInteger) returns[9]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[10]).intValue(), 5555);
         Assert.assertEquals(returns[11].stringValue(), "very long text");
-        Assert.assertEquals(returns[12].stringValue(), "wso2 ballerina blob test.");
+        Assert.assertEquals(new String(((BByteArray) returns[12]).getBytes()), "wso2 ballerina blob test.");
     }
 
     @Test(groups = TABLE_TEST,

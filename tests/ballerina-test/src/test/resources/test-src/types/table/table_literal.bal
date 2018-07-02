@@ -23,7 +23,7 @@ type TypeTest record {
 
 type BlobTypeTest record {
     int id,
-    blob blobData,
+    byte[] blobData,
 };
 
 type AnyTypeTest record {
@@ -294,7 +294,7 @@ function testTableWithAllDataToStruct() returns (json, xml) {
 
 function testTableWithBlobDataToJson() returns (json) {
     string text = "Sample Text";
-    blob content = text.toBlob("UTF-8");
+    byte[] content = text.toByteArray("UTF-8");
     BlobTypeTest t1 = { id: 1, blobData: content };
 
     table<BlobTypeTest> dt3 = table{};
@@ -306,7 +306,7 @@ function testTableWithBlobDataToJson() returns (json) {
 
 function testTableWithBlobDataToXml() returns (xml) {
     string text = "Sample Text";
-    blob content = text.toBlob("UTF-8");
+    byte[] content = text.toByteArray("UTF-8");
     BlobTypeTest t1 = { id: 1, blobData: content };
 
     table<BlobTypeTest> dt3 = table{};
@@ -316,15 +316,15 @@ function testTableWithBlobDataToXml() returns (xml) {
     return x;
 }
 
-function testTableWithBlobDataToStruct() returns (blob) {
+function testTableWithBlobDataToStruct() returns (byte[]) {
     string text = "Sample Text";
-    blob content = text.toBlob("UTF-8");
+    byte[] content = text.toByteArray("UTF-8");
     BlobTypeTest t1 = { id: 1, blobData: content };
 
     table<BlobTypeTest> dt3 = table{};
     _ = dt3.add(t1);
 
-    blob bData;
+    byte[] bData;
     while (dt3.hasNext()) {
         BlobTypeTest x = check <BlobTypeTest>dt3.getNext();
         bData = x.blobData;

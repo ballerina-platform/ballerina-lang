@@ -26,8 +26,8 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -53,7 +53,6 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Calendar;
 import java.util.List;
-
 import javax.sql.rowset.CachedRowSet;
 
 /**
@@ -68,7 +67,7 @@ public class SQLDataIterator extends TableIterator {
     private StructureTypeInfo timeStructInfo;
     private StructureTypeInfo zoneStructInfo;
     private static final String UNASSIGNABLE_UNIONTYPE_EXCEPTION =
-            "Corresponding Union type in the record is not an " + "assignable nillable type";
+            "Corresponding Union type in the record is not an assignable nillable type";
     private static final String MISMATCHING_FIELD_ASSIGNMENT = "Trying to assign to a mismatching type";
 
     public SQLDataIterator(Calendar utcCalendar, BStructureType structType, StructureTypeInfo timeStructInfo,
@@ -285,11 +284,6 @@ public class SQLDataIterator extends TableIterator {
                 if (dataArray.length != internalStructFields.length) {
                     throw new BallerinaException("specified struct and returned struct are not compatible");
                 }
-                int longRegIndex = -1;
-                int doubleRegIndex = -1;
-                int stringRegIndex = -1;
-                int booleanRegIndex = -1;
-                int refRegIndex = -1;
                 int index = 0;
                 for (BField internalField : internalStructFields) {
                     int type = internalField.getFieldType().getTag();
@@ -464,12 +458,21 @@ public class SQLDataIterator extends TableIterator {
     private void handleBinaryValue(BMap<String, BValue> bStruct, String fieldName, byte[] bytes, BType fieldType) {
         int fieldTypeTag = fieldType.getTag();
         if (fieldTypeTag == TypeTags.UNION_TAG) {
-            BRefType refValue = bytes == null ? null : new BBlob(bytes);
-            validateAndSetRefRecordField(bStruct, fieldName, TypeTags.BLOB_TAG,
-                    retrieveNonNilTypeTag(fieldType), refValue, UNASSIGNABLE_UNIONTYPE_EXCEPTION);
+            BType nonNillType = retrieveNonNilType(((BUnionType) fieldType).getMemberTypes());
+            if (nonNillType.getTag() == TypeTags.ARRAY_TAG) {
+                int elementTypeTag = ((BArrayType) nonNillType).getElementType().getTag();
+                if (elementTypeTag == TypeTags.BYTE_TAG) {
+                    BRefType refValue = bytes == null ? null : new BByteArray(bytes);
+                    bStruct.put(fieldName, refValue);
+                } else {
+                    throw new BallerinaException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
+                }
+            } else {
+                throw new BallerinaException(UNASSIGNABLE_UNIONTYPE_EXCEPTION);
+            }
         } else {
             if (bytes != null) {
-                bStruct.put(fieldName, new BBlob(bytes));
+                bStruct.put(fieldName, new BByteArray(bytes));
             } else {
                 handleNilToNonNillableFieldAssignment();
             }

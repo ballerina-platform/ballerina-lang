@@ -14022,8 +14022,8 @@ public class BallerinaParser extends Parser {
 
 	public static class StreamingInputContext extends ParserRuleContext {
 		public Token alias;
-		public VariableReferenceContext variableReference() {
-			return getRuleContext(VariableReferenceContext.class,0);
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
 		}
 		public List<WhereClauseContext> whereClause() {
 			return getRuleContexts(WhereClauseContext.class);
@@ -14064,7 +14064,7 @@ public class BallerinaParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(2168);
-			variableReference(0);
+			expression(0);
 			setState(2170);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,250,_ctx) ) {
@@ -16746,7 +16746,7 @@ public class BallerinaParser extends Parser {
 		"\u00b2\2\u0871\u086f\3\2\2\2\u0872\u0875\3\2\2\2\u0873\u0871\3\2\2\2\u0873"+
 		"\u0874\3\2\2\2\u0874\u0161\3\2\2\2\u0875\u0873\3\2\2\2\u0876\u0877\5\u00be"+
 		"`\2\u0877\u0878\7\u0089\2\2\u0878\u0879\5\u00eex\2\u0879\u0163\3\2\2\2"+
-		"\u087a\u087c\5\u00be`\2\u087b\u087d\5\u016e\u00b8\2\u087c\u087b\3\2\2"+
+		"\u087a\u087c\5\u00eex\2\u087b\u087d\5\u016e\u00b8\2\u087c\u087b\3\2\2"+
 		"\2\u087c\u087d\3\2\2\2\u087d\u0881\3\2\2\2\u087e\u0880\5\u00c6d\2\u087f"+
 		"\u087e\3\2\2\2\u0880\u0883\3\2\2\2\u0881\u087f\3\2\2\2\u0881\u0882\3\2"+
 		"\2\2\u0882\u0885\3\2\2\2\u0883\u0881\3\2\2\2\u0884\u0886\5\u0170\u00b9"+

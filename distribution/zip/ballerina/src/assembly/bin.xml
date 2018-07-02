@@ -261,7 +261,6 @@
                 <include>org.ballerinalang:ballerina-logging:jar</include>
                 <include>org.ballerinalang:ballerina-observability:jar</include>
                 <include>org.ballerinalang:strip-bouncycastle:jar</include>
-                <include>org.ballerinalang:ballerina-packerina:jar</include>
                 <include>org.ballerinalang:ballerina-cli-utils:jar</include>
                 <include>org.ballerinalang:toml-parser:jar</include>
                 <include>org.wso2.orbit.org.antlr:antlr4-runtime</include>

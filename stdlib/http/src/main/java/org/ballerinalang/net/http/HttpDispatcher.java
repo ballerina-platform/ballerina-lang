@@ -22,11 +22,12 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
-import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -244,10 +245,15 @@ public class HttpDispatcher {
                     BXML bxml = EntityBodyHandler.constructXmlDataSource(inRequestEntity);
                     EntityBodyHandler.addMessageDataSource(inRequestEntity, bxml);
                     return bxml;
-                case TypeTags.BLOB_TAG:
-                    BlobDataSource blobDataSource = EntityBodyHandler.constructBlobDataSource(inRequestEntity);
-                    EntityBodyHandler.addMessageDataSource(inRequestEntity, blobDataSource);
-                    return new BBlob(blobDataSource != null ? blobDataSource.getValue() : new byte[0]);
+                case TypeTags.ARRAY_TAG:
+                    if (((BArrayType) entityBodyType).getElementType().getTag() == TypeTags.BYTE_TAG) {
+                        BlobDataSource blobDataSource = EntityBodyHandler.constructBlobDataSource(inRequestEntity);
+                        EntityBodyHandler.addMessageDataSource(inRequestEntity, blobDataSource);
+                        return new BByteArray(blobDataSource != null ? blobDataSource.getValue() : new byte[0]);
+                    } else {
+                        throw new BallerinaConnectorException("Incompatible Element type found inside an array " +
+                                ((BArrayType) entityBodyType).getElementType().getName());
+                    }
                 case TypeTags.OBJECT_TYPE_TAG:
                 case TypeTags.RECORD_TYPE_TAG:
                     bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);

@@ -268,9 +268,9 @@ public type Entity object {
     documentation {
         Sets the entity body with the given content.
 
-        P{{entityBody}} Entity body can be of type `string`,`xml`,`json`,`blob`,`io:ByteChannel` or `Entity[]`
+        P{{entityBody}} Entity body can be of type `string`,`xml`,`json`,`byte[]`,`io:ByteChannel` or `Entity[]`
     }
-    public function setBody(@sensitive string|xml|json|blob|io:ByteChannel|Entity[] entityBody);
+    public function setBody(@sensitive string|xml|json|byte[]|io:ByteChannel|Entity[] entityBody);
 
     documentation {
         Sets the entity body with a given file. This method overrides any existing `content-type` headers
@@ -349,24 +349,24 @@ public type Entity object {
     public native function getBodyAsString() returns @tainted string|error;
 
     documentation {
-        Sets the entity body with the given blob content. This method overrides any existing `content-type` headers
+        Sets the entity body with the given byte[] content. This method overrides any existing `content-type` headers
         with the default content type `application/octet-stream`. The default value `application/octet-stream`
         can be overridden by passing the content type as an optional parameter.
 
-        P{{blobContent}} Blob content that needs to be set to entity
+        P{{blobContent}} byte[] content that needs to be set to entity
         P{{contentType}} Content type to be used with the payload. This is an optional parameter.
                          `application/octet-stream` is used as the default value.
     }
-    public native function setBlob(@sensitive blob blobContent, @sensitive string contentType = "application/octet-stream");
+    public native function setByteArray(@sensitive byte[] blobContent, @sensitive string contentType = "application/octet-stream");
 
     documentation {
-        Given an entity, gets the entity body as a `blob`. If the entity size is considerably large consider
+        Given an entity, gets the entity body as a `byte[]`. If the entity size is considerably large consider
         using getByteChannel() method instead.
 
-        R{{}} `blob` data extracted from the the entity body. An `error` record is returned in case of
+        R{{}} `byte[]` data extracted from the the entity body. An `error` record is returned in case of
               errors.
     }
-    public native function getBlob() returns @tainted blob|error;
+    public native function getByteArray() returns @tainted byte[]|error;
 
     documentation {
         Sets the entity body with the given byte channel content. This method overrides any existing content-type headers
@@ -482,12 +482,12 @@ public function Entity::setFileAsEntityBody(@sensitive string filePath,
     self.setByteChannel(channel, contentType = contentType);
 }
 
-public function Entity::setBody(@sensitive (string|xml|json|blob|io:ByteChannel|Entity[]) entityBody) {
+public function Entity::setBody(@sensitive (string|xml|json|byte[]|io:ByteChannel|Entity[]) entityBody) {
     match entityBody {
         string textContent => self.setText(textContent);
         xml xmlContent => self.setXml(xmlContent);
         json jsonContent => self.setJson(jsonContent);
-        blob blobContent => self.setBlob(blobContent);
+        byte[] blobContent => self.setByteArray(blobContent);
         io:ByteChannel byteChannelContent => self.setByteChannel(byteChannelContent);
         Entity[] bodyParts => self.setBodyParts(bodyParts);
     }
@@ -496,41 +496,41 @@ public function Entity::setBody(@sensitive (string|xml|json|blob|io:ByteChannel|
 documentation {
     Encodes a given input with MIME specific Base64 encoding scheme.
 
-    P{{contentToBeEncoded}} Content that needs to be encoded can be of type `string`, `blob` or `io ByteChannel`
+    P{{contentToBeEncoded}} Content that needs to be encoded can be of type `string`, `byte[]` or `io ByteChannel`
     P{{charset}} Charset to be used. This is used only with the string input
 
     R{{}} If the given input is of type string, an encoded `string` is returned
-          If the given input is of type blob, an encoded `blob` is returned
+          If the given input is of type byte[], an encoded `byte[]` is returned
           If the given input is of type io:ByteChannel, an encoded `io:ByteChannel` is returned
           In case of errors, an `error` record is returned
 }
-native function base64Encode((string|blob|io:ByteChannel) contentToBeEncoded, string charset = "utf-8")
-    returns (string|blob|io:ByteChannel|error);
+native function base64Encode((string|byte[]|io:ByteChannel) contentToBeEncoded, string charset = "utf-8")
+    returns (string|byte[]|io:ByteChannel|error);
 
 documentation {
     Decodes a given input with MIME specific Base64 encoding scheme.
 
-    P{{contentToBeDecoded}} Content that needs to be decoded can be of type `string`, `blob` or `io ByteChannel`
+    P{{contentToBeDecoded}} Content that needs to be decoded can be of type `string`, `byte[]` or `io ByteChannel`
     P{{charset}} Charset to be used. This is used only with the string input
     R{{}} If the given input is of type string, a decoded `string` is returned
-          If the given input is of type blob, a decoded `blob` is returned
+          If the given input is of type byte[], a decoded `byte[]` is returned
           If the given input is of type io:ByteChannel, a decoded `io:ByteChannel` is returned
           In case of errors, an `error` record is returned
 }
-native function base64Decode((string|blob|io:ByteChannel) contentToBeDecoded, string charset = "utf-8")
-    returns (string|blob|io:ByteChannel|error);
+native function base64Decode((string|byte[]|io:ByteChannel) contentToBeDecoded, string charset = "utf-8")
+    returns (string|byte[]|io:ByteChannel|error);
 
 documentation {
-    Encodes a given blob with Base64 encoding scheme.
+    Encodes a given byte[] with Base64 encoding scheme.
 
     P{{valueToBeEncoded}} Content that needs to be encoded
-    R{{}} An encoded blob. In case of errors, an `error` record is returned
+    R{{}} An encoded byte[]. In case of errors, an `error` record is returned
 }
-public function base64EncodeBlob(blob valueToBeEncoded) returns blob|error {
-    error customErr = {message:"Error occurred while encoding blob"};
+public function base64EncodeBlob(byte[] valueToBeEncoded) returns byte[]|error {
+    error customErr = {message:"Error occurred while encoding byte[]"};
     match base64Encode(valueToBeEncoded) {
         string returnString => return customErr;
-        blob returnBlob => return returnBlob;
+        byte[] returnBlob => return returnBlob;
         io:ByteChannel returnChannel => return customErr;
         error encodeErr => return encodeErr;
     }
@@ -547,7 +547,7 @@ public function base64EncodeString(string valueToBeEncoded, string charset = "ut
     error customErr = {message:"Error occurred while encoding string"};
     match base64Encode(valueToBeEncoded) {
         string returnString => return returnString;
-        blob returnBlob => return customErr;
+        byte[] returnBlob => return customErr;
         io:ByteChannel returnChannel => return customErr;
         error encodeErr => return encodeErr;
     }
@@ -563,23 +563,23 @@ public function base64EncodeByteChannel(io:ByteChannel valueToBeEncoded) returns
     error customErr = {message:"Error occurred while encoding ByteChannel content"};
     match base64Encode(valueToBeEncoded) {
         string returnString => return customErr;
-        blob returnBlob => return customErr;
+        byte[] returnBlob => return customErr;
         io:ByteChannel returnChannel => return returnChannel;
         error encodeErr => return encodeErr;
     }
 }
 
 documentation {
-    Decodes a given blob with Base64 encoding scheme.
+    Decodes a given byte[] with Base64 encoding scheme.
 
     P{{valueToBeDecoded}} Content that needs to be decoded
-    R{{}} A decoded `blob`. In case of errors, an `error` record is returned
+    R{{}} A decoded `byte[]`. In case of errors, an `error` record is returned
 }
-public function base64DecodeBlob(blob valueToBeDecoded) returns blob|error {
-    error customErr = {message:"Error occurred while decoding blob"};
+public function base64DecodeBlob(byte[] valueToBeDecoded) returns byte[]|error {
+    error customErr = {message:"Error occurred while decoding byte[]"};
     match base64Decode(valueToBeDecoded) {
         string returnString => return customErr;
-        blob returnBlob => return returnBlob;
+        byte[] returnBlob => return returnBlob;
         io:ByteChannel returnChannel => return customErr;
         error decodeErr => return decodeErr;
     }
@@ -596,7 +596,7 @@ public function base64DecodeString(string valueToBeDecoded, string charset = "ut
     error customErr = {message:"Error occurred while decoding string"};
     match base64Decode(valueToBeDecoded) {
         string returnString => return returnString;
-        blob returnBlob => return customErr;
+        byte[] returnBlob => return customErr;
         io:ByteChannel returnChannel => return customErr;
         error decodeErr => return decodeErr;
     }
@@ -612,7 +612,7 @@ public function base64DecodeByteChannel(io:ByteChannel valueToBeDecoded) returns
     error customErr = {message:"Error occurred while decoding ByteChannel content"};
     match base64Decode(valueToBeDecoded) {
         string returnString => return customErr;
-        blob returnBlob => return customErr;
+        byte[] returnBlob => return customErr;
         io:ByteChannel returnChannel => return returnChannel;
         error decodeErr => return decodeErr;
     }
@@ -643,3 +643,25 @@ documentation {
     R{{}} A `ContentDisposition` object
 }
 public native function getContentDispositionObject(string contentDisposition) returns ContentDisposition;
+
+documentation {
+        Converts given byte[] to a string.
+
+        P{{encoding}} Encoding to used in byte[] conversion to string
+        R{{}} String representation of the given byte[]
+    }
+public native function byteArrayToString(byte[] b, string encoding) returns string;
+
+documentation {
+        Encode a given byte[] with Base64 encoding scheme.
+
+        R{{}} Return an encoded byte[]
+    }
+public native function base64EncodeByteArray(byte[] b) returns byte[];
+
+documentation {
+        Decode a given byte[] with Base64 encoding scheme.
+
+        R{{}} Return a decoded byte[]
+    }
+public native function base64DecodeByteArray(byte[] b) returns byte[];
