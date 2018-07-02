@@ -2,11 +2,9 @@ import ballerina/io;
 
 // Defines a object called 'Person'. It has attached functions both inside and outside of the object.
 type Person object {
-    public {
-        int age,
-        string firstName,
-        string lastName,
-    }
+    public int age,
+    public string firstName,
+    public string lastName,
 
     new(age, firstName, lastName) {
     }
