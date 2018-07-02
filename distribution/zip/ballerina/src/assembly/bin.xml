@@ -315,7 +315,6 @@
                 <include>io.ballerina.messaging:broker-auth</include>
                 <include>io.ballerina.messaging:broker-rest-runner</include>
                 <include>io.ballerina.messaging:broker-coordination</include>
-                <include>com.google.guava:guava</include>
                 <include>com.google.code.gson:gson</include>
                 <include>org.wso2.carbon.metrics:org.wso2.carbon.metrics.core</include>
                 <include>io.netty:netty-tcnative-boringssl-static</include>

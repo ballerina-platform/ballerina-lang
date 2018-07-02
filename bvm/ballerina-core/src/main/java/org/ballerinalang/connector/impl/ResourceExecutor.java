@@ -19,13 +19,14 @@ package org.ballerinalang.connector.impl;
 
 import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.PersistenceUtils;
 import org.ballerinalang.persistence.states.ActiveStates;
 import org.ballerinalang.persistence.states.FailedStates;
 import org.ballerinalang.persistence.states.State;
@@ -67,19 +68,19 @@ public class ResourceExecutor {
     public static void execute(Resource resource, CallableUnitCallback responseCallback,
                                Map<String, Object> properties, ObserverContext observerContext,
                                WorkerExecutionContext context, BValue... bValues) throws BallerinaConnectorException {
-
         if (resource == null || responseCallback == null) {
             throw new BallerinaConnectorException("invalid arguments provided");
         }
-
         ResourceInfo resourceInfo = resource.getResourceInfo();
         if (properties != null) {
-            Object instanceId = properties.get(PersistenceUtils.INSTANCE_ID);
-            if (instanceId != null) {
-                if (correlate(instanceId.toString(), bValues)) {
+            Object o = properties.get(Constants.INSTANCE_ID);
+            if (o != null) {
+                String instanceId = o.toString();
+                if (correlate(instanceId, bValues)) {
                     return;
                 }
-                ActiveStates.add(instanceId.toString(), new State(context));
+                ActiveStates.add(new State(context, instanceId));
+                context.interruptible = true;
             }
             context.globalProps.putAll(properties);
             if (properties.get(Constants.GLOBAL_TRANSACTION_ID) != null) {
@@ -88,19 +89,16 @@ public class ResourceExecutor {
                         properties.get(Constants.TRANSACTION_URL).toString(), "2pc"));
             }
         }
-
         BLangVMUtils.setServiceInfo(context, resourceInfo.getServiceInfo());
         BLangFunctions.invokeServiceCallable(resourceInfo, context, observerContext, bValues, responseCallback);
     }
 
     private static boolean correlate(String instanceId , BValue... bValues) {
-
         List<State> stateList = ActiveStates.get(instanceId);
         if (stateList != null && !stateList.isEmpty()) {
             return injectConnection(stateList.get(0), bValues);
         }
         stateList = FailedStates.get(instanceId);
-        PersistenceStore.removeFailedStates(instanceId);
         if (stateList != null && !stateList.isEmpty()) {
             State state = stateList.get(0);
             if (injectConnection(state, bValues)) {
@@ -108,7 +106,12 @@ public class ResourceExecutor {
                 WorkerExecutionContext failedContext = state.getContext();
                 failedContext.ip = state.getIp() - 1;
                 failedContext.runInCaller = false;
+                WorkerResponseContext respCtx = failedContext.respCtx;
+                if (respCtx instanceof CallableWorkerResponseContext) {
+                    ((CallableWorkerResponseContext) respCtx).setNotFulfilled();
+                }
                 BLangScheduler.schedule(failedContext);
+                PersistenceStore.removeStates(instanceId);
                 FailedStates.remove(instanceId);
                 return true;
             }
@@ -116,6 +119,7 @@ public class ResourceExecutor {
         return false;
     }
 
+    @SuppressWarnings("unchecked")
     private static boolean injectConnection(State state, BValue... bValues) {
         boolean correlated = false;
         Object transportMessage = null;
@@ -135,18 +139,18 @@ public class ResourceExecutor {
             for (BRefType refType : refRegs) {
                 if (refType instanceof BMap) {
                     BMap bMap = (BMap) refType;
-                    Object trpMessage = bMap.getNativeData((TRANSPORT_MESSAGE));
-                    if (trpMessage != null) {
+                    if (bMap.getNativeDataKeySet().contains(TRANSPORT_MESSAGE)) {
                         bMap.addNativeData(TRANSPORT_MESSAGE, transportMessage);
                         bMap.addNativeData(MESSAGE_CORRELATED, "true");
                         correlated = true;
                     }
                     if (SERVICE_ENDPOINT.equals(bMap.getType().getName())) {
-                        if (trpMessage != null) {
-                            bMap.addNativeData(TRANSPORT_MESSAGE, transportMessage);
-                            bMap.addNativeData(MESSAGE_CORRELATED, "true");
-                            if (bMap.getNativeData(IS_METHOD_ACCESSED) != null) {
-                                bMap.addNativeData(IS_METHOD_ACCESSED, null);
+                        BMap connection = (BMap) bMap.get(Constants.CONNECTION);
+                        if (connection.getNativeDataKeySet().contains(TRANSPORT_MESSAGE)) {
+                            connection.addNativeData(TRANSPORT_MESSAGE, transportMessage);
+                            connection.addNativeData(MESSAGE_CORRELATED, "true");
+                            if (connection.getNativeData(IS_METHOD_ACCESSED) != null) {
+                                connection.addNativeData(IS_METHOD_ACCESSED, null);
                             }
                         }
                     }

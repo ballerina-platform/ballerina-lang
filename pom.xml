@@ -426,6 +426,12 @@
                 <artifactId>ballerina-mime</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-mime</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
             <dependency>
@@ -1220,11 +1226,6 @@
             <dependency>
                 <groupId>io.ballerina.messaging</groupId>
                 <artifactId>broker-core</artifactId>
-                <version>${broker.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.ballerina.messaging</groupId>
-                <artifactId>broker-auth</artifactId>
                 <version>${broker.version}</version>
             </dependency>
             <dependency>

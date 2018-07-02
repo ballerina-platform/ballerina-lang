@@ -44,6 +44,7 @@ import org.ballerinalang.persistence.PersistenceUtils;
 import org.ballerinalang.persistence.states.PendingCheckpoints;
 import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.persistence.store.PersistenceStore;
+import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo.WorkerSet;
@@ -82,8 +83,8 @@ public class BLangFunctions {
     private BLangFunctions() { }
 
     /**
-     * This method calls a program callable, considering it as an entry point callable. Which means, this callable will
-     * be invoked as the first callable in a program, and after it is called, all the cleanup will be done for it to
+     * This method calls a program callable, considering it as an entry point callable. Which means, this callable will 
+     * be invoked as the first callable in a program, and after it is called, all the cleanup will be done for it to 
      * exit from the program. That is, this callable will wait for the response to be fully available, and it will wait
      * till all the workers in the system to finish executing.
      * @param bLangProgram the program file
@@ -93,7 +94,7 @@ public class BLangFunctions {
      * @return return values of the function
      */
     public static BValue[] invokeEntrypointCallable(ProgramFile bLangProgram, String packageName, String callableName,
-                                                    BValue[] args) {
+                                     BValue[] args) {
         PackageInfo packageInfo = bLangProgram.getPackageInfo(packageName);
         FunctionInfo functionInfo = packageInfo.getFunctionInfo(callableName);
         if (functionInfo == null) {
@@ -256,19 +257,17 @@ public class BLangFunctions {
         WorkerExecutionContext resultCtx;
         if (callableUnitInfo.isNative()) {
             NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();
-            if (nativeCallable instanceof InterruptibleNativeCallableUnit) {
+            if (parentCtx.interruptible && nativeCallable instanceof InterruptibleNativeCallableUnit) {
                 InterruptibleNativeCallableUnit interruptibleNativeCallableUnit
                         = (InterruptibleNativeCallableUnit) nativeCallable;
-                Object o = parentCtx.globalProps.get(PersistenceUtils.INSTANCE_ID);
-                if (o instanceof String) {
-                    String instanceId = (String) o;
-                    WorkerExecutionContext runnableContext = PersistenceUtils.getMainPackageContext(parentCtx);
-                    if (interruptibleNativeCallableUnit.persistBeforeOperation()) {
-                        PersistenceStore.persistState(instanceId, new State(runnableContext));
-                    }
-                    if (interruptibleNativeCallableUnit.persistAfterOperation()) {
-                        PendingCheckpoints.addCheckpoint(instanceId, (runnableContext.ip + 1));
-                    }
+                Object o = parentCtx.globalProps.get(Constants.INSTANCE_ID);
+                String instanceId = o.toString();
+                WorkerExecutionContext runnableContext = PersistenceUtils.getMainPackageContext(parentCtx);
+                if (interruptibleNativeCallableUnit.persistBeforeOperation()) {
+                    PersistenceStore.persistState(new State(runnableContext, instanceId));
+                }
+                if (interruptibleNativeCallableUnit.persistAfterOperation()) {
+                    PendingCheckpoints.addCheckpoint(instanceId, (runnableContext.ip + 1));
                 }
             }
             if (FunctionFlags.isAsync(flags)) {
@@ -328,7 +327,6 @@ public class BLangFunctions {
             initWorkerCAI = workerSet.initWorker.getCodeAttributeInfo();
         }
 
-        List<WorkerExecutionContext> preparedContexts = new ArrayList<>();
         for (int i = 1; i < generalWorkersCount; i++) {
             executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerSet.generalWorkers[i],
                     wdi, initWorkerLocalData, initWorkerCAI, false, observerContext);
@@ -419,8 +417,13 @@ public class BLangFunctions {
             }
         } catch (BLangNullReferenceException e) {
             return BLangVMUtils.handleNativeInvocationError(parentCtx,
-                                                            BLangVMErrors.createNullRefException(parentCtx));
+                    BLangVMErrors.createNullRefException(parentCtx));
         } catch (Throwable e) {
+            if (parentCtx.interruptible) {
+                PersistenceUtils.handleErrorState(parentCtx);
+                BLangScheduler.workerCountDown();
+                return null;
+            }
             return BLangVMUtils.handleNativeInvocationError(parentCtx,
                     BLangVMErrors.createError(parentCtx, e.getMessage()));
         }

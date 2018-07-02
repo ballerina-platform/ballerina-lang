@@ -42,7 +42,6 @@ public class SerializableContext {
 
     public String contextKey;
 
-    // TODO: BStruct error support should be added
     public String parent;
 
     public String respContextKey;
@@ -62,6 +61,8 @@ public class SerializableContext {
     public int[] retRegIndexes;
 
     public boolean runInCaller;
+
+    public boolean interruptible;
 
     public String enclosingServiceName;
 
@@ -155,6 +156,7 @@ public class SerializableContext {
         populateLocalProps(ctx.localProps, state);
         retRegIndexes = ctx.retRegIndexes;
         runInCaller = ctx.runInCaller;
+        interruptible = ctx.interruptible;
 
         if (ctx.callableUnitInfo != null) {
             if (ctx.callableUnitInfo instanceof ResourceInfo) {
@@ -240,6 +242,7 @@ public class SerializableContext {
         workerExecutionContext.globalProps = prepareGlobalProps(state, programFile);
         workerExecutionContext.localProps = prepareLocalProps(state, workerExecutionContext, programFile);
         workerExecutionContext.ip = ip;
+        workerExecutionContext.interruptible = interruptible;
 
         PersistenceUtils.getTempContexts().put(contextKey, workerExecutionContext);
 

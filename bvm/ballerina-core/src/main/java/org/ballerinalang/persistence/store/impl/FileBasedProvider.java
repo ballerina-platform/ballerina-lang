@@ -91,8 +91,4 @@ public class FileBasedProvider implements StorageProvider {
         }
         return states;
     }
-
-    @Override
-    public void removeFailedStates(String instanceId) {
-    }
 }

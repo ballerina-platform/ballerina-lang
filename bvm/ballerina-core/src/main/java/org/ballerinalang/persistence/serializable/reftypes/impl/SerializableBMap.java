@@ -46,11 +46,10 @@ public class SerializableBMap<K, V extends BValue> implements SerializableRefTyp
     private String pkgPath;
     private String structName;
 
-    private HashMap<Object, Object> map = new HashMap<>();
+    private HashMap<K, Object> map = new HashMap<>();
     private HashMap<String, Object> nativeData = new HashMap<>();
 
     public SerializableBMap(BMap<K, V> bMap, SerializableState state) {
-
         structName = bMap.getType().getName();
         pkgPath = bMap.getType().getPackagePath();
         for (String key : bMap.getNativeDataKeySet()) {
@@ -85,19 +84,20 @@ public class SerializableBMap<K, V extends BValue> implements SerializableRefTyp
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public BRefType getBRefType(ProgramFile programFile, SerializableState state) {
-
         PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
-        if (packageInfo == null) {
-            throw new BallerinaException(pkgPath + " not found in program file: " +
-                                                 programFile.getProgramFilePath().toString());
+        BMap<K, V> bMap;
+        if (packageInfo != null) {
+            StructureTypeInfo structInfo = packageInfo.getStructInfo(structName);
+            if (structInfo == null) {
+                throw new BallerinaException(structName + " not found in package " + pkgPath);
+            }
+            bMap = new BMap<>(structInfo.getType());
+        } else {
+            bMap = new BMap<>();
         }
 
-        StructureTypeInfo structInfo = packageInfo.getStructInfo(structName);
-        if (structInfo == null) {
-            throw new BallerinaException(structName + " not found in package " + pkgPath);
-        }
-        BMap<K, V> bMap = new BMap<>(structInfo.getType());
         for (String key : nativeData.keySet()) {
             Object o = nativeData.get(key);
             if (o == null) {
@@ -113,7 +113,7 @@ public class SerializableBMap<K, V extends BValue> implements SerializableRefTyp
                 bMap.addNativeData(key, v);
             }
         }
-        bMap.getMap().forEach((k, v) -> {
+        map.forEach((k, v) -> {
             Object o = map.get(k);
             if (o == null) {
                 bMap.put(k, null);
@@ -125,7 +125,7 @@ public class SerializableBMap<K, V extends BValue> implements SerializableRefTyp
                                                                    (NativeDataKey) o, bMap);
                     bMap.put(k, null);
                 } else {
-                    bMap.put(k, v);
+                    bMap.put(k, (V) val);
                 }
             }
         });

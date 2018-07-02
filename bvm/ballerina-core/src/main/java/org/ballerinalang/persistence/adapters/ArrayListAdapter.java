@@ -26,6 +26,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import org.ballerinalang.runtime.Constants;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -42,10 +43,10 @@ public class ArrayListAdapter implements JsonSerializer<ArrayList<Object>>, Json
         for (Object o : list) {
             JsonObject wrapper = new JsonObject();
             if (o != null) {
-                wrapper.add("objectClass", new JsonPrimitive(o.getClass().getName()));
-                wrapper.add("data", context.serialize(o, o.getClass()));
+                wrapper.add(Constants.OBJECT_CLASS, new JsonPrimitive(o.getClass().getName()));
+                wrapper.add(Constants.DATA, context.serialize(o, o.getClass()));
             } else {
-                wrapper.add("objectClass", new JsonPrimitive("NULL"));
+                wrapper.add(Constants.OBJECT_CLASS, new JsonPrimitive("NULL"));
             }
             result.add(wrapper);
         }
@@ -58,11 +59,11 @@ public class ArrayListAdapter implements JsonSerializer<ArrayList<Object>>, Json
         try {
             for (int i = 0; i < jsonObject.size(); i++) {
                 JsonObject wrapper = jsonObject.get(i).getAsJsonObject();
-                String className = wrapper.get("objectClass").getAsString();
+                String className = wrapper.get(Constants.OBJECT_CLASS).getAsString();
                 if ("NULL".equals(className)) {
                     list.add(i, null);
                 } else {
-                    JsonElement data = wrapper.get("data");
+                    JsonElement data = wrapper.get(Constants.DATA);
                     Object o = context.deserialize(data, Class.forName(className));
                     list.add(i, o);
                 }

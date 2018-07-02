@@ -37,7 +37,17 @@ public class Constants {
     public static final String TRANSPORT_MESSAGE = "transport_message";
     public static final String MESSAGE_CORRELATED = "message_correlated";
     public static final String IS_METHOD_ACCESSED = "isMethodAccessed";
+    public static final String CONNECTION = "conn";
 
     // Service Endpoint
     public static final String SERVICE_ENDPOINT = "Listener";
+
+    // Instance id key
+    public static final String INSTANCE_ID = "b7a.instance.id";
+
+    // Serialization related Constants
+    public static final String OBJECT_CLASS = "objectClass";
+    public static final String CLASS_NAME = "className";
+    public static final String DATA = "data";
+    public static final String NULL = "NULL";
 }
