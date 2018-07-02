@@ -1801,7 +1801,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 variableList.add(variableName);
             }
         } else {
-            List<BField> fields = ((BStructureType) ((BStreamType) ((BLangSimpleVarRef)
+            List<BField> fields = ((BStructureType) ((BStreamType) ((BLangExpression)
                     (((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput()).
                             getStreamReference()).type).constraint).fields;
 
@@ -1889,7 +1889,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         }
                     } else {
                         List<BField> inputStreamFields = ((BStructureType) ((BStreamType)
-                                ((BLangSimpleVarRef) (((BLangStreamingQueryStatement) streamingQueryStatement).
+                                ((BLangExpression) (((BLangStreamingQueryStatement) streamingQueryStatement).
                                         getStreamingInput()).getStreamReference()).type).constraint).fields;
 
                         for (int i = 0; i < inputStreamFields.size(); i++) {

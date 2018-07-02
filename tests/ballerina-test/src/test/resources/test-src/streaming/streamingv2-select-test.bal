@@ -27,7 +27,7 @@ type Teacher record {
 };
 
 type TeacherOutput record{
-    string TeacherName;
+    string teacherName;
     int age;
 };
 
@@ -62,7 +62,7 @@ function testSelectQuery() {
 
     forever {
         from inputStream
-        select inputStream.name as TeacherName, inputStream.age
+        select inputStream.name as teacherName, inputStream.age
         => (TeacherOutput[] emp) {
             outputStream.publish(emp);
         }

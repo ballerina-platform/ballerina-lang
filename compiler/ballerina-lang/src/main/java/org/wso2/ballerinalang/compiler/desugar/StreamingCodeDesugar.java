@@ -165,7 +165,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         filterTypeCastedVariable = null;
         outputEventTypeVariable = null;
 
-        inputStreamEventType = ((BStreamType) ((BLangSimpleVarRef) streamingQueryStatement.getStreamingInput().
+        inputStreamEventType = ((BStreamType) ((BLangExpression) streamingQueryStatement.getStreamingInput().
                 getStreamReference()).type).constraint;
 
         //Construct the elements to publish events to output stream
@@ -308,14 +308,14 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     // This method converts the select clause of the streaming query in to Ballerina native constructs.
     //
     // eg: Below query,
-    //          select inputStream.name as TeacherName, inputStream.age
+    //          select inputStream.name as teacherName, inputStream.age
     //
     // convert into below constructs.
     //
     //          streams:SimpleSelect simpleSelect = streams:createSimpleSelect(outputProcess.process,
     //              (streams:StreamEvent o)  => any {
     //                  Teacher t = check <Teacher>o.eventObject;
-    //                  TeacherOutput teacherOutput = {name: t.name, age: t.age};
+    //                  TeacherOutput teacherOutput = {teacherName: t.name, age: t.age};
     //                  return teacherOutput;
     //              });
     //
