@@ -173,3 +173,42 @@ function testThrowInFinallyWithReturnInCatch() returns int {
         throw finErr;
     }
 }
+
+function testThrowInFinallyWithReturnInTryBranches(int i) returns int {
+    int catchAndfinallyExecs = 0;
+    try {
+        if (i > 0) {
+            return i;
+        }
+        int j = 5/0;
+        return j;
+    } catch(error e) {
+        catchAndfinallyExecs += 1;
+        return 4;
+    } finally {
+        catchAndfinallyExecs += 1;
+        error finErr = { message: "number of catch and finally executions: " + catchAndfinallyExecs };
+        throw finErr;
+    }
+}
+
+function testReturnInFinallyWithThrowInTryAndFinally() returns int {
+    int catchAndfinallyExecs = 0;
+    try {
+        error abc = {};
+        if (true) {
+            throw abc;
+        }
+        return 4;
+    } catch (error e) {
+        catchAndfinallyExecs += 1;
+        return 22;
+    } finally {
+        catchAndfinallyExecs += 1;
+        if (true) {
+            error finErr = { message: "number of catch and finally executions: " + catchAndfinallyExecs };
+            throw finErr;
+        }
+        return 40;
+    }
+}

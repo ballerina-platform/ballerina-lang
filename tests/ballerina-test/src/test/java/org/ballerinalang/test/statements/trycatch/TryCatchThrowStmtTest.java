@@ -159,16 +159,40 @@ public class TryCatchThrowStmtTest {
             expectedExceptionsMessageRegExp = ".*error, message: number of finally executions: 1.*",
             expectedExceptions = BLangRuntimeException.class)
     public void testThrowInFinallyWithReturnInTry() {
-        BValue[] args = {};
-        BRunUtil.invoke(compileResult, "testThrowInFinallyWithReturnInTry", args);
+        BRunUtil.invoke(compileResult, "testThrowInFinallyWithReturnInTry", new BValue[]{});
     }
 
     @Test(description = "Test throwing an error in the finally block when there is a return in the catch block",
             expectedExceptionsMessageRegExp = ".*error, message: number of finally executions: 1.*",
             expectedExceptions = BLangRuntimeException.class)
     public void testThrowInFinallyWithReturnInCatch() {
-        BValue[] args = {};
-        BRunUtil.invoke(compileResult, "testThrowInFinallyWithReturnInCatch", args);
+        BRunUtil.invoke(compileResult, "testThrowInFinallyWithReturnInCatch", new BValue[]{});
+    }
+
+    @Test(description = "Test throwing an error in the finally block when there are returns in branches in the try "
+            + "block, and try returns",
+            expectedExceptionsMessageRegExp = ".*error, message: number of catch and finally executions: 1.*",
+            expectedExceptions = BLangRuntimeException.class)
+    public void testThrowInFinallyWithReturnInTryBranch() {
+        BRunUtil.invoke(compileResult, "testThrowInFinallyWithReturnInTryBranches",
+                        new BValue[]{new BInteger(5)});
+    }
+
+    @Test(description = "Test throwing an error in the finally block when there are returns in branches in the try "
+            + "block, and try throws an error",
+            expectedExceptionsMessageRegExp = ".*error, message: number of catch and finally executions: 2.*",
+            expectedExceptions = BLangRuntimeException.class)
+    public void testThrowInFinallyWithThrowInTryBranchWithReturns() {
+        BRunUtil.invoke(compileResult, "testThrowInFinallyWithReturnInTryBranches",
+                        new BValue[]{new BInteger(0)});
+    }
+
+    @Test(description = "Test throwing an error in the try block and the finally block when there is a return in "
+            + "the finally block",
+            expectedExceptionsMessageRegExp = ".*error, message: number of catch and finally executions: 2.*",
+            expectedExceptions = BLangRuntimeException.class)
+    public void testReturnInFinallyWithThrowInTryAndFinally() {
+        BRunUtil.invoke(compileResult, "testReturnInFinallyWithThrowInTryAndFinally", new BValue[]{});
     }
 
     @Test()
