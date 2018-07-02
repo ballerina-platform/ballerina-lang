@@ -35,6 +35,8 @@ import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -121,7 +123,8 @@ public class BStream implements BRefType<Object> {
      */
     public void subscribe(BFunctionPointer functionPointer) {
         BType[] parameters = functionPointer.funcRefCPEntry.getFunctionInfo().getParamTypes();
-        if (!CPU.isAssignable(constraintType, parameters[0])) {
+        int lastArrayIndex = parameters.length - 1;
+        if (!CPU.isAssignable(constraintType, parameters[lastArrayIndex])) {
             throw new BallerinaException("incompatible function: subscription function needs to be a function"
                                                  + " accepting:" + this.constraintType);
         }
@@ -141,10 +144,14 @@ public class BStream implements BRefType<Object> {
     private class StreamSubscriber extends Consumer {
         final String queueName;
         final BFunctionPointer functionPointer;
+        List<BValue> closureArgs = new ArrayList<>();
 
         StreamSubscriber(String queueName, BFunctionPointer functionPointer) {
             this.queueName = queueName;
             this.functionPointer = functionPointer;
+            for (BClosure closure : functionPointer.getClosureVars()) {
+                closureArgs.add(closure.value());
+            }
         }
 
         @Override
@@ -152,7 +159,11 @@ public class BStream implements BRefType<Object> {
             try {
                 BValue data =
                         ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).getValue();
-                BLangFunctions.invokeCallable(functionPointer.value().getFunctionInfo(), new BValue[] { data });
+                List<BValue> argsList = new ArrayList<>();
+                argsList.addAll(closureArgs);
+                argsList.add(data);
+                BLangFunctions.invokeCallable(functionPointer.value().getFunctionInfo(),
+                                              argsList.toArray(new BValue[argsList.size()]));
             } catch (Exception e) {
                 throw new BallerinaException("Error delivering event to subscriber: ", e);
             }
