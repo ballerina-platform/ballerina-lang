@@ -4036,7 +4036,6 @@ public class CPU {
     }
 
     public static void handleError(WorkerExecutionContext ctx) {
-
         int ip = ctx.ip;
         ip--;
         ErrorTableEntry match = ErrorTableEntry.getMatch(ctx.callableUnitInfo.getPackageInfo(), ip,
