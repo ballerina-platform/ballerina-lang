@@ -30,13 +30,11 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.io.channels.base.DataChannel;
 import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventManager;
+import org.ballerinalang.stdlib.io.events.EventExecutor;
 import org.ballerinalang.stdlib.io.events.EventResult;
 import org.ballerinalang.stdlib.io.events.data.WriteStringEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Native function ballerina.io#writeString.
@@ -91,8 +89,10 @@ public class WriteString implements NativeCallableUnit {
         String encoding = context.getStringArgument(ENCODING_INDEX);
         EventContext eventContext = new EventContext(context, callback);
         WriteStringEvent writeIntegerEvent = new WriteStringEvent(channel, value, encoding, eventContext);
-        CompletableFuture<EventResult> publish = EventManager.getInstance().publish(writeIntegerEvent);
-        publish.thenApply(WriteString::writeResponse);
+        EventExecutor exec = new EventExecutor(channel.hashCode(), writeIntegerEvent, WriteString::writeResponse);
+        exec.execute();
+/*        CompletableFuture<EventResult> publish = EventManager.getInstance().publish(writeIntegerEvent);
+        publish.thenApply(WriteString::writeResponse);*/
     }
 
     @Override

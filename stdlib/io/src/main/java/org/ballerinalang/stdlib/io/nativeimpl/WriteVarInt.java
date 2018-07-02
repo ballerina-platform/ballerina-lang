@@ -31,13 +31,11 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.io.channels.base.DataChannel;
 import org.ballerinalang.stdlib.io.channels.base.Representation;
 import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventManager;
+import org.ballerinalang.stdlib.io.events.EventExecutor;
 import org.ballerinalang.stdlib.io.events.EventResult;
 import org.ballerinalang.stdlib.io.events.data.WriteIntegerEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Native function ballerina.io#writeVarInt.
@@ -88,8 +86,11 @@ public class WriteVarInt implements NativeCallableUnit {
         WriteIntegerEvent writeIntegerEvent = new WriteIntegerEvent(channel,
                 value, Representation.VARIABLE,
                 eventContext);
-        CompletableFuture<EventResult> publish = EventManager.getInstance().publish(writeIntegerEvent);
-        publish.thenApply(WriteVarInt::writeIntegerResponse);
+        EventExecutor exec = new EventExecutor(channel.hashCode(), writeIntegerEvent,
+                WriteVarInt::writeIntegerResponse);
+        exec.execute();
+/*        CompletableFuture<EventResult> publish = EventManager.getInstance().publish(writeIntegerEvent);
+        publish.thenApply(WriteVarInt::writeIntegerResponse);*/
     }
 
     @Override

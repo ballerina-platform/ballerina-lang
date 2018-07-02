@@ -31,13 +31,11 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.io.channels.base.DataChannel;
 import org.ballerinalang.stdlib.io.channels.base.Representation;
 import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventManager;
+import org.ballerinalang.stdlib.io.events.EventExecutor;
 import org.ballerinalang.stdlib.io.events.EventResult;
 import org.ballerinalang.stdlib.io.events.data.WriteFloatEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Native function ballerina/io#writeFloat64.
@@ -86,8 +84,10 @@ public class WriteFloat64 implements NativeCallableUnit {
         double value = context.getFloatArgument(VALUE_INDEX);
         EventContext eventContext = new EventContext(context, callback);
         WriteFloatEvent writeIntegerEvent = new WriteFloatEvent(channel, value, Representation.BIT_64, eventContext);
-        CompletableFuture<EventResult> publish = EventManager.getInstance().publish(writeIntegerEvent);
-        publish.thenApply(WriteFloat64::writeFloatResponse);
+        EventExecutor exec = new EventExecutor(channel.hashCode(), writeIntegerEvent, WriteFloat64::writeFloatResponse);
+        exec.execute();
+/*        CompletableFuture<EventResult> publish = EventManager.getInstance().publish(writeIntegerEvent);
+        publish.thenApply(WriteFloat64::writeFloatResponse);*/
     }
 
     @Override

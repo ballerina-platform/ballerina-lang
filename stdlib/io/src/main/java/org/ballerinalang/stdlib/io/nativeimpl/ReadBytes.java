@@ -35,6 +35,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.events.EventContext;
+import org.ballerinalang.stdlib.io.events.EventExecutor;
 import org.ballerinalang.stdlib.io.events.EventResult;
 import org.ballerinalang.stdlib.io.events.bytes.ReadBytesEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
@@ -111,7 +112,12 @@ public class ReadBytes implements NativeCallableUnit {
         Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
         byte[] content = new byte[arraySize];
         EventContext eventContext = new EventContext(context, callback);
-        IOUtils.read(byteChannel, content, eventContext, ReadBytes::readResponse);
+        ReadBytesEvent event = new ReadBytesEvent(byteChannel, content, eventContext);
+        EventExecutor exec = new EventExecutor(byteChannel.hashCode(), event, ReadBytes::readResponse);
+        //Check if the channel is selectable
+        //If it's not selectable, execute it right a way
+        exec.execute();
+//        IOUtils.read(byteChannel, content, eventContext, ReadBytes::readResponse);
     }
 
     @Override
