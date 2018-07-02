@@ -25,15 +25,15 @@ public type userBar object {
     public function getZipcode() returns (string);
 };
 
-public function userBar::getName() returns (string) {
+function userBar::getName() returns (string) {
     return self.name;
 }
 
-public function userBar::getAge() returns (int) {
+function userBar::getAge() returns (int) {
     return self.age;
 }
 
-public function userBar::getZipcode() returns (string) {
+function userBar::getZipcode() returns (string) {
     return self.zipcode;
 }
 
@@ -48,6 +48,6 @@ public type BarObj object {
     }
 };
 
-public function BarObj::getName() returns (string) {
+function BarObj::getName() returns (string) {
     return self.name;
 }

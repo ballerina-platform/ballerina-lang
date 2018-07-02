@@ -12,10 +12,10 @@ public type userPFoo object {
     public function getAge () returns (int);
 };
 
-public function userPFoo::getName () returns (string) {
+function userPFoo::getName () returns (string) {
     return self.name + ":userPFoo";
 }
 
-public function userPFoo::getAge () returns (int) {
+function userPFoo::getAge () returns (int) {
     return self.age;
 }

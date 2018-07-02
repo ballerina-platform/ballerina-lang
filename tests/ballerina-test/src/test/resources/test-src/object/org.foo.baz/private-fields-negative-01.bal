@@ -42,6 +42,6 @@ public function privatePersonAsParamAndReturn(privatePerson p) returns (privateP
     return p;
 }
 
-public function privatePerson::getPrivatePersonName() returns (string) {
+function privatePerson::getPrivatePersonName() returns (string) {
     return self.name;
 }

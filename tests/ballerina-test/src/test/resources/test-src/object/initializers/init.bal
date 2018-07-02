@@ -14,7 +14,7 @@ public type employee object {
 
 };
 
-public function employee::getAge() {
+function employee::getAge() {
     self.age = 12;
 }
 

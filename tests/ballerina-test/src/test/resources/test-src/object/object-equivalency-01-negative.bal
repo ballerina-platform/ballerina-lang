@@ -172,15 +172,15 @@ public type person07 object {
     public function setSSN(string s);
 };
 
-public function person07::getAge() returns (int) {
+function person07::getAge() returns (int) {
     return self.age;
 }
 
-public function person07::getName() returns (string) {
+function person07::getName() returns (string) {
     return self.name;
 }
 
-public function person07::setSSN(string s) {
+function person07::setSSN(string s) {
     self.ssn = s;
 }
 
@@ -200,11 +200,11 @@ public type employee07 object {
     public function getAge() returns (int);
 };
 
-public function employee07::getName() returns (string) {
+function employee07::getName() returns (string) {
     return self.name;
 }
 
-public function employee07::getAge() returns (int) {
+function employee07::getAge() returns (int) {
     return self.age;
 }
 
@@ -232,15 +232,15 @@ public type person08 object {
     public function setSSN(string s);
 };
 
-public function person08::getAge() returns (int) {
+function person08::getAge() returns (int) {
     return self.age;
 }
 
-public function person08::getName() returns (string) {
+function person08::getName() returns (string) {
     return self.name;
 }
 
-public function person08::setSSN(string s) {
+function person08::setSSN(string s) {
     self.ssn = s;
 }
 
@@ -262,15 +262,15 @@ public type employee08 object {
     public function getSSN() returns (string);
 };
 
-public function employee08::getName() returns (string) {
+function employee08::getName() returns (string) {
     return self.name;
 }
 
-public function employee08::getAge() returns (int) {
+function employee08::getAge() returns (int) {
     return self.age;
 }
 
-public function employee08::getSSN() returns (string) {
+function employee08::getSSN() returns (string) {
     return self.ssn;
 }
 
@@ -298,15 +298,15 @@ public type person09 object {
     public function setSSN(string s);
 };
 
-public function person09::getAge() returns (int) {
+function person09::getAge() returns (int) {
     return self.age;
 }
 
-public function person09::getName() returns (string) {
+function person09::getName() returns (string) {
     return self.name;
 }
 
-public function person09::setSSN(string s) {
+function person09::setSSN(string s) {
     self.ssn = s;
 }
 
@@ -328,15 +328,15 @@ public type employee09 object {
     public function getSSN() returns (string);
 };
 
-public function employee09::getName() returns (string) {
+function employee09::getName() returns (string) {
     return self.name;
 }
 
-public function employee09::getAge(int i) returns (int) {
+function employee09::getAge(int i) returns (int) {
     return self.age;
 }
 
-public function employee09::getSSN() returns (string) {
+function employee09::getSSN() returns (string) {
     return self.ssn;
 }
 

@@ -5,7 +5,7 @@ Example:
 P{{accessMode}} read or write mode
 R{{}} success or not
 }
-public function File::open (string accessMode) returns (boolean) {
+function File::open (string accessMode) returns (boolean) {
     return true;
 }
 

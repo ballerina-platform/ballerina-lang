@@ -9,7 +9,7 @@ R{{successful}} boolean `true` or `false`}
 deprecated {
   This function is deprecated use `openFile(string accessMode){}` instead.
 }
-public function File::open (string accessMode) returns boolean {
+function File::open (string accessMode) returns boolean {
     return true;
 }
 

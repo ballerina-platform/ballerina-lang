@@ -36,7 +36,7 @@ P{{accessMode}} read or write mode
 P{{accessMode}} read or write mode
 R{{successful}} boolean `true` or `false`
 }
-public function File::open (string accessMode) returns (boolean) {
+function File::open (string accessMode) returns (boolean) {
     boolean successful;
     return successful;
 }

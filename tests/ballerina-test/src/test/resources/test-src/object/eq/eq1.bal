@@ -17,19 +17,19 @@ public type person object {
 };
 
 
-public function person::getName() returns (string) {
+function person::getName() returns (string) {
     return self.name;
 }
 
-public function person::getAge() returns (int) {
+function person::getAge() returns (int) {
     return self.age;
 }
 
-public function person::getSSN() returns (string) {
+function person::getSSN() returns (string) {
     return self.ssn;
 }
 
-public function person::setSSN(string s) {
+function person::setSSN(string s) {
     self.ssn = s;
 }
 
@@ -55,23 +55,23 @@ public type employee object {
     public function getEmployeeId() returns (int);
 };
 
-public function employee::getName() returns (string) {
+function employee::getName() returns (string) {
     return self.name;
 }
 
-public function employee::getAge() returns (int) {
+function employee::getAge() returns (int) {
     return self.age;
 }
 
-public function employee::getSSN() returns (string) {
+function employee::getSSN() returns (string) {
     return self.ssn + ":employee";
 }
 
-public function employee::setSSN(string s) {
+function employee::setSSN(string s) {
     self.ssn = s;
 }
 
-public function employee::getEmployeeId() returns (int) {
+function employee::getEmployeeId() returns (int) {
     return self.employeeId;
 }
 
@@ -86,6 +86,6 @@ public type BarObj object {
     }
 };
 
-public function BarObj::getName() returns (string) {
+function BarObj::getName() returns (string) {
     return self.name;
 }
