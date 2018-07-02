@@ -85,6 +85,54 @@ function testIntFalsePositive() returns (boolean) {
 
 // End Int
 
+// Start Byte
+
+function testByteTruePositive1() returns boolean {
+    byte b1 = 5;
+    byte b2 = 5;
+    return reflect:equals(b1, b2);
+}
+
+function testByteTruePositive2() returns boolean {
+    byte b1 = 5;
+    return reflect:equals(b1, 5);
+}
+
+function testByteTrueNegative1() returns boolean {
+    byte b1 = 5;
+    byte b2 = 10;
+    return reflect:equals(b1, b2);
+}
+
+function testByteTrueNegative2() returns boolean {
+    byte b1 = 5;
+    return reflect:equals(b1, 10);
+}
+
+function testByteFalseNegative1() returns boolean {
+    byte b1 = 5;
+    byte b2 = 5;
+    return !reflect:equals(b1, b2);
+}
+
+function testByteFalseNegative2() returns boolean {
+    byte b1 = 5;
+    return !reflect:equals(b1, 5);
+}
+
+function testByteFalsePositive1() returns boolean {
+    byte b1 = 5;
+    byte b2 = 10;
+    return !reflect:equals(b1, b2);
+}
+
+function testByteFalsePositive2() returns boolean {
+    byte b1 = 5;
+    return !reflect:equals(b1, 10);
+}
+
+// End Byte
+
 // Start Float
 
 function testFloatTruePositive() returns (boolean) {

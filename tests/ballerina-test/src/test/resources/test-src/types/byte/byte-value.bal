@@ -116,6 +116,35 @@ function testByteBinaryNotEqualOperation(byte a, byte b, byte c) returns (boolea
     return (b1, b2);
 }
 
+function testByteOrIntMatch1() returns byte|int {
+    match byteOrInt(true) {
+        byte c => {
+            return c;
+        }
+        int b => {
+            return b;
+        }
+    }
+}
+
+function testByteOrIntMatch2() returns byte|int {
+    match byteOrInt(false) {
+        byte c => {
+            return c;
+        }
+        int b => {
+            return b;
+        }
+    }
+}
+
+function byteOrInt(boolean boo) returns (int|byte) {
+    if (boo) {
+        return check <byte>12;
+    }
+    return 266;
+}
+
 function testWorkerWithByteVariable() {
   worker w1 {
     byte a = 10;
