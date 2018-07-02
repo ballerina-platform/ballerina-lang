@@ -268,16 +268,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitObjectFunctionDefinition(BallerinaParser.ObjectFunctionDefinitionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#objectCallableUnitSignature}.
-	 * @param ctx the parse tree
-	 */
-	void enterObjectCallableUnitSignature(BallerinaParser.ObjectCallableUnitSignatureContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#objectCallableUnitSignature}.
-	 * @param ctx the parse tree
-	 */
-	void exitObjectCallableUnitSignature(BallerinaParser.ObjectCallableUnitSignatureContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#annotationDefinition}.
 	 * @param ctx the parse tree
 	 */

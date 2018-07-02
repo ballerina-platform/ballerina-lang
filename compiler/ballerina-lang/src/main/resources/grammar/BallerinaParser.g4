@@ -106,32 +106,22 @@ fieldDefinition
     :   annotationAttachment* typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
     ;
 
-// TODO try to merge with formalParameterList later
 objectParameterList
     :   (objectParameter | objectDefaultableParameter) (COMMA (objectParameter | objectDefaultableParameter))* (COMMA restParameter)?
     |   restParameter
     ;
 
-// TODO try to merge with parameter later
 objectParameter
     :   annotationAttachment* typeName? Identifier
     ;
 
-// TODO try to merge with defaultableParameter later
 objectDefaultableParameter
     :   objectParameter ASSIGN expression
     ;
 
-// TODO merge with functionDefinition later
 objectFunctionDefinition
-    :   annotationAttachment* documentationAttachment? deprecatedAttachment? (PUBLIC)? (NATIVE)? FUNCTION objectCallableUnitSignature (callableUnitBody | SEMICOLON)
+    :   annotationAttachment* documentationAttachment? deprecatedAttachment? (PUBLIC | PRIVATE)? (NATIVE)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
-
-//TODO merge with callableUnitSignature later
-objectCallableUnitSignature
-    :   anyIdentifierName LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter?
-    ;
-
 
 annotationDefinition
     : (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON

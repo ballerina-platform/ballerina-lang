@@ -1532,7 +1532,7 @@ public class BLangPackageBuilder {
         this.objFunctionListStack.peek().add(function);
     }
 
-    void endObjectAttachedFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc,
+    void endObjectAttachedFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean privateFunc,
                                       boolean nativeFunc, boolean bodyExists, boolean docPresent,
                                       boolean deprecatedDocPresent, int annCount) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
@@ -1545,6 +1545,8 @@ public class BLangPackageBuilder {
 
         if (publicFunc) {
             function.flagSet.add(Flag.PUBLIC);
+        } else if (privateFunc) {
+            function.flagSet.add(Flag.PRIVATE);
         }
 
         if (nativeFunc) {

@@ -641,28 +641,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean publicFunc = ctx.PUBLIC() != null;
+        boolean isPrivate = ctx.PRIVATE() != null;
         boolean nativeFunc = ctx.NATIVE() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
         boolean docExists = ctx.documentationAttachment() != null;
         boolean deprecatedDocExists = ctx.deprecatedAttachment() != null;
-        this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, nativeFunc,
-                bodyExists, docExists, deprecatedDocExists, ctx.annotationAttachment().size());
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override
-    public void exitObjectCallableUnitSignature(BallerinaParser.ObjectCallableUnitSignatureContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.endCallableUnitSignature(getCurrentPos(ctx), getWS(ctx), ctx.anyIdentifierName().getText(),
-                ctx.formalParameterList() != null, ctx.returnParameter() != null,
-                ctx.formalParameterList() != null && ctx.formalParameterList().restParameter() != null);
+        this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, isPrivate,
+                nativeFunc, bodyExists, docExists, deprecatedDocExists, ctx.annotationAttachment().size());
     }
 
     /**
