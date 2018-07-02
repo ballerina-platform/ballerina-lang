@@ -343,11 +343,11 @@ public class PackageInfoWriter {
 
     private static void writeRecordTypeDefInfo(DataOutputStream dataOutStream,
                                                RecordTypeInfo recordInfo) throws IOException {
-        if (recordInfo.recordType.isSealed) {
+        if (recordInfo.recordType.sealed) {
             dataOutStream.writeBoolean(true);
         } else {
             dataOutStream.writeBoolean(false);
-            dataOutStream.writeInt(recordInfo.restSigCPIndex);
+            dataOutStream.writeInt(recordInfo.restFieldTypeSigCPIndex);
         }
         // Write struct field info entries
         dataOutStream.writeShort(recordInfo.fieldInfoEntries.size());

@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.tree.types;
 
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+
 /**
  * {@code BLangRecordTypeNode} represents a record type node in Ballerina
  * <p>
@@ -25,5 +27,6 @@ package org.ballerinalang.model.tree.types;
  * @since 0.971.0
  */
 public interface RecordTypeNode extends StructureTypeNode {
-    
+
+    BLangType getRestFieldType();
 }

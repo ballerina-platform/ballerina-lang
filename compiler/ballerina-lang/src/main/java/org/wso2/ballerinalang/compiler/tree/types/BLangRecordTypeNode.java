@@ -30,7 +30,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangRecordTypeNode extends BLangStructureTypeNode implements RecordTypeNode {
 
-    public boolean isSealed;
+    public boolean sealed;
     public BLangType restFieldType;
 
     public BLangRecordTypeNode() {
@@ -51,4 +51,8 @@ public class BLangRecordTypeNode extends BLangStructureTypeNode implements Recor
         return "record { " + this.fields + " }";
     }
 
+    @Override
+    public BLangType getRestFieldType() {
+        return restFieldType;
+    }
 }

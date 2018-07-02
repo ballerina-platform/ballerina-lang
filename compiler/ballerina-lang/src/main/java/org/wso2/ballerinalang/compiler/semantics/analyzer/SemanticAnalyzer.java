@@ -352,7 +352,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(recordTypeNode, structSymbol.scope, env);
         recordTypeNode.fields.forEach(field -> analyzeDef(field, structEnv));
 
-        if (recordTypeNode.isSealed && recordTypeNode.restFieldType != null) {
+        analyzeDef(recordTypeNode.initFunction, structEnv);
+
+        if (recordTypeNode.sealed && recordTypeNode.restFieldType != null) {
             dlog.error(recordTypeNode.restFieldType.pos, DiagnosticCode.REST_FIELD_NOT_ALLOWED_IN_SEALED_RECORDS);
             return;
         }

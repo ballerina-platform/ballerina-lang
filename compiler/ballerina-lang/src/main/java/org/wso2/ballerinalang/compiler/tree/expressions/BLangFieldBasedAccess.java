@@ -64,34 +64,6 @@ public class BLangFieldBasedAccess extends BLangAccessExpression implements Fiel
     }
 
     /**
-     * @since 0.980.0
-     */
-    public static class BLangRecordFieldAccessExpr extends BLangFieldBasedAccess {
-
-        public BLangExpression indexExpr;
-        public boolean except = true; // TODO: find a better name for this.
-
-        public BLangRecordFieldAccessExpr(DiagnosticPos pos, BLangVariableReference varExpr, BLangExpression keyExpr,
-                                          boolean except) {
-            this.pos = pos;
-            this.expr = varExpr;
-            this.indexExpr = keyExpr;
-            this.except = except;
-        }
-
-        public BLangRecordFieldAccessExpr(DiagnosticPos pos, BLangVariableReference varExpr, BLangExpression keyExpr) {
-            this.pos = pos;
-            this.expr = varExpr;
-            this.indexExpr = keyExpr;
-        }
-
-        @Override
-        public void accept(BLangNodeVisitor visitor) {
-            visitor.visit(this);
-        }
-    }
-
-    /**
      * @since 0.97
      */
     public static class BLangStructFunctionVarRef extends BLangFieldBasedAccess {

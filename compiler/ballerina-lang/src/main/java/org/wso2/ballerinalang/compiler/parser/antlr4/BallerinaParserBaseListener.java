@@ -292,13 +292,13 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterRecordRestDefinition(BallerinaParser.RecordRestDefinitionContext ctx) { }
+	@Override public void enterRecordRestFieldDefinition(BallerinaParser.RecordRestFieldDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitRecordRestDefinition(BallerinaParser.RecordRestDefinitionContext ctx) { }
+	@Override public void exitRecordRestFieldDefinition(BallerinaParser.RecordRestFieldDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -604,13 +604,13 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFieldDefinitionList(BallerinaParser.FieldDefinitionListContext ctx) { }
+	@Override public void enterRecordFieldDefinitionList(BallerinaParser.RecordFieldDefinitionListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFieldDefinitionList(BallerinaParser.FieldDefinitionListContext ctx) { }
+	@Override public void exitRecordFieldDefinitionList(BallerinaParser.RecordFieldDefinitionListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -111,7 +111,7 @@ fieldDefinition
     :   annotationAttachment* typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
     ;
 
-recordRestDefinition
+recordRestFieldDefinition
     : typeName ELLIPSIS
     ;
 
@@ -203,12 +203,12 @@ typeName
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeNameLabel
     |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                            # objectTypeNameLabel
-    |   RECORD LEFT_BRACE fieldDefinitionList RIGHT_BRACE                   # openRecordTypeNameLabel
-    |   SEALED RECORD LEFT_BRACE fieldDefinitionList RIGHT_BRACE            # sealedRecordTypeNameLabel
+    |   RECORD LEFT_BRACE recordFieldDefinitionList RIGHT_BRACE             # openRecordTypeNameLabel
+    |   SEALED RECORD LEFT_BRACE recordFieldDefinitionList RIGHT_BRACE      # sealedRecordTypeNameLabel
     ;
 
-fieldDefinitionList
-    :   fieldDefinition* recordRestDefinition?
+recordFieldDefinitionList
+    :   fieldDefinition* recordRestFieldDefinition?
     ;
 
 // Temporary production rule name

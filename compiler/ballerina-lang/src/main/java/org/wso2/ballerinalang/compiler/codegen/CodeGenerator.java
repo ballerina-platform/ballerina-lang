@@ -1963,10 +1963,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add Struct name as an UTFCPEntry to the constant pool
         recordInfo.recordType = (BRecordType) recordSymbol.type;
 
-        if (recordInfo.recordType.restFieldType != null) {
-            recordInfo.restSigCPIndex = addUTF8CPEntry(currentPkgInfo, recordInfo.recordType.restFieldType.getDesc());
-        } else {
-            recordInfo.restSigCPIndex = -1; // TODO: Check if this is an appropriate value
+        if (!recordInfo.recordType.sealed) {
+            recordInfo.restFieldTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo,
+                                                                recordInfo.recordType.restFieldType.getDesc());
         }
 
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDefinition.typeNode;

@@ -505,7 +505,7 @@ public class Types {
             }
         }
 
-        if (type.tag == TypeTags.RECORD) {
+        if (type.tag == TypeTags.RECORD && !((BRecordType) type).sealed) {
             return checkStructFieldToJSONCompatibility(type, ((BRecordType) type).restFieldType);
         }
 
@@ -634,8 +634,8 @@ public class Types {
             }
         }
 
-        if (type.tag == TypeTags.RECORD) {
-            return checkStructFieldToJSONCompatibility(type, ((BRecordType) type).restFieldType);
+        if (type.tag == TypeTags.RECORD && !((BRecordType) type).sealed) {
+            return checkStructFieldToJSONConvertibility(type, ((BRecordType) type).restFieldType);
         }
 
         return true;

@@ -850,7 +850,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (typeDef.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
                 continue;
             }
-            if (typeDef.symbol.kind == SymbolKind.OBJECT) {
+            if (typeDef.symbol.kind == SymbolKind.OBJECT || typeDef.symbol.kind == SymbolKind.RECORD) {
                 // Create typeDef type
                 BStructureType structureType = (BStructureType) typeDef.symbol.type;
                 BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDef.typeNode;
@@ -860,22 +860,22 @@ public class SymbolEnter extends BLangNodeVisitor {
                         .map(field -> new BField(names.fromIdNode(field.name),
                                                  field.symbol, field.expr != null))
                         .collect(Collectors.toList());
-            } else if (typeDef.symbol.kind == SymbolKind.RECORD) {
-                BRecordType recordType = (BRecordType) typeDef.symbol.type;
-                BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
-                SymbolEnv typeDefEnv = SymbolEnv.createTypeDefEnv(typeDef, typeDef.symbol.scope, pkgEnv);
-                recordType.fields = recordTypeNode.fields.stream()
-                                                        .peek(field -> defineNode(field, typeDefEnv))
-                                                        .map(field -> new BField(names.fromIdNode(field.name),
-                                                                                 field.symbol,
-                                                                                 field.expr != null))
-                                                        .collect(Collectors.toList());
-                recordType.isSealed = recordTypeNode.isSealed;
 
-                if (recordTypeNode.restFieldType == null) {
-                    recordType.restFieldType = symTable.nilType;
-                } else {
-                    recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType, typeDefEnv);
+                if (typeDef.symbol.kind == SymbolKind.RECORD) {
+                    BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) structureTypeNode;
+                    BRecordType recordType = (BRecordType) structureType;
+                    recordType.sealed = recordTypeNode.sealed;
+
+                    if (recordTypeNode.restFieldType == null) {
+                        if (recordTypeNode.sealed) {
+                            recordType.restFieldType = symTable.noType;
+                        } else {
+                            recordType.restFieldType = symTable.anyType;
+                        }
+                    } else {
+                        recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType,
+                                                                               typeDefEnv);
+                    }
                 }
             }
         }

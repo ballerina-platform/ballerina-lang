@@ -405,16 +405,10 @@ public class BLangPackageBuilder {
         // Create an anonymous record and add it to the list of records in the current package.
         BLangRecordTypeNode recordTypeNode = populateRecordTypeNode(pos, ws, isAnonymous);
         recordTypeNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
-        recordTypeNode.isSealed = isSealed;
+        recordTypeNode.sealed = isSealed;
 
         // If there is an explicitly defined rest field, take it.
         if (hasRestField) {
-            recordTypeNode.restFieldType = (BLangType) this.typeNodeStack.pop();
-        }
-
-        // If it is an open record and doesn't have an explicitly defined rest field, add a rest field of type 'any'
-        if (!isSealed && !hasRestField) {
-            addBuiltInReferenceType(pos, ws, TypeKind.ANY.typeName());
             recordTypeNode.restFieldType = (BLangType) this.typeNodeStack.pop();
         }
 

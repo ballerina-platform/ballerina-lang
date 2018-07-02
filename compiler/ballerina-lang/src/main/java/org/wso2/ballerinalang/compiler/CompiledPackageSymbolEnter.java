@@ -501,8 +501,8 @@ public class CompiledPackageSymbolEnter {
         BRecordType type = new BRecordType(symbol);
         symbol.type = type;
 
-        type.isSealed = dataInStream.readBoolean();
-        if (!type.isSealed) {
+        type.sealed = dataInStream.readBoolean();
+        if (!type.sealed) {
             String restFieldTypeDesc = getUTF8CPEntryValue(dataInStream);
             type.restFieldType = getBTypeFromDescriptor(restFieldTypeDesc);
         }

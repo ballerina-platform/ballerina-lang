@@ -72,13 +72,13 @@ public class BallerinaParser extends Parser {
 		RULE_callableUnitSignature = 14, RULE_typeDefinition = 15, RULE_objectBody = 16, 
 		RULE_publicObjectFields = 17, RULE_privateObjectFields = 18, RULE_objectInitializer = 19, 
 		RULE_objectInitializerParameterList = 20, RULE_objectFunctions = 21, RULE_fieldDefinition = 22, 
-		RULE_recordRestDefinition = 23, RULE_objectParameterList = 24, RULE_objectParameter = 25, 
+		RULE_recordRestFieldDefinition = 23, RULE_objectParameterList = 24, RULE_objectParameter = 25, 
 		RULE_objectDefaultableParameter = 26, RULE_objectFunctionDefinition = 27, 
 		RULE_objectCallableUnitSignature = 28, RULE_annotationDefinition = 29, 
 		RULE_globalVariableDefinition = 30, RULE_attachmentPoint = 31, RULE_workerDeclaration = 32, 
 		RULE_workerDefinition = 33, RULE_globalEndpointDefinition = 34, RULE_endpointDeclaration = 35, 
 		RULE_endpointType = 36, RULE_endpointInitlization = 37, RULE_finiteType = 38, 
-		RULE_finiteTypeUnit = 39, RULE_typeName = 40, RULE_fieldDefinitionList = 41, 
+		RULE_finiteTypeUnit = 39, RULE_typeName = 40, RULE_recordFieldDefinitionList = 41, 
 		RULE_simpleTypeName = 42, RULE_referenceTypeName = 43, RULE_userDefineTypeName = 44, 
 		RULE_valueTypeName = 45, RULE_builtInReferenceTypeName = 46, RULE_functionTypeName = 47, 
 		RULE_xmlNamespaceName = 48, RULE_xmlLocalName = 49, RULE_annotationAttachment = 50, 
@@ -138,12 +138,12 @@ public class BallerinaParser extends Parser {
 		"resourceDefinition", "resourceParameterList", "callableUnitBody", "functionDefinition", 
 		"lambdaFunction", "callableUnitSignature", "typeDefinition", "objectBody", 
 		"publicObjectFields", "privateObjectFields", "objectInitializer", "objectInitializerParameterList", 
-		"objectFunctions", "fieldDefinition", "recordRestDefinition", "objectParameterList", 
+		"objectFunctions", "fieldDefinition", "recordRestFieldDefinition", "objectParameterList", 
 		"objectParameter", "objectDefaultableParameter", "objectFunctionDefinition", 
 		"objectCallableUnitSignature", "annotationDefinition", "globalVariableDefinition", 
 		"attachmentPoint", "workerDeclaration", "workerDefinition", "globalEndpointDefinition", 
 		"endpointDeclaration", "endpointType", "endpointInitlization", "finiteType", 
-		"finiteTypeUnit", "typeName", "fieldDefinitionList", "simpleTypeName", 
+		"finiteTypeUnit", "typeName", "recordFieldDefinitionList", "simpleTypeName", 
 		"referenceTypeName", "userDefineTypeName", "valueTypeName", "builtInReferenceTypeName", 
 		"functionTypeName", "xmlNamespaceName", "xmlLocalName", "annotationAttachment", 
 		"statement", "variableDefinitionStatement", "recordLiteral", "recordKeyValue", 
@@ -2271,28 +2271,28 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RecordRestDefinitionContext extends ParserRuleContext {
+	public static class RecordRestFieldDefinitionContext extends ParserRuleContext {
 		public TypeNameContext typeName() {
 			return getRuleContext(TypeNameContext.class,0);
 		}
 		public TerminalNode ELLIPSIS() { return getToken(BallerinaParser.ELLIPSIS, 0); }
-		public RecordRestDefinitionContext(ParserRuleContext parent, int invokingState) {
+		public RecordRestFieldDefinitionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_recordRestDefinition; }
+		@Override public int getRuleIndex() { return RULE_recordRestFieldDefinition; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterRecordRestDefinition(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterRecordRestFieldDefinition(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitRecordRestDefinition(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitRecordRestFieldDefinition(this);
 		}
 	}
 
-	public final RecordRestDefinitionContext recordRestDefinition() throws RecognitionException {
-		RecordRestDefinitionContext _localctx = new RecordRestDefinitionContext(_ctx, getState());
-		enterRule(_localctx, 46, RULE_recordRestDefinition);
+	public final RecordRestFieldDefinitionContext recordRestFieldDefinition() throws RecognitionException {
+		RecordRestFieldDefinitionContext _localctx = new RecordRestFieldDefinitionContext(_ctx, getState());
+		enterRule(_localctx, 46, RULE_recordRestFieldDefinition);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
@@ -3451,8 +3451,8 @@ public class BallerinaParser extends Parser {
 	public static class OpenRecordTypeNameLabelContext extends TypeNameContext {
 		public TerminalNode RECORD() { return getToken(BallerinaParser.RECORD, 0); }
 		public TerminalNode LEFT_BRACE() { return getToken(BallerinaParser.LEFT_BRACE, 0); }
-		public FieldDefinitionListContext fieldDefinitionList() {
-			return getRuleContext(FieldDefinitionListContext.class,0);
+		public RecordFieldDefinitionListContext recordFieldDefinitionList() {
+			return getRuleContext(RecordFieldDefinitionListContext.class,0);
 		}
 		public TerminalNode RIGHT_BRACE() { return getToken(BallerinaParser.RIGHT_BRACE, 0); }
 		public OpenRecordTypeNameLabelContext(TypeNameContext ctx) { copyFrom(ctx); }
@@ -3513,8 +3513,8 @@ public class BallerinaParser extends Parser {
 		public TerminalNode SEALED() { return getToken(BallerinaParser.SEALED, 0); }
 		public TerminalNode RECORD() { return getToken(BallerinaParser.RECORD, 0); }
 		public TerminalNode LEFT_BRACE() { return getToken(BallerinaParser.LEFT_BRACE, 0); }
-		public FieldDefinitionListContext fieldDefinitionList() {
-			return getRuleContext(FieldDefinitionListContext.class,0);
+		public RecordFieldDefinitionListContext recordFieldDefinitionList() {
+			return getRuleContext(RecordFieldDefinitionListContext.class,0);
 		}
 		public TerminalNode RIGHT_BRACE() { return getToken(BallerinaParser.RIGHT_BRACE, 0); }
 		public SealedRecordTypeNameLabelContext(TypeNameContext ctx) { copyFrom(ctx); }
@@ -3708,7 +3708,7 @@ public class BallerinaParser extends Parser {
 				setState(861);
 				match(LEFT_BRACE);
 				setState(862);
-				fieldDefinitionList();
+				recordFieldDefinitionList();
 				setState(863);
 				match(RIGHT_BRACE);
 				}
@@ -3725,7 +3725,7 @@ public class BallerinaParser extends Parser {
 				setState(867);
 				match(LEFT_BRACE);
 				setState(868);
-				fieldDefinitionList();
+				recordFieldDefinitionList();
 				setState(869);
 				match(RIGHT_BRACE);
 				}
@@ -3833,33 +3833,33 @@ public class BallerinaParser extends Parser {
 		return _localctx;
 	}
 
-	public static class FieldDefinitionListContext extends ParserRuleContext {
+	public static class RecordFieldDefinitionListContext extends ParserRuleContext {
 		public List<FieldDefinitionContext> fieldDefinition() {
 			return getRuleContexts(FieldDefinitionContext.class);
 		}
 		public FieldDefinitionContext fieldDefinition(int i) {
 			return getRuleContext(FieldDefinitionContext.class,i);
 		}
-		public RecordRestDefinitionContext recordRestDefinition() {
-			return getRuleContext(RecordRestDefinitionContext.class,0);
+		public RecordRestFieldDefinitionContext recordRestFieldDefinition() {
+			return getRuleContext(RecordRestFieldDefinitionContext.class,0);
 		}
-		public FieldDefinitionListContext(ParserRuleContext parent, int invokingState) {
+		public RecordFieldDefinitionListContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_fieldDefinitionList; }
+		@Override public int getRuleIndex() { return RULE_recordFieldDefinitionList; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterFieldDefinitionList(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).enterRecordFieldDefinitionList(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitFieldDefinitionList(this);
+			if ( listener instanceof BallerinaParserListener ) ((BallerinaParserListener)listener).exitRecordFieldDefinitionList(this);
 		}
 	}
 
-	public final FieldDefinitionListContext fieldDefinitionList() throws RecognitionException {
-		FieldDefinitionListContext _localctx = new FieldDefinitionListContext(_ctx, getState());
-		enterRule(_localctx, 82, RULE_fieldDefinitionList);
+	public final RecordFieldDefinitionListContext recordFieldDefinitionList() throws RecognitionException {
+		RecordFieldDefinitionListContext _localctx = new RecordFieldDefinitionListContext(_ctx, getState());
+		enterRule(_localctx, 82, RULE_recordFieldDefinitionList);
 		int _la;
 		try {
 			int _alt;
@@ -3886,7 +3886,7 @@ public class BallerinaParser extends Parser {
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << FUNCTION) | (1L << OBJECT) | (1L << RECORD))) != 0) || ((((_la - 71)) & ~0x3f) == 0 && ((1L << (_la - 71)) & ((1L << (TYPE_INT - 71)) | (1L << (TYPE_BYTE - 71)) | (1L << (TYPE_FLOAT - 71)) | (1L << (TYPE_BOOL - 71)) | (1L << (TYPE_STRING - 71)) | (1L << (TYPE_BLOB - 71)) | (1L << (TYPE_MAP - 71)) | (1L << (TYPE_JSON - 71)) | (1L << (TYPE_XML - 71)) | (1L << (TYPE_TABLE - 71)) | (1L << (TYPE_STREAM - 71)) | (1L << (TYPE_ANY - 71)) | (1L << (TYPE_DESC - 71)) | (1L << (TYPE_FUTURE - 71)) | (1L << (SEALED - 71)) | (1L << (LEFT_PARENTHESIS - 71)))) != 0) || _la==Identifier) {
 				{
 				setState(900);
-				recordRestDefinition();
+				recordRestFieldDefinition();
 				}
 			}
 

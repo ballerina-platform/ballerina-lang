@@ -75,7 +75,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangRecordFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
@@ -979,15 +978,12 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
-        BLangExpression expr;
-
         // Process the key-val pairs in the record literal
         recordLiteral.keyValuePairs.forEach(keyValue -> {
             BLangExpression keyExpr = keyValue.key.expr;
             if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef varRef = (BLangSimpleVarRef) keyExpr;
-                BLangLiteral keyLiteral = createStringLiteral(varRef.pos, varRef.variableName.value);
-                keyValue.key.expr = keyLiteral;
+                keyValue.key.expr = createStringLiteral(varRef.pos, varRef.variableName.value);
             } else {
                 keyValue.key.expr = rewriteExpr(keyValue.key.expr);
             }
@@ -995,7 +991,7 @@ public class Desugar extends BLangNodeVisitor {
             keyValue.valueExpr = rewriteExpr(keyValue.valueExpr);
         });
 
-        // Initialize the fields of the record type which weren't assigned values in the previous step
+        BLangExpression expr;
         if (recordLiteral.type.tag == TypeTags.RECORD) {
             expr = new BLangStructLiteral(recordLiteral.keyValuePairs, recordLiteral.type);
         } else if (recordLiteral.type.tag == TypeTags.MAP) {
@@ -1109,7 +1105,7 @@ public class Desugar extends BLangNodeVisitor {
             fieldAccessExpr.expr = rewriteExpr(fieldAccessExpr.expr);
             BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
             BType varRefType = fieldAccessExpr.expr.type;
-            if (varRefType.tag == TypeTags.OBJECT) {
+            if (varRefType.tag == TypeTags.OBJECT || varRefType.tag == TypeTags.RECORD) {
                 if (fieldAccessExpr.symbol instanceof BInvokableSymbol &&
                         ((fieldAccessExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED)) {
                     targetVarRef = new BLangStructFunctionVarRef(fieldAccessExpr.expr,
@@ -1117,14 +1113,6 @@ public class Desugar extends BLangNodeVisitor {
                 } else {
                     targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
                                                                   (BVarSymbol) fieldAccessExpr.symbol);
-                }
-            } else if (varRefType.tag == TypeTags.RECORD) {
-                if (fieldAccessExpr.symbol instanceof BInvokableSymbol &&
-                        ((fieldAccessExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED)) {
-                    targetVarRef = new BLangStructFunctionVarRef(fieldAccessExpr.expr,
-                                                                 (BVarSymbol) fieldAccessExpr.symbol);
-                } else {
-                    targetVarRef = new BLangRecordFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
                 }
             } else if (varRefType.tag == TypeTags.MAP) {
                 targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
@@ -1152,16 +1140,11 @@ public class Desugar extends BLangNodeVisitor {
         indexAccessExpr.indexExpr = rewriteExpr(indexAccessExpr.indexExpr);
         indexAccessExpr.expr = rewriteExpr(indexAccessExpr.expr);
         BType varRefType = indexAccessExpr.expr.type;
-        if (varRefType.tag == TypeTags.OBJECT) {
+        if (varRefType.tag == TypeTags.OBJECT || varRefType.tag == TypeTags.RECORD) {
             targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos,
                                                           indexAccessExpr.expr,
                                                           indexAccessExpr.indexExpr,
                                                           (BVarSymbol) indexAccessExpr.symbol);
-        } else if (varRefType.tag == TypeTags.RECORD) {
-            targetVarRef = new BLangRecordFieldAccessExpr(indexAccessExpr.pos,
-                                                          indexAccessExpr.expr,
-                                                          indexAccessExpr.indexExpr,
-                                                          !indexAccessExpr.type.isNullable());
         } else if (varRefType.tag == TypeTags.MAP) {
             targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos,
                     indexAccessExpr.expr, indexAccessExpr.indexExpr, !indexAccessExpr.type.isNullable());
@@ -1519,11 +1502,6 @@ public class Desugar extends BLangNodeVisitor {
         BType expType = fieldAccessExpr.type;
         fieldAccessExpr.type = symTable.anyType;
         result = addConversionExprIfRequired(fieldAccessExpr, expType);
-    }
-
-    @Override
-    public void visit(BLangRecordFieldAccessExpr fieldAccessExpr) {
-        result = fieldAccessExpr;
     }
 
     @Override
