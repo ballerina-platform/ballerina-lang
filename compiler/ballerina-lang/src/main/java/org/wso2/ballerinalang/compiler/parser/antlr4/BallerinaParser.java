@@ -1462,8 +1462,8 @@ public class BallerinaParser extends Parser {
 		public TerminalNode SEMICOLON() { return getToken(BallerinaParser.SEMICOLON, 0); }
 		public TerminalNode PUBLIC() { return getToken(BallerinaParser.PUBLIC, 0); }
 		public TerminalNode NATIVE() { return getToken(BallerinaParser.NATIVE, 0); }
-		public TypeNameContext typeName() {
-			return getRuleContext(TypeNameContext.class,0);
+		public ValueTypeNameContext valueTypeName() {
+			return getRuleContext(ValueTypeNameContext.class,0);
 		}
 		public TerminalNode DOUBLE_COLON() { return getToken(BallerinaParser.DOUBLE_COLON, 0); }
 		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
@@ -1513,17 +1513,16 @@ public class BallerinaParser extends Parser {
 				setState(559);
 				match(FUNCTION);
 				setState(563);
-				_errHandler.sync(this);
-				switch ( getInterpreter().adaptivePredict(_input,31,_ctx) ) {
-				case 1:
+				_la = _input.LA(1);
+				if (((((_la - 71)) & ~0x3f) == 0 && ((1L << (_la - 71)) & ((1L << (TYPE_INT - 71)) | (1L << (TYPE_BYTE - 71)) | (1L << (TYPE_FLOAT - 71)) | (1L << (TYPE_BOOL - 71)) | (1L << (TYPE_STRING - 71)) | (1L << (TYPE_BLOB - 71)))) != 0)) {
 					{
 					setState(560);
-					typeName(0);
+					valueTypeName();
 					setState(561);
 					match(DOUBLE_COLON);
 					}
-					break;
 				}
+
 				setState(565);
 				callableUnitSignature();
 				setState(568);
@@ -15831,7 +15830,7 @@ public class BallerinaParser extends Parser {
 		"\2\2\u0229\u022a\7\u0082\2\2\u022a\31\3\2\2\2\u022b\u022d\7\5\2\2\u022c"+
 		"\u022b\3\2\2\2\u022c\u022d\3\2\2\2\u022d\u022f\3\2\2\2\u022e\u0230\7\7"+
 		"\2\2\u022f\u022e\3\2\2\2\u022f\u0230\3\2\2\2\u0230\u0231\3\2\2\2\u0231"+
-		"\u0235\7\n\2\2\u0232\u0233\5L\'\2\u0233\u0234\7~\2\2\u0234\u0236\3\2\2"+
+		"\u0235\7\n\2\2\u0232\u0233\5V,\2\u0233\u0234\7~\2\2\u0234\u0236\3\2\2"+
 		"\2\u0235\u0232\3\2\2\2\u0235\u0236\3\2\2\2\u0236\u0237\3\2\2\2\u0237\u023a"+
 		"\5\36\20\2\u0238\u023b\5\30\r\2\u0239\u023b\7|\2\2\u023a\u0238\3\2\2\2"+
 		"\u023a\u0239\3\2\2\2\u023b\u0245\3\2\2\2\u023c\u023f\7\n\2\2\u023d\u023e"+
