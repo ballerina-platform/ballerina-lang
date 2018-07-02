@@ -1,9 +1,9 @@
-type Department sealed record {
+type Department record {
     string dptName;
     Person[] employees;
 };
 
-type Person sealed record {
+type Person record {
     string name = "default first name";
     string lname;
     map adrs;
@@ -12,13 +12,13 @@ type Person sealed record {
     Person? parent;
 };
 
-type Family sealed record {
+type Family record {
     string spouse;
     int noOfChildren;
     string[] children;
 };
 
-type Employee sealed record {
+type Employee record {
     string name = "default first name";
     string lname;
     map address;
@@ -28,7 +28,7 @@ type Employee sealed record {
     string designation;
 };
 
-function testStructOfStruct () returns (string) {
+function testStructOfStruct () returns string {
 
     map address = {"country":"USA", "state":"CA"};
     Person emp1 = {name:"Jack", adrs:address, age:25};
@@ -41,7 +41,7 @@ function testStructOfStruct () returns (string) {
     return country;
 }
 
-function testReturnStructAttributes () returns (string) {
+function testReturnStructAttributes () returns string {
     map address = {"country":"USA", "state":"CA"};
     string[] chldrn = [];
     Family fmly = {children:chldrn};
@@ -55,7 +55,7 @@ function testReturnStructAttributes () returns (string) {
     return dpt.employees[0].family.children[0];
 }
 
-function testExpressionAsIndex () returns (string) {
+function testExpressionAsIndex () returns string {
     Family family = {spouse:"Kate"};
     int a = 2;
     int b = 5;
@@ -63,7 +63,7 @@ function testExpressionAsIndex () returns (string) {
     return family.children[a * b - 8];
 }
 
-function testStructExpressionAsIndex () returns (string) {
+function testStructExpressionAsIndex () returns string {
     string country;
     Department dpt = {};
     Family fmly = {};
@@ -94,12 +94,12 @@ function testNestedFieldDefaultVal () returns (string, string, int) {
     return (dpt.employees[0].name, dpt.employees[0].lname, dpt.employees[0].age);
 }
 
-function testNestedStructInit () returns (Person) {
+function testNestedStructInit () returns Person {
     Person p1 = {name:"aaa", age:25, parent:{name:"bbb", age:50}};
     return p1;
 }
 
-type NegativeValTest sealed record {
+type NegativeValTest record {
     int negativeInt = -9;
     int negativeSpaceInt = -8;
     float negativeFloat = -88.234;
@@ -116,7 +116,7 @@ function getStruct () returns (Person) {
     return p1;
 }
 
-function testGetNonInitAttribute () returns (string) {
+function testGetNonInitAttribute () returns string {
     Person emp1 = {};
     Person emp2 = {};
     Person[] emps = [emp1, emp2];
@@ -124,12 +124,12 @@ function testGetNonInitAttribute () returns (string) {
     return dpt.employees[0].family.children[0];
 }
 
-function testGetNonInitArrayAttribute () returns (string) {
+function testGetNonInitArrayAttribute () returns string {
     Department dpt = {dptName:"HR"};
     return dpt.employees[0].family.children[0];
 }
 
-function testGetNonInitLastAttribute () returns (Person) {
+function testGetNonInitLastAttribute () returns Person {
     Department dpt = {};
     return dpt.employees[0];
 }
@@ -144,8 +144,127 @@ function testSetFieldOfNonInitStruct () {
     dpt.dptName = "HR";
 }
 
-function testStructWithRecordKeyword() returns Employee {
-    map address = {"country":"USA", "state":"CA"};
-    Employee emp = {name:"John", lname:"Doe", address:address, age:25, designation:"Software Engineer"};
-    return emp;
+function testAdditionOfARestField() returns Person {
+    Person p = {name:"Foo", mname:"Bar", age:25, height: 5.9};
+    return p;
+}
+
+type Person2 record {
+    string name,
+    int age,
+    string...
+};
+
+function testStringRestField() returns Person2 {
+    Person2 p = {name:"Foo", age:25, lname: "Bar", address:"Colombo"};
+    return p;
+}
+
+type Person3 record {
+    string name,
+    int age,
+    int...
+};
+
+function testIntRestField() returns Person3 {
+    Person3 p = {name:"Foo", age:25, year: 3};
+    return p;
+}
+
+type Person4 record {
+    string name,
+    int age,
+    float...
+};
+
+function testFloatRestField() returns Person4 {
+    Person4 p = {name:"Foo", age:25, height: 5.9};
+    return p;
+}
+
+type Person5 record {
+    string name,
+    int age,
+    boolean...
+};
+
+function testBooleanRestField() returns Person5 {
+    Person5 p = {name:"Foo", age:25, isEmployed: true};
+    return p;
+}
+
+type Person6 record {
+    string name,
+    int age,
+    map...
+};
+
+function testMapRestField() returns Person6 {
+    Person6 p = {name:"Foo", age:25, misc:{lname:"Bar", height:5.9, isEmployed:true}};
+    return p;
+}
+
+type Person7 record {
+    string name,
+    int age,
+    (float|string|boolean)...
+};
+
+function testUnionRestField() returns Person7 {
+    Person7 p = {name:"Foo", age:25, lname:"Bar", height:5.9, isEmployed:true};
+    return p;
+}
+
+type Person8 record {
+    string name,
+    int age,
+    ()...
+};
+
+function testNilRestField() returns Person8 {
+    Person8 p = {name:"Foo", age:25, lname:()};
+    return p;
+}
+
+type Person9 record {
+    string name,
+    int age,
+    Department...
+};
+
+function testRecordRestField() returns Person9 {
+    Person9 p = {name:"Foo", age:25, dpt:{dptName:"Engineering", employees:[]}};
+    return p;
+}
+
+type Animal object {
+    public {
+        string kind;
+        string name;
+    }
+
+    new(name, kind){
+    }
+};
+
+type Person10 record {
+    string name,
+    int age,
+    Animal...
+};
+
+function testObjectRestField() returns Person10 {
+    Person10 p = {name:"Foo", age:25, pet:new Animal("Miaw", "Cat")};
+    return p;
+}
+
+type Person11 record {
+    string name,
+    int age,
+    (float, string, Animal)...
+};
+
+function testTupleRestField() returns Person11 {
+    Person11 p = {name:"Foo", age:25, misc:(5.9, "Bar", new Animal("Miaw", "Cat"))};
+    return p;
 }
