@@ -27,7 +27,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.util.StringUtils;
-import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
@@ -161,7 +161,7 @@ public class RequestNativeFunctionSuccessTest {
         BValue[] returnVals = BRunUtil.invokeStateful(result, "testGetBinaryPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertEquals(returnVals[0].stringValue(), payload);
+        Assert.assertEquals(new String(((BByteArray) returnVals[0]).getBytes()), payload);
     }
 
     @Test(description = "Enable this once the getContentLength() is added back in http package", enabled = false)
@@ -574,7 +574,7 @@ public class RequestNativeFunctionSuccessTest {
 
     @Test(description = "Test setBinaryPayload() function")
     public void testSetBinaryPayload() {
-        BBlob value = new BBlob("Ballerina".getBytes());
+        BByteArray value = new BByteArray("Ballerina".getBytes());
         BValue[] inputArg = { value };
         BValue[] returnVals = BRunUtil.invokeStateful(result, "testSetBinaryPayload", inputArg);
 

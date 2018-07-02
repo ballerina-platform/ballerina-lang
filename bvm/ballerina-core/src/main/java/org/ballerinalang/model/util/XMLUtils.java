@@ -32,7 +32,7 @@ import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.OMXMLBuilderFactory;
 import org.apache.axiom.om.impl.dom.TextImpl;
 import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
-import org.apache.axiom.om.util.AXIOMUtil;
+import org.apache.axiom.om.util.StAXParserConfiguration;
 import org.ballerinalang.model.TableOMDataSource;
 import org.ballerinalang.model.util.JsonNode.Type;
 import org.ballerinalang.model.values.BJSON;
@@ -46,6 +46,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -66,6 +67,7 @@ public class XMLUtils {
     private static final String XML_DCLR_START = "<?xml";
 
     private static final OMFactory OM_FACTORY = OMAbstractFactory.getOMFactory();
+    public static final StAXParserConfiguration STAX_PARSER_CONFIGURATION = StAXParserConfiguration.STANDALONE;
 
     /**
      * Create a XML item from string literal.
@@ -89,7 +91,7 @@ public class XMLUtils {
             // Here we add a dummy enclosing tag, and send to AXIOM to parse the XML.
             // This is to overcome the issue of axiom not allowing to parse xml-comments,
             // xml-text nodes, and pi nodes, without having an enclosing xml-element node.
-            OMElement omElement = AXIOMUtil.stringToOM("<root>" + xmlStr + "</root>");
+            OMElement omElement = stringToOM("<root>" + xmlStr + "</root>");
             Iterator<OMNode> children = omElement.getChildren();
             OMNode omNode = null;
             if (children.hasNext()) {
@@ -127,7 +129,7 @@ public class XMLUtils {
         BRefValueArray elementsSeq = new BRefValueArray();
         OMDocument doc;
         try {
-            doc = OMXMLBuilderFactory.createOMBuilder(xmlStream).getDocument();
+            doc = OMXMLBuilderFactory.createOMBuilder(STAX_PARSER_CONFIGURATION, xmlStream).getDocument();
             Iterator<OMNode> docChildItr = doc.getChildren();
             int i = 0;
             while (docChildItr.hasNext()) {
@@ -153,7 +155,7 @@ public class XMLUtils {
         BRefValueArray elementsSeq = new BRefValueArray();
         OMDocument doc;
         try {
-            doc = OMXMLBuilderFactory.createOMBuilder(xmlStream, charset).getDocument();
+            doc = OMXMLBuilderFactory.createOMBuilder(STAX_PARSER_CONFIGURATION, xmlStream, charset).getDocument();
             Iterator<OMNode> docChildItr = doc.getChildren();
             int index = 0;
             while (docChildItr.hasNext()) {
@@ -178,7 +180,7 @@ public class XMLUtils {
         BRefValueArray elementsSeq = new BRefValueArray();
         OMDocument doc;
         try {
-            doc = OMXMLBuilderFactory.createOMBuilder(reader).getDocument();
+            doc = OMXMLBuilderFactory.createOMBuilder(STAX_PARSER_CONFIGURATION, reader).getDocument();
             Iterator<OMNode> docChildItr = doc.getChildren();
             int i = 0;
             while (docChildItr.hasNext()) {
@@ -654,5 +656,31 @@ public class XMLUtils {
             qname = new QName(namespaceUri, localName);
         }
         return qname;
+    }
+
+    /**
+     * Create an OMElement from an XML fragment given as a string.
+     * Generously borrowed from Apache Axiom (org.apache.axiom.om.util.AXIOMUtil).
+     *
+     * @param xmlFragment the well-formed XML fragment
+     * @return The OMElement created out of the string XML fragment.
+     * @throws XMLStreamException when unexpected processing error occur while parsing.
+     */
+    public static OMElement stringToOM(String xmlFragment) throws XMLStreamException {
+        return stringToOM(OMAbstractFactory.getOMFactory(), xmlFragment);
+    }
+
+    /**
+     * Create an OMElement from an XML fragment given as a string.
+     * Generously borrowed and improved from Apache Axiom (org.apache.axiom.om.util.AXIOMUtil).
+     *
+     * @param omFactory the factory used to build the object model
+     * @param xmlFragment the well-formed XML fragment
+     * @return The OMElement created out of the string XML fragment.
+     * @throws XMLStreamException when unexpected processing error occur while parsing.
+     */
+    private static OMElement stringToOM(OMFactory omFactory, String xmlFragment) throws XMLStreamException {
+        return xmlFragment != null ? OMXMLBuilderFactory.createOMBuilder(omFactory, STAX_PARSER_CONFIGURATION,
+                new StringReader(xmlFragment)).getDocumentElement() : null;
     }
 }

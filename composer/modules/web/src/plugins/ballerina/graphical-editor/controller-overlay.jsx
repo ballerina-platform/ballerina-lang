@@ -18,15 +18,17 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import HoverItemVisiter from '../visitors/hover-item-visitor';
+import HoverItemVisitor from '../visitors/hover-item-visitor';
+import NodeDefaultControllerVisitor from '../visitors/node-default-controller-visitor';
+import ToolsOverlay from './controller-utils/tools-overlay';
 
 // require all react components
-function requireAll(requireContext) {
+function requireAll(requireContext, type) {
     const comp = {};
     requireContext.keys().forEach((item) => {
         const module = requireContext(item);
-        if (module.default) {
-            comp[module.default.name] = module.default.regions;
+        if (module.default && module.default[type]) {
+            comp[module.default.name] = module.default[type];
         }
     });
     return comp;
@@ -42,7 +44,8 @@ class ControllerOverlay extends React.Component {
 
     constructor() {
         super();
-        this.ctrlComponents = requireAll(require.context('./controllers', true, /\.jsx$/));
+        this.regionCtrlComponents = requireAll(require.context('./controllers', true, /\.jsx$/), 'regions');
+        this.defaultCtrlComponents = requireAll(require.context('./controllers', true, /\.jsx$/), 'defaults');
         this.onMouseEnter = this.onMouseEnter.bind(this);
         this.onMouseLeave = this.onMouseLeave.bind(this);
     }
@@ -85,27 +88,35 @@ class ControllerOverlay extends React.Component {
      * @memberof ControllerOverlay
      */
     render() {
-        const hoverItemVisiter = new HoverItemVisiter();
-        this.props.model.accept(hoverItemVisiter);
-        const nodes = hoverItemVisiter.getHoveredItems();
+        const hoverItemVisitor = new HoverItemVisitor();
+        this.props.model.accept(hoverItemVisitor);
+        const nodes = hoverItemVisitor.getHoveredItems();
 
+        const nodeDefaultControllerVisitor = new NodeDefaultControllerVisitor();
+        nodeDefaultControllerVisitor.setNodeDefaultControllers(this.defaultCtrlComponents);
+        this.props.model.accept(nodeDefaultControllerVisitor);
+        const defaultControllerNodes = nodeDefaultControllerVisitor.getNodeDefaultcontrollers();
         nodes.forEach((node) => {
             const region = node.viewState.hoveredRegion;
-            const componentWithRegions = this.ctrlComponents[`${node.kind}`];
+            const componentWithRegions = this.regionCtrlComponents[`${node.kind}`];
             if (!componentWithRegions) {
                 console.warn(`no regions found for ${node.kind}`);
             } else {
-                const component = this.ctrlComponents[`${node.kind}`][region];
+                const component = this.regionCtrlComponents[`${node.kind}`][region];
                 if (component) {
                     const element = React.createElement(component, {
                         model: node,
                     }, null);
-    
+
                     this.renderControllers(node, element, region);
                 }
             }
         });
-        return null;
+        return (
+            <ToolsOverlay>
+                {defaultControllerNodes}
+            </ToolsOverlay>
+        );
     }
 }
 
