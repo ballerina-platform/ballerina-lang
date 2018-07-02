@@ -116,34 +116,77 @@ function testByteBinaryNotEqualOperation(byte a, byte b, byte c) returns (boolea
     return (b1, b2);
 }
 
-function testByteOrIntMatch1() returns byte|int {
-    match byteOrInt(true) {
+function testByteOrIntMatch1() returns byte|int|string[]|Foo {
+    match byteOrInt(1) {
+        byte c => {
+            return c;
+        }
+
+        int b => {
+            return b;
+        }
+
+        string[] s => {
+            return s;
+        }
+
+        Foo foo => {
+            return foo;
+        }
+    }
+}
+
+function testByteOrIntMatch2() returns byte|int|string[]|Foo  {
+    match byteOrInt(2) {
         byte c => {
             return c;
         }
         int b => {
             return b;
         }
-    }
-}
-
-function testByteOrIntMatch2() returns byte|int {
-    match byteOrInt(false) {
-        byte c => {
-            return c;
+        string[] s => {
+            return s;
         }
-        int b => {
-            return b;
+
+        Foo foo => {
+            return foo;
         }
     }
 }
 
-function byteOrInt(boolean boo) returns (int|byte) {
-    if (boo) {
+function testByteOrIntMatch3() returns int {
+    int x = byteOrInt(1) but {  byte => 456,
+                                int => -123,
+                                string[] => 789,
+                                Foo => 8765
+                             };
+    return x;
+}
+
+function testByteOrIntMatch4() returns int {
+    int x = byteOrInt(2) but {  byte => 456,
+                                int => -123,
+                                string[] => 789,
+                                Foo => 8765
+                             };
+    return x;
+}
+
+function byteOrInt(int a) returns byte|int|string[]|Foo {
+    if (a == 1) {
         return check <byte>12;
+    } else if (a == 2) {
+        return 266;
+    } else if (a == 3) {
+        return ["DD", "GG"];
     }
-    return 266;
+    Foo foo = {};
+    return foo;
 }
+
+type Foo record {
+    string name;
+};
 
 function testWorkerWithByteVariable() {
   worker w1 {

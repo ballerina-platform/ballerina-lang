@@ -58,6 +58,20 @@ function testUnreachableByteMatchStmt2() {
     }
 }
 
+function testUnreachableByteMatchStmt3() {
+    int a = foo(2) but {    int => 333,
+                            byte => 777,
+                            string[] => 666
+                        };
+}
+
+function testUnreachableByteMatchStmt4() {
+    int a = foo(2) but {    int => 333,
+                            string[] => 666,
+                            byte => 777
+                        };
+}
+
 function foo (int a) returns (byte|int|string[]) {
     if (a == 1) {
         return check <byte>12;

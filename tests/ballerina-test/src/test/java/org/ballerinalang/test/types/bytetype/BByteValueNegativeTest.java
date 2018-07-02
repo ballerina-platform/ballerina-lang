@@ -42,7 +42,7 @@ public class BByteValueNegativeTest {
     @Test(description = "Test byte value negative")
     public void testBlobValueNegative() {
         CompileResult result = BCompileUtil.compile("test-src/types/byte/byte-value-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 23);
+        Assert.assertEquals(result.getErrorCount(), 25);
         String msg1 = "incompatible types: expected 'byte', found 'int'";
         String msg2 = "incompatible types: expected 'byte', found 'float'";
         String msg3 = "incompatible types: expected 'byte', found 'string'";
@@ -72,6 +72,8 @@ public class BByteValueNegativeTest {
         BAssertUtil.validateError(result, 20, msg4 , 30, 15);
         BAssertUtil.validateError(result, 21, msg5, 38, 9);
         BAssertUtil.validateError(result, 22, msg6, 55, 9);
+        BAssertUtil.validateError(result, 23, msg5, 63, 29);
+        BAssertUtil.validateError(result, 24, msg6, 71, 29);
     }
 
     @Test(description = "Test byte shift operators negative")
