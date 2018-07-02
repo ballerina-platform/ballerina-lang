@@ -35,7 +35,3 @@ function testTableLiteralDataWithInit() returns (int) {
     int count = t1.count();
     return count;
 }
-
-
-
-
