@@ -221,6 +221,10 @@ public class Types {
             return isAssignable(((BStreamType) source).constraint, ((BStreamType) target).constraint);
         }
 
+        if (target.tag == TypeTags.INT && source.tag == TypeTags.BYTE) {
+            return true;
+        }
+
         BSymbol symbol = symResolver.resolveImplicitConversionOp(source, target);
         if (symbol != symTable.notFoundSymbol) {
             return true;

@@ -29,3 +29,40 @@ function invalidByteLiteral() {
     int x5 = 12345;
     byte x6 = <byte> x5;
 }
+
+function testUnreachableByteMatchStmt1() {
+    match foo(2) {
+        int b => {
+            // do nothing
+        }
+        byte c => {
+            // do nothing
+        }
+        string[] s => {
+            // do nothing
+        }
+    }
+}
+
+function testUnreachableByteMatchStmt2() {
+    match foo(2) {
+        int b => {
+            // do nothing
+        }
+        string[] s => {
+            // do nothing
+        }
+        byte c => {
+            // do nothing
+        }
+    }
+}
+
+function foo (int a) returns (byte|int|string[]) {
+    if (a == 1) {
+        return check <byte>12;
+    } else if (a == 3) {
+        return 267;
+    }
+    return ["ba", "le"];
+}

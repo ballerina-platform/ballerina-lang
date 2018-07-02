@@ -42,11 +42,13 @@ public class BByteValueNegativeTest {
     @Test(description = "Test byte value negative")
     public void testBlobValueNegative() {
         CompileResult result = BCompileUtil.compile("test-src/types/byte/byte-value-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 21);
+        Assert.assertEquals(result.getErrorCount(), 23);
         String msg1 = "incompatible types: expected 'byte', found 'int'";
         String msg2 = "incompatible types: expected 'byte', found 'float'";
         String msg3 = "incompatible types: expected 'byte', found 'string'";
         String msg4 = "incompatible types: expected 'byte', found 'byte|error'";
+        String msg5 = "pattern will not be matched";
+        String msg6 = "unreachable pattern: preceding patterns are too general or the pattern ordering is not correct";
         BAssertUtil.validateError(result, 0, msg1 , 2, 15);
         BAssertUtil.validateError(result, 1, msg1 , 3, 15);
         BAssertUtil.validateError(result, 2, msg1 , 4, 15);
@@ -68,6 +70,8 @@ public class BByteValueNegativeTest {
         BAssertUtil.validateError(result, 18, msg4 , 24, 15);
         BAssertUtil.validateError(result, 19, msg4 , 27, 15);
         BAssertUtil.validateError(result, 20, msg4 , 30, 15);
+        BAssertUtil.validateError(result, 21, msg5, 38, 9);
+        BAssertUtil.validateError(result, 22, msg6, 55, 9);
     }
 
     @Test(description = "Test byte shift operators negative")
