@@ -93,7 +93,7 @@ public class BLangFunctions {
      * @return return values of the function
      */
     public static BValue[] invokeEntrypointCallable(ProgramFile bLangProgram, String packageName, String callableName,
-                                     BValue[] args) {
+                                                    BValue[] args) {
         PackageInfo packageInfo = bLangProgram.getPackageInfo(packageName);
         FunctionInfo functionInfo = packageInfo.getFunctionInfo(callableName);
         if (functionInfo == null) {
@@ -260,7 +260,7 @@ public class BLangFunctions {
                 InterruptibleNativeCallableUnit interruptibleNativeCallableUnit
                         = (InterruptibleNativeCallableUnit) nativeCallable;
                 Object o = parentCtx.globalProps.get(PersistenceUtils.INSTANCE_ID);
-                if (o != null && o instanceof String) {
+                if (o instanceof String) {
                     String instanceId = (String) o;
                     WorkerExecutionContext runnableContext = PersistenceUtils.getMainPackageContext(parentCtx);
                     if (interruptibleNativeCallableUnit.persistBeforeOperation()) {
@@ -418,7 +418,8 @@ public class BLangFunctions {
                 return null;
             }
         } catch (BLangNullReferenceException e) {
-            return BLangVMUtils.handleNativeInvocationError(parentCtx, BLangVMErrors.createNullRefException(parentCtx));
+            return BLangVMUtils.handleNativeInvocationError(parentCtx,
+                                                            BLangVMErrors.createNullRefException(parentCtx));
         } catch (Throwable e) {
             return BLangVMUtils.handleNativeInvocationError(parentCtx,
                     BLangVMErrors.createError(parentCtx, e.getMessage()));

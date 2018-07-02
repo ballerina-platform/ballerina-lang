@@ -101,7 +101,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         Resource balResource = httpResource.getBalResource();
 
         Optional<ObserverContext> observerContext = ObservabilityUtils.startServerObservation(SERVER_CONNECTOR_HTTP,
-                balResource.getServiceName(), balResource.getName(), null);
+                httpResource.getParentService().getBallerinaService().getServiceInfo(), balResource.getName(), null);
         observerContext.ifPresent(ctx -> {
             Map<String, String> httpHeaders = new HashMap<>();
             inboundMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));

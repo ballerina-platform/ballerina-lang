@@ -6,10 +6,26 @@
   "source": "resource/source/actionInvocationSuggestion2.bal",
   "items": [
     {
+      "label":"continue()(error?)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"121",
+      "insertText":"continue()",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"redirect(http:Response response, http:RedirectCode code, string[] locations)(error?)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"121",
+      "insertText":"redirect(${1:response}, ${2:code}, ${3:locations})",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"new()",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"119",
+      "sortText":"121",
       "insertText":"new()",
       "insertTextFormat":"Snippet"
     },
@@ -17,7 +33,7 @@
       "label":"respond(ballerina/http:Response|string|xml|json|blob|ballerina/io:ByteChannel|ballerina/mime:Entity[]? message)(error?)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"120",
+      "sortText":"121",
       "insertText":"respond(${1:message})",
       "insertTextFormat":"Snippet"
     },
@@ -25,7 +41,7 @@
       "label":"promise(http:PushPromise promise)(error?)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"120",
+      "sortText":"121",
       "insertText":"promise(${1:promise})",
       "insertTextFormat":"Snippet"
     },
@@ -33,7 +49,7 @@
       "label":"pushPromisedResponse(http:PushPromise promise, http:Response response)(error?)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"120",
+      "sortText":"121",
       "insertText":"pushPromisedResponse(${1:promise}, ${2:response})",
       "insertTextFormat":"Snippet"
     },
@@ -41,7 +57,7 @@
       "label":"acceptWebSocketUpgrade(map headers)(ballerina/http:WebSocketListener)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"120",
+      "sortText":"121",
       "insertText":"acceptWebSocketUpgrade(${1:headers})",
       "insertTextFormat":"Snippet"
     },
@@ -49,24 +65,8 @@
       "label":"cancelWebSocketUpgrade(int status, string reason)(error?)",
       "kind":"Function",
       "detail":"Function",
-      "sortText":"120",
+      "sortText":"121",
       "insertText":"cancelWebSocketUpgrade(${1:status}, ${2:reason})",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"continue()(error?)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"continue()",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"redirect(http:Response response, http:RedirectCode code, string locations)(error?)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"redirect(${1:response}, ${2:code}, ${3:locations})",
       "insertTextFormat":"Snippet"
     }
   ]

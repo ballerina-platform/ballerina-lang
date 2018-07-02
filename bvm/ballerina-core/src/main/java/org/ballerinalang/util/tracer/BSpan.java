@@ -46,7 +46,7 @@ public class BSpan {
      */
     private Map<String, String> properties;
     /**
-     * {@link Map} of tags, which will get injected to spans.
+     * {@link Map} of tags, which will get injected to span.
      */
     private Map<String, String> tags;
     /**
@@ -62,11 +62,11 @@ public class BSpan {
      */
     private ObserverContext observerContext = null;
     /**
-     * Map of spans belongs to each open tracer.
+     * Open tracer specific span.
      */
-    private Map<String, Span> spans;
+    private Span span;
 
-    BSpan(ObserverContext observerContext, boolean isClientContext) {
+    public BSpan(ObserverContext observerContext, boolean isClientContext) {
         this.properties = new HashMap<>();
         this.tags = new HashMap<>();
         this.observerContext = observerContext;
@@ -94,8 +94,8 @@ public class BSpan {
     }
 
     public void addTags(Map<String, String> tags) {
-        if (spans != null) {
-            //span has started, there for add tags to the span.
+        if (span != null) {
+            //span has started, therefore add tags to the span.
             manager.addTags(this, tags);
         } else {
             //otherwise keep the tags in a map, and add it once
@@ -142,16 +142,16 @@ public class BSpan {
         return tags;
     }
 
-    public Map<String, Span> getSpans() {
-        return spans;
+    public Span getSpan() {
+        return span;
     }
 
-    public void setSpans(Map<String, Span> spans) {
-        this.spans = spans;
+    public void setSpan(Span span) {
+        this.span = span;
     }
 
-    public Map<String, String> getTraceContext() {
-        return manager.extractTraceContext(spans, connectorName);
+    public Map<String, String> getTraceContext(String headerName) {
+        return manager.extractTraceContext(span, connectorName, headerName);
     }
 
     private BSpan getParentBSpan() {
