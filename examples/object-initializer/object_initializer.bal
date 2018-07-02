@@ -2,16 +2,12 @@ import ballerina/io;
 
 // Defines an object called 'Person'. It has a constructor that can be used to initialize the object. You can directly refer to object fields as constructor params.
 type Person object {
-    public {
-        int age,
-        string name,
-        string fullName,
-    }
+    public int age,
+    public string name,
+    public string fullName,
 
-    private {
-        string email = "default@abc.com",
-        int[] marks,
-    }
+    private string email = "default@abc.com",
+    private int[] marks,
 
     new(age, name = "John", string firstname,
         string lastname = "Doe", int... scores) {

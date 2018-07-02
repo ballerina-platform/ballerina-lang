@@ -18,10 +18,8 @@ documentation {
 }
 public type DummyObject object {
 
-    public {
-        string fieldOne;
-        string fieldTwo;
-    }
+    public string fieldOne;
+    public string fieldTwo;
 
     // This is the documentation attachment for function `doThatOnObject`. You may use Markdown syntax to style the text in these descriptions.
     documentation {
