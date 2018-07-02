@@ -65,11 +65,11 @@ paths to Ballerina files which does not belong to a package.
  DEFAULT value is none.
  Example: `<packageFilter>org.ballerinalang.abc.a,org.ballerinalang.xyz.x</packageFilter>`
 
-* `generateToc`: Generate table of content for package(s).
+* `generateTOC`: Generate table of content for package(s).
 
  OPTIONAL property.
  DEFAULT value is false.
- Example: `<generateToc>false</generateToc>`
+ Example: `<generateTOC>false</generateTOC>`
 
 * `debugDocerina`: Enable debug level logs.
 

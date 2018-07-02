@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -89,8 +89,8 @@ public class DocerinaMojo extends AbstractMojo {
     /**
      * Generates the table of content file for the package.
      */
-    @Parameter(property = "generateToc", required = false, defaultValue = "false")
-    private boolean generateToc;
+    @Parameter(property = "generateTOC", required = false, defaultValue = "false")
+    private boolean generateTOC;
 
     /**
      * enable debug level logs.
@@ -112,7 +112,7 @@ public class DocerinaMojo extends AbstractMojo {
             System.setProperty(BallerinaDocConstants.ORG_NAME, orgName);
         }
         
-        ConfigRegistry.getInstance().addConfiguration(BallerinaDocConstants.GENERATE_TOC, generateToc);
+        ConfigRegistry.getInstance().addConfiguration(BallerinaDocConstants.GENERATE_TOC, generateTOC);
 
         Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
         List<String> sources;
