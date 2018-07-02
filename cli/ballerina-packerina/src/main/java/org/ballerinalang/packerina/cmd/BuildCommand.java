@@ -53,6 +53,9 @@ public class BuildCommand implements BLauncherCmd {
     @Parameter(names = {"--lockEnabled"})
     private boolean lockEnabled;
 
+    @Parameter(names = {"--skiptests"})
+    private boolean skiptests;
+
     @Parameter(arity = 1)
     private List<String> argList;
 
@@ -77,7 +80,7 @@ public class BuildCommand implements BLauncherCmd {
         Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
         if (argList == null || argList.size() == 0) {
             // ballerina build
-            BuilderUtils.compileAndWrite(sourceRootPath, offline, lockEnabled);
+            BuilderUtils.compileWithTestsAndWrite(sourceRootPath, offline, lockEnabled, skiptests);
         } else {
             // ballerina build pkgName [-o outputFileName]
             String targetFileName;
@@ -91,10 +94,9 @@ public class BuildCommand implements BLauncherCmd {
                 targetFileName = pkgName;
             }
 
-            BuilderUtils.compileAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg, offline,
-                                         lockEnabled);
+            BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg, offline,
+                                                  lockEnabled, skiptests);
         }
-
         Runtime.getRuntime().exit(0);
     }
 

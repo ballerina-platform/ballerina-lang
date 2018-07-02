@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -206,7 +207,7 @@ public class TableLiteralTest {
     @Test(priority = 1)
     public void testTableWithBlobDataToStruct() {
         BValue[] returns = BRunUtil.invoke(result, "testTableWithBlobDataToStruct");
-        Assert.assertEquals((returns[0]).stringValue(), "Sample Text");
+        Assert.assertEquals(new String(((BByteArray) returns[0]).getBytes()), "Sample Text");
     }
 
     @Test(priority = 1)

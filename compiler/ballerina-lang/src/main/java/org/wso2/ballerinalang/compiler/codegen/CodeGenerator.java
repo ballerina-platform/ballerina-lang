@@ -45,7 +45,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -83,7 +82,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttrib
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangRecordFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
@@ -101,6 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
@@ -223,12 +222,10 @@ import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
@@ -731,9 +728,9 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStructLiteral structLiteral) {
-        BRecordTypeSymbol recordSymbol = (BRecordTypeSymbol) structLiteral.type.tsymbol;
-        int pkgCPIndex = addPackageRefCPEntry(currentPkgInfo, recordSymbol.pkgID);
-        int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, recordSymbol.name.value);
+        BRecordTypeSymbol structSymbol = (BRecordTypeSymbol) structLiteral.type.tsymbol;
+        int pkgCPIndex = addPackageRefCPEntry(currentPkgInfo, structSymbol.pkgID);
+        int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
         StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
         Operand structCPIndex = getOperand(currentPkgInfo.addCPEntry(structureRefCPEntry));
 
@@ -742,8 +739,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
 
         // Invoke the struct default values init function here.
-        if (recordSymbol.defaultsValuesInitFunc != null) {
-            int funcRefCPIndex = getFuncRefCPIndex(recordSymbol.defaultsValuesInitFunc.symbol);
+        if (structSymbol.defaultsValuesInitFunc != null) {
+            int funcRefCPIndex = getFuncRefCPIndex(structSymbol.defaultsValuesInitFunc.symbol);
             // call funcRefCPIndex 1 structRegIndex 0
             Operand[] operands = new Operand[5];
             operands[0] = getOperand(funcRefCPIndex);
@@ -767,27 +764,13 @@ public class CodeGenerator extends BLangNodeVisitor {
             emit(InstructionCodes.CALL, operands);
         }
 
-        BRecordType recordType = (BRecordType) structLiteral.type;
-        List<BField> recordFields = ((BRecordType) structLiteral.type).fields;
-        Set<String> fieldNames = recordFields.stream()
-                                            .map(f -> f.getName().value)
-                                            .collect(Collectors.toCollection(HashSet::new));
-
-        // Generate code for the record literal.
+        // Generate code the struct literal.
         for (BLangRecordKeyValue keyValue : structLiteral.keyValuePairs) {
-            BLangLiteral keyExpr = (BLangLiteral) keyValue.key.expr;
-            genNode(keyExpr, this.env);
+            BLangRecordKey key = keyValue.key;
+            genNode(key.expr, this.env);
 
-            BLangExpression valueExpr = keyValue.valueExpr;
-            genNode(valueExpr, this.env);
-
-            int opcode;
-            if (fieldNames.contains(keyExpr.value)) {
-                opcode = getOpcode(valueExpr.type.tag, InstructionCodes.IFIELDSTORE);
-            } else {
-                opcode = getOpcode(recordType.restFieldType.tag, InstructionCodes.IFIELDSTORE);
-            }
-            emit(opcode, structRegIndex, keyExpr.regIndex, keyValue.valueExpr.regIndex);
+            genNode(keyValue.valueExpr, this.env);
+            storeStructField(keyValue.valueExpr, structRegIndex, key.expr.regIndex);
         }
     }
 
@@ -830,14 +813,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         // the connector reference must be stored in the current reference register index.
         Operand varRegIndex = getOperand(0);
         if (varAssignment) {
-            int opcode = getOpcode(fieldVarRef.type.tag, InstructionCodes.IFIELDSTORE);
-            emit(opcode, varRegIndex, fieldNameRegIndex, fieldVarRef.regIndex);
+            storeStructField(fieldVarRef, varRegIndex, fieldNameRegIndex);
             return;
         }
 
-        int opcode = getOpcode(fieldVarRef.type.tag, InstructionCodes.IFIELDLOAD);
-        RegIndex exprRegIndex = calcAndGetExprRegIndex(fieldVarRef);
-        emit(opcode, varRegIndex, fieldNameRegIndex, exprRegIndex);
+        loadStructField(fieldVarRef, varRegIndex, fieldNameRegIndex);
     }
 
     @Override
@@ -874,44 +854,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRecordFieldAccessExpr fieldAccessExpr) {
-        boolean variableStore = this.varAssignment;
-        this.varAssignment = false;
-
-        genNode(fieldAccessExpr.expr, this.env);
-        Operand varRefRegIndex = fieldAccessExpr.expr.regIndex;
-
-        genNode(fieldAccessExpr.indexExpr, this.env);
-        Operand keyRegIndex = fieldAccessExpr.indexExpr.regIndex;
-
-        BRecordType recordType = (BRecordType) fieldAccessExpr.expr.type;
-        Map<String, BField> fieldsMap = recordType.fields.stream()
-                .collect(Collectors.toMap(fKey -> fKey.name.value, field -> field));
-
-        BLangLiteral indexExpr = (BLangLiteral) fieldAccessExpr.indexExpr;
-        int opcode;
-        if (variableStore) {
-            if (fieldsMap.containsKey(indexExpr.value)) {
-                BField field = fieldsMap.get(indexExpr.value);
-                opcode = getOpcode(field.type.tag, InstructionCodes.IFIELDSTORE);
-            } else {
-                opcode = getOpcode(recordType.restFieldType.tag, InstructionCodes.IFIELDSTORE);
-            }
-            emit(opcode, varRefRegIndex, keyRegIndex, fieldAccessExpr.regIndex);
-        } else {
-            if (fieldsMap.containsKey(indexExpr.value)) {
-                BField field = fieldsMap.get(indexExpr.value);
-                opcode = getOpcode(field.type.tag, InstructionCodes.IFIELDLOAD);
-            } else {
-                opcode = getOpcode(recordType.restFieldType.tag, InstructionCodes.IFIELDLOAD);
-            }
-            emit(opcode, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(fieldAccessExpr));
-        }
-
-        this.varAssignment = variableStore;
-    }
-
-    @Override
     public void visit(BLangStructFieldAccessExpr fieldAccessExpr) {
         boolean variableStore = this.varAssignment;
         this.varAssignment = false;
@@ -922,13 +864,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(fieldAccessExpr.indexExpr, this.env);
         Operand keyRegIndex = fieldAccessExpr.indexExpr.regIndex;
 
-        int opcode;
         if (variableStore) {
-            opcode = getOpcode(fieldAccessExpr.symbol.type.tag, InstructionCodes.IFIELDSTORE);
-            emit(opcode, varRefRegIndex, keyRegIndex, fieldAccessExpr.regIndex);
+            storeStructField(fieldAccessExpr, varRefRegIndex, keyRegIndex);
         } else {
-            opcode = getOpcode(fieldAccessExpr.symbol.type.tag, InstructionCodes.IFIELDLOAD);
-            emit(opcode, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(fieldAccessExpr));
+            loadStructField(fieldAccessExpr, varRefRegIndex, keyRegIndex);
         }
 
         this.varAssignment = variableStore;
@@ -3546,6 +3485,40 @@ public class CodeGenerator extends BLangNodeVisitor {
             // This code will not be executed under normal condition
             throw new BLangCompilerException("failed to generate bytecode for package '" +
                     pkgNode.packageID + "': " + e.getMessage(), e);
+        }
+    }
+
+    private void storeStructField(BLangExpression fieldAccessExpr, Operand varRefRegIndex, Operand keyRegIndex) {
+        int opcode;
+        opcode = getValueToRefTypeCastOpcode(fieldAccessExpr.type.tag);
+        if (opcode == InstructionCodes.NOP) {
+            // If the field is ref type, then struct field store will pick the value from ref reg.
+            emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, fieldAccessExpr.regIndex);
+        } else {
+            // Cast the value to ref type and put it in ref reg.
+            // Then struct field store will take the value from ref reg.
+            RegIndex valueRegIndex = getRegIndex(TypeTags.ANY);
+            emit(opcode, fieldAccessExpr.regIndex, valueRegIndex);
+            emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, valueRegIndex);
+        }
+    }
+
+    private void loadStructField(BLangExpression fieldAccessExpr, Operand varRefRegIndex, Operand keyRegIndex) {
+        // Flag indicating whether to throw runtime error if the field does not exist.
+        // This is currently set to false always, since the fields are checked during compile time.
+        final int except = 0;
+
+        IntegerCPEntry exceptCPEntry = new IntegerCPEntry(except);
+        Operand exceptOp = getOperand(currentPkgInfo.addCPEntry(exceptCPEntry));
+        int opcode = getRefToValueTypeCastOpcode(fieldAccessExpr.type.tag);
+        if (opcode == InstructionCodes.NOP) {
+            emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(fieldAccessExpr),
+                    exceptOp);
+        } else {
+            // Get the value from struct, and put it in ref reg. Then cast the ref value to the value type
+            RegIndex targetRegIndex = getRegIndex(TypeTags.ANY);
+            emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, targetRegIndex, exceptOp);
+            emit(opcode, targetRegIndex, calcAndGetExprRegIndex(fieldAccessExpr));
         }
     }
 }

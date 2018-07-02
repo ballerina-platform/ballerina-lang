@@ -1276,18 +1276,6 @@ public class PackageInfoReader {
                 case InstructionCodes.LASTORE:
                 case InstructionCodes.RASTORE:
                 case InstructionCodes.JSONASTORE:
-                case InstructionCodes.IFIELDLOAD:
-                case InstructionCodes.FFIELDLOAD:
-                case InstructionCodes.SFIELDLOAD:
-                case InstructionCodes.BFIELDLOAD:
-                case InstructionCodes.LFIELDLOAD:
-                case InstructionCodes.RFIELDLOAD:
-                case InstructionCodes.IFIELDSTORE:
-                case InstructionCodes.FFIELDSTORE:
-                case InstructionCodes.SFIELDSTORE:
-                case InstructionCodes.BFIELDSTORE:
-                case InstructionCodes.LFIELDSTORE:
-                case InstructionCodes.RFIELDSTORE:
                 case InstructionCodes.MAPSTORE:
                 case InstructionCodes.JSONLOAD:
                 case InstructionCodes.JSONSTORE:

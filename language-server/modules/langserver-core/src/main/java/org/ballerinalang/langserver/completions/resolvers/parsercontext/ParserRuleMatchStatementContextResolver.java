@@ -21,6 +21,7 @@ import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.BPackageSymbolUtil;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -41,6 +42,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -53,13 +56,13 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
     private static final String LINE_SEPARATOR = System.lineSeparator();
 
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        List<String> poppedTokens = CommonUtil.popNFromStack(context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY), 3)
+        List<String> poppedTokens = CommonUtil.popNFromStack(ctx.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY), 3)
                 .stream()
                 .map(Token::getText)
                 .collect(Collectors.toList());
-        List<SymbolInfo> symbolInfoList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> symbolInfoList = ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
 
         if (poppedTokens.contains(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)) {
             String pkgAlias = poppedTokens.get(poppedTokens.indexOf(UtilSymbolKeys.PKG_DELIMITER_KEYWORD) - 1);
@@ -76,14 +79,14 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
                 pkgSymbolInfo.getScopeEntry().symbol.scope.entries.forEach((name, scopeEntry) -> {
                     BSymbol scopeEntrySymbol = scopeEntry.symbol;
                     if (scopeEntrySymbol instanceof BInvokableSymbol) {
-                        this.fillInvokableSymbolMatchSnippet((BInvokableSymbol) scopeEntrySymbol, completionItems);
+                        this.fillInvokableSymbolMatchSnippet((BInvokableSymbol) scopeEntrySymbol, completionItems, ctx);
                     }
                 });
             }
         } else if (poppedTokens.contains(UtilSymbolKeys.DOT_SYMBOL_KEY)) {
             String variableName = poppedTokens.get(poppedTokens.indexOf(UtilSymbolKeys.DOT_SYMBOL_KEY) - 1);
             List<SymbolInfo> filteredSymbols =
-                    CommonUtil.invocationsAndFieldsOnIdentifier(context, variableName, UtilSymbolKeys.DOT_SYMBOL_KEY)
+                    CommonUtil.invocationsAndFieldsOnIdentifier(ctx, variableName, UtilSymbolKeys.DOT_SYMBOL_KEY)
                             .stream().filter(symbolInfo -> {
                 BSymbol symbol = symbolInfo.getScopeEntry().symbol;
                 return symbol instanceof BInvokableSymbol;
@@ -91,7 +94,7 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
             filteredSymbols.forEach(symbolInfo -> {
                 BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
                 if (bSymbol instanceof BInvokableSymbol) {
-                    this.fillInvokableSymbolMatchSnippet((BInvokableSymbol) bSymbol, completionItems);
+                    this.fillInvokableSymbolMatchSnippet((BInvokableSymbol) bSymbol, completionItems, ctx);
                 }
             });
         } else {
@@ -105,9 +108,9 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
             filteredSymbolInfo.forEach(symbolInfo -> {
                 BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
                 if (bSymbol instanceof BInvokableSymbol) {
-                    this.fillInvokableSymbolMatchSnippet((BInvokableSymbol) bSymbol, completionItems);
+                    this.fillInvokableSymbolMatchSnippet((BInvokableSymbol) bSymbol, completionItems, ctx);
                 } else if (bSymbol instanceof BVarSymbol) {
-                    this.fillVarSymbolMatchSnippet((BVarSymbol) bSymbol, completionItems);
+                    this.fillVarSymbolMatchSnippet((BVarSymbol) bSymbol, completionItems, ctx);
                 } else if (bSymbol instanceof BPackageSymbol
                         && !bSymbol.pkgID.name.getValue().equals("builtin")
                         && !bSymbol.pkgID.name.getValue().contains("runtime")) {
@@ -115,18 +118,19 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
                 }
             });
         }
-        ItemSorters.getSorterByClass(MatchContextItemSorter.class).sortItems(context, completionItems);
+        ItemSorters.getSorterByClass(MatchContextItemSorter.class).sortItems(ctx, completionItems);
 
         return completionItems;
     }
 
-    private String getMatchFieldsSnippet(BUnionType bUnionType) {
-        Set<BType> memberTypes = bUnionType.getMemberTypes();
+    private String getMatchFieldsSnippet(BType bType, LSContext ctx) {
+        final Set<BType> memberTypes = bType instanceof BUnionType ? ((BUnionType) bType).getMemberTypes() :
+                new LinkedHashSet<>(Collections.singletonList(bType));
         StringBuilder fieldsSnippet = new StringBuilder("{");
         fieldsSnippet.append(LINE_SEPARATOR);
 
-        memberTypes.forEach(bType -> fieldsSnippet
-                .append("\t").append(bType.toString()).append(" => {")
+        memberTypes.forEach(type -> fieldsSnippet
+                .append("\t").append(CommonUtil.getBTypeName(type, ctx)).append(" => {")
                 .append(LINE_SEPARATOR)
                 .append("\t\t")
                 .append(LINE_SEPARATOR)
@@ -188,28 +192,18 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
     }
     
     private void fillInvokableSymbolMatchSnippet(BInvokableSymbol bInvokableSymbol,
-                                                  List<CompletionItem> completionItems) {
-        BType returnType = bInvokableSymbol.getReturnType();
-        if (returnType instanceof BUnionType && bInvokableSymbol.receiverSymbol == null) {
-            BUnionType unionType = (BUnionType) returnType;
-            CompletionItem completionItem = getFunctionCompletionItem(bInvokableSymbol,
-                    this.getMatchFieldsSnippet(unionType));
-            completionItems.add(completionItem);
-        } else if (!(bInvokableSymbol instanceof BOperatorSymbol) && bInvokableSymbol.receiverSymbol == null
+                                                  List<CompletionItem> completionItems, LSContext ctx) {
+        BType returnType = bInvokableSymbol.getType().getReturnType();
+        if (!(bInvokableSymbol instanceof BOperatorSymbol) && bInvokableSymbol.receiverSymbol == null
                 && !bInvokableSymbol.getName().getValue().contains("<")) {
-            CompletionItem completionItem = getFunctionCompletionItem(bInvokableSymbol);
+            CompletionItem completionItem = getFunctionCompletionItem(bInvokableSymbol,
+                    this.getMatchFieldsSnippet(returnType, ctx));
             completionItems.add(completionItem);
         }
     }
     
-    private void fillVarSymbolMatchSnippet(BVarSymbol varSymbol, List<CompletionItem> completionItems) {
+    private void fillVarSymbolMatchSnippet(BVarSymbol varSymbol, List<CompletionItem> completionItems, LSContext ctx) {
         BType symbolType = varSymbol.getType();
-        if (symbolType instanceof BUnionType) {
-            BUnionType unionType = (BUnionType) symbolType;
-            completionItems.add(getVariableCompletionItem(varSymbol,
-                    this.getMatchFieldsSnippet(unionType)));
-        } else {
-            completionItems.add(getVariableCompletionItem(varSymbol));
-        }
+        completionItems.add(getVariableCompletionItem(varSymbol, this.getMatchFieldsSnippet(symbolType, ctx)));
     }
 }
