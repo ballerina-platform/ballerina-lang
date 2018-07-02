@@ -137,7 +137,6 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      * @since 0.94
      */
     public static class BLangStructLiteral extends BLangRecordLiteral {
-
         public BAttachedFunction initializer;
 
         public BLangStructLiteral(List<BLangRecordKeyValue> keyValuePairs, BType structType) {
