@@ -52,6 +52,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -279,7 +280,14 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangTableLiteral tableLiteral) {
+        if (expType.tag == symTable.errType.tag) {
+            return;
+        }
         BType tableConstraint = ((BTableType) expType).getConstraint();
+        if (tableConstraint.tag == TypeTags.NONE) {
+            dlog.error(tableLiteral.pos, DiagnosticCode.TABLE_CANNOT_BE_CREATED_WITHOUT_CONSTRAINT);
+            return;
+        }
         validateTableColumns(tableConstraint, tableLiteral);
         checkExprs(tableLiteral.tableDataRows, this.env, tableConstraint);
         resultType = types.checkType(tableLiteral, expType, symTable.noType);
@@ -287,16 +295,13 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void validateTableColumns(BType tableConstraint, BLangTableLiteral tableLiteral) {
         List<String> columnNames = new ArrayList<>();
-        if (tableConstraint.tag == TypeTags.RECORD || tableConstraint.tag == TypeTags.OBJECT) {
-            for (BField field : ((BStructureType) tableConstraint).fields) {
-                columnNames.add(field.getName().getValue());
-            }
-            for (BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
-                boolean contains = columnNames.contains(column.columnName);
-                if (!contains) {
-                    dlog.error(tableLiteral.pos, DiagnosticCode.UNDEFINED_TABLE_COLUMN, column.columnName,
-                            tableConstraint);
-                }
+        for (BField field : ((BRecordType) tableConstraint).fields) {
+            columnNames.add(field.getName().getValue());
+        }
+        for (BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
+            boolean contains = columnNames.contains(column.columnName);
+            if (!contains) {
+                dlog.error(tableLiteral.pos, DiagnosticCode.UNDEFINED_TABLE_COLUMN, column.columnName, tableConstraint);
             }
         }
     }

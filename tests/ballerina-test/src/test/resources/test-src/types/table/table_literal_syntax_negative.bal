@@ -6,6 +6,18 @@ type Person record {
     boolean married,
 };
 
+type Employee object {
+    public {
+        int id = 1;
+        int age = 10,
+        string name = "sample name";
+    }
+
+    new(id, age, name) {
+    }
+};
+
+type test table<Employee>;
 
 function testTableLiteralDataAndAdd2() returns (int) {
     Person p4 = { id: 4, age: 30, salary: 300.50, name: "john", married: true };
@@ -34,4 +46,24 @@ function testTableLiteralDataWithInit() returns (int) {
 
     int count = t1.count();
     return count;
+}
+
+function testTableLiteralDataAndAddWithObject() returns (int) {
+    Employee p4 = new Employee(4, 24, "Paul");
+    Employee p5 = new Employee(5, 30, "mary");
+
+    //Object types cannot be included in the literal
+    table<Employee> t1 = table {
+        { primarykey id, name, age }
+    };
+
+    _ = t1.add(p4);
+    _ = t1.add(p5);
+
+    int count = t1.count();
+    return count;
+}
+
+function testEmptyTableCreateInvalid() {
+    table t1 = table{};
 }

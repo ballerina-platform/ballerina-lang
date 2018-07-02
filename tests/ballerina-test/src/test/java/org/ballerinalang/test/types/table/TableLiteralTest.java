@@ -333,14 +333,6 @@ public class TableLiteralTest {
     }
 
     @Test(priority = 1,
-          description = "Test invalid empty table create",
-          expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*message: table cannot be created without a constraint.*")
-    public void testEmptyTableCreateInvalid() {
-        BRunUtil.invoke(result, "testEmptyTableCreateInvalid");
-    }
-
-    @Test(priority = 1,
           description = "Test add data with  mismatched types")
     public void testTableAddInvalid() {
         BValue[] returns = BRunUtil.invoke(result, "testTableAddInvalid");

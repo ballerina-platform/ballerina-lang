@@ -49,7 +49,6 @@ import java.util.stream.Collectors;
 public class BLangParserListener extends BallerinaParserBaseListener {
     private static final String KEYWORD_PUBLIC = "public";
     private static final String KEYWORD_NATIVE = "native";
-    private static final String KEYWORD_PRIMARYKEY = "primarykey";
 
     private BLangPackageBuilder pkgBuilder;
     private BDiagnosticSource diagnosticSrc;
@@ -967,7 +966,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         String columnName = ctx.getChild(0).getText();
-        boolean keyColumn = KEYWORD_PRIMARYKEY.equals(columnName);
+        boolean keyColumn = ctx.PRIMARYKEY() != null;
         if (keyColumn) {
             columnName = ctx.getChild(1).getText();
             this.pkgBuilder.addTableColumn(columnName);

@@ -81,10 +81,6 @@ function checkTableCount(string tablePrefix) returns (int) {
     return count;
 }
 
-function testEmptyTableCreateInvalid() {
-    table t1 = table{};
-}
-
 function testAddData() returns (int, int, int, int[], int[], int[]) {
     Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
     Person p2 = { id: 2, age: 20, salary: 200.50, name: "martin", married: true };

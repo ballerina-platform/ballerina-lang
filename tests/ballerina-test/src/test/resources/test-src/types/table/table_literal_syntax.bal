@@ -6,17 +6,6 @@ type Person record {
     boolean married,
 };
 
-type Employee object {
-    public {
-        int id = 1;
-        int age = 10,
-        string name = "sample name";
-    }
-
-    new(id, age, name) {
-    }
-};
-
 table<Person> tGlobal;
 
 function testTableDefaultValueForLocalVariable() returns (int) {
@@ -104,22 +93,6 @@ function testTableLiteralDataAndAdd2() returns (int) {
          { 2, 302.5, "anne",  23, false },
          { 3, 320.5, "john",  33, true }
         ]
-    };
-
-    _ = t1.add(p4);
-    _ = t1.add(p5);
-
-    int count = t1.count();
-    return count;
-}
-
-function testTableLiteralDataAndAddWithObject() returns (int) {
-    Employee p4 = new Employee(4, 24, "Paul");
-    Employee p5 = new Employee(5, 30, "mary");
-
-    //Object types cannot be included in the literal
-    table<Employee> t1 = table {
-        { primarykey id, name, age }
     };
 
     _ = t1.add(p4);
