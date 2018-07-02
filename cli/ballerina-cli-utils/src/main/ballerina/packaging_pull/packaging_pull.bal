@@ -195,7 +195,7 @@ documentation {
 
     P{{channel}} Byte channel
     P{{numberOfBytes}} Number of bytes to be read
-    R{{}} Bytes read as a byte[] along with the number of bytes read.
+    R{{}} Read content as byte[] along with the number of bytes read.
 }
 function readBytes (io:ByteChannel channel, int numberOfBytes) returns (byte[], int) {
     byte[] bytes;

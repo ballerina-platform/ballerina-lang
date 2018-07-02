@@ -141,10 +141,8 @@ public class ClientSocketTest {
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Write content size is not match.");
         args = new BValue[]{new BInteger(content.length())};
         final BValue[] readReturns = BRunUtil.invokeStateful(socketClient, "read", args);
-//        final BByteArray readContent = (BByteArray) readReturns[0];
         returnedSize = (BInteger) readReturns[1];
 
-//        Assert.assertEquals(readContent.stringValue(), content, "Return content are not match with written content.");
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Read size not match with the request size");
     }
 

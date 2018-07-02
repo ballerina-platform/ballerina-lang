@@ -164,7 +164,6 @@ function testReadFile(string pathValue) returns boolean {
         (byte[], int) byteContent => {
             var (bytes, numberOfBytes) = byteContent;
             return lengthof bytes == lengthof TEST_CONTENT.toByteArray("UTF-8");
-            //return bytes.toString("UTF-8") == TEST_CONTENT;
         }
         error err => {
             log:printError("Error occurred while reading content: " + pathValue, err = err);
