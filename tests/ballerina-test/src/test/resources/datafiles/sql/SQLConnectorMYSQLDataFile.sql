@@ -54,6 +54,8 @@ insert into BlobTable (row_id) values (2);
 /
 insert into BlobTable values (1, X'77736F322062616C6C6572696E6120626C6F6220746573742E');
 /
+insert into BlobTable values (7, X'77736F322062616C6C6572696E6120626C6F6220746573742E');
+/
 insert into Customers (firstName,lastName,registrationID,creditLimit,country)
   values ('Peter', 'Stuart', 1, 5000.75, 'USA');
 /

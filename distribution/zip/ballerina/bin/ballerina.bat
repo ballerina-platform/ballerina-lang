@@ -110,16 +110,20 @@ rem find the version of the jdk
 
 set CMD=RUN %*
 
-:checkJdk18
-"%JAVA_HOME%\bin\java" -version 2>&1 | findstr /r "[1.8|9|10]" >NUL
-IF ERRORLEVEL 1 goto unknownJdk
-goto jdk18
+:checkJdk8AndHigher
+set JVER=
+for /f tokens^=2-5^ delims^=.-_^" %%j in ('"%JAVA_HOME%\bin\java" -fullversion 2^>^&1') do set "JVER=%%j%%k"
+set JAVA_MODULES=
+rem In, JDK9 or above need to import 'java.corba' module
+if %JVER% GEQ 90 set JAVA_MODULES="--add-modules java.corba"
+if %JVER% GEQ 18 goto jdk8AndHigher
+goto unknownJdk
 
 :unknownJdk
 echo Ballerina is supported only on JDK 1.8 and above
 goto end
 
-:jdk18
+:jdk8AndHigher
 goto runServer
 
 
@@ -133,7 +137,7 @@ rem ---------- Add jars to classpath ----------------
 
 set BALLERINA_CLASSPATH=.\bre\lib\bootstrap;%BALLERINA_CLASSPATH%
 
-set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%BALLERINA_HOME%\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %BALLERINA_CLASSPATH% %JAVA_OPTS% -Dballerina.home="%BALLERINA_HOME%"  -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Denable.nonblocking=false -Dfile.encoding=UTF8 -Dballerina.version=${project.version} -Djava.util.logging.config.class="org.ballerinalang.logging.util.LogConfigReader" -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager"
+set CMD_LINE_ARGS=-Xbootclasspath/a:%BALLERINA_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%BALLERINA_HOME%\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %BALLERINA_CLASSPATH% %JAVA_OPTS% -Dballerina.home="%BALLERINA_HOME%"  -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Denable.nonblocking=false -Dfile.encoding=UTF8 -Dballerina.version=${project.version} -Djava.util.logging.config.class="org.ballerinalang.logging.util.LogConfigReader" -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager" %JAVA_MODULES%
 
 
 :runJava
