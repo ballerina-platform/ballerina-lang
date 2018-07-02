@@ -43,7 +43,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 /**
- * This class is reponsible for parsing Ballerina source files.
+ * This class is responsible for parsing Ballerina source files.
  *
  * @since 0.94
  */

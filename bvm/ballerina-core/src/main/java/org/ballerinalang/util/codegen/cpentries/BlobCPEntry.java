@@ -20,7 +20,7 @@ package org.ballerinalang.util.codegen.cpentries;
 import java.util.Arrays;
 
 /**
- * {@code BlobCPEntry} represents a Ballerina blob value in the constant pool.
+ * {@code BlobCPEntry} represents a ballerina byte array value in the constant pool.
  *
  * @since 0.975.0
  */

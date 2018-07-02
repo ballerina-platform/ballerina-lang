@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.statements.ForeverNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 
@@ -34,7 +35,16 @@ public class BLangForever extends BLangExpressionStmt implements ForeverNode {
 
     private List<StreamingQueryStatementNode> streamingQueryStatementNodeList = new ArrayList<>();
     private String siddhiQuery;
+    private SymbolEnv env;
+    private boolean isSiddhiRuntimeEnabled = true;
     public List<BLangVariable> params;
+
+    public BLangForever() {
+        String siddhiRuntimeEnabledProperty = System.getProperty("enable.siddhiRuntime");
+        if (siddhiRuntimeEnabledProperty != null) {
+            isSiddhiRuntimeEnabled = Boolean.parseBoolean(siddhiRuntimeEnabledProperty);
+        }
+    }
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
@@ -75,4 +85,15 @@ public class BLangForever extends BLangExpressionStmt implements ForeverNode {
         this.siddhiQuery = siddhiQuery;
     }
 
+    public SymbolEnv getEnv() {
+        return env;
+    }
+
+    public void setEnv(SymbolEnv env) {
+        this.env = env;
+    }
+
+    public boolean isSiddhiRuntimeEnabled() {
+        return isSiddhiRuntimeEnabled;
+    }
 }

@@ -283,3 +283,19 @@ public type Apartment object {
         age = age + addVal;
     }
 };
+
+public type Desk object {
+
+    public {
+        int length = 23,
+        int width = 12,
+        float height = 4.5,
+        byte[] dimensions = [3,4,5,8],
+        byte[] code1 = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`,
+        byte[] code2 = base16 `aaabcfccad afcd34 1a4bdf abcd8912df`;
+    }
+
+    public new (){
+
+    }
+};

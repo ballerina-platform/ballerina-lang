@@ -17,16 +17,16 @@
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:WebSocketListener echoEP {
+endpoint http:WebSocketListener wsCaller {
     host:"0.0.0.0",
     port:9090
 };
 
 @http:WebSocketServiceConfig {
-    path:"/echo"
+    path:"/"
 }
-service<http:WebSocketService> echo bind echoEP {
+service<http:WebSocketService> wsService bind wsCaller {
 
-    onText(endpoint conn, string text, boolean final, string name) {
+    onText(endpoint caller, string text, boolean final, string name) {
     }
 }
