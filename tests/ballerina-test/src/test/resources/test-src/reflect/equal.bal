@@ -98,6 +98,11 @@ function testByteTruePositive2() returns boolean {
     return reflect:equals(b1, 5);
 }
 
+function testByteTruePositive3() returns boolean {
+    byte b1 = 245;
+    return reflect:equals(b1, 245);
+}
+
 function testByteTrueNegative1() returns boolean {
     byte b1 = 5;
     byte b2 = 10;
