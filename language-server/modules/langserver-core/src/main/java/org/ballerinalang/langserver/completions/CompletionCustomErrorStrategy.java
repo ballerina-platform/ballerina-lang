@@ -78,19 +78,23 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
     @Override
     public void reportMatch(Parser recognizer) {
         removePendingTokensAfterThisToken(recognizer, lastTerminationToken);
+        boolean inFirstTokenOfCursorLine = isInFirstTokenOfCursorLine(recognizer);
+        boolean inLastTermination = isInLastTermination(recognizer);
         super.reportMatch(recognizer);
-        if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && isInLastTermination(recognizer)) {
-            deleteTokensUpToCursor(recognizer, true);
+        if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && inLastTermination) {
+            deleteTokensUpToCursor(recognizer, inLastTermination, inFirstTokenOfCursorLine);
         }
     }
 
     @Override
     public void sync(Parser recognizer) throws RecognitionException {
         removePendingTokensAfterThisToken(recognizer, lastTerminationToken);
-        if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && isInFirstTokenOfCursorLine(recognizer)) {
-            deleteTokensUpToCursor(recognizer, false);
-        } else if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && isInLastTermination(recognizer)) {
-            deleteTokensUpToCursor(recognizer, true);
+        boolean inFirstTokenOfCursorLine = isInFirstTokenOfCursorLine(recognizer);
+        boolean inLastTermination = isInLastTermination(recognizer);
+        if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && inFirstTokenOfCursorLine) {
+            deleteTokensUpToCursor(recognizer, inLastTermination, inFirstTokenOfCursorLine);
+        } else if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && inLastTermination) {
+            deleteTokensUpToCursor(recognizer, inLastTermination, inFirstTokenOfCursorLine);
         }
         super.sync(recognizer);
     }
@@ -123,7 +127,8 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         return lastTerminationToken != null && currentToken.getTokenIndex() == lastTerminationToken.getTokenIndex();
     }
 
-    private void deleteTokensUpToCursor(Parser recognizer, boolean isInLastTermination) {
+    private void deleteTokensUpToCursor(Parser recognizer, boolean isInLastTermination,
+                                        boolean isInFirstTokenOfCursorLine) {
         Position cursorPosition = this.context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         int cursorLine = cursorPosition.getLine() + 1;
         int cursorCol = cursorPosition.getCharacter() + 1;
@@ -134,7 +139,8 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         int tLine = beforeCursorToken.getLine();
         int tCol = beforeCursorToken.getCharPositionInLine();
 
-        int needToRemoveTokenCount = -1;
+        boolean noTerminationToken = (isInFirstTokenOfCursorLine && lastTerminationToken == null);
+        int needToRemoveTokenCount = noTerminationToken ? 0 : -1;
         while (type != BallerinaParser.EOF && ((tLine < cursorLine) || (tLine == cursorLine && tCol < cursorCol))) {
             index++;
             needToRemoveTokenCount++;
@@ -145,6 +151,8 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         }
 
         if (isInLastTermination) {
+            removeTokenCount = needToRemoveTokenCount;
+        } else if (noTerminationToken) {
             removeTokenCount = needToRemoveTokenCount;
         }
     }
@@ -168,7 +176,9 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         firstCursorLineToken = (tLine == cursorLine) ? beforeCursorToken : null;
 
         while (type != BallerinaParser.EOF && (tLine <= cursorLine)) {
-            if (tLine == cursorLine) {
+            int tokenIndex = beforeCursorToken.getTokenIndex();
+            if (tLine == cursorLine &&
+                    (firstCursorLineToken == null || firstCursorLineToken.getTokenIndex() > tokenIndex)) {
                 firstCursorLineToken = beforeCursorToken;
             }
             index++;
