@@ -106,7 +106,7 @@ public class BStream implements BRefType<Object> {
      */
     public void publish(BValue data) {
         BType dataType = data.getType();
-        if (!CPU.isAssignable(data, constraintType)) {
+        if (!CPU.checkCast(data, constraintType)) {
             throw new BallerinaException("incompatible types: value of type:" + dataType
                     + " cannot be added to a stream of type:" + this.constraintType);
         }

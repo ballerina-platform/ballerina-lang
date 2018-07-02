@@ -2113,7 +2113,7 @@ public class CPU {
                 j = operands[2];
                 typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
                 bRefTypeValue = sf.refRegs[i];
-                if (isAssignable(bRefTypeValue, typeRefCPEntry.getType())) {
+                if (checkCast(bRefTypeValue, typeRefCPEntry.getType())) {
                     sf.intRegs[j] = 1;
                 } else {
                     sf.intRegs[j] = 0;
@@ -3030,14 +3030,6 @@ public class CPU {
         return ctx.respCtx.signal(new WorkerSignal(ctx, SignalType.RETURN, ctx.workerResult));
     }
 
-    public static boolean isAssignable(BValue rhsValue, BType lhsType) {
-        if (rhsValue == null) {
-            return false;
-        }
-
-        return checkCast(rhsValue, lhsType);
-    }
-
     private static boolean checkFiniteTypeAssignable(BValue bRefTypeValue, BType lhsType) {
         BFiniteType fType = (BFiniteType) lhsType;
         if (bRefTypeValue == null) {
@@ -3067,7 +3059,7 @@ public class CPU {
         return false;
     }
 
-    private static boolean checkCast(BValue rhsValue, BType lhsType) {
+    public static boolean checkCast(BValue rhsValue, BType lhsType) {
         BType rhsType = BTypes.typeNull;
         if (rhsValue != null) {
             rhsType = rhsValue.getType();
@@ -3082,7 +3074,11 @@ public class CPU {
         }
 
         if (lhsType.getTag() == TypeTags.ARRAY_TAG && rhsValue instanceof BNewArray) {
-            return checkArrayCast((BNewArray) rhsValue, (BArrayType) lhsType);
+            BType sourceType = rhsValue.getType();
+            if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
+                sourceType = ((BArrayType) rhsValue.getType()).getElementType();
+            }
+            return checkArrayCast(sourceType, ((BArrayType) lhsType).getElementType());
         }
 
         if (rhsType.getTag() == TypeTags.TUPLE_TAG && lhsType.getTag() == TypeTags.TUPLE_TAG) {
@@ -3093,10 +3089,10 @@ public class CPU {
             return checkFiniteTypeAssignable(rhsValue, lhsType);
         }
 
-        return checkCast(rhsType, lhsType);
+        return checkCastByType(rhsType, lhsType);
     }
 
-    private static boolean checkCast(BType rhsType, BType lhsType) {
+    private static boolean checkCastByType(BType rhsType, BType lhsType) {
         if (rhsType.equals(lhsType)) {
             return true;
         } else if (rhsType.getTag() == TypeTags.INT_TAG &&
@@ -3161,15 +3157,7 @@ public class CPU {
 
         return false;
     }
-    
-    private static boolean checkArrayCast(BNewArray sourceValue, BArrayType targetType) {
-        BType sourceType = sourceValue.getType();
-        if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            sourceType = ((BArrayType) sourceValue.getType()).getElementType();
-        }
-        return checkArrayCast(sourceType, targetType.getElementType());
-    }
-    
+
     private static boolean checkArrayCast(BType sourceType, BType targetType) {
         if (targetType.getTag() == TypeTags.ARRAY_TAG && sourceType.getTag() == TypeTags.ARRAY_TAG) {
             BArrayType sourceArrayType = (BArrayType) sourceType;
@@ -3958,11 +3946,6 @@ public class CPU {
         return false;
     }
 
-    @Deprecated
-    private static boolean checkFunctionCast(BValue value, BType lhsType) {
-        return checkFunctionCast(value.getType(), lhsType);
-    }
-
     public static boolean isAssignable(BType sourceType, BType targetType) {
         if (targetType.getTag() == TypeTags.UNION_TAG) {
             return checkUnionAssignable(sourceType, targetType);
@@ -3982,7 +3965,7 @@ public class CPU {
             return checkTupleAssignable(sourceType, targetType);
         }
 
-        return checkCast(sourceType, targetType);
+        return checkCastByType(sourceType, targetType);
     }
 
     private static boolean checkUnionAssignable(BType sourceType, BType targetType) {
