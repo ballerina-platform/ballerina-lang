@@ -34,5 +34,5 @@ public class BallerinaDocConstants {
 
     // config registry environment variables -e flags
     public static final String ORG_NAME = "orgName";
-    public static final String GENERATE_TOC = "generateToc";
+    public static final String GENERATE_TOC = "generateTOC";
 }
