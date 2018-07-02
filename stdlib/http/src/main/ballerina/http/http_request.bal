@@ -207,11 +207,11 @@ public type Request object {
     public function getByteChannel() returns io:ByteChannel|error;
 
     documentation {
-        Gets the request payload as a `blob`.
+        Gets the request payload as a `byte[]`.
 
         R{{}} The blob representation of the message payload or `error` in case of errors
     }
-    public function getBinaryPayload() returns blob|error;
+    public function getBinaryPayload() returns byte[]|error;
 
     documentation {
         Gets the form parameters from the HTTP request as a `map`.
@@ -257,13 +257,13 @@ public type Request object {
     public function setTextPayload(string payload, string contentType = "text/plain");
 
     documentation {
-        Sets a `blob` as the payload.
+        Sets a `byte[]` as the payload.
 
-        P{{payload}} The `blob` payload
+        P{{payload}} The `byte[]` payload
         P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
-                         for `blob`
+                         for `byte[]`
     }
-    public function setBinaryPayload(blob payload, string contentType = "application/octet-stream");
+    public function setBinaryPayload(byte[] payload, string contentType = "application/octet-stream");
 
     documentation {
         Set multiparts as the payload.
@@ -295,10 +295,10 @@ public type Request object {
     documentation {
         Sets the request payload.
 
-        P{{payload}} Payload can be of type `string`, `xml`, `json`, `blob`, `ByteChannel` or `Entity[]` (i.e: a set
+        P{{payload}} Payload can be of type `string`, `xml`, `json`, `byte[]`, `ByteChannel` or `Entity[]` (i.e: a set
                      of body parts)
     }
-    public function setPayload(string|xml|json|blob|io:ByteChannel|mime:Entity[] payload);
+    public function setPayload(string|xml|json|byte[]|io:ByteChannel|mime:Entity[] payload);
 
     // For use within the package. Takes the Cache-Control header and parses it to a RequestCacheControl object.
     function parseCacheControlHeader();
@@ -410,13 +410,13 @@ function Request::getPayloadAsString() returns string|error {
     }
 }
 
-function Request::getBinaryPayload() returns blob|error {
+function Request::getBinaryPayload() returns byte[]|error {
     match self.getEntity() {
         error err => return err;
         mime:Entity mimeEntity => {
-            match mimeEntity.getBlob() {
+            match mimeEntity.getByteArray() {
                 error payloadErr => return payloadErr;
-                blob binaryPayload => return binaryPayload;
+                byte[] binaryPayload => return binaryPayload;
             }
         }
     }
@@ -495,9 +495,9 @@ function Request::setTextPayload(string payload, string contentType = "text/plai
     self.setEntity(entity);
 }
 
-function Request::setBinaryPayload(blob payload, string contentType = "application/octet-stream") {
+function Request::setBinaryPayload(byte[] payload, string contentType = "application/octet-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
-    entity.setBlob(payload, contentType = contentType);
+    entity.setByteArray(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
@@ -519,12 +519,12 @@ function Request::setByteChannel(io:ByteChannel payload, string contentType = "a
     self.setEntity(entity);
 }
 
-function Request::setPayload(string|xml|json|blob|io:ByteChannel|mime:Entity[] payload) {
+function Request::setPayload(string|xml|json|byte[]|io:ByteChannel|mime:Entity[] payload) {
     match payload {
         string textContent => self.setTextPayload(textContent);
         xml xmlContent => self.setXmlPayload(xmlContent);
         json jsonContent => self.setJsonPayload(jsonContent);
-        blob blobContent => self.setBinaryPayload(blobContent);
+        byte[] blobContent => self.setBinaryPayload(blobContent);
         io:ByteChannel byteChannelContent => self.setByteChannel(byteChannelContent);
         mime:Entity[] bodyParts => self.setBodyParts(bodyParts);
     }

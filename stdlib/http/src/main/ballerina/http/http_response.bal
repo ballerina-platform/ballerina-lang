@@ -186,11 +186,11 @@ public type Response object {
     public function getByteChannel() returns io:ByteChannel|error;
 
     documentation {
-        Gets the response payload as a `blob`.
+        Gets the response payload as a `byte[]`.
 
-        R{{}} The blob representation of the message payload or `error` in case of errors
+        R{{}} The byte[] representation of the message payload or `error` in case of errors
     }
-    public function getBinaryPayload() returns blob|error;
+    public function getBinaryPayload() returns byte[]|error;
 
     documentation {
         Extracts body parts from the response. If the content type is not a composite media type, an error is returned.
@@ -205,7 +205,7 @@ public type Response object {
 
         P{{payload}} The payload for which the ETag should be set
     }
-    public function setETag(json|xml|string|blob payload);
+    public function setETag(json|xml|string|byte[] payload);
 
     documentation {
         Sets the current time as the `last-modified` header.
@@ -240,13 +240,13 @@ public type Response object {
     public function setTextPayload(string payload, string contentType = "text/plain");
 
     documentation {
-        Sets a `blob` as the payload.
+        Sets a `byte[]` as the payload.
 
-        P{{payload}} The `blob` payload
+        P{{payload}} The `byte[]` payload
         P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
-                         for `blob`
+                         for `byte[]`
     }
-    public function setBinaryPayload(blob payload, string contentType = "application/octet-stream");
+    public function setBinaryPayload(byte[] payload, string contentType = "application/octet-stream");
 
     documentation {
         Set multiparts as the payload.
@@ -278,10 +278,10 @@ public type Response object {
     documentation {
         Sets the response payload.
 
-        P{{payload}} Payload can be of type `string`, `xml`, `json`, `blob`, `ByteChannel` or `Entity[]` (i.e: a set
+        P{{payload}} Payload can be of type `string`, `xml`, `json`, `byte[]`, `ByteChannel` or `Entity[]` (i.e: a set
                      of body parts)
     }
-    public function setPayload(string|xml|json|blob|io:ByteChannel|mime:Entity[] payload);
+    public function setPayload(string|xml|json|byte[]|io:ByteChannel|mime:Entity[] payload);
 };
 
 /////////////////////////////////
@@ -391,13 +391,13 @@ function Response::getPayloadAsString() returns string|error {
     }
 }
 
-function Response::getBinaryPayload() returns blob|error {
+function Response::getBinaryPayload() returns byte[]|error {
     match self.getEntity() {
         error err => return err;
         mime:Entity mimeEntity => {
-            match mimeEntity.getBlob() {
+            match mimeEntity.getByteArray() {
                 error payloadErr => return payloadErr;
-                blob binaryPayload => return binaryPayload;
+                byte[] binaryPayload => return binaryPayload;
             }
         }
     }
@@ -423,7 +423,7 @@ function Response::getBodyParts() returns mime:Entity[]|error {
     }
 }
 
-function Response::setETag(json|xml|string|blob payload) {
+function Response::setETag(json|xml|string|byte[] payload) {
     string etag = crypto:crc32(payload);
     self.setHeader(ETAG, etag);
 }
@@ -452,9 +452,9 @@ function Response::setTextPayload(string payload, string contentType = "text/pla
     self.setEntity(entity);
 }
 
-function Response::setBinaryPayload(blob payload, string contentType = "application/octet-stream") {
+function Response::setBinaryPayload(byte[] payload, string contentType = "application/octet-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
-    entity.setBlob(payload, contentType = contentType);
+    entity.setByteArray(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
@@ -477,12 +477,12 @@ function Response::setByteChannel(io:ByteChannel payload, string contentType = "
     self.setEntity(entity);
 }
 
-function Response::setPayload(string|xml|json|blob|io:ByteChannel|mime:Entity[] payload) {
+function Response::setPayload(string|xml|json|byte[]|io:ByteChannel|mime:Entity[] payload) {
     match payload {
         string textContent => self.setTextPayload(textContent);
         xml xmlContent => self.setXmlPayload(xmlContent);
         json jsonContent => self.setJsonPayload(jsonContent);
-        blob blobContent => self.setBinaryPayload(blobContent);
+        byte[] blobContent => self.setBinaryPayload(blobContent);
         io:ByteChannel byteChannelContent => self.setByteChannel(byteChannelContent);
         mime:Entity[] bodyParts => self.setBodyParts(bodyParts);
     }

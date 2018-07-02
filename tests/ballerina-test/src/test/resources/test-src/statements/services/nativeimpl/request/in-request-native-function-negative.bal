@@ -36,7 +36,7 @@ function testGetTextPayload(http:Request req) returns string|error {
     return req.getTextPayload();
 }
 
-function testGetBinaryPayload(http:Request req) returns blob|error {
+function testGetBinaryPayload(http:Request req) returns byte[]|error {
     return req.getBinaryPayload();
 }
 

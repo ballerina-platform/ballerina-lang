@@ -23,6 +23,7 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -141,10 +142,8 @@ public class Utils {
     @SuppressWarnings("unchecked")
     public static void encode(Context context, BValue input, String charset, boolean isMimeSpecific) {
         switch (input.getType().getTag()) {
-            case TypeTags.BLOB_TAG:
-                if (input instanceof BBlob) {
-                    encodeBlob(context, (BBlob) input, isMimeSpecific);
-                }
+            case TypeTags.ARRAY_TAG:
+                encodeBlob(context, ((BByteArray) input).getBytes(), isMimeSpecific);
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
@@ -172,10 +171,8 @@ public class Utils {
     @SuppressWarnings("unchecked")
     public static void decode(Context context, BValue encodedInput, String charset, boolean isMimeSpecific) {
         switch (encodedInput.getType().getTag()) {
-            case TypeTags.BLOB_TAG:
-                if (encodedInput instanceof BBlob) {
-                    decodeBlob(context, (BBlob) encodedInput, isMimeSpecific);
-                }
+            case TypeTags.ARRAY_TAG:
+                decodeBlob(context, ((BByteArray) encodedInput).getBytes(), isMimeSpecific);
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:

@@ -414,11 +414,11 @@ public type Notification object {
     }
 
     documentation {
-        Retrieves the request payload as a `blob`.
+        Retrieves the request payload as a `byte[]`.
 
-        R{{}} The blob representation of the message payload or `error` in case of errors
+        R{{}} The byte[] representation of the message payload or `error` in case of errors
     }
-    public function getBinaryPayload() returns blob|error {
+    public function getBinaryPayload() returns byte[]|error {
         return request.getBinaryPayload();
     }
 
@@ -542,7 +542,7 @@ public type WebSubHub object {
         P{{contentType}} The content type header to set for the request delivering the payload
         R{{}} `error` if the hub is not initialized or does not represent the internal hub
     }
-    public function publishUpdate(string topic, string|xml|json|blob|io:ByteChannel payload,
+    public function publishUpdate(string topic, string|xml|json|byte[]|io:ByteChannel payload,
                                   string? contentType = ()) returns error?;
 
     documentation {
@@ -567,7 +567,7 @@ function WebSubHub::stop() returns (boolean) {
     return stopHubService(self.hubUrl);
 }
 
-function WebSubHub::publishUpdate(string topic, string|xml|json|blob|io:ByteChannel payload,
+function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:ByteChannel payload,
                                          string? contentType = ()) returns error? {
 
     if (self.hubUrl == "") {
@@ -579,7 +579,7 @@ function WebSubHub::publishUpdate(string topic, string|xml|json|blob|io:ByteChan
 
     match(payload) {
         io:ByteChannel byteChannel => content.payload = constructBlob(byteChannel);
-        string|xml|json|blob => content.payload = payload;
+        string|xml|json|byte[] => content.payload = payload;
     }
 
     match(contentType) {
@@ -589,7 +589,7 @@ function WebSubHub::publishUpdate(string topic, string|xml|json|blob|io:ByteChan
                 string => content.contentType = mime:TEXT_PLAIN;
                 xml => content.contentType = mime:APPLICATION_XML;
                 json => content.contentType = mime:APPLICATION_JSON;
-                blob|io:ByteChannel => content.contentType = mime:APPLICATION_OCTET_STREAM;
+                byte[]|io:ByteChannel => content.contentType = mime:APPLICATION_OCTET_STREAM;
             }
         }
     }
@@ -661,7 +661,7 @@ documentation {
     F{{contentType}} The content-type of the payload
 }
 type WebSubContent record {
-    string|xml|json|blob|io:ByteChannel payload,
+    string|xml|json|byte[]|io:ByteChannel payload,
     string contentType,
 };
 

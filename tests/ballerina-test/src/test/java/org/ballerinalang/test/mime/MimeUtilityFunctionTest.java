@@ -25,7 +25,7 @@ import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
-import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -166,7 +166,7 @@ public class MimeUtilityFunctionTest {
     @Test
     public void testMimeBase64EncodeBlob() {
         String expectedValue = "SGVsbG8gQmFsbGVyaW5h";
-        BValue[] args = new BValue[]{new BBlob("Hello Ballerina".getBytes())};
+        BValue[] args = new BValue[]{new BByteArray("Hello Ballerina".getBytes())};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testMimeBase64EncodeBlob", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                 "Invalid return value");
@@ -205,7 +205,7 @@ public class MimeUtilityFunctionTest {
     @Test
     public void testMimeBase64DecodeBlob() {
         String expectedValue = "Hello Ballerina";
-        BValue[] args = new BValue[]{new BBlob("SGVsbG8gQmFsbGVyaW5h".getBytes())};
+        BValue[] args = new BValue[]{new BByteArray("SGVsbG8gQmFsbGVyaW5h".getBytes())};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testMimeBase64DecodeBlob", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                 "Invalid return value");
@@ -287,28 +287,29 @@ public class MimeUtilityFunctionTest {
                 "Hello Ballerina !Hello Ballerina !Hello Ballerina !");
     }
 
-    @Test(description = "Set blob data to entity and get the content back from entity as a blob")
-    public void testGetAndSetBlob() {
+    @Test(description = "Set byte array data to entity and get the content back from entity as a byte array")
+    public void testGetAndSetByteArray() {
         String content = "ballerina";
-        BBlob byteContent = new BBlob(content.getBytes());
+        BByteArray byteContent = new BByteArray(content.getBytes());
         BValue[] args = {byteContent};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSetAndGetBlob", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetAndGetByteArray", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), content);
+        Assert.assertEquals(new String(((BByteArray) returns[0]).getBytes()), content);
     }
 
-    @Test(description = "Test whether the blob content can be retrieved properly when it is called multiple times")
-    public void testGetBlobMoreThanOnce() {
+    @Test(description = "Test whether the byte array content can be " +
+            "retrieved properly when it is called multiple times")
+    public void testGetByteArrayMoreThanOnce() {
         String content = "ballerina";
-        BBlob byteContent = new BBlob(content.getBytes());
+        BByteArray byteContent = new BByteArray(content.getBytes());
         BValue[] args = {byteContent};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGetBlobMultipleTimes", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testGetByteArrayMultipleTimes", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
                 "ballerinaballerinaballerina");
     }
 
-    @Test(description = "Set file as entity body and get the content back as a blob")
+    @Test(description = "Set file as entity body and get the content back as a byte array")
     public void testSetFileAsEntityBody() {
         try {
             File file = File.createTempFile("testFile", ".tmp");
@@ -319,14 +320,14 @@ public class MimeUtilityFunctionTest {
             BValue[] args = {new BString(file.getAbsolutePath())};
             BValue[] returns = BRunUtil.invoke(compileResult, "testSetFileAsEntityBody", args);
             Assert.assertEquals(returns.length, 1);
-            Assert.assertEquals(returns[0].stringValue(), "Hello Ballerina!",
+            Assert.assertEquals(new String(((BByteArray) returns[0]).getBytes()), "Hello Ballerina!",
                     "Entity body is not properly set");
         } catch (IOException e) {
             log.error("Error occurred in testSetFileAsEntityBody", e.getMessage());
         }
     }
 
-    @Test(description = "Set byte channel as entity body and get the content back as a blob")
+    @Test(description = "Set byte channel as entity body and get the content back as a byte array")
     public void testSetByteChannel() {
         try {
             File file = File.createTempFile("testFile", ".tmp");
@@ -340,7 +341,7 @@ public class MimeUtilityFunctionTest {
             BValue[] args = {byteChannelStruct};
             BValue[] returns = BRunUtil.invoke(compileResult, "testSetByteChannel", args);
             Assert.assertEquals(returns.length, 1);
-            Assert.assertEquals(returns[0].stringValue(), "Hello Ballerina!",
+            Assert.assertEquals(new String(((BByteArray) returns[0]).getBytes()), "Hello Ballerina!",
                     "Entity body is not properly set");
         } catch (IOException e) {
             log.error("Error occurred in testSetByteChannel", e.getMessage());
@@ -433,7 +434,8 @@ public class MimeUtilityFunctionTest {
         Assert.assertEquals(returns.length, 1);
         BMap<String, BValue> errorStruct = (BMap<String, BValue>) returns[0];
         Assert.assertEquals(errorStruct.get(ERROR_MESSAGE_FIELD).stringValue(),
-                "Byte channel is not available but payload can be obtain either as xml, json, string or blob type");
+                "Byte channel is not available but payload can be obtain either" +
+                        " as xml, json, string or byte[] type");
     }
 
     @Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +
@@ -591,13 +593,13 @@ public class MimeUtilityFunctionTest {
     }
 
     @Test
-    public void testSetBodyAndGetBlob() {
+    public void testSetBodyAndGetByteArray() {
         String content = "ballerina";
-        BBlob byteContent = new BBlob(content.getBytes());
+        BByteArray byteContent = new BByteArray(content.getBytes());
         BValue[] args = {byteContent};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSetBodyAndGetBlob", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSetBodyAndGetByteArray", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), content);
+        Assert.assertEquals(new String(((BByteArray) returns[0]).getBytes()), content);
     }
 
     @Test

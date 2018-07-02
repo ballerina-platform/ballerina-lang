@@ -56,7 +56,7 @@ public type HttpCache object {
             // IMPT: The call to getBinaryPayload() builds the payload from the stream. If this is not done, the stream
             // will be read by the client and the response will be after the first cache hit.
             match inboundResponse.getBinaryPayload() {
-                blob => {}
+                byte[] => {}
                 error => {}
             }
             log:printDebug("Adding new cache entry for: " + key);

@@ -64,7 +64,7 @@ public class GetByteChannel extends BlockingNativeCallableUnit {
                 if (EntityBodyHandler.getMessageDataSource(entityStruct) != null) {
                     context.setReturnValues(MimeUtil.createError(context,
                             "Byte channel is not available but payload can be obtain either as xml, " +
-                                    "json, string or blob type"));
+                                    "json, string or byte[] type"));
                 } else if (EntityBodyHandler.getBodyPartArray(entityStruct) != null && EntityBodyHandler.
                         getBodyPartArray(entityStruct).size() != 0) {
                     context.setReturnValues(MimeUtil.createError(context,

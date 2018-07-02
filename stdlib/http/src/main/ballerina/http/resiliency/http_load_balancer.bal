@@ -54,55 +54,55 @@ public type LoadBalancerActions object {
         The POST action implementation of the LoadBalancer Connector.
 
         P{{path}} Resource path
-        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
                      or `mime:Entity[]`
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function post(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
     documentation {
         The HEAD action implementation of the LoadBalancer Connector.
 
         P{{path}} Resource path
-        P{{message}} An optional HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+        P{{message}} An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
                      or `mime:Entity[]`
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function head(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message = ()) returns Response|error;
 
     documentation {
         The PATCH action implementation of the LoadBalancer Connector.
 
         P{{path}} Resource path
-        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
                      or `mime:Entity[]`
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function patch(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                             message) returns Response|error;
 
     documentation {
         The PUT action implementation of the Load Balance Connector.
 
         P{{path}} Resource path
-        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
                      or `mime:Entity[]`
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function put(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
     documentation {
         The OPTIONS action implementation of the LoadBalancer Connector.
 
         P{{path}} Resource path
-        P{{message}} An optional HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+        P{{message}} An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
                      or `mime:Entity[]`
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function options(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                             message = ()) returns Response|error;
 
     documentation {
@@ -120,33 +120,33 @@ public type LoadBalancerActions object {
 
         P{{httpVerb}} HTTP method to be used for the request
         P{{path}} Resource path
-        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
                      or `mime:Entity[]`
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function execute(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                             message) returns Response|error;
 
     documentation {
         The DELETE action implementation of the LoadBalancer Connector.
 
         P{{path}} Resource path
-        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
                      or `mime:Entity[]`
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function delete(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                             message) returns Response|error;
 
     documentation {
         The GET action implementation of the LoadBalancer Connector.
 
         P{{path}} Resource path
-        P{{message}} An optional HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+        P{{message}} An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
                      or `mime:Entity[]`
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function get(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message = ()) returns Response|error;
 
     documentation {
@@ -154,11 +154,11 @@ public type LoadBalancerActions object {
 
         P{{httpVerb}} The HTTP verb value
         P{{path}} The resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
                      `io:ByteChannel` or `mime:Entity[]`
         R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
     }
-    public function submit(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                             message) returns HttpFuture|error;
 
     documentation {
@@ -217,31 +217,31 @@ public type LoadBalanceActionError record {
     error[] httpActionErr,
 };
 
-function LoadBalancerActions::post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function LoadBalancerActions::post(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_POST);
 }
 
-function LoadBalancerActions::head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function LoadBalancerActions::head(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                             message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_HEAD);
 }
 
-function LoadBalancerActions::patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function LoadBalancerActions::patch(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_PATCH);
 }
 
-function LoadBalancerActions::put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function LoadBalancerActions::put(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_PUT);
 }
 
-function LoadBalancerActions::options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function LoadBalancerActions::options(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                         message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_OPTIONS);
@@ -251,25 +251,25 @@ function LoadBalancerActions::forward(string path, Request request) returns Resp
     return performLoadBalanceAction(self, path, request, HTTP_FORWARD);
 }
 
-function LoadBalancerActions::execute(string httpVerb, string path, Request|string|xml|json|blob|
+function LoadBalancerActions::execute(string httpVerb, string path, Request|string|xml|json|byte[]|
                                                         io:ByteChannel|mime:Entity[]|() message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceExecuteAction(self, path, req, httpVerb);
 }
 
-function LoadBalancerActions::delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function LoadBalancerActions::delete(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_DELETE);
 }
 
-function LoadBalancerActions::get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function LoadBalancerActions::get(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                             message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_GET);
 }
 
-function LoadBalancerActions::submit(string httpVerb, string path, Request|string|xml|json|blob|
+function LoadBalancerActions::submit(string httpVerb, string path, Request|string|xml|json|byte[]|
     io:ByteChannel|mime:Entity[]|() message) returns HttpFuture|error {
     error err = {message:"Unsupported action for LoadBalancer client."};
     return err;

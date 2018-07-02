@@ -33,11 +33,11 @@ public type CallerActions object {
         The `post()` function can be used to send HTTP POST requests to HTTP endpoints.
 
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
                      `io:ByteChannel` or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function post(@sensitive string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function post(@sensitive string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                     message) returns Response|error {
         Request req = buildRequest(message);
         return nativePost(self, path, req);
@@ -47,11 +47,11 @@ public type CallerActions object {
         The `head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
 
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
                      `io:ByteChannel` or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function head(@sensitive string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function head(@sensitive string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                     message = ()) returns Response|error {
         Request req = buildRequest(message);
         return nativeHead(self, path, req);
@@ -61,11 +61,11 @@ public type CallerActions object {
         The `put()` function can be used to send HTTP PUT requests to HTTP endpoints.
 
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
                      `io:ByteChannel` or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function put(@sensitive string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function put(@sensitive string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
         Request req = buildRequest(message);
         return nativePut(self, path, req);
@@ -76,11 +76,11 @@ public type CallerActions object {
 
         P{{httpVerb}} HTTP verb value
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
                      `io:ByteChannel` or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function execute(@sensitive string httpVerb, @sensitive string path, Request|string|xml|json|blob
+    public function execute(@sensitive string httpVerb, @sensitive string path, Request|string|xml|json|byte[]
                                                         |io:ByteChannel|mime:Entity[]|() message) returns Response|error {
         Request req = buildRequest(message);
         return nativeExecute(self, httpVerb, path, req);
@@ -90,11 +90,11 @@ public type CallerActions object {
         The `patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.
 
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
                      `io:ByteChannel` or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function patch(@sensitive string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function patch(@sensitive string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
         Request req = buildRequest(message);
         return nativePatch(self, path, req);
@@ -104,11 +104,11 @@ public type CallerActions object {
         The `delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
 
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
                      `io:ByteChannel` or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function delete(@sensitive string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function delete(@sensitive string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
         Request req = buildRequest(message);
         return nativeDelete(self, path, req);
@@ -118,11 +118,11 @@ public type CallerActions object {
         The `get()` function can be used to send HTTP GET requests to HTTP endpoints.
 
         P{{path}} Request path
-        P{{message}} An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+        P{{message}} An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
                      `io:ByteChannel` or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function get(@sensitive string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function get(@sensitive string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                         message = ()) returns Response|error {
         Request req = buildRequest(message);
         return nativeGet(self, path, req);
@@ -132,11 +132,11 @@ public type CallerActions object {
         The `options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
 
         P{{path}} Request path
-        P{{message}} An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+        P{{message}} An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
                      `io:ByteChannel` or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function options(@sensitive string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function options(@sensitive string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                             message = ()) returns Response|error {
         Request req = buildRequest(message);
         return nativeOptions(self, path, req);
@@ -158,11 +158,11 @@ public type CallerActions object {
 
         P{{httpVerb}} The HTTP verb value
         P{{path}} The resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
                      `io:ByteChannel` or `mime:Entity[]`
         R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
     }
-    public function submit(@sensitive string httpVerb, string path, Request|string|xml|json|blob|
+    public function submit(@sensitive string httpVerb, string path, Request|string|xml|json|byte[]|
                                                     io:ByteChannel|mime:Entity[]|() message) returns HttpFuture|error {
         Request req = buildRequest(message);
         return nativeSubmit(self, httpVerb, path, req);
