@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.util;
 
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
@@ -178,7 +179,12 @@ public class TableProvider {
                     sb.append(TableConstants.SQL_TYPE_BLOB);
                     break;
                 case TypeTags.ARRAY_TAG:
-                    sb.append(TableConstants.SQL_TYPE_ARRAY);
+                    BType elementType = ((BArrayType) sf.getFieldType()).getElementType();
+                    if (elementType.getTag() == TypeTags.BYTE_TAG) {
+                        sb.append(TableConstants.SQL_TYPE_BLOB);
+                    } else {
+                        sb.append(TableConstants.SQL_TYPE_ARRAY);
+                    }
                     break;
                 default:
                     throw new BallerinaException("Unsupported column type for table : " + sf.getFieldType());
@@ -261,13 +267,15 @@ public class TableProvider {
                     case TypeTags.JSON_TAG:
                         stmt.setString(index, (String) param.value());
                         break;
-                    case TypeTags.BLOB_TAG:
-                        byte[] blobData = (byte[]) param.value();
-                        stmt.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
-                        break;
                     case TypeTags.ARRAY_TAG:
-                        Object[] arrayData = TableUtils.getArrayData(param);
-                        stmt.setObject(index, arrayData);
+                        BType elementType = ((BArrayType) param.getType()).getElementType();
+                        if (elementType.getTag() == TypeTags.BYTE_TAG) {
+                            byte[] blobData = (byte[]) param.value();
+                            stmt.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
+                        } else {
+                            Object[] arrayData = TableUtils.getArrayData(param);
+                            stmt.setObject(index, arrayData);
+                        }
                         break;
                 }
             }
