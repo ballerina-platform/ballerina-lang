@@ -305,6 +305,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     private Stack<Instruction> loopExitInstructionStack = new Stack<>();
     private Stack<Instruction> abortInstructions = new Stack<>();
     private Stack<Instruction> failInstructions = new Stack<>();
+    private Stack<Integer> tryCatchErrorRangeFromIPStack = new Stack<>();
     private Stack<Integer> tryCatchErrorRangeToIPStack = new Stack<>();
 
     private int workerChannelCount = 0;
@@ -2945,34 +2946,60 @@ public class CodeGenerator extends BLangNodeVisitor {
         List<int[]> unhandledErrorRangeList = new ArrayList<>();
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
 
+        int fromIP = nextIP();
         tryCatchErrorRangeToIPStack.push(-1);
         // Handle try block.
-        int fromIP = nextIP();
         genNode(tryNode.tryBody, env);
+
+        // Pop out the final additional IP pushed on to the stack, if pushed when generating finally instrructions due
+        // to a return statement being present in the try block
+        if (!tryCatchErrorRangeFromIPStack.empty()) {
+            tryCatchErrorRangeFromIPStack.pop();
+        }
+
+        while (!tryCatchErrorRangeFromIPStack.empty() && !tryCatchErrorRangeToIPStack.empty() &&
+                tryCatchErrorRangeToIPStack.peek() != -1) {
+            unhandledErrorRangeList.add(new int[]{tryCatchErrorRangeFromIPStack.pop(),
+                                                    tryCatchErrorRangeToIPStack.pop()});
+        }
+
         int toIP = tryCatchErrorRangeToIPStack.pop();
         toIP = (toIP == -1) ? (nextIP() - 1) : toIP;
 
+        unhandledErrorRangeList.add(new int[]{fromIP, toIP});
+
         // Append finally block instructions.
         if (tryNode.finallyBody != null) {
-            appendFinallyBlockInstructions(tryNode.finallyBody);
+            genNode(tryNode.finallyBody, env);
         }
-
         emit(instructGotoTryCatchEnd);
-        unhandledErrorRangeList.add(new int[]{fromIP, toIP});
+
         // Handle catch blocks.
+        // Temporary error range list for new error ranges identified in catch blocks
+        List<int[]> unhandledCatchErrorRangeList = new ArrayList<>();
         int order = 0;
         for (BLangCatch bLangCatch : tryNode.getCatchBlocks()) {
-            tryCatchErrorRangeToIPStack.push(-1);
             addLineNumberInfo(bLangCatch.pos);
             int targetIP = nextIP();
+            tryCatchErrorRangeToIPStack.push(-1);
             genNode(bLangCatch, env);
-            int errRangeToIp = tryCatchErrorRangeToIPStack.pop();
-            errRangeToIp = (errRangeToIp == -1) ? (nextIP() - 1) : errRangeToIp;
-            unhandledErrorRangeList.add(new int[]{targetIP, errRangeToIp});
+
+            if (!tryCatchErrorRangeFromIPStack.empty()) {
+                tryCatchErrorRangeFromIPStack.pop();
+            }
+
+            while (tryCatchErrorRangeFromIPStack.size() > 1 && !tryCatchErrorRangeToIPStack.empty()
+                    && tryCatchErrorRangeToIPStack.peek() != -1) {
+                unhandledCatchErrorRangeList.add(new int[]{tryCatchErrorRangeFromIPStack.pop(),
+                        tryCatchErrorRangeToIPStack.pop()});
+            }
+            int catchToIP = tryCatchErrorRangeToIPStack.pop();
+            catchToIP = (catchToIP == -1) ? (nextIP() - 1) : catchToIP;
+            unhandledCatchErrorRangeList.add(new int[]{targetIP, catchToIP});
 
             // Append finally block instructions.
             if (tryNode.finallyBody != null) {
-                appendFinallyBlockInstructions(tryNode.finallyBody);
+                genNode(tryNode.finallyBody, env);
             }
 
             emit(instructGotoTryCatchEnd);
@@ -2983,18 +3010,25 @@ public class CodeGenerator extends BLangNodeVisitor {
             int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
             StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
             int structCPEntryIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
-            ErrorTableEntry errorTableEntry = new ErrorTableEntry(fromIP, toIP, targetIP, order++, structCPEntryIndex);
-            errorTable.addErrorTableEntry(errorTableEntry);
+
+            int currentOrder = order++;
+            for (int[] range : unhandledErrorRangeList) {
+                ErrorTableEntry errorTableEntry = new ErrorTableEntry(range[0], range[1], targetIP, currentOrder,
+                                                                      structCPEntryIndex);
+                errorTable.addErrorTableEntry(errorTableEntry);
+            }
         }
 
         if (tryNode.finallyBody != null) {
+            unhandledErrorRangeList.addAll(unhandledCatchErrorRangeList);
+
             // Create Error table entry for unhandled errors in try and catch(s) blocks
             for (int[] range : unhandledErrorRangeList) {
                 ErrorTableEntry errorTableEntry = new ErrorTableEntry(range[0], range[1], nextIP(), order++, -1);
                 errorTable.addErrorTableEntry(errorTableEntry);
             }
             // Append finally block instruction.
-            appendFinallyBlockInstructions(tryNode.finallyBody);
+            genNode(tryNode.finallyBody, env);
             emit(InstructionFactory.get(InstructionCodes.THROW, getOperand(-1)));
         }
         gotoTryCatchEndAddr.value = nextIP();
@@ -3102,6 +3136,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private void generateFinallyInstructions(BLangStatement statement, NodeKind... expectedParentKinds) {
         BLangStatement current = statement;
+        boolean hasReturn = false;
         while (current != null && current.statementLink.parent != null) {
             BLangStatement parent = current.statementLink.parent.statement;
             for (NodeKind expected : expectedParentKinds) {
@@ -3109,20 +3144,37 @@ public class CodeGenerator extends BLangNodeVisitor {
                     return;
                 }
             }
-            if (current.getKind() == NodeKind.RETURN
-                    && parent.statementLink.parent != null
-                    && NodeKind.TRY == parent.statementLink.parent.statement.getKind()) {
-                //if generateFinallyInstructions is called due to a return statement being present in a try block or
-                //a catch block, maintain the current IP (before code generation for the finally block) to use as
-                // the toIP of the error table entry
-                tryCatchErrorRangeToIPStack.pop();
-                tryCatchErrorRangeToIPStack.push(nextIP() - 1);
+
+            if (current.getKind() == NodeKind.RETURN) {
+                hasReturn = true;
             }
+
             if (NodeKind.TRY == parent.getKind()) {
+                boolean returnInFinally = false;
+                if (hasReturn) {
+                    //if generateFinallyInstructions is called due to a return statement being present in a try,
+                    // catch block, maintain the current IP (before code generation for the finally block)
+                    // to use as the toIP of the error table entry
+                    if (!tryCatchErrorRangeToIPStack.isEmpty()) {
+                        if (tryCatchErrorRangeToIPStack.peek() != -2) {
+                            tryCatchErrorRangeToIPStack.push(nextIP() - 1);
+                        } else {
+                            returnInFinally = true;
+                        }
+                    } else {
+                        tryCatchErrorRangeToIPStack.push(nextIP() - 1);
+                    }
+                }
+
                 BLangTryCatchFinally tryCatchFinally = (BLangTryCatchFinally) parent;
                 if (tryCatchFinally.finallyBody != null && current != tryCatchFinally.finallyBody) {
-                    // Append finally block instructions.
-                    appendFinallyBlockInstructions(tryCatchFinally.finallyBody);
+                    tryCatchErrorRangeToIPStack.push(-2);
+                    genNode(tryCatchFinally.finallyBody, env);
+                    tryCatchErrorRangeToIPStack.pop();
+                }
+
+                if (!returnInFinally) {
+                    tryCatchErrorRangeFromIPStack.push(nextIP() + 1);
                 }
             } else if (NodeKind.LOCK == parent.getKind()) {
                 BLangLock lockNode = (BLangLock) parent;
@@ -3133,12 +3185,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             }
             current = parent;
         }
-    }
-
-    private void appendFinallyBlockInstructions(BLangBlockStmt finallyBody) {
-        tryCatchErrorRangeToIPStack.push(-1);
-        genNode(finallyBody, env);
-        tryCatchErrorRangeToIPStack.pop();
     }
 
     private RegIndex getNamespaceURIIndex(BXMLNSSymbol namespaceSymbol, SymbolEnv env) {
