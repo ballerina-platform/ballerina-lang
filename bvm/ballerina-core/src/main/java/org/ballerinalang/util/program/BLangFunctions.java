@@ -43,8 +43,8 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.PersistenceUtils;
 import org.ballerinalang.persistence.states.PendingCheckpoints;
 import org.ballerinalang.persistence.states.State;
-import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.persistence.store.PersistenceStore;
+import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo.WorkerSet;
@@ -263,19 +263,17 @@ public class BLangFunctions {
         WorkerExecutionContext resultCtx;
         if (callableUnitInfo.isNative()) {
             NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();
-            if (nativeCallable instanceof InterruptibleNativeCallableUnit) {
+            if (parentCtx.interruptible && nativeCallable instanceof InterruptibleNativeCallableUnit) {
                 InterruptibleNativeCallableUnit interruptibleNativeCallableUnit
                         = (InterruptibleNativeCallableUnit) nativeCallable;
-                Object o = parentCtx.globalProps.get(PersistenceUtils.INSTANCE_ID);
-                if (o != null && o instanceof String) {
-                    String instanceId = (String) o;
-                    WorkerExecutionContext runnableContext = PersistenceUtils.getMainPackageContext(parentCtx);
-                    if (interruptibleNativeCallableUnit.persistBeforeOperation()) {
-                        PersistenceStore.persistState(instanceId, new State(runnableContext));
-                    }
-                    if (interruptibleNativeCallableUnit.persistAfterOperation()) {
-                        PendingCheckpoints.addCheckpoint(instanceId, (runnableContext.ip + 1));
-                    }
+                Object o = parentCtx.globalProps.get(Constants.INSTANCE_ID);
+                String instanceId = o.toString();
+                WorkerExecutionContext runnableContext = PersistenceUtils.getMainPackageContext(parentCtx);
+                if (interruptibleNativeCallableUnit.persistBeforeOperation()) {
+                    PersistenceStore.persistState(new State(runnableContext, instanceId));
+                }
+                if (interruptibleNativeCallableUnit.persistAfterOperation()) {
+                    PendingCheckpoints.addCheckpoint(instanceId, (runnableContext.ip + 1));
                 }
             }
             if (FunctionFlags.isAsync(flags)) {
@@ -427,6 +425,11 @@ public class BLangFunctions {
             return BLangVMUtils.handleNativeInvocationError(parentCtx,
                     BLangVMErrors.createNullRefException(parentCtx));
         } catch (Throwable e) {
+            if (parentCtx.interruptible) {
+                PersistenceUtils.handleErrorState(parentCtx);
+                BLangScheduler.workerCountDown();
+                return null;
+            }
             return BLangVMUtils.handleNativeInvocationError(parentCtx,
                     BLangVMErrors.createError(parentCtx, e.getMessage()));
         }

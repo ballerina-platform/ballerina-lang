@@ -23,7 +23,6 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.PersistenceUtils;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObservabilityUtils;
@@ -115,7 +114,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         if (httpResource.isInterruptible()) {
             String messageId = inboundMessage.getHeader(HTTP_MESSAGE_ID);
             if (messageId != null) {
-                properties.put(PersistenceUtils.INSTANCE_ID, httpResource.getParentService().getName() + "_" +
+                properties.put(Constants.INSTANCE_ID, httpResource.getParentService().getName() + "_" +
                         httpResource.getBalResource().getName() + "_" + messageId);
             }
         }

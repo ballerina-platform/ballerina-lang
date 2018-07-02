@@ -19,6 +19,7 @@ package org.ballerinalang.persistence;
 
 import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.persistence.states.ActiveStates;
 import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -59,6 +60,7 @@ public class RecoveryTask implements Runnable {
             // that to start a new thread for the function.
             context.runInCaller = false;
             BLangScheduler.schedule(context);
+            ActiveStates.add(state);
         }
     }
 

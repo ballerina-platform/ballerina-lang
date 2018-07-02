@@ -45,7 +45,6 @@ public class SerializableBJSON implements SerializableRefType {
         if (jsonContent == null) {
             throw new BallerinaException("JSON content is null.");
         }
-
         String jsonString = new String(Base64.getDecoder().decode(jsonContent));
         if (jsonString.contains("{")) {
             jsonString = jsonString.replaceAll("\"", "'");

@@ -178,7 +178,9 @@ public abstract class ConnectionAction implements NativeCallableUnit {
                 }
             }
             this.dataContext.notifyOutboundResponseStatus(httpConnectorError);
-            PersistenceUtils.handleErrorState(dataContext.context.getParentWorkerExecutionContext());
+            if (dataContext.context.getParentWorkerExecutionContext().interruptible) {
+                PersistenceUtils.handleErrorState(dataContext.context.getParentWorkerExecutionContext());
+            }
         }
     }
 }

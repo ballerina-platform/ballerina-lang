@@ -23,6 +23,7 @@ import org.ballerinalang.persistence.PersistenceUtils;
 import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.persistence.store.impl.FileBasedProvider;
+import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.program.BLangVMUtils;
@@ -44,13 +45,12 @@ public class PersistenceStore {
         storageProvider = new FileBasedProvider();
     }
 
-    public static void persistState(String instanceId, State state) {
-
+    public static void persistState(State state) {
         SerializableState sState = new SerializableState(state.getContext());
-        sState.setInstanceId(instanceId);
+        sState.setInstanceId(state.getInstanceId());
         String stateString = sState.serialize();
         String workerName = state.getContext().workerInfo.getWorkerName();
-        storageProvider.persistState(instanceId, workerName, stateString);
+        storageProvider.persistState(state.getInstanceId(), workerName, stateString);
     }
 
     public static void removeStates(String instanceId) {
@@ -67,7 +67,7 @@ public class PersistenceStore {
                 ResourceInfo resourceInfo = (ResourceInfo) context.callableUnitInfo;
                 BLangVMUtils.setServiceInfo(context, resourceInfo.getServiceInfo());
             }
-            State state = new State(context);
+            State state = new State(context, context.globalProps.get(Constants.INSTANCE_ID).toString());
             // have to decrement ip as CPU class increments it as soon as instruction is fetched
             context.ip--;
             state.setIp(context.ip);
@@ -77,9 +77,5 @@ public class PersistenceStore {
         PersistenceUtils.getTempContexts().clear();
         PersistenceUtils.getTempRespContexts().clear();
         return states;
-    }
-
-    public static void removeFailedStates(String instanceId) {
-        storageProvider.removeFailedStates(instanceId);
     }
 }

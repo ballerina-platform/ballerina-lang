@@ -110,9 +110,6 @@ public class LauncherUtils {
         // Load launcher listeners
         ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
         listeners.forEach(listener -> listener.beforeRunProgram(runServicesOrNoMainEP));
-
-        BLangProgramRunner.runSavedStates(programFile);
-
         if (runServicesOrNoMainEP) {
             if (args.length > 0) {
                 throw LauncherUtils.createUsageException("too many arguments");
@@ -122,6 +119,7 @@ public class LauncherUtils {
             runMain(programFile, args);
         }
 
+        BLangProgramRunner.runSavedStates(programFile);
         listeners.forEach(listener -> listener.afterRunProgram(runServicesOrNoMainEP));
     }
 

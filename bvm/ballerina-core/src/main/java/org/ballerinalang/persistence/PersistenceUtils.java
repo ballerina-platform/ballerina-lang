@@ -38,6 +38,7 @@ import org.ballerinalang.persistence.states.ActiveStates;
 import org.ballerinalang.persistence.states.FailedStates;
 import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.persistence.store.PersistenceStore;
+import org.ballerinalang.runtime.Constants;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -52,8 +53,6 @@ import java.util.Map;
  *
  */
 public class PersistenceUtils {
-
-    public static final String INSTANCE_ID = "b7a.instance.id";
 
     private static boolean initialized = false;
 
@@ -136,19 +135,11 @@ public class PersistenceUtils {
         }
     }
 
-    public static String getInstanceId(WorkerExecutionContext context) {
-        String instanceId = null;
-        Object o = context.globalProps.get(PersistenceUtils.INSTANCE_ID);
-        if (o instanceof String) {
-            instanceId = (String) o;
-        }
-        return instanceId;
-    }
-
     public static void handleErrorState(WorkerExecutionContext parentCtx) {
-        String instanceId = getInstanceId(parentCtx);
-        if (instanceId != null) {
-            State state = new State(parentCtx);
+        Object o = parentCtx.globalProps.get(Constants.INSTANCE_ID);
+        if (o != null) {
+            String instanceId = o.toString();
+            State state = new State(parentCtx, instanceId);
             state.setIp(parentCtx.ip);
             FailedStates.add(instanceId, state);
             ActiveStates.remove(instanceId);

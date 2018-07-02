@@ -25,6 +25,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import org.ballerinalang.runtime.Constants;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -46,10 +47,10 @@ public class HashMapAdapter implements JsonSerializer<HashMap<String, Object>>,
             Object v = map.get(key);
             JsonObject wrapper = new JsonObject();
             if (v != null) {
-                wrapper.add("objectClass", new JsonPrimitive(v.getClass().getName()));
-                wrapper.add("data", context.serialize(v, v.getClass()));
+                wrapper.add(Constants.OBJECT_CLASS, new JsonPrimitive(v.getClass().getName()));
+                wrapper.add(Constants.DATA, context.serialize(v, v.getClass()));
             } else {
-                wrapper.add("objectClass", new JsonPrimitive("NULL"));
+                wrapper.add(Constants.OBJECT_CLASS, new JsonPrimitive(Constants.NULL));
             }
             result.add(key, wrapper);
         }
@@ -64,11 +65,11 @@ public class HashMapAdapter implements JsonSerializer<HashMap<String, Object>>,
             for (Map.Entry<String, JsonElement> entry : entries) {
                 String key = entry.getKey();
                 JsonObject wrapper = entry.getValue().getAsJsonObject();
-                String className = wrapper.get("objectClass").getAsString();
-                if ("NULL".equals(className)) {
+                String className = wrapper.get(Constants.OBJECT_CLASS).getAsString();
+                if (Constants.NULL.equals(className)) {
                     map.put(key, null);
                 } else {
-                    JsonElement data = wrapper.get("data");
+                    JsonElement data = wrapper.get(Constants.DATA);
                     Object o = context.deserialize(data, Class.forName(className));
                     map.put(key, o);
                 }

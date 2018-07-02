@@ -34,6 +34,4 @@ public interface StorageProvider {
     void removeStates(String instanceId);
 
     List<String> getAllSerializedStates();
-
-    void removeFailedStates(String instanceId);
 }
