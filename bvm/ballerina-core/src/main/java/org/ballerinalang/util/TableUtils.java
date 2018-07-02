@@ -28,6 +28,7 @@ import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -44,6 +45,7 @@ import java.io.ByteArrayInputStream;
 import java.sql.Blob;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  * Includes utility methods required for table related operations.
@@ -113,8 +115,20 @@ public class TableUtils {
                     stmt.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
                     break;
                 case TypeTags.ARRAY_TAG:
-                    Object[] arrayData = getArrayData(constrainedType.get(fieldName));
-                    stmt.setObject(index, arrayData);
+                    boolean isBlobType =
+                            ((BArrayType) sf.getFieldType()).getElementType().getTag() == TypeTags.BYTE_TAG;
+                    if (isBlobType) {
+                        BValue value = constrainedType.get(fieldName);
+                        if (value != null) {
+                            blobData = ((BByteArray) constrainedType.get(fieldName)).getBytes();
+                            stmt.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
+                        } else {
+                            stmt.setNull(index, Types.BLOB);
+                        }
+                    } else {
+                        Object[] arrayData = getArrayData(constrainedType.get(fieldName));
+                        stmt.setObject(index, arrayData);
+                    }
                     break;
                 }
                 ++index;

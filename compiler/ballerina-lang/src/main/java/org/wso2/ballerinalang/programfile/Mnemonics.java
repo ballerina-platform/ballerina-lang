@@ -80,19 +80,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.LGSTORE] = "lgstore";
         mnemonics[InstructionCodes.RGSTORE] = "rgstore";
 
-        mnemonics[InstructionCodes.IFIELDLOAD] = "ifieldload";
-        mnemonics[InstructionCodes.FFIELDLOAD] = "ffieldload";
-        mnemonics[InstructionCodes.SFIELDLOAD] = "sfieldload";
-        mnemonics[InstructionCodes.BFIELDLOAD] = "bfieldload";
-        mnemonics[InstructionCodes.LFIELDLOAD] = "lfieldload";
-        mnemonics[InstructionCodes.RFIELDLOAD] = "rfieldload";
-        mnemonics[InstructionCodes.IFIELDSTORE] = "ifieldstore";
-        mnemonics[InstructionCodes.FFIELDSTORE] = "ffieldstore";
-        mnemonics[InstructionCodes.SFIELDSTORE] = "sfieldstore";
-        mnemonics[InstructionCodes.BFIELDSTORE] = "bfieldstore";
-        mnemonics[InstructionCodes.LFIELDSTORE] = "lfieldstore";
-        mnemonics[InstructionCodes.RFIELDSTORE] = "rfieldstore";
-
         mnemonics[InstructionCodes.MAPLOAD] = "mapload";
         mnemonics[InstructionCodes.MAPSTORE] = "mapstore";
         mnemonics[InstructionCodes.JSONLOAD] = "jsonload";

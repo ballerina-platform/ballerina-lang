@@ -17,22 +17,22 @@
 import ballerina/http;
 import ballerina/io;
 
-endpoint http:WebSocketListener echoEP {
-    host:"0.0.0.0",
-    port:9090
+endpoint http:WebSocketListener wsCaller {
+    host: "0.0.0.0",
+    port: 9090
 };
 
 @http:WebSocketServiceConfig {
-    path:"/echo"
+    path: "/"
 }
-service<http:WebSocketService> echo bind echoEP {
+service<http:WebSocketService> wsService bind wsCaller {
     onOpen(endpoint caller) {
     }
 
     onText(endpoint caller, string text) {
     }
 
-    onBinary(endpoint caller, blob text, boolean final) {
+    onBinary(endpoint caller, byte[] data, boolean final) {
     }
 
     onClose(endpoint caller, int val, string text) {
@@ -41,10 +41,10 @@ service<http:WebSocketService> echo bind echoEP {
     onIdleTimeout(endpoint caller) {
     }
 
-    onPing(endpoint caller, blob so) {
+    onPing(endpoint caller, byte[] data) {
     }
 
-    onPong(endpoint caller, blob yes) {
+    onPong(endpoint caller, byte[] data) {
     }
 
     onError(endpoint caller, error err) {
