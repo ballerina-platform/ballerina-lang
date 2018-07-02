@@ -44,9 +44,6 @@ public class StreamingActionTest {
     @Test(description = "Test streaming action query with errors")
     public void testStreamingActionNegativeType() {
         Assert.assertEquals(resultNegativeInvalidType.getErrorCount(), 2);
-        BAssertUtil.validateError(resultNegativeInvalidType, 0,
-                "Invalid stream action argument type found. it should be a struct array type argument",
-                44, 9);
         BAssertUtil.validateError(resultNegativeInvalidType, 1, "undefined symbol 'emp'",
                 45, 37);
     }

@@ -5,7 +5,7 @@ public function testObjectWithInterface () returns (int, string) {
 }
 
 
-type Person {
+type Person record {
     int age = 10,
 }
 

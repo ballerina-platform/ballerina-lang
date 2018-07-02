@@ -165,9 +165,6 @@ public class LaunchManager {
                 if (line.startsWith(LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL)
                         && getServerStartedURL() == null) {
                     this.updatePort(line);
-                    line = LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL + " " +
-                            String.format(LauncherConstants.LOCAL_TRY_IT_URL,
-                                    LauncherConstants.LOCALHOST, getPort(line));
                     pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);
                 } else {
                     pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);

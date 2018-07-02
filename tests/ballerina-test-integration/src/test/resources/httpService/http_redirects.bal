@@ -101,7 +101,7 @@ service<http:Service> testRedirect bind serviceEndpoint {
                     value = httpResponse.getHeader(http:LOCATION);
                 }
                 value = value + ":" + httpResponse.resolvedRequestedURI;
-                _ = client->respond(value);
+                _ = client->respond(untaint value);
             }
         }
     }
@@ -120,7 +120,7 @@ service<http:Service> testRedirect bind serviceEndpoint {
             http:Response httpResponse => {
                 string value = check httpResponse.getTextPayload();
                 value = value + ":" + httpResponse.resolvedRequestedURI;
-                _ = client->respond(value);
+                _ = client->respond(untaint value);
             }
         }
     }
@@ -139,7 +139,7 @@ service<http:Service> testRedirect bind serviceEndpoint {
             http:Response httpResponse => {
                 string value = check httpResponse.getTextPayload();
                 value = value + ":" + httpResponse.resolvedRequestedURI;
-                _ = client->respond(value);
+                _ = client->respond(untaint value);
             }
         }
     }
@@ -158,7 +158,7 @@ service<http:Service> testRedirect bind serviceEndpoint {
             http:Response httpResponse => {
                 string value = check httpResponse.getTextPayload();
                 value = value + ":" + httpResponse.resolvedRequestedURI;
-                _ = client->respond(value);
+                _ = client->respond(untaint value);
             }
         }
     }
@@ -177,7 +177,7 @@ service<http:Service> testRedirect bind serviceEndpoint {
             http:Response httpResponse => {
                 string value = check httpResponse.getTextPayload();
                 value = value + ":" + httpResponse.resolvedRequestedURI;
-                _ = client->respond(value);
+                _ = client->respond(untaint value);
             }
         }
     }
@@ -196,7 +196,7 @@ service<http:Service> testRedirect bind serviceEndpoint {
             http:Response httpResponse => {
                 string value = check httpResponse.getTextPayload();
                 value = value + ":" + httpResponse.resolvedRequestedURI;
-                _ = client->respond(value);
+                _ = client->respond(untaint value);
             }
         }
     }
@@ -215,7 +215,7 @@ service<http:Service> testRedirect bind serviceEndpoint {
             http:Response httpResponse => {
                 string value = check httpResponse.getTextPayload();
                 value = value + ":" + httpResponse.resolvedRequestedURI;
-                _ = client->respond(value);
+                _ = client->respond(untaint value);
             }
         }
     }
@@ -237,7 +237,7 @@ service<http:Service> testRedirect bind serviceEndpoint {
                     value = httpResponse.getHeader(http:LOCATION);
                 }
                 value = value + ":" + httpResponse.resolvedRequestedURI;
-                _ = client->respond(value);
+                _ = client->respond(untaint value);
             }
         }
     }
@@ -256,7 +256,7 @@ service<http:Service> testRedirect bind serviceEndpoint {
             http:Response httpResponse => {
                 string value = check httpResponse.getTextPayload();
                 value = value + ":" + httpResponse.resolvedRequestedURI;
-                _ = client->respond(value);
+                _ = client->respond(untaint value);
             }
         }
     }
@@ -348,7 +348,7 @@ service<http:Service> redirect1 bind serviceEndpoint {
     processQP(endpoint client, http:Request req) {
         map<string> paramsMap = req.getQueryParams();
         string returnVal = paramsMap.key + ":" + paramsMap.lang;
-        _ = client->respond(returnVal);
+        _ = client->respond(untaint returnVal);
     }
 }
 

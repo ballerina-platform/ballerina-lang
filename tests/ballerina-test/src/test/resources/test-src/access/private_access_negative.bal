@@ -4,7 +4,7 @@ type Foo object {
     }
 };
 
-type Bar {
+type Bar record {
     string s;
 };
 
@@ -113,23 +113,23 @@ function test4() returns string {
     return m.s;
 }
 
-type FooRecord {
+type FooRecord record {
     string s;
     BarRecord br;
 };
 
-type BarRecord {
+type BarRecord record {
     string s;
 };
 
-{
+record {
      string s;
      Baz z = 1;
      Foo foo1;
      BarRecord br;
 } anonRecord;
 
-public type ParentRecord {
+public type ParentRecord record {
     int i;
     ChildFoo c;
     ChildRecord r;
@@ -137,12 +137,12 @@ public type ParentRecord {
     Baz z = 1;
 };
 
-type ChildRecord {
+type ChildRecord record {
     string name;
 };
 
 function test5() returns string {
-    {
+    record {
          string s;
          Baz z = 1;
          Foo foo1;
@@ -152,7 +152,7 @@ function test5() returns string {
     return m.s;
 }
 
-public function test6({
+public function test6(record {
                           string s;
                           Baz z = 1;
                           Foo foo1;
@@ -161,13 +161,13 @@ public function test6({
     return "K";
 }
 
-public function test7() returns {
+public function test7() returns record {
                                     string s;
                                     Baz z = 1;
                                     Foo foo1;
                                     BarRecord br;
                                 }{
-    {
+    record {
           string s;
           Baz z = 1;
           Foo foo1;
@@ -183,7 +183,7 @@ type FooTypeObj object {
     }
 };
 
-type BarTypeRecord {
+type BarTypeRecord record {
     string s;
 };
 
@@ -202,7 +202,7 @@ public type FooTypePublicObj object {
     }
 };
 
-public type BarTypePublicRecord {
+public type BarTypePublicRecord record {
     string s;
 };
 
@@ -214,7 +214,7 @@ public type TypeE BarTypePublicRecord;
 
 public type TypeF BazTypePublicFinite;
 
-public type Person {
+public type Person record {
    string name;
 };
 

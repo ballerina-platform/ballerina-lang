@@ -3,35 +3,40 @@ import ballerina/jdbc;
 import ballerina/time;
 import ballerina/io;
 
-type ResultCustomers {
+type ResultCustomers record {
     string FIRSTNAME,
 };
 
-type ResultCustomers2 {
+type ResultCustomers2 record {
     string FIRSTNAME,
     string LASTNAME,
 };
 
-type ResultIntType {
+type ResultIntType record {
     int INT_TYPE,
 };
 
-type ResultBlob {
-    blob BLOB_TYPE,
+type ResultBlob record {
+    byte[] BLOB_TYPE,
 };
 
-type ResultDataType {
+type ResultRowIDBlob record {
+    int row_id,
+    byte[] BLOB_TYPE,
+};
+
+type ResultDataType record {
     int INT_TYPE,
     int LONG_TYPE,
     float FLOAT_TYPE,
     float DOUBLE_TYPE,
 };
 
-type ResultCount {
+type ResultCount record {
     int COUNTVAL,
 };
 
-type ResultArrayType {
+type ResultArrayType record {
     int[] INT_ARRAY,
     int[] LONG_ARRAY,
     float[] DOUBLE_ARRAY,
@@ -40,14 +45,14 @@ type ResultArrayType {
     float[] FLOAT_ARRAY,
 };
 
-type ResultDates {
+type ResultDates record {
     string DATE_TYPE,
     string TIME_TYPE,
     string TIMESTAMP_TYPE,
     string DATETIME_TYPE,
 };
 
-type ResultBalTypes {
+type ResultBalTypes record {
     int INT_TYPE,
     int LONG_TYPE,
     float FLOAT_TYPE,
@@ -59,7 +64,7 @@ type ResultBalTypes {
     float REAL_TYPE,
 };
 
-type Employee {
+type Employee record {
     int id,
     string name,
     string address,
@@ -477,6 +482,36 @@ function testBoolArrayofQueryParameters(string jdbcUrl, string userName, string 
     return value;
 }
 
+function testBlobArrayQueryParameter(string jdbcUrl, string userName, string password) returns int {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    table dt1 = check testDB->select("SELECT blob_type from BlobTable where row_id = 7", ResultBlob);
+
+    byte[] blobData;
+    while (dt1.hasNext()) {
+        ResultBlob rs = check <ResultBlob>dt1.getNext();
+        blobData = rs.BLOB_TYPE;
+    }
+    byte[][] blobDataArray = [blobData, blobData];
+
+    sql:Parameter para1 = { sqlType: sql:TYPE_BLOB, value: blobDataArray };
+
+    table dt = check testDB->select("SELECT row_id from BlobTable where row_id = ? and blob_type in (?)", ResultRowIDBlob, 7, para1);
+
+    int value;
+    while (dt.hasNext()) {
+        ResultRowIDBlob rs = check <ResultRowIDBlob>dt.getNext();
+        value = rs.row_id;
+    }
+    testDB.stop();
+    return value;
+}
+
 function testArrayInParameters(string jdbcUrl, string userName, string password) returns (int, int[], int[], float[],
             string[], boolean[], float[]) {
     endpoint jdbc:Client testDB {
@@ -755,36 +790,6 @@ function testINParametersWithDirectValues(string jdbcUrl, string userName, strin
     }
     testDB.stop();
     return (i, l, f, d, b, s, n, dec, real);
-}
-
-function testINParametersWithDirectBlobValues(string jdbcUrl, string userName, string password) returns (blob, blob) {
-    endpoint jdbc:Client testDB {
-        url: jdbcUrl,
-        username: userName,
-        password: password,
-        poolOptions: { maximumPoolSize: 1 }
-    };
-
-    table dt1 = check testDB->select("SELECT blob_type from BlobTable where row_id = 1", ResultBlob);
-
-    blob blobInsert;
-    while (dt1.hasNext()) {
-        ResultBlob rs = check <ResultBlob>dt1.getNext();
-        blobInsert = rs.BLOB_TYPE;
-    }
-
-    int insertCount = check testDB->update("INSERT INTO BlobTable (row_id, blob_type)
-            VALUES (?,?)", 25, blobInsert);
-    table dt = check testDB->select("SELECT blob_type from BlobTable where row_id = 25", ResultBlob);
-
-    blob blobReturn;
-    while (dt.hasNext()) {
-        ResultBlob rs = check <ResultBlob>dt.getNext();
-        blobReturn = rs.BLOB_TYPE;
-    }
-    testDB.stop();
-
-    return (blobInsert, blobReturn);
 }
 
 function testINParametersWithDirectVariables(string jdbcUrl, string userName, string password) returns (int, int, float,

@@ -261,13 +261,13 @@ function updateGenericMapWithNullValue (map m) returns (map) {
     return m;
 }
 
-type Person {
+type Person record {
      string name,
     int age,
     string address;
 };
 
-type Employee {
+type Employee record {
      string name,
     int age;
 };
@@ -381,7 +381,7 @@ function testAnyMapToRefTypeRuntimeCast () returns (map<Employee>|error) {
     }
 }
 
-type Student {
+type Student record {
      int index,
     int age;
 };
@@ -450,7 +450,7 @@ function testMapOfElementTypeRefArray () returns ((string, int)) {
     return (jackR.name, jackR.age);
 }
 
-type PersonComplex {
+type PersonComplex record {
      string name,
     int age,
     PersonComplex? parent,
@@ -488,7 +488,7 @@ function testJsonToStructConversionStructWithConstrainedMap () returns (string, 
     return (ms["city"], ms["country"]);
 }
 
-type PersonComplexTwo {
+type PersonComplexTwo record {
     string name,
     int age,
     PersonComplexTwo? parent,
@@ -583,19 +583,19 @@ function testMapConstrainedEquivalentMapInsert () returns (string, int) {
     return (emp["jack"].name, emp["jack"].age);
 }
 
-type Transaction {
+type Transaction record {
     string transactionId,
     string coordinationType,
     map<Participant> participants,
     Protocol[] coordinatorProtocols;
 };
 
-type Participant {
+type Participant record {
     string participantId,
     Protocol[] participantProtocols;
 };
 
-type Protocol {
+type Protocol record {
     string name,
     string url,
     int transactionBlockId,
@@ -604,7 +604,7 @@ type Protocol {
                string protocolAction) returns boolean)|() protocolFn;
 };
 
-type TwoPhaseCommitTransaction {
+type TwoPhaseCommitTransaction record {
     string transactionId,
     string coordinationType,
     map<Participant> participants,

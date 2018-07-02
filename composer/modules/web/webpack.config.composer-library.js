@@ -133,12 +133,12 @@ const config = [{
         new CleanWebpackPlugin(['library/dist']),
         new webpack.optimize.CommonsChunkPlugin({
             name: 'tree',
-            chunks: ['bundle', 'tree', 'testable'],
+            chunks: ['bundle', 'tree'],
             minChunks: Infinity,
         }),
         new webpack.optimize.CommonsChunkPlugin({
             name: 'vendor',
-            chunks: ['bundle', 'tree', 'testable'],
+            chunks: ['bundle', 'tree'],
             minChunks(module) {
                 const context = module.context;
                 return context && context.indexOf('node_modules') >= 0;

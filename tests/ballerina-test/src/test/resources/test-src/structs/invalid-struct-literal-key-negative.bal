@@ -1,9 +1,9 @@
-type Department {
+type Department record {
     string dptName;
     boolean y;
 };
 
-type person {
+type person record {
     string a;
 };
 

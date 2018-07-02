@@ -1,34 +1,34 @@
 import ballerina/jdbc;
 
-type Person {
+type Person record {
     int id;
     int age;
     float salary;
     string name;
 };
 
-type ResultCount {
+type ResultCount record {
     int COUNTVAL;
 };
 
-type Employee {
+type Employee record {
     int id;
     string name;
     float salary;
 };
 
-type EmployeeCompatible {
+type EmployeeCompatible record {
     int id;
     string name;
     float salary;
 };
 
-type EmployeeSalary {
+type EmployeeSalary record {
     int id;
     float salary;
 };
 
-type EmployeeSalaryCompatible {
+type EmployeeSalaryCompatible record {
     int id;
     float salary;
 };

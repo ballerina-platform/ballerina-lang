@@ -373,7 +373,7 @@ class WorkspacePlugin extends Plugin {
                     region: REGIONS.LEFT_PANEL,
                     // region specific options for left-panel views
                     regionOptions: {
-                        activityBarIcon: 'folder-open',
+                        activityBarIcon: 'ballerina-project-fill',
                         panelTitle: 'Explorer',
                         panelActions: [
                             {

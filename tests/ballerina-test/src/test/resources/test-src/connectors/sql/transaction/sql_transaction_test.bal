@@ -2,7 +2,7 @@ import ballerina/jdbc;
 import ballerina/io;
 import ballerina/runtime;
 
-type ResultCount {
+type ResultCount record {
     int COUNTVAL,
 };
 

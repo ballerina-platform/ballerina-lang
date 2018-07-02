@@ -1,4 +1,4 @@
-type Department {
+type Department record {
     string dptName;
     boolean y;
 };

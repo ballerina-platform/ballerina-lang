@@ -3,12 +3,12 @@ import ballerina/time;
 
 stream<Employee> globalEmployeeStream;
 
-type Employee {
+type Employee record {
     int id,
     string name,
 };
 
-type Job {
+type Job record {
     string description,
 };
 

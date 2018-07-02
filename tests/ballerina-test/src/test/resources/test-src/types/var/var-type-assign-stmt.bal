@@ -1,4 +1,4 @@
-type Person {
+type Person record {
     string name;
     int age;
     Person? parent;
@@ -150,7 +150,7 @@ function testIncompatibleJsonToStructWithErrors() returns (Person | error) {
     return p;
 }
 
-type PersonA {
+type PersonA record {
     string name;
     int age;
 };
@@ -163,12 +163,12 @@ function testJsonToStructWithErrors() returns (PersonA | error) {
     return p;
 }
 
-type A {
+type A record {
     string x;
     int y;
 };
 
-type B {
+type B record {
     string x;
 };
 

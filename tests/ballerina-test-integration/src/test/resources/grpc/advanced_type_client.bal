@@ -331,25 +331,25 @@ public type HelloWorldClient object {
 };
 
 
-type Person {
+type Person record {
     string name;
     Address address;
 
 };
 
-type Address {
+type Address record {
     int postalCode;
     string state;
     string country;
 
 };
 
-type StockRequest {
+type StockRequest record {
     string name;
 
 };
 
-type StockQuote {
+type StockQuote record {
     string symbol;
     string name;
     float last;
@@ -358,16 +358,16 @@ type StockQuote {
 
 };
 
-type StockQuotes {
+type StockQuotes record {
     StockQuote[] stock;
 };
 
-type StockNames {
+type StockNames record {
     string[] names;
 
 };
 
-type Empty {
+type Empty record {
 
 };
 

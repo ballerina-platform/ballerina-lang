@@ -3,35 +3,23 @@ import ballerina/io;
 io:Socket socket;
 
 function openSocketConnection (string host, int port) {
-    io:SocketProperties properties = {localPort:0};
-    var result = io:openSocket(host, port, properties);
-    match result {
-        io:Socket s => {
-            socket = s;
-        }
-        error err => {
-            throw err;
-        }
-    }
+    io:Socket s = new;
+    check s.connect(host, port);
+    socket = s;
 }
 
-function openSocketConnectionWithProps (string host, int port, io:SocketProperties prop) returns (io:Socket|error) {
-    var result = io:openSocket(host, port, prop);
-    match result {
-        io:Socket s => {
-            return s;
-        }
-        error err => {
-            return err;
-        }
-    }
+function openSocketConnectionWithProps (string host, int port, int localPort) returns io:Socket {
+    io:Socket s = new;
+    check s.bindAddress(localPort);
+    check s.connect(host, port);
+    return s;
 }
 
 function closeSocket () {
     error? err = socket.close();
 }
 
-function write (blob content) returns (int | error) {
+function write (byte[] content) returns int|error {
     io:ByteChannel channel = socket.channel;
     var result = channel.write(content, 0);
     match result {
@@ -44,11 +32,11 @@ function write (blob content) returns (int | error) {
     }
 }
 
-function read (int size) returns (blob, int) | error {
+function read (int size) returns (byte[], int)|error {
     io:ByteChannel channel = socket.channel;
     var result = channel.read(size);
     match result{
-        (blob , int)  content => {
+        (byte[] , int)  content => {
             var (bytes, numberOfBytes) = content;
             return (bytes, numberOfBytes);
         }
@@ -60,4 +48,8 @@ function read (int size) returns (blob, int) | error {
 
 function close (io:Socket localSocket) {
     error? err = localSocket.close();
+}
+
+function main (string... args)  {
+    openSocketConnection("localhost", 9999);
 }

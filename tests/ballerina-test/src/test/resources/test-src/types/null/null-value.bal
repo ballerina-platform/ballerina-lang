@@ -32,7 +32,7 @@ function testStructNull () returns (Person|(), Person|(), int) {
     return (p1, p2, a);
 }
 
-type Person {
+type Person record {
     string name;
 };
 

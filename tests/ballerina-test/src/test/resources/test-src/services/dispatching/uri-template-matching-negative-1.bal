@@ -1,5 +1,4 @@
 import ballerina/http;
-import ballerina/http;
 
 endpoint http:NonListener testEP {
     port:9090
@@ -17,7 +16,7 @@ service<http:Service> negativeTemplateURI bind testEP {
      echo1 (endpoint caller, http:Request req, string abc) {
         http:Response res = new;
         json responseJson = {"first":abc, "echo":"echo"};
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = caller -> respond(res);
     }
 
@@ -28,7 +27,7 @@ service<http:Service> negativeTemplateURI bind testEP {
      echo2 (endpoint caller, http:Request req, string xyz) {
         http:Response res = new;
         json responseJson = {"first":xyz, "echo":"echo"};
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = caller -> respond(res);
     }
 }

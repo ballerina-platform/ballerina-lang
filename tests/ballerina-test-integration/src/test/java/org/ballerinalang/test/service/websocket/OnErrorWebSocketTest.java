@@ -57,7 +57,7 @@ public class OnErrorWebSocketTest extends WebSocketIntegrationTest {
         client.sendCorruptedFrame();
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
         logLeecher.waitForText(TIMEOUT_IN_SECS * 1000);
-        CloseWebSocketFrame closeWebSocketFrame = client.getReceiveCloseFrame();
+        CloseWebSocketFrame closeWebSocketFrame = client.getReceivedCloseFrame();
 
         Assert.assertNotNull(closeWebSocketFrame);
         Assert.assertEquals(closeWebSocketFrame.statusCode(), 1002);

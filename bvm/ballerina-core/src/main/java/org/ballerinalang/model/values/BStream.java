@@ -36,6 +36,8 @@ import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -125,10 +127,11 @@ public class BStream implements BRefType<Object> {
      */
     public void subscribe(BFunctionPointer functionPointer) {
         BType[] parameters = functionPointer.funcRefCPEntry.getFunctionInfo().getParamTypes();
-        if (parameters[0].getTag() != constraintType.getTag()
-                || (constraintType instanceof BStructureType && ((BStructureType) parameters[0])
+        int lastArrayIndex = parameters.length - 1;
+        if (parameters[lastArrayIndex].getTag() != constraintType.getTag()
+                || (constraintType instanceof BStructureType && ((BStructureType) parameters[lastArrayIndex])
                 .getTypeInfo().getType() != constraintType)) {
-            throw new BallerinaException("incompatible function: subscription function needs to be a function accepting"
+         throw new BallerinaException("incompatible function: subscription function needs to be a function accepting"
                                                  + ":" + this.constraintType.getName());
         }
         String queueName = String.valueOf(System.currentTimeMillis()) + UUID.randomUUID().toString();
@@ -147,17 +150,25 @@ public class BStream implements BRefType<Object> {
     private class StreamSubscriber extends Consumer {
         final String queueName;
         final BFunctionPointer functionPointer;
+        List<BValue> closureArgs = new ArrayList<>();
 
         StreamSubscriber(String queueName, BFunctionPointer functionPointer) {
             this.queueName = queueName;
             this.functionPointer = functionPointer;
+            for (BClosure closure : functionPointer.getClosureVars()) {
+                closureArgs.add(closure.value());
+            }
         }
 
         @Override
         protected void send(Message message) throws BrokerException {
             BValue data =
                     ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).getValue();
-            BLangFunctions.invokeCallable(functionPointer.value().getFunctionInfo(), new BValue[] { data });
+            List<BValue> argsList = new ArrayList<>();
+            argsList.addAll(closureArgs);
+            argsList.add(data);
+            BLangFunctions.invokeCallable(functionPointer.value().getFunctionInfo(),
+                    argsList.toArray(new BValue[argsList.size()]));
         }
 
         @Override
@@ -197,7 +208,7 @@ public class BStream implements BRefType<Object> {
         protected void send(Message message) throws BrokerException {
             BValue data =
                     ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).getValue();
-            Object[] event = createEvent((BStruct) data);
+            Object[] event = createEvent((BMap) data);
             try {
                 inputHandler.send(event);
             } catch (InterruptedException e) {
@@ -206,28 +217,23 @@ public class BStream implements BRefType<Object> {
             }
         }
 
-        private Object[] createEvent(BStruct data) {
-            BStructureType streamType = data.getType();
-            int intValueIndex = -1;
-            int floatValueIndex = -1;
-            int stringValueIndex = -1;
-            int boolValueIndex = -1;
+        private Object[] createEvent(BMap<String, BValue> data) {
+            BStructureType streamType = (BStructureType) data.getType();
             Object[] event = new Object[streamType.getFields().length];
             for (int index = 0; index < streamType.getFields().length; index++) {
                 BField field = streamType.getFields()[index];
                 switch (field.getFieldType().getTag()) {
                     case TypeTags.INT_TAG:
-                        event[index] = data.getIntField(++intValueIndex);
+                        event[index] = ((BInteger) data.get(field.fieldName)).intValue();
                         break;
                     case TypeTags.FLOAT_TAG:
-                        event[index] = data.getFloatField(++floatValueIndex);
+                        event[index] = ((BFloat) data.get(field.fieldName)).floatValue();
                         break;
                     case TypeTags.BOOLEAN_TAG:
-                        int boolValue = data.getBooleanField(++boolValueIndex);
-                        event[index] = (boolValue == 1);
+                        event[index] = ((BBoolean) data.get(field.fieldName)).booleanValue();
                         break;
                     case TypeTags.STRING_TAG:
-                        event[index] = data.getStringField(++stringValueIndex);
+                        event[index] = data.get(field.fieldName).stringValue();
                         break;
                     default:
                         throw new BallerinaException("Fields in streams do not support data types other than int, " +

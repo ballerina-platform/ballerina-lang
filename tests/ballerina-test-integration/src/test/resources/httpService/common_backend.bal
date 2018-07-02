@@ -20,7 +20,7 @@ service<http:Service> echo bind echoEP{
         match result {
             error payloadError => io:println(payloadError.message);
             string payload => {
-                resp.setTextPayload(payload);
+                resp.setTextPayload(untaint payload);
                 _ = caller -> respond(resp);
             }
         }

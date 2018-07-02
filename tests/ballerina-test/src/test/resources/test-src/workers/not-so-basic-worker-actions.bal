@@ -434,7 +434,7 @@ function forkJoinWithStruct () returns string {
     return result;
 }
 
-type foo {
+type foo record {
     int x;
     string y;
 };

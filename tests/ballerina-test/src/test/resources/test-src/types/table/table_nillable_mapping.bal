@@ -18,42 +18,42 @@ import ballerina/jdbc;
 import ballerina/sql;
 import ballerina/time;
 
-type ResultDatesWithNillableStringType {
+type ResultDatesWithNillableStringType record {
     string? DATE_TYPE,
     string? TIME_TYPE,
     string? TIMESTAMP_TYPE,
     string? DATETIME_TYPE,
 };
 
-type ResultDatesWithTimeType {
+type ResultDatesWithTimeType record {
     time:Time DATE_TYPE,
     time:Time TIME_TYPE,
     time:Time TIMESTAMP_TYPE,
     time:Time DATETIME_TYPE,
 };
 
-type ResultDatesWithNillableTimeType {
+type ResultDatesWithNillableTimeType record {
     time:Time? DATE_TYPE;
     time:Time? TIME_TYPE;
     time:Time? TIMESTAMP_TYPE;
     time:Time? DATETIME_TYPE;
 };
 
-type ResultDatesWithIntType {
+type ResultDatesWithIntType record {
     int DATE_TYPE,
     int TIME_TYPE,
     int TIMESTAMP_TYPE,
     int DATETIME_TYPE,
 };
 
-type ResultDatesWithNillableIntType {
+type ResultDatesWithNillableIntType record {
     int? DATE_TYPE,
     int? TIME_TYPE,
     int? TIMESTAMP_TYPE,
     int? DATETIME_TYPE,
 };
 
-type NillableDataTypes {
+type NillableDataTypes record {
     int? int_type,
     int? long_type,
     float? float_type,
@@ -66,15 +66,15 @@ type NillableDataTypes {
     int? tinyint_type,
     int? smallint_type,
     string? clob_type,
-    blob? blob_type,
-    blob? binary_type,
+    byte[]? blob_type,
+    byte[]? binary_type,
     time:Time? date_type,
     time:Time? time_type,
     time:Time? datetime_type,
     time:Time? timestamp_type,
 };
 
-type ResultMapNonNillableTypeNillableElements {
+type ResultMapNonNillableTypeNillableElements record {
     int?[] INT_ARRAY;
     int?[] LONG_ARRAY;
     float?[] FLOAT_ARRAY;
@@ -82,7 +82,7 @@ type ResultMapNonNillableTypeNillableElements {
     string?[] STRING_ARRAY;
 };
 
-type ResultMapNillable {
+type ResultMapNillable record {
     int?[]? INT_ARRAY;
     int?[]? LONG_ARRAY;
     float?[]? FLOAT_ARRAY;
@@ -90,7 +90,7 @@ type ResultMapNillable {
     string?[]? STRING_ARRAY;
 };
 
-type ResultMapNillableTypeNonNillableElements {
+type ResultMapNillableTypeNonNillableElements record {
     int[]? INT_ARRAY;
     int[]? LONG_ARRAY;
     float[]? FLOAT_ARRAY;
@@ -99,7 +99,7 @@ type ResultMapNillableTypeNonNillableElements {
 };
 
 function testMappingToNillableTypeFields(string jdbcUrl, string userName, string password) returns (int?, int?, float?,
-            float?, boolean?, string?, float?, float?, float?, int?, int?, string?, blob?, blob?) {
+            float?, boolean?, string?, float?, float?, float?, int?, int?, string?, byte[]?, byte[]?) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -124,8 +124,8 @@ function testMappingToNillableTypeFields(string jdbcUrl, string userName, string
     int? tinyint_type;
     int? smallint_type;
     string? clob_type;
-    blob? blob_type;
-    blob? binary_type;
+    byte[]? blob_type;
+    byte[]? binary_type;
 
     while (dt.hasNext()) {
         NillableDataTypes rs = check <NillableDataTypes>dt.getNext();
@@ -282,7 +282,7 @@ timein, int timestampin) returns (string, string, string,
 }
 
 function testMappingNullToNillableTypes(string jdbcUrl, string userName, string password) returns (int?, int?, float?,
-            float?, boolean?, string?, float?, float?, float?, int?, int?, string?, blob?, blob?, time:Time?, time:Time?
+            float?, boolean?, string?, float?, float?, float?, int?, int?, string?, byte[]?, byte[]?, time:Time?, time:Time?
             , time:Time?, time:Time?) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
@@ -307,8 +307,8 @@ function testMappingNullToNillableTypes(string jdbcUrl, string userName, string 
     int? tinyint_type;
     int? smallint_type;
     string? clob_type;
-    blob? blob_type;
-    blob? binary_type;
+    byte[]? blob_type;
+    byte[]? binary_type;
     time:Time? date_type;
     time:Time? time_type;
     time:Time? datetime_type;

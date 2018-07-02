@@ -36,7 +36,7 @@ function tableReturnFunction () returns (table) {
     return tb;
 }
 
-type Employee {
+type Employee record {
     int id;
     string name;
 };
@@ -59,7 +59,7 @@ function anyInStructTest() returns (any) {
   return sample.val;
 }
 
-type Sample {
+type Sample record {
   int i;
   any val;
   string msg;

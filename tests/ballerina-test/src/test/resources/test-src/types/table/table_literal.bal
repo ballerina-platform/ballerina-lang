@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/jdbc;
 import ballerina/sql;
 
-type Person {
+type Person record {
     int id,
     int age,
     float salary,
@@ -10,28 +10,28 @@ type Person {
     boolean married,
 };
 
-type Company {
+type Company record {
     int id,
     string name,
 };
 
-type TypeTest {
+type TypeTest record {
     int id,
     json jsonData,
     xml xmlData,
 };
 
-type BlobTypeTest {
+type BlobTypeTest record {
     int id,
-    blob blobData,
+    byte[] blobData,
 };
 
-type AnyTypeTest {
+type AnyTypeTest record {
     int id,
     any anyData,
 };
 
-type ArraTypeTest {
+type ArraTypeTest record {
     int id,
     int[] intArrData,
     float[] floatArrData,
@@ -39,7 +39,7 @@ type ArraTypeTest {
     boolean[] booleanArrData,
 };
 
-type ResultCount {
+type ResultCount record {
     int COUNTVAL,
 };
 
@@ -296,7 +296,7 @@ function testTableWithAllDataToStruct() returns (json, xml) {
 
 function testTableWithBlobDataToJson() returns (json) {
     string text = "Sample Text";
-    blob content = text.toBlob("UTF-8");
+    byte[] content = text.toByteArray("UTF-8");
     BlobTypeTest t1 = { id: 1, blobData: content };
 
     table<BlobTypeTest> dt3 = table{};
@@ -308,7 +308,7 @@ function testTableWithBlobDataToJson() returns (json) {
 
 function testTableWithBlobDataToXml() returns (xml) {
     string text = "Sample Text";
-    blob content = text.toBlob("UTF-8");
+    byte[] content = text.toByteArray("UTF-8");
     BlobTypeTest t1 = { id: 1, blobData: content };
 
     table<BlobTypeTest> dt3 = table{};
@@ -318,15 +318,15 @@ function testTableWithBlobDataToXml() returns (xml) {
     return x;
 }
 
-function testTableWithBlobDataToStruct() returns (blob) {
+function testTableWithBlobDataToStruct() returns (byte[]) {
     string text = "Sample Text";
-    blob content = text.toBlob("UTF-8");
+    byte[] content = text.toByteArray("UTF-8");
     BlobTypeTest t1 = { id: 1, blobData: content };
 
     table<BlobTypeTest> dt3 = table{};
     _ = dt3.add(t1);
 
-    blob bData;
+    byte[] bData;
     while (dt3.hasNext()) {
         BlobTypeTest x = check <BlobTypeTest>dt3.getNext();
         bData = x.blobData;

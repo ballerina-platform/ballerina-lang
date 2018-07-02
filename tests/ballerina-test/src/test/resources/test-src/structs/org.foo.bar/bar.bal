@@ -1,5 +1,5 @@
 
-public type officer {
+public type officer record {
     int age;
     string name = "hidden, private";
     string address;
@@ -7,7 +7,7 @@ public type officer {
     int ssn;
 };
 
-public type userBar {
+public type userBar record {
     int age;
     string name = "hidden, private";
     string address;

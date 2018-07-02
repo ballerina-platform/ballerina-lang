@@ -57,13 +57,13 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
     private CountDownLatch countDownLatch = null;
     private ChannelHandlerContext ctx;
     private HttpHeaders headers;
-    private CloseWebSocketFrame receiveCloseFrame;
+    private CloseWebSocketFrame receivedCloseFrame;
 
-    public WebSocketTestClientHandler(WebSocketClientHandshaker handshaker) {
+    WebSocketTestClientHandler(WebSocketClientHandshaker handshaker) {
         this.handshaker = handshaker;
     }
 
-    public ChannelFuture handshakeFuture() {
+    ChannelFuture handshakeFuture() {
         return handshakeFuture;
     }
 
@@ -132,7 +132,7 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
                         }
                     }).sync();
                 }
-                receiveCloseFrame = closeWebSocketFrame.retain();
+                receivedCloseFrame = closeWebSocketFrame.retain();
             }
             if (countDownLatch != null) {
                 countDownLatch.countDown();
@@ -145,7 +145,7 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
     /**
      * @return the text received from the server.
      */
-    public String getTextReceived() {
+    String getTextReceived() {
         String temp = textReceived;
         textReceived = null;
         return temp;
@@ -154,7 +154,7 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
     /**
      * @return the binary data received from the server.
      */
-    public ByteBuffer getBufferReceived() {
+    ByteBuffer getBufferReceived() {
         ByteBuffer temp = bufferReceived;
         bufferReceived = null;
         return temp;
@@ -165,7 +165,7 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
      *
      * @return true if the connection is open.
      */
-    public boolean isOpen() {
+    boolean isOpen() {
         return ctx.channel().isOpen();
     }
 
@@ -174,7 +174,7 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
      *
      * @return true if a ping is received.
      */
-    public boolean isPing() {
+    boolean isPing() {
         boolean temp = isPing;
         isPing = false;
         return temp;
@@ -185,7 +185,7 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
      *
      * @return true if a ping is received.
      */
-    public boolean isPong() {
+    boolean isPong() {
         boolean temp = isPong;
         isPong = false;
         return temp;
@@ -197,9 +197,9 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
      *
      * @return the close frame received to the client.
      */
-    public CloseWebSocketFrame getReceiveCloseFrame() {
-        CloseWebSocketFrame temp = receiveCloseFrame;
-        receiveCloseFrame = null;
+    CloseWebSocketFrame getReceivedCloseFrame() {
+        CloseWebSocketFrame temp = receivedCloseFrame;
+        receivedCloseFrame = null;
         return temp;
     }
 

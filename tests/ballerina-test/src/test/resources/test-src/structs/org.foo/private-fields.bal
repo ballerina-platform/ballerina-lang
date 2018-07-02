@@ -1,5 +1,5 @@
 
-public type userFoo {
+public type userFoo record {
     int age;
     string name;
     string address;
@@ -7,21 +7,21 @@ public type userFoo {
     string ssn;
 };
 
-public type user {
+public type user record {
     int age;
     string name;
     string address;
     string zipcode = "23468";
 };
 
-public type person  {
+public type person record {
     int age;
     string name;
     string ssn;
     int id;
 };
 
-type student {
+type student record {
     int age;
     string name;
     string ssn;

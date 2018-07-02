@@ -19,13 +19,13 @@ function testConstrainedMapAssignDifferentConstraintsNegative() returns (map<int
     return testMap;
 }
 
-type Person {
+type Person record {
     string name;
     int age;
     string address;
 };
 
-type Employee {
+type Employee record {
     string name;
     int age;
 };
@@ -61,7 +61,7 @@ function testInvalidCastAnyToConstrainedMap() returns (map<Employee>) {
     return castMap;
 }
 
-type Student {
+type Student record {
     int index;
     int age;
 };

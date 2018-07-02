@@ -2,16 +2,16 @@ import ballerina/sql;
 import ballerina/jdbc;
 import ballerina/io;
 
-type ResultCustomers {
+type ResultCustomers record {
     string FIRSTNAME,
 };
 
-type Person {
+type Person record {
     int id,
     string name,
 };
 
-type ResultCustomers2 {
+type ResultCustomers2 record {
     string FIRSTNAME,
     string LASTNAME,
 };

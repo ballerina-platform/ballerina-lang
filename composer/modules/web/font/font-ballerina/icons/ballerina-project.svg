@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+ ~   Copyright 2018, WSO2 Inc. (http://www.wso2.com)
+ ~
+ ~   Licensed under the Apache License, Version 2.0 (the "License");
+ ~   you may not use this file except in compliance with the License.
+ ~   You may obtain a copy of the License at
+ ~
+ ~        http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~   Unless required by applicable law or agreed to in writing, software
+ ~   distributed under the License is distributed on an "AS IS" BASIS,
+ ~   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~   See the License for the specific language governing permissions and
+ ~   limitations under the License.
+-->
+
+<svg version="1.1" id="ballerina-project" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+	 y="0px" viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
+<path d="M11.887085,3.3515015l0.2764282-1.8494873H0.9019165l0.258667,2.8012695H0l1.2075195,8.1947021h11.4059448L14,3.3515015
+	H11.887085z M11.539917,2.0393677l-0.196106,1.3121338H8.4719238L7.8459473,4.3032837h-6.145752l-0.2090454-2.263916H11.539917z
+	 M12.1514282,11.9606323H1.6714478L0.6222534,4.8405762h7.5133667L8.7616577,3.888855h4.6134644L12.1514282,11.9606323z
+	 M6.1206055,8.6276855L5.1216431,8.977356L5.045105,8.2564697L6.1206055,8.6276855z M6.7112427,8.2627563L4.9824219,7.6663208
+	l-0.223877-2.1098633h1.911499L6.7112427,8.2627563z M6.7219849,8.9863281l0.0107422,0.7007446l-0.6582031,1.770874H5.3849487
+	L5.1798706,9.5267944L6.7219849,8.9863281z M7.8780518,8.6276855l1.0755615-0.3712158L8.8770142,8.977356L7.8780518,8.6276855z
+	 M7.3286743,5.5564575h1.911499l-0.223877,2.1098633L7.2874756,8.2627563L7.3286743,5.5564575z M7.2767334,8.9863281
+	l1.5421143,0.5404663l-0.2050781,1.9311523H7.9241943l-0.6582031-1.770874L7.2767334,8.9863281z"/>
+</svg>

@@ -4,7 +4,7 @@ function helloWorld() {
     };
 }
 
-type Person {
+type Person record {
     int age;
     string name;
 };

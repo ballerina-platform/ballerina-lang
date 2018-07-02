@@ -38,12 +38,11 @@ import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.slf4j.Logger;
@@ -75,7 +74,7 @@ import static org.ballerinalang.mime.util.Constants.MULTIPART_ENCODER;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_MIXED;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO;
-import static org.ballerinalang.mime.util.Constants.REQUEST_ENTITY_INDEX;
+import static org.ballerinalang.mime.util.Constants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.Constants.TEMP_FILE_EXTENSION;
 import static org.ballerinalang.mime.util.Constants.TEMP_FILE_NAME;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
@@ -105,9 +104,9 @@ public class Util {
      * @param bodyParts List of body parts
      * @return BRefValueArray representing an array of entities
      */
-    static BRefValueArray getArrayOfBodyParts(ArrayList<BStruct> bodyParts) {
-        BStructureType typeOfBodyPart = bodyParts.get(0).getType();
-        BStruct[] result = bodyParts.toArray(new BStruct[bodyParts.size()]);
+    static BRefValueArray getArrayOfBodyParts(ArrayList<BMap<String, BValue>> bodyParts) {
+        BStructureType typeOfBodyPart = (BStructureType) bodyParts.get(0).getType();
+        BMap<String, BValue>[] result = bodyParts.toArray(new BMap[bodyParts.size()]);
         return new BRefValueArray(result, typeOfBodyPart);
     }
 
@@ -117,9 +116,9 @@ public class Util {
      * @param result Result of ballerina file compilation
      * @return A ballerina struct that represent a body part
      */
-    static BStruct getTextBodyPart(CompileResult result) {
+    static BMap<String, BValue> getTextBodyPart(CompileResult result) {
         String textPayload = "Ballerina text body part";
-        BStruct bodyPart = getEntityStruct(result);
+        BMap<String, BValue> bodyPart = getEntityStruct(result);
         bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getEntityWrapper(textPayload));
         MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, TEXT_PLAIN);
         return bodyPart;
@@ -131,14 +130,14 @@ public class Util {
      * @param result Result of ballerina file compilation
      * @return A body part with text content in a file
      */
-    static BStruct getTextFilePart(CompileResult result) {
+    static BMap<String, BValue> getTextFilePart(CompileResult result) {
         try {
             File file = File.createTempFile("test", ".txt");
             file.deleteOnExit();
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
             bufferedWriter.write("Ballerina text as a file part");
             bufferedWriter.close();
-            BStruct bodyPart = getEntityStruct(result);
+            BMap<String, BValue> bodyPart = getEntityStruct(result);
             bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannelForTempFile(
                     file.getAbsolutePath()));
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, TEXT_PLAIN);
@@ -158,15 +157,15 @@ public class Util {
      * @param result                  Result of ballerina file compilation
      * @return A ballerina struct that represent a body part
      */
-    static BStruct getTextFilePartWithEncoding(String contentTransferEncoding, String message, CompileResult result) {
-
+    static BMap<String, BValue> getTextFilePartWithEncoding(String contentTransferEncoding, String message,
+                                                            CompileResult result) {
         try {
             File file = File.createTempFile("test", ".txt");
             file.deleteOnExit();
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
             bufferedWriter.write(message);
             bufferedWriter.close();
-            BStruct bodyPart = getEntityStruct(result);
+            BMap<String, BValue> bodyPart = getEntityStruct(result);
             bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannelForTempFile(
                     file.getAbsolutePath()));
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, TEXT_PLAIN);
@@ -186,11 +185,11 @@ public class Util {
      * @param result Result of ballerina file compilation
      * @return A ballerina struct that represent a body part
      */
-    static BStruct getJsonBodyPart(CompileResult result) {
+    static BMap<String, BValue> getJsonBodyPart(CompileResult result) {
         String key = "bodyPart";
         String value = "jsonPart";
         String jsonContent = "{\"" + key + "\":\"" + value + "\"}";
-        BStruct bodyPart = getEntityStruct(result);
+        BMap<String, BValue> bodyPart = getEntityStruct(result);
         EntityWrapper byteChannel = EntityBodyHandler.getEntityWrapper(jsonContent);
         bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel);
         MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, APPLICATION_JSON);
@@ -203,14 +202,14 @@ public class Util {
      * @param result Result of ballerina file compilation
      * @return A body part with json content in a file
      */
-    static BStruct getJsonFilePart(CompileResult result) {
+    static BMap<String, BValue> getJsonFilePart(CompileResult result) {
         try {
             File file = File.createTempFile("test", ".json");
             file.deleteOnExit();
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
             bufferedWriter.write("{'name':'wso2'}");
             bufferedWriter.close();
-            BStruct bodyPart = getEntityStruct(result);
+            BMap<String, BValue> bodyPart = getEntityStruct(result);
             bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannelForTempFile(
                     file.getAbsolutePath()));
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, APPLICATION_JSON);
@@ -228,9 +227,9 @@ public class Util {
      * @param result Result of ballerina file compilation
      * @return A ballerina struct that represent a body part
      */
-    static BStruct getXmlBodyPart(CompileResult result) {
+    static BMap<String, BValue> getXmlBodyPart(CompileResult result) {
         BXMLItem xmlContent = new BXMLItem("<name>Ballerina</name>");
-        BStruct bodyPart = getEntityStruct(result);
+        BMap<String, BValue> bodyPart = getEntityStruct(result);
         EntityBodyChannel byteChannel = new EntityBodyChannel(new ByteArrayInputStream(
                 xmlContent.getMessageAsString().getBytes(StandardCharsets.UTF_8)));
         bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(byteChannel));
@@ -244,14 +243,14 @@ public class Util {
      * @param result Result of ballerina file compilation
      * @return A body part with xml content in a file
      */
-    static BStruct getXmlFilePart(CompileResult result) {
+    static BMap<String, BValue> getXmlFilePart(CompileResult result) {
         try {
             File file = File.createTempFile("test", ".xml");
             file.deleteOnExit();
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
             bufferedWriter.write("<name>Ballerina xml file part</name>");
             bufferedWriter.close();
-            BStruct bodyPart = getEntityStruct(result);
+            BMap<String, BValue> bodyPart = getEntityStruct(result);
             bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannelForTempFile(
                     file.getAbsolutePath()));
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, APPLICATION_XML);
@@ -269,8 +268,8 @@ public class Util {
      * @param result Result of ballerina file compilation
      * @return A ballerina struct that represent a body part
      */
-    static BStruct getBinaryBodyPart(CompileResult result) {
-        BStruct bodyPart = getEntityStruct(result);
+    static BMap<String, BValue> getBinaryBodyPart(CompileResult result) {
+        BMap<String, BValue> bodyPart = getEntityStruct(result);
         EntityWrapper byteChannel = EntityBodyHandler.getEntityWrapper("Ballerina binary part");
         bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel);
         MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, OCTET_STREAM);
@@ -283,14 +282,14 @@ public class Util {
      * @param result Result of ballerina file compilation
      * @return A body part with blob content in a file
      */
-    static BStruct getBinaryFilePart(CompileResult result) {
+    static BMap<String, BValue> getBinaryFilePart(CompileResult result) {
         try {
             File file = File.createTempFile("test", ".tmp");
             file.deleteOnExit();
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
             bufferedWriter.write("Ballerina binary file part");
             bufferedWriter.close();
-            BStruct bodyPart = getEntityStruct(result);
+            BMap<String, BValue> bodyPart = getEntityStruct(result);
             bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getByteChannelForTempFile(
                     file.getAbsolutePath()));
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, OCTET_STREAM);
@@ -308,9 +307,9 @@ public class Util {
      * @param result Result of ballerina file compilation
      * @return A ballerina entity with four body parts in it
      */
-    static BStruct getMultipartEntity(CompileResult result) {
-        BStruct multipartEntity = getEntityStruct(result);
-        ArrayList<BStruct> bodyParts = getMultipleBodyParts(result);
+    static BMap<String, BValue> getMultipartEntity(CompileResult result) {
+        BMap<String, BValue> multipartEntity = getEntityStruct(result);
+        ArrayList<BMap<String, BValue>> bodyParts = getMultipleBodyParts(result);
         multipartEntity.addNativeData(BODY_PARTS, Util.getArrayOfBodyParts(bodyParts));
         return multipartEntity;
     }
@@ -321,10 +320,10 @@ public class Util {
      * @param result Result of ballerina file compilation
      * @return A nested multipart entity
      */
-    static BStruct getNestedMultipartEntity(CompileResult result) {
-        BStruct nestedMultipartEntity = getEntityStruct(result);
-        ArrayList<BStruct> bodyParts = getEmptyBodyPartList(result);
-        for (BStruct bodyPart : bodyParts) {
+    static BMap<String, BValue> getNestedMultipartEntity(CompileResult result) {
+        BMap<String, BValue> nestedMultipartEntity = getEntityStruct(result);
+        ArrayList<BMap<String, BValue>> bodyParts = getEmptyBodyPartList(result);
+        for (BMap<String, BValue> bodyPart : bodyParts) {
             MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, MULTIPART_MIXED);
             bodyPart.addNativeData(BODY_PARTS, Util.getArrayOfBodyParts(getMultipleBodyParts(result)));
         }
@@ -338,8 +337,8 @@ public class Util {
      * @param result Result of ballerina file compilation
      * @return A list of different body parts
      */
-    private static ArrayList<BStruct> getMultipleBodyParts(CompileResult result) {
-        ArrayList<BStruct> bodyParts = new ArrayList<>();
+    private static ArrayList<BMap<String, BValue>> getMultipleBodyParts(CompileResult result) {
+        ArrayList<BMap<String, BValue>> bodyParts = new ArrayList<>();
         bodyParts.add(getJsonBodyPart(result));
         bodyParts.add(getXmlFilePart(result));
         bodyParts.add(getTextBodyPart(result));
@@ -353,8 +352,8 @@ public class Util {
      * @param result Result of ballerina file compilation
      * @return A list of empty body parts
      */
-    private static ArrayList<BStruct> getEmptyBodyPartList(CompileResult result) {
-        ArrayList<BStruct> bodyParts = new ArrayList<>();
+    private static ArrayList<BMap<String, BValue>> getEmptyBodyPartList(CompileResult result) {
+        ArrayList<BMap<String, BValue>> bodyParts = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
             bodyParts.add(getEntityStruct(result));
         }
@@ -372,10 +371,10 @@ public class Util {
     static Map<String, Object> createPrerequisiteMessages(String path, String topLevelContentType,
                                                           CompileResult result) {
         Map<String, Object> messageMap = new HashMap<>();
-        BStruct request = getRequestStruct(result);
+        BMap<String, BValue> request = getRequestStruct(result);
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessageForMultiparts(path, HttpConstants.HTTP_METHOD_POST);
         HttpUtil.addCarbonMsg(request, cMsg);
-        BStruct entity = getEntityStruct(result);
+        BMap<String, BValue> entity = getEntityStruct(result);
         MimeUtil.setContentType(getMediaTypeStruct(result), entity, topLevelContentType);
         messageMap.put(CARBON_MESSAGE, cMsg);
         messageMap.put(BALLERINA_REQUEST, request);
@@ -392,10 +391,10 @@ public class Util {
      */
     static HTTPTestRequest getCarbonMessageWithBodyParts(Map<String, Object> messageMap, BRefValueArray bodyParts) {
         HTTPTestRequest cMsg = (HTTPTestRequest) messageMap.get(CARBON_MESSAGE);
-        BStruct request = (BStruct) messageMap.get(BALLERINA_REQUEST);
-        BStruct entity = (BStruct) messageMap.get(MULTIPART_ENTITY);
+        BMap<String, BValue> request = (BMap<String, BValue>) messageMap.get(BALLERINA_REQUEST);
+        BMap<String, BValue> entity = (BMap<String, BValue>) messageMap.get(MULTIPART_ENTITY);
         entity.addNativeData(BODY_PARTS, bodyParts);
-        request.setRefField(REQUEST_ENTITY_INDEX, entity);
+        request.put(REQUEST_ENTITY_FIELD, entity);
         setCarbonMessageWithMultiparts(request, cMsg);
         return cMsg;
     }
@@ -406,7 +405,7 @@ public class Util {
      * @param request Ballerina request struct
      * @param cMsg    Represent carbon message
      */
-    private static void setCarbonMessageWithMultiparts(BStruct request, HTTPTestRequest cMsg) {
+    private static void setCarbonMessageWithMultiparts(BMap<String, BValue> request, HTTPTestRequest cMsg) {
         prepareRequestWithMultiparts(cMsg, request);
         try {
             HttpPostRequestEncoder nettyEncoder = (HttpPostRequestEncoder) request.getNativeData(MULTIPART_ENCODER);
@@ -438,9 +437,10 @@ public class Util {
      * @param outboundRequest Represent outbound carbon request
      * @param requestStruct   Ballerina request struct which contains multipart data
      */
-    private static void prepareRequestWithMultiparts(HTTPCarbonMessage outboundRequest, BStruct requestStruct) {
-        BStruct entityStruct = requestStruct.getRefField(REQUEST_ENTITY_INDEX) != null ?
-                                (BStruct) requestStruct.getRefField(REQUEST_ENTITY_INDEX) : null;
+    private static void prepareRequestWithMultiparts(HTTPCarbonMessage outboundRequest,
+                                                     BMap<String, BValue> requestStruct) {
+        BMap<String, BValue> entityStruct = requestStruct.get(REQUEST_ENTITY_FIELD) != null ?
+                                (BMap<String, BValue>) requestStruct.get(REQUEST_ENTITY_FIELD) : null;
         if (entityStruct != null) {
             BRefValueArray bodyParts = entityStruct.getNativeData(BODY_PARTS) != null ?
                     (BRefValueArray) entityStruct.getNativeData(BODY_PARTS) : null;
@@ -451,7 +451,7 @@ public class Util {
                     HttpPostRequestEncoder nettyEncoder = new HttpPostRequestEncoder(dataFactory,
                             outboundRequest.getNettyHttpRequest(), true);
                     for (int i = 0; i < bodyParts.size(); i++) {
-                        BStruct bodyPart = (BStruct) bodyParts.get(i);
+                        BMap<String, BValue> bodyPart = (BMap<String, BValue>) bodyParts.get(i);
                         encodeBodyPart(nettyEncoder, outboundRequest.getNettyHttpRequest(),
                                 bodyPart);
                     }
@@ -474,7 +474,8 @@ public class Util {
      * @throws HttpPostRequestEncoder.ErrorDataEncoderException when an error occurs while encoding
      */
     private static void encodeBodyPart(HttpPostRequestEncoder nettyEncoder, HttpRequest httpRequest,
-                                       BStruct bodyPart) throws HttpPostRequestEncoder.ErrorDataEncoderException {
+                                       BMap<String, BValue> bodyPart)
+            throws HttpPostRequestEncoder.ErrorDataEncoderException {
         try {
             InterfaceHttpData encodedData;
             Channel byteChannel = EntityBodyHandler.getByteChannel(bodyPart);
@@ -540,7 +541,7 @@ public class Util {
      * @param bodyPart Represent a ballerina body part
      * @return A string denoting the body part's name
      */
-    private static String getBodyPartName(BStruct bodyPart) {
+    private static String getBodyPartName(BMap<String, BValue> bodyPart) {
         String contentDisposition = MimeUtil.getContentDisposition(bodyPart);
         if (!contentDisposition.isEmpty()) {
             BMap<String, BValue> paramMap = HeaderUtil.getParamMap(contentDisposition);
@@ -606,24 +607,24 @@ public class Util {
         return UUID.randomUUID().toString();
     }
 
-    private static BStruct getRequestStruct(CompileResult result) {
+    private static BMap<String, BValue> getRequestStruct(CompileResult result) {
         return BCompileUtil.createAndGetStruct(result.getProgFile(), PROTOCOL_PACKAGE_HTTP, REQUEST_STRUCT);
     }
 
-    static BStruct getEntityStruct(CompileResult result) {
+    static BMap<String, BValue> getEntityStruct(CompileResult result) {
         return BCompileUtil.createAndGetStruct(result.getProgFile(), PACKAGE_MIME, ENTITY_STRUCT);
     }
 
-    private static BStruct getMediaTypeStruct(CompileResult result) {
+    private static BMap<String, BValue> getMediaTypeStruct(CompileResult result) {
         return BCompileUtil.createAndGetStruct(result.getProgFile(), PACKAGE_MIME,
                 MEDIA_TYPE_STRUCT);
     }
 
-    static BStruct getContentDispositionStruct(CompileResult result) {
+    static BMap<String, BValue> getContentDispositionStruct(CompileResult result) {
         return BCompileUtil.createAndGetStruct(result.getProgFile(), PACKAGE_MIME, CONTENT_DISPOSITION_STRUCT);
     }
 
-    public static BStruct getByteChannelStruct(CompileResult result) {
+    public static BMap<String, BValue> getByteChannelStruct(CompileResult result) {
         return BCompileUtil.createAndGetStruct(result.getProgFile(), PROTOCOL_PACKAGE_IO, BYTE_CHANNEL_STRUCT);
     }
 }

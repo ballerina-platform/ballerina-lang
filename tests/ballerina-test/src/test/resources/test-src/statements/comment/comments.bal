@@ -32,7 +32,7 @@ function fooFunc(string a, // foo function
     return;
 }
 
-type Person { // Person type
+type Person record { // Person type
     // name field
     string name,
 
@@ -64,7 +64,7 @@ service<DummyService> FooService {
 
 // end of file
 
-type Config {
+type Config record {
     string name,
 };
 

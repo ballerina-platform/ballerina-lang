@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.compiler.plugins;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
@@ -141,7 +142,8 @@ public interface CompilerPlugin {
     /**
      * Notifies when the code generated phase is completed.
      *
+     * @param packageID packageId of the generated code
      * @param binaryPath path to the generated binary file (balx)
      */
-    void codeGenerated(Path binaryPath);
+    void codeGenerated(PackageID packageID, Path binaryPath);
 }

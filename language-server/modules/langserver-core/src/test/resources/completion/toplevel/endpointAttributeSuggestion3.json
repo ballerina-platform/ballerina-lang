@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 7,
+    "character": 12
+  },
+  "source": "toplevel/source/endpointAttributeSuggestion3.bal",
+  "items": [
+    {
+      "label":"timeWindowMillis",
+      "detail":"Field",
+      "sortText":"120",
+      "insertText":"timeWindowMillis: ${1:0}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"bucketSizeMillis",
+      "detail":"Field",
+      "sortText":"120",
+      "insertText":"bucketSizeMillis: ${1:0}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"Add All Attributes",
+      "sortText":"110",
+      "insertText":"timeWindowMillis: 0,\nbucketSizeMillis: 0"
+    }
+  ]
+}

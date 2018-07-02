@@ -209,8 +209,8 @@ public class WebSocketTestClient {
      *
      * @return the close frame received to the client.
      */
-    public CloseWebSocketFrame getReceiveCloseFrame() {
-        return webSocketHandler.getReceiveCloseFrame();
+    public CloseWebSocketFrame getReceivedCloseFrame() {
+        return webSocketHandler.getReceivedCloseFrame();
     }
 
     /**

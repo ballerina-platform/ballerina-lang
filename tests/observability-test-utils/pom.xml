@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.975.1-SNAPSHOT</version>
+        <version>0.976.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -133,6 +133,7 @@
                             <artifactSet>
                                 <includes>
                                     <include>io.opentracing:opentracing-mock</include>
+                                    <include>com.google.code.gson:gson</include>
                                 </includes>
                             </artifactSet>
                             <filters>

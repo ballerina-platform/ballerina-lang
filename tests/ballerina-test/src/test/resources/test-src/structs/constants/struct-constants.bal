@@ -5,7 +5,7 @@ function main (string... i) {
     return;
 }
 
-type Person {
+type Person record {
     string name;
     map adrs;
     int age;

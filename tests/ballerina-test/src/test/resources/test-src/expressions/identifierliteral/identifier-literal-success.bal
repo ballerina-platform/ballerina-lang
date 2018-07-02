@@ -25,7 +25,7 @@ function useILWithinStruct() returns (string, string, int) {
     return (person.^"first name", person.^"last name", person.^"current age");
 }
 
-type Person {
+type Person record {
     string ^"first name";
     string ^"last name";
     int ^"current age";
@@ -112,7 +112,7 @@ function useILInStructName() returns (string, string, int, string) {
     return (^"person one".^"first name", ^"person one".^"last name", ^"person one".^"current age", ^"person one"["first name"]);
 }
 
-type ^"family person" {
+type ^"family person" record {
     string ^"first name";
     string ^"last name";
     int ^"current age";

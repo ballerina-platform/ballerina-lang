@@ -43,11 +43,11 @@ function testArrayTypes() returns (typedesc, typedesc) {
 
 function testRecordTypes() returns (typedesc, typedesc) {
     typedesc a = RecordA;
-    typedesc b = {string c, int d,};
+    typedesc b = record {string c, int d,};
     return (a,b);
 }
 
-type RecordA {
+type RecordA record {
     string a;
     int b;
 };

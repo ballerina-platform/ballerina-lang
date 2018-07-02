@@ -520,6 +520,37 @@ function testLocalVarModifyWithinClosureScope() returns (float){
     return (fsum);
 }
 
+function testByteAndBoolean() returns (function (int, byte) returns
+                    ((function (byte, int, boolean) returns byte[][]))) {
+    boolean boo1 = true;
+    return (int a, byte b) => (function (byte, int, boolean) returns byte[][]) {
+        boolean boo2 = false;
+        return (byte c, int f, boolean booF) => (byte[][]) {
+            byte i = check <byte> f;
+            byte[][] bArr = [];
+            if !boo2 {
+                bArr[0] = [c, b, 4, i];
+            }
+
+            if boo1 {
+                bArr[1] = [i, c, 5, b, 3];
+            }
+
+            if !booF {
+                bArr[2] = [1, 2, 3, c, b];
+            }
+
+            return bArr;
+        };
+    };
+}
+
+function test27() returns byte[][] {
+    var foo = testByteAndBoolean();
+    var bar = foo(34, 7);
+    return bar(13, 3, false);
+}
+
 function testMultiLevelBlockStatements1() returns (function () returns (function(int) returns int)) {
     int sum1 = 23;
     var bar = () => (function (int) returns int) {
@@ -559,7 +590,7 @@ function testMultiLevelBlockStatements2() returns (function(int[], int[], int[])
 }
 
 
-function test27() returns (int, int) {
+function test28() returns (int, int) {
     var foo = testMultiLevelBlockStatements1();
     var baz = foo();
     var bar = testMultiLevelBlockStatements2();

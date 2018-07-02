@@ -5,7 +5,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.PathConverter;
-import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
+import org.wso2.ballerinalang.compiler.packaging.converters.ZipConverter;
+import org.wso2.ballerinalang.compiler.packaging.repo.BinaryRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.HomeRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.NonSysRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ObjRepo;
@@ -59,14 +60,13 @@ public class RepoTest {
     }
 
     @Test
-    public void testCacheRepo() {
+    public void testBinaryRepo() {
         PackageID pkg = newPackageID("nice_org", "any.pkg", "10.2.3");
-        CacheRepo subject = new CacheRepo((PathConverter) null, "test");
+        BinaryRepo subject = new BinaryRepo((ZipConverter) null);
 
         Patten patten = subject.calculate(pkg);
 
-        Assert.assertEquals(patten.toString(), "$/caches/test/nice_org/any.pkg/10.2.3/any.pkg.zip/src/" +
-                "**~resources/*.bal");
+        Assert.assertEquals(patten.toString(), "$/nice_org/any.pkg/10.2.3/any.pkg.zip/obj/any.pkg.balo");
     }
 
     @Test

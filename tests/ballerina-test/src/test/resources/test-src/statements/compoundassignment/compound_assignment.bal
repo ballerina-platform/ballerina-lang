@@ -64,7 +64,7 @@ function testCompoundAssignmentDivisionArrayElement() returns (int){
      return x[0];
 }
 
-type Company {
+type Company record {
    int count;
    int count2;
 };

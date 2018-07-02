@@ -1,7 +1,7 @@
 import ballerina/sql;
 import ballerina/jdbc;
 
-type Employee {
+type Employee record {
     int id,
     string name,
     string address,

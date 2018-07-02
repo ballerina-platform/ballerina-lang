@@ -3,7 +3,7 @@ import eq2;
 import req;
 import req2;
 
-public type person1 {
+public type person1 record {
     int age;
     string name;
     string address;
@@ -12,7 +12,7 @@ public type person1 {
     int id;
 };
 
-public type employee1 {
+public type employee1 record {
     int age;
     string name;
     string address;
@@ -31,7 +31,7 @@ function testEquivalenceOfPrivateStructsInSamePackage () returns (string) {
     return p.ssn;
 }
 
-public type person2 {
+public type person2 record {
     int age;
     string name;
     string address;
@@ -40,7 +40,7 @@ public type person2 {
     int id;
 };
 
-public type employee2 {
+public type employee2 record {
     int age;
     string name;
     string address;
@@ -70,7 +70,7 @@ function testEqOfPublicStructs () returns (string) {
 }
 
 
-public type employee3 {
+public type employee3 record {
     int age;
     string name;
     string address;
@@ -101,18 +101,18 @@ function testEqOfPublicStructs2 () returns (string) {
 
 
 
-type userA {
+type userA record {
     int age;
     string name;
 };
 
-type userB {
+type userB record {
     int age;
     string name;
     string address;
 };
 
-type userFoo {
+type userFoo record {
     int age;
     string name;
     string address;
@@ -132,19 +132,19 @@ function testRuntimeEqPrivateStructsInSamePackage () returns (string) {
 }
 
 
-public type userPA {
+public type userPA record {
     int age;
     string name;
 };
 
-public type userPB {
+public type userPB record {
     int age;
     string name;
     string address;
 };
 
 
-public type userPFoo {
+public type userPFoo record {
     int age;
     string name;
     string address;

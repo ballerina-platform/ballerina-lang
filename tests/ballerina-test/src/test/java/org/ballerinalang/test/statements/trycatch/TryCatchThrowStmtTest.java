@@ -23,8 +23,8 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -108,16 +108,16 @@ public class TryCatchThrowStmtTest {
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
         Assert.assertNotNull(returns[1]);
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertTrue(returns[1] instanceof BStruct);
-        BStruct stackFrame1 = (BStruct) returns[0];
-        Assert.assertEquals(stackFrame1.getStringField(0), "testErrorCallStackFrame");
-        Assert.assertEquals(stackFrame1.getStringField(2), "try-catch-stmt.bal");
-        Assert.assertEquals(stackFrame1.getIntField(0), 95);
-        BStruct stackFrame2 = (BStruct) returns[1];
-        Assert.assertEquals(stackFrame2.getStringField(0), "testUncaughtException");
-        Assert.assertEquals(stackFrame2.getStringField(2), "try-catch-stmt.bal");
-        Assert.assertEquals(stackFrame2.getIntField(0), 88);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertTrue(returns[1] instanceof BMap);
+        BMap<String, BValue> stackFrame1 = (BMap<String, BValue>) returns[0];
+        Assert.assertEquals(stackFrame1.get("callableName").stringValue(), "testErrorCallStackFrame");
+        Assert.assertEquals(stackFrame1.get("fileName").stringValue(), "try-catch-stmt.bal");
+        Assert.assertEquals(((BInteger) stackFrame1.get("lineNumber")).intValue(), 95);
+        BMap<String, BValue> stackFrame2 = (BMap<String, BValue>) returns[1];
+        Assert.assertEquals(stackFrame2.get("callableName").stringValue(), "testUncaughtException");
+        Assert.assertEquals(stackFrame2.get("fileName").stringValue(), "try-catch-stmt.bal");
+        Assert.assertEquals(((BInteger) stackFrame2.get("lineNumber")).intValue(), 88);
     }
 
     @Test(description = "Test scope issue when using try catch inside while loop")

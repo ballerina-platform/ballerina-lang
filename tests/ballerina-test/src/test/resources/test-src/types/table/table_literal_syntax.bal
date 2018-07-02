@@ -1,4 +1,4 @@
-type Person {
+type Person record {
     int id,
     int age,
     float salary,

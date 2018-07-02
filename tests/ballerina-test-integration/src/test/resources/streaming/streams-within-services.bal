@@ -4,11 +4,11 @@ import ballerina/io;
 
 string alertedHostName = "NotAssigned";
 
-type ClientRequest {
+type ClientRequest record {
     string host;
 };
 
-type RequestCount {
+type RequestCount record {
     string host;
     int count;
 };

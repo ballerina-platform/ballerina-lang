@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -49,6 +50,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class TableLiteralTest {
 
+    private static final String CARRIAGE_RETURN_CHAR = "\r";
+    private static final String EMPTY_STRING = "";
     private CompileResult result;
     private CompileResult resultNegative;
     private CompileResult resultHelper;
@@ -108,7 +111,7 @@ public class TableLiteralTest {
         try {
             System.setOut(new PrintStream(outContent));
             BRunUtil.invoke(result, "testPrintData");
-            Assert.assertEquals(outContent.toString(),
+            Assert.assertEquals(outContent.toString().replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
                     "table<Person> {index: [\"id\", \"age\"], primaryKey: [\"id\", \"age\"], data: [{id:1, age:30, "
                             + "salary:300.5, name:\"jane\", married:true}, {id:2, age:20, salary:200.5, "
                             + "name:\"martin\", married:true}, {id:3, age:32, salary:100.5, name:\"john\", "
@@ -126,7 +129,7 @@ public class TableLiteralTest {
         try {
             System.setOut(new PrintStream(outContent));
             BRunUtil.invoke(result, "testPrintDataEmptyTable");
-            Assert.assertEquals(outContent.toString(),
+            Assert.assertEquals(outContent.toString().replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
                     "table<Person> {index: [], primaryKey: [], data: []}\n");
         } finally {
             outContent.close();
@@ -156,8 +159,7 @@ public class TableLiteralTest {
     @Test(priority = 1)
     public void testToJson() {
         BValue[] returns = BRunUtil.invoke(result, "testToJson");
-        Assert.assertEquals((returns[0]).stringValue(),
-                "[{\"id\":1,\"age\":30,\"salary\":300.5,\"name\":\"jane\","
+        Assert.assertEquals((returns[0]).stringValue(), "[{\"id\":1,\"age\":30,\"salary\":300.5,\"name\":\"jane\","
                 + "\"married\":true},{\"id\":2,\"age\":20,\"salary\":200.5,\"name\":\"martin\",\"married\":true},"
                 + "{\"id\":3,\"age\":32,\"salary\":100.5,\"name\":\"john\",\"married\":false}]");
     }
@@ -176,8 +178,7 @@ public class TableLiteralTest {
     public void testTableWithAllDataToJson() {
         BValue[] returns = BRunUtil.invoke(result, "testTableWithAllDataToJson");
         Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(),
-                "[{\"id\":1,\"jsonData\":{\"name\":\"apple\",\"color\":\"red\","
+        Assert.assertEquals(returns[0].stringValue(), "[{\"id\":1,\"jsonData\":{\"name\":\"apple\",\"color\":\"red\","
                 + "\"price\":30.3},\"xmlData\":\"<book>The Lost World</book>\"},{\"id\":2,\""
                 + "jsonData\":{\"name\":\"apple\",\"color\":\"red\",\"price\":30.3},"
                 + "\"xmlData\":\"<book>The Lost World</book>\"}]");
@@ -188,9 +189,10 @@ public class TableLiteralTest {
         BValue[] returns = BRunUtil.invoke(result, "testTableWithAllDataToXml");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<results><result><id>1</id><jsonData>{\"name\":\"apple\","
-                + "\"color\":\"red\",\"price\":30.3}</jsonData><xmlData>&lt;book>The Lost World&lt;"
-                + "/book></xmlData></result><result><id>2</id><jsonData>{\"name\":\"apple\",\"color\":\"red\","
-                + "\"price\":30.3}</jsonData><xmlData>&lt;book>The Lost World&lt;/book></xmlData></result></results>");
+                + "\"color\":\"red\",\"price\":30.3}</jsonData><xmlData>&lt;book&gt;The Lost World&lt;"
+                + "/book&gt;</xmlData></result><result><id>2</id><jsonData>{\"name\":\"apple\",\"color\":\"red\","
+                + "\"price\":30.3}</jsonData><xmlData>&lt;book&gt;The Lost World&lt;/book&gt;</xmlData></result>"
+                + "</results>");
     }
 
     @Test(priority = 1)
@@ -205,7 +207,7 @@ public class TableLiteralTest {
     @Test(priority = 1)
     public void testTableWithBlobDataToStruct() {
         BValue[] returns = BRunUtil.invoke(result, "testTableWithBlobDataToStruct");
-        Assert.assertEquals((returns[0]).stringValue(), "Sample Text");
+        Assert.assertEquals(new String(((BByteArray) returns[0]).getBytes()), "Sample Text");
     }
 
     @Test(priority = 1)
@@ -217,23 +219,23 @@ public class TableLiteralTest {
     @Test(priority = 1)
     public void testTableWithBlobDataToXml() {
         BValue[] returns = BRunUtil.invoke(result, "testTableWithBlobDataToXml");
-        Assert.assertEquals((returns[0]).stringValue(), "<results><result><id>1</id><blobData>Sample Text"
-                + "</blobData></result></results>");
+        Assert.assertEquals((returns[0]).stringValue(),
+                "<results><result><id>1</id><blobData>Sample Text" + "</blobData></result></results>");
     }
 
     @Test(priority = 1)
     public void testStructWithDefaultDataToJson() {
         BValue[] returns = BRunUtil.invoke(result, "testStructWithDefaultDataToJson");
-        Assert.assertEquals((returns[0]).stringValue(), "[{\"id\":1,\"age\":0,\"salary\":0.0,\"name\":\"\","
-                + "\"married\":false}]");
+        Assert.assertEquals((returns[0]).stringValue(),
+                "[{\"id\":1,\"age\":0,\"salary\":0.0,\"name\":\"\"," + "\"married\":false}]");
     }
 
     @Test(priority = 1)
     public void testStructWithDefaultDataToXml() {
         BValue[] returns = BRunUtil.invoke(result, "testStructWithDefaultDataToXml");
         Assert.assertEquals((returns[0]).stringValue(),
-                "<results><result><id>1</id><age>0</age><salary>0.0</salary><name></name>" +
-                        "<married>false</married></result></results>");
+                "<results><result><id>1</id><age>0</age><salary>0.0</salary><name></name>"
+                        + "<married>false</married></result></results>");
     }
 
     @Test(priority = 1)
@@ -258,8 +260,7 @@ public class TableLiteralTest {
     @Test(priority = 1)
     public void testTableWithArrayDataToXml() {
         BValue[] returns = BRunUtil.invoke(result, "testTableWithArrayDataToXml");
-        Assert.assertEquals((returns[0]).stringValue(),
-                "<results><result><id>1</id><intArrData><element>1</element>"
+        Assert.assertEquals((returns[0]).stringValue(), "<results><result><id>1</id><intArrData><element>1</element>"
                 + "<element>2</element><element>3</element></intArrData>"
                 + "<floatArrData><element>11.1</element><element>22.2</element><element>33.3</element></floatArrData>"
                 + "<stringArrData><element>Hello</element><element>World</element></stringArrData>"
@@ -292,16 +293,16 @@ public class TableLiteralTest {
     public void testTableRemoveSuccess() {
         BValue[] returns = BRunUtil.invoke(result, "testTableRemoveSuccess");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
-        Assert.assertEquals((returns[1]).stringValue(), "[{\"id\":1,\"age\":35,\"salary\":300.5,"
-                + "\"name\":\"jane\",\"married\":true}]");
+        Assert.assertEquals((returns[1]).stringValue(),
+                "[{\"id\":1,\"age\":35,\"salary\":300.5," + "\"name\":\"jane\",\"married\":true}]");
     }
 
     @Test(priority = 1)
     public void testTableRemoveSuccessMultipleMatch() {
         BValue[] returns = BRunUtil.invoke(result, "testTableRemoveSuccessMultipleMatch");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
-        Assert.assertEquals((returns[1]).stringValue(), "[{\"id\":2,\"age\":20,\"salary\":200.5,"
-                + "\"name\":\"martin\",\"married\":true}]");
+        Assert.assertEquals((returns[1]).stringValue(),
+                "[{\"id\":2,\"age\":20,\"salary\":200.5," + "\"name\":\"martin\",\"married\":true}]");
     }
 
     @Test(priority = 1)
@@ -317,11 +318,9 @@ public class TableLiteralTest {
     @Test(priority = 1)
     public void testTableAddAndAccess() {
         BValue[] returns = BRunUtil.invoke(result, "testTableAddAndAccess");
-        Assert.assertEquals((returns[0]).stringValue(),
-                "[{\"id\":1,\"age\":35,\"salary\":300.5,\"name\":\"jane\","
+        Assert.assertEquals((returns[0]).stringValue(), "[{\"id\":1,\"age\":35,\"salary\":300.5,\"name\":\"jane\","
                 + "\"married\":true},{\"id\":2,\"age\":40,\"salary\":200.5,\"name\":\"martin\",\"married\":true}]");
-        Assert.assertEquals((returns[1]).stringValue(),
-                "[{\"id\":1,\"age\":35,\"salary\":300.5,\"name\":\"jane\","
+        Assert.assertEquals((returns[1]).stringValue(), "[{\"id\":1,\"age\":35,\"salary\":300.5,\"name\":\"jane\","
                 + "\"married\":true},{\"id\":2,\"age\":40,\"salary\":200.5,\"name\":\"martin\",\"married\":true},"
                 + "{\"id\":3,\"age\":42,\"salary\":100.5,\"name\":\"john\",\"married\":false}]");
     }
@@ -331,7 +330,7 @@ public class TableLiteralTest {
           expectedExceptions = { BLangRuntimeException.class },
           expectedExceptionsMessageRegExp = ".*message: unsupported column type for table : any.*")
     public void testTableWithAnyDataToJson() {
-       BRunUtil.invoke(result, "testTableWithAnyDataToJson");
+        BRunUtil.invoke(result, "testTableWithAnyDataToJson");
     }
 
     @Test(priority = 1,
@@ -342,14 +341,16 @@ public class TableLiteralTest {
         BRunUtil.invoke(result, "testEmptyTableCreateInvalid");
     }
 
-    @Test(priority = 1, description = "Test add data with  mismatched types")
+    @Test(priority = 1,
+          description = "Test add data with  mismatched types")
     public void testTableAddInvalid() {
         BValue[] returns = BRunUtil.invoke(result, "testTableAddInvalid");
-        Assert.assertEquals((returns[0]).stringValue(), "incompatible types: record of type:Company cannot be added "
-                + "to a table with type:Person");
+        Assert.assertEquals((returns[0]).stringValue(),
+                "incompatible types: record of type:Company cannot be added " + "to a table with type:Person");
     }
 
-    @Test(priority = 1, description = "Test remove data with mismatched record types")
+    @Test(priority = 1,
+          description = "Test remove data with mismatched record types")
     public void testRemoveWithInvalidRecordType() {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveWithInvalidRecordType");
         Assert.assertEquals((returns[0]).stringValue(),
@@ -357,7 +358,8 @@ public class TableLiteralTest {
                         + " from a table with type:Person");
     }
 
-    @Test(priority = 1, description = "Test remove data with mismatched input parameter types")
+    @Test(priority = 1,
+          description = "Test remove data with mismatched input parameter types")
     public void testRemoveWithInvalidParamType() {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveWithInvalidParamType");
         Assert.assertEquals((returns[0]).stringValue(),
@@ -365,7 +367,8 @@ public class TableLiteralTest {
                         + "table with type:Person");
     }
 
-    @Test(priority = 3, enabled = false) //Issue #5106
+    @Test(priority = 3,
+          enabled = false) //Issue #5106
     public void testSessionCount() {
         BValue[] returns = BRunUtil.invoke(resultHelper, "getSessionCount");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
@@ -374,8 +377,7 @@ public class TableLiteralTest {
     @Test(description = "Test table remove with function pointer of invalid return type")
     public void testTableReturnNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
-        BAssertUtil.validateError(resultNegative, 0,
-           "incompatible types: expected 'function (any) returns (boolean)', found 'function (Person) returns (())'",
-           20, 33);
+        BAssertUtil.validateError(resultNegative, 0, "incompatible types: expected 'function (any) returns (boolean)', "
+                + "found 'function (Person) returns (())'", 20, 33);
     }
 }

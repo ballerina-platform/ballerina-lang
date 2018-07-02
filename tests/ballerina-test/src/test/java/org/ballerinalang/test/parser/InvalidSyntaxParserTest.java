@@ -62,8 +62,9 @@ public class InvalidSyntaxParserTest {
     @Test
     public void testServiceWithoutResourceName() {
         CompileResult result = BCompileUtil.compile("test-src/parser/service-without-resource-name-negative.bal");
-        BAssertUtil.validateError(result, 0, "invalid token 'endpoint'", 6, 6);
-        BAssertUtil.validateError(result, 3, "extraneous input ';'", 8, 7);
+        BAssertUtil.validateError(result, 0, "invalid token 'endpoint'", 6, 4);
+        BAssertUtil.validateError(result, 1, "mismatched input ','. expecting ';'", 6, 19);
+        BAssertUtil.validateError(result, 2, "mismatched input ')'. expecting ';'", 6, 41);
     }
 
     @Test
@@ -80,8 +81,7 @@ public class InvalidSyntaxParserTest {
     @Test
     public void testServiceWithoutResourceParams() {
         CompileResult result = BCompileUtil.compile("test-src/parser/service-without-resource-params-negative.bal");
-        BAssertUtil.validateError(result, 0, "missing token '(' before '{'", 9, 11);
-        BAssertUtil.validateError(result, 1, "extraneous input 'return'", 11, 9);
+        BAssertUtil.validateError(result, 0, "mismatched input '{'. expecting '('", 9, 11);
     }
 
     @Test

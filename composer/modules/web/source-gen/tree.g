@@ -348,12 +348,12 @@ SelectExpression
    ;
 
 Service
-   | <isServiceTypeUnavailable?> <bindNotAvailable?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service                                <name.value>                                                                  { <variables>* <resources>* }
-   : <isServiceTypeUnavailable?>                     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service                                <name.value> bind <anonymousEndpointBind.source> <boundEndpoints-joined-by,>* { <variables>* <resources>* }
-   | <isServiceTypeUnavailable?>                     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service                                <name.value> bind                                <boundEndpoints-joined-by,>* { <variables>* <resources>* }
-   |                             <bindNotAvailable?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service < <serviceTypeStruct.source> > <name.value>                                                                  { <variables>* <resources>* }
-   |                                                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service < <serviceTypeStruct.source> > <name.value> bind <anonymousEndpointBind.source> <boundEndpoints-joined-by,>* { <variables>* <resources>* }
-   |                                                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service < <serviceTypeStruct.source> > <name.value> bind                                <boundEndpoints-joined-by,>* { <variables>* <resources>* }
+   | <isServiceTypeUnavailable?> <bindNotAvailable?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service                                <name.value>                                                                  { <endpointNodes>* <variables>* <resources>* }
+   : <isServiceTypeUnavailable?>                     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service                                <name.value> bind <anonymousEndpointBind.source> <boundEndpoints-joined-by,>* { <endpointNodes>* <variables>* <resources>* }
+   | <isServiceTypeUnavailable?>                     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service                                <name.value> bind                                <boundEndpoints-joined-by,>* { <endpointNodes>* <variables>* <resources>* }
+   |                             <bindNotAvailable?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service < <serviceTypeStruct.source> > <name.value>                                                                  { <endpointNodes>* <variables>* <resources>* }
+   |                                                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service < <serviceTypeStruct.source> > <name.value> bind <anonymousEndpointBind.source> <boundEndpoints-joined-by,>* { <endpointNodes>* <variables>* <resources>* }
+   |                                                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service < <serviceTypeStruct.source> > <name.value> bind                                <boundEndpoints-joined-by,>* { <endpointNodes>* <variables>* <resources>* }
    ;
 
 SimpleVariableRef
@@ -480,6 +480,7 @@ TypeConversionExpr
    ;
 
 TypeDefinition
+   : <notVisible?>
    : <isObjectType?>                                                          <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object { <typeNode.source> }                           ;
    | <isRecordType?> <isRecordKeywordAvailable?>                              <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> record { <typeNode.source> }                           ;
    | <isRecordType?>                                                          <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>        { <typeNode.source> }                           ;
@@ -525,7 +526,7 @@ UnionTypeNode
    ;
 
 UserDefinedType
-   : <anonStruct.source>
+   : <isAnonType?> <anonType.source>
    | <nullableOperatorAvailable?> <grouped?> ( <packageAlias.value> : <typeName.value> ? )
    | <nullableOperatorAvailable?>              <packageAlias.value> : <typeName.value> ?
    | <nullableOperatorAvailable?> <grouped?> (                        <typeName.value> ? )
@@ -545,7 +546,10 @@ ValueType
    ;
 
 Variable
-   : <noVisibleName?>                                                                                                                                           <typeNode.source>
+   : <isAnonType?> <endWithSemicolon?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                 <const?const>       record { <typeNode.source> }          <name.value>                                ;
+   | <isAnonType?> <endWithComma?>     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                 <const?const>       record { <typeNode.source> }          <name.value>                                ,
+   | <isAnonType?>                     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                 <const?const>       record { <typeNode.source> }          <name.value>
+   | <noVisibleName?>                                                                                                                                           <typeNode.source>
    | <endpoint?>                                                                                                                                       endpoint <typeNode.source>            <name.value> {   <initialExpression.source> ; }
    | <endpoint?>                                                                                                                                       endpoint <typeNode.source>            <name.value> {                                }
    | <serviceEndpoint?>                                                                                                                                endpoint                              <name.value>

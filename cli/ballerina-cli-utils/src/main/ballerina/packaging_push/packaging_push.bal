@@ -164,7 +164,7 @@ documentation {
 function addStringBodyParts (string key, string value) returns (mime:Entity) {
     mime:Entity stringBodyPart = new;
     stringBodyPart.setContentDisposition(getContentDispositionForFormData(key));
-    stringBodyPart.setText(value);
+    stringBodyPart.setText(untaint value);
     stringBodyPart.setContentType(mime:TEXT_PLAIN);
     return stringBodyPart;
 }

@@ -48,12 +48,12 @@ function openFileSuccess(string path) returns (File | error) {
     return f;
 }
 
-type File {
+type File record {
     string path;
 };
 
 
-type MyFile {
+type MyFile record {
     string path;
     int bytes;
 };
@@ -155,12 +155,12 @@ function testMatchStatementBasics14(json a) returns (string | int | boolean) {
 }
 
 
-type Human {
+type Human record {
     string name;
     function (int, string) returns string | () foo;
 };
 
-type Man {
+type Man record {
     string name;
     function (int, string) returns string | () foo;
     int age;
@@ -176,7 +176,7 @@ function testMatchStatementBasics16() returns (string | int | boolean) {
     }
 }
 
-type Woman {
+type Woman record {
     string fname;
     (function (int, string) returns string) | Human foo;
     int age;

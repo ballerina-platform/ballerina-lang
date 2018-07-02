@@ -10,7 +10,7 @@ public function testPrivateFieldAccess() {
 
 }
 
-public type personFoo {
+public type personFoo record {
     int age;
     string name;
     string ssn;

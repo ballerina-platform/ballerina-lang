@@ -3,7 +3,7 @@ import ballerina/jdbc;
 import ballerina/io;
 import ballerina/time;
 
-type ResultPrimitive {
+type ResultPrimitive record {
     int INT_TYPE;
     int LONG_TYPE;
     float FLOAT_TYPE;
@@ -12,7 +12,7 @@ type ResultPrimitive {
     string STRING_TYPE;
 };
 
-type ResultSetTestAlias {
+type ResultSetTestAlias record {
     int INT_TYPE;
     int LONG_TYPE;
     float FLOAT_TYPE;
@@ -22,13 +22,13 @@ type ResultSetTestAlias {
     int DT2INT_TYPE;
 };
 
-type ResultObject {
-    blob BLOB_TYPE;
+type ResultObject record {
+    byte[] BLOB_TYPE;
     string CLOB_TYPE;
-    blob BINARY_TYPE;
+    byte[] BINARY_TYPE;
 };
 
-type ResultMap {
+type ResultMap record {
     int[] INT_ARRAY;
     int[] LONG_ARRAY;
     float[] FLOAT_ARRAY;
@@ -36,54 +36,54 @@ type ResultMap {
     string[] STRING_ARRAY;
 };
 
-type ResultBlob {
-    blob BLOB_TYPE;
+type ResultBlob record {
+    byte[] BLOB_TYPE;
 };
 
-type ResultDates {
+type ResultDates record {
     string DATE_TYPE;
     string TIME_TYPE;
     string TIMESTAMP_TYPE;
     string DATETIME_TYPE;
 };
 
-type ResultDatesStruct {
+type ResultDatesStruct record {
     time:Time DATE_TYPE;
     time:Time TIME_TYPE;
     time:Time TIMESTAMP_TYPE;
     time:Time DATETIME_TYPE;
 };
 
-type ResultDatesInt {
+type ResultDatesInt record {
     int DATE_TYPE;
     int TIME_TYPE;
     int TIMESTAMP_TYPE;
     int DATETIME_TYPE;
 };
 
-type ResultSetFloat {
+type ResultSetFloat record {
     float FLOAT_TYPE;
     float DOUBLE_TYPE;
     float NUMERIC_TYPE;
     float DECIMAL_TYPE;
 };
 
-type ResultPrimitiveInt {
+type ResultPrimitiveInt record {
     int INT_TYPE;
 };
 
-type ResultCount {
+type ResultCount record {
     int COUNTVAL;
 };
 
-type ResultTest {
+type ResultTest record {
     int t1Row;
     int t1Int;
     int t2Row;
     int t2Int;
 };
 
-type ResultSignedInt {
+type ResultSignedInt record {
     int ID;
     int? TINYINTDATA;
     int? SMALLINTDATA;
@@ -91,14 +91,14 @@ type ResultSignedInt {
     int? BIGINTDATA;
 };
 
-type ResultComplexTypes {
+type ResultComplexTypes record {
     int ROW_ID;
-    blob? BLOB_TYPE;
+    byte[]|() BLOB_TYPE;
     string? CLOB_TYPE;
-    blob? BINARY_TYPE;
+    byte[]|() BINARY_TYPE;
 };
 
-type TestTypeData {
+type TestTypeData record {
     int i;
     int[] iA;
     int l;
@@ -404,7 +404,7 @@ function testGetPrimitiveTypes(string jdbcUrl, string userName, string password)
     return (i, l, f, d, b, s);
 }
 
-function testGetComplexTypes(string jdbcUrl, string userName, string password) returns (string, string, string) {
+function testGetComplexTypes(string jdbcUrl, string userName, string password) returns (byte[], string, byte[]) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -415,19 +415,17 @@ function testGetComplexTypes(string jdbcUrl, string userName, string password) r
     table dt = check testDB->select("SELECT blob_type,clob_type,binary_type from ComplexTypes where row_id = 1",
         ResultObject);
 
-    string blobValue;
+    byte[] blobData;
     string clob;
-    string binary;
+    byte[] binaryData;
     while (dt.hasNext()) {
         ResultObject rs = check <ResultObject>dt.getNext();
-        blob blobData = rs.BLOB_TYPE;
-        blobValue = blobData.toString("UTF-8");
+        blobData = rs.BLOB_TYPE;
         clob = rs.CLOB_TYPE;
-        blob binaryData = rs.BINARY_TYPE;
-        binary = binaryData.toString("UTF-8");
+        binaryData = rs.BINARY_TYPE;
     }
     testDB.stop();
-    return (blobValue, clob, binary);
+    return (blobData, clob, binaryData);
 }
 
 function testArrayData(string jdbcUrl, string userName, string password) returns (int[], int[], float[], string[],
@@ -642,7 +640,7 @@ returns (int, int, int, int) {
     return (date, time, timestamp, datetime);
 }
 
-function testBlobData(string jdbcUrl, string userName, string password) returns (string) {
+function testBlobData(string jdbcUrl, string userName, string password) returns (byte[]) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -653,15 +651,14 @@ function testBlobData(string jdbcUrl, string userName, string password) returns 
     string blobStringData;
     table dt = check testDB->select("SELECT blob_type from ComplexTypes where row_id = 1", ResultBlob);
 
-    blob blobData;
+    byte[] blobData;
     while (dt.hasNext()) {
         ResultBlob rs = check <ResultBlob>dt.getNext();
         blobData = rs.BLOB_TYPE;
     }
-    blobStringData = blobData.toString("UTF-8");
 
     testDB.stop();
-    return blobStringData;
+    return blobData;
 }
 
 function testColumnAlias(string jdbcUrl, string userName, string password) returns (int, int, float, float, boolean,
@@ -709,7 +706,7 @@ function testBlobInsert(string jdbcUrl, string userName, string password) return
 
     table dt = check testDB->select("SELECT blob_type from ComplexTypes where row_id = 1", ResultBlob);
 
-    blob blobData;
+    byte[] blobData;
     while (dt.hasNext()) {
         ResultBlob rs = check <ResultBlob>dt.getNext();
         blobData = rs.BLOB_TYPE;
@@ -1069,7 +1066,7 @@ function testSignedIntMaxMinValues(string jdbcUrl, string userName, string passw
 }
 
 function testComplexTypeInsertAndRetrieval(string jdbcUrl, string userName, string password) returns (int, int, string,
-            string, string) {
+            string, string, byte[][]) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -1081,7 +1078,7 @@ function testComplexTypeInsertAndRetrieval(string jdbcUrl, string userName, stri
     string selectSQL =
     "SELECT row_id, blob_type, clob_type, binary_type FROM ComplexTypes where row_id = 100 or row_id = 200";
     string text = "Sample Text";
-    blob content = text.toBlob("UTF-8");
+    byte[] content = text.toByteArray("UTF-8");
 
     int retDataInsert;
     int retNullInsert;
@@ -1118,17 +1115,23 @@ function testComplexTypeInsertAndRetrieval(string jdbcUrl, string userName, stri
     dt = check testDB->select(selectSQL, ResultComplexTypes);
 
     str = "";
+    byte[][] expected;
+    int i = 0;
     while (dt.hasNext()) {
         var result = check <ResultComplexTypes>dt.getNext();
         string blobType;
         match result.BLOB_TYPE {
-            blob b => blobType = b.toString("UTF-8");
+            byte[] b => {
+                expected[i] = b;
+                blobType = "nonNil";
+            }
             () => blobType = "nil";
         }
         str = str + result.ROW_ID + "|" + blobType + "|" + (result.CLOB_TYPE but { () => "nil" }) + "|";
+        i++;
     }
     testDB.stop();
-    return (retDataInsert, retNullInsert, jsonStr, xmlStr, str);
+    return (retDataInsert, retNullInsert, jsonStr, xmlStr, str, expected);
 }
 
 function testJsonXMLConversionwithDuplicateColumnNames(string jdbcUrl, string userName, string password) returns (json,

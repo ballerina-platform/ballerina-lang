@@ -43,7 +43,7 @@ public interface InstructionCodes {
     int BCONST_0 = 17;
     int BCONST_1 = 18;
     int RCONST_NULL = 19;
-    int LCONST = 20;
+    int BICONST = 20;
 
     int IMOVE = 21;
     int FMOVE = 22;
@@ -51,50 +51,45 @@ public interface InstructionCodes {
     int BMOVE = 24;
     int LMOVE = 25;
     int RMOVE = 26;
-    int IALOAD = 27;
-    int FALOAD = 28;
-    int SALOAD = 29;
-    int BALOAD = 30;
-    int LALOAD = 31;
-    int RALOAD = 32;
-    int JSONALOAD = 33;
-    int IGLOAD = 34;
-    int FGLOAD = 35;
-    int SGLOAD = 36;
-    int BGLOAD = 37;
-    int LGLOAD = 38;
-    int RGLOAD = 39;
+    int BIALOAD = 27;
+    int IALOAD = 28;
+    int FALOAD = 29;
+    int SALOAD = 30;
+    int BALOAD = 31;
+    int LALOAD = 32;
+    int RALOAD = 33;
+    int JSONALOAD = 34;
 
-    int IFIELDLOAD = 40;
-    int FFIELDLOAD = 41;
-    int SFIELDLOAD = 42;
-    int BFIELDLOAD = 43;
-    int LFIELDLOAD = 44;
-    int RFIELDLOAD = 45;
+    int IGLOAD = 35;
+    int FGLOAD = 36;
+    int SGLOAD = 37;
+    int BGLOAD = 38;
+    int LGLOAD = 39;
+    int RGLOAD = 40;
 
-    int MAPLOAD = 46;
-    int JSONLOAD = 47;
+    int MAPLOAD = 47;
+    int JSONLOAD = 48;
 
-    int IASTORE = 55;
-    int FASTORE = 56;
-    int SASTORE = 57;
-    int BASTORE = 58;
-    int LASTORE = 59;
-    int RASTORE = 60;
-    int JSONASTORE = 61;
+    int BIASTORE = 50;
+    int IASTORE = 51;
+    int FASTORE = 52;
+    int SASTORE = 53;
+    int BASTORE = 54;
+    int LASTORE = 55;
+    int RASTORE = 56;
+    int JSONASTORE = 57;
+
+    int BIAND = 58;
+    int IAND = 59;
+    int BIOR = 60;
+    int IOR = 61;
+
     int IGSTORE = 62;
     int FGSTORE = 63;
     int SGSTORE = 64;
     int BGSTORE = 65;
     int LGSTORE = 66;
     int RGSTORE = 67;
-
-    int IFIELDSTORE = 68;
-    int FFIELDSTORE = 69;
-    int SFIELDSTORE = 70;
-    int BFIELDSTORE = 71;
-    int LFIELDSTORE = 72;
-    int RFIELDSTORE = 73;
 
     int MAPSTORE = 74;
     int JSONSTORE = 75;
@@ -185,11 +180,12 @@ public interface InstructionCodes {
     int T2JSON = 153;
     int MAP2T = 154;
     int JSON2T = 155;
-    int XML2JSON = 156;
-    int JSON2XML = 157;
+
+    int BISHL = 156;
+    int BISHR = 157;
+
     int S2XML = 158;
     int XML2S = 159;
-    int ANY2SCONV = 175;
 
     // Type cast
     int I2ANY = 160;
@@ -207,22 +203,21 @@ public interface InstructionCodes {
     int ANY2MAP = 172;
     int ANY2STM = 173;
     int ANY2DT = 174;
+    int ANY2SCONV = 175;
+    int ANY2BI = 176;
+    int BI2ANY = 177;
+    int ANY2E = 178;
+    int ANY2T = 179;
+    int ANY2C = 180;
+    int CHECKCAST = 181;
+    int NULL2JSON = 182;
 
-    int ANY2M = 176;
-    int ANY2E = 177;
-    int ANY2T = 178;
-    int ANY2C = 179;
-    int CHECKCAST = 180;
-    int NULL2JSON = 181;
+    int ANY2TYPE = 183;
+    int S2JSONX = 184;
+    int NULL2S = 185;
 
-    int ANY2TYPE = 182;
-    int S2JSONX = 183;
-    int NULL2S = 184;
-    int MAP2JSON = 194;
-    int JSON2MAP = 195;
-
-    int LOCK = 185;
-    int UNLOCK = 186;
+    int LOCK = 186;
+    int UNLOCK = 187;
 
     // Transactions
     int TR_BEGIN = 188;
@@ -234,21 +229,25 @@ public interface InstructionCodes {
     
     int AWAIT = 193;
 
+    int MAP2JSON = 194;
+    int JSON2MAP = 195;
+
     int IS_ASSIGNABLE = 196;
     int CHECK_CONVERSION = 197;
     
     int ARRAY2JSON = 198;
     int JSON2ARRAY = 199;
 
-    int INEWARRAY = 200;
-    int FNEWARRAY = 201;
-    int SNEWARRAY = 202;
-    int BNEWARRAY = 203;
-    int LNEWARRAY = 204;
-    int RNEWARRAY = 205;
-    int JSONNEWARRAY = 206;
-    int ARRAYLEN = 207;
-    int LENGTHOF = 208;
+    int BINEWARRAY = 200;
+    int INEWARRAY = 201;
+    int FNEWARRAY = 202;
+    int SNEWARRAY = 203;
+    int BNEWARRAY = 204;
+    int LNEWARRAY = 205;
+    int RNEWARRAY = 206;
+    int JSONNEWARRAY = 207;
+    int ARRAYLEN = 208;
+    int LENGTHOF = 209;
 
     int NEWSTRUCT = 210;
     int NEWMAP = 212;
@@ -261,6 +260,12 @@ public interface InstructionCodes {
     int ITR_HAS_NEXT = 221;
     int ITR_NEXT = 222;
     int INT_RANGE = 223;
+
+    int I2BI = 224;
+    int BI2I = 225;
+    int BIXOR = 226;
+    int IXOR = 227;
+    int BACONST = 228;
 
     int IRET = 229;
     int FRET = 230;

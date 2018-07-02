@@ -16,10 +16,10 @@
 
 import ballerina/http;
 
-type InitiatorClientConfig {
+type InitiatorClientConfig record {
     string registerAtURL;
     int timeoutMillis;
-    {
+    record {
         int count;
         int interval;
     } retryConfig;

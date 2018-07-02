@@ -1,5 +1,5 @@
 
-public type person {
+public type person record {
     int age;
     string name;
     string address;
@@ -25,7 +25,7 @@ public function <person p> setSSN(string ssn) {
     p.ssn = ssn;
 }
 
-public type employee {
+public type employee record {
     int age;
     string name;
     string address;

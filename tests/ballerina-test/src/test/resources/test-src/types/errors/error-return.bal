@@ -1,4 +1,4 @@
-public type InvalidNameError {
+public type InvalidNameError record {
     string message;
     error? cause;
     string companyName;

@@ -42,6 +42,6 @@ service UnsupportedJsonType bind ep {
     }
 }
 
-type JsonMessage {
+type JsonMessage record {
     json payload;
 };

@@ -1,4 +1,4 @@
-type ClientEndpointConfiguration {
+type ClientEndpointConfiguration record {
 
 };
 

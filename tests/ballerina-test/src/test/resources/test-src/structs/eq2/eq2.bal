@@ -1,5 +1,5 @@
 
-public type employee {
+public type employee record {
     int age;
     string name;
     string address;
