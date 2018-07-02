@@ -152,4 +152,4 @@ public type Parameter record {
 documentation {
     The parameter passed into the operations.
 }
-type Param string|int|boolean|float|blob|Parameter;
+type Param string|int|boolean|float|byte[]|Parameter;

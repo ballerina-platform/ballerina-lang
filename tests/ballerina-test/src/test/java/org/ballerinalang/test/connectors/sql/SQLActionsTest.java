@@ -285,6 +285,13 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.intValue(), 10);
     }
 
+    @Test(groups = CONNECTOR_TEST)
+    public void testBlobArrayOfQueryParameters() {
+        BValue[] returns = BRunUtil.invoke(result, "testBlobArrayQueryParameter", connectionArgs);
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 7);
+    }
+
     @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
     public void testOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testOutParameters", connectionArgs);
@@ -356,12 +363,6 @@ public class SQLActionsTest {
         Assert.assertEquals(((BFloat) returns[6]).floatValue(), 1234.567D);
         Assert.assertEquals(((BFloat) returns[7]).floatValue(), 1234.567D);
         Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D, DELTA);
-    }
-
-    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
-    public void testINParametersWithDirectBlobValues() {
-        BValue[] returns = BRunUtil.invoke(result, "testINParametersWithDirectBlobValues", connectionArgs);
-        Assert.assertTrue(returns[0].stringValue().equals(returns[1].stringValue()));
     }
 
     @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
