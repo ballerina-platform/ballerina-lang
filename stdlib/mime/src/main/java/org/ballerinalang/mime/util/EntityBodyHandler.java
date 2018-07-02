@@ -52,12 +52,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
-import static org.ballerinalang.mime.util.Constants.CHARSET;
-import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.Constants.FIRST_BODY_PART_INDEX;
-import static org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
+import static org.ballerinalang.mime.util.MimeConstants.BODY_PARTS;
+import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
+import static org.ballerinalang.mime.util.MimeConstants.FIRST_BODY_PART_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.MESSAGE_DATA_SOURCE;
+import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
 
 /**
  * Entity body related operations are included here.

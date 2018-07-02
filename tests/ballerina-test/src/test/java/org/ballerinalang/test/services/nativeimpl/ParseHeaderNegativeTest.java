@@ -22,13 +22,14 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.mime.util.Constants;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
 
 /**
  * Negative test cases for ballerina/http parseHeader native function.
@@ -70,7 +71,7 @@ public class ParseHeaderNegativeTest {
 
     @Test(description = "Test function with invalid param values")
     public void testInvalidParams1() {
-        BString value = new BString(Constants.TEXT_PLAIN + ";a = ");
+        BString value = new BString(TEXT_PLAIN + ";a = ");
         BValue[] inputArg = { value };
         BValue[] returnVals = BRunUtil.invoke(result, "testParseHeader", inputArg);
 
@@ -83,7 +84,7 @@ public class ParseHeaderNegativeTest {
 
     @Test(description = "Test function with invalid param values")
     public void testInvalidParams2() {
-        BString value = new BString(Constants.TEXT_PLAIN + "; = ");
+        BString value = new BString(TEXT_PLAIN + "; = ");
         BValue[] inputArg = { value };
         BValue[] returnVals = BRunUtil.invoke(result, "testParseHeader", inputArg);
 
@@ -96,7 +97,7 @@ public class ParseHeaderNegativeTest {
 
     @Test(description = "Test function with invalid param values")
     public void testInvalidParams3() {
-        BString value = new BString(Constants.TEXT_PLAIN + "; = 2");
+        BString value = new BString(TEXT_PLAIN + "; = 2");
         BValue[] inputArg = { value };
         BValue[] returnVals = BRunUtil.invoke(result, "testParseHeader", inputArg);
 

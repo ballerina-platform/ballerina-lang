@@ -35,10 +35,10 @@ import org.ballerinalang.runtime.message.MessageDataSource;
 
 import java.util.Locale;
 
-import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
-import static org.ballerinalang.mime.util.Constants.XML_SUFFIX;
-import static org.ballerinalang.mime.util.Constants.XML_TYPE_IDENTIFIER;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
+import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.XML_SUFFIX;
+import static org.ballerinalang.mime.util.MimeConstants.XML_TYPE_IDENTIFIER;
 
 /**
  * Get the entity body in xml form.

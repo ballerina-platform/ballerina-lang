@@ -23,7 +23,6 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.mime.util.Constants;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -47,7 +46,10 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static org.ballerinalang.mime.util.Constants.REQUEST_ENTITY_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
+import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
@@ -480,15 +482,15 @@ public class HttpCachingClientTest {
     private void initInboundResponse(BMap<String, BValue> inResponse, HTTPCarbonMessage inResponseMsg) {
         HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
         BMap<String, BValue> entity = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
-                Constants.PROTOCOL_PACKAGE_MIME, Constants.ENTITY);
+                                                                      PROTOCOL_PACKAGE_MIME, ENTITY);
         BMap<String, BValue> mediaType = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
-                                                            Constants.PROTOCOL_PACKAGE_MIME, Constants.MEDIA_TYPE);
+                                                                         PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
         HttpUtil.populateInboundResponse(inResponse, entity, mediaType, compileResult.getProgFile(), inResponseMsg);
     }
 
     private void initOutboundRequest(BMap<String, BValue> outRequest, RequestCacheControlStruct cacheControl) {
         BMap<String, BValue> entity = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
-                Constants.PROTOCOL_PACKAGE_MIME, Constants.ENTITY);
+                                                                      PROTOCOL_PACKAGE_MIME, ENTITY);
         outRequest.put(REQUEST_ENTITY_FIELD, entity);
 
         outRequest.put(REQUEST_CACHE_CONTROL_FIELD, cacheControl.getStruct());
