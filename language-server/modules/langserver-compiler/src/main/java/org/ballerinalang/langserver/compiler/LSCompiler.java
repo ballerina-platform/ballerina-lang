@@ -356,8 +356,13 @@ public class LSCompiler {
     @CheckForNull
     public static String findProjectRoot(String parentDir, Path homePath) {
         Path path = Paths.get(parentDir, ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
-        if (!path.equals(homePath) && java.nio.file.Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
-            return parentDir;
+        try {
+            if (!java.nio.file.Files.isSameFile(path, homePath) &&
+                    java.nio.file.Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
+                return parentDir;
+            }
+        } catch (IOException e) {
+            //ignore error
         }
         Path parent = Paths.get(parentDir);
         Path parentsParent = parent.getParent();
