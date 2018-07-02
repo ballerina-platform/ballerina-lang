@@ -31,13 +31,12 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.io.channels.base.DataChannel;
 import org.ballerinalang.stdlib.io.channels.base.Representation;
 import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventManager;
+import org.ballerinalang.stdlib.io.events.EventRegister;
 import org.ballerinalang.stdlib.io.events.EventResult;
+import org.ballerinalang.stdlib.io.events.Register;
 import org.ballerinalang.stdlib.io.events.data.WriteIntegerEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Native function ballerina/io#writeInt16.
@@ -85,11 +84,12 @@ public class WriteInt16 implements NativeCallableUnit {
         DataChannel channel = (DataChannel) dataChannelStruct.getNativeData(IOConstants.DATA_CHANNEL_NAME);
         long value = context.getIntArgument(VALUE_INDEX);
         EventContext eventContext = new EventContext(context, callback);
-        WriteIntegerEvent writeIntegerEvent = new WriteIntegerEvent(channel,
+        WriteIntegerEvent writeFloatEvent = new WriteIntegerEvent(channel,
                 value, Representation.BIT_16,
                 eventContext);
-        CompletableFuture<EventResult> publish = EventManager.getInstance().publish(writeIntegerEvent);
-        publish.thenApply(WriteInt16::writeIntegerResponse);
+        Register register = EventRegister.getFactory().register(channel.id(),
+                channel.isSelectable(), writeFloatEvent, WriteInt16::writeIntegerResponse);
+        register.submit();
     }
 
     @Override

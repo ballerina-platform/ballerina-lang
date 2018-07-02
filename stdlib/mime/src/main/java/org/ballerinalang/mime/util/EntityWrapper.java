@@ -44,4 +44,9 @@ public class EntityWrapper extends Channel {
         //For the time being not applicable
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public boolean isSelectable() {
+        return false;
+    }
 }

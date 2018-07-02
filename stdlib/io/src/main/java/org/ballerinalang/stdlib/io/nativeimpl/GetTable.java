@@ -40,8 +40,9 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventManager;
+import org.ballerinalang.stdlib.io.events.EventRegister;
 import org.ballerinalang.stdlib.io.events.EventResult;
+import org.ballerinalang.stdlib.io.events.Register;
 import org.ballerinalang.stdlib.io.events.records.DelimitedRecordReadAllEvent;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
@@ -50,7 +51,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
@@ -84,8 +84,9 @@ public class GetTable implements NativeCallableUnit {
                     .getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
             EventContext eventContext = new EventContext(context, callback);
             DelimitedRecordReadAllEvent event = new DelimitedRecordReadAllEvent(delimitedChannel, eventContext);
-            CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
-            future.thenApply(GetTable::response);
+            Register register = EventRegister.getFactory().register(delimitedChannel.id(), delimitedChannel
+                            .isSelectable(), event, GetTable::response);
+            register.submit();
         } catch (Exception e) {
             String msg = "Failed to process the delimited file: " + e.getMessage();
             log.error(msg, e);

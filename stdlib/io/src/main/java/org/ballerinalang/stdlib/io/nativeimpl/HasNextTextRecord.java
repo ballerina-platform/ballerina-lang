@@ -30,12 +30,11 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventManager;
+import org.ballerinalang.stdlib.io.events.EventRegister;
 import org.ballerinalang.stdlib.io.events.EventResult;
+import org.ballerinalang.stdlib.io.events.Register;
 import org.ballerinalang.stdlib.io.events.records.HasNextDelimitedRecordEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Native function ballerina/io#hasNextTextRecord.
@@ -85,8 +84,9 @@ public class HasNextTextRecord implements NativeCallableUnit {
             EventContext eventContext = new EventContext(context, callback);
             HasNextDelimitedRecordEvent hasNextEvent = new HasNextDelimitedRecordEvent(textRecordChannel,
                     eventContext);
-            CompletableFuture<EventResult> event = EventManager.getInstance().publish(hasNextEvent);
-            event.thenApply(HasNextTextRecord::response);
+            Register register = EventRegister.getFactory().register(textRecordChannel.id(), textRecordChannel
+                            .isSelectable(), hasNextEvent, HasNextTextRecord::response);
+            register.submit();
         }
     }
 

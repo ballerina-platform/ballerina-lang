@@ -62,4 +62,9 @@ public class FileIOChannel extends Channel {
             throw new BallerinaIOException("Error occurred while transferring file", e);
         }
     }
+
+    @Override
+    public boolean isSelectable() {
+        return false;
+    }
 }

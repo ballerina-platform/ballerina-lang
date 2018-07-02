@@ -372,6 +372,24 @@ public class CharacterChannel {
     }
 
     /**
+     * Specified whether the channel is selectable.
+     *
+     * @return true if the channel is selectable.
+     */
+    public boolean isSelectable() {
+        return channel.isSelectable();
+    }
+
+    /**
+     * Provides the id of the channel.
+     *
+     * @return the id of the channel.
+     */
+    public int id() {
+        return channel.id();
+    }
+
+    /**
      * Closes the given channel.
      *
      * @throws IOException errors occur while trying to close the connection.

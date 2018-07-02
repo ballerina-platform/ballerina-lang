@@ -22,7 +22,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.io.channels.FileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
@@ -36,11 +35,8 @@ import org.ballerinalang.stdlib.io.events.bytes.CloseByteChannelEvent;
 import org.ballerinalang.stdlib.io.events.bytes.ReadBytesEvent;
 import org.ballerinalang.stdlib.io.events.bytes.WriteBytesEvent;
 import org.ballerinalang.stdlib.io.events.characters.CloseCharacterChannelEvent;
-import org.ballerinalang.stdlib.io.events.characters.ReadCharactersEvent;
 import org.ballerinalang.stdlib.io.events.characters.WriteCharactersEvent;
 import org.ballerinalang.stdlib.io.events.records.CloseDelimitedRecordEvent;
-import org.ballerinalang.stdlib.io.events.records.DelimitedRecordReadEvent;
-import org.ballerinalang.stdlib.io.events.records.DelimitedRecordWriteEvent;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -127,7 +123,7 @@ public class IOUtils {
         return offset;
     }
 
-    /**
+/*    *//**
      * <p>
      * Writes bytes to a channel asynchronously.
      * </p>
@@ -137,13 +133,13 @@ public class IOUtils {
      * @param offset   the offset which will be set to write bytes.
      * @param context  context of the native function call.
      * @param function callback function which should be called upon completion.
-     */
+     *//*
     public static void write(Channel channel, byte[] content, int offset, EventContext context,
                              Function<EventResult, EventResult> function) {
         WriteBytesEvent writeBytesEvent = new WriteBytesEvent(channel, content, offset, context);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(writeBytesEvent);
         future.thenApply(function);
-    }
+    }*/
 
     /**
      * <p>
@@ -197,22 +193,22 @@ public class IOUtils {
         return nBytesRead;
     }
 
-    /**
+/*    *//**
      * Reads characters from the channel.
      *
      * @param characterChannel   channel the characters should be read.
      * @param numberOfCharacters the number of characters to read.
      * @param context            context of the event.
      * @param function           the callback function which will be triggered after reading characters.
-     */
+     *//*
     public static void read(CharacterChannel characterChannel, int numberOfCharacters, EventContext context
             , Function<EventResult, EventResult> function) {
         ReadCharactersEvent event = new ReadCharactersEvent(characterChannel, numberOfCharacters, context);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
         future.thenApply(function);
-    }
+    }*/
 
-    /**
+/*    *//**
      * Writes characters to a channel.
      *
      * @param characterChannel the channel the characters will be written
@@ -220,13 +216,13 @@ public class IOUtils {
      * @param offset           if an offset should be specified while writing.
      * @param context          context of the event.
      * @param function         callback function which should be triggered
-     */
+     *//*
     public static void write(CharacterChannel characterChannel, String content, int offset,
                              EventContext context, Function<EventResult, EventResult> function) {
         WriteCharactersEvent event = new WriteCharactersEvent(characterChannel, content, offset, context);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
         future.thenApply(function);
-    }
+    }*/
 
     /**
      * <p>
@@ -266,41 +262,45 @@ public class IOUtils {
      * @param context  context which will be obtained from the native function call.
      * @param function the callback function which will be triggered.
      */
-    public static void read(Channel channel, byte[] content, EventContext context,
+/*    public static void read(Channel channel, byte[] content, EventContext context,
                             Function<EventResult, EventResult> function) {
         ReadBytesEvent event = new ReadBytesEvent(channel, content, context);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
         future.thenApply(function);
-    }
+    }*/
 
-    /**
+/*
+    */
+/**
      * Reads delimited records asynchronously.
      *
      * @param recordChannel channel the bytes should be read from.
      * @param context       event context.
      * @param function      callback function which will be triggered.
-     */
+     *//*
+
     public static void read(DelimitedRecordChannel recordChannel, EventContext context,
                             Function<EventResult, EventResult> function) {
         DelimitedRecordReadEvent event = new DelimitedRecordReadEvent(recordChannel, context);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
         future.thenApply(function);
     }
+*/
 
-    /**
+/*    *//**
      * Asynchronously writes delimited records to the channel.
      *
      * @param recordChannel channel the records should be written.
      * @param records       the record content.
      * @param context       event context.
      * @param function      callback function which will be triggered.
-     */
+     *//*
     public static void write(DelimitedRecordChannel recordChannel, BStringArray records, EventContext context,
                              Function<EventResult, EventResult> function) {
         DelimitedRecordWriteEvent recordWriteEvent = new DelimitedRecordWriteEvent(recordChannel, records, context);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(recordWriteEvent);
         future.thenApply(function);
-    }
+    }*/
 
     /**
      * Closes the channel asynchronously.
