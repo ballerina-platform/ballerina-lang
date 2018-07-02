@@ -171,7 +171,7 @@ documentation { Keeps the connection alive irrespective of the `connection` head
 documentation { Closes the connection irrespective of the `connection` header value }
 @final public KeepAlive KEEPALIVE_NEVER = "NEVER";
 
-public function Listener::init (ServiceEndpointConfiguration c) {
+function Listener::init (ServiceEndpointConfiguration c) {
     self.config = c;
     var err = self.initEndpoint();
     if (err != null) {

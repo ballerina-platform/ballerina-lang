@@ -130,7 +130,7 @@ public type AuthProvider record {
     boolean propagateToken,
 };
 
-public function SecureListener::init(SecureEndpointConfiguration c) {
+function SecureListener::init(SecureEndpointConfiguration c) {
     addAuthFiltersForSecureListener(c);
     self.httpListener.init(c);
 }
@@ -240,24 +240,24 @@ function createAuthHandler(AuthProvider authProvider) returns HttpAuthnHandler {
     }
 }
 
-public function SecureListener::register(typedesc serviceType) {
+function SecureListener::register(typedesc serviceType) {
     self.httpListener.register(serviceType);
 }
 
-public function SecureListener::initEndpoint() returns (error) {
+function SecureListener::initEndpoint() returns (error) {
     return self.httpListener.initEndpoint();
 }
 
-public function SecureListener::start() {
+function SecureListener::start() {
     self.httpListener.start();
 }
 
-public function SecureListener::getCallerActions() returns (SecureListenerActions) {
+function SecureListener::getCallerActions() returns (SecureListenerActions) {
     SecureListenerActions secureListenerActions = new (self.httpListener.getCallerActions());
     return secureListenerActions;
 }
 
-public function SecureListener::stop() {
+function SecureListener::stop() {
     self.httpListener.stop();
 }
 

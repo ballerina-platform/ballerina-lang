@@ -120,11 +120,11 @@ public type MediaType object {
     public function toString() returns (string);
 };
 
-public function MediaType::getBaseType() returns (string) {
+function MediaType::getBaseType() returns (string) {
     return self.primaryType + "/" + self.subType;
 }
 
-public function MediaType::toString() returns (string) {
+function MediaType::toString() returns (string) {
     string contentType = self.getBaseType();
     // map<string> parameters = self.parameters;
     string[] arrKeys = self.parameters.keys();
@@ -470,13 +470,13 @@ public type Entity object {
     public native function hasHeader(@sensitive string headerName) returns boolean;
 };
 
-public function Entity::setFileAsEntityBody(@sensitive string filePath,
+function Entity::setFileAsEntityBody(@sensitive string filePath,
                                             @sensitive string contentType = "application/octet-stream") {
     io:ByteChannel channel = io:openFile(filePath, READ_PERMISSION);
     self.setByteChannel(channel, contentType = contentType);
 }
 
-public function Entity::setBody(@sensitive (string|xml|json|blob|io:ByteChannel|Entity[]) entityBody) {
+function Entity::setBody(@sensitive (string|xml|json|blob|io:ByteChannel|Entity[]) entityBody) {
     match entityBody {
         string textContent => self.setText(textContent);
         xml xmlContent => self.setXml(xmlContent);

@@ -217,84 +217,84 @@ public type LoadBalanceActionError record {
     error[] httpActionErr,
 };
 
-public function LoadBalancerActions::post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function LoadBalancerActions::post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_POST);
 }
 
-public function LoadBalancerActions::head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function LoadBalancerActions::head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                             message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_HEAD);
 }
 
-public function LoadBalancerActions::patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function LoadBalancerActions::patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_PATCH);
 }
 
-public function LoadBalancerActions::put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function LoadBalancerActions::put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_PUT);
 }
 
-public function LoadBalancerActions::options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function LoadBalancerActions::options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                         message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_OPTIONS);
 }
 
-public function LoadBalancerActions::forward(string path, Request request) returns Response|error {
+function LoadBalancerActions::forward(string path, Request request) returns Response|error {
     return performLoadBalanceAction(self, path, request, HTTP_FORWARD);
 }
 
-public function LoadBalancerActions::execute(string httpVerb, string path, Request|string|xml|json|blob|
+function LoadBalancerActions::execute(string httpVerb, string path, Request|string|xml|json|blob|
                                                         io:ByteChannel|mime:Entity[]|() message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceExecuteAction(self, path, req, httpVerb);
 }
 
-public function LoadBalancerActions::delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function LoadBalancerActions::delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_DELETE);
 }
 
-public function LoadBalancerActions::get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function LoadBalancerActions::get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                             message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_GET);
 }
 
-public function LoadBalancerActions::submit(string httpVerb, string path, Request|string|xml|json|blob|
+function LoadBalancerActions::submit(string httpVerb, string path, Request|string|xml|json|blob|
     io:ByteChannel|mime:Entity[]|() message) returns HttpFuture|error {
     error err = {message:"Unsupported action for LoadBalancer client."};
     return err;
 }
 
-public function LoadBalancerActions::getResponse(HttpFuture httpFuture) returns Response|error {
+function LoadBalancerActions::getResponse(HttpFuture httpFuture) returns Response|error {
     error err = {message:"Unsupported action for LoadBalancer client."};
     return err;
 }
 
-public function LoadBalancerActions::hasPromise(HttpFuture httpFuture) returns (boolean) {
+function LoadBalancerActions::hasPromise(HttpFuture httpFuture) returns (boolean) {
     return false;
 }
 
-public function LoadBalancerActions::getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+function LoadBalancerActions::getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
     error err = {message:"Unsupported action for LoadBalancer client."};
     return err;
 }
 
-public function LoadBalancerActions::getPromisedResponse(PushPromise promise) returns Response|error {
+function LoadBalancerActions::getPromisedResponse(PushPromise promise) returns Response|error {
     error err = {message:"Unsupported action for LoadBalancer client."};
     return err;
 }
 
-public function LoadBalancerActions::rejectPromise(PushPromise promise) {
+function LoadBalancerActions::rejectPromise(PushPromise promise) {
 }
 
 // Performs execute action of the Load Balance connector. extract the corresponding http integer value representation

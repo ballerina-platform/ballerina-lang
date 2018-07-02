@@ -85,7 +85,7 @@ public type LoadBalanceClientEndpointConfiguration record {
     boolean failover = true;
 };
 
-public function LoadBalanceClient::init(LoadBalanceClientEndpointConfiguration lbClientConfig) {
+function LoadBalanceClient::init(LoadBalanceClientEndpointConfiguration lbClientConfig) {
     self.httpEP.httpClient = createLoadBalancerClient(lbClientConfig);
     self.httpEP.config.circuitBreaker = lbClientConfig.circuitBreaker;
     self.httpEP.config.timeoutMillis = lbClientConfig.timeoutMillis;

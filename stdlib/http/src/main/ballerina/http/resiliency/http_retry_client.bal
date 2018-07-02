@@ -199,81 +199,81 @@ public type RetryClient object {
     public function rejectPromise(PushPromise promise);
 };
 
-public function RetryClient::post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function RetryClient::post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                 message) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_POST, self);
 }
 
-public function RetryClient::head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function RetryClient::head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                 message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_HEAD, self);
 }
 
-public function RetryClient::put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function RetryClient::put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                 message) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_PUT, self);
 }
 
-public function RetryClient::forward(string path, Request request) returns Response|error {
+function RetryClient::forward(string path, Request request) returns Response|error {
     return performRetryAction(path, request, HTTP_FORWARD, self);
 }
 
-public function RetryClient::execute(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel
+function RetryClient::execute(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel
                                                                     |mime:Entity[]|() message) returns Response|error {
     Request req = buildRequest(message);
     return performRetryClientExecuteAction(path, req, httpVerb, self);
 }
 
-public function RetryClient::patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function RetryClient::patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                     message) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_PATCH, self);
 }
 
-public function RetryClient::delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function RetryClient::delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                     message) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_DELETE, self);
 }
 
-public function RetryClient::get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function RetryClient::get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                 message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_GET, self);
 }
 
-public function RetryClient::options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function RetryClient::options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                     message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_OPTIONS, self);
 }
 
-public function RetryClient::submit(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|
+function RetryClient::submit(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|
                                                                     mime:Entity[]|() message) returns HttpFuture|error {
     Request req = buildRequest(message);
     return self.httpClient.submit(httpVerb, path, req);
 }
 
-public function RetryClient::getResponse(HttpFuture httpFuture) returns Response|error {
+function RetryClient::getResponse(HttpFuture httpFuture) returns Response|error {
     return self.httpClient.getResponse(httpFuture);
 }
 
-public function RetryClient::hasPromise(HttpFuture httpFuture) returns boolean {
+function RetryClient::hasPromise(HttpFuture httpFuture) returns boolean {
     return self.httpClient.hasPromise(httpFuture);
 }
 
-public function RetryClient::getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+function RetryClient::getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
     return self.httpClient.getNextPromise(httpFuture);
 }
 
-public function RetryClient::getPromisedResponse(PushPromise promise) returns Response|error {
+function RetryClient::getPromisedResponse(PushPromise promise) returns Response|error {
     return self.httpClient.getPromisedResponse(promise);
 }
 
-public function RetryClient::rejectPromise(PushPromise promise) {
+function RetryClient::rejectPromise(PushPromise promise) {
     return self.httpClient.rejectPromise(promise);
 }
 

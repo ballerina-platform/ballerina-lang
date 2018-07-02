@@ -161,13 +161,13 @@ public type IntentVerificationRequest object {
 
 };
 
-public function IntentVerificationRequest::buildSubscriptionVerificationResponse(string t)
+function IntentVerificationRequest::buildSubscriptionVerificationResponse(string t)
     returns http:Response {
 
     return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, t);
 }
 
-public function IntentVerificationRequest::buildUnsubscriptionVerificationResponse(string t)
+function IntentVerificationRequest::buildUnsubscriptionVerificationResponse(string t)
     returns http:Response {
 
     return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, t);
@@ -563,11 +563,11 @@ public type WebSubHub object {
 
 };
 
-public function WebSubHub::stop() returns (boolean) {
+function WebSubHub::stop() returns (boolean) {
     return stopHubService(self.hubUrl);
 }
 
-public function WebSubHub::publishUpdate(string topic, string|xml|json|blob|io:ByteChannel payload,
+function WebSubHub::publishUpdate(string topic, string|xml|json|blob|io:ByteChannel payload,
                                          string? contentType = ()) returns error? {
 
     if (self.hubUrl == "") {
@@ -597,11 +597,11 @@ public function WebSubHub::publishUpdate(string topic, string|xml|json|blob|io:B
     return validateAndPublishToInternalHub(self.hubUrl, topic, content);
 }
 
-public function WebSubHub::registerTopic(string topic) returns error? {
+function WebSubHub::registerTopic(string topic) returns error? {
     return registerTopicAtHub(topic, "");
 }
 
-public function WebSubHub::unregisterTopic(string topic) returns error? {
+function WebSubHub::unregisterTopic(string topic) returns error? {
     return unregisterTopicAtHub(topic, "");
 }
 

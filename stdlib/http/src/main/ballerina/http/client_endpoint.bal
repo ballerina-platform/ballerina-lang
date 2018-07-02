@@ -215,7 +215,7 @@ public type AuthConfig record {
     string clientSecret,
 };
 
-public function Client::init(ClientEndpointConfig c) {
+function Client::init(ClientEndpointConfig c) {
     boolean httpClientRequired = false;
     string url = c.url;
     if (url.hasSuffix("/")) {

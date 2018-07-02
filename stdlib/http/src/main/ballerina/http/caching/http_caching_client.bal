@@ -282,7 +282,7 @@ public function createHttpCachingClient(string url, ClientEndpointConfig config,
     return httpCachingClient;
 }
 
-public function HttpCachingClient::post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function HttpCachingClient::post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                        message) returns Response|error {
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
@@ -297,14 +297,14 @@ public function HttpCachingClient::post(string path, Request|string|xml|json|blo
     }
 }
 
-public function HttpCachingClient::head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function HttpCachingClient::head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                         message = ()) returns Response|error {
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
     return getCachedResponse(self.cache, self.httpClient, req, HEAD, path, self.cacheConfig.isShared);
 }
 
-public function HttpCachingClient::put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function HttpCachingClient::put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
@@ -319,7 +319,7 @@ public function HttpCachingClient::put(string path, Request|string|xml|json|blob
     }
 }
 
-public function HttpCachingClient::execute(string httpMethod, string path, Request|string|xml|json|blob|
+function HttpCachingClient::execute(string httpMethod, string path, Request|string|xml|json|blob|
                                                     io:ByteChannel|mime:Entity[]|() message) returns Response|error {
     Request request = buildRequest(message);
     setRequestCacheControlHeader(request);
@@ -338,7 +338,7 @@ public function HttpCachingClient::execute(string httpMethod, string path, Reque
     }
 }
 
-public function HttpCachingClient::patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function HttpCachingClient::patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
@@ -353,7 +353,7 @@ public function HttpCachingClient::patch(string path, Request|string|xml|json|bl
     }
 }
 
-public function HttpCachingClient::delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function HttpCachingClient::delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
@@ -368,14 +368,14 @@ public function HttpCachingClient::delete(string path, Request|string|xml|json|b
     }
 }
 
-public function HttpCachingClient::get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function HttpCachingClient::get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                         message = ()) returns Response|error {
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
     return getCachedResponse(self.cache, self.httpClient, req, GET, path, self.cacheConfig.isShared);
 }
 
-public function HttpCachingClient::options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function HttpCachingClient::options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                             message = ()) returns Response|error {
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
@@ -390,7 +390,7 @@ public function HttpCachingClient::options(string path, Request|string|xml|json|
     }
 }
 
-public function HttpCachingClient::forward(string path, Request request) returns Response|error {
+function HttpCachingClient::forward(string path, Request request) returns Response|error {
     if (request.method == GET || request.method == HEAD) {
         return getCachedResponse(self.cache, self.httpClient, request, request.method, path, self.cacheConfig.isShared);
     }
@@ -405,29 +405,29 @@ public function HttpCachingClient::forward(string path, Request request) returns
     }
 }
 
-public function HttpCachingClient::submit(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel
+function HttpCachingClient::submit(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel
                                                                             |mime:Entity[]|() message) returns HttpFuture|error {
     Request req = buildRequest(message);
     return self.httpClient.submit(httpVerb, path, req);
 }
 
-public function HttpCachingClient::getResponse(HttpFuture httpFuture) returns Response|error {
+function HttpCachingClient::getResponse(HttpFuture httpFuture) returns Response|error {
     return self.httpClient.getResponse(httpFuture);
 }
 
-public function HttpCachingClient::hasPromise(HttpFuture httpFuture) returns boolean {
+function HttpCachingClient::hasPromise(HttpFuture httpFuture) returns boolean {
     return self.httpClient.hasPromise(httpFuture);
 }
 
-public function HttpCachingClient::getNextPromise(HttpFuture httpFuture) returns (PushPromise|error) {
+function HttpCachingClient::getNextPromise(HttpFuture httpFuture) returns (PushPromise|error) {
     return self.httpClient.getNextPromise(httpFuture);
 }
 
-public function HttpCachingClient::getPromisedResponse(PushPromise promise) returns Response|error {
+function HttpCachingClient::getPromisedResponse(PushPromise promise) returns Response|error {
     return self.httpClient.getPromisedResponse(promise);
 }
 
-public function HttpCachingClient::rejectPromise(PushPromise promise) {
+function HttpCachingClient::rejectPromise(PushPromise promise) {
     self.httpClient.rejectPromise(promise);
 }
 

@@ -85,7 +85,7 @@ public type FailoverClientEndpointConfiguration record {
     int intervalMillis,
 };
 
-public function FailoverClient::init(FailoverClientEndpointConfiguration foClientConfig) {
+function FailoverClient::init(FailoverClientEndpointConfiguration foClientConfig) {
     self.httpEP.httpClient = createFailOverClient(foClientConfig);
     self.httpEP.config.circuitBreaker = foClientConfig.circuitBreaker;
     self.httpEP.config.timeoutMillis = foClientConfig.timeoutMillis;

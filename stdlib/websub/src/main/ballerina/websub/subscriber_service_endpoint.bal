@@ -101,7 +101,7 @@ public type Listener object {
 
 };
 
-public function Listener::init(SubscriberServiceEndpointConfiguration c) {
+function Listener::init(SubscriberServiceEndpointConfiguration c) {
     self.config = c;
     http:ServiceEndpointConfiguration serviceConfig = {
         host: c.host, port: c.port, secureSocket: c.httpServiceSecureSocket
@@ -111,20 +111,20 @@ public function Listener::init(SubscriberServiceEndpointConfiguration c) {
     self.initWebSubSubscriberServiceEndpoint();
 }
 
-public function Listener::register(typedesc serviceType) {
+function Listener::register(typedesc serviceType) {
     self.registerWebSubSubscriberServiceEndpoint(serviceType);
 }
 
-public function Listener::start() {
+function Listener::start() {
     self.startWebSubSubscriberServiceEndpoint();
     self.sendSubscriptionRequests();
 }
 
-public function Listener::getCallerActions() returns http:Connection {
+function Listener::getCallerActions() returns http:Connection {
     return self.serviceEndpoint.getCallerActions();
 }
 
-public function Listener::stop() {
+function Listener::stop() {
     self.serviceEndpoint.stop();
 }
 

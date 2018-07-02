@@ -50,7 +50,7 @@ public type HttpJwtAuthnHandler object {
     public function handle (Request req) returns (boolean);
 };
 
-public function HttpJwtAuthnHandler::canHandle (Request req) returns (boolean) {
+function HttpJwtAuthnHandler::canHandle (Request req) returns (boolean) {
     string authHeader;
     try {
         authHeader = req.getHeader(AUTH_HEADER);
@@ -70,7 +70,7 @@ public function HttpJwtAuthnHandler::canHandle (Request req) returns (boolean) {
     return false;
 }
 
-public function HttpJwtAuthnHandler::handle (Request req) returns (boolean) {
+function HttpJwtAuthnHandler::handle (Request req) returns (boolean) {
     string jwtToken = extractJWTToken(req);
     var isAuthenticated = self.jwtAuthenticator.authenticate(jwtToken);
     match isAuthenticated {

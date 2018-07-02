@@ -61,25 +61,25 @@ public type AuthHandlerRegistry object {
     public function clear ();
 };
 
-public function AuthHandlerRegistry::add (string id, HttpAuthnHandler authnHandler) {
+function AuthHandlerRegistry::add (string id, HttpAuthnHandler authnHandler) {
     self.httpAuthHandlers[id] = authnHandler;
 }
 
-public function AuthHandlerRegistry::get (string id) returns HttpAuthnHandler? {
+function AuthHandlerRegistry::get (string id) returns HttpAuthnHandler? {
     if (self.httpAuthHandlers.hasKey(id)) {
         return self.httpAuthHandlers[id];
     }
     return ();
 }
 
-public function AuthHandlerRegistry::getAll () returns map<HttpAuthnHandler> {
+function AuthHandlerRegistry::getAll () returns map<HttpAuthnHandler> {
     return self.httpAuthHandlers;
 }
 
-public function AuthHandlerRegistry::remove (string id) {
+function AuthHandlerRegistry::remove (string id) {
     _ = self.httpAuthHandlers.remove(id);
 }
 
-public function AuthHandlerRegistry::clear () {
+function AuthHandlerRegistry::clear () {
     self.httpAuthHandlers.clear();
 }

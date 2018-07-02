@@ -47,7 +47,7 @@ public type AuthnHandlerChain object {
     public function handleWithSpecificAuthnHandlers (string[] authProviderIds, Request req) returns (boolean);
 };
 
-public function AuthnHandlerChain::handle (Request req) returns (boolean) {
+function AuthnHandlerChain::handle (Request req) returns (boolean) {
     foreach currentAuthProviderType, currentAuthHandler in self.authHandlerRegistry.getAll() {
         var authnHandler = <HttpAuthnHandler> currentAuthHandler;
         if (authnHandler.canHandle(req)) {
@@ -58,7 +58,7 @@ public function AuthnHandlerChain::handle (Request req) returns (boolean) {
     return false;
 }
 
-public function AuthnHandlerChain::handleWithSpecificAuthnHandlers (string[] authProviderIds, Request req)
+function AuthnHandlerChain::handleWithSpecificAuthnHandlers (string[] authProviderIds, Request req)
                                                                                                     returns (boolean) {
     foreach authProviderId in authProviderIds {
         match self.authHandlerRegistry.get(authProviderId) {
