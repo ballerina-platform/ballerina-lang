@@ -36,7 +36,7 @@ public type WebSocketConnector object {
         P{{final}} True if this is a final frame of a (long) message
         R{{}} `error` if an error occurs when sending
     }
-    public native function pushBinary(blob data, boolean final = true) returns error?;
+    public native function pushBinary(byte[] data, boolean final = true) returns error?;
 
     documentation {
         Ping the connection.
@@ -44,7 +44,7 @@ public type WebSocketConnector object {
         P{{data}} Binary data to be sent.
         R{{}} `error` if an error occurs when sending
     }
-    public native function ping(blob data) returns error?;
+    public native function ping(byte[] data) returns error?;
 
     documentation {
         Send pong message to the connection.
@@ -52,7 +52,7 @@ public type WebSocketConnector object {
         P{{data}} Binary data to be sent
         R{{}} `error` if an error occurs when sending
     }
-    public native function pong(blob data) returns error?;
+    public native function pong(byte[] data) returns error?;
 
     documentation {
         Close the connection.

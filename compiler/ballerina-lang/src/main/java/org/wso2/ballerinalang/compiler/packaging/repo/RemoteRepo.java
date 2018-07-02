@@ -20,6 +20,10 @@ public class RemoteRepo extends NonSysRepo<URI> {
         this(new URIConverter(base));
     }
 
+    public RemoteRepo(URI base, boolean isBuild) {
+        this(new URIConverter(base, isBuild));
+    }
+
     @Override
     public Patten calculateNonSysPkg(PackageID pkg) {
         String orgName = pkg.getOrgName().value;
