@@ -142,3 +142,10 @@ function testBlobDefaultValue() returns (byte[], byte[], byte[], byte[], byte[],
     TestObj testObj = new;
     return (a, b, testRec.a, testRec.b, testRec.c, testObj.a, testObj.b, testObj.c);
 }
+
+function testByteArrayReturn() returns (byte[], byte[], byte[]) {
+    byte[] a = base16 `aaabcfccadafcd341a4bdfabcd8912df`;
+    byte[] b = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;
+    byte[] c = [3,4,5,6,7,8,9];
+    return (a, b, c);
+}

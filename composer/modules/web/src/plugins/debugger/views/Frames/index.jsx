@@ -91,10 +91,9 @@ class Frames extends React.Component {
                         } catch (error) {
                             return defaultComponent;
                         }
-
                     } else if (type.toLowerCase().includes('struct')
                         || type.toLowerCase().includes('map')
-                        || variable.value.startsWith('struct')) {
+                        || (typeof variable.value === 'string' && variable.value.startsWith('struct'))) {
                         try {
                             return (
                                 <TreeView key={name} nodeLabel={label} defaultCollapsed>

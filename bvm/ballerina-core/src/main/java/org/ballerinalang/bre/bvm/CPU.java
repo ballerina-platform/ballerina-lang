@@ -296,12 +296,6 @@ public class CPU {
                     case InstructionCodes.BGLOAD:
                     case InstructionCodes.LGLOAD:
                     case InstructionCodes.RGLOAD:
-                    case InstructionCodes.IFIELDLOAD:
-                    case InstructionCodes.FFIELDLOAD:
-                    case InstructionCodes.SFIELDLOAD:
-                    case InstructionCodes.BFIELDLOAD:
-                    case InstructionCodes.LFIELDLOAD:
-                    case InstructionCodes.RFIELDLOAD:
                     case InstructionCodes.MAPLOAD:
                     case InstructionCodes.JSONLOAD:
                         execLoadOpcodes(ctx, sf, opcode, operands);
@@ -321,12 +315,6 @@ public class CPU {
                     case InstructionCodes.BGSTORE:
                     case InstructionCodes.LGSTORE:
                     case InstructionCodes.RGSTORE:
-                    case InstructionCodes.IFIELDSTORE:
-                    case InstructionCodes.FFIELDSTORE:
-                    case InstructionCodes.SFIELDSTORE:
-                    case InstructionCodes.BFIELDSTORE:
-                    case InstructionCodes.LFIELDSTORE:
-                    case InstructionCodes.RFIELDSTORE:
                     case InstructionCodes.MAPSTORE:
                     case InstructionCodes.JSONSTORE:
                         execStoreOpcodes(ctx, sf, opcode, operands);
@@ -1328,79 +1316,6 @@ public class CPU {
                 sf.refRegs[j] = ctx.programFile.globalMemArea.getRefField(pkgIndex, i);
                 break;
 
-            case InstructionCodes.IFIELDLOAD:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                structureType = (BMap<String, BValue>) sf.refRegs[i];
-                if (structureType == null) {
-                    handleNullRefError(ctx);
-                    break;
-                }
-
-                sf.longRegs[k] = ((BInteger) structureType.get(sf.stringRegs[j])).intValue();
-                break;
-            case InstructionCodes.FFIELDLOAD:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                structureType = (BMap<String, BValue>) sf.refRegs[i];
-                if (structureType == null) {
-                    handleNullRefError(ctx);
-                    break;
-                }
-
-                sf.doubleRegs[k] = ((BFloat) structureType.get(sf.stringRegs[j])).floatValue();
-                break;
-            case InstructionCodes.SFIELDLOAD:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                structureType = (BMap<String, BValue>) sf.refRegs[i];
-                if (structureType == null) {
-                    handleNullRefError(ctx);
-                    break;
-                }
-
-                sf.stringRegs[k] = structureType.get(sf.stringRegs[j]).stringValue();
-                break;
-            case InstructionCodes.BFIELDLOAD:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                structureType = (BMap<String, BValue>) sf.refRegs[i];
-                if (structureType == null) {
-                    handleNullRefError(ctx);
-                    break;
-                }
-
-                sf.intRegs[k] = ((BBoolean) structureType.get(sf.stringRegs[j])).booleanValue() ? 1 : 0;
-                break;
-            case InstructionCodes.LFIELDLOAD:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                structureType = (BMap<String, BValue>) sf.refRegs[i];
-                if (structureType == null) {
-                    handleNullRefError(ctx);
-                    break;
-                }
-
-                sf.byteRegs[k] = ((BBlob) structureType.get(sf.stringRegs[j])).blobValue();
-                break;
-            case InstructionCodes.RFIELDLOAD:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                structureType = (BMap<String, BValue>) sf.refRegs[i];
-                if (structureType == null) {
-                    handleNullRefError(ctx);
-                    break;
-                }
-
-                sf.refRegs[k] = (BRefType<?>) structureType.get(sf.stringRegs[j]);
-                break;
-
             case InstructionCodes.MAPLOAD:
                 i = operands[0];
                 j = operands[1];
@@ -1626,79 +1541,6 @@ public class CPU {
                 j = operands[2];
                 ctx.programFile.globalMemArea.setRefField(pkgIndex, j, sf.refRegs[i]);
                 break;
-
-            case InstructionCodes.IFIELDSTORE:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                structureType = (BMap<String, BValue>) sf.refRegs[i];
-                if (structureType == null) {
-                    handleNullRefError(ctx);
-                    break;
-                }
-
-                structureType.put(sf.stringRegs[j], new BInteger(sf.longRegs[k]));
-                break;
-            case InstructionCodes.FFIELDSTORE:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                structureType = (BMap<String, BValue>) sf.refRegs[i];
-                if (structureType == null) {
-                    handleNullRefError(ctx);
-                    break;
-                }
-
-                structureType.put(sf.stringRegs[j], new BFloat(sf.doubleRegs[k]));
-                break;
-            case InstructionCodes.SFIELDSTORE:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                structureType = (BMap<String, BValue>) sf.refRegs[i];
-                if (structureType == null) {
-                    handleNullRefError(ctx);
-                    break;
-                }
-
-                structureType.put(sf.stringRegs[j], new BString(sf.stringRegs[k]));
-                break;
-            case InstructionCodes.BFIELDSTORE:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                structureType = (BMap<String, BValue>) sf.refRegs[i];
-                if (structureType == null) {
-                    handleNullRefError(ctx);
-                    break;
-                }
-
-                structureType.put(sf.stringRegs[j], new BBoolean(sf.intRegs[k] == 1));
-                break;
-            case InstructionCodes.LFIELDSTORE:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                structureType = (BMap<String, BValue>) sf.refRegs[i];
-                if (structureType == null) {
-                    handleNullRefError(ctx);
-                    break;
-                }
-
-                structureType.put(sf.stringRegs[j], new BBlob(sf.byteRegs[k]));
-                break;
-            case InstructionCodes.RFIELDSTORE:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                structureType = (BMap<String, BValue>) sf.refRegs[i];
-                if (structureType == null) {
-                    handleNullRefError(ctx);
-                    break;
-                }
-
-                structureType.put(sf.stringRegs[j], sf.refRegs[k]);
-                break;
             case InstructionCodes.MAPSTORE:
                 i = operands[0];
                 j = operands[1];
@@ -1709,13 +1551,14 @@ public class CPU {
                     break;
                 }
 
-                BMapType mapType = (BMapType) bMap.getType();
-                if (isValidMapInsertion(mapType, sf.refRegs[k])) {
-                    bMap.put(sf.stringRegs[j], sf.refRegs[k]);
+                BRefType<?> value = sf.refRegs[k];
+                if (isValidMapInsertion(bMap.getType(), value)) {
+                    bMap.put(sf.stringRegs[j], value);
                 } else {
-                    ctx.setError(BLangVMErrors.createError(ctx,
-                            BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
-                                    mapType.getConstrainedType(), sf.refRegs[k].getType())));
+                    // We reach here only for map insertions. Hence bMap.getType() is always BMapType
+                    BType expType = ((BMapType) bMap.getType()).getConstrainedType();
+                    ctx.setError(BLangVMErrors.createError(ctx, BLangExceptionHelper
+                            .getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION, expType, value.getType())));
                     handleError(ctx);
                     break;
                 }
@@ -4134,16 +3977,20 @@ public class CPU {
 
     }
 
-    private static boolean isValidMapInsertion(BMapType mapType, BValue value) {
+    private static boolean isValidMapInsertion(BType mapType, BValue value) {
         if (value == null) {
             return true;
         }
 
-        BType constraintType = mapType.getConstrainedType();
+        if (mapType.getTag() == TypeTags.RECORD_TYPE_TAG || mapType.getTag() == TypeTags.OBJECT_TYPE_TAG) {
+            return true;
+        }
+
+        BType constraintType = ((BMapType) mapType).getConstrainedType();
         if (constraintType == BTypes.typeAny || constraintType.equals(value.getType())) {
             return true;
         }
-       
+
         if ((value.getType().getTag() == TypeTags.OBJECT_TYPE_TAG
                 || value.getType().getTag() == TypeTags.RECORD_TYPE_TAG)
                 && (constraintType.getTag() == TypeTags.OBJECT_TYPE_TAG

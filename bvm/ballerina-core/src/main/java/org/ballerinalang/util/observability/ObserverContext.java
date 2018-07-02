@@ -49,6 +49,8 @@ public class ObserverContext {
 
     private boolean started;
 
+    private boolean finished;
+
     private ObserverContext parent;
 
     public ObserverContext() {
@@ -118,6 +120,14 @@ public class ObserverContext {
 
     void setStarted() {
         this.started = true;
+    }
+
+    public boolean isFinished() {
+        return finished;
+    }
+
+    public void setFinished() {
+        this.finished = true;
     }
 
     public ObserverContext getParent() {
