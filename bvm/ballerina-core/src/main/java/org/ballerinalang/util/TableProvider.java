@@ -21,10 +21,11 @@ import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;
@@ -103,13 +104,13 @@ public class TableProvider {
         return createTable(fromTableName, null, query, tableType, params);
     }
 
-    public String insertData(String tableName, BStruct constrainedType) {
+    public String insertData(String tableName, BMap<String, BValue> constrainedType) {
         String sqlStmt = TableUtils.generateInsertDataStatment(tableName, constrainedType);
         prepareAndExecuteStatement(sqlStmt, constrainedType);
         return tableName;
     }
 
-    public void deleteData(String tableName, BStruct constrainedType) {
+    public void deleteData(String tableName, BMap<String, BValue> constrainedType) {
         String sqlStmt = TableUtils.generateDeleteDataStatment(tableName, constrainedType);
         prepareAndExecuteStatement(sqlStmt, constrainedType);
     }
@@ -279,7 +280,7 @@ public class TableProvider {
         }
     }
 
-    private void prepareAndExecuteStatement(String queryStatement, BStruct constrainedType) {
+    private void prepareAndExecuteStatement(String queryStatement, BMap<String, BValue> constrainedType) {
         PreparedStatement stmt = null;
         Connection conn = this.getConnection();
         try {

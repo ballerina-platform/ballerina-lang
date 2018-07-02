@@ -24,8 +24,8 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -41,7 +41,7 @@ import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
-import static org.ballerinalang.mime.util.Constants.REQUEST_ENTITY_INDEX;
+import static org.ballerinalang.mime.util.Constants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 
 /**
@@ -66,15 +66,17 @@ public class RequestNativeFunctionNegativeTest {
 
     @Test(description = "Test when the content length header is not set")
     public void testGetContentLength() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
-        BValue[] inputArg = {inRequest};
+        BMap<String, BValue> inRequest =
+                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
+        BValue[] inputArg = { inRequest };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetContentLength", inputArg);
         Assert.assertEquals(returnVals[0].stringValue(), "Content-length is not found");
     }
 
     @Test
     public void testGetHeader() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
+        BMap<String, BValue> inRequest =
+                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BString key = new BString(HttpHeaderNames.CONTENT_TYPE.toString());
         BValue[] inputArg = {inRequest, key};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
@@ -84,10 +86,12 @@ public class RequestNativeFunctionNegativeTest {
 
     @Test(description = "Test method without json payload")
     public void testGetJsonPayloadWithoutPayload() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
-        BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
+        BMap<String, BValue> inRequest =
+                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
+        BMap<String, BValue> entity =
+                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         TestEntityUtils.enrichTestEntityHeaders(entity, APPLICATION_JSON);
-        inRequest.setRefField(REQUEST_ENTITY_INDEX, entity);
+        inRequest.put(REQUEST_ENTITY_FIELD, entity);
         BValue[] inputArg = {inRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
         Assert.assertNull(returnVals[0]);
@@ -95,12 +99,14 @@ public class RequestNativeFunctionNegativeTest {
 
     @Test(description = "Test method with string payload")
     public void testGetJsonPayloadWithStringPayload() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
-        BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
+        BMap<String, BValue> inRequest =
+                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
+        BMap<String, BValue> entity =
+                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
 
         String payload = "ballerina";
         TestEntityUtils.enrichTestEntity(entity, TEXT_PLAIN, payload);
-        inRequest.setRefField(REQUEST_ENTITY_INDEX, entity);
+        inRequest.put(REQUEST_ENTITY_FIELD, entity);
         inRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
         BValue[] inputArg = {inRequest};
@@ -112,12 +118,14 @@ public class RequestNativeFunctionNegativeTest {
 
     @Test(description = "Test getTextPayload method with JSON payload")
     public void testGetTextPayloadMethodWithJsonPayloadNegative() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
-        BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
+        BMap<String, BValue> inRequest =
+                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
+        BMap<String, BValue> entity =
+                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
 
         String payload = "{\"code\":\"123\"}";
         TestEntityUtils.enrichTestEntity(entity, APPLICATION_JSON, payload);
-        inRequest.setRefField(REQUEST_ENTITY_INDEX, entity);
+        inRequest.put(REQUEST_ENTITY_FIELD, entity);
         inRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
         BValue[] inputArg = {inRequest};
@@ -130,7 +138,8 @@ public class RequestNativeFunctionNegativeTest {
 
     @Test(description = "Test getEntity method on a outRequest without a entity")
     public void testGetEntityNegative() {
-        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
+        BMap<String, BValue> outRequest =
+                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BValue[] inputArg = {outRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetEntity", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -140,23 +149,27 @@ public class RequestNativeFunctionNegativeTest {
 
     @Test(description = "Test getTextPayload method without a paylaod")
     public void testGetTextPayloadNegative() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
-        BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
+        BMap<String, BValue> inRequest =
+                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
+        BMap<String, BValue> entity =
+                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         TestEntityUtils.enrichTestEntityHeaders(entity, TEXT_PLAIN);
-        inRequest.setRefField(REQUEST_ENTITY_INDEX, entity);
-        BValue[] inputArg = {inRequest};
+        inRequest.put(REQUEST_ENTITY_FIELD, entity);
+        BValue[] inputArg = { inRequest };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetTextPayload", inputArg);
-        Assert.assertTrue(returnVals[0].stringValue().contains("Error occurred while retrieving text data from " +
-                "entity : String payload is null"));
+        Assert.assertTrue(returnVals[0].stringValue()
+                .contains("Error occurred while retrieving text data from " + "entity : String payload is null"));
     }
 
     @Test
     public void testGetXmlPayloadNegative() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
-        BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
+        BMap<String, BValue> inRequest =
+                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
+        BMap<String, BValue> entity =
+                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         TestEntityUtils.enrichTestEntityHeaders(entity, APPLICATION_XML);
-        inRequest.setRefField(REQUEST_ENTITY_INDEX, entity);
-        BValue[] inputArg = {inRequest};
+        inRequest.put(REQUEST_ENTITY_FIELD, entity);
+        BValue[] inputArg = { inRequest };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
         Assert.assertTrue(returnVals[0].stringValue().contains("{message:\"Error occurred while retrieving xml data " +
                 "from entity : Empty xml payload\", cause:null}"));
@@ -164,10 +177,11 @@ public class RequestNativeFunctionNegativeTest {
 
     @Test
     public void testGetMethodNegative() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
+        BMap<String, BValue> inRequest =
+                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         HTTPCarbonMessage inRequestMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(inRequest, inRequestMsg);
-        BValue[] inputArg = {inRequest};
+        BValue[] inputArg = { inRequest };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetMethod", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -176,7 +190,8 @@ public class RequestNativeFunctionNegativeTest {
 
     @Test
     public void testGetRequestURLNegative() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
+        BMap<String, BValue> inRequest =
+                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         HTTPCarbonMessage inRequestMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(inRequest, inRequestMsg);
         BValue[] inputArg = {inRequest};
@@ -189,21 +204,24 @@ public class RequestNativeFunctionNegativeTest {
     @Test
     @SuppressWarnings("unchecked")
     public void testRemoveHeaderNegative() {
-        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
-        BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
+        BMap<String, BValue> outRequest =
+                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
+        BMap<String, BValue> entity =
+                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         String range = "Range";
         HttpHeaders httpHeaders = new DefaultHttpHeaders();
         httpHeaders.add("Expect", "100-continue");
         entity.addNativeData(ENTITY_HEADERS, httpHeaders);
-        outRequest.setRefField(REQUEST_ENTITY_INDEX, entity);
+        outRequest.put(REQUEST_ENTITY_FIELD, entity);
         BString key = new BString(range);
         BValue[] inputArg = {outRequest, key};
         BValue[] returnVals = BRunUtil.invoke(result, "testRemoveHeader", inputArg);
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertTrue(returnVals[0] instanceof BStruct);
-        BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getRefField(REQUEST_ENTITY_INDEX);
+        Assert.assertTrue(returnVals[0] instanceof BMap);
+        BMap<String, BValue> entityStruct =
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD);
         HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
         Assert.assertNull(returnHeaders.get(range));
     }
@@ -211,13 +229,15 @@ public class RequestNativeFunctionNegativeTest {
     @Test
     @SuppressWarnings("unchecked")
     public void testRemoveAllHeadersNegative() {
-        BStruct outRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
+        BMap<String, BValue> outRequest =
+                BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BValue[] inputArg = {outRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testRemoveAllHeaders", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertTrue(returnVals[0] instanceof BStruct);
-        BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getRefField(REQUEST_ENTITY_INDEX);
+        Assert.assertTrue(returnVals[0] instanceof BMap);
+        BMap<String, BValue> entityStruct =
+                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD);
         HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
         Assert.assertNull(returnHeaders.get("Expect"));
     }

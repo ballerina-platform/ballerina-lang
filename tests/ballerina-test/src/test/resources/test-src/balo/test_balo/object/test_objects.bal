@@ -168,3 +168,8 @@ function testFieldWithExpr() returns (int, string) {
     Office p;
     return (p.ep.pp, p.ep.name);
 }
+
+function testObjectWithByteTypeFields() returns (byte[], byte[], byte[]) {
+    foo:Desk desk;
+    return (desk.dimensions, desk.code1, desk.code2);
+}

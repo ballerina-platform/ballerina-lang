@@ -19,7 +19,7 @@ package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.util.HashMap;
@@ -48,7 +48,7 @@ public class ForkJoinWorkerResponseContext extends SyncCallableWorkerResponseCon
     //Key - workerName, Value - data channel name;
     private Map<String, String> channelNames;
 
-    private final Map<String, BStruct> workerErrors;
+    private final Map<String, BMap<String, BValue>> workerErrors;
 
     private int haltCount;
 
@@ -96,7 +96,7 @@ public class ForkJoinWorkerResponseContext extends SyncCallableWorkerResponseCon
 
     @Override
     protected synchronized WorkerExecutionContext onError(WorkerSignal signal) {
-        BStruct error = signal.getSourceContext().getError();
+        BMap<String, BValue> error = signal.getSourceContext().getError();
         if (this.isFulfilled()) {
             printError(signal.getSourceContext().workerInfo.getWorkerName(), error);
             return null;
@@ -154,13 +154,13 @@ public class ForkJoinWorkerResponseContext extends SyncCallableWorkerResponseCon
         return result != null ? result.value : null;
     }
 
-    private void printError(String workerName, BStruct error) {
+    private void printError(String workerName, BMap<String, BValue> error) {
         BLangVMUtils.log("error in worker - " + workerName + System.lineSeparator()
                 + BLangVMErrors.getPrintableStackTrace(error));
     }
 
-
-    private BStruct createCallFailedError(WorkerExecutionContext context, Map<String, BStruct> errors) {
+    private BMap<String, BValue> createCallFailedError(WorkerExecutionContext context,
+                                                       Map<String, BMap<String, BValue>> errors) {
         return BLangVMErrors.createCallFailedException(context, errors);
     }
 

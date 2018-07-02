@@ -24,8 +24,8 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
@@ -46,7 +46,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Test class for secure client socket related actions.
  */
-@Test(groups = { "broken" })
+//@Test(groups = { "broken" })
 public class SecureClientSocketTest {
 
     private static final Logger log = LoggerFactory.getLogger(SecureClientSocketTest.class);
@@ -138,12 +138,12 @@ public class SecureClientSocketTest {
     public void testOpenSecureClientSocket() throws URISyntaxException {
         PackageInfo ioPackageInfo = socketClient.getProgFile().getPackageInfo("ballerina/io");
         StructureTypeInfo socketProperties = ioPackageInfo.getStructInfo("SocketProperties");
-        BStruct propertyStruct = BLangVMStructs.createBStruct(socketProperties);
+        BMap<String, BValue> propertyStruct = BLangVMStructs.createBStruct(socketProperties);
         URL resource = getClass().getClassLoader().
                 getResource("datafiles/security/keyStore/ballerinaTruststore.p12");
         Assert.assertNotNull(resource, "Unable to find TrustStore.");
-        propertyStruct.setStringField(2, Paths.get(resource.toURI()).toFile().getAbsolutePath());
-        propertyStruct.setStringField(3, "ballerina");
+        propertyStruct.put("trustStoreFile", new BString(Paths.get(resource.toURI()).toFile().getAbsolutePath()));
+        propertyStruct.put("trustStorePassword", new BString("ballerina"));
         BValue[] args = { new BString("localhost"), new BInteger(port), propertyStruct };
         BRunUtil.invokeStateful(socketClient, "openSocketConnection", args);
     }

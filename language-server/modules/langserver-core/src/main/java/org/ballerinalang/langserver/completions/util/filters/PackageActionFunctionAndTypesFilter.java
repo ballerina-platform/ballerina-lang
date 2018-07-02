@@ -18,14 +18,11 @@
 package org.ballerinalang.langserver.completions.util.filters;
 
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.ballerinalang.langserver.index.dao.ObjectDAO;
 import org.ballerinalang.langserver.index.dao.OtherTypeDAO;
@@ -46,7 +43,6 @@ import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -61,29 +57,31 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
     @Override
     public Either<List<CompletionItem>, List<SymbolInfo>> filterItems(LSServiceOperationContext completionContext) {
 
-        TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
-        int delimiterIndex;
-        String delimiter;
-        if (tokenStream == null) {
-            String lineSegment = completionContext.get(CompletionKeys.CURRENT_LINE_SEGMENT_KEY);
-            delimiterIndex = CompletionUtil.getDelimiterTokenIndexFromLineSegment(completionContext, lineSegment);
-            delimiter = CompletionUtil.getDelimiterTokenFromLineSegment(completionContext, lineSegment);
-        } else {
-            delimiterIndex = this.getPackageDelimiterTokenIndex(completionContext);
-            delimiter = tokenStream.get(delimiterIndex).getText();
+        List<String> poppedTokens = CommonUtil
+                .popNFromStack(completionContext.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY), 3).stream()
+                .map(Token::getText)
+                .collect(Collectors.toList());
+
+        String delimiter = "";
+        for (String poppedToken : poppedTokens) {
+            if (poppedToken.equals(UtilSymbolKeys.DOT_SYMBOL_KEY)
+                    || poppedToken.equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)
+                    || poppedToken.equals(UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY)) {
+                delimiter = poppedToken;
+            }
         }
         
         ArrayList<SymbolInfo> returnSymbolsInfoList = new ArrayList<>();
+        String tokenBeforeDelimiter = poppedTokens.get(poppedTokens.indexOf(delimiter) - 1);
 
         if (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(delimiter)
                 || UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(delimiter)) {
-            // If the delimiter is "." then we are filtering the bound functions for the structs
-            returnSymbolsInfoList
-                    .addAll(CommonUtil.invocationsAndFieldsOnIdentifier(completionContext, delimiterIndex));
+            returnSymbolsInfoList.addAll(CommonUtil.invocationsAndFieldsOnIdentifier(completionContext,
+                            tokenBeforeDelimiter, delimiter));
         } else if (UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(delimiter)) {
             // We are filtering the package functions, actions and the types
-            Either<List<CompletionItem>, List<SymbolInfo>> filteredList =
-                    this.getActionsFunctionsAndTypes(completionContext, delimiterIndex);
+            Either<List<CompletionItem>, List<SymbolInfo>> filteredList = 
+                    this.getActionsFunctionsAndTypes(completionContext, tokenBeforeDelimiter);
             if (filteredList.isLeft()) {
                 return Either.forLeft(filteredList.getLeft());
             }
@@ -96,23 +94,13 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
     /**
      * Get the actions, functions and types.
      * @param completionContext     Text Document Service context (Completion Context)
-     * @param delimiterIndex        delimiter index (index of either . or :)
+     * @param packageName           Package name to evaluate against
      * @return {@link ArrayList}    List of filtered symbol info
      */
     private Either<List<CompletionItem>, List<SymbolInfo>> getActionsFunctionsAndTypes(
-            LSServiceOperationContext completionContext,
-            int delimiterIndex) {
+            LSServiceOperationContext completionContext, String packageName) {
 
-        String packageName;
-        String lineSegment = completionContext.get(CompletionKeys.CURRENT_LINE_SEGMENT_KEY);
-        TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         List<SymbolInfo> symbols = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
-        
-        if (tokenStream == null) {
-            packageName = CompletionUtil.getPreviousTokenFromLineSegment(lineSegment, delimiterIndex);
-        } else {
-            packageName = tokenStream.get(delimiterIndex - 1).getText();
-        }
 
         // Extract the package symbol
         SymbolInfo packageSymbolInfo = symbols.stream().filter(item -> {
@@ -164,45 +152,6 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         }
 
         return Either.forRight(new ArrayList<>());
-    }
-
-    /**
-     * Get the package delimiter token index, which is the index of . or :.
-     * @param completionContext     Text Document Service context (Completion Context)
-     * @return {@link Integer}      Index of the delimiter
-     */
-    private int getPackageDelimiterTokenIndex(LSServiceOperationContext completionContext) {
-        ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{", "(", ")"}));
-        int delimiterIndex = -1;
-        int searchTokenIndex = completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
-        TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
-        /*
-        In order to avoid the token index inconsistencies, current token index offsets from two default tokens
-         */
-        Token offsetToken = CommonUtil.getNthDefaultTokensToLeft(tokenStream, searchTokenIndex, 2);
-        if (!terminalTokens.contains(offsetToken.getText())) {
-            searchTokenIndex = offsetToken.getTokenIndex();
-        }
-
-        while (true) {
-            if (searchTokenIndex >= tokenStream.size()) {
-                break;
-            }
-            String tokenString = tokenStream.get(searchTokenIndex).getText();
-            if (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(tokenString)
-                    || UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(tokenString)
-                    || UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(tokenString)) {
-                delimiterIndex = searchTokenIndex;
-                break;
-            } else if (terminalTokens.contains(tokenString)
-                    && completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY) <= searchTokenIndex) {
-                break;
-            } else {
-                searchTokenIndex++;
-            }
-        }
-
-        return delimiterIndex;
     }
     
     private List<SymbolInfo> loadActionsFunctionsAndTypesFromScope(Map<Name, Scope.ScopeEntry> entryMap) {

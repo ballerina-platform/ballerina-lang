@@ -197,7 +197,7 @@ public class BStream implements BRefType<Object> {
         protected void send(Message message) throws BrokerException {
             BValue data =
                     ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).getValue();
-            Object[] event = createEvent((BStruct) data);
+            Object[] event = createEvent((BMap) data);
             try {
                 inputHandler.send(event);
             } catch (InterruptedException e) {
@@ -206,28 +206,23 @@ public class BStream implements BRefType<Object> {
             }
         }
 
-        private Object[] createEvent(BStruct data) {
-            BStructureType streamType = data.getType();
-            int intValueIndex = -1;
-            int floatValueIndex = -1;
-            int stringValueIndex = -1;
-            int boolValueIndex = -1;
+        private Object[] createEvent(BMap<String, BValue> data) {
+            BStructureType streamType = (BStructureType) data.getType();
             Object[] event = new Object[streamType.getFields().length];
             for (int index = 0; index < streamType.getFields().length; index++) {
                 BField field = streamType.getFields()[index];
                 switch (field.getFieldType().getTag()) {
                     case TypeTags.INT_TAG:
-                        event[index] = data.getIntField(++intValueIndex);
+                        event[index] = ((BInteger) data.get(field.fieldName)).intValue();
                         break;
                     case TypeTags.FLOAT_TAG:
-                        event[index] = data.getFloatField(++floatValueIndex);
+                        event[index] = ((BFloat) data.get(field.fieldName)).floatValue();
                         break;
                     case TypeTags.BOOLEAN_TAG:
-                        int boolValue = data.getBooleanField(++boolValueIndex);
-                        event[index] = (boolValue == 1);
+                        event[index] = ((BBoolean) data.get(field.fieldName)).booleanValue();
                         break;
                     case TypeTags.STRING_TAG:
-                        event[index] = data.getStringField(++stringValueIndex);
+                        event[index] = data.get(field.fieldName).stringValue();
                         break;
                     default:
                         throw new BallerinaException("Fields in streams do not support data types other than int, " +

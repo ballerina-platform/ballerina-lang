@@ -37,7 +37,7 @@ import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BCallableFuture;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -319,7 +319,7 @@ public class BLangFunctions {
             // An error in the context at this point means an unhandled runtime error has propagated
             // all the way up to the entry point. Hence throw a {@link BLangRuntimeException} and
             // terminate the execution.
-            BStruct error = parentCtx.getError();
+            BMap<String, BValue> error = parentCtx.getError();
             if (error != null) {
                 handleError(parentCtx);
             }
@@ -617,7 +617,7 @@ public class BLangFunctions {
         }
 
         @Override
-        public void notifyFailure(BStruct error) {
+        public void notifyFailure(BMap<String, BValue> error) {
             this.check.release();
         }
         

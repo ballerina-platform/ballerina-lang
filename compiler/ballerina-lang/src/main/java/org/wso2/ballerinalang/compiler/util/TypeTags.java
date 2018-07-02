@@ -23,7 +23,8 @@ package org.wso2.ballerinalang.compiler.util;
 public class TypeTags {
 
     public static final int INT = 1;
-    public static final int FLOAT = INT + 1;
+    public static final int BYTE = INT + 1;
+    public static final int FLOAT = BYTE + 1;
     public static final int STRING = FLOAT + 1;
     public static final int BOOLEAN = STRING + 1;
     public static final int BLOB = BOOLEAN + 1;
@@ -57,6 +58,7 @@ public class TypeTags {
     public static final int FINITE = INTERMEDIATE_COLLECTION + 1;
     public static final int OBJECT = FINITE + 1;
     public static final int RECORD = OBJECT + 1;
+    public static final int BYTE_ARRAY = RECORD + 1;
 
     private TypeTags() {
     }

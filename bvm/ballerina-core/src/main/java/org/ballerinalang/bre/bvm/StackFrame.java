@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.bre.bvm;
 
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -49,7 +49,7 @@ public class StackFrame {
     int[] retRegIndexes;
 
     // Error thrown by current stack.
-    BStruct errorThrown;
+    BMap<String, BValue> errorThrown;
 
     CallableUnitInfo callableUnitInfo;
     PackageInfo packageInfo;
@@ -160,11 +160,11 @@ public class StackFrame {
         return retAddrs;
     }
 
-    public BStruct getErrorThrown() {
+    public BMap<String, BValue> getErrorThrown() {
         return errorThrown;
     }
 
-    public void setErrorThrown(BStruct errorThrown) {
+    public void setErrorThrown(BMap<String, BValue> errorThrown) {
         this.errorThrown = errorThrown;
     }
 

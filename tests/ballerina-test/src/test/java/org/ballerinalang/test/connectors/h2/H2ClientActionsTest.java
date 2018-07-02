@@ -22,8 +22,8 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.SQLDBUtils;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -108,7 +108,7 @@ public class H2ClientActionsTest {
     public void testAddToMirrorTable() throws Exception {
         BValue[] returns = BRunUtil.invoke(result, "testAddToMirrorTable");
         Assert.assertEquals(returns.length, 2);
-        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(),
                 "{customerId:40, name:\"Manuri\", creditLimit:1000.0, country:\"Sri Lanka\"}");
         Assert.assertEquals(returns[1].stringValue(),

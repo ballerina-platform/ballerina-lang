@@ -18,10 +18,10 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.bre.bvm.GlobalMemoryArea;
+import org.ballerinalang.bre.bvm.GlobalMemoryBlock;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStructureType;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.LockableStructureType;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
@@ -229,7 +229,7 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
             // Initialize global memory block
             BStructureType dummyType = new BRecordType(null, "", "", 0);
             dummyType.setFieldTypeCount(globalVarCount);
-            this.globalMemoryBlock = new BStruct(dummyType);
+            this.globalMemoryBlock = new GlobalMemoryBlock(dummyType);
         }
     }
 
