@@ -11,10 +11,10 @@ documentation {
     This object denotes the default logger object used when pulling a package directly.
 }
 type DefaultLogger object {
-    public {
+    private {
         int offset = 0;
     }
-    public function formatLog(string msg) returns string {
+    function formatLog(string msg) returns string {
         return msg;
     }
 };
@@ -23,10 +23,10 @@ documentation {
     This object denotes the build logger object used when pulling a package while building.
 }
 type BuildLogger object {
-    public {
+    private {
         int offset = 10;
     }
-    public function formatLog(string msg) returns string {
+    function formatLog(string msg) returns string {
         return "\t" + msg;
     }
 };
