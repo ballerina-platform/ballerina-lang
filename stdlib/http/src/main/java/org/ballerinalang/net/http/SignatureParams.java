@@ -20,6 +20,7 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ParamDetail;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.TypeTags;
 
 import java.util.List;
@@ -75,7 +76,8 @@ public class SignatureParams {
         }
         int type = entityBodyParam.getVarType().getTag();
         if (type == TypeTags.OBJECT_TYPE_TAG || type == TypeTags.RECORD_TYPE_TAG || type == TypeTags.JSON_TAG
-                || type == TypeTags.XML_TAG || type == TypeTags.STRING_TAG || type == TypeTags.BLOB_TAG) {
+                || type == TypeTags.XML_TAG || type == TypeTags.STRING_TAG || (type == TypeTags.ARRAY_TAG
+                && ((BArrayType) entityBodyParam.getVarType()).getElementType().getTag() == TypeTags.BYTE_TAG)) {
             this.entityBody = entityBodyParam;
             paramCount++;
         } else {

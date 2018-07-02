@@ -47,7 +47,7 @@ service<http:Service> backEndService bind { port: 9091 } {
                 json jsonValue = check req.getJsonPayload();
                 _ = client->respond(untaint jsonValue);
             } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
-                blob blobValue = check req.getBinaryPayload();
+                byte[] blobValue = check req.getBinaryPayload();
                 _ = client->respond(untaint blobValue);
             } else if (mime:MULTIPART_FORM_DATA == baseType) {
                 mime:Entity[] bodyParts = check req.getBodyParts();
@@ -137,7 +137,7 @@ service<http:Service> testService bind { port: 9090 } {
     testPostWithBinaryData(endpoint client, http:Request req) {
         string value;
         string textVal = "Sample Text";
-        blob binaryValue = textVal.toBlob("UTF-8");
+        byte[] binaryValue = textVal.toByteArray("UTF-8");
         http:Response textResponse = check clientEP->post("/test1/directPayload", binaryValue);
         value = check textResponse.getPayloadAsString();
 

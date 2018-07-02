@@ -33,7 +33,7 @@ function testGetTextPayload (http:Response res) returns (string | error) {
     return res.getTextPayload();
 }
 
-function testGetBinaryPayload(http:Response res) returns blob|error {
+function testGetBinaryPayload(http:Response res) returns byte[]|error {
     return res.getBinaryPayload();
 }
 
@@ -41,7 +41,7 @@ function testGetXmlPayload(http:Response res) returns xml|error {
     return res.getXmlPayload();
 }
 
-function testSetPayloadAndGetText((string|xml|json|blob|io:ByteChannel) payload) returns string|error {
+function testSetPayloadAndGetText((string|xml|json|byte[]|io:ByteChannel) payload) returns string|error {
     http:Response res = new;
     res.setPayload(payload);
     return res.getTextPayload();
