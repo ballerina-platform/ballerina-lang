@@ -465,7 +465,6 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangForever foreverStatement) {
-
         if (foreverStatement.isSiddhiRuntimeEnabled()) {
             siddhiQueryBuilder.visit(foreverStatement);
             BLangExpressionStmt stmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
