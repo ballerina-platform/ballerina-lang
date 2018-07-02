@@ -27,13 +27,10 @@ import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.testerina.util.Utils;
-import org.ballerinalang.toml.model.Manifest;
-import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.VMOptions;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -150,11 +147,7 @@ public class TestCmd implements BLauncherCmd {
                 .toArray(Path[]::new);
 
         if (srcDirectory != null) {
-            Manifest manifest = readManifestConfigurations();
-            String orgName = manifest.getName();
-            String version = manifest.getVersion();
-            TesterinaRegistry.getInstance().setOrgName(orgName);
-            TesterinaRegistry.getInstance().setVersion(version);
+            Utils.setManifestConfigs();
         }
         BTestRunner testRunner = new BTestRunner();
         if (listGroups) {
@@ -164,7 +157,7 @@ public class TestCmd implements BLauncherCmd {
         if (disableGroupList != null) {
             testRunner.runTest(sourceRootPath.toString(), paths, disableGroupList, false);
         } else {
-            testRunner.runTest(sourceRootPath.toString(), paths, groupList, true);
+            testRunner.runTest(sourceRootPath.toString(), paths, groupList);
         }
         if (testRunner.getTesterinaReport().isFailure()) {
             Utils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
@@ -195,20 +188,5 @@ public class TestCmd implements BLauncherCmd {
     public void setSelfCmdParser(JCommander selfCmdParser) {
         // ignore
 
-    }
-
-    /**
-     * Read the manifest.
-     *
-     * @return manifest configuration object
-     */
-    private static Manifest readManifestConfigurations() {
-        String tomlFilePath = Paths.get(".").toAbsolutePath().normalize().resolve
-            (ProjectDirConstants.MANIFEST_FILE_NAME).toString();
-        try {
-            return ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
-        } catch (IOException e) {
-            return new Manifest();
-        }
     }
 }

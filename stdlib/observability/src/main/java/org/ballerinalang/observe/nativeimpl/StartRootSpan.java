@@ -14,38 +14,45 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ *
  */
 
-package org.ballerina.testobserve;
+package org.ballerinalang.observe.nativeimpl;
 
-import io.opentracing.mock.MockTracer;
-import org.ballerina.testobserve.extension.BMockTracer;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import java.util.List;
+import static org.ballerinalang.observe.nativeimpl.OpenTracerBallerinaWrapper.ROOT_SPAN_INDICATOR;
 
 /**
- * This function returns the span context of a given span.
+ * This function which implements the startSpan method for observe.
  */
 @BallerinaFunction(
         orgName = "ballerina",
-        packageName = "testobserve",
-        functionName = "getFinishedSpansCount",
-        returnType = {@ReturnType(type = TypeKind.INT)},
+        packageName = "observe",
+        functionName = "startRootSpan",
+        args = {
+                @Argument(name = "spanName", type = TypeKind.STRING),
+                @Argument(name = "tags", type = TypeKind.MAP),
+        },
+        returnType = @ReturnType(type = TypeKind.INT),
         isPublic = true
 )
-public class GetFinishedSpansCount extends BlockingNativeCallableUnit {
+public class StartRootSpan extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        List<MockTracer> mockTracer = BMockTracer.getTracerMap();
-        final int[] count = {0};
-        mockTracer.forEach((tracer) -> count[0] += tracer.finishedSpans().size());
-        context.setReturnValues(new BInteger(count[0]));
+        String spanName = context.getStringArgument(0);
+        BMap tags = (BMap) context.getNullableRefArgument(0);
+        int spanId = OpenTracerBallerinaWrapper
+                .getInstance().startSpan(spanName, Utils.toStringMap(tags), ROOT_SPAN_INDICATOR, context);
+
+        context.setReturnValues(new BInteger(spanId));
     }
 }

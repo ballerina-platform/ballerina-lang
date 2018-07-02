@@ -21,6 +21,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -43,7 +44,7 @@ import java.nio.ByteBuffer;
                              structPackage = "ballerina/http"),
         args = {
                 @Argument(name = "wsConnector", type = TypeKind.OBJECT),
-                @Argument(name = "data", type = TypeKind.BLOB)
+                @Argument(name = "data", type = TypeKind.ARRAY, elementType = TypeKind.BYTE)
         }
 )
 public class Pong implements NativeCallableUnit {
@@ -54,7 +55,7 @@ public class Pong implements NativeCallableUnit {
             BMap<String, BValue> wsConnection = (BMap<String, BValue>) context.getRefArgument(0);
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) wsConnection
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
-            byte[] binaryData = context.getBlobArgument(0);
+            byte[] binaryData = ((BByteArray) context.getRefArgument(1)).getBytes();
             ChannelFuture future = connectionInfo.getWebSocketConnection().pong(ByteBuffer.wrap(binaryData));
             WebSocketUtil.handleWebSocketCallback(context, callback, future);
         } catch (Throwable throwable) {

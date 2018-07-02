@@ -175,6 +175,10 @@ public class BInvokableSymbolUtil {
                 typeName = nameComps.get(nameComps.size() - 1).getValue() + UtilSymbolKeys.PKG_DELIMITER_KEYWORD
                         + tSymbol.getName().getValue();
             }
+            
+            if ((paramType instanceof BArrayType)) {
+                typeName += "[]";
+            }
         }
 
         return typeName;
