@@ -13,6 +13,11 @@ function main(string... args) {
     float f = 20.0;
     io:println(f);
 
+    // The `byte` type represents the set of 8-bit unsigned integers.
+    // The implicit initial value of the `byte` type is `0`. Value space for `byte` is 0-255 both inclusive.
+    byte c = 23;
+    io:println(c);
+
     // The `string` type represents the set of sequences of Unicode code points.
     // The implicit initial value of the `string` type is `""` (empty string).
     string s = "Ballerina";

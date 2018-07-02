@@ -1,0 +1,12 @@
+#To run this sample, navigate to the directory that contains the
+#'.bal' file and issue the 'ballerina run' command.
+$ ballerina run closures.bal
+12
+4
+24
+13
+205
+19
+108
+3
+6
