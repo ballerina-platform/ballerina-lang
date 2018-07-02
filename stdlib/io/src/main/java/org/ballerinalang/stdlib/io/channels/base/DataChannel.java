@@ -312,6 +312,24 @@ public class DataChannel {
     }
 
     /**
+     * Specified whether the channel is selectable.
+     *
+     * @return true if the channel is selectable.
+     */
+    public boolean isSelectable() {
+        return channel.isSelectable();
+    }
+
+    /**
+     * Provides the id of the channel.
+     *
+     * @return the id of the channel.
+     */
+    public int id() {
+        return channel.id();
+    }
+
+    /**
      * Close the channel.
      *
      * @throws IOException during i/o error.

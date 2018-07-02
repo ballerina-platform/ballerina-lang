@@ -51,6 +51,11 @@ public class SocketIOChannel extends Channel {
         throw new BallerinaIOException("Unsupported method");
     }
 
+    @Override
+    public boolean isSelectable() {
+        return false;
+    }
+
     /**
      * Shutdown the connection for reading.
      *

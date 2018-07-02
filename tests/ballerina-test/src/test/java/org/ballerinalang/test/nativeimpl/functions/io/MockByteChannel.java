@@ -47,4 +47,9 @@ public class MockByteChannel extends Channel {
     public void transfer(int position, int count, WritableByteChannel dstChannel) throws BallerinaIOException {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public boolean isSelectable() {
+        return false;
+    }
 }

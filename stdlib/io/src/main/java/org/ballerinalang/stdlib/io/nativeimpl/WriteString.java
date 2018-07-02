@@ -30,8 +30,9 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.io.channels.base.DataChannel;
 import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventExecutor;
+import org.ballerinalang.stdlib.io.events.EventRegister;
 import org.ballerinalang.stdlib.io.events.EventResult;
+import org.ballerinalang.stdlib.io.events.Register;
 import org.ballerinalang.stdlib.io.events.data.WriteStringEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
@@ -88,11 +89,10 @@ public class WriteString implements NativeCallableUnit {
         String value = context.getStringArgument(VALUE_INDEX);
         String encoding = context.getStringArgument(ENCODING_INDEX);
         EventContext eventContext = new EventContext(context, callback);
-        WriteStringEvent writeIntegerEvent = new WriteStringEvent(channel, value, encoding, eventContext);
-        EventExecutor exec = new EventExecutor(channel.hashCode(), writeIntegerEvent, WriteString::writeResponse);
-        exec.execute();
-/*        CompletableFuture<EventResult> publish = EventManager.getInstance().publish(writeIntegerEvent);
-        publish.thenApply(WriteString::writeResponse);*/
+        WriteStringEvent writeStringEvent = new WriteStringEvent(channel, value, encoding, eventContext);
+        Register register = EventRegister.getFactory().register(channel.id(),
+                channel.isSelectable(), writeStringEvent, WriteString::writeResponse);
+        register.submit();
     }
 
     @Override
