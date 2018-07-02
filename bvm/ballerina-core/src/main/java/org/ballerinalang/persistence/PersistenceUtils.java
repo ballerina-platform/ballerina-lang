@@ -22,9 +22,10 @@ import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.adapters.ArrayListAdapter;
 import org.ballerinalang.persistence.adapters.HashMapAdapter;
 import org.ballerinalang.persistence.adapters.RefTypeAdaptor;
@@ -32,7 +33,10 @@ import org.ballerinalang.persistence.serializable.DataMapper;
 import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBJSON;
-import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBStruct;
+import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap;
+import org.ballerinalang.persistence.states.ActiveStates;
+import org.ballerinalang.persistence.states.FailedStates;
+import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.persistence.store.PersistenceStore;
 
 import java.net.InetSocketAddress;
@@ -66,11 +70,7 @@ public class PersistenceUtils {
     private static Gson gson;
 
     public static void addTempRefType(String stateId, String key, BRefType refType) {
-        Map<String, BRefType> stateRefTypes = tempRefTypes.get(stateId);
-        if (stateRefTypes == null) {
-            stateRefTypes = new HashMap<>();
-            tempRefTypes.put(stateId, stateRefTypes);
-        }
+        Map<String, BRefType> stateRefTypes = tempRefTypes.computeIfAbsent(stateId, k -> new HashMap<>());
         stateRefTypes.put(key, refType);
     }
 
@@ -101,8 +101,8 @@ public class PersistenceUtils {
 
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(SerializableRefType.class, new RefTypeAdaptor());
-        gsonBuilder.registerTypeAdapter(new HashMap<String, Object>().getClass(), new HashMapAdapter());
-        gsonBuilder.registerTypeAdapter(new ArrayList<Object>().getClass(), new ArrayListAdapter());
+        gsonBuilder.registerTypeAdapter(HashMap.class, new HashMapAdapter());
+        gsonBuilder.registerTypeAdapter(ArrayList.class, new ArrayListAdapter());
         gson = gsonBuilder.create();
         dataMapper = new DataMapper();
         initialized = true;
@@ -116,26 +116,7 @@ public class PersistenceUtils {
         if (o == null) {
             return true;
         }
-        if (serializableClasses.contains(o.getClass().getName())) {
-            return true;
-        }
-        return false;
-    }
-
-    public static boolean isPrimitiveType(Object v) {
-        if (v instanceof String ||
-                v instanceof Integer ||
-                v instanceof Long ||
-                v instanceof Double ||
-                v instanceof Float ||
-                v instanceof Boolean) {
-            return true;
-        }
-        return false;
-    }
-
-    public static String getJson(WorkerExecutionContext ctx) {
-        return "{}";
+        return serializableClasses.contains(o.getClass().getName());
     }
 
     public static WorkerExecutionContext getMainPackageContext(WorkerExecutionContext context) {
@@ -146,8 +127,8 @@ public class PersistenceUtils {
     }
 
     public static SerializableRefType serializeRefType(BRefType refType, SerializableState state) {
-        if (refType instanceof BStruct) {
-            return new SerializableBStruct((BStruct) refType, state);
+        if (refType instanceof BMap) {
+            return new SerializableBMap<>((BMap<?, ? extends BValue>) refType, state);
         } else if (refType instanceof BJSON) {
             return new SerializableBJSON((BJSON) refType);
         } else {
@@ -157,11 +138,21 @@ public class PersistenceUtils {
 
     public static String getInstanceId(WorkerExecutionContext context) {
         String instanceId = null;
-        Object o = context.globalProps.get("instance.id");
+        Object o = context.globalProps.get(PersistenceUtils.INSTANCE_ID);
         if (o instanceof String) {
             instanceId = (String) o;
         }
         return instanceId;
+    }
+
+    public static void handleErrorState(WorkerExecutionContext parentCtx) {
+        String instanceId = getInstanceId(parentCtx);
+        if (instanceId != null) {
+            State state = new State(parentCtx);
+            state.setIp(parentCtx.ip);
+            FailedStates.add(instanceId, state);
+            ActiveStates.remove(instanceId);
+        }
     }
 
     public static Map<String, Map<String, BRefType>> getTempRefTypes() {

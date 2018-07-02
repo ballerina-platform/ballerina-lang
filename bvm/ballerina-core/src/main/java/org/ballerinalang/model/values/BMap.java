@@ -393,6 +393,15 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection {
         return this.nativeData.get(key);
     }
 
+    /**
+     * Get natively data key set.
+     *
+     * @return key set of the native data
+     */
+    public Set<String> getNativeDataKeySet() {
+        return nativeData.keySet();
+    }
+
     @Override
     public String toString() {
         return stringValue();

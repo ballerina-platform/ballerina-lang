@@ -259,7 +259,6 @@ public class BLangFunctions {
             ObservabilityUtils.startClientObservation(callableUnitInfo.attachedToType.toString(),
                     callableUnitInfo.getName(), parentCtx);
         }
-        persistState(parentCtx);
         BLangScheduler.workerWaitForResponse(parentCtx);
         WorkerExecutionContext resultCtx;
         if (callableUnitInfo.isNative()) {
@@ -267,7 +266,7 @@ public class BLangFunctions {
             if (nativeCallable instanceof InterruptibleNativeCallableUnit) {
                 InterruptibleNativeCallableUnit interruptibleNativeCallableUnit
                         = (InterruptibleNativeCallableUnit) nativeCallable;
-                Object o = parentCtx.globalProps.get("instance.id");
+                Object o = parentCtx.globalProps.get(PersistenceUtils.INSTANCE_ID);
                 if (o != null && o instanceof String) {
                     String instanceId = (String) o;
                     WorkerExecutionContext runnableContext = PersistenceUtils.getMainPackageContext(parentCtx);
@@ -296,11 +295,6 @@ public class BLangFunctions {
         }
         resultCtx = BLangScheduler.resume(resultCtx, true);
         return resultCtx;
-    }
-
-    private static void persistState(WorkerExecutionContext ctx) {
-        String jsonPaylaod = PersistenceUtils.getJson(ctx);
-//        PersistenceUtils.saveJsonFIle(jsonPaylaod, Integer.toString(ctx.programFile.getMagicValue()));
     }
 
     private static CallableWorkerResponseContext createWorkerResponseContext(BType[] retParamTypes,

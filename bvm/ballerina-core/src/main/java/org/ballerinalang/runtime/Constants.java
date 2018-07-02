@@ -33,4 +33,12 @@ public class Constants {
     public static final String GLOBAL_TRANSACTION_ID = "globalTransactionId";
     public static final String TRANSACTION_URL = "transactionUrl";
     public static final String COMPENSATION_TABLE = "COMPENSATION_TABLE";
+
+    // Native data constants
+    public static final String TRANSPORT_MESSAGE = "transport_message";
+    public static final String MESSAGE_CORRELATED = "message_correlated";
+    public static final String IS_METHOD_ACCESSED = "isMethodAccessed";
+
+    // Service Endpoint
+    public static final String SERVICE_ENDPOINT = "Listener";
 }

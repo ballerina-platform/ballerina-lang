@@ -19,8 +19,9 @@ package org.ballerinalang.persistence.serializable.reftypes.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.PersistenceUtils;
 import org.ballerinalang.persistence.serializable.NativeDataKey;
 import org.ballerinalang.persistence.serializable.SerializableState;
@@ -30,51 +31,34 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Implementation of @{@link SerializableRefType} to serialize and deserialize {@link BStruct} objects.
+ * Implementation of @{@link SerializableRefType} to serialize and deserialize {@link BMap} objects.
+ *
+ * @param <K> Key
+ * @param <V> Value
  *
  * @since 0.976.0
  */
-public class SerializableBStruct implements SerializableRefType {
+public class SerializableBMap<K, V extends BValue> implements SerializableRefType {
 
     private String pkgPath;
     private String structName;
-    private int flags;
 
+    private HashMap<Object, Object> map = new HashMap<>();
     private HashMap<String, Object> nativeData = new HashMap<>();
 
-    private long[] longFields;
-    private double[] doubleFields;
-    private String[] stringFields;
-    private int[] intFields;
-    private byte[][] byteFields;
-    private ArrayList<Object> refFields;
+    public SerializableBMap(BMap<K, V> bMap, SerializableState state) {
 
-    public SerializableBStruct() {
-    }
-
-    public SerializableBStruct(BStruct bStruct, SerializableState state) {
-
-        structName = bStruct.getType().getName();
-        pkgPath = bStruct.getType().getPackagePath();
-        flags = bStruct.getType().flags;
-
-        longFields = bStruct.longFields;
-        doubleFields = bStruct.doubleFields;
-        stringFields = bStruct.stringFields;
-        intFields = bStruct.intFields;
-        byteFields = bStruct.byteFields;
-
-        for (String key : bStruct.nativeData.keySet()) {
-            Object o = bStruct.nativeData.get(key);
+        structName = bMap.getType().getName();
+        pkgPath = bMap.getType().getPackagePath();
+        for (String key : bMap.getNativeDataKeySet()) {
+            Object o = bMap.getNativeData(key);
             if (o == null) {
                 nativeData.put(key, null);
                 continue;
             }
-
             Object s = state.serialize(o);
             if (s != null) {
                 nativeData.put(key, s);
@@ -84,11 +68,25 @@ public class SerializableBStruct implements SerializableRefType {
                 nativeData.put(key, nativeDataKey);
             }
         }
-        refFields = state.serializeRefFields(bStruct.refFields);
+        bMap.getMap().forEach((k, v) -> {
+            if (v == null) {
+                map.put(k, null);
+            } else {
+                Object s = state.serialize(v);
+                if (s != null) {
+                    map.put(k, s);
+                } else {
+                    NativeDataKey nativeDataKey =
+                            new NativeDataKey(pkgPath, structName, k.toString(), v.getClass().getName());
+                    map.put(k, nativeDataKey);
+                }
+            }
+        });
     }
 
     @Override
     public BRefType getBRefType(ProgramFile programFile, SerializableState state) {
+
         PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
         if (packageInfo == null) {
             throw new BallerinaException(pkgPath + " not found in program file: " +
@@ -99,32 +97,39 @@ public class SerializableBStruct implements SerializableRefType {
         if (structInfo == null) {
             throw new BallerinaException(structName + " not found in package " + pkgPath);
         }
-        BStruct bStruct = new BStruct(structInfo.getType());
-
+        BMap<K, V> bMap = new BMap<>(structInfo.getType());
         for (String key : nativeData.keySet()) {
             Object o = nativeData.get(key);
             if (o == null) {
-                bStruct.nativeData.put(key, null);
+                bMap.addNativeData(key, null);
                 continue;
             }
-
             Object v = state.deserialize(o, programFile);
             if (v instanceof NativeDataKey) {
                 PersistenceUtils.getDataMapper().mapNativeData(state.getSerializationId(),
-                                                               (NativeDataKey) o, bStruct);
-                bStruct.nativeData.put(key, null);
+                                                               (NativeDataKey) o, bMap);
+                bMap.addNativeData(key, null);
             } else {
-                bStruct.nativeData.put(key, v);
+                bMap.addNativeData(key, v);
             }
         }
+        bMap.getMap().forEach((k, v) -> {
+            Object o = map.get(k);
+            if (o == null) {
+                bMap.put(k, null);
 
-        bStruct.longFields = longFields;
-        bStruct.doubleFields = doubleFields;
-        bStruct.intFields = intFields;
-        bStruct.stringFields = stringFields;
-        bStruct.byteFields = byteFields;
-        bStruct.refFields = state.deserializeRefFields(refFields, programFile);
-        return bStruct;
+            } else {
+                Object val = state.deserialize(o, programFile);
+                if (val instanceof NativeDataKey) {
+                    PersistenceUtils.getDataMapper().mapNativeData(state.getSerializationId(),
+                                                                   (NativeDataKey) o, bMap);
+                    bMap.put(k, null);
+                } else {
+                    bMap.put(k, v);
+                }
+            }
+        });
+        return bMap;
     }
 
     public String serialize() {
@@ -132,8 +137,8 @@ public class SerializableBStruct implements SerializableRefType {
         return gson.toJson(this);
     }
 
-    public static SerializableBStruct deserialize(String jsonString) {
+    public static SerializableBMap deserialize(String jsonString) {
         Gson gson = new GsonBuilder().create();
-        return gson.fromJson(jsonString, SerializableBStruct.class);
+        return gson.fromJson(jsonString, SerializableBMap.class);
     }
 }
