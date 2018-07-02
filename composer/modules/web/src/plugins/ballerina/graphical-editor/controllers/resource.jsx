@@ -19,8 +19,6 @@
 import lifeline from './lifeline';
 
 export default {
-    regions: {
-        main: lifeline.regions.main,
-    },
+    regions: lifeline.regions,
     name: 'Resource',
 };
