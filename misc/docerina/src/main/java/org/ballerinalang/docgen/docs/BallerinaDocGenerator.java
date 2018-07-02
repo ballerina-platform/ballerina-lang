@@ -165,6 +165,7 @@ public class BallerinaDocGenerator {
 
                 if (ConfigRegistry.getInstance().getAsBoolean(BallerinaDocConstants.GENERATE_TOC)) {
                     // generates ToC into a separate HTML - requirement of Central
+                    out.println("docerina: generating toc: " + output + File.separator + packagePath + "-toc" + HTML);
                     String tocFilePath = output + File.separator + packagePath + "-toc" + HTML;
                     Writer.writeHtmlDocument(page, packageToCTemplateName, tocFilePath);
                 }

@@ -66,11 +66,11 @@ type NonNillableClob record {
 };
 
 type NonNillableBlob record {
-    blob val;
+    byte[] val;
 };
 
 type NonNillableBinary record {
-    blob val;
+    byte[] val;
 };
 
 type NonNillableDate record {
