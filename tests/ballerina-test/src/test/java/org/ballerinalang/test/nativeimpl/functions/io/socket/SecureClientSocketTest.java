@@ -46,7 +46,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Test class for secure client socket related actions.
  */
-//@Test(groups = { "broken" })
+@Test(groups = {"broken"})
 public class SecureClientSocketTest {
 
     private static final Logger log = LoggerFactory.getLogger(SecureClientSocketTest.class);
@@ -144,7 +144,7 @@ public class SecureClientSocketTest {
         Assert.assertNotNull(resource, "Unable to find TrustStore.");
         propertyStruct.put("trustStoreFile", new BString(Paths.get(resource.toURI()).toFile().getAbsolutePath()));
         propertyStruct.put("trustStorePassword", new BString("ballerina"));
-        BValue[] args = { new BString("localhost"), new BInteger(port), propertyStruct };
+        BValue[] args = {new BString("localhost"), new BInteger(port), propertyStruct};
         BRunUtil.invokeStateful(socketClient, "openSocketConnection", args);
     }
 
@@ -153,18 +153,18 @@ public class SecureClientSocketTest {
         final String newline = System.lineSeparator();
         String content = "Hello World" + newline;
         final byte[] contentBytes = content.getBytes();
-        BValue[] args = { new BByteArray(contentBytes)};
+        BValue[] args = {new BByteArray(contentBytes)};
         final BValue[] writeReturns = BRunUtil.invokeStateful(socketClient, "write", args);
         BInteger returnedSize = (BInteger) writeReturns[0];
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Write content size is not match.");
-        args = new BValue[] { new BInteger(content.length()) };
+        args = new BValue[]{new BInteger(content.length())};
         final BValue[] readReturns = BRunUtil.invokeStateful(socketClient, "read", args);
         returnedSize = (BInteger) readReturns[1];
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Read size not match with the request size");
     }
 
     @Test(dependsOnMethods = "testWriteReadContent",
-          description = "Test the connection closure")
+            description = "Test the connection closure")
     public void testClosure() {
         BRunUtil.invokeStateful(socketClient, "closeSocket");
     }
