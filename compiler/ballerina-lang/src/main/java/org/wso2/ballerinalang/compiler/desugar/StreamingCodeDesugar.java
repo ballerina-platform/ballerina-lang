@@ -105,7 +105,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private static final String CREATE_SIMPLE_SELECT_METHOD_NAME = "createSimpleSelect";
     private static final String EVENT_OBJECT_VARIABLE_NAME = "eventObject";
     private static final String BUILD_STREAM_EVENT_METHOD_NAME = "buildStreamEvent";
-    private static final String STREAM_PUBLISH_METHOD_NAME = "stream.publish";
     private static final String STREAM_SUBSCRIBE_METHOD_NAME = "stream.subscribe";
 
     private static final CompilerContext.Key<StreamingCodeDesugar> STREAMING_DESUGAR_KEY =
@@ -119,11 +118,10 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private int lambdaFunctionCount = 0;
     private SymbolEnv env;
     private List<BLangStatement> stmts;
-    private Set<BVarSymbol> closureVarSymbols = new LinkedHashSet<>();
     private BType inputStreamEventType;
     private BLangExpression filterConditionalExpression;
     private BLangVariable filterTypeCastedVariable;
-    private BLangVariable outputEventTypeVariable;
+    private BType outputEventType;
     private Stack<BVarSymbol> nextProcessVarSymbolStack = new Stack<>();
 
 
@@ -158,12 +156,10 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
-
-        closureVarSymbols = new LinkedHashSet<>();
         inputStreamEventType = null;
         filterConditionalExpression = null;
         filterTypeCastedVariable = null;
-        outputEventTypeVariable = null;
+        outputEventType = null;
 
         inputStreamEventType = ((BStreamType) ((BLangExpression) streamingQueryStatement.getStreamingInput().
                 getStreamReference()).type).constraint;
@@ -207,64 +203,16 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     //
     @Override
     public void visit(BLangLambdaFunction lambdaFunction) {
-
         //Create lambda function Variable
-        BLangVariable oldFunctionVariable = (BLangVariable) lambdaFunction.getFunctionNode().getParameters().get(0);
-        BLangVariable lambdaFunctionVariable = this.createAnyTypeVariable(oldFunctionVariable.symbol.name.getValue(),
-                lambdaFunction.pos, env);
-
-        BLangValueType returnType = new BLangValueType();
-        returnType.setTypeKind(TypeKind.NIL);
-
-        //Create new lambda function to process the output events
-        BLangLambdaFunction outputLambdaFunction = createLambdaFunction(lambdaFunction.pos, lambdaFunctionVariable,
-                closureVarSymbols, returnType);
-        BLangBlockStmt lambdaBody = outputLambdaFunction.function.body;
-
-        //Create type casting for the output variable
-        BVarSymbol typeCastingVarSymbol = new BVarSymbol(0,
-                new Name(getVariableName(oldFunctionVariable.getName().getValue())),
-                lambdaFunctionVariable.symbol.pkgID, ((BArrayType) oldFunctionVariable.type).eType, env.scope.owner);
-        BLangSimpleVarRef typeCastingSimpleVarRef = ASTBuilderUtil.createVariableRef(lambdaFunction.pos,
-                lambdaFunctionVariable.symbol);
-        BLangExpression typeCastingExpression = generateConversionExpr(typeCastingSimpleVarRef,
-                ((BArrayType) oldFunctionVariable.type).eType, symResolver);
-        BLangVariable typeCastingVariable = ASTBuilderUtil.
-                createVariable(lambdaFunction.pos, getVariableName(oldFunctionVariable.getName().getValue()),
-                        ((BArrayType) oldFunctionVariable.type).eType, typeCastingExpression, typeCastingVarSymbol);
-        typeCastingVariable.typeNode = ASTBuilderUtil.createTypeNode(((BArrayType) oldFunctionVariable.type).eType);
-        BLangVariableDef typeCastingVariableDef = ASTBuilderUtil.createVariableDef(lambdaFunction.pos,
-                typeCastingVariable);
-        outputEventTypeVariable = typeCastingVariable;
-
-        lambdaBody.stmts.add(typeCastingVariableDef);
-
-        //Publish events to stream
-        BLangExpressionStmt eventPublisherStatement = (BLangExpressionStmt) TreeBuilder.
-                createExpressionStatementNode();
-        eventPublisherStatement.pos = lambdaFunction.pos;
-        BInvokableSymbol publisherMethodSymbol = (BInvokableSymbol) symTable.rootScope.lookup(names.
-                fromString(STREAM_PUBLISH_METHOD_NAME)).symbol;
-
-        List<BLangVariable> variables = new ArrayList<>(1);
-        variables.add(typeCastingVariable);
-        BLangInvocation invocationExpr = ASTBuilderUtil.
-                createInvocationExpr(lambdaFunction.pos, publisherMethodSymbol, variables, symResolver);
-        BVarSymbol varSymbol = ((BLangSimpleVarRef.BLangPackageVarRef)
-                ((BLangInvocation.BLangAttachedFunctionInvocation)
-                        ((BLangExpressionStmt) lambdaFunction.getFunctionNode().getBody().getStatements().get(0)).
-                                expr).expr).varSymbol;
-        invocationExpr.expr = ASTBuilderUtil.createVariableRef(lambdaFunction.pos, varSymbol);
-        eventPublisherStatement.expr = invocationExpr;
-
-        lambdaBody.stmts.add(eventPublisherStatement);
+        outputEventType = ((BArrayType) ((BLangVariable) lambdaFunction.getFunctionNode().getParameters().
+                get(0)).type).eType;
 
         //Create Function definition statement
         BLangVariable outputStreamFunctionVariable = ASTBuilderUtil.
                 createVariable(lambdaFunction.pos, getVariableName(OUTPUT_FUNC_REFERENCE),
-                        outputLambdaFunction.type, outputLambdaFunction,
-                        outputLambdaFunction.function.symbol);
-        outputStreamFunctionVariable.typeNode = ASTBuilderUtil.createTypeNode(outputLambdaFunction.function.type);
+                        lambdaFunction.type, lambdaFunction,
+                        lambdaFunction.function.symbol);
+        outputStreamFunctionVariable.typeNode = ASTBuilderUtil.createTypeNode(lambdaFunction.function.type);
         BLangVariableDef outputStreamFunctionVarDef = ASTBuilderUtil.createVariableDef(lambdaFunction.pos,
                 outputStreamFunctionVariable);
 
@@ -322,7 +270,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     //
     @Override
     public void visit(BLangSelectClause selectClause) {
-
         //Create lambda function Variable
         BLangVariable lambdaFunctionVariable =
                 this.createStreamEventTypeVariable(getVariableName(SIMPLE_SELECT_LAMBDA_PARAM_REFERENCE),
@@ -365,19 +312,19 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         //Output object creation
         BLangRecordLiteral outputEventRecordLiteral = ASTBuilderUtil.createEmptyRecordLiteral(selectClause.pos,
-                outputEventTypeVariable.type);
+                outputEventType);
         List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValueList = getFieldListInSelectClause(selectClause.pos,
                 selectClause.getSelectExpressions(), typeCastingVariable.symbol);
 
         BVarSymbol outputEventVarSymbol = new BVarSymbol(0,
                 new Name(getVariableName(OUTPUT_EVENT_SELECTOR_PARAM_REFERENCE)),
-                lambdaFunctionVariable.symbol.pkgID, outputEventTypeVariable.type, env.scope.owner);
+                lambdaFunctionVariable.symbol.pkgID, outputEventType, env.scope.owner);
         outputEventRecordLiteral.keyValuePairs = recordKeyValueList;
         BLangVariable outputEventObjectVariable = ASTBuilderUtil.
                 createVariable(selectClause.pos, getVariableName(OUTPUT_EVENT_SELECTOR_PARAM_REFERENCE),
-                        outputEventTypeVariable.type, outputEventRecordLiteral, outputEventVarSymbol);
+                        outputEventType, outputEventRecordLiteral, outputEventVarSymbol);
 
-        outputEventObjectVariable.typeNode = ASTBuilderUtil.createTypeNode(outputEventTypeVariable.type);
+        outputEventObjectVariable.typeNode = ASTBuilderUtil.createTypeNode(outputEventType);
         BLangVariableDef outputEventObjectVariableDef = ASTBuilderUtil.createVariableDef(selectClause.pos,
                 outputEventObjectVariable);
         lambdaBody.stmts.add(outputEventObjectVariableDef);
@@ -452,7 +399,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     //
     @Override
     public void visit(BLangStreamingInput streamingInput) {
-
         //Lambda function parameter
         BType lambdaParameterType = inputStreamEventType;
 
@@ -572,7 +518,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     //
     @Override
     public void visit(BLangWhere where) {
-
         //Create lambda function Variable
         BLangVariable lambdaFunctionVariable =
                 this.createAnyTypeVariable(getVariableName(FILTER_LAMBDA_PARAM_REFERENCE), where.pos, env);
@@ -732,7 +677,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
     private BLangVariable createStreamEventTypeVariable(String variableName, DiagnosticPos pos, SymbolEnv env) {
-
         BRecordTypeSymbol recordTypeSymbol = (BRecordTypeSymbol) symResolver.
                 resolvePkgSymbol(pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
                 scope.lookup(new Name(STREAM_EVENT_OBJECT_NAME)).symbol;
@@ -754,7 +698,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     private static BLangExpression generateConversionExpr(BLangExpression varRef, BType target,
                                                           SymbolResolver symResolver) {
-
         // Box value using cast expression.
         final BLangTypeConversionExpr conversion = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
         conversion.pos = varRef.pos;
@@ -766,8 +709,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         return conversion;
     }
 
-    private static BVarSymbol getOutputEventFieldSymbol(BLangVariable outputEventTypeVariable, String fieldName) {
-        List<BField> recordTypeFieldList = ((BRecordType) outputEventTypeVariable.type).fields;
+    private static BVarSymbol getOutputEventFieldSymbol(BType outputEventType, String fieldName) {
+        List<BField> recordTypeFieldList = ((BRecordType) outputEventType).fields;
         for (BField field : recordTypeFieldList) {
             if (field.getName().value.equals(fieldName)) {
                 return field.symbol;
@@ -792,7 +735,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private List<BLangRecordLiteral.BLangRecordKeyValue> getFieldListInSelectClause
             (DiagnosticPos pos, List<? extends SelectExpressionNode> selectExprList,
              BVarSymbol typeCastedVariableSymbol) {
-
         List<BLangRecordLiteral.BLangRecordKeyValue> recordKeyValueList = new ArrayList<>();
 
         for (SelectExpressionNode expressionNode : selectExprList) {
@@ -805,13 +747,13 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 varRef.variableName = ASTBuilderUtil.createIdentifier(pos,
                         selectExpression.getIdentifier());
                 recordKeyValue.key = new BLangRecordLiteral.BLangRecordKey(varRef);
-                recordKeyValue.key.fieldSymbol = getOutputEventFieldSymbol(outputEventTypeVariable,
+                recordKeyValue.key.fieldSymbol = getOutputEventFieldSymbol(outputEventType,
                         selectExpression.getIdentifier());
             } else {
                 BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
                 varRef.variableName = ((BLangFieldBasedAccess) selectExpression.getExpression()).field;
                 recordKeyValue.key = new BLangRecordLiteral.BLangRecordKey(varRef);
-                recordKeyValue.key.fieldSymbol = getOutputEventFieldSymbol(outputEventTypeVariable,
+                recordKeyValue.key.fieldSymbol = getOutputEventFieldSymbol(outputEventType,
                         ((BLangFieldBasedAccess) selectExpression.getExpression()).field.value);
             }
 
@@ -836,7 +778,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     private BLangLambdaFunction createLambdaFunction(DiagnosticPos pos, BLangVariable lambdaFunctionVariable,
                                                      Set<BVarSymbol> closureVarSymbols, BLangValueType returnType) {
-
         BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         BLangFunction filterLambdaFunctionNode = ASTBuilderUtil.createFunction(pos,
                 getFunctionName(FUNC_CALLER));

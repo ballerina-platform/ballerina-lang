@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/reflect;
-
 public type Sum object {
     public {
         int sumValue = 0;

@@ -54,7 +54,6 @@ function startSelectQuery() returns (TeacherOutput[]) {
     }
 
     runtime:sleep(1000);
-    io:println("output: ", globalEmployeeArray);
     return globalEmployeeArray;
 }
 
