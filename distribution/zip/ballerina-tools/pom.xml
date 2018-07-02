@@ -47,6 +47,10 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-packerina</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-cli-utils</artifactId>
         </dependency>
         <dependency>
@@ -252,6 +256,7 @@
                                 composer-server-distribution,
                                 connectors,
                                 testerina-core,
+                                ballerina-packerina,
                                 language-server-core
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions

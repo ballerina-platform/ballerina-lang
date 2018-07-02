@@ -53,9 +53,8 @@ public class ResourceDefinition extends CompletionTest {
                 {"languageConstructsNonEmptyLine.json", "resource"},
                 {"actionInvocationSuggestion1.json", "resource"},
                 {"actionInvocationSuggestion2.json", "resource"},
-                //TODO: fix completion with byte[]
-//                {"completionBeforeUnderscore1.json", "resource"},
-//                {"completionBeforeUnderscore2.json", "resource"},
+                {"completionBeforeUnderscore1.json", "resource"},
+                {"completionBeforeUnderscore2.json", "resource"},
                 {"completionBeforeUnderscore3.json", "resource"}
         };
     }

@@ -17,7 +17,6 @@
 import ballerina/io;
 import ballerina/internal;
 import ballerina/log;
-import ballerina/mime;
 import ballerina/time;
 
 string TEST_CONTENT = "Hello";
@@ -164,7 +163,7 @@ function testReadFile(string pathValue) returns boolean {
     match readResult {
         (byte[], int) byteContent => {
             var (bytes, numberOfBytes) = byteContent;
-            return mime:byteArrayToString(bytes, "UTF-8") == TEST_CONTENT;
+            return lengthof bytes == lengthof TEST_CONTENT.toByteArray("UTF-8");
         }
         error err => {
             log:printError("Error occurred while reading content: " + pathValue, err = err);

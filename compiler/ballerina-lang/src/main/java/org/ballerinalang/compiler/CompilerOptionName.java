@@ -30,6 +30,8 @@ public enum CompilerOptionName {
 
     OFFLINE("offline"),
 
+    SKIP_TESTS("skipTests"),
+
     COMPILER_PHASE("compilerPhase"),
 
     TRANSACTION_EXISTS("transactionBlockExists"),

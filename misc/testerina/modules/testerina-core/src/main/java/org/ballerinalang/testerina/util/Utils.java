@@ -17,20 +17,31 @@
  */
 package org.ballerinalang.testerina.util;
 
+import org.ballerinalang.testerina.core.BTestRunner;
+import org.ballerinalang.testerina.core.TesterinaConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
+import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.parser.ManifestProcessor;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
+import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * Utility methods.
@@ -39,7 +50,7 @@ public class Utils {
 
     private static PrintStream errStream = System.err;
     private static TesterinaRegistry registry = TesterinaRegistry.getInstance();
-
+    private static PrintStream outStream = System.out;
 
     public static void startService(ProgramFile programFile) {
         if (!programFile.isServiceEPAvailable()) {
@@ -75,7 +86,7 @@ public class Utils {
             }
         } catch (IOException e) {
             errStream.println("Error occurred while deleting the dir : " + path.toString() + " with error : "
-                    + e.getMessage());
+                                      + e.getMessage());
         }
     }
 
@@ -117,5 +128,82 @@ public class Utils {
         }
 
         return orgName + packageName + Names.VERSION_SEPARATOR + version;
+    }
+
+    /**
+     * Set manifest configurations.
+     */
+    public static void setManifestConfigs() {
+        Manifest manifest = readManifestConfigurations();
+        String orgName = manifest.getName();
+        String version = manifest.getVersion();
+        TesterinaRegistry.getInstance().setOrgName(orgName);
+        TesterinaRegistry.getInstance().setVersion(version);
+    }
+
+    /**
+     * Read the manifest.
+     *
+     * @return manifest configuration object
+     */
+    private static Manifest readManifestConfigurations() {
+        String tomlFilePath = Paths.get(".").toAbsolutePath().normalize().resolve
+                (ProjectDirConstants.MANIFEST_FILE_NAME).toString();
+        try {
+            return ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
+        } catch (IOException e) {
+            return new Manifest();
+        }
+    }
+
+    /**
+     * Include tests into the build command.
+     *
+     * @param sourceRootPath source root path
+     * @param sourceFileList file list
+     */
+    public static void testWithBuild(Path sourceRootPath, List<String> sourceFileList) {
+        SourceDirectory srcDirectory;
+        if (sourceFileList == null || sourceFileList.isEmpty()) {
+            srcDirectory = new FileSystemProjectDirectory(sourceRootPath);
+            sourceFileList = srcDirectory.getSourcePackageNames();
+        } else if (sourceFileList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+            outStream.println();
+            return;
+        }
+
+        Path[] paths = sourceFileList.stream().map(Paths::get).toArray(Path[]::new);
+        Utils.setManifestConfigs();
+
+        BTestRunner testRunner = new BTestRunner();
+        testRunner.runTest(sourceRootPath.toString(), paths, null, true, true);
+
+        if (testRunner.getTesterinaReport().isFailure()) {
+            Utils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
+            Runtime.getRuntime().exit(1);
+        }
+        Utils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
+    }
+
+    /**
+     * Format error message.
+     *
+     * @param errorMsg error message
+     * @return formatted error message
+     */
+    public static String formatError(String errorMsg) {
+        StringBuilder newErrMsg = new StringBuilder();
+        errorMsg = errorMsg.replaceAll("\n", "\n\t    ");
+        List<String> msgParts = Arrays.asList(errorMsg.split("\n"));
+
+        for (String msg : msgParts) {
+            if (msgParts.indexOf(msg) != 0 && !msg.equals("\t    ")) {
+                msg = "\t    \t" + msg.trim();
+            }
+            if (!msg.equals("\t    ")) {
+                newErrMsg.append(msg).append("\n");
+            }
+        }
+        return newErrMsg.toString();
     }
 }

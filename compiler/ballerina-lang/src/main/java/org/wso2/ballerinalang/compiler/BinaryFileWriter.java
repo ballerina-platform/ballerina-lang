@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.programfile.ProgramFileWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ServiceLoader;
@@ -57,6 +58,7 @@ public class BinaryFileWriter {
 
     private final CodeGenerator codeGenerator;
     private final SourceDirectory sourceDirectory;
+    private static PrintStream outStream = System.out;
 
     public static BinaryFileWriter getInstance(CompilerContext context) {
         BinaryFileWriter binaryFileWriter = context.get(BINARY_FILE_WRITER_KEY);
@@ -80,14 +82,19 @@ public class BinaryFileWriter {
     }
 
     public void write(BLangPackage packageNode) {
+        if (packageNode.symbol.entryPointExists) {
+            writeExecutableBinary(packageNode);
+        }
         writeLibraryPackage(packageNode);
-        writeExecutableBinary(packageNode);
     }
 
     public void write(BLangPackage packageNode, String fileName) {
         // TODO Reuse binary content in PackageFile when writing the program file..
+        if (packageNode.symbol.entryPointExists) {
+            outStream.println("Generating executable");
+            writeExecutableBinary(packageNode, fileName);
+        }
         writeLibraryPackage(packageNode);
-        writeExecutableBinary(packageNode, fileName);
     }
 
     public void writeExecutableBinary(BLangPackage packageNode) {
@@ -96,11 +103,6 @@ public class BinaryFileWriter {
     }
 
     public void writeExecutableBinary(BLangPackage packageNode, String fileName) {
-        // Filter out package which doesn't have entry points
-        if (!packageNode.symbol.entryPointExists) {
-            return;
-        }
-
         String execFileName = cleanupExecFileName(fileName);
 
         // Generate code for the given executable
@@ -111,6 +113,7 @@ public class BinaryFileWriter {
         } catch (IOException e) {
             throw new BLangCompilerException("error writing program file '" + execFileName + "'", e);
         }
+        outStream.println("    ./target/" + execFileName);
 
         final Path execFilePath = this.sourceDirectory.saveCompiledProgram(new ByteArrayInputStream(byteArrayOS
                 .toByteArray()), execFileName);
