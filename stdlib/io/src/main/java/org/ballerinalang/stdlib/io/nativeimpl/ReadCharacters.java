@@ -30,7 +30,9 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.events.EventContext;
+import org.ballerinalang.stdlib.io.events.EventExecutor;
 import org.ballerinalang.stdlib.io.events.EventResult;
+import org.ballerinalang.stdlib.io.events.characters.ReadCharactersEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 
@@ -96,7 +98,12 @@ public class ReadCharacters implements NativeCallableUnit {
         CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
                 .CHARACTER_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
-        IOUtils.read(characterChannel, (int) numberOfCharacters, eventContext, ReadCharacters::readCharactersResponse);
+        ReadCharactersEvent event = new ReadCharactersEvent(characterChannel, (int) numberOfCharacters, eventContext);
+        EventExecutor exec = new EventExecutor(characterChannel.hashCode(), event,
+                ReadCharacters::readCharactersResponse);
+        exec.execute();
+//        IOUtils.read(characterChannel, (int) numberOfCharacters, eventContext,
+// ReadCharacters::readCharactersResponse);
     }
 
     @Override

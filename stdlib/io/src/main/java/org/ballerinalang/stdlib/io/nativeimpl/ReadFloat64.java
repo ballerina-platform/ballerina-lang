@@ -32,13 +32,11 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.io.channels.base.DataChannel;
 import org.ballerinalang.stdlib.io.channels.base.Representation;
 import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventManager;
+import org.ballerinalang.stdlib.io.events.EventExecutor;
 import org.ballerinalang.stdlib.io.events.EventResult;
 import org.ballerinalang.stdlib.io.events.data.ReadFloatEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Native function ballerina/io#readFloat64.
@@ -86,8 +84,10 @@ public class ReadFloat64 implements NativeCallableUnit {
         DataChannel channel = (DataChannel) dataChannelStruct.getNativeData(IOConstants.DATA_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
         ReadFloatEvent event = new ReadFloatEvent(channel, Representation.BIT_64, eventContext);
-        CompletableFuture<EventResult> publish = EventManager.getInstance().publish(event);
-        publish.thenApply(ReadFloat64::readResponse);
+        EventExecutor exec = new EventExecutor(channel.hashCode(), event, ReadFloat64::readResponse);
+        exec.execute();
+/*        CompletableFuture<EventResult> publish = EventManager.getInstance().publish(event);
+        publish.thenApply(ReadFloat64::readResponse);*/
     }
 
     @Override

@@ -31,13 +31,11 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.io.channels.base.DataChannel;
 import org.ballerinalang.stdlib.io.channels.base.Representation;
 import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventManager;
+import org.ballerinalang.stdlib.io.events.EventExecutor;
 import org.ballerinalang.stdlib.io.events.EventResult;
 import org.ballerinalang.stdlib.io.events.data.ReadIntegerEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Native function ballerina.io#readVarInt.
@@ -84,8 +82,10 @@ public class ReadVarInt implements NativeCallableUnit {
         DataChannel channel = (DataChannel) dataChannelStruct.getNativeData(IOConstants.DATA_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
         ReadIntegerEvent event = new ReadIntegerEvent(channel, Representation.VARIABLE, eventContext);
-        CompletableFuture<EventResult> publish = EventManager.getInstance().publish(event);
-        publish.thenApply(ReadVarInt::readResponse);
+        EventExecutor exec = new EventExecutor(channel.hashCode(), event, ReadVarInt::readResponse);
+        exec.execute();
+/*        CompletableFuture<EventResult> publish = EventManager.getInstance().publish(event);
+        publish.thenApply(ReadVarInt::readResponse);*/
     }
 
     @Override
