@@ -47,6 +47,8 @@ public enum DiagnosticCode {
     UNDEFINED_PARAMETER("undefined.parameter"),
     CANNOT_FIND_MATCHING_FUNCTION("cannot.find.function.sig.for.function.in.object"),
     CANNOT_ATTACH_FUNCTIONS_TO_RECORDS("cannot.attach.functions.to.records"),
+    ATTACHED_FUNC_CANT_HAVE_VISIBILITY_MODIFIERS("attached.functions.cannot.have.visibility.modifiers"),
+    ATTACHED_FUNCTIONS_MUST_HAVE_BODY("attached.functions.must.have.body"),
     IMPLEMENTATION_ALREADY_EXIST("implementation.already.exist"),
     CANNOT_INITIALIZE_OBJECT("cannot.initialize.object"),
     CANNOT_FIND_MATCHING_INTERFACE("cannot.find.matching.interface.function"),
