@@ -40,10 +40,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BCallableFuture;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.ConnectionException;
 import org.ballerinalang.persistence.PersistenceUtils;
-import org.ballerinalang.persistence.states.ActiveStates;
-import org.ballerinalang.persistence.states.FailedStates;
 import org.ballerinalang.persistence.states.PendingCheckpoints;
 import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.persistence.store.PersistenceStore;
@@ -262,7 +259,7 @@ public class BLangFunctions {
             if (nativeCallable instanceof InterruptibleNativeCallableUnit) {
                 InterruptibleNativeCallableUnit interruptibleNativeCallableUnit
                         = (InterruptibleNativeCallableUnit) nativeCallable;
-                Object o = parentCtx.globalProps.get("instance.id");
+                Object o = parentCtx.globalProps.get(PersistenceUtils.INSTANCE_ID);
                 if (o != null && o instanceof String) {
                     String instanceId = (String) o;
                     WorkerExecutionContext runnableContext = PersistenceUtils.getMainPackageContext(parentCtx);
@@ -291,11 +288,6 @@ public class BLangFunctions {
         }
         resultCtx = BLangScheduler.resume(resultCtx, true);
         return resultCtx;
-    }
-
-    private static void persistState(WorkerExecutionContext ctx) {
-        String jsonPaylaod = PersistenceUtils.getJson(ctx);
-//        PersistenceUtils.saveJsonFIle(jsonPaylaod, Integer.toString(ctx.programFile.getMagicValue()));
     }
 
     private static CallableWorkerResponseContext createWorkerResponseContext(BType[] retParamTypes,
@@ -427,13 +419,6 @@ public class BLangFunctions {
             }
         } catch (BLangNullReferenceException e) {
             return BLangVMUtils.handleNativeInvocationError(parentCtx, BLangVMErrors.createNullRefException(parentCtx));
-        } catch (ConnectionException e) {
-            State state = new State(parentCtx);
-            state.setIp(parentCtx.ip);
-            FailedStates.add(PersistenceUtils.getInstanceId(parentCtx), state);
-            ActiveStates.remove(PersistenceUtils.getInstanceId(parentCtx));
-            BLangScheduler.workerCountDown();
-            return null;
         } catch (Throwable e) {
             return BLangVMUtils.handleNativeInvocationError(parentCtx,
                     BLangVMErrors.createError(parentCtx, e.getMessage()));

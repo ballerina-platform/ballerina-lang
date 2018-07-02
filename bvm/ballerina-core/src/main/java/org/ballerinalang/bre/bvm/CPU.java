@@ -69,7 +69,7 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
-import org.ballerinalang.model.values.StructureType;
+import org.ballerinalang.persistence.PersistenceUtils;
 import org.ballerinalang.persistence.states.PendingCheckpoints;
 import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.persistence.store.PersistenceStore;
@@ -192,8 +192,8 @@ public class CPU {
                 int opcode = instruction.getOpcode();
                 int[] operands = instruction.getOperands();
                 ctx.ip++;
-                Object o = ctx.globalProps.get("instance.id");
-                if (o != null && o instanceof String) {
+                Object o = ctx.globalProps.get(PersistenceUtils.INSTANCE_ID);
+                if (o instanceof String) {
                     String instanceId = (String) o;
                     if (PendingCheckpoints.isCheckpoint(instanceId, ctx.ip)) {
                         if (ctx.callableUnitInfo.getPkgPath().equals(".")) {

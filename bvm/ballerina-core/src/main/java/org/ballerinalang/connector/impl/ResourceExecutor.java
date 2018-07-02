@@ -22,9 +22,10 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.persistence.PersistenceUtils;
 import org.ballerinalang.persistence.states.ActiveStates;
 import org.ballerinalang.persistence.states.FailedStates;
 import org.ballerinalang.persistence.states.State;
@@ -38,6 +39,11 @@ import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 import java.util.List;
 import java.util.Map;
+
+import static org.ballerinalang.runtime.Constants.IS_METHOD_ACCESSED;
+import static org.ballerinalang.runtime.Constants.MESSAGE_CORRELATED;
+import static org.ballerinalang.runtime.Constants.SERVICE_ENDPOINT;
+import static org.ballerinalang.runtime.Constants.TRANSPORT_MESSAGE;
 
 /**
  * {@code ResourceExecutor} This provides the implementation to execute resources within Ballerina.
@@ -61,15 +67,20 @@ public class ResourceExecutor {
     public static void execute(Resource resource, CallableUnitCallback responseCallback,
                                Map<String, Object> properties, ObserverContext observerContext,
                                WorkerExecutionContext context, BValue... bValues) throws BallerinaConnectorException {
+
         if (resource == null || responseCallback == null) {
             throw new BallerinaConnectorException("invalid arguments provided");
-        }
-        if (correlate(properties, bValues)) {
-            return;
         }
 
         ResourceInfo resourceInfo = resource.getResourceInfo();
         if (properties != null) {
+            Object instanceId = properties.get(PersistenceUtils.INSTANCE_ID);
+            if (instanceId != null) {
+                if (correlate(instanceId.toString(), bValues)) {
+                    return;
+                }
+                ActiveStates.add(instanceId.toString(), new State(context));
+            }
             context.globalProps.putAll(properties);
             if (properties.get(Constants.GLOBAL_TRANSACTION_ID) != null) {
                 context.setLocalTransactionInfo(new LocalTransactionInfo(
@@ -78,28 +89,16 @@ public class ResourceExecutor {
             }
         }
 
-        Object o = properties.get("instance.id");
-        if (o != null && o instanceof String) {
-            String instanceId = (String) o;
-            ActiveStates.add(instanceId, new State(context));
-        }
-
         BLangVMUtils.setServiceInfo(context, resourceInfo.getServiceInfo());
         BLangFunctions.invokeServiceCallable(resourceInfo, context, observerContext, bValues, responseCallback);
     }
 
-    private static boolean correlate(Map<String, Object> properties, BValue... bValues) {
-        Object oInstanceId = properties.get("instance.id");
-        if (oInstanceId == null && !(oInstanceId instanceof String)) {
-            return false;
-        }
+    private static boolean correlate(String instanceId , BValue... bValues) {
 
-        String instanceId = (String) oInstanceId;
         List<State> stateList = ActiveStates.get(instanceId);
         if (stateList != null && !stateList.isEmpty()) {
             return injectConnection(stateList.get(0), bValues);
         }
-
         stateList = FailedStates.get(instanceId);
         PersistenceStore.removeFailedStates(instanceId);
         if (stateList != null && !stateList.isEmpty()) {
@@ -121,34 +120,33 @@ public class ResourceExecutor {
         boolean correlated = false;
         Object transportMessage = null;
         for (BValue bValue : bValues) {
-            if (bValue instanceof BStruct) {
-                BStruct bArg = (BStruct) bValue;
-                if (bArg.getNativeData("transport_message") != null) {
-                    transportMessage = bArg.getNativeData("transport_message");
+            if (bValue instanceof BMap) {
+                BMap bArg = (BMap) bValue;
+                if (bArg.getNativeData(TRANSPORT_MESSAGE) != null) {
+                    transportMessage = bArg.getNativeData(TRANSPORT_MESSAGE);
                     break;
                 }
             }
         }
-
         if (transportMessage != null) {
             WorkerExecutionContext savedContext = state.getContext();
             WorkerExecutionContext rootContext = getRootContext(savedContext);
             BRefType<?>[] refRegs = rootContext.workerLocal.refRegs;
             for (BRefType refType : refRegs) {
-                if (refType instanceof BStruct) {
-                    BStruct bStruct = (BStruct) refType;
-                    if (bStruct.nativeData.containsKey("transport_message")) {
-                        bStruct.addNativeData("transport_message", transportMessage);
-                        bStruct.addNativeData("message_correlated", "true");
+                if (refType instanceof BMap) {
+                    BMap bMap = (BMap) refType;
+                    Object trpMessage = bMap.getNativeData((TRANSPORT_MESSAGE));
+                    if (trpMessage != null) {
+                        bMap.addNativeData(TRANSPORT_MESSAGE, transportMessage);
+                        bMap.addNativeData(MESSAGE_CORRELATED, "true");
                         correlated = true;
                     }
-                    if ("Listener".equals(bStruct.getType().getName())) {
-                        BStruct connStruct = (BStruct) bStruct.getRefField(0);
-                        if (connStruct.nativeData.containsKey("transport_message")) {
-                            connStruct.addNativeData("transport_message", transportMessage);
-                            connStruct.addNativeData("message_correlated", "true");
-                            if (connStruct.getNativeData("isMethodAccessed") != null) {
-                                connStruct.addNativeData("isMethodAccessed", null);
+                    if (SERVICE_ENDPOINT.equals(bMap.getType().getName())) {
+                        if (trpMessage != null) {
+                            bMap.addNativeData(TRANSPORT_MESSAGE, transportMessage);
+                            bMap.addNativeData(MESSAGE_CORRELATED, "true");
+                            if (bMap.getNativeData(IS_METHOD_ACCESSED) != null) {
+                                bMap.addNativeData(IS_METHOD_ACCESSED, null);
                             }
                         }
                     }

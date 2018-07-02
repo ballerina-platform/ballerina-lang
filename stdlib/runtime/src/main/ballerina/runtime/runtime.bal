@@ -30,3 +30,8 @@ documentation {
     R{{}} Value of the property if the property exists, an empty string otherwise
 }
 public native function getProperty(@sensitive string name) returns (string);
+
+documentation {
+    Check point the current state of the execution.
+}
+public native function checkpoint ();

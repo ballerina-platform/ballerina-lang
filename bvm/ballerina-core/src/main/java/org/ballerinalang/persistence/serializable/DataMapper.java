@@ -18,7 +18,7 @@
 package org.ballerinalang.persistence.serializable;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,15 +32,15 @@ import java.util.Map;
  */
 public class DataMapper {
 
-    private Map<String, Map<NativeDataKey, List<BStruct>>> nativeDataMappings = new HashMap<>();
+    private Map<String, Map<NativeDataKey, List<BMap>>> nativeDataMappings = new HashMap<>();
     private Map<String, Map<LocalPropKey, List<WorkerExecutionContext>>> localPropMappings = new HashMap<>();
 
-    public void mapNativeData(String stateId, NativeDataKey key, BStruct bStruct) {
-        Map<NativeDataKey, List<BStruct>> stateNativeData = nativeDataMappings
+    public void mapNativeData(String stateId, NativeDataKey key, BMap bStruct) {
+        Map<NativeDataKey, List<BMap>> stateNativeData = nativeDataMappings
                 .computeIfAbsent(stateId, k -> new HashMap<>());
 
-        List<BStruct> bStructs = stateNativeData.computeIfAbsent(key, k -> new ArrayList<>());
-        bStructs.add(bStruct);
+        List<BMap> bMaps = stateNativeData.computeIfAbsent(key, k -> new ArrayList<>());
+        bMaps.add(bStruct);
     }
 
     public void mapLocalProp(String stateId, LocalPropKey key, WorkerExecutionContext context) {

@@ -24,6 +24,7 @@ import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.persistence.PersistenceUtils;
 import org.ballerinalang.persistence.states.ActiveStates;
 import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
@@ -155,7 +156,7 @@ public class BLangScheduler {
         schedulerStats.stateTransition(ctx, WorkerState.DONE);
         ctx.state = WorkerState.DONE;
         if (ctx.parent != null && ctx.parent.parent == null) {
-            Object o = ctx.globalProps.get("instance.id");
+            Object o = ctx.globalProps.get(PersistenceUtils.INSTANCE_ID);
             if (o != null && o instanceof String) {
                 String instanceId = (String) o;
                 ActiveStates.remove(instanceId);
