@@ -38,9 +38,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.SourceInteractiveState;
+import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+
+import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.netty.buffer.Unpooled.copiedBuffer;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST;
@@ -50,6 +55,8 @@ import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSE
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED;
+import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_SENT;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.SENDING_ENTITY_BODY;
 
 /**
@@ -64,7 +71,7 @@ public class SourceErrorHandler {
     private SourceInteractiveState state;
     private String serverName;
 
-    public SourceErrorHandler(ServerConnectorFuture serverConnectorFuture, String serverName) {
+    SourceErrorHandler(ServerConnectorFuture serverConnectorFuture, String serverName) {
         this.serverConnectorFuture = serverConnectorFuture;
         this.serverName = serverName;
     }
@@ -151,11 +158,41 @@ public class SourceErrorHandler {
     }
 
     public void exceptionCaught(Throwable cause) {
-        log.warn("Exception occurred :" + cause.getMessage());
+        log.warn("Exception occurred in SourceHandler :" + cause.getMessage());
     }
 
     public void setState(SourceInteractiveState state) {
         this.state = state;
+    }
+
+    public void checkForResponseWriteStatus(HTTPCarbonMessage inboundRequestMsg,
+                                            HttpResponseFuture outboundRespStatusFuture, ChannelFuture channelFuture) {
+        channelFuture.addListener(writeOperationPromise -> {
+            Throwable throwable = writeOperationPromise.cause();
+            if (throwable != null) {
+                if (throwable instanceof ClosedChannelException) {
+                    throwable = new IOException(REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED);
+                }
+                outboundRespStatusFuture.notifyHttpListener(throwable);
+            } else {
+                outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
+                this.setState(ENTITY_BODY_SENT);
+            }
+        });
+    }
+
+    public void addResponseWriteFailureListener(HttpResponseFuture outboundRespStatusFuture,
+                                                ChannelFuture channelFuture, AtomicInteger writeCounter) {
+        channelFuture.addListener(writeOperationPromise -> {
+            Throwable throwable = writeOperationPromise.cause();
+            if (throwable != null && writeCounter.get() == 1) {
+                if (throwable instanceof ClosedChannelException) {
+                    throwable = new IOException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE);
+                }
+                outboundRespStatusFuture.notifyHttpListener(throwable);
+            }
+            writeCounter.decrementAndGet();
+        });
     }
 
     SourceInteractiveState getState() {
@@ -167,7 +204,7 @@ public class SourceErrorHandler {
         state = SENDING_ENTITY_BODY;
         HttpResponse outboundResponse;
         if (inboundRequestMsg != null) {
-            float httpVersion = Float.valueOf((String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION));
+            float httpVersion = Float.parseFloat((String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION));
             if (httpVersion == Constants.HTTP_1_0) {
                 outboundResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_0, status, content);
             } else {

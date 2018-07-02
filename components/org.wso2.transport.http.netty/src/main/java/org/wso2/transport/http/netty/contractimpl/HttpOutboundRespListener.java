@@ -41,17 +41,12 @@ import org.wso2.transport.http.netty.listener.SourceErrorHandler;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
-import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.wso2.transport.http.netty.common.Constants.CHANNEL_CLOSED;
 import static org.wso2.transport.http.netty.common.Constants.CHUNKING_CONFIG;
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE;
-import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_SENT;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.SENDING_ENTITY_BODY;
 import static org.wso2.transport.http.netty.common.Util.createFullHttpResponse;
 import static org.wso2.transport.http.netty.common.Util.createHttpResponse;
@@ -175,7 +170,8 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                 }
                 incrementWriteCount(writeCounter);
                 ChannelFuture outboundResponseChannelFuture = sourceContext.writeAndFlush(httpContent);
-                addResponseWriteFailureListener(outboundRespStatusFuture, outboundResponseChannelFuture, writeCounter);
+                sourceErrorHandler.addResponseWriteFailureListener(outboundRespStatusFuture,
+                                                                   outboundResponseChannelFuture, writeCounter);
             } else {
                 this.contentList.add(httpContent);
                 contentLength += httpContent.content().readableBytes();
@@ -199,7 +195,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
         headerWritten = true;
         ChannelFuture outboundChannelFuture = sourceContext.writeAndFlush(fullOutboundResponse);
-        checkForResponseWriteStatus(inboundRequestMsg, outRespStatusFuture, outboundChannelFuture, sourceErrorHandler);
+        sourceErrorHandler.checkForResponseWriteStatus(inboundRequestMsg, outRespStatusFuture, outboundChannelFuture);
         return outboundChannelFuture;
     }
 
@@ -207,7 +203,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         HttpResponseFuture outRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
         incrementWriteCount(writeCounter);
         ChannelFuture outboundChannelFuture = sourceContext.writeAndFlush(lastHttpContent);
-        checkForResponseWriteStatus(inboundRequestMsg, outRespStatusFuture, outboundChannelFuture, sourceErrorHandler);
+        sourceErrorHandler.checkForResponseWriteStatus(inboundRequestMsg, outRespStatusFuture, outboundChannelFuture);
         return outboundChannelFuture;
     }
 
@@ -216,7 +212,8 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         setupChunkedRequest(outboundResponseMsg);
         incrementWriteCount(writeCounter);
         ChannelFuture outboundHeaderFuture = writeOutboundResponseHeaders(outboundResponseMsg, keepAlive);
-        addResponseWriteFailureListener(outboundRespStatusFuture, outboundHeaderFuture, writeCounter);
+        sourceErrorHandler.addResponseWriteFailureListener(outboundRespStatusFuture, outboundHeaderFuture,
+                                                           writeCounter);
     }
 
     private void resetOutboundListenerState() {
@@ -259,37 +256,6 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
     public void setChunkConfig(ChunkConfig chunkConfig) {
         this.chunkConfig = chunkConfig;
-    }
-
-    private void checkForResponseWriteStatus(HTTPCarbonMessage inboundRequestMsg,
-                                             HttpResponseFuture outboundRespStatusFuture, ChannelFuture channelFuture,
-                                             SourceErrorHandler sourceErrorHandler) {
-        channelFuture.addListener(writeOperationPromise -> {
-            Throwable throwable = writeOperationPromise.cause();
-            if (throwable != null) {
-                if (throwable instanceof ClosedChannelException) {
-                    throwable = new IOException(CHANNEL_CLOSED);
-                }
-                outboundRespStatusFuture.notifyHttpListener(throwable);
-            } else {
-                outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
-                sourceErrorHandler.setState(ENTITY_BODY_SENT);
-            }
-        });
-    }
-
-    private void addResponseWriteFailureListener(HttpResponseFuture outboundRespStatusFuture,
-                                                ChannelFuture channelFuture, AtomicInteger writeCounter) {
-        channelFuture.addListener(writeOperationPromise -> {
-            Throwable throwable = writeOperationPromise.cause();
-            if (throwable != null && writeCounter.get() == 1) {
-                if (throwable instanceof ClosedChannelException) {
-                    throwable = new IOException(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE);
-                }
-                outboundRespStatusFuture.notifyHttpListener(throwable);
-            }
-            writeCounter.decrementAndGet();
-        });
     }
 
     private int incrementWriteCount(AtomicInteger writeCounter) {

@@ -37,17 +37,18 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.sender.ConnectionAvailabilityFuture;
 import org.wso2.transport.http.netty.sender.ForwardedHeaderUpdater;
 import org.wso2.transport.http.netty.sender.HttpClientChannelInitializer;
+import org.wso2.transport.http.netty.sender.TargetErrorHandler;
 import org.wso2.transport.http.netty.sender.TargetHandler;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+
+import static org.wso2.transport.http.netty.common.SourceInteractiveState.SENDING_ENTITY_BODY;
 
 /**
  * A class that encapsulate channel and state.
@@ -73,6 +74,7 @@ public class TargetChannel {
     private List<HttpContent> contentList = new ArrayList<>();
     private long contentLength = 0;
     private final ConnectionAvailabilityFuture connectionAvailabilityFuture;
+    private TargetErrorHandler targetErrorHandler;
 
     public TargetChannel(HttpClientChannelInitializer httpClientChannelInitializer, ChannelFuture channelFuture,
                          HttpRoute httpRoute, ConnectionAvailabilityFuture connectionAvailabilityFuture) {
@@ -154,6 +156,8 @@ public class TargetChannel {
         targetHandler.setConnectionManager(connectionManager);
         targetHandler.setTargetChannel(this);
 
+        targetErrorHandler = targetHandler.getTargetErrorHandler();
+        targetErrorHandler.setResponseFuture(httpInboundResponseFuture);
         this.httpInboundResponseFuture = httpInboundResponseFuture;
     }
 
@@ -207,6 +211,7 @@ public class TargetChannel {
     }
 
     private void writeOutboundRequest(HTTPCarbonMessage httpOutboundRequest, HttpContent httpContent) throws Exception {
+        targetErrorHandler.setState(SENDING_ENTITY_BODY);
         if (Util.isLastHttpContent(httpContent)) {
             if (!this.requestHeaderWritten) {
                 // this means we need to send an empty payload
@@ -236,8 +241,7 @@ public class TargetChannel {
                     Util.setupChunkedRequest(httpOutboundRequest);
                     writeOutboundRequestHeaders(httpOutboundRequest);
                 }
-                ChannelFuture outboundRequestChannelFuture = this.getChannel().writeAndFlush(httpContent);
-                notifyIfFailure(outboundRequestChannelFuture);
+                this.getChannel().writeAndFlush(httpContent);
             } else {
                 this.contentList.add(httpContent);
                 contentLength += httpContent.content().readableBytes();
@@ -248,25 +252,11 @@ public class TargetChannel {
     private void writeOutboundRequestBody(HttpContent lastHttpContent) {
         if (chunkConfig == ChunkConfig.NEVER || !Util.isVersionCompatibleForChunking(httpVersion)) {
             for (HttpContent cachedHttpContent : contentList) {
-                ChannelFuture outboundRequestChannelFuture = this.getChannel().writeAndFlush(cachedHttpContent);
-                notifyIfFailure(outboundRequestChannelFuture);
+                this.getChannel().writeAndFlush(cachedHttpContent);
             }
         }
         ChannelFuture outboundRequestChannelFuture = this.getChannel().writeAndFlush(lastHttpContent);
-        notifyIfFailure(outboundRequestChannelFuture);
-    }
-
-    private void notifyIfFailure(ChannelFuture outboundRequestChannelFuture) {
-        outboundRequestChannelFuture.addListener(writeOperationPromise -> {
-            if (writeOperationPromise.cause() != null) {
-                Throwable throwable = writeOperationPromise.cause();
-                if (throwable instanceof ClosedChannelException) {
-                    throwable = new IOException(Constants.REMOTE_SERVER_ABRUPTLY_CLOSE_REQUEST_CONNECTION);
-                }
-                log.error(Constants.REMOTE_SERVER_ABRUPTLY_CLOSE_REQUEST_CONNECTION, throwable);
-                httpInboundResponseFuture.notifyHttpListener(throwable);
-            }
-        });
+        targetErrorHandler.checkForRequestWriteStatus(outboundRequestChannelFuture);
     }
 
     private void resetTargetChannelState() {
@@ -288,7 +278,7 @@ public class TargetChannel {
         HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
         this.setRequestHeaderWritten(true);
         ChannelFuture outboundHeaderFuture = this.getChannel().write(httpRequest);
-        notifyIfFailure(outboundHeaderFuture);
+        targetErrorHandler.notifyIfHeaderFailure(outboundHeaderFuture);
     }
 
     private void setHttpVersionProperty(HTTPCarbonMessage httpOutboundRequest) {

@@ -17,14 +17,9 @@ package org.wso2.transport.http.netty.sender;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.socket.ChannelInputShutdownReadComplete;
-import io.netty.handler.codec.DecoderException;
-import io.netty.handler.codec.DecoderResult;
-import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpClientUpgradeHandler;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http2.Http2CodecUtil;
 import io.netty.handler.codec.http2.Http2ConnectionPrefaceAndSettingsFrameWrittenEvent;
 import io.netty.handler.ssl.SslCloseCompletionEvent;
@@ -36,9 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
-import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.message.DefaultListener;
@@ -54,6 +47,8 @@ import org.wso2.transport.http.netty.sender.http2.TimeoutHandler;
 
 import java.io.IOException;
 
+import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_RECEIVED;
+import static org.wso2.transport.http.netty.common.SourceInteractiveState.RECEIVING_ENTITY_BODY;
 import static org.wso2.transport.http.netty.common.Util.safelyRemoveHandlers;
 
 /**
@@ -71,6 +66,11 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private HandlerExecutor handlerExecutor;
     private KeepAliveConfig keepAliveConfig;
     private boolean idleTimeoutTriggered;
+    private TargetErrorHandler targetErrorHandler;
+
+    public TargetHandler() {
+        targetErrorHandler = new TargetErrorHandler();
+    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -78,7 +78,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         if (handlerExecutor != null) {
             handlerExecutor.executeAtTargetConnectionInitiation(Integer.toString(ctx.hashCode()));
         }
-
         super.channelActive(ctx);
     }
 
@@ -90,6 +89,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         }
         if (targetChannel.isRequestHeaderWritten()) {
             if (msg instanceof HttpResponse) {
+                targetErrorHandler.setState(RECEIVING_ENTITY_BODY);
                 HttpResponse httpInboundResponse = (HttpResponse) msg;
                 inboundResponseMsg = setUpCarbonMessage(ctx, msg);
 
@@ -122,7 +122,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                         }
                         this.inboundResponseMsg = null;
                         targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
-
+                        targetErrorHandler.setState(ENTITY_BODY_RECEIVED);
                         if (!isKeepAlive(keepAliveConfig)) {
                             closeChannel(ctx);
                         }
@@ -162,12 +162,10 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        if (log.isDebugEnabled()) {
-            log.debug("Channel " + ctx.channel().id() + " got inactive so closing it from TargetHandler");
-        }
-
         closeChannel(ctx);
-        handleErrorCloseScenarios(ctx.channel().id().asLongText());
+        if (!idleTimeoutTriggered) {
+            targetErrorHandler.handleErrorCloseScenario(inboundResponseMsg);
+        }
 
         connectionManager.invalidateTargetChannel(targetChannel);
 
@@ -177,26 +175,10 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private void handleErrorCloseScenarios(String channelID) {
-        if (!idleTimeoutTriggered) {
-            if (targetChannel.isRequestHeaderWritten()) {
-                httpResponseFuture.notifyHttpListener(new ClientConnectorException(channelID,
-                        Constants.REMOTE_SERVER_CLOSE_RESPONSE_CONNECTION_AFTER_REQUEST_READ));
-            } else if (inboundResponseMsg != null) {
-                handleIncompleteInboundResponse(Constants.REMOTE_SERVER_ABRUPTLY_CLOSE_RESPONSE_CONNECTION);
-            }
-        }
-    }
-
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.error("Exception occurred in TargetHandler for channel " + ctx.channel().id().asLongText(), cause);
-
-        httpResponseFuture.notifyHttpListener(cause);
-        if (inboundResponseMsg != null) {
-            handleIncompleteInboundResponse(Constants.EXCEPTION_CAUGHT_WHILE_READING_RESPONSE);
-        }
         closeChannel(ctx);
+        targetErrorHandler.exceptionCaught(cause);
     }
 
     @Override
@@ -207,9 +189,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
                 this.idleTimeoutTriggered = true;
                 this.channelInactive(ctx);
-                handleErrorIdleScenarios(ctx.channel().id().asLongText());
-
-                log.warn("Idle timeout has reached hence closing the connection {}", ctx.channel().id());
+                this.targetErrorHandler.handleErrorIdleScenarios(inboundResponseMsg, ctx.channel().id().asLongText());
             }
         } else if (evt instanceof HttpClientUpgradeHandler.UpgradeEvent) {
             HttpClientUpgradeHandler.UpgradeEvent upgradeEvent = (HttpClientUpgradeHandler.UpgradeEvent) evt;
@@ -257,16 +237,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 addHttp2ClientChannel(targetChannel.getHttpRoute(), targetChannel.getHttp2ClientChannel());
     }
 
-    private void handleErrorIdleScenarios(String channelID) {
-        if (inboundResponseMsg == null) {
-            httpResponseFuture.notifyHttpListener(new EndpointTimeOutException(channelID,
-                    Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_RESPONSE,
-                    HttpResponseStatus.GATEWAY_TIMEOUT.code()));
-        } else {
-            handleIncompleteInboundResponse(Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE);
-        }
-    }
-
     private void closeChannel(ChannelHandlerContext ctx) throws Exception {
         // The if condition here checks if the connection has already been closed by either the client or the backend.
         // If it was the backend which closed the connection, the channel inactive event will be triggered and
@@ -274,13 +244,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         if (ctx != null && ctx.channel().isActive()) {
             ctx.close();
         }
-    }
-
-    private void handleIncompleteInboundResponse(String errorMessage) {
-        LastHttpContent lastHttpContent = new DefaultLastHttpContent();
-        lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(errorMessage)));
-        inboundResponseMsg.addHttpContent(lastHttpContent);
-        log.warn(errorMessage);
     }
 
     public void setHttpResponseFuture(HttpResponseFuture httpResponseFuture) {
@@ -336,5 +299,9 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                // The execution will never reach here. To make the code compilable, default case has to be placed here.
                return true;
         }
+    }
+
+    public TargetErrorHandler getTargetErrorHandler() {
+        return targetErrorHandler;
     }
 }

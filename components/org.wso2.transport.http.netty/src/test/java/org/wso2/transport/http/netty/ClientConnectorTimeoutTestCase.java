@@ -84,7 +84,7 @@ public class ClientConnectorTimeoutTestCase {
                     "Exception is not an instance of EndpointTimeOutException");
             String result = response.getMessage();
 
-            assertEquals(Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_RESPONSE, result);
+            assertEquals(Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE, result);
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running httpsGetTest", e);
         }

@@ -278,16 +278,19 @@ public final class Constants {
             = "Idle timeout triggered before initiating inbound request";
     public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST
             = "Idle timeout triggered while reading inbound request";
-
-    public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_RESPONSE
-            = "Idle timeout triggered before reading inbound response";
-    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE
-            = "Idle timeout triggered while reading inbound response";
-
     public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE
             = "Idle timeout triggered before initiating outbound response";
     public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE
                 = "Idle timeout triggered while writing outbound response";
+
+    public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_REQUEST
+            = "Idle timeout triggered before initiating outbound request";
+    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST
+            = "Idle timeout triggered while writing outbound request";
+    public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE
+            = "Idle timeout triggered before initiating inbound response";
+    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE
+            = "Idle timeout triggered while reading inbound response";
 
     public static final String EXCEPTION_CAUGHT_WHILE_READING_REQUEST
             = "Exception caught while reading inbound request";
@@ -296,24 +299,28 @@ public final class Constants {
 
     // Client connection closure error scenarios
     public static final String REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST
-            = "Remote client closed connection before initiating inbound request";
+            = "Remote client closed the connection before initiating inbound request";
     public static final String REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST
-            = "Remote client closed connection while reading inbound request";
-
+            = "Remote client closed the connection while reading inbound request";
     public static final String REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE
-            = "Remote client closed connection before initiating outbound response";
+            = "Remote client closed the connection before initiating outbound response";
     public static final String REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE
-                = "Remote client closed connection while writing outbound response";
+            = "Remote client closed the connection while writing outbound response";
 
     // Server connection closure error scenarios
-    public static final String REMOTE_SERVER_ABRUPTLY_CLOSE_RESPONSE_CONNECTION
-            = "Remote host closed the connection without completing inbound response";
-    public static final String REMOTE_SERVER_ABRUPTLY_CLOSE_REQUEST_CONNECTION
-            = "Remote host closed the connection before completing outbound request";
-    public static final String REMOTE_SERVER_CLOSE_RESPONSE_CONNECTION_AFTER_REQUEST_READ
-            = "Remote host closed the connection without sending inbound response";
+    public static final String REMOTE_SERVER_CLOSED_BEFORE_INITIATING_OUTBOUND_REQUEST
+            = "Remote host closed the connection before initiating outbound request";
+    public static final String REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST
+            = "Remote host closed the connection while writing outbound request";
+    public static final String REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE
+            = "Remote host closed the connection before initiating inbound response";
+    public static final String REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE
+            = "Remote host closed the connection while reading inbound response";
 
-    public static final String CHANNEL_CLOSED = "Connection closed while writing outbound response";
+    public static final String REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED
+            = "Connection between remote client and host is closed";
+    public static final String CLIENT_TO_REMOTE_HOST_CONNECTION_CLOSED
+            = "Connection between client and remote host is closed";
 
     public static final String PROMISED_STREAM_REJECTED_ERROR
             = "Promised stream is already rejected or stream is no longer valid";
