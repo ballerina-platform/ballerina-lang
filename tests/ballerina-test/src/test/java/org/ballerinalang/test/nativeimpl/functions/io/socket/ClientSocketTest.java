@@ -40,6 +40,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Unit tests for client socket.
  */
+@Test(groups = {"broken"})
 public class ClientSocketTest {
 
     private static final Logger log = LoggerFactory.getLogger(ClientSocketTest.class);
@@ -127,7 +128,7 @@ public class ClientSocketTest {
 
     @Test(description = "Open client socket connection to the remote server")
     public void testOpenClientSocket() {
-        BValue[] args = { new BString("localhost"), new BInteger(MockSocketServer.SERVER_PORT) };
+        BValue[] args = {new BString("localhost"), new BInteger(MockSocketServer.SERVER_PORT)};
         BRunUtil.invokeStateful(socketClient, "openSocketConnection", args);
     }
 
@@ -147,21 +148,21 @@ public class ClientSocketTest {
     }
 
     @Test(dependsOnMethods = "testWriteReadContent",
-          description = "Test the connection closure")
+            description = "Test the connection closure")
     public void testClosure() {
         BRunUtil.invokeStateful(socketClient, "closeSocket");
     }
 
     @Test(dependsOnMethods = "testClosure",
-          description = "Test connection open with properties")
+            description = "Test connection open with properties")
     public void testOpenWithProperties() {
         int port = ThreadLocalRandom.current().nextInt(33000, 46000);
-        BValue[] args = { new BString("localhost"), new BInteger(MockSocketServer.SERVER_PORT), new BInteger(port) };
+        BValue[] args = {new BString("localhost"), new BInteger(MockSocketServer.SERVER_PORT), new BInteger(port)};
         final BValue[] returns = BRunUtil.invokeStateful(socketClient, "openSocketConnectionWithProps", args);
         final BMap<String, BValue> socket = (BMap<String, BValue>) returns[0];
         Assert.assertEquals(((BInteger) socket.get("localPort")).intValue(), port,
                 "Client port didn't bind to assign port.");
-        args = new BValue[] { socket };
+        args = new BValue[]{socket};
         BRunUtil.invokeStateful(socketClient, "close", args);
     }
 }
