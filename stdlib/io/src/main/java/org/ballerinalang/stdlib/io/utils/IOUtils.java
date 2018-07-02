@@ -22,7 +22,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.io.channels.FileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
@@ -36,11 +35,8 @@ import org.ballerinalang.stdlib.io.events.bytes.CloseByteChannelEvent;
 import org.ballerinalang.stdlib.io.events.bytes.ReadBytesEvent;
 import org.ballerinalang.stdlib.io.events.bytes.WriteBytesEvent;
 import org.ballerinalang.stdlib.io.events.characters.CloseCharacterChannelEvent;
-import org.ballerinalang.stdlib.io.events.characters.ReadCharactersEvent;
 import org.ballerinalang.stdlib.io.events.characters.WriteCharactersEvent;
 import org.ballerinalang.stdlib.io.events.records.CloseDelimitedRecordEvent;
-import org.ballerinalang.stdlib.io.events.records.DelimitedRecordReadEvent;
-import org.ballerinalang.stdlib.io.events.records.DelimitedRecordWriteEvent;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -306,47 +302,47 @@ public class IOUtils {
         future.thenApply(function);
     }*/
 
-/*    *//**
+    /**
      * Closes the channel asynchronously.
      *
      * @param byteChannel  channel which should be closed.
      * @param eventContext context of the event.
      * @param function     callback function which will be triggered.
-     *//*
+     */
     public static void close(Channel byteChannel, EventContext eventContext,
                              Function<EventResult, EventResult> function) {
         CloseByteChannelEvent closeEvent = new CloseByteChannelEvent(byteChannel, eventContext);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(closeEvent);
         future.thenApply(function);
-    }*/
+    }
 
-/*    *//**
+    /**
      * Closes the character channel asynchronously.
      *
      * @param charChannel  channel which should be closed.
      * @param eventContext context of the event.
      * @param function     callback function which will be triggered.
-     *//*
+     */
     public static void close(CharacterChannel charChannel, EventContext eventContext,
                              Function<EventResult, EventResult> function) {
         CloseCharacterChannelEvent closeEvent = new CloseCharacterChannelEvent(charChannel, eventContext);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(closeEvent);
         future.thenApply(function);
-    }*/
+    }
 
-/*    *//**
+    /**
      * Closes the delimited record channel asynchronously.
      *
      * @param charChannel  channel which should be closed.
      * @param eventContext context of the event.
      * @param function     callback function which will be triggered.
-     *//*
+     */
     public static void close(DelimitedRecordChannel charChannel, EventContext eventContext,
                              Function<EventResult, EventResult> function) {
         CloseDelimitedRecordEvent closeEvent = new CloseDelimitedRecordEvent(charChannel, eventContext);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(closeEvent);
         future.thenApply(function);
-    }*/
+    }
 
     /**
      * Creates a directory at the specified path.

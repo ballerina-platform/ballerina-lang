@@ -42,4 +42,9 @@ public class BlobIOChannel extends Channel {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public boolean isSelectable() {
+        return false;
+    }
+
 }

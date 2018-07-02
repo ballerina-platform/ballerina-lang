@@ -139,6 +139,22 @@ public abstract class Channel {
     public abstract void transfer(int position, int count, WritableByteChannel dstChannel) throws IOException;
 
     /**
+     * Specifies whether the channel is selectable.
+     *
+     * @return true if the channel is selectable.
+     */
+    public abstract boolean isSelectable();
+
+    /**
+     * Returns the hashcode of the channel as the id.
+     *
+     * @return id of the channel.
+     */
+    public int id() {
+        return channel.hashCode();
+    }
+
+    /**
      * Specifies whether the channel has reached to it's end.
      *
      * @return true if the channel has reached to it's end
