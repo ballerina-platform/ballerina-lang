@@ -9,9 +9,11 @@ DefaultLogger logger;
 
 documentation {
     This object denotes the default logger object used when pulling a package directly.
+
+    F{{offset}} - Offset from the terminal width.
 }
 type DefaultLogger object {
-    private {
+    public {
         int offset = 0;
     }
     function formatLog(string msg) returns string {
@@ -21,9 +23,11 @@ type DefaultLogger object {
 
 documentation {
     This object denotes the build logger object used when pulling a package while building.
+
+    F{{offset}} - Offset from the terminal width.
 }
 type BuildLogger object {
-    private {
+    public {
         int offset = 10;
     }
     function formatLog(string msg) returns string {
