@@ -80,6 +80,7 @@ public class HttpConstants {
 
     /* Annotations */
     public static final String ANN_NAME_RESOURCE_CONFIG = "ResourceConfig";
+    public static final String ANN_NAME_INTERRUPTIBLE = "Interruptible";
     public static final String ANN_RESOURCE_ATTR_METHODS = "methods";
     public static final String ANN_RESOURCE_ATTR_PATH = "path";
     public static final String ANN_RESOURCE_ATTR_BODY = "body";
@@ -134,6 +135,7 @@ public class HttpConstants {
     public static final String SESSION = "Session";
     public static final String HTTP_ONLY = "HttpOnly";
     public static final String SECURE = "Secure";
+    public static final String HTTP_MESSAGE_ID = "b7a.message.id";
 
     public static final String ALLOW_ORIGIN = "allowOrigins";
     public static final String ALLOW_CREDENTIALS = "allowCredentials";
