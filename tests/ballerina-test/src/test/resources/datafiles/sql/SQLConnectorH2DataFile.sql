@@ -46,6 +46,9 @@ insert into DateTimeTypes (row_id, date_type, time_type, datetime_type, timestam
 insert into BlobTable (row_id, blob_type) values
   (1, X'77736F322062616C6C6572696E6120626C6F6220746573742E');
 /
+insert into BlobTable (row_id, blob_type) values
+  (7, X'77736F322062616C6C6572696E6120626C6F6220746573742E');
+/
 insert into DataTypeTable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type,
   numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, binary_type) values
   (1, 10, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello',1234.567, 1234.567, 1234.567, 1, 5555,

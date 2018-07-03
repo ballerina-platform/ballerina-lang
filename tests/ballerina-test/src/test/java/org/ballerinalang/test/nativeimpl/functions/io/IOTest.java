@@ -22,8 +22,8 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.StringUtils;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
@@ -32,10 +32,10 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.nativeimpl.io.IOConstants;
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.nativeimpl.util.Base64ByteChannel;
-import org.ballerinalang.nativeimpl.util.Base64Wrapper;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.utils.Base64ByteChannel;
+import org.ballerinalang.stdlib.io.utils.Base64Wrapper;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.test.mime.Util;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -91,7 +91,7 @@ public class IOTest {
     public void testReadBytes() throws URISyntaxException {
         int numberOfBytesToRead = 3;
         String resourceToRead = "datafiles/io/text/6charfile.txt";
-        BBlob readBytes;
+        BByteArray readBytes;
 
         //Will initialize the channel
         BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("r")};
@@ -101,22 +101,22 @@ public class IOTest {
         byte[] expectedBytes = "123".getBytes();
         args = new BValue[]{new BInteger(numberOfBytesToRead)};
         BValue[] returns = BRunUtil.invokeStateful(bytesInputOutputProgramFile, "readBytes", args);
-        readBytes = (BBlob) returns[0];
-        Assert.assertEquals(expectedBytes, readBytes.blobValue());
+        readBytes = (BByteArray) returns[0];
+        Assert.assertEquals(expectedBytes, readBytes.getBytes());
 
         //Reads the next three bytes "456"
         expectedBytes = "456".getBytes();
         args = new BValue[]{new BInteger(numberOfBytesToRead)};
         returns = BRunUtil.invokeStateful(bytesInputOutputProgramFile, "readBytes", args);
-        readBytes = (BBlob) returns[0];
-        Assert.assertEquals(expectedBytes, readBytes.blobValue());
+        readBytes = (BByteArray) returns[0];
+        Assert.assertEquals(expectedBytes, readBytes.getBytes());
 
         //Request for a get, the bytes will be empty
         expectedBytes = new byte[0];
         args = new BValue[]{new BInteger(numberOfBytesToRead)};
         returns = BRunUtil.invokeStateful(bytesInputOutputProgramFile, "readBytes", args);
-        readBytes = (BBlob) returns[0];
-        Assert.assertEquals(expectedBytes, readBytes.blobValue());
+        readBytes = (BByteArray) returns[0];
+        Assert.assertEquals(expectedBytes, readBytes.getBytes());
 
         BRunUtil.invokeStateful(bytesInputOutputProgramFile, "close");
     }
@@ -296,7 +296,7 @@ public class IOTest {
         BValue[] args = {new BString(sourceToWrite), new BString("w")};
         BRunUtil.invokeStateful(bytesInputOutputProgramFile, "initFileChannel", args);
 
-        args = new BValue[]{new BBlob(content), new BInteger(0)};
+        args = new BValue[]{new BByteArray(content), new BInteger(0)};
         BRunUtil.invokeStateful(bytesInputOutputProgramFile, "writeBytes", args);
 
         BRunUtil.invokeStateful(bytesInputOutputProgramFile, "close");

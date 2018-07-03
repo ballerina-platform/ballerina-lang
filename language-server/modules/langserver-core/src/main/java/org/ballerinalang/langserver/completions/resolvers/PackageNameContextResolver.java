@@ -72,10 +72,7 @@ public class PackageNameContextResolver extends AbstractItemResolver {
                 .filter(ballerinaPackage -> !orgNames.contains(ballerinaPackage.getOrgName()))
                 .forEach(ballerinaPackage -> orgNames.add(ballerinaPackage.getOrgName()));
 
-        orgNames.forEach(orgName -> {
-            String insertText = orgName + "/";
-            fillImportCompletion(orgName, insertText, completionItems);
-        });
+        orgNames.forEach(orgName -> fillImportCompletion(orgName, orgName, completionItems));
 
         return completionItems;
     }

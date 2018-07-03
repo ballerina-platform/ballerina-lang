@@ -9,48 +9,63 @@
       "label":"rawPath",
       "kind":"Unit",
       "detail":"string",
+      "sortText":"221",
       "insertText":"rawPath"
     },
     {
       "label":"method",
       "kind":"Unit",
       "detail":"string",
+      "sortText":"221",
       "insertText":"method"
     },
     {
       "label":"httpVersion",
       "kind":"Unit",
       "detail":"string",
+      "sortText":"221",
       "insertText":"httpVersion"
     },
     {
       "label":"userAgent",
       "kind":"Unit",
       "detail":"string",
+      "sortText":"221",
       "insertText":"userAgent"
     },
     {
       "label":"extraPathInfo",
       "kind":"Unit",
       "detail":"string",
+      "sortText":"221",
       "insertText":"extraPathInfo"
     },
     {
       "label":"cacheControl",
       "kind":"Unit",
       "detail":"ballerina/http:RequestCacheControl?",
+      "sortText":"221",
       "insertText":"cacheControl"
     },
     {
       "label":"entity",
       "kind":"Unit",
       "detail":"ballerina/mime:Entity",
+      "sortText":"221",
       "insertText":"entity"
+    },
+    {
+      "label":"dirtyRequest",
+      "kind":"Unit",
+      "detail":"boolean",
+      "sortText":"221",
+      "insertText":"dirtyRequest"
     },
     {
       "label":"parseCacheControlHeader()",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"parseCacheControlHeader()",
       "insertTextFormat":"Snippet"
     },
@@ -58,6 +73,7 @@
       "label":"hasHeader(string headerName)(boolean)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"hasHeader(${1:headerName})",
       "insertTextFormat":"Snippet"
     },
@@ -65,6 +81,7 @@
       "label":"getHeader(string headerName)(string)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"getHeader(${1:headerName})",
       "insertTextFormat":"Snippet"
     },
@@ -72,6 +89,7 @@
       "label":"getHeaders(string headerName)(string[])",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"getHeaders(${1:headerName})",
       "insertTextFormat":"Snippet"
     },
@@ -79,6 +97,7 @@
       "label":"setHeader(string headerName, string headerValue)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"setHeader(${1:headerName}, ${2:headerValue})",
       "insertTextFormat":"Snippet"
     },
@@ -86,6 +105,7 @@
       "label":"addHeader(string headerName, string headerValue)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"addHeader(${1:headerName}, ${2:headerValue})",
       "insertTextFormat":"Snippet"
     },
@@ -93,6 +113,7 @@
       "label":"removeHeader(string key)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"removeHeader(${1:key})",
       "insertTextFormat":"Snippet"
     },
@@ -100,6 +121,7 @@
       "label":"removeAllHeaders()",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"removeAllHeaders()",
       "insertTextFormat":"Snippet"
     },
@@ -107,6 +129,7 @@
       "label":"getHeaderNames()(string[])",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"getHeaderNames()",
       "insertTextFormat":"Snippet"
     },
@@ -114,6 +137,7 @@
       "label":"expects100Continue()(boolean)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"expects100Continue()",
       "insertTextFormat":"Snippet"
     },
@@ -121,6 +145,7 @@
       "label":"setContentType(string contentType)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"setContentType(${1:contentType})",
       "insertTextFormat":"Snippet"
     },
@@ -128,6 +153,7 @@
       "label":"getContentType()(string)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"getContentType()",
       "insertTextFormat":"Snippet"
     },
@@ -135,6 +161,7 @@
       "label":"getJsonPayload()(json|error)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"getJsonPayload()",
       "insertTextFormat":"Snippet"
     },
@@ -142,6 +169,7 @@
       "label":"getXmlPayload()(xml|error)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"getXmlPayload()",
       "insertTextFormat":"Snippet"
     },
@@ -149,6 +177,7 @@
       "label":"getTextPayload()(string|error)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"getTextPayload()",
       "insertTextFormat":"Snippet"
     },
@@ -156,13 +185,15 @@
       "label":"getPayloadAsString()(string|error)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"getPayloadAsString()",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getBinaryPayload()(blob|error)",
+      "label":"getBinaryPayload()(byte[]|error)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"getBinaryPayload()",
       "insertTextFormat":"Snippet"
     },
@@ -170,6 +201,7 @@
       "label":"getByteChannel()(ballerina/io:ByteChannel|error)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"getByteChannel()",
       "insertTextFormat":"Snippet"
     },
@@ -177,6 +209,7 @@
       "label":"getFormParams()(map\u003cstring\u003e|error)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"getFormParams()",
       "insertTextFormat":"Snippet"
     },
@@ -184,6 +217,7 @@
       "label":"getBodyParts()(ballerina/mime:Entity[]|error)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"getBodyParts()",
       "insertTextFormat":"Snippet"
     },
@@ -191,6 +225,7 @@
       "label":"setJsonPayload(json payload, string contentType \u003d application/json)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"setJsonPayload(${1:payload}, contentType \u003d ${2:\"application/json\"})",
       "insertTextFormat":"Snippet"
     },
@@ -198,6 +233,7 @@
       "label":"setXmlPayload(xml payload, string contentType \u003d application/xml)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"setXmlPayload(${1:payload}, contentType \u003d ${2:\"application/xml\"})",
       "insertTextFormat":"Snippet"
     },
@@ -205,20 +241,23 @@
       "label":"setTextPayload(string payload, string contentType \u003d text/plain)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"setTextPayload(${1:payload}, contentType \u003d ${2:\"text/plain\"})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"setBinaryPayload(blob payload, string contentType \u003d application/octet-stream)",
+      "label":"setBinaryPayload(byte[] payload, string contentType \u003d application/octet-stream)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"setBinaryPayload(${1:payload}, contentType \u003d ${2:\"application/octet-stream\"})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"setBodyParts(mime:Entity bodyParts, string contentType \u003d multipart/form-data)",
+      "label":"setBodyParts(mime:Entity[] bodyParts, string contentType \u003d multipart/form-data)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"setBodyParts(${1:bodyParts}, contentType \u003d ${2:\"multipart/form-data\"})",
       "insertTextFormat":"Snippet"
     },
@@ -226,6 +265,7 @@
       "label":"setFileAsPayload(string filePath, string contentType \u003d application/octet-stream)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"setFileAsPayload(${1:filePath}, contentType \u003d ${2:\"application/octet-stream\"})",
       "insertTextFormat":"Snippet"
     },
@@ -233,13 +273,15 @@
       "label":"setByteChannel(io:ByteChannel payload, string contentType \u003d application/octet-stream)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"setByteChannel(${1:payload}, contentType \u003d ${2:\"application/octet-stream\"})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"setPayload(string|xml|json|blob|ballerina/io:ByteChannel|ballerina/mime:Entity[] payload)",
+      "label":"setPayload(string|xml|json|byte[]|ballerina/io:ByteChannel|ballerina/mime:Entity[] payload)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"setPayload(${1:payload})",
       "insertTextFormat":"Snippet"
     },
@@ -247,6 +289,7 @@
       "label":"new()",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"new()",
       "insertTextFormat":"Snippet"
     },
@@ -254,6 +297,7 @@
       "label":"createNewEntity()(ballerina/mime:Entity)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"createNewEntity()",
       "insertTextFormat":"Snippet"
     },
@@ -261,6 +305,7 @@
       "label":"setEntity(mime:Entity e)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"setEntity(${1:e})",
       "insertTextFormat":"Snippet"
     },
@@ -268,6 +313,7 @@
       "label":"getQueryParams()(map\u003cstring\u003e)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"getQueryParams()",
       "insertTextFormat":"Snippet"
     },
@@ -275,6 +321,7 @@
       "label":"getMatrixParams(string path)(map)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"getMatrixParams(${1:path})",
       "insertTextFormat":"Snippet"
     },
@@ -282,6 +329,7 @@
       "label":"getEntity()(ballerina/mime:Entity|error)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"getEntity()",
       "insertTextFormat":"Snippet"
     },
@@ -289,6 +337,7 @@
       "label":"getEntityWithoutBody()(ballerina/mime:Entity)",
       "kind":"Function",
       "detail":"Function",
+      "sortText":"121",
       "insertText":"getEntityWithoutBody()",
       "insertTextFormat":"Snippet"
     }

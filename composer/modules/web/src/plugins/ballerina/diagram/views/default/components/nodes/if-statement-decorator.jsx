@@ -19,10 +19,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
 import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
+import HoverGroup from 'plugins/ballerina/graphical-editor/controller-utils/hover-group';
 import Node from '../../../../../model/tree/node';
-import DropZone from '../../../../../drag-drop/DropZone';
 import './compound-statement-decorator.css';
-import ActionBox from '../decorators/action-box';
 import ActiveArbiter from '../decorators/active-arbiter';
 import Breakpoint from '../decorators/breakpoint';
 import { getComponentForNodeArray } from './../../../../diagram-util';
@@ -241,12 +240,6 @@ class IfStatementDecorator extends React.Component {
         this.conditionBox = new SimpleBBox(p2X, (p2Y - (this.context.designer.config.statement.height / 2)),
             statementBBox.w, this.context.designer.config.statement.height);
 
-        const actionBoxBbox = new SimpleBBox();
-        actionBoxBbox.w = (3 * designer.config.actionBox.width) / 4;
-        actionBoxBbox.h = designer.config.actionBox.height;
-        actionBoxBbox.x = p8X - (actionBoxBbox.w / 2);
-        actionBoxBbox.y = p8Y;
-
         let statementRectClass = 'statement-title-rect';
         if (isDebugHit) {
             statementRectClass = `${statementRectClass} debug-hit`;
@@ -254,11 +247,8 @@ class IfStatementDecorator extends React.Component {
 
         const body = getComponentForNodeArray(this.props.model.body);
         const elseComp = model.elseStatement;
-
         return (
             <g
-                onMouseOut={this.setActionVisibilityFalse}
-                onMouseOver={this.setActionVisibilityTrue}
                 ref={(group) => {
                     this.myRoot = group;
                 }}
@@ -323,28 +313,21 @@ class IfStatementDecorator extends React.Component {
                 >
                     false
                 </text>
-                <g>
-                    <rect
-                        x={p2X}
-                        y={p9Y}
-                        width={titleW}
-                        height={titleH}
-                        className='invisible-rect'
-                    />
-                    {expression && <title> {expression.text} </title>}
-                </g>
-                { isBreakpoint && this.renderBreakpointIndicator() }
+                <HoverGroup model={this.props.model} region='actionBox'>
+                    <g>
+                        <rect
+                            x={p2X}
+                            y={p9Y}
+                            width={titleW}
+                            height={titleH}
+                            className='invisible-rect'
+                        />
+                        {expression && <title> {expression.text} </title>}
+                    </g>
+                </HoverGroup>
+                {isBreakpoint && this.renderBreakpointIndicator()}
                 {this.props.children}
                 {body}
-                <ActionBox
-                    bBox={actionBoxBbox}
-                    show={this.state.active}
-                    isBreakpoint={isBreakpoint}
-                    onDelete={() => this.onDelete()}
-                    onJumptoCodeLine={() => this.onJumpToCodeLine()}
-                    onBreakpointClick={() => this.props.onBreakpointClick()}
-                    disableButtons={this.props.disableButtons}
-                />
                 {elseComp && <ElseStatementDecorator
                     dropTarget={model}
                     bBox={elseComp.viewState.bBox}
@@ -352,6 +335,24 @@ class IfStatementDecorator extends React.Component {
                     model={elseComp}
                     body={elseComp}
                 />}
+                <HoverGroup model={this.props.model} region='main'>
+                    <rect
+                        x={p6X - 25}
+                        y={p6Y - 25}
+                        width={50}
+                        height={25}
+                        className='invisible-rect'
+                    />
+                </HoverGroup>
+                {elseComp && <HoverGroup model={elseComp} region='main'>
+                    <rect
+                        x={p5X - 25}
+                        y={p6Y - 20}
+                        width={50}
+                        height={30}
+                        className='invisible-rect'
+                    />
+                </HoverGroup>}
             </g>);
     }
 }

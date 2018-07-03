@@ -778,19 +778,29 @@ public class CodeGenerator extends BLangNodeVisitor {
             genNode(key.expr, this.env);
 
             genNode(keyValue.valueExpr, this.env);
-
-            int opcode = getOpcode(key.fieldSymbol.type.tag, InstructionCodes.IFIELDSTORE);
-            emit(opcode, structRegIndex, key.expr.regIndex, keyValue.valueExpr.regIndex);
+            storeStructField(keyValue.valueExpr, structRegIndex, key.expr.regIndex);
         }
     }
 
     @Override
     public void visit(BLangTableLiteral tableLiteral) {
-        genNode(tableLiteral.configurationExpr, this.env);
-        Operand varRefRegIndex = tableLiteral.configurationExpr.regIndex;
         tableLiteral.regIndex = calcAndGetExprRegIndex(tableLiteral);
         Operand typeCPIndex = getTypeCPIndex(tableLiteral.type);
-        emit(InstructionCodes.NEWTABLE, tableLiteral.regIndex, typeCPIndex, varRefRegIndex);
+        ArrayList<BLangExpression> dataRows = new ArrayList<>();
+        for (int i = 0; i < tableLiteral.tableDataRows.size(); i++) {
+            BLangExpression dataRowExpr = tableLiteral.tableDataRows.get(i);
+            genNode(dataRowExpr, this.env);
+            dataRows.add(dataRowExpr);
+        }
+        BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        arrayLiteral.exprs = dataRows;
+        arrayLiteral.type = symTable.anyType;
+        genNode(arrayLiteral, this.env);
+        genNode(tableLiteral.indexColumnsArrayLiteral, this.env);
+        genNode(tableLiteral.keyColumnsArrayLiteral, this.env);
+        emit(InstructionCodes.NEWTABLE, tableLiteral.regIndex, typeCPIndex,
+                tableLiteral.indexColumnsArrayLiteral.regIndex, tableLiteral.keyColumnsArrayLiteral.regIndex,
+                arrayLiteral.regIndex);
     }
 
     @Override
@@ -823,14 +833,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         // the connector reference must be stored in the current reference register index.
         Operand varRegIndex = getOperand(0);
         if (varAssignment) {
-            int opcode = getOpcode(fieldVarRef.type.tag, InstructionCodes.IFIELDSTORE);
-            emit(opcode, varRegIndex, fieldNameRegIndex, fieldVarRef.regIndex);
+            storeStructField(fieldVarRef, varRegIndex, fieldNameRegIndex);
             return;
         }
-
-        int opcode = getOpcode(fieldVarRef.type.tag, InstructionCodes.IFIELDLOAD);
-        RegIndex exprRegIndex = calcAndGetExprRegIndex(fieldVarRef);
-        emit(opcode, varRegIndex, fieldNameRegIndex, exprRegIndex);
+        
+        loadStructField(fieldVarRef, varRegIndex, fieldNameRegIndex);
     }
 
     @Override
@@ -877,13 +884,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(fieldAccessExpr.indexExpr, this.env);
         Operand keyRegIndex = fieldAccessExpr.indexExpr.regIndex;
 
-        int opcode;
         if (variableStore) {
-            opcode = getOpcode(fieldAccessExpr.symbol.type.tag, InstructionCodes.IFIELDSTORE);
-            emit(opcode, varRefRegIndex, keyRegIndex, fieldAccessExpr.regIndex);
+            storeStructField(fieldAccessExpr, varRefRegIndex, keyRegIndex);
         } else {
-            opcode = getOpcode(fieldAccessExpr.symbol.type.tag, InstructionCodes.IFIELDLOAD);
-            emit(opcode, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(fieldAccessExpr));
+            loadStructField(fieldAccessExpr, varRefRegIndex, keyRegIndex);
         }
 
         this.varAssignment = variableStore;
@@ -3529,14 +3533,16 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (pkgNode == null) {
             // This is a package loaded from a BALO
             packageSymbol.imports.forEach(importPkdSymbol -> addPackageInfo(importPkdSymbol, programFile));
-            if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.toString())) {
+            if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.toString())
+                    && !packageSymbol.pkgID.orgName.equals(Names.BUILTIN_ORG)) {
                 programFile.packageFileMap.put(packageSymbol.pkgID.toString(), packageSymbol.packageFile);
             }
             return;
         }
 
         pkgNode.imports.forEach(importPkdNode -> addPackageInfo(importPkdNode.symbol, programFile));
-        if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.toString())) {
+        if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.toString())
+                && !packageSymbol.pkgID.orgName.equals(Names.BUILTIN_ORG)) {
             programFile.packageFileMap.put(packageSymbol.pkgID.toString(), packageSymbol.packageFile);
         }
     }
@@ -3548,6 +3554,40 @@ public class CodeGenerator extends BLangNodeVisitor {
             // This code will not be executed under normal condition
             throw new BLangCompilerException("failed to generate bytecode for package '" +
                     pkgNode.packageID + "': " + e.getMessage(), e);
+        }
+    }
+
+    private void storeStructField(BLangExpression fieldAccessExpr, Operand varRefRegIndex, Operand keyRegIndex) {
+        int opcode;
+        opcode = getValueToRefTypeCastOpcode(fieldAccessExpr.type.tag);
+        if (opcode == InstructionCodes.NOP) {
+            // If the field is ref type, then struct field store will pick the value from ref reg.
+            emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, fieldAccessExpr.regIndex);
+        } else {
+            // Cast the value to ref type and put it in ref reg.
+            // Then struct field store will take the value from ref reg.
+            RegIndex valueRegIndex = getRegIndex(TypeTags.ANY);
+            emit(opcode, fieldAccessExpr.regIndex, valueRegIndex);
+            emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, valueRegIndex);
+        }
+    }
+
+    private void loadStructField(BLangExpression fieldAccessExpr, Operand varRefRegIndex, Operand keyRegIndex) {
+        // Flag indicating whether to throw runtime error if the field does not exist.
+        // This is currently set to false always, since the fields are checked during compile time.
+        final int except = 0;
+
+        IntegerCPEntry exceptCPEntry = new IntegerCPEntry(except);
+        Operand exceptOp = getOperand(currentPkgInfo.addCPEntry(exceptCPEntry));
+        int opcode = getRefToValueTypeCastOpcode(fieldAccessExpr.type.tag);
+        if (opcode == InstructionCodes.NOP) {
+            emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(fieldAccessExpr),
+                    exceptOp);
+        } else {
+            // Get the value from struct, and put it in ref reg. Then cast the ref value to the value type
+            RegIndex targetRegIndex = getRegIndex(TypeTags.ANY);
+            emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, targetRegIndex, exceptOp);
+            emit(opcode, targetRegIndex, calcAndGetExprRegIndex(fieldAccessExpr));
         }
     }
 }

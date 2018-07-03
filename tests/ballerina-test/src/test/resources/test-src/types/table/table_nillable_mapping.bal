@@ -66,8 +66,8 @@ type NillableDataTypes record {
     int? tinyint_type,
     int? smallint_type,
     string? clob_type,
-    blob? blob_type,
-    blob? binary_type,
+    byte[]? blob_type,
+    byte[]? binary_type,
     time:Time? date_type,
     time:Time? time_type,
     time:Time? datetime_type,
@@ -99,7 +99,7 @@ type ResultMapNillableTypeNonNillableElements record {
 };
 
 function testMappingToNillableTypeFields(string jdbcUrl, string userName, string password) returns (int?, int?, float?,
-            float?, boolean?, string?, float?, float?, float?, int?, int?, string?, blob?, blob?) {
+            float?, boolean?, string?, float?, float?, float?, int?, int?, string?, byte[]?, byte[]?) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -124,8 +124,8 @@ function testMappingToNillableTypeFields(string jdbcUrl, string userName, string
     int? tinyint_type;
     int? smallint_type;
     string? clob_type;
-    blob? blob_type;
-    blob? binary_type;
+    byte[]? blob_type;
+    byte[]? binary_type;
 
     while (dt.hasNext()) {
         NillableDataTypes rs = check <NillableDataTypes>dt.getNext();
@@ -282,7 +282,7 @@ timein, int timestampin) returns (string, string, string,
 }
 
 function testMappingNullToNillableTypes(string jdbcUrl, string userName, string password) returns (int?, int?, float?,
-            float?, boolean?, string?, float?, float?, float?, int?, int?, string?, blob?, blob?, time:Time?, time:Time?
+            float?, boolean?, string?, float?, float?, float?, int?, int?, string?, byte[]?, byte[]?, time:Time?, time:Time?
             , time:Time?, time:Time?) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
@@ -307,8 +307,8 @@ function testMappingNullToNillableTypes(string jdbcUrl, string userName, string 
     int? tinyint_type;
     int? smallint_type;
     string? clob_type;
-    blob? blob_type;
-    blob? binary_type;
+    byte[]? blob_type;
+    byte[]? binary_type;
     time:Time? date_type;
     time:Time? time_type;
     time:Time? datetime_type;

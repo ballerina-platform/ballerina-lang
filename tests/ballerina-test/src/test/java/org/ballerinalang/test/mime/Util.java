@@ -33,6 +33,7 @@ import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
 import org.ballerinalang.mime.util.HeaderUtil;
+import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BMap;
@@ -40,9 +41,9 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.slf4j.Logger;
@@ -62,22 +63,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
-import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
-import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
-import static org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_STRUCT;
-import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_ENCODER;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_MIXED;
-import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
-import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO;
-import static org.ballerinalang.mime.util.Constants.REQUEST_ENTITY_FIELD;
-import static org.ballerinalang.mime.util.Constants.TEMP_FILE_EXTENSION;
-import static org.ballerinalang.mime.util.Constants.TEMP_FILE_NAME;
-import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
+import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
+import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_XML;
+import static org.ballerinalang.mime.util.MimeConstants.BODY_PARTS;
+import static org.ballerinalang.mime.util.MimeConstants.BYTE_CHANNEL_STRUCT;
+import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_NAME;
+import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_STRUCT;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
+import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
+import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_ENCODER;
+import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_MIXED;
+import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_IO;
+import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.TEMP_FILE_EXTENSION;
+import static org.ballerinalang.mime.util.MimeConstants.TEMP_FILE_NAME;
+import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
 
 /**
  * Contains utility functions used by mime test cases.
@@ -89,7 +90,7 @@ public class Util {
 
     private static final String REQUEST_STRUCT = HttpConstants.REQUEST;
     private static final String PROTOCOL_PACKAGE_HTTP = HttpConstants.PROTOCOL_PACKAGE_HTTP;
-    private static final String PACKAGE_MIME = org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+    private static final String PACKAGE_MIME = MimeConstants.PROTOCOL_PACKAGE_MIME;
     private static final String ENTITY_STRUCT = HttpConstants.ENTITY;
     private static final String MEDIA_TYPE_STRUCT = MEDIA_TYPE;
     private static final String CARBON_MESSAGE = "CarbonMessage";
@@ -484,7 +485,7 @@ public class Util {
             contentHolder.setBodyPartName(getBodyPartName(bodyPart));
             contentHolder.setFileName(TEMP_FILE_NAME + TEMP_FILE_EXTENSION);
             contentHolder.setContentType(MimeUtil.getBaseType(bodyPart));
-            contentHolder.setBodyPartFormat(org.ballerinalang.mime.util.Constants.BodyPartForm.INPUTSTREAM);
+            contentHolder.setBodyPartFormat(MimeConstants.BodyPartForm.INPUTSTREAM);
             String contentTransferHeaderValue = HeaderUtil.getHeaderValue(bodyPart,
                     HttpHeaderNames.CONTENT_TRANSFER_ENCODING
                             .toString());

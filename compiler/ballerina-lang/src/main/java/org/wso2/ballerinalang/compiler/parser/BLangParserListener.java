@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.tree.CompilationUnitNode;
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.FieldContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTemplateContentContext;
@@ -35,6 +36,7 @@ import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
@@ -52,6 +54,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     private BLangPackageBuilder pkgBuilder;
     private BDiagnosticSource diagnosticSrc;
+    private BLangDiagnosticLog dlog;
 
     private List<String> pkgNameComps;
     private String pkgVersion;
@@ -60,6 +63,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                         BDiagnosticSource diagnosticSource) {
         this.pkgBuilder = new BLangPackageBuilder(context, compUnit);
         this.diagnosticSrc = diagnosticSource;
+        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     @Override
@@ -951,6 +955,48 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void enterTableLiteral(BallerinaParser.TableLiteralContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.startTableLiteral();
+    }
+
+    @Override
+    public void exitTableColumn(BallerinaParser.TableColumnContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        String columnName = ctx.getChild(0).getText();
+        boolean keyColumn = ctx.PRIMARYKEY() != null;
+        if (keyColumn) {
+            columnName = ctx.getChild(1).getText();
+            this.pkgBuilder.addTableColumn(columnName);
+            this.pkgBuilder.markPrimaryKeyColumn(columnName);
+        } else {
+            this.pkgBuilder.addTableColumn(columnName);
+        }
+    }
+
+    @Override
+    public void exitTableDataList(BallerinaParser.TableDataListContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        if (ctx.expressionList() != null) {
+            this.pkgBuilder.endTableDataRow();
+        }
+    }
+
+    @Override
+    public void exitTableData(BallerinaParser.TableDataContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.endTableDataList(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
     public void exitTableLiteral(BallerinaParser.TableLiteralContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -1333,13 +1379,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             workerNames = ctx.Identifier().stream().map(TerminalNode::getText).collect(Collectors.toList());
         }
         int joinCount = 0;
-        Long longObject;
-        if ((longObject = getIntegerLiteral(ctx, ctx.integerLiteral())) != null) {
-            try {
-                joinCount = longObject.intValue();
-            } catch (NumberFormatException ex) {
-                // When ctx.IntegerLiteral() is not a string or missing, compilation fails due to NumberFormatException.
-                // Hence catching the error and ignore. Still Parser complains about missing IntegerLiteral.
+        Object value;
+        if ((value = getIntegerLiteral(ctx, ctx.integerLiteral())) != null) {
+            if (value instanceof Long) {
+                try {
+                    joinCount = ((Long) value).intValue();
+                } catch (NumberFormatException ex) {
+                    // When ctx.IntegerLiteral() is not a string or missing, compilation fails due to
+                    // NumberFormatException.
+                    // Hence catching the error and ignore. Still Parser complains about missing IntegerLiteral.
+                }
             }
         }
         this.pkgBuilder.addJoinCondition(getWS(ctx), "SOME", workerNames, joinCount);
@@ -2090,10 +2139,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         TerminalNode node;
         DiagnosticPos pos = getCurrentPos(ctx);
         Set<Whitespace> ws = getWS(ctx);
-        Long longObject;
+        Object value;
         BallerinaParser.IntegerLiteralContext integerLiteralContext = ctx.integerLiteral();
-        if (integerLiteralContext != null && (longObject = getIntegerLiteral(ctx, ctx.integerLiteral())) != null) {
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, longObject);
+        if (integerLiteralContext != null && (value = getIntegerLiteral(ctx, ctx.integerLiteral())) != null) {
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, value);
         } else if ((node = ctx.FloatingPointLiteral()) != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getNodeValue(ctx, node)));
         } else if ((node = ctx.BooleanLiteral()) != null) {
@@ -3110,19 +3159,27 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         return value;
     }
 
-    private Long getIntegerLiteral(ParserRuleContext simpleLiteralContext,
-                                   BallerinaParser.IntegerLiteralContext integerLiteralContext) {
+    private Object getIntegerLiteral(ParserRuleContext simpleLiteralContext,
+                                     BallerinaParser.IntegerLiteralContext integerLiteralContext) {
         if (integerLiteralContext.DecimalIntegerLiteral() != null) {
-            return Long.parseLong(getNodeValue(simpleLiteralContext, integerLiteralContext.DecimalIntegerLiteral()));
+            String nodeValue = getNodeValue(simpleLiteralContext, integerLiteralContext.DecimalIntegerLiteral());
+            return parseLong(simpleLiteralContext, nodeValue, nodeValue, 10, DiagnosticCode.INTEGER_TOO_SMALL,
+                    DiagnosticCode.INTEGER_TOO_LARGE);
         } else if (integerLiteralContext.HexIntegerLiteral() != null) {
-            return Long.parseLong(getNodeValue(simpleLiteralContext, integerLiteralContext.HexIntegerLiteral())
-                    .toLowerCase().replace("0x", ""), 16);
+            String nodeValue = getNodeValue(simpleLiteralContext, integerLiteralContext.HexIntegerLiteral());
+            String processedNodeValue = nodeValue.toLowerCase().replace("0x", "");
+            return parseLong(simpleLiteralContext, nodeValue, processedNodeValue, 16,
+                    DiagnosticCode.HEXADECIMAL_TOO_SMALL, DiagnosticCode.HEXADECIMAL_TOO_LARGE);
         } else if (integerLiteralContext.OctalIntegerLiteral() != null) {
-            return Long.parseLong(getNodeValue(simpleLiteralContext, integerLiteralContext.OctalIntegerLiteral())
-                    .replace("0_", ""), 8);
+            String nodeValue = getNodeValue(simpleLiteralContext, integerLiteralContext.OctalIntegerLiteral());
+            String processedNodeValue = nodeValue.replace("0_", "");
+            return parseLong(simpleLiteralContext, nodeValue, processedNodeValue, 8,
+                    DiagnosticCode.OCTAL_TOO_SMALL, DiagnosticCode.OCTAL_TOO_LARGE);
         } else if (integerLiteralContext.BinaryIntegerLiteral() != null) {
-            return Long.parseLong(getNodeValue(simpleLiteralContext, integerLiteralContext.BinaryIntegerLiteral())
-                    .toLowerCase().replace("0b", ""), 2);
+            String nodeValue = getNodeValue(simpleLiteralContext, integerLiteralContext.BinaryIntegerLiteral());
+            String processedNodeValue = nodeValue.toLowerCase().replace("0b", "");
+            return parseLong(simpleLiteralContext, nodeValue, processedNodeValue, 2,
+                    DiagnosticCode.BINARY_TOO_SMALL, DiagnosticCode.BINARY_TOO_LARGE);
         }
         return null;
     }
@@ -3132,5 +3189,21 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         return this.pkgBuilder.getScopesFunctionDef(getCurrentPos(ctx), getWS(ctx), bodyExists,
                 ctx.scopeClause().Identifier().getText());
+    }
+
+    private Object parseLong(ParserRuleContext context, String originalNodeValue, String processedNodeValue, int radix,
+                             DiagnosticCode code1, DiagnosticCode code2) {
+        try {
+            return Long.parseLong(processedNodeValue, radix);
+        } catch (Exception e) {
+            DiagnosticPos pos = getCurrentPos(context);
+            Set<Whitespace> ws = getWS(context);
+            if (originalNodeValue.startsWith("-")) {
+                dlog.error(pos, code1, originalNodeValue);
+            } else {
+                dlog.error(pos, code2, originalNodeValue);
+            }
+        }
+        return originalNodeValue;
     }
 }

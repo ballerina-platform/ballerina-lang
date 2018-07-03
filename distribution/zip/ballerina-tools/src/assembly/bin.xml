@@ -55,6 +55,12 @@
             </directory>
             <outputDirectory>docs/api/ballerina</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/ballerina-examples-zip/ballerina-examples-${ballerina.version}/examples
+            </directory>
+            <outputDirectory>docs/examples</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <files>
@@ -129,6 +135,7 @@
                 <include>org.ballerinalang:ballerina-cli-utils:jar</include>
                 <include>org.ballerinalang:testerina-core:jar</include>
                 <include>org.ballerinalang:swagger-to-ballerina-generator:jar</include>
+                <include>org.ballerinalang:ballerina-packerina:jar</include>
                 <include>org.ballerinalang:protobuf-ballerina:jar</include>
                 <include>org.ballerinalang:ballerina-codegen:jar</include>
                 <include>org.ballerinalang:docerina:jar</include>

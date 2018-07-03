@@ -263,7 +263,7 @@ public class BCompileUtil {
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
-        BLangPackage packageNode = compiler.compile(packageName);
+        BLangPackage packageNode = compiler.compile(packageName, true);
         comResult.setAST(packageNode);
         if (comResult.getErrorCount() > 0 || CompilerPhase.CODE_GEN.compareTo(compilerPhase) > 0) {
             return comResult;

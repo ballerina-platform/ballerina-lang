@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.util.diagnostic;
 
 /**
@@ -38,6 +38,9 @@ public enum DiagnosticCode {
     UNDEFINED_FUNCTION_IN_STRUCT("undefined.function.in.struct"),
     UNDEFINED_CONNECTOR("undefined.connector"),
     UNDEFINED_STRUCT_FIELD("undefined.field.in.struct"),
+    UNDEFINED_TABLE_COLUMN("undefined.column.in.table"),
+    TABLE_CANNOT_BE_CREATED_WITHOUT_CONSTRAINT("table.cannot.be.created.without.constraint"),
+    OBJECT_TYPE_NOT_ALLOWED("object.type.not.allowed"),
     UNDEFINED_OBJECT_FIELD("undefined.field.in.object"),
     CANNOT_INFER_OBJECT_TYPE_FROM_LHS("cannot.infer.object.type.from.lhs"),
     OBJECT_UN_INITIALIZABLE_FIELD("object.non.initialised.field"),
@@ -75,6 +78,15 @@ public enum DiagnosticCode {
     UNREACHABLE_CODE("unreachable.code"),
     CONTINUE_CANNOT_BE_OUTSIDE_LOOP("continue.cannot.be.outside.loop"),
     BREAK_CANNOT_BE_OUTSIDE_LOOP("break.cannot.be.outside.loop"),
+
+    INTEGER_TOO_LARGE("integer.too.large"),
+    INTEGER_TOO_SMALL("integer.too.small"),
+    HEXADECIMAL_TOO_LARGE("hexadecimal.too.large"),
+    HEXADECIMAL_TOO_SMALL("hexadecimal.too.small"),
+    OCTAL_TOO_LARGE("octal.too.large"),
+    OCTAL_TOO_SMALL("octal.too.small"),
+    BINARY_TOO_LARGE("binary.too.large"),
+    BINARY_TOO_SMALL("binary.too.small"),
 
     //Transaction related error codes
     ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("abort.cannot.be.outside.transaction.block"),
@@ -209,7 +221,7 @@ public enum DiagnosticCode {
 
     // Safe Assignment operator related errors
     SAFE_ASSIGN_STMT_INVALID_USAGE("safe.assign.stmt.invalid.usage"),
-    
+
     // Safe navigation operator related errors
     SAFE_NAVIGATION_NOT_REQUIRED("safe.navigation.not.required"),
     INVALID_SAFE_NAVIGATION_ON_LHS("invalid.safe.navigation.on.lhs"),
