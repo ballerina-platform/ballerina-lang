@@ -36,6 +36,7 @@ import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.St
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.StructField;
 import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.ballerinalang.langserver.index.LSIndexQueryProcessor;
+import org.ballerinalang.langserver.index.dto.BFunctionDTO;
 import org.ballerinalang.langserver.index.dto.BObjectTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.PackageIDDTO;
 import org.ballerinalang.model.elements.Flag;
@@ -729,5 +730,42 @@ public class ParserUtils {
                         Names.BUILTIN_PACKAGE.getValue(), Names.EMPTY.getValue()))));
         symbolTable.builtInPackageSymbol = builtInPkg.symbol;
         return builtInPkg;
+    }
+
+    public static List<Endpoint> getEndpoints() {
+        final List<Endpoint> endpoints = new ArrayList<>();
+        try {
+            LSIndexImpl lsIndex = LSIndexImpl.getInstance();
+            LSIndexQueryProcessor lsIndexQueryProcessor = lsIndex.getQueryProcessor();
+            List<PackageIDDTO> allPackages = lsIndexQueryProcessor.getAllPackages();
+            List<BObjectTypeSymbolDTO> allEndpoints = lsIndexQueryProcessor.getAllEndpoints();
+            allPackages.forEach(packageIDDTO -> {
+                String pkgName = packageIDDTO.getName();
+                String orgName = packageIDDTO.getOrgName();
+                ModelPackage pkgModel = new ModelPackage(pkgName, orgName);
+                List<Endpoint> endpointsList = allEndpoints
+                        .stream()
+                        .map(bObjectTypeSymbolDTO -> new Endpoint(bObjectTypeSymbolDTO.getName(), pkgName))
+                        .collect(Collectors.toList());
+                endpoints.addAll(endpointsList);
+            });
+        } catch (Exception e) {
+            // Above catch is to fail safe composer front end due to core errors.
+            logger.warn("Error while loading package: " + e.getMessage());
+        }
+        return endpoints;
+    }
+
+    public static List<BFunctionDTO> getActions(String pkgName, String typeName) {
+        final List<BFunctionDTO> actions = new ArrayList<>();
+        try {
+            LSIndexImpl lsIndex = LSIndexImpl.getInstance();
+            LSIndexQueryProcessor lsIndexQueryProcessor = lsIndex.getQueryProcessor();
+            List<BFunctionDTO> allPackages = lsIndexQueryProcessor.getActions(pkgName, typeName);
+        } catch (Exception e) {
+            // Above catch is to fail safe composer front end due to core errors.
+            logger.warn("Error while loading package: " + e.getMessage());
+        }
+        return actions;
     }
 }

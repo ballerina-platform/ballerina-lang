@@ -71,12 +71,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.OPTIONS;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -120,6 +115,73 @@ public class BallerinaParserService implements ComposerService {
         // add package info into response
         Gson gson = new Gson();
         String json = gson.toJson(ParserUtils.getAllPackages().values());
+        JsonParser parser = new JsonParser();
+        JsonArray packagesArray = parser.parse(json).getAsJsonArray();
+        response.add("packages", packagesArray);
+        return Response.status(Response.Status.OK)
+                .entity(response)
+                .header("Access-Control-Allow-Origin", '*').type(MediaType.APPLICATION_JSON).build();
+    }
+
+    @OPTIONS
+    @Path("/endpoints")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getEndpointOptions() {
+        return Response.ok()
+                .header(HttpHeaderNames.ACCESS_CONTROL_MAX_AGE.toString(), "600 ")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString(), "*")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString(), "true")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS.toString(),
+                        "POST, GET, PUT, UPDATE, DELETE, OPTIONS, HEAD")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS.toString(),
+                        HttpHeaderNames.CONTENT_TYPE.toString() + ", " + HttpHeaderNames.ACCEPT.toString() +
+                                ", X-Requested-With").build();
+    }
+
+    @GET
+    @Path("/endpoints")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getEndpoints() {
+        JsonObject response = new JsonObject();
+        // add package info into response
+        Gson gson = new Gson();
+        String json = gson.toJson(ParserUtils.getEndpoints());
+        JsonParser parser = new JsonParser();
+        JsonArray packagesArray = parser.parse(json).getAsJsonArray();
+        response.add("packages", packagesArray);
+        return Response.status(Response.Status.OK)
+                .entity(response)
+                .header("Access-Control-Allow-Origin", '*').type(MediaType.APPLICATION_JSON).build();
+    }
+
+    @OPTIONS
+    @Path("/actions")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getActionsOptions() {
+        return Response.ok()
+                .header(HttpHeaderNames.ACCESS_CONTROL_MAX_AGE.toString(), "600 ")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString(), "*")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString(), "true")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS.toString(),
+                        "POST, GET, PUT, UPDATE, DELETE, OPTIONS, HEAD")
+                .header(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS.toString(),
+                        HttpHeaderNames.CONTENT_TYPE.toString() + ", " + HttpHeaderNames.ACCEPT.toString() +
+                                ", X-Requested-With").build();
+    }
+
+    @GET
+    @Path("/actions")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getActions(@QueryParam( value = "pkgName") String pkgName,
+                               @QueryParam( value = "typeName") String typeName) {
+        JsonObject response = new JsonObject();
+        // add package info into response
+        Gson gson = new Gson();
+        String json = gson.toJson(ParserUtils.getActions(pkgName, typeName));
         JsonParser parser = new JsonParser();
         JsonArray packagesArray = parser.parse(json).getAsJsonArray();
         response.add("packages", packagesArray);
