@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ByteChannel;
 
 /**
  * Represents an event which will write bytes.
@@ -91,5 +92,10 @@ public class WriteBytesEvent implements Event {
     @Override
     public EventType getType() {
         return EventType.WRITE;
+    }
+
+    @Override
+    public ByteChannel getByteChannel() {
+        return byteChannel.getByteChannel();
     }
 }

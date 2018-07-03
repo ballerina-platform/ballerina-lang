@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.channels.ByteChannel;
 
 /**
  * Writes integer to a given source.
@@ -94,5 +95,10 @@ public class WriteIntegerEvent implements Event {
     @Override
     public EventType getType() {
         return EventType.WRITE;
+    }
+
+    @Override
+    public ByteChannel getByteChannel() {
+        return channel.getByteChannel();
     }
 }
