@@ -52,6 +52,8 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 
     private Token firstTokenOfCursorLine = null;
 
+    private enum TokenRemovalStrategy { MATCH, SYNC }
+
     public CompletionCustomErrorStrategy(LSContext context) {
         super(context);
         this.context = context;
@@ -79,7 +81,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 
     @Override
     public void reportMatch(Parser recognizer) {
-        removePendingTokensAfterThisToken(recognizer, removeStartToken);
+        removePendingTokensAfterThisToken(recognizer, removeStartToken, TokenRemovalStrategy.MATCH);
         boolean inFirstTokenOfCursorLine = isInFirstTokenOfCursorLine(recognizer);
         boolean inLastTermination = isInLastTermination(recognizer);
         super.reportMatch(recognizer);
@@ -90,7 +92,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 
     @Override
     public void sync(Parser recognizer) throws RecognitionException {
-        removePendingTokensAfterThisToken(recognizer, removeStartToken);
+        removePendingTokensAfterThisToken(recognizer, removeStartToken, TokenRemovalStrategy.SYNC);
         boolean inFirstTokenOfCursorLine = isInFirstTokenOfCursorLine(recognizer);
         boolean inLastTermination = isInLastTermination(recognizer);
         if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && inFirstTokenOfCursorLine) {
@@ -101,9 +103,12 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         super.sync(recognizer);
     }
 
-    private void removePendingTokensAfterThisToken(Parser recognizer, Token token) {
+    private void removePendingTokensAfterThisToken(Parser recognizer, Token token,
+                                                   TokenRemovalStrategy currentStrategy) {
         int currentTokenIndex = recognizer.getCurrentToken().getTokenIndex();
-        if (token != null && currentTokenIndex < token.getTokenIndex()) {
+        if (token != null &&
+                (TokenRemovalStrategy.SYNC.equals(currentStrategy) && currentTokenIndex < token.getTokenIndex()
+                || TokenRemovalStrategy.MATCH.equals(currentStrategy) && currentTokenIndex <= token.getTokenIndex())) {
             return;
         }
         while (removeTokenCount > 0) {
@@ -160,7 +165,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         } else if (noTerminationToken) {
             removeTokenCount = needToRemoveTokenCount;
             removeStartToken = recognizer.getInputStream().LT(1);
-            removePendingTokensAfterThisToken(recognizer, removeStartToken);
+            removePendingTokensAfterThisToken(recognizer, removeStartToken, TokenRemovalStrategy.SYNC);
         }
     }
 
