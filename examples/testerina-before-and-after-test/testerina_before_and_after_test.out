@@ -4,15 +4,16 @@
 #installed in order to run this command. 
 $ ballerina test testerina_before_and_after_test.bal
 Compiling tests
-    test.bal
+    testerina_before_and_after_test.bal
 
 Running tests
+    testerina_before_and_after_test.bal
 I'm the before function!
 I'm in test function!
 I'm the after function!
 
-	✔ testFunction
+	  ✔ testFunction
 
-	1 passing
-	0 failing
-	0 skipped
+	  1 passing
+	  0 failing
+	  0 skipped

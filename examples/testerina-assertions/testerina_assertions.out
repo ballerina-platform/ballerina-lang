@@ -1,23 +1,24 @@
 $ ballerina test testerina_assertions.bal
 Compiling tests
-    test.bal
+    testerina_assertions.bal
 
 Running tests
-	✔ testAssertFail2
-	✔ testAssertFail1
-	✔ testAssertFalse
-	✔ testAssertTrue
-	✔ testAssertNotEqualsJson
-	✔ testAssertNotEqualsString
-	✔ testAssertFloatArrayEquals
-	✔ testAssertIntArrayEquals
-	✔ testAssertStringArrayEquals
-	✔ testAssertBooleanEquals
-	✔ testAssertJsonEquals
-	✔ testAssertStringEquals
-	✔ testAssertFloatEquals
-	✔ testAssertIntEquals
+    testerina_assertions.bal
+	  ✔ testAssertFail2
+	  ✔ testAssertFail1
+	  ✔ testAssertFalse
+	  ✔ testAssertTrue
+	  ✔ testAssertNotEqualsJson
+	  ✔ testAssertNotEqualsString
+	  ✔ testAssertFloatArrayEquals
+	  ✔ testAssertIntArrayEquals
+	  ✔ testAssertStringArrayEquals
+	  ✔ testAssertBooleanEquals
+	  ✔ testAssertJsonEquals
+	  ✔ testAssertStringEquals
+	  ✔ testAssertFloatEquals
+	  ✔ testAssertIntEquals
 
-	14 passing
-	0 failing
-	0 skipped
+	  14 passing
+	  0 failing
+	  0 skipped

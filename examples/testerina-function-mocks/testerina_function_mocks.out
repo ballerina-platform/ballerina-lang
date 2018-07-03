@@ -4,14 +4,15 @@
 #installed in order to run this command. 
 $ ballerina test testerina_function_mocks.bal
 Compiling tests
-    test.bal
+    testerina_function_mocks.bal
 
 Running tests
+    testerina_function_mocks.bal
 I'm the mock function!
 Function mocking test
 
-	✔ testAssertIntEquals
+	  ✔ testAssertIntEquals
 
-	1 passing
-	0 failing
-	0 skipped
+	  1 passing
+	  0 failing
+	  0 skipped

@@ -4,9 +4,10 @@
 #installed in order to run this command. 
 $ ballerina test testerina_before_each_test.bal
 Compiling tests
-    test.bal
+    testerina_before_each_test.bal
 
 Running tests
+    testerina_before_each_test.bal
 I'm the before function!
 I'm in test function 3!
 I'm the before function!
@@ -14,10 +15,10 @@ I'm in test function 2!
 I'm the before function!
 I'm in test function 1!
 
-	✔ testFunction3
-	✔ testFunction2
-	✔ testFunction1
+	  ✔ testFunction3
+	  ✔ testFunction2
+	  ✔ testFunction1
 
-	3 passing
-	0 failing
-	0 skipped
+	  3 passing
+	  0 failing
+	  0 skipped
