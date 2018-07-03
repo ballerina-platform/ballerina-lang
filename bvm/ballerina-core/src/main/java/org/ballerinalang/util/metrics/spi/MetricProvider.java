@@ -42,7 +42,7 @@ public interface MetricProvider {
     /**
      * This will be called when initializing the default {@link MetricRegistry}.
      */
-    void initialize();
+    void init();
 
     Counter newCounter(MetricId metricId);
 

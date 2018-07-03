@@ -39,7 +39,7 @@ public class NoOpMetricProvider implements MetricProvider {
     }
 
     @Override
-    public void initialize() {
+    public void init() {
         // Do nothing
     }
 

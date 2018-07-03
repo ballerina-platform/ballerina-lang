@@ -42,7 +42,7 @@ public class DefaultMetricProvider implements MetricProvider {
     }
 
     @Override
-    public void initialize() {
+    public void init() {
     }
 
     @Override

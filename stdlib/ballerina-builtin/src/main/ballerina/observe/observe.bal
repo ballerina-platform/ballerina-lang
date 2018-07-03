@@ -203,6 +203,17 @@ public type Gauge object {
  }
 };
 
+public native function getAllMetrics() returns Metric[];
+
+public type Metric record {
+ string name;
+ string desc;
+ map<string> tags;
+ string metricType;
+ int|float value;
+ Snapshot[]? summary;
+};
+
 public type CounterEvent record {
  string name;
  int value;

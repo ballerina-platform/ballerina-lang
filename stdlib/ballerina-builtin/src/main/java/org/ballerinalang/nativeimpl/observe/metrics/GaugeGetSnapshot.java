@@ -18,19 +18,16 @@
 package org.ballerinalang.nativeimpl.observe.metrics;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.observe.Constants;
+import org.ballerinalang.nativeimpl.observe.Utils;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.metrics.Gauge;
-import org.ballerinalang.util.metrics.PercentileValue;
 import org.ballerinalang.util.metrics.Snapshot;
 
 /**
@@ -53,28 +50,7 @@ public class GaugeGetSnapshot extends BlockingNativeCallableUnit {
         BStruct bStruct = (BStruct) context.getRefArgument(0);
         Gauge gauge = (Gauge) bStruct.getNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY);
         Snapshot[] snapshots = gauge.getSnapshots();
-
-        PackageInfo observePackage = context.getProgramFile().getPackageInfo(Constants.OBSERVE_PACKAGE_PATH);
-        StructureTypeInfo snapshotStructInfo = observePackage.getStructInfo(Constants.SNAPSHOT);
-        StructureTypeInfo percentileStructInfo = observePackage.getStructInfo(Constants.PERCENTILE_VALUE);
-
-        BRefValueArray bSnapshots = new BRefValueArray();
-        int index = 0;
-        for (Snapshot snapshot : snapshots) {
-            BRefValueArray bPercentiles = new BRefValueArray();
-            int percentileIndex = 0;
-            for (PercentileValue percentileValue : snapshot.getPercentileValues()) {
-                BStruct bPercentileValue = BLangVMStructs.createBStruct(percentileStructInfo,
-                        percentileValue.getPercentile(),
-                        percentileValue.getValue());
-                bPercentiles.add(percentileIndex, bPercentileValue);
-                percentileIndex++;
-            }
-            BStruct aSnapshot = BLangVMStructs.createBStruct(snapshotStructInfo, snapshot.getExpiry().toMillis(),
-                    snapshot.getMean(), snapshot.getMax(), snapshot.getMin(), snapshot.getStdDev(), bPercentiles);
-            bSnapshots.add(index, aSnapshot);
-            index++;
-        }
+        BRefValueArray bSnapshots = Utils.createBSnapshots(snapshots, context);
         context.setReturnValues(bSnapshots);
     }
 

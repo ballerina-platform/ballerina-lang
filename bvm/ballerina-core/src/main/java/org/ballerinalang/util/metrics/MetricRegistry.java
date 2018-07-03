@@ -194,4 +194,8 @@ public class MetricRegistry {
     public MetricProvider getMetricProvider() {
         return metricProvider;
     }
+
+    public Metric[] getAllMetrics() {
+        return this.metrics.values().toArray(new Metric[this.metrics.values().size()]);
+    }
 }
