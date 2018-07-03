@@ -22,6 +22,7 @@ import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.events.Event;
 import org.ballerinalang.stdlib.io.events.EventContext;
 import org.ballerinalang.stdlib.io.events.EventResult;
+import org.ballerinalang.stdlib.io.events.EventType;
 import org.ballerinalang.stdlib.io.events.result.AlphaResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,5 +76,20 @@ public class ReadCharactersEvent implements Event {
             result = new AlphaResult(context);
         }
         return result;
+    }
+
+    @Override
+    public int getChannelId() {
+        return channel.id();
+    }
+
+    @Override
+    public boolean isSelectable() {
+        return channel.isSelectable();
+    }
+
+    @Override
+    public EventType getType() {
+        return EventType.READ;
     }
 }

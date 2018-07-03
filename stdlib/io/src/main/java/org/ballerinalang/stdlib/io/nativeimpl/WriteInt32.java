@@ -87,8 +87,8 @@ public class WriteInt32 implements NativeCallableUnit {
         WriteIntegerEvent writeIntegerEvent = new WriteIntegerEvent(channel,
                 value, Representation.BIT_32,
                 eventContext);
-        Register register = EventRegister.getFactory().register(channel.id(),
-                channel.isSelectable(), writeIntegerEvent, WriteInt32::writeIntegerResponse);
+        Register register = EventRegister.getFactory().register(writeIntegerEvent, WriteInt32::writeIntegerResponse);
+        eventContext.setRegister(register);
         register.submit();
     }
 

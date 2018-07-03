@@ -100,8 +100,8 @@ public class ReadCharacters implements NativeCallableUnit {
                 .CHARACTER_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
         ReadCharactersEvent event = new ReadCharactersEvent(characterChannel, (int) numberOfCharacters, eventContext);
-        Register register = EventRegister.getFactory().register(characterChannel.id(),
-                characterChannel.isSelectable(), event, ReadCharacters::readCharactersResponse);
+        Register register = EventRegister.getFactory().register(event, ReadCharacters::readCharactersResponse);
+        eventContext.setRegister(register);
         register.submit();
     }
 

@@ -97,8 +97,8 @@ public class WriteTextRecord implements NativeCallableUnit {
         EventContext eventContext = new EventContext(context, callback);
         DelimitedRecordWriteEvent recordWriteEvent = new DelimitedRecordWriteEvent(delimitedRecordChannel, content,
                 eventContext);
-        Register register = EventRegister.getFactory().register(delimitedRecordChannel.id(),
-                delimitedRecordChannel.isSelectable(), recordWriteEvent, WriteTextRecord::writeResponse);
+        Register register = EventRegister.getFactory().register(recordWriteEvent, WriteTextRecord::writeResponse);
+        eventContext.setRegister(register);
         register.submit();
     }
 

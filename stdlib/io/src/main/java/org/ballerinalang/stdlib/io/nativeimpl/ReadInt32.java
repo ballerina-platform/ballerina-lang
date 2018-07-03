@@ -83,8 +83,8 @@ public class ReadInt32 implements NativeCallableUnit {
         DataChannel channel = (DataChannel) dataChannelStruct.getNativeData(IOConstants.DATA_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
         ReadIntegerEvent event = new ReadIntegerEvent(channel, Representation.BIT_32, eventContext);
-        Register register = EventRegister.getFactory().register(channel.id(),
-                channel.isSelectable(), event, ReadInt32::readResponse);
+        Register register = EventRegister.getFactory().register(event, ReadInt32::readResponse);
+        eventContext.setRegister(register);
         register.submit();
     }
 

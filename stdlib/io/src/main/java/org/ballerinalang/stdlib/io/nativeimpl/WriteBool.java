@@ -84,8 +84,8 @@ public class WriteBool implements NativeCallableUnit {
         boolean value = context.getBooleanArgument(VALUE_INDEX);
         EventContext eventContext = new EventContext(context, callback);
         WriteBoolEvent writeBoolEvent = new WriteBoolEvent(channel, value, eventContext);
-        Register register = EventRegister.getFactory().register(channel.id(),
-                channel.isSelectable(), writeBoolEvent, WriteBool::writeBooleanResponse);
+        Register register = EventRegister.getFactory().register(writeBoolEvent, WriteBool::writeBooleanResponse);
+        eventContext.setRegister(register);
         register.submit();
     }
 

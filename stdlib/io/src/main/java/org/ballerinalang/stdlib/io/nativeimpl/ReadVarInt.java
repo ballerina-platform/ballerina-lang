@@ -83,8 +83,8 @@ public class ReadVarInt implements NativeCallableUnit {
         DataChannel channel = (DataChannel) dataChannelStruct.getNativeData(IOConstants.DATA_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
         ReadIntegerEvent event = new ReadIntegerEvent(channel, Representation.VARIABLE, eventContext);
-        Register register = EventRegister.getFactory().register(channel.id(),
-                channel.isSelectable(), event, ReadVarInt::readResponse);
+        Register register = EventRegister.getFactory().register(event, ReadVarInt::readResponse);
+        eventContext.setRegister(register);
         register.submit();
     }
 

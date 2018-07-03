@@ -105,8 +105,8 @@ public class WriteCharacters implements NativeCallableUnit {
         EventContext eventContext = new EventContext(context, callback);
         WriteCharactersEvent event = new WriteCharactersEvent(characterChannel, content, (int) startOffset,
                 eventContext);
-        Register register = EventRegister.getFactory().register(characterChannel.id(),
-                characterChannel.isSelectable(), event, WriteCharacters::writeResponse);
+        Register register = EventRegister.getFactory().register(event, WriteCharacters::writeResponse);
+        eventContext.setRegister(register);
         register.submit();
     }
 

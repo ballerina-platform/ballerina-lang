@@ -90,8 +90,8 @@ public class NextTextRecord implements NativeCallableUnit {
                 .TXT_RECORD_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
         DelimitedRecordReadEvent event = new DelimitedRecordReadEvent(delimitedRecordChannel, eventContext);
-        Register register = EventRegister.getFactory().register(delimitedRecordChannel.id(),
-                delimitedRecordChannel.isSelectable(), event, NextTextRecord::response);
+        Register register = EventRegister.getFactory().register(event, NextTextRecord::response);
+        eventContext.setRegister(register);
         register.submit();
     }
 
