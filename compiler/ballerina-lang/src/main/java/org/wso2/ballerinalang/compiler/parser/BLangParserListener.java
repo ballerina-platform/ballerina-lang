@@ -359,7 +359,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        // TODO remove when removing struct
         boolean isReceiverAttached = ctx.typeName() != null;
 
         this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, nativeFunc,
@@ -457,34 +456,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override
-    public void exitPublicObjectFields(BallerinaParser.PublicObjectFieldsContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addObjectFieldsBlock(getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override
-    public void exitPrivateObjectFields(BallerinaParser.PrivateObjectFieldsContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addObjectFieldsBlock(getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override
     public void enterObjectInitializer(BallerinaParser.ObjectInitializerContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -541,13 +512,36 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         Set<Whitespace> ws = getWS(ctx);
         String name = ctx.Identifier().getText();
         boolean exprAvailable = ctx.expression() != null;
-        if (ctx.parent instanceof BallerinaParser.PrivateObjectFieldsContext) {
-            this.pkgBuilder.addFieldVariable(currentPos, ws, name, exprAvailable,
-                    ctx.annotationAttachment().size(), true);
-            return;
-        }
         this.pkgBuilder.addFieldVariable(currentPos, ws, name, exprAvailable,
                 ctx.annotationAttachment().size(), false);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override
+    public void exitObjectFieldDefinition(BallerinaParser.ObjectFieldDefinitionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        DiagnosticPos currentPos = getCurrentPos(ctx);
+        Set<Whitespace> ws = getWS(ctx);
+        String name = ctx.Identifier().getText();
+        boolean exprAvailable = ctx.expression() != null;
+
+
+        boolean docExists = ctx.documentationAttachment() != null;
+        boolean deprecatedDocExists = ctx.deprecatedAttachment() != null;
+        int annotationCount = ctx.annotationAttachment().size();
+
+        boolean isPrivate = ctx.PRIVATE() != null;
+        boolean isPublic = ctx.PUBLIC() != null;
+
+        this.pkgBuilder.addFieldVariable(currentPos, ws, name, exprAvailable, docExists,
+                deprecatedDocExists, annotationCount, isPrivate, isPublic);
     }
 
     /**
@@ -620,28 +614,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean publicFunc = ctx.PUBLIC() != null;
+        boolean isPrivate = ctx.PRIVATE() != null;
         boolean nativeFunc = ctx.NATIVE() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
         boolean docExists = ctx.documentationAttachment() != null;
         boolean deprecatedDocExists = ctx.deprecatedAttachment() != null;
-        this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, nativeFunc,
-                bodyExists, docExists, deprecatedDocExists, ctx.annotationAttachment().size());
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override
-    public void exitObjectCallableUnitSignature(BallerinaParser.ObjectCallableUnitSignatureContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.endCallableUnitSignature(getCurrentPos(ctx), getWS(ctx), ctx.anyIdentifierName().getText(),
-                ctx.formalParameterList() != null, ctx.returnParameter() != null,
-                ctx.formalParameterList() != null && ctx.formalParameterList().restParameter() != null);
+        this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, isPrivate,
+                nativeFunc, bodyExists, docExists, deprecatedDocExists, ctx.annotationAttachment().size());
     }
 
     /**

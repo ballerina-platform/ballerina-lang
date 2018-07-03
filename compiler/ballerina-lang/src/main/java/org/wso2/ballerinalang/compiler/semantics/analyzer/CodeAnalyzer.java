@@ -1183,7 +1183,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (env.enclPkg.symbol.pkgID != symbol.pkgID && Symbols.isPrivate(symbol)) {
-            dlog.error(position, DiagnosticCode.ATTEMPT_REFER_NON_PUBLIC_SYMBOL, symbol.name);
+            dlog.error(position, DiagnosticCode.ATTEMPT_REFER_NON_ACCESSIBLE_SYMBOL, symbol.name);
         }
     }
 

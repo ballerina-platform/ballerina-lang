@@ -7,11 +7,11 @@ type Person record {
 };
 
 type Employee object {
-    public {
-        int id = 1;
-        int age = 10,
-        string name = "sample name";
-    }
+
+    public int id = 1;
+    public int age = 10,
+    public string name = "sample name";
+
 
     new(id, age, name) {
     }
