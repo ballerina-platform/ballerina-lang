@@ -90,7 +90,6 @@
             <scope>runtime</scope>
             <includes>
                 <include>org.ballerinalang:ballerina-builtin:jar</include>
-                <include>org.ballerinalang:ballerina-cache:jar</include>
                 <include>org.ballerinalang:ballerina-config-api:jar</include>
                 <include>org.ballerinalang:ballerina-crypto:jar</include>
                 <include>org.ballerinalang:ballerina-h2:jar</include>

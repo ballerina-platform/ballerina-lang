@@ -98,13 +98,7 @@ public class DocerinaMojo extends AbstractMojo {
     @Parameter(property = "debugDocerina", required = false)
     private boolean debugDocerina;
 
-    @Parameter(property = "ballerinaHome", required = true)
-    private String ballerinaHome;
-
     public void execute() throws MojoExecutionException {
-        if (ballerinaHome != null) {
-            System.setProperty(BallerinaDocConstants.BALLERINA_INSTALL_DIR_PROP, ballerinaHome);
-        }
         if (debugDocerina) {
             System.setProperty(BallerinaDocConstants.ENABLE_DEBUG_LOGS, "true");
         }
