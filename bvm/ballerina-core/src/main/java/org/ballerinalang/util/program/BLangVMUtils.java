@@ -32,6 +32,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ServiceInfo;
@@ -336,50 +337,30 @@ public class BLangVMUtils {
         for (int i = 0; i < types.length; i++) {
             switch (types[i].getTag()) {
                 case TypeTags.INT_TAG:
-                    if (args[i] instanceof BString) {
-                        local.longRegs[longParamCount] = ((BString) args[i]).intValue();
-                    } else {
-                        local.longRegs[longParamCount] = ((BInteger) args[i]).intValue();
-                    }
-                    longParamCount++;
+                    local.longRegs[longParamCount++] = ((BValueType) args[i]).intValue();
                     break;
                 case TypeTags.BYTE_TAG:
-                    if (args[i] instanceof BString) {
-                        local.intRegs[intParamCount] = ((BString) args[i]).byteValue();
-                    } else {
-                        local.intRegs[intParamCount] = ((BByte) args[i]).byteValue();
-                    }
-                    intParamCount++;
+                    local.intRegs[intParamCount++] = ((BValueType) args[i]).byteValue();
                     break;
                 case TypeTags.FLOAT_TAG:
-                    if (args[i] instanceof BString) {
-                        local.doubleRegs[doubleParamCount] = ((BString) args[i]).floatValue();
-                    } else if (args[i] instanceof BInteger) {
-                        local.doubleRegs[doubleParamCount] = ((BInteger) args[i]).floatValue();
-                    } else {
-                        local.doubleRegs[doubleParamCount] = ((BFloat) args[i]).floatValue();
-                    }
-                    doubleParamCount++;
+                    local.doubleRegs[doubleParamCount++] = ((BValueType) args[i]).floatValue();
                     break;
                 case TypeTags.STRING_TAG:
-                    local.stringRegs[stringParamCount] = args[i].stringValue();
-                    stringParamCount++;
+                    local.stringRegs[stringParamCount++] = args[i].stringValue();
                     break;
                 case TypeTags.BOOLEAN_TAG:
                     if (args[i] instanceof BString) {
-                        local.intRegs[intParamCount] = ((BString) args[i]).value().toLowerCase().equals("true") ? 1 : 0;
+                        local.intRegs[intParamCount++] =
+                                ((BString) args[i]).value().toLowerCase().equals("true") ? 1 : 0;
                     } else {
-                        local.intRegs[intParamCount] = ((BBoolean) args[i]).booleanValue() ? 1 : 0;
+                        local.intRegs[intParamCount++] = ((BValueType) args[i]).booleanValue() ? 1 : 0;
                     }
-                    intParamCount++;
                     break;
                 case TypeTags.BLOB_TAG:
-                    local.byteRegs[byteParamCount] = ((BBlob) args[i]).blobValue();
-                    byteParamCount++;
+                    local.byteRegs[byteParamCount++] = ((BValueType) args[i]).blobValue();
                     break;
                 default:
-                    local.refRegs[refParamCount] = (BRefType) args[i];
-                    refParamCount++;
+                    local.refRegs[refParamCount++] = (BRefType) args[i];
                     break;
             }
         }
