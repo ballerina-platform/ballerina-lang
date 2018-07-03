@@ -94,6 +94,10 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-swagger</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-internal</artifactId>
         </dependency>
         <dependency>
@@ -409,6 +413,12 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-swagger</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-internal</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
@@ -536,6 +546,7 @@
                                 ballerina-file,
                                 ballerina-grpc,
                                 ballerina-http,
+                                ballerina-swagger,
                                 ballerina-io,
                                 ballerina-internal,
                                 ballerina-log-api,

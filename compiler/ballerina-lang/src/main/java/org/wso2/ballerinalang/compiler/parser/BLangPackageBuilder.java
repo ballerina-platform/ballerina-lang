@@ -79,6 +79,7 @@ import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
@@ -468,13 +469,14 @@ public class BLangPackageBuilder {
         }
     }
 
-    void addArrayType(DiagnosticPos pos, Set<Whitespace> ws, int dimensions) {
+    void addArrayType(DiagnosticPos pos, Set<Whitespace> ws, int dimensions, int[] sizes) {
         BLangType eType = (BLangType) this.typeNodeStack.pop();
         BLangArrayType arrayTypeNode = (BLangArrayType) TreeBuilder.createArrayTypeNode();
         arrayTypeNode.addWS(ws);
         arrayTypeNode.pos = pos;
         arrayTypeNode.elemtype = eType;
         arrayTypeNode.dimensions = dimensions;
+        arrayTypeNode.sizes = sizes;
 
         addType(arrayTypeNode);
     }
@@ -3168,7 +3170,7 @@ public class BLangPackageBuilder {
         this.matchExprPatternNodeListStack.add(new ArrayList<>());
     }
 
-    void addMatchExprPattaern(DiagnosticPos pos, Set<Whitespace> ws, String identifier) {
+    void addMatchExprPattern(DiagnosticPos pos, Set<Whitespace> ws, String identifier) {
         BLangMatchExprPatternClause pattern = (BLangMatchExprPatternClause) TreeBuilder.createMatchExpressionPattern();
         pattern.expr = (BLangExpression) this.exprNodeStack.pop();
         pattern.pos = pos;
@@ -3196,5 +3198,23 @@ public class BLangPackageBuilder {
         matchExpr.pos = pos;
         matchExpr.addWS(ws);
         addExpressionNode(matchExpr);
+    }
+
+    void markSealedNode(DiagnosticPos pos, BallerinaParser.SealedTypeNameContext ctx) {
+        TypeNode typeNode = this.typeNodeStack.peek();
+        if (typeNode.getKind() == NodeKind.ARRAY_TYPE) {
+            int[] sizes = ((BLangArrayType) typeNode).sizes;
+            // If sealed keyword used, explicit sealing is not allowed
+            boolean isSealed = Arrays.stream(sizes).anyMatch(size -> size != -1);
+            if (isSealed) {
+                dlog.error(pos, DiagnosticCode.INVALID_USAGE_OF_SEALED_TYPE,
+                        "can not explicitly seal array when using 'sealed' keyword");
+                return;
+            }
+            Arrays.fill(((BLangArrayType) typeNode).sizes, -1);
+            ((BLangArrayType) typeNode).isOpenSealed = true;
+        } else {
+            dlog.error(pos, DiagnosticCode.INVALID_USAGE_OF_KEYWORD, "sealed");
+        }
     }
 }

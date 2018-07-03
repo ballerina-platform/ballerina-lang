@@ -154,6 +154,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
@@ -228,7 +229,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Stack;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.FIELD;
@@ -639,7 +639,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         int opcode = getOpcodeForArrayOperations(etype.tag, InstructionCodes.INEWARRAY);
         Operand arrayVarRegIndex = calcAndGetExprRegIndex(arrayLiteral);
         Operand typeCPIndex = getTypeCPIndex(arrayLiteral.type);
-        emit(opcode, arrayVarRegIndex, typeCPIndex);
+
+        long size = arrayLiteral.type.tag == TypeTags.ARRAY &&
+                ((BArrayType) arrayLiteral.type).state != BArrayState.UNSEALED ?
+                (long) ((BArrayType) arrayLiteral.type).size : -1L;
+        BLangLiteral arraySizeLiteral = generateIntegerLiteralNode(arrayLiteral, size);
+
+        emit(opcode, arrayVarRegIndex, typeCPIndex, arraySizeLiteral.regIndex);
 
         // Emit instructions populate initial array values;
         for (int i = 0; i < arrayLiteral.exprs.size(); i++) {
@@ -667,7 +673,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         arraySizeLiteral.value = (long) argExprs.size();
         arraySizeLiteral.type = symTable.intType;
         genNode(arraySizeLiteral, this.env);
-        emit(InstructionCodes.JSONNEWARRAY, arrayLiteral.regIndex, arraySizeLiteral.regIndex);
+
+        long size = arrayLiteral.type.tag == TypeTags.ARRAY &&
+                ((BArrayType) arrayLiteral.type).state != BArrayState.UNSEALED ?
+                (long) ((BArrayType) arrayLiteral.type).size : -1L;
+        BLangLiteral sealedSizeLiteral = generateIntegerLiteralNode(arrayLiteral, size);
+
+        emit(InstructionCodes.JSONNEWARRAY,
+                arrayLiteral.regIndex, arraySizeLiteral.regIndex, sealedSizeLiteral.regIndex);
 
         for (int i = 0; i < argExprs.size(); i++) {
             BLangExpression argExpr = argExprs.get(i);
@@ -1055,7 +1068,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Emit create array instruction
         RegIndex exprRegIndex = calcAndGetExprRegIndex(bracedOrTupleExpr);
         Operand typeCPIndex = getTypeCPIndex(bracedOrTupleExpr.type);
-        emit(InstructionCodes.RNEWARRAY, exprRegIndex, typeCPIndex);
+        BLangLiteral sizeLiteral =
+                generateIntegerLiteralNode(bracedOrTupleExpr, (long) bracedOrTupleExpr.expressions.size());
+
+        emit(InstructionCodes.RNEWARRAY, exprRegIndex, typeCPIndex, sizeLiteral.regIndex);
 
         // Emit instructions populate initial array values;
         for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
@@ -1317,6 +1333,15 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private String generateFunctionSig(BType[] paramTypes) {
         return "(" + generateSig(paramTypes) + ")()";
+    }
+
+    private BLangLiteral generateIntegerLiteralNode(BLangNode node, long integer) {
+        BLangLiteral literal = new BLangLiteral();
+        literal.pos = node.pos;
+        literal.value = integer;
+        literal.type = symTable.intType;
+        genNode(literal, this.env);
+        return literal;
     }
 
     private int getNextIndex(int typeTag, VariableIndex indexes) {

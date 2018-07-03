@@ -378,6 +378,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitFiniteTypeUnit(BallerinaParser.FiniteTypeUnitContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code sealedTypeName}
+	 * labeled alternative in {@link BallerinaParser#sealedType}.
+	 * @param ctx the parse tree
+	 */
+	void enterSealedTypeName(BallerinaParser.SealedTypeNameContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code sealedTypeName}
+	 * labeled alternative in {@link BallerinaParser#sealedType}.
+	 * @param ctx the parse tree
+	 */
+	void exitSealedTypeName(BallerinaParser.SealedTypeNameContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code tupleTypeNameLabel}
 	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree

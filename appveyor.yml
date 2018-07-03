@@ -1,6 +1,8 @@
 version: '{build}'
 skip_tags: true
 clone_depth: 1
+image:
+- Visual Studio 2017
 environment:
   MAVEN_VERSION: 3.5.0
   matrix:

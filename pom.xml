@@ -455,6 +455,24 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-swagger</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-swagger</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-swagger</artifactId>
+                <version>${ballerina.version}</version>
+                <classifier>ballerina-binary-repo</classifier>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-transactions</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -1470,6 +1488,7 @@
                 <module>stdlib/crypto</module>
                 <module>stdlib/file</module>
                 <module>stdlib/http</module>
+                <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
@@ -1546,6 +1565,7 @@
                 <module>stdlib/crypto</module>
                 <module>stdlib/file</module>
                 <module>stdlib/http</module>
+                <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
@@ -1620,6 +1640,7 @@
                 <module>stdlib/crypto</module>
                 <module>stdlib/file</module>
                 <module>stdlib/http</module>
+                <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>

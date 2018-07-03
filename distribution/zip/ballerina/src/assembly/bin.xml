@@ -101,6 +101,7 @@
                 <include>org.ballerinalang:ballerina-file:jar</include>
                 <include>org.ballerinalang:ballerina-grpc:jar</include>
                 <include>org.ballerinalang:ballerina-http:jar</include>
+                <include>org.ballerinalang:ballerina-swagger:jar</include>
                 <include>org.ballerinalang:ballerina-internal:jar</include>
                 <include>org.ballerinalang:ballerina-io:jar</include>
                 <include>org.ballerinalang:ballerina-jms:jar</include>
