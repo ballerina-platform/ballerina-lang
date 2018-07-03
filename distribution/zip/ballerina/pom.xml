@@ -297,6 +297,11 @@
             <artifactId>HdrHistogram</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-prometheus-extension</artifactId>
+        </dependency>
+        <!-- End of Observability dependencies -->
+        <dependency>
             <groupId>org.wso2.transport.file</groupId>
             <artifactId>org.wso2.transport.local-file-system</artifactId>
         </dependency>
