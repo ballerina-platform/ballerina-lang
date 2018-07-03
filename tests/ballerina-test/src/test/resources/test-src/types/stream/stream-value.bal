@@ -18,10 +18,8 @@ type Job record {
 };
 
 type Captain object {
-    private {
-        string name;
-        int id;
-    }
+    private string name;
+    private int id;
 
     new(name, id) {}
 
@@ -31,10 +29,8 @@ type Captain object {
 };
 
 type Member object {
-    private {
-        string name;
-        int id;
-    }
+    private string name;
+    private int id;
 
     new(name, id) {}
 
@@ -44,11 +40,9 @@ type Member object {
 };
 
 type Coach object {
-    private {
-        string name;
-        int registrationId;
-        float salary;
-    }
+    private string name;
+    private int registrationId;
+    private float salary;
 
     new(name, registrationId, salary) {}
 
