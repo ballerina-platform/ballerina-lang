@@ -20,46 +20,52 @@
 documentation {
     Start a span with no parent span.
 
-    P{{spanName}} name of the span
-    P{{tags}} tags to be associated to the span
-    R{{spanId}} spanId of the started span
+    P{{spanName}} Name of the span
+    P{{tags}} Tags to be associated to the span
+    R{{spanId}} SpanId of the started span
 }
 public native function startRootSpan(string spanName, map<string>? tags = ()) returns int;
 
 documentation {
     Start a span and create child relationship to current active span or user specified span.
 
-    P{{spanName}} name of the span
-    P{{tags}} tags to be associated to the span
-    P{{parentSpanId}} id of the parent span or -1 if parent span should be taken from system trace
-    R{{spanId}} spanId of the started span
+    P{{spanName}} Name of the span
+    P{{tags}} Tags to be associated to the span
+    P{{parentSpanId}} Id of the parent span or -1 if parent span should be taken from system trace
+    R{{spanId}} SpanId of the started span
 }
 public native function startSpan(string spanName, map<string>? tags = (), int parentSpanId = -1) returns int|error;
 
 documentation {
-        Add a key value pair as a tag to the span.
+   Add a key value pair as a tag to the span.
 
-        P{{spanId}} id of span to which the tags should be added
-        P{{tagKey}} key of the tag
-        P{{tagValue}} value of the tag
-        R{{error}} An error if an error occured while attaching tag to the span
+    P{{spanId}} Id of span to which the tags should be added
+    P{{tagKey}} Key of the tag
+    P{{tagValue}} Value of the tag
+    R{{error}} An error if an error occured while attaching tag to the span
 }
 public native function addTagToSpan(int spanId, string tagKey, string tagValue) returns error?;
 
 documentation {
         Finish the current span.
 
-        P{{spanId}} id of span to finish
+        P{{spanId}} Id of span to finish
     }
 public native function finishSpan(int spanId) returns error?;
 
 documentation {
+    Retrieve all registered metrics including default metrics from the ballerina runtime, and user defined metrics.
 
+    R{{metrics}} Array of all registered metrics.
 }
 public native function getAllMetrics() returns Metric[];
 
 documentation {
-    Counter metric, to track counts of events or running totals.
+    This represents the metric type - counter, that can be only increased by an integer number.
+
+    F{{name}} Name of the counter metric.
+    F{{decription}} Description of the counter metric.
+    F{{metricTags}} Tags associated with the counter metric.
 }
 public type Counter object {
 
@@ -78,16 +84,46 @@ public type Counter object {
         initialize();
     }
 
+    documentation {
+        Performs the necessary native operations during the initialization of the counter.
+    }
     native function initialize();
 
+    documentation {
+        Register the counter metric instance with the Metric Registry.
+
+        R{{error}} Returns error if there is any metric registered already with the same name
+        but different parameters or in a different kind.
+    }
     public native function register() returns error?;
 
-    public native function increment(int amount);
+    documentation{
+        Increment the counter's value by an amount.
 
+        P{{amount}} The amount by which the value needs to be increased. The amount is defaulted as 1 and will be
+        used if there is no amount passed in.
+    }
+    public native function increment(int amount = 1);
+
+    documentation{
+        Retrieves the counter's current value.
+
+        R{{value}} The current value of the counter.
+    }
     public native function getValue() returns (int);
 
 };
 
+documentation {
+    This represents the metric type - gauge, that can hold instantaneous, increased or decreased value
+    during the usage.
+
+    F{{name}} Name of the counter metric.
+    F{{decription}} Description of the counter metric.
+    F{{metricTags}} Tags associated with the counter metric.
+    F{{statisticConfigs}} Array of StatisticConfig objects which defines about the statistical calculation
+    of the gauge during its usage.
+}
 public type Gauge object {
 
     @readonly public string name;
@@ -121,22 +157,69 @@ public type Gauge object {
         initialize();
     }
 
+    documentation {
+        Performs the necessary native operations during the initialization of the gauge.
+    }
     native function initialize();
 
+    documentation {
+        Register the gauge metric instance with the Metric Registry.
+
+        R{{error}} Returns error if there is any metric registered already with the same name
+        but different parameters or in a different kind.
+    }
     public native function register() returns error?;
 
-    public native function increment(float amount);
+    documentation{
+        Increment the gauge's value by an amount.
 
-    public native function decrement(float amount);
+        P{{amount}} The amount by which the value of gauge needs to be increased.
+        The amount is defaulted as 1.0 and will be used if there is no amount passed in.
+    }
+    public native function increment(float amount=1.0);
 
+    documentation{
+        Decrement the gauge's value by an amount.
+
+        P{{amount}} The amount by which the value of gauge needs to be decreased.
+        The amount is defaulted as 1.0 and will be used if there is no amount passed in.
+    }
+    public native function decrement(float amount=1.0);
+
+    documentation{
+        Sets the instantaneous value for gauge.
+
+        P{{amount}} The instantaneous value that needs to be set as gauge value.
+    }
     public native function setValue(float amount);
 
+    documentation{
+        Retrieves the gauge's current value.
+
+        R{{value}} The current value of the gauge.
+    }
     public native function getValue() returns float;
 
-    public native function getSnapshot() returns (Snapshot[]);
+    documentation{
+        Retrieves statistics snapshots based on the statistics configs of the gauge.
+
+        R{{snapshots}} Array of the statistics snapshots.
+        If there is no statisticsConfigs provided, then it will be nil.
+    }
+    public native function getSnapshot() returns (Snapshot[]?);
 
 };
 
+documentation {
+    This represents the generic metric record that can represent both counter and gauge.
+
+    F{{name}} Name of the metric.
+    F{{desc}} Description of the metric.
+    F{{tags}} Tags associated with the metric.
+    F{{metricType}} Type of the metric.
+    F{{value}} Current value the metric.
+    F{{summary}} If the metric is configured with statistics config, then the calculated statistics of the metric.
+}
 public type Metric record {
     string name;
     string desc;
@@ -146,38 +229,40 @@ public type Metric record {
     Snapshot[]? summary;
 };
 
-public type CounterEvent record {
-    string name;
-    int value;
-    string tags;
-};
+documentation {
+    This represents the statistic configuration that can be used to instatiate gauge metric.
 
-public type GaugeEvent record {
-    string name;
-    float value;
-    string tags;
-};
-
-public type GaugeStatisticsEvent record {
-    int expiry;
-    float averageValue;
-    float minValue;
-    float maxValue;
-    float stdDev;
-    string percentiles;
-};
-
+    F{{percentiles}} The percentiles that needs to be calculated.
+    F{{expiry}} The time window in which variation of the values are considered.
+    F{{buckets}} The number of buckets used in the sliding time window.
+}
 public type StatisticConfig record {
     float[] percentiles;
     int expiry;
     int buckets;
 };
 
+documentation {
+    This represents the percentile value record.
+
+    F{{percentile}} The percentile of the reported value.
+    F{{value}} The value of the percentile.
+}
 public type PercentileValue record {
     float percentile;
     float value;
 };
 
+documentation {
+    This represents the snapshot of the statistics calculation of the gauge.
+
+    F{{expiry}} The time window in which variation of the values are considered.
+    F{{mean}} The average value within the time window.
+    F{{max}} The max value within the time window.
+    F{{min}} The min value within the time window.
+    F{{stdDev}} The standard deviation value within the time window.
+    F{{percentileValues}} The percentiles values calculated wihtin the time window.
+}
 public type Snapshot record {
     int expiry;
     float mean;
