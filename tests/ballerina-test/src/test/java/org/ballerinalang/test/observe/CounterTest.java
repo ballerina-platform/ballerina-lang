@@ -35,7 +35,7 @@ public class CounterTest extends MetricTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/observe/counter_test.bal");
+        compileResult = BCompileUtil.compileAndSetup("test-src/observe/counter_test.bal");
     }
 
     @Test
@@ -44,23 +44,24 @@ public class CounterTest extends MetricTest {
         Assert.assertEquals(returns[0], new BInteger(1));
     }
 
-    @Test (enabled = false)
+    @Test
     public void testCounterIncrement() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCounterIncrement");
         Assert.assertEquals(returns[0], new BInteger(5));
     }
 
-    @Test(enabled = false)
+    @Test
     public void testCounterError() {
         try {
             BRunUtil.invoke(compileResult, "testCounterError");
-            Assert.fail("Counter with extra_tag should not be registered");
+            Assert.fail("Should not be registered again");
         } catch (BLangRuntimeException e) {
-            Assert.assertTrue(e.getMessage().contains("extra_tag"), "Unexpected Ballerina Error");
+            Assert.assertTrue(e.getMessage().contains("is already used for a different type of metric"),
+                    "Unexpected Ballerina Error");
         }
     }
 
-    @Test (enabled = false)
+    @Test
     public void testCounterWithoutTags() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCounterWithoutTags");
         Assert.assertEquals(returns[0], new BInteger(3));

@@ -20,7 +20,7 @@ package org.ballerinalang.observe.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -28,24 +28,24 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.metrics.Gauge;
 
 /**
- * This is the native getValue function implementation of the Gauge object.
+ * This is the native getCount function implementation of the Gauge object.
  */
 
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
-        functionName = "getValue",
+        functionName = "getCount",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.GAUGE,
                 structPackage = Constants.OBSERVE_PACKAGE_PATH),
-        returnType = @ReturnType(type = TypeKind.FLOAT),
+        returnType = @ReturnType(type = TypeKind.INT),
         isPublic = true
 )
-public class GaugeGetValue extends BlockingNativeCallableUnit {
+public class GaugeGetCount extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         BMap bStruct = (BMap) context.getRefArgument(0);
         Gauge gauge = (Gauge) bStruct.getNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY);
-        context.setReturnValues(new BFloat(gauge.getValue()));
+        context.setReturnValues(new BInteger(gauge.getCount()));
     }
 }

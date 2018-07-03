@@ -23,16 +23,19 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.text.DecimalFormat;
 
 /**
  * Tests for summary metric.
  */
 public class SummaryTest extends MetricTest {
     private CompileResult compileResult;
+    private DecimalFormat df = new DecimalFormat("#.#");
+
 
     @BeforeClass
     public void setup() {
@@ -48,40 +51,43 @@ public class SummaryTest extends MetricTest {
     @Test
     public void testSumSummary() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSumSummary");
-        Assert.assertEquals(returns[0], new BInteger(5050));
-    }
-
-    @Test
-    public void testSummaryError() {
-        try {
-            BRunUtil.invoke(compileResult, "testSummaryError");
-            Assert.fail("Summary with extra_tag should not be registered");
-        } catch (BLangRuntimeException e) {
-            Assert.assertTrue(e.getMessage().contains("extra_tag"), "Unexpected Ballerina Error");
-        }
+        Assert.assertEquals(round(((BFloat) returns[0]).floatValue()), 5050.0);
     }
 
     @Test
     public void testMaxSummary() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMaxSummary");
-        Assert.assertEquals(returns[0], new BInteger(3));
+        Assert.assertEquals(round(((BFloat) returns[0]).floatValue()), 3.0);
     }
 
     @Test
     public void testMeanSummary() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMeanSummary");
-        Assert.assertEquals(returns[0], new BFloat(2));
+        Assert.assertEquals(round(((BFloat) returns[0]).floatValue()), 2.0);
     }
 
     @Test
     public void testValueSummary() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testValueSummary");
-        Assert.assertEquals(returns[0], new BInteger(500));
+        Assert.assertEquals(round(((BFloat) returns[0]).floatValue()), 500.0);
     }
 
     @Test
     public void testSummaryWithoutTags() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSummaryWithoutTags");
-        Assert.assertEquals(returns[0], new BFloat(3));
+        Assert.assertEquals(round(((BFloat) returns[0]).floatValue()), 2.0);
+    }
+
+    @Test
+    public void testRegisteredGauge() {
+        BValue[] returns = null;
+        for (int i = 0; i < 3; i++) {
+            returns = BRunUtil.invoke(compileResult, "registerAndIncrement");
+        }
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
+    }
+
+    private double round(double value) {
+        return Double.parseDouble(df.format(value));
     }
 }

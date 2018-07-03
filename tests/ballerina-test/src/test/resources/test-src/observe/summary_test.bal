@@ -2,92 +2,111 @@ import ballerina/observe;
 
 function testCountSummary() returns (int) {
     map<string> tags = { "method": "GET" };
-    observe:Summary summary = check observe:getSummaryInstance("response_size", description = "Size of a response.",
-        tags = tags);
-    summary.record(1);
-    summary.record(2);
-    summary.record(3);
-    summary.record(4);
-    summary.record(5);
-    summary.record(6);
-    return summary.getCount();
+    observe:Gauge gauge = new("response_size", desc = "Size of a response.", tags = tags);
+    gauge.setValue(1.0);
+    gauge.setValue(2.0);
+    gauge.setValue(3.0);
+    gauge.setValue(4.0);
+    gauge.setValue(5.0);
+    gauge.setValue(6.0);
+    return gauge.getCount();
 }
 
-function testSumSummary() returns (int) {
+function testSumSummary() returns (float) {
     map<string> tags = { "method": "TRACE" };
-    observe:Summary summary = check observe:getSummaryInstance("response_size", description = "Size of a response.",
+    observe:Gauge gauge = new("response_size", desc = "Size of a response.",
         tags = tags);
-    foreach i in [1..100] {
-        summary.record(i);
+    int i = 0;
+    while (i < 100) {
+        gauge.increment();
+        i++;
     }
-    return summary.getSum();
+    return gauge.getSum();
 }
 
-function testSummaryError() returns (int) {
-    map<string> tags = { "method": "HEAD" };
-    observe:Summary summary = check observe:getSummaryInstance("response_size", description = "Size of a response.",
-        tags = tags);
-    summary.record(1);
-    map<string> newTags = { "method": "HEAD", "extra_tag": "extra_tag" };
-    observe:Summary newSummary = check observe:getSummaryInstance("response_size", description = "Size of a response.",
-        tags = newTags);
-    newSummary.record(1);
-    return newSummary.getCount();
-}
-
-function testMaxSummary() returns (int) {
+function testMaxSummary() returns (float) {
     map<string> tags = { "method": "POST" };
-    observe:Summary summary = check observe:getSummaryInstance("response_size", description = "Size of a response.",
-        tags = tags);
-    summary.record(1);
-    summary.record(2);
-    summary.record(3);
-    observe:Snapshot summarySnapshot = summary.getSnapshot();
-    return summarySnapshot.max;
+    observe:Gauge gauge = new("response_size", desc = "Size of a response.", tags = tags);
+    gauge.setValue(1.0);
+    gauge.setValue(2.0);
+    gauge.setValue(3.0);
+    observe:Snapshot[]? summarySnapshot = gauge.getSnapshot();
+    match summarySnapshot {
+        observe:Snapshot[] stats => {
+            return stats[0].max;
+        }
+        () => {
+            return 0.0;
+        }
+    }
 }
 
 function testMeanSummary() returns (float) {
     map<string> tags = { "method": "UPDATE" };
-    observe:Summary summary = check observe:getSummaryInstance("response_size", description = "Size of a response.",
-        tags = tags);
-    summary.record(1);
-    summary.record(2);
-    summary.record(3);
-    observe:Snapshot summarySnapshot = summary.getSnapshot();
-    return summarySnapshot.mean;
+    observe:Gauge gauge = new("response_size", desc = "Size of a response.", tags = tags);
+    gauge.setValue(1.0);
+    gauge.setValue(2.0);
+    gauge.setValue(3.0);
+    observe:Snapshot[]? summarySnapshot = gauge.getSnapshot();
+    match summarySnapshot {
+        observe:Snapshot[] stats => {
+            return stats[0].mean;
+        }
+        () => {
+            return 0.0;
+        }
+    }
 }
 
-function testPercentileSummary() returns (observe:PercentileValue[]) {
+function testPercentileSummary() returns (observe:PercentileValue[]?) {
     map<string> tags = { "method": "DELETE" };
-    observe:Summary summary = check observe:getSummaryInstance("response_size", description = "Size of a response.",
-        tags = tags);
-    summary.record(1);
-    summary.record(2);
-    summary.record(3);
-    summary.record(4);
-    summary.record(5);
-    summary.record(6);
-    observe:Snapshot summarySnapshot = summary.getSnapshot();
-    return summarySnapshot.percentileValues;
+    observe:Gauge gauge = new("response_size", desc = "Size of a response.", tags = tags);
+    gauge.setValue(1.0);
+    gauge.setValue(2.0);
+    gauge.setValue(3.0);
+    gauge.setValue(4.0);
+    gauge.setValue(5.0);
+    gauge.setValue(6.0);
+    observe:Snapshot[]? summarySnapshot = gauge.getSnapshot();
+    match summarySnapshot {
+        observe:Snapshot[] stats => {
+            return stats[0].percentileValues;
+        }
+        () => {
+            return ();
+        }
+    }
 }
 
-function testValueSummary() returns (int) {
-    map<string> tags = { "method": "PUT" };
-    observe:Summary summary = check observe:getSummaryInstance("response_size", description = "Size of a response.",
-        tags = tags);
-    summary.increment();
-    summary.increment(amount = 1000);
-    summary.decrement();
-    summary.decrement(amount = 500);
-    observe:Snapshot summarySnapshot = summary.getSnapshot();
-    return summarySnapshot.value;
+function testValueSummary() returns (float) {
+    map<string> tags = { "method": "DELETE" };
+    observe:Gauge gauge = new("response_size", desc = "Size of a response.", tags = tags);
+    gauge.increment();
+    gauge.increment(amount = 1000.0);
+    gauge.decrement();
+    gauge.decrement(amount = 500.0);
+    return gauge.getValue();
 }
 
 function testSummaryWithoutTags() returns (float) {
-    observe:Summary summary = check observe:getSummaryInstance("new_response_size");
-    summary.record(1);
-    summary.record(3);
-    summary.record(5);
-    observe:Snapshot summarySnapshot = summary.getSnapshot();
-    return summarySnapshot.mean;
+    observe:Gauge gauge = new("new_response_size");
+    gauge.setValue(1.0);
+    gauge.setValue(2.0);
+    gauge.setValue(3.0);
+    observe:Snapshot[]? summarySnapshot = gauge.getSnapshot();
+    match summarySnapshot {
+        observe:Snapshot[] stats => {
+            return stats[0].mean;
+        }
+        () => {
+            return 0.0;
+        }
+    }
+}
+
+function registerAndIncrement() returns (int) {
+    observe:Gauge gauge = new("register_response_size");
+    _ = gauge.register();
+    gauge.increment();
+    return gauge.getCount();
 }

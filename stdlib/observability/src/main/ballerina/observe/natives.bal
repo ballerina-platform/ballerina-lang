@@ -73,7 +73,7 @@ public type Counter object {
     @readonly public string description;
     @readonly public map<string> metricTags;
 
-    public new(name, string? desc = "", map<string>? tags) {
+    public new(name, string? desc = "", map<string>? tags=()) {
         match desc {
             string strDesc => description = strDesc;
             () => description = "";
@@ -176,7 +176,7 @@ public type Gauge object {
         P{{amount}} The amount by which the value of gauge needs to be increased.
         The amount is defaulted as 1.0 and will be used if there is no amount passed in.
     }
-    public native function increment(float amount=1.0);
+    public native function increment(float amount = 1.0);
 
     documentation{
         Decrement the gauge's value by an amount.
@@ -184,7 +184,7 @@ public type Gauge object {
         P{{amount}} The amount by which the value of gauge needs to be decreased.
         The amount is defaulted as 1.0 and will be used if there is no amount passed in.
     }
-    public native function decrement(float amount=1.0);
+    public native function decrement(float amount = 1.0);
 
     documentation{
         Sets the instantaneous value for gauge.
@@ -199,6 +199,20 @@ public type Gauge object {
         R{{value}} The current value of the gauge.
     }
     public native function getValue() returns float;
+
+    documentation{
+        Retrieves the gauge's current value.
+
+        R{{value}} The current count of the gauge.
+    }
+    public native function getCount() returns int;
+
+    documentation{
+         Retrieves the gauge's current value.
+
+         R{{value}} The current sum of the gauge.
+    }
+    public native function getSum() returns float;
 
     documentation{
         Retrieves statistics snapshots based on the statistics configs of the gauge.
