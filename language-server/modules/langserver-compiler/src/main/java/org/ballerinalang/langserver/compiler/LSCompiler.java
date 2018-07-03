@@ -363,6 +363,7 @@ public class LSCompiler {
             }
         } catch (IOException e) {
             //ignore error
+            e.printStackTrace();
         }
         Path parent = Paths.get(parentDir);
         Path parentsParent = parent.getParent();

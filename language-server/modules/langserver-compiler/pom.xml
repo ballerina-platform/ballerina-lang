@@ -64,6 +64,7 @@
 
     <properties>
         <maven.checkstyleplugin.excludes>**/SourceGen.java</maven.checkstyleplugin.excludes>
+        <maven.checkstyleplugin.excludes>**/LSCompiler.java</maven.checkstyleplugin.excludes>
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
     </properties>
 </project>
