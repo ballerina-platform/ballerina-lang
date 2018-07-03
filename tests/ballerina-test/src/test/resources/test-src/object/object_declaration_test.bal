@@ -10,20 +10,16 @@ function testGetDefaultValuesInObject() returns (int, string, int, string) {
 }
 
 type Person object {
-    public {
-        int age,
-        string name,
-        Employee emp,
-        Foo foo,
-        Bar bar,
-    }
+    public int age,
+    public string name,
+    public Employee emp,
+    public Foo foo,
+    public Bar bar,
 };
 
 type Employee object {
-    public {
-        int age,
-        string name,
-    }
+    public int age,
+    public string name,
 
     new (age = 6, string key = "abc") {
         name = "sample value";
@@ -31,18 +27,14 @@ type Employee object {
 };
 
 type Foo object {
-    public {
-        int key,
-        string value,
-    }
+    public int key,
+    public string value,
+
     new () {
 
     }
 };
 
 type Bar object {
-    public {
-        string address,
-    }
-
+    public string address,
 };

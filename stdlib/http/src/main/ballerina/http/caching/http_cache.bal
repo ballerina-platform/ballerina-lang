@@ -23,11 +23,9 @@ documentation {
 }
 public type HttpCache object {
 
-    private {
-        cache:Cache cache;
-        CachingPolicy policy = CACHE_CONTROL_AND_VALIDATORS;
-        boolean isShared;
-    }
+    public cache:Cache cache;
+    public CachingPolicy policy = CACHE_CONTROL_AND_VALIDATORS;
+    public boolean isShared;
 
     function isAllowedToCache (Response response) returns boolean {
         if (self.policy == CACHE_CONTROL_AND_VALIDATORS) {
@@ -58,7 +56,7 @@ public type HttpCache object {
             // IMPT: The call to getBinaryPayload() builds the payload from the stream. If this is not done, the stream
             // will be read by the client and the response will be after the first cache hit.
             match inboundResponse.getBinaryPayload() {
-                blob => {}
+                byte[] => {}
                 error => {}
             }
             log:printDebug("Adding new cache entry for: " + key);

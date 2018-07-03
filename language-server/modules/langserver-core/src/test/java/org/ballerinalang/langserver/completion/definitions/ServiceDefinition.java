@@ -28,8 +28,10 @@ public class ServiceDefinition extends CompletionTest {
     @Override
     public Object[][] dataProvider() {
         return new Object[][] {
-//            {"serviceEndpointBind.json", "service"},
-//            {"bindKeywordSuggestion.json", "service"}
+            {"serviceEndpointBind1.json", "service"},
+            {"serviceEndpointBind2.json", "service"},
+            {"serviceEndpointBind3.json", "service"},
+            {"bindKeywordSuggestion.json", "service"}
         };
     }
 }

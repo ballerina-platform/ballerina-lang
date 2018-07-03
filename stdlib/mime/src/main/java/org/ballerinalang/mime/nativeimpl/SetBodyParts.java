@@ -29,9 +29,9 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
-import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
-import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
-import static org.ballerinalang.mime.util.Constants.SECOND_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.BODY_PARTS;
+import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.SECOND_PARAMETER_INDEX;
 
 /**
  * Set the entity body with body parts.

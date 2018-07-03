@@ -32,8 +32,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
-import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
+import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 
 /**
  * Get all header names.

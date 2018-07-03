@@ -1,1 +1,1322 @@
-{"root":[{"include":"functionDec"},{"include":"serviceDec"},{"include":"endpointDef"},{"include":"documentationDef"},{"include":"typeDef"},{"include":"objectDec"},{"include":"annotationDec"},{"include":"recordLiteral"},{"include":"comment"},{"include":"code"}],"functionDec":[["\\bfunction\\b",{"next":"functionDec__b__0","token":"keyword.ballerina"}]],"functionDec__b__0":[["\\}|(?=;)",{"next":"@pop","token":"punctuation.definition.block.ballerina"}],{"include":"functionReceiver"},{"include":"functionParameters"},{"include":"functionReturns"},{"include":"functionName"},{"include":"callableUnitBody"},{"include":"comment"}],"functionReceiver":[["<",{"next":"functionReceiver__b__0","token":"punctuation.definition.parameters.begin.ballerina"}]],"functionReceiver__b__0":[[">",{"next":"@pop","token":"punctuation.definition.parameters.end.ballerina"}],{"include":"parameter"},{"include":"comment"}],"parameter":[["\\b(?:(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\"))\\b",{"next":"parameter__b__0","token":"type.ballerina"}]],"parameter__b__0":[["\\b(?:(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\"))\\b|(?==>)|(?=\\))",{"next":"@pop","token":"variable.parameter.ballerina"}],{"include":"continuedType"},{"include":"constrainType"},{"include":"comment"}],"continuedType":[["[|,:]",{"next":"continuedType__b__0","token":"keyword.operator.ballerina"}]],"continuedType__b__0":[["\\b((?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\"))\\b|\\)",{"next":"@pop","token":"type.ballerina"}],{"include":"comment"},{"include":"continuedTupleType"}],"comment":[["\\/\\/.*","comment.ballerina"]],"continuedTupleType":[["\\(",{"next":"continuedTupleType__b__0","token":""}]],"continuedTupleType__b__0":[["(?=\\))",{"next":"@pop","token":""}],{"include":"comment"},{"include":"continuedType"},["\\b((?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\"))\\b","type.ballerina"]],"constrainType":[["<",{"next":"constrainType__b__0","token":"punctuation.definition.parameters.begin.ballerina"}]],"constrainType__b__0":[[">",{"next":"@pop","token":"punctuation.definition.parameters.end.ballerina"}],{"include":"comment"},{"include":"continuedType"},["\\b((?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\"))\\b","type.ballerina"]],"functionParameters":[["\\(",{"next":"functionParameters__b__0","token":"delimiter.parenthesis"}]],"functionParameters__b__0":[["\\)",{"next":"@pop","token":"delimiter.parenthesis"}],{"include":"parameter"},{"include":"defaultValue"},{"include":"comment"}],"defaultValue":[["[=:]",{"next":"defaultValue__b__0","token":"keyword.operator.ballerina"}]],"defaultValue__b__0":[["(?=[,)])",{"next":"@pop","token":""}],{"include":"code"}],"code":[{"include":"booleans"},{"include":"matchStatement"},{"include":"butExp"},{"include":"strings"},{"include":"maps"},{"include":"paranthesised"},{"include":"paranthesisedBracket"},{"include":"numbers"},{"include":"comment"},["[a-z][\\w$]*",{"cases":{"@controlKeywords":"keyword.control","@otherKeywords":"keyword","@typeKeywords":"type","@default":"identifier"}}]],"booleans":[["\\b(true|false)\\b","constant.language.boolean.ballerina"]],"matchStatement":[["\\bmatch\\b",{"next":"matchStatement__b__0","token":"keyword.ballerina"}]],"matchStatement__b__0":[["\\}",{"next":"@pop","token":""}],{"include":"matchStatementBody"},{"include":"comment"},{"include":"code"}],"matchStatementBody":[["\\{",{"next":"matchStatementBody__b__0","token":"punctuation.definition.block.ballerina.documentation"}]],"matchStatementBody__b__0":[["(?=\\})",{"next":"@pop","token":"punctuation.definition.block.ballerina.documentation"}],{"include":"parameter"},{"include":"matchStatementPatternClause"},{"include":"comment"}],"matchStatementPatternClause":[["=>",{"next":"matchStatementPatternClause__b__0","token":"keyword.ballerina"}]],"matchStatementPatternClause__b__0":[["((\\})|;|,)",{"next":"@pop","token":""}],{"include":"callableUnitBody"},{"include":"code"}],"callableUnitBody":[["\\{",{"next":"callableUnitBody__b__0","token":"punctuation.definition.block.ballerina"}]],"callableUnitBody__b__0":[["(?=\\})",{"next":"@pop","token":"punctuation.definition.block.ballerina"}],{"include":"endpointDef"},{"include":"workerDef"},{"include":"code"}],"endpointDef":[["\\bendpoint\\b",{"next":"endpointDef__b__0","token":"keyword.ballerina"}]],"endpointDef__b__0":[[";",{"next":"@pop","token":""}],{"include":"parameter"},{"include":"recordLiteral"},{"include":"comment"}],"recordLiteral":[["\\{",{"next":"recordLiteral__b__0","token":"punctuation.definition.block.ballerina"}]],"recordLiteral__b__0":[["\\}",{"next":"@pop","token":"punctuation.definition.block.ballerina"}],{"include":"code"}],"workerDef":[["\\bworker\\b",{"next":"workerDef__b__0","token":"keyword.ballerina"}]],"workerDef__b__0":[["\\}",{"next":"@pop","token":""}],{"include":"workerBody"}],"workerBody":[["\\{",{"next":"workerBody__b__0","token":""}]],"workerBody__b__0":[["(?=\\})",{"next":"@pop","token":""}],{"include":"code"}],"butExp":[["\\bbut\\b",{"next":"butExp__b__0","token":"keyword.ballerina"}]],"butExp__b__0":[["\\}",{"next":"@pop","token":"punctuation.definition.block.ballerina.documentation"}],{"include":"butExpBody"},{"include":"comment"}],"butExpBody":[["\\{",{"next":"butExpBody__b__0","token":"punctuation.definition.block.ballerina.documentation"}]],"butExpBody__b__0":[["(?=\\})",{"next":"@pop","token":"punctuation.definition.block.ballerina.documentation"}],{"include":"parameter"},{"include":"butClause"},{"include":"comment"}],"butClause":[["=>",{"next":"butClause__b__0","token":"keyword.operator.ballerina"}]],"butClause__b__0":[[",|(?=\\})",{"next":"@pop","token":""}],{"include":"code"}],"strings":[["\\\"",{"next":"strings__b__0","token":"string.begin.ballerina"}]],"strings__b__0":[["\\\"",{"next":"@pop","token":"string.end.ballerina"}],["\\\\.","constant.character.escape.ballerina"],[".","string"]],"maps":[["\\{",{"next":"maps__b__0","token":"punctuation.definition.string.begin.ballerina"}]],"maps__b__0":[["\\}",{"next":"@pop","token":"punctuation.definition.string.end.ballerina"}],{"include":"code"}],"paranthesised":[["\\(",{"next":"paranthesised__b__0","token":""}]],"paranthesised__b__0":[["\\)",{"next":"@pop","token":""}],{"include":"comment"},{"include":"code"}],"paranthesisedBracket":[["\\[",{"next":"paranthesisedBracket__b__0","token":""}]],"paranthesisedBracket__b__0":[["\\]",{"next":"@pop","token":""}],{"include":"comment"},{"include":"code"}],"numbers":[["\\b0[xX][\\da-f]+\\b|\\b\\d+\\.?\\d*","number"]],"functionReturns":[["\\breturns\\b",{"next":"functionReturns__b__0","token":"keyword.ballerina"}]],"functionReturns__b__0":[["(?=\\{|;)",{"next":"@pop","token":"curly"}],["(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\")","type.ballerina"],{"include":"comment"}],"functionName":[["(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\")","entity.name.function.ballerina"]],"serviceDec":[["\\bservice\\b",{"next":"serviceDec__b__0","token":"keyword.ballerina"}]],"serviceDec__b__0":[["\\}",{"next":"@pop","token":"punctuation.definition.block.ballerina"}],{"include":"serviceReceiver"},{"include":"serviceEndpointAttachments"},{"include":"serviceName"},{"include":"comment"},{"include":"serviceBody"},{"include":"serviceBindVarContinued"}],"serviceReceiver":[["<",{"next":"serviceReceiver__b__0","token":"punctuation.definition.parameters.begin.ballerina"}]],"serviceReceiver__b__0":[[">",{"next":"@pop","token":"punctuation.definition.parameters.end.ballerina"}],["(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\")","storage.type.ballerina"],{"include":"comment"}],"serviceEndpointAttachments":[["bind",{"next":"serviceEndpointAttachments__b__0","token":"keyword.ballerina"}]],"serviceEndpointAttachments__b__0":[["((?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\"))",{"next":"@pop","token":"variable.parameter.ballerina"}],["(\\})",{"next":"@pop","token":"punctuation.definition.block.ballerina"}],{"include":"serviceBindRecordLiteral"},{"include":"comment"}],"serviceBindRecordLiteral":[["\\{",{"next":"serviceBindRecordLiteral__b__0","token":"punctuation.definition.block.ballerina"}]],"serviceBindRecordLiteral__b__0":[["(?=\\})",{"next":"@pop","token":"punctuation.definition.block.ballerina"}],{"include":"code"}],"serviceName":[["(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\")","entity.name.function.ballerina"]],"serviceBody":[["\\{",{"next":"serviceBody__b__0","token":"punctuation.definition.block.ballerina"}]],"serviceBody__b__0":[["(?=\\})",{"next":"@pop","token":"punctuation.definition.block.ballerina"}],{"include":"comment"},{"include":"documentationDef"},{"include":"annotationDec"},{"include":"endpointDef"},{"include":"resourceDef"},{"include":"recordLiteral"},{"include":"code"}],"documentationDef":[["\\b(?:documentation|deprecated)\\b",{"next":"documentationDef__b__0","token":"keyword.ballerina"}]],"documentationDef__b__0":[["\\}",{"next":"@pop","token":"delimiter.curly"}],{"include":"documentationBody"},{"include":"comment"}],"documentationBody":[["\\{",{"next":"documentationBody__b__0","token":"punctuation.definition.block.ballerina.documentation"}]],"documentationBody__b__0":[["(?=\\})",{"next":"@pop","token":"punctuation.definition.block.ballerina.documentation"}],["(P|R|T|F|V)({{)(.*)(}})",["keyword.other.ballerina.documentation","keyword.other.ballerina.documentation","variable.parameter.ballerina.documentation","keyword.other.ballerina.documentation"]],["\\```",{"next":"documentationBody__b__0__b__0","token":""}],["\\``",{"next":"documentationBody__b__0__b__1","token":""}],["\\`",{"next":"documentationBody__b__0__b__2","token":""}],[".","comment.block.ballerina.documentation"]],"documentationBody__b__0__b__0":[["\\```",{"next":"@pop","token":""}],[".","comment.block.code.ballerina.documentation"]],"documentationBody__b__0__b__1":[["\\``",{"next":"@pop","token":""}],[".","comment.block.code.ballerina.documentation"]],"documentationBody__b__0__b__2":[["\\`",{"next":"@pop","token":""}],[".","comment.block.code.ballerina.documentation"]],"annotationDec":[["@((?:(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\")):)?(?:(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\"))","type.ballerina"]],"resourceDef":[["((?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\"))\\s*(?=\\()",{"next":"resourceDef__b__0","token":"entity.name.function.ballerina"}]],"resourceDef__b__0":[["\\}",{"next":"@pop","token":"punctuation.definition.block.ballerina"}],{"include":"comment"},{"include":"functionParameters"},{"include":"callableUnitBody"}],"serviceBindVarContinued":[[",",{"next":"serviceBindVarContinued__b__0","token":""}]],"serviceBindVarContinued__b__0":[["(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\")",{"next":"@pop","token":"variable.parameter.ballerina"}]],"typeDef":[["\\btype\\b",{"next":"typeDef__b__0","token":"keyword.ballerina"}]],"typeDef__b__0":[["\\b(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\")\\b",{"next":"@pop","token":"entity.name.function.ballerina"}],{"include":"objectDec"},["(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\")","entity.name.function.ballerina"],{"include":"comment"}],"objectDec":[["\\bobject\\b",{"next":"objectDec__b__0","token":"keyword.ballerina"}]],"objectDec__b__0":[["\\}",{"next":"@pop","token":"delimiter.curly"}],{"include":"objectBody"},{"include":"comment"}],"objectBody":[["\\{",{"next":"objectBody__b__0","token":"punctuation.definition.block.ballerina"}]],"objectBody__b__0":[["(?=\\})",{"next":"@pop","token":"punctuation.definition.block.ballerina"}],{"include":"varDefBlock"},{"include":"documentationDef"},{"include":"objectInitDec"},{"include":"functionDec"},{"include":"comment"},{"include":"code"}],"varDefBlock":[["\\b(?:private|public)\\b",{"next":"varDefBlock__b__0","token":"keyword.ballerina"}]],"varDefBlock__b__0":[["\\}|;",{"next":"@pop","token":""}],{"include":"varDefBlockBody"},{"include":"functionDec"}],"varDefBlockBody":[["\\{",{"next":"varDefBlockBody__b__0","token":"punctuation.definition.block.ballerina.documentation"}]],"varDefBlockBody__b__0":[["(?=\\})",{"next":"@pop","token":"punctuation.definition.block.ballerina.documentation"}],{"include":"code"}],"objectInitDec":[["\\bnew\\b",{"next":"objectInitDec__b__0","token":"keyword.ballerina"}]],"objectInitDec__b__0":[["\\}",{"next":"@pop","token":""}],{"include":"objectInitParameters"},{"include":"objectInitBody"}],"objectInitParameters":[["\\(",{"next":"objectInitParameters__b__0","token":"punctuation.definition.parameters.begin.ballerina"}]],"objectInitParameters__b__0":[["\\)",{"next":"@pop","token":"punctuation.definition.parameters.end.ballerina"}],{"include":"code"},["\\b((?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\"))\\b","variable.parameter.ballerina"]],"objectInitBody":[["\\{",{"next":"objectInitBody__b__0","token":"punctuation.definition.block.ballerina"}]],"objectInitBody__b__0":[["(?=\\})",{"next":"@pop","token":"punctuation.definition.block.ballerina"}],{"include":"comment"},{"include":"code"}]}
+{
+    "root": [
+        {
+            "include": "functionDec"
+        },
+        {
+            "include": "serviceDec"
+        },
+        {
+            "include": "endpointDef"
+        },
+        {
+            "include": "documentationDef"
+        },
+        {
+            "include": "typeDef"
+        },
+        {
+            "include": "objectDec"
+        },
+        {
+            "include": "annotationDec"
+        },
+        {
+            "include": "recordLiteral"
+        },
+        {
+            "include": "comment"
+        },
+        {
+            "include": "code"
+        }
+    ],
+    "functionDec": [
+        [
+            "\\bfunction\\b",
+            {
+                "next": "functionDec__b__0",
+                "token": "keyword.ballerina"
+            }
+        ]
+    ],
+    "functionDec__b__0": [
+        [
+            "\\}|(?=;)",
+            {
+                "next": "@pop",
+                "token": "punctuation.definition.block.ballerina"
+            }
+        ],
+        {
+            "include": "functionReceiver"
+        },
+        {
+            "include": "functionParameters"
+        },
+        {
+            "include": "functionReturns"
+        },
+        {
+            "include": "functionName"
+        },
+        {
+            "include": "callableUnitBody"
+        },
+        {
+            "include": "comment"
+        }
+    ],
+    "functionReceiver": [
+        [
+            "<",
+            {
+                "next": "functionReceiver__b__0",
+                "token": "punctuation.definition.parameters.begin.ballerina"
+            }
+        ]
+    ],
+    "functionReceiver__b__0": [
+        [
+            ">",
+            {
+                "next": "@pop",
+                "token": "punctuation.definition.parameters.end.ballerina"
+            }
+        ],
+        {
+            "include": "parameter"
+        },
+        {
+            "include": "comment"
+        }
+    ],
+    "parameter": [
+        [
+            "\\b(?:(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\"))\\b",
+            {
+                "next": "parameter__b__0",
+                "token": "type.ballerina"
+            }
+        ]
+    ],
+    "parameter__b__0": [
+        [
+            "\\b(?:(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\"))\\b|(?==>)|(?=\\))",
+            {
+                "next": "@pop",
+                "token": "variable.parameter.ballerina"
+            }
+        ],
+        {
+            "include": "continuedType"
+        },
+        {
+            "include": "constrainType"
+        },
+        {
+            "include": "comment"
+        }
+    ],
+    "continuedType": [
+        [
+            "[|,:]",
+            {
+                "next": "continuedType__b__0",
+                "token": "keyword.operator.ballerina"
+            }
+        ]
+    ],
+    "continuedType__b__0": [
+        [
+            "(\\))",
+            {
+                "next": "@pop",
+                "token": "source.ballerina"
+            }
+        ],
+        [
+            "(\\b(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\")\\b)",
+            {
+                "next": "@pop",
+                "token": "type.ballerina"
+            }
+        ],
+        {
+            "include": "comment"
+        },
+        {
+            "include": "continuedTupleType"
+        }
+    ],
+    "comment": [
+        [
+            "\\/\\/.*",
+            "comment.ballerina"
+        ]
+    ],
+    "continuedTupleType": [
+        [
+            "\\(",
+            {
+                "next": "continuedTupleType__b__0",
+                "token": ""
+            }
+        ]
+    ],
+    "continuedTupleType__b__0": [
+        [
+            "(?=\\))",
+            {
+                "next": "@pop",
+                "token": ""
+            }
+        ],
+        {
+            "include": "comment"
+        },
+        {
+            "include": "continuedType"
+        },
+        [
+            "\\b((?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\"))\\b",
+            "type.ballerina"
+        ]
+    ],
+    "constrainType": [
+        [
+            "<",
+            {
+                "next": "constrainType__b__0",
+                "token": "punctuation.definition.parameters.begin.ballerina"
+            }
+        ]
+    ],
+    "constrainType__b__0": [
+        [
+            ">",
+            {
+                "next": "@pop",
+                "token": "punctuation.definition.parameters.end.ballerina"
+            }
+        ],
+        {
+            "include": "comment"
+        },
+        {
+            "include": "continuedType"
+        },
+        [
+            "\\b((?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\"))\\b",
+            "type.ballerina"
+        ]
+    ],
+    "functionParameters": [
+        [
+            "\\(",
+            {
+                "next": "functionParameters__b__0",
+                "token": "delimiter.parenthesis"
+            }
+        ]
+    ],
+    "functionParameters__b__0": [
+        [
+            "\\)",
+            {
+                "next": "@pop",
+                "token": "delimiter.parenthesis"
+            }
+        ],
+        {
+            "include": "parameter"
+        },
+        {
+            "include": "defaultValue"
+        },
+        {
+            "include": "comment"
+        }
+    ],
+    "defaultValue": [
+        [
+            "[=:]",
+            {
+                "next": "defaultValue__b__0",
+                "token": "keyword.operator.ballerina"
+            }
+        ]
+    ],
+    "defaultValue__b__0": [
+        [
+            "(?=[,)])",
+            {
+                "next": "@pop",
+                "token": ""
+            }
+        ],
+        {
+            "include": "code"
+        }
+    ],
+    "code": [
+        {
+            "include": "booleans"
+        },
+        {
+            "include": "matchStatement"
+        },
+        {
+            "include": "butExp"
+        },
+        {
+            "include": "xml"
+        },
+        {
+            "include": "stringTemplate"
+        },
+        {
+            "include": "strings"
+        },
+        {
+            "include": "maps"
+        },
+        {
+            "include": "paranthesised"
+        },
+        {
+            "include": "paranthesisedBracket"
+        },
+        {
+            "include": "numbers"
+        },
+        {
+            "include": "comment"
+        },
+        [
+            "[a-z][\\w$]*",
+            {
+                "cases": {
+                    "@controlKeywords": "keyword.control",
+                    "@otherKeywords": "keyword",
+                    "@typeKeywords": "type",
+                    "@default": "identifier"
+                }
+            }
+        ]
+    ],
+    "booleans": [
+        [
+            "\\b(true|false)\\b",
+            "constant.language.boolean.ballerina"
+        ]
+    ],
+    "matchStatement": [
+        [
+            "\\bmatch\\b",
+            {
+                "next": "matchStatement__b__0",
+                "token": "keyword.ballerina"
+            }
+        ]
+    ],
+    "matchStatement__b__0": [
+        [
+            "\\}",
+            {
+                "next": "@pop",
+                "token": ""
+            }
+        ],
+        {
+            "include": "matchStatementBody"
+        },
+        {
+            "include": "comment"
+        },
+        {
+            "include": "code"
+        }
+    ],
+    "matchStatementBody": [
+        [
+            "\\{",
+            {
+                "next": "matchStatementBody__b__0",
+                "token": "punctuation.definition.block.ballerina.documentation"
+            }
+        ]
+    ],
+    "matchStatementBody__b__0": [
+        [
+            "(?=\\})",
+            {
+                "next": "@pop",
+                "token": "punctuation.definition.block.ballerina.documentation"
+            }
+        ],
+        {
+            "include": "parameter"
+        },
+        {
+            "include": "matchStatementPatternClause"
+        },
+        {
+            "include": "comment"
+        }
+    ],
+    "matchStatementPatternClause": [
+        [
+            "=>",
+            {
+                "next": "matchStatementPatternClause__b__0",
+                "token": "keyword.ballerina"
+            }
+        ]
+    ],
+    "matchStatementPatternClause__b__0": [
+        [
+            "((\\})|;|,)",
+            {
+                "next": "@pop",
+                "token": ""
+            }
+        ],
+        {
+            "include": "callableUnitBody"
+        },
+        {
+            "include": "code"
+        }
+    ],
+    "callableUnitBody": [
+        [
+            "\\{",
+            {
+                "next": "callableUnitBody__b__0",
+                "token": "punctuation.definition.block.ballerina"
+            }
+        ]
+    ],
+    "callableUnitBody__b__0": [
+        [
+            "(?=\\})",
+            {
+                "next": "@pop",
+                "token": "punctuation.definition.block.ballerina"
+            }
+        ],
+        {
+            "include": "endpointDef"
+        },
+        {
+            "include": "workerDef"
+        },
+        {
+            "include": "code"
+        }
+    ],
+    "endpointDef": [
+        [
+            "\\bendpoint\\b",
+            {
+                "next": "endpointDef__b__0",
+                "token": "keyword.ballerina"
+            }
+        ]
+    ],
+    "endpointDef__b__0": [
+        [
+            ";",
+            {
+                "next": "@pop",
+                "token": ""
+            }
+        ],
+        {
+            "include": "parameter"
+        },
+        {
+            "include": "recordLiteral"
+        },
+        {
+            "include": "comment"
+        }
+    ],
+    "recordLiteral": [
+        [
+            "\\{",
+            {
+                "next": "recordLiteral__b__0",
+                "token": "punctuation.definition.block.ballerina"
+            }
+        ]
+    ],
+    "recordLiteral__b__0": [
+        [
+            "\\}",
+            {
+                "next": "@pop",
+                "token": "punctuation.definition.block.ballerina"
+            }
+        ],
+        {
+            "include": "code"
+        }
+    ],
+    "workerDef": [
+        [
+            "\\bworker\\b",
+            {
+                "next": "workerDef__b__0",
+                "token": "keyword.ballerina"
+            }
+        ]
+    ],
+    "workerDef__b__0": [
+        [
+            "\\}",
+            {
+                "next": "@pop",
+                "token": ""
+            }
+        ],
+        {
+            "include": "workerBody"
+        }
+    ],
+    "workerBody": [
+        [
+            "\\{",
+            {
+                "next": "workerBody__b__0",
+                "token": ""
+            }
+        ]
+    ],
+    "workerBody__b__0": [
+        [
+            "(?=\\})",
+            {
+                "next": "@pop",
+                "token": ""
+            }
+        ],
+        {
+            "include": "code"
+        }
+    ],
+    "butExp": [
+        [
+            "\\bbut\\b",
+            {
+                "next": "butExp__b__0",
+                "token": "keyword.ballerina"
+            }
+        ]
+    ],
+    "butExp__b__0": [
+        [
+            "\\}",
+            {
+                "next": "@pop",
+                "token": "punctuation.definition.block.ballerina.documentation"
+            }
+        ],
+        {
+            "include": "butExpBody"
+        },
+        {
+            "include": "comment"
+        }
+    ],
+    "butExpBody": [
+        [
+            "\\{",
+            {
+                "next": "butExpBody__b__0",
+                "token": "punctuation.definition.block.ballerina.documentation"
+            }
+        ]
+    ],
+    "butExpBody__b__0": [
+        [
+            "(?=\\})",
+            {
+                "next": "@pop",
+                "token": "punctuation.definition.block.ballerina.documentation"
+            }
+        ],
+        {
+            "include": "parameter"
+        },
+        {
+            "include": "butClause"
+        },
+        {
+            "include": "comment"
+        }
+    ],
+    "butClause": [
+        [
+            "=>",
+            {
+                "next": "butClause__b__0",
+                "token": "keyword.operator.ballerina"
+            }
+        ]
+    ],
+    "butClause__b__0": [
+        [
+            ",|(?=\\})",
+            {
+                "next": "@pop",
+                "token": ""
+            }
+        ],
+        {
+            "include": "code"
+        }
+    ],
+    "xml": [
+        [
+            "(\\bxml)(\\s*)(`)",
+            [
+                {
+                    "next": "xml__b__0",
+                    "token": "keyword.ballerina"
+                },
+                "",
+                "string.template.ballerina"
+            ]
+        ]
+    ],
+    "xml__b__0": [
+        [
+            "`",
+            {
+                "next": "@pop",
+                "token": "string.template.ballerina"
+            }
+        ],
+        {
+            "include": "templateVariable"
+        },
+        [
+            ".",
+            "string"
+        ]
+    ],
+    "templateVariable": [
+        [
+            "{{",
+            {
+                "next": "templateVariable__b__0",
+                "token": "constant.character.escape.ballerina"
+            }
+        ]
+    ],
+    "templateVariable__b__0": [
+        [
+            "}}",
+            {
+                "next": "@pop",
+                "token": "constant.character.escape.ballerina"
+            }
+        ],
+        {
+            "include": "code"
+        }
+    ],
+    "stringTemplate": [
+        [
+            "(\\bstring)(\\s*)(`)",
+            [
+                {
+                    "next": "stringTemplate__b__0",
+                    "token": "keyword.ballerina"
+                },
+                "",
+                "string.template.ballerina"
+            ]
+        ]
+    ],
+    "stringTemplate__b__0": [
+        [
+            "`",
+            {
+                "next": "@pop",
+                "token": "string.template.ballerina"
+            }
+        ],
+        {
+            "include": "templateVariable"
+        },
+        [
+            ".",
+            "string"
+        ]
+    ],
+    "strings": [
+        [
+            "\\\"",
+            {
+                "next": "strings__b__0",
+                "token": "string.begin.ballerina"
+            }
+        ]
+    ],
+    "strings__b__0": [
+        [
+            "\\\"",
+            {
+                "next": "@pop",
+                "token": "string.end.ballerina"
+            }
+        ],
+        [
+            "\\\\.",
+            "constant.character.escape.ballerina"
+        ],
+        [
+            ".",
+            "string"
+        ]
+    ],
+    "maps": [
+        [
+            "\\{",
+            {
+                "next": "maps__b__0",
+                "token": "punctuation.definition.string.begin.ballerina"
+            }
+        ]
+    ],
+    "maps__b__0": [
+        [
+            "\\}",
+            {
+                "next": "@pop",
+                "token": "punctuation.definition.string.end.ballerina"
+            }
+        ],
+        {
+            "include": "code"
+        }
+    ],
+    "paranthesised": [
+        [
+            "\\(",
+            {
+                "next": "paranthesised__b__0",
+                "token": ""
+            }
+        ]
+    ],
+    "paranthesised__b__0": [
+        [
+            "\\)",
+            {
+                "next": "@pop",
+                "token": ""
+            }
+        ],
+        {
+            "include": "comment"
+        },
+        {
+            "include": "code"
+        }
+    ],
+    "paranthesisedBracket": [
+        [
+            "\\[",
+            {
+                "next": "paranthesisedBracket__b__0",
+                "token": ""
+            }
+        ]
+    ],
+    "paranthesisedBracket__b__0": [
+        [
+            "\\]",
+            {
+                "next": "@pop",
+                "token": ""
+            }
+        ],
+        {
+            "include": "comment"
+        },
+        {
+            "include": "code"
+        }
+    ],
+    "numbers": [
+        [
+            "\\b0[xX][\\da-f]+\\b|\\b\\d+\\.?\\d*",
+            "number"
+        ]
+    ],
+    "functionReturns": [
+        [
+            "\\breturns\\b",
+            {
+                "next": "functionReturns__b__0",
+                "token": "keyword.ballerina"
+            }
+        ]
+    ],
+    "functionReturns__b__0": [
+        [
+            "(?=\\{|;)",
+            {
+                "next": "@pop",
+                "token": "curly"
+            }
+        ],
+        [
+            "(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\")",
+            "type.ballerina"
+        ],
+        {
+            "include": "comment"
+        }
+    ],
+    "functionName": [
+        [
+            "(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\")",
+            "entity.name.function.ballerina"
+        ]
+    ],
+    "serviceDec": [
+        [
+            "\\bservice\\b",
+            {
+                "next": "serviceDec__b__0",
+                "token": "keyword.ballerina"
+            }
+        ]
+    ],
+    "serviceDec__b__0": [
+        [
+            "\\}",
+            {
+                "next": "@pop",
+                "token": "punctuation.definition.block.ballerina"
+            }
+        ],
+        {
+            "include": "serviceReceiver"
+        },
+        {
+            "include": "serviceEndpointAttachments"
+        },
+        {
+            "include": "serviceName"
+        },
+        {
+            "include": "comment"
+        },
+        {
+            "include": "serviceBody"
+        },
+        {
+            "include": "serviceBindVarContinued"
+        }
+    ],
+    "serviceReceiver": [
+        [
+            "<",
+            {
+                "next": "serviceReceiver__b__0",
+                "token": "punctuation.definition.parameters.begin.ballerina"
+            }
+        ]
+    ],
+    "serviceReceiver__b__0": [
+        [
+            ">",
+            {
+                "next": "@pop",
+                "token": "punctuation.definition.parameters.end.ballerina"
+            }
+        ],
+        [
+            "(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\")",
+            "storage.type.ballerina"
+        ],
+        {
+            "include": "comment"
+        }
+    ],
+    "serviceEndpointAttachments": [
+        [
+            "bind",
+            {
+                "next": "serviceEndpointAttachments__b__0",
+                "token": "keyword.ballerina"
+            }
+        ]
+    ],
+    "serviceEndpointAttachments__b__0": [
+        [
+            "((?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\"))",
+            {
+                "next": "@pop",
+                "token": "variable.parameter.ballerina"
+            }
+        ],
+        [
+            "(\\})",
+            {
+                "next": "@pop",
+                "token": "punctuation.definition.block.ballerina"
+            }
+        ],
+        {
+            "include": "serviceBindRecordLiteral"
+        },
+        {
+            "include": "comment"
+        }
+    ],
+    "serviceBindRecordLiteral": [
+        [
+            "\\{",
+            {
+                "next": "serviceBindRecordLiteral__b__0",
+                "token": "punctuation.definition.block.ballerina"
+            }
+        ]
+    ],
+    "serviceBindRecordLiteral__b__0": [
+        [
+            "(?=\\})",
+            {
+                "next": "@pop",
+                "token": "punctuation.definition.block.ballerina"
+            }
+        ],
+        {
+            "include": "code"
+        }
+    ],
+    "serviceName": [
+        [
+            "(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\")",
+            "entity.name.function.ballerina"
+        ]
+    ],
+    "serviceBody": [
+        [
+            "\\{",
+            {
+                "next": "serviceBody__b__0",
+                "token": "punctuation.definition.block.ballerina"
+            }
+        ]
+    ],
+    "serviceBody__b__0": [
+        [
+            "(?=\\})",
+            {
+                "next": "@pop",
+                "token": "punctuation.definition.block.ballerina"
+            }
+        ],
+        {
+            "include": "comment"
+        },
+        {
+            "include": "documentationDef"
+        },
+        {
+            "include": "annotationDec"
+        },
+        {
+            "include": "endpointDef"
+        },
+        {
+            "include": "resourceDef"
+        },
+        {
+            "include": "recordLiteral"
+        },
+        {
+            "include": "code"
+        }
+    ],
+    "documentationDef": [
+        [
+            "\\b(?:documentation|deprecated)\\b",
+            {
+                "next": "documentationDef__b__0",
+                "token": "keyword.ballerina"
+            }
+        ]
+    ],
+    "documentationDef__b__0": [
+        [
+            "\\}",
+            {
+                "next": "@pop",
+                "token": "delimiter.curly"
+            }
+        ],
+        {
+            "include": "documentationBody"
+        },
+        {
+            "include": "comment"
+        }
+    ],
+    "documentationBody": [
+        [
+            "\\{",
+            {
+                "next": "documentationBody__b__0",
+                "token": "punctuation.definition.block.ballerina.documentation"
+            }
+        ]
+    ],
+    "documentationBody__b__0": [
+        [
+            "(?=\\})",
+            {
+                "next": "@pop",
+                "token": "punctuation.definition.block.ballerina.documentation"
+            }
+        ],
+        [
+            "(P|R|T|F|V)({{)(.*)(}})",
+            [
+                "keyword.other.ballerina.documentation",
+                "keyword.other.ballerina.documentation",
+                "variable.parameter.ballerina.documentation",
+                "keyword.other.ballerina.documentation"
+            ]
+        ],
+        [
+            "\\```",
+            {
+                "next": "documentationBody__b__0__b__0",
+                "token": ""
+            }
+        ],
+        [
+            "\\``",
+            {
+                "next": "documentationBody__b__0__b__1",
+                "token": ""
+            }
+        ],
+        [
+            "\\`",
+            {
+                "next": "documentationBody__b__0__b__2",
+                "token": ""
+            }
+        ],
+        [
+            ".",
+            "comment.block.ballerina.documentation"
+        ]
+    ],
+    "documentationBody__b__0__b__0": [
+        [
+            "\\```",
+            {
+                "next": "@pop",
+                "token": ""
+            }
+        ],
+        [
+            ".",
+            "comment.block.code.ballerina.documentation"
+        ]
+    ],
+    "documentationBody__b__0__b__1": [
+        [
+            "\\``",
+            {
+                "next": "@pop",
+                "token": ""
+            }
+        ],
+        [
+            ".",
+            "comment.block.code.ballerina.documentation"
+        ]
+    ],
+    "documentationBody__b__0__b__2": [
+        [
+            "\\`",
+            {
+                "next": "@pop",
+                "token": ""
+            }
+        ],
+        [
+            ".",
+            "comment.block.code.ballerina.documentation"
+        ]
+    ],
+    "annotationDec": [
+        [
+            "@((?:(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\")):)?(?:(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\"))",
+            "type.ballerina"
+        ]
+    ],
+    "resourceDef": [
+        [
+            "((?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\"))\\s*(?=\\()",
+            {
+                "next": "resourceDef__b__0",
+                "token": "entity.name.function.ballerina"
+            }
+        ]
+    ],
+    "resourceDef__b__0": [
+        [
+            "\\}",
+            {
+                "next": "@pop",
+                "token": "punctuation.definition.block.ballerina"
+            }
+        ],
+        {
+            "include": "comment"
+        },
+        {
+            "include": "functionParameters"
+        },
+        {
+            "include": "callableUnitBody"
+        }
+    ],
+    "serviceBindVarContinued": [
+        [
+            ",",
+            {
+                "next": "serviceBindVarContinued__b__0",
+                "token": ""
+            }
+        ]
+    ],
+    "serviceBindVarContinued__b__0": [
+        [
+            "(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\")",
+            {
+                "next": "@pop",
+                "token": "variable.parameter.ballerina"
+            }
+        ]
+    ],
+    "typeDef": [
+        [
+            "\\btype\\b",
+            {
+                "next": "typeDef__b__0",
+                "token": "keyword.ballerina"
+            }
+        ]
+    ],
+    "typeDef__b__0": [
+        [
+            "\\b(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\")\\b",
+            {
+                "next": "@pop",
+                "token": "entity.name.function.ballerina"
+            }
+        ],
+        {
+            "include": "objectDec"
+        },
+        [
+            "(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\")",
+            "entity.name.function.ballerina"
+        ],
+        {
+            "include": "comment"
+        }
+    ],
+    "objectDec": [
+        [
+            "\\bobject\\b",
+            {
+                "next": "objectDec__b__0",
+                "token": "keyword.ballerina"
+            }
+        ]
+    ],
+    "objectDec__b__0": [
+        [
+            "\\}",
+            {
+                "next": "@pop",
+                "token": "delimiter.curly"
+            }
+        ],
+        {
+            "include": "objectBody"
+        },
+        {
+            "include": "comment"
+        }
+    ],
+    "objectBody": [
+        [
+            "\\{",
+            {
+                "next": "objectBody__b__0",
+                "token": "punctuation.definition.block.ballerina"
+            }
+        ]
+    ],
+    "objectBody__b__0": [
+        [
+            "(?=\\})",
+            {
+                "next": "@pop",
+                "token": "punctuation.definition.block.ballerina"
+            }
+        ],
+        {
+            "include": "varDefBlock"
+        },
+        {
+            "include": "documentationDef"
+        },
+        {
+            "include": "objectInitDec"
+        },
+        {
+            "include": "functionDec"
+        },
+        {
+            "include": "comment"
+        },
+        {
+            "include": "code"
+        }
+    ],
+    "varDefBlock": [
+        [
+            "\\b(?:private|public)\\b",
+            {
+                "next": "varDefBlock__b__0",
+                "token": "keyword.ballerina"
+            }
+        ]
+    ],
+    "varDefBlock__b__0": [
+        [
+            "\\}|;",
+            {
+                "next": "@pop",
+                "token": ""
+            }
+        ],
+        {
+            "include": "varDefBlockBody"
+        },
+        {
+            "include": "functionDec"
+        }
+    ],
+    "varDefBlockBody": [
+        [
+            "\\{",
+            {
+                "next": "varDefBlockBody__b__0",
+                "token": "punctuation.definition.block.ballerina.documentation"
+            }
+        ]
+    ],
+    "varDefBlockBody__b__0": [
+        [
+            "(?=\\})",
+            {
+                "next": "@pop",
+                "token": "punctuation.definition.block.ballerina.documentation"
+            }
+        ],
+        {
+            "include": "code"
+        }
+    ],
+    "objectInitDec": [
+        [
+            "\\bnew\\b",
+            {
+                "next": "objectInitDec__b__0",
+                "token": "keyword.ballerina"
+            }
+        ]
+    ],
+    "objectInitDec__b__0": [
+        [
+            "\\}",
+            {
+                "next": "@pop",
+                "token": ""
+            }
+        ],
+        {
+            "include": "objectInitParameters"
+        },
+        {
+            "include": "objectInitBody"
+        }
+    ],
+    "objectInitParameters": [
+        [
+            "\\(",
+            {
+                "next": "objectInitParameters__b__0",
+                "token": "punctuation.definition.parameters.begin.ballerina"
+            }
+        ]
+    ],
+    "objectInitParameters__b__0": [
+        [
+            "\\)",
+            {
+                "next": "@pop",
+                "token": "punctuation.definition.parameters.end.ballerina"
+            }
+        ],
+        {
+            "include": "code"
+        },
+        [
+            "\\b((?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\"))\\b",
+            "variable.parameter.ballerina"
+        ]
+    ],
+    "objectInitBody": [
+        [
+            "\\{",
+            {
+                "next": "objectInitBody__b__0",
+                "token": "punctuation.definition.block.ballerina"
+            }
+        ]
+    ],
+    "objectInitBody__b__0": [
+        [
+            "(?=\\})",
+            {
+                "next": "@pop",
+                "token": "punctuation.definition.block.ballerina"
+            }
+        ],
+        {
+            "include": "comment"
+        },
+        {
+            "include": "code"
+        }
+    ]
+}

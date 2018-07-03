@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.AnnotationAttachmentMetaInfo;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
@@ -39,6 +40,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -125,8 +127,24 @@ public class CompletionSubRuleParser {
         if (poppedTokens.contains("import")) {
             context.put(CompletionKeys.PARSER_RULE_CONTEXT_KEY, new BallerinaParser.ImportDeclarationContext(null, 0));
         } else if (!isCursorWithinAnnotationContext(context)) {
+            // If for any completion error strategy issue popped tokens are empty, we recalculate
+            if (poppedTokens.isEmpty()) {
+                reCalculatePoppedTokensForTopLevel(context);
+                poppedTokens = context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY)
+                        .stream()
+                        .map(Token::getText)
+                        .collect(Collectors.toList());
+            }
             String rule = getCombinedTokenString(context);
             getParser(context, rule).compilationUnit();
+            // This is to alter the parser rule context found in the parser, when it is service definition
+            // and incorrectly identified as globalVariableDefCtx
+            if (!poppedTokens.isEmpty() && poppedTokens.get(0).equals("service")
+                    && context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY)
+                    instanceof BallerinaParser.GlobalVariableDefinitionContext) {
+                context.put(CompletionKeys.PARSER_RULE_CONTEXT_KEY,
+                        new BallerinaParser.ServiceDefinitionContext(null, 0));
+            }
         }
     }
 
@@ -207,7 +225,7 @@ public class CompletionSubRuleParser {
                 return false;
             }
             Token token = CommonUtil.getPreviousDefaultToken(tokenStream, startIndex);
-            if (token == null) {
+            if (token == null || terminalTokens.contains(token.getText())) {
                 return false;
             }
             if (token.getText().equals(UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY)) {
@@ -305,5 +323,34 @@ public class CompletionSubRuleParser {
             }
         }
         return withinAnnotationContext;
+    }
+    
+    private static void reCalculatePoppedTokensForTopLevel(LSContext ctx) {
+        if (ctx.get(CompletionKeys.TOKEN_STREAM_KEY) == null) {
+            return;
+        }
+        int currentTokenIndex = CommonUtil.getCurrentTokenFromTokenStream(ctx);
+        TokenStream tokenStream = ctx.get(CompletionKeys.TOKEN_STREAM_KEY);
+        Stack<Token> tokenStack = new Stack<>();
+        while (true) {
+            if (currentTokenIndex < 0) {
+                break;
+            }
+            Token token = CommonUtil.getPreviousDefaultToken(tokenStream, currentTokenIndex);
+            if (token == null) {
+                return;
+            }
+            String tokenString = token.getText();
+            tokenStack.push(token);
+            if (tokenString.equals(ItemResolverConstants.SERVICE)
+                    || tokenString.equals(ItemResolverConstants.FUNCTION)
+                    || tokenString.equals(ItemResolverConstants.TYPE)
+                    || tokenString.equals(ItemResolverConstants.ENDPOINT)) {
+                break;
+            }
+            currentTokenIndex = token.getTokenIndex();
+        }
+        Collections.reverse(tokenStack);
+        ctx.put(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY, tokenStack);
     }
 }

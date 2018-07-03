@@ -21,8 +21,8 @@ package org.ballerinalang.model.values;
 import io.ballerina.messaging.broker.core.BrokerException;
 import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.Message;
+import org.ballerinalang.broker.BallerinaBroker;
 import org.ballerinalang.broker.BallerinaBrokerByteBuf;
-import org.ballerinalang.broker.BrokerUtils;
 import org.ballerinalang.model.types.BAnyType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BIndexedType;
@@ -36,6 +36,8 @@ import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -51,6 +53,8 @@ public class BStream implements BRefType<Object> {
 
     private String streamId = "";
 
+    private BallerinaBroker brokerInstance;
+
     /**
      * The name of the underlying broker topic representing the stream object.
      */
@@ -59,6 +63,11 @@ public class BStream implements BRefType<Object> {
     public BStream(BType type, String name) {
         if (((BStreamType) type).getConstrainedType() == null) {
             throw new BallerinaException("a stream cannot be declared without a constraint");
+        }
+        try {
+            this.brokerInstance = BallerinaBroker.getBrokerInstance();
+        } catch (Exception e) {
+            throw new BallerinaException("Error starting up internal broker for streams");
         }
         this.constraintType = ((BStreamType) type).getConstrainedType();
         if (constraintType.getName() != null) {
@@ -114,7 +123,7 @@ public class BStream implements BRefType<Object> {
             throw new BallerinaException("incompatible types: value of type:" + dataType.getName()
                     + " cannot be added to a stream of type:" + this.constraintType.getName());
         }
-        BrokerUtils.publish(topicName, new BallerinaBrokerByteBuf(data));
+        brokerInstance.publish(topicName, new BallerinaBrokerByteBuf(data));
     }
 
     /**
@@ -125,14 +134,15 @@ public class BStream implements BRefType<Object> {
      */
     public void subscribe(BFunctionPointer functionPointer) {
         BType[] parameters = functionPointer.funcRefCPEntry.getFunctionInfo().getParamTypes();
-        if (parameters[0].getTag() != constraintType.getTag()
-                || (constraintType instanceof BStructureType && ((BStructureType) parameters[0])
+        int lastArrayIndex = parameters.length - 1;
+        if (parameters[lastArrayIndex].getTag() != constraintType.getTag()
+                || (constraintType instanceof BStructureType && ((BStructureType) parameters[lastArrayIndex])
                 .getTypeInfo().getType() != constraintType)) {
-            throw new BallerinaException("incompatible function: subscription function needs to be a function accepting"
+         throw new BallerinaException("incompatible function: subscription function needs to be a function accepting"
                                                  + ":" + this.constraintType.getName());
         }
         String queueName = String.valueOf(System.currentTimeMillis()) + UUID.randomUUID().toString();
-        BrokerUtils.addSubscription(topicName, new StreamSubscriber(queueName, functionPointer));
+        brokerInstance.addSubscription(topicName, new StreamSubscriber(queueName, functionPointer));
     }
 
     public void subscribe(InputHandler inputHandler) {
@@ -141,23 +151,31 @@ public class BStream implements BRefType<Object> {
             throw new BallerinaException("Streaming Support is only available with streams accepting objects");
         }
         String queueName = String.valueOf(UUID.randomUUID());
-        BrokerUtils.addSubscription(topicName, new InternalStreamSubscriber(topicName, queueName, inputHandler));
+        brokerInstance.addSubscription(topicName, new InternalStreamSubscriber(topicName, queueName, inputHandler));
     }
 
     private class StreamSubscriber extends Consumer {
         final String queueName;
         final BFunctionPointer functionPointer;
+        List<BValue> closureArgs = new ArrayList<>();
 
         StreamSubscriber(String queueName, BFunctionPointer functionPointer) {
             this.queueName = queueName;
             this.functionPointer = functionPointer;
+            for (BClosure closure : functionPointer.getClosureVars()) {
+                closureArgs.add(closure.value());
+            }
         }
 
         @Override
         protected void send(Message message) throws BrokerException {
             BValue data =
                     ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).getValue();
-            BLangFunctions.invokeCallable(functionPointer.value().getFunctionInfo(), new BValue[] { data });
+            List<BValue> argsList = new ArrayList<>();
+            argsList.addAll(closureArgs);
+            argsList.add(data);
+            BLangFunctions.invokeCallable(functionPointer.value().getFunctionInfo(),
+                    argsList.toArray(new BValue[argsList.size()]));
         }
 
         @Override

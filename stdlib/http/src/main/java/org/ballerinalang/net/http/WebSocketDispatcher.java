@@ -25,8 +25,8 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -129,7 +129,7 @@ public class WebSocketDispatcher {
         List<ParamDetail> paramDetails = onBinaryMessageResource.getParamDetails();
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
-        bValues[1] = new BBlob(binaryMessage.getByteArray());
+        bValues[1] = new BByteArray(binaryMessage.getByteArray());
         if (paramDetails.size() == 3) {
             bValues[2] = new BBoolean(binaryMessage.isFinalFragment());
         }
@@ -160,7 +160,7 @@ public class WebSocketDispatcher {
         List<ParamDetail> paramDetails = onPingMessageResource.getParamDetails();
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
-        bValues[1] = new BBlob(controlMessage.getByteArray());
+        bValues[1] = new BByteArray(controlMessage.getByteArray());
         Executor.submit(onPingMessageResource, new WebSocketResourceCallableUnitCallback(webSocketConnection), null,
                         null, bValues);
     }
@@ -177,7 +177,7 @@ public class WebSocketDispatcher {
         List<ParamDetail> paramDetails = onPongMessageResource.getParamDetails();
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
-        bValues[1] = new BBlob(controlMessage.getByteArray());
+        bValues[1] = new BByteArray(controlMessage.getByteArray());
         Executor.submit(onPongMessageResource, new WebSocketResourceCallableUnitCallback(webSocketConnection), null,
                         null, bValues);
     }

@@ -23,6 +23,8 @@ import org.apache.commons.codec.CharEncoding;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.DataChannel;
 import org.ballerinalang.stdlib.io.channels.base.Representation;
+import org.ballerinalang.stdlib.io.channels.base.data.LongResult;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.testng.Assert;
@@ -59,13 +61,31 @@ public class DataInputOutputTest {
         ByteChannel byteChannel = TestUtil.openForReadingAndWriting(filePath);
         Channel channel = new MockByteChannel(byteChannel);
         DataChannel dataChannel = new DataChannel(channel, ByteOrder.nativeOrder());
-        dataChannel.writeFixedLong(value, representation);
+        dataChannel.writeLong(value, representation);
         channel.close();
         byteChannel = TestUtil.openForReadingAndWriting(filePath);
         channel = new MockByteChannel(byteChannel);
         dataChannel = new DataChannel(channel, ByteOrder.nativeOrder());
-        long readInt = dataChannel.readFixedLong(representation);
+        long readInt = dataChannel.readLong(representation).getValue();
         Assert.assertEquals(readInt, value);
+    }
+
+    @Test(description = "Test signed var long", dataProvider = "SignedVarLongValues")
+    public void testSingedVarLong(long value, int byteCount) throws IOException {
+        String filePath = currentDirectoryPath + "/sample.bin";
+        ByteChannel byteChannel = TestUtil.openForReadingAndWriting(filePath);
+        Channel channel = new MockByteChannel(byteChannel);
+        DataChannel dataChannel = new DataChannel(channel, ByteOrder.nativeOrder());
+        dataChannel.writeLong(value, Representation.VARIABLE);
+        channel.close();
+        byteChannel = TestUtil.openForReadingAndWriting(filePath);
+        channel = new MockByteChannel(byteChannel);
+        dataChannel = new DataChannel(channel, ByteOrder.nativeOrder());
+        LongResult longResult = dataChannel.readLong(Representation.VARIABLE);
+        long readInt = longResult.getValue();
+        int nBytes = longResult.getByteCount();
+        Assert.assertEquals(readInt, value);
+        Assert.assertEquals(nBytes, byteCount);
     }
 
     @Test(description = "Test floating point values", dataProvider = "DoubleValues")
@@ -117,13 +137,13 @@ public class DataInputOutputTest {
         ByteChannel byteChannel = TestUtil.openForReadingAndWriting(filePath);
         Channel channel = new MockByteChannel(byteChannel);
         DataChannel dataChannel = new DataChannel(channel, ByteOrder.nativeOrder());
-        dataChannel.writeFixedLong(writtenInt, Representation.BIT_32);
+        dataChannel.writeLong(writtenInt, Representation.BIT_32);
         dataChannel.writeDouble(writtenDouble, Representation.BIT_32);
         dataChannel.writeBoolean(false);
         byteChannel = TestUtil.openForReadingAndWriting(filePath);
         channel = new MockByteChannel(byteChannel);
         dataChannel = new DataChannel(channel, ByteOrder.nativeOrder());
-        long longValue = dataChannel.readFixedLong(Representation.BIT_32);
+        long longValue = dataChannel.readLong(Representation.BIT_32).getValue();
         double doubleValue = dataChannel.readDouble(Representation.BIT_32);
         boolean booleanValue = dataChannel.readBoolean();
         Assert.assertEquals(writtenInt, longValue);
@@ -150,6 +170,17 @@ public class DataInputOutputTest {
                 {Integer.MIN_VALUE, BIT_32}, {Integer.MIN_VALUE, BIT_64},
                 {Integer.MAX_VALUE, BIT_32}, {Integer.MAX_VALUE, BIT_64},
                 {Long.MIN_VALUE, BIT_64}, {Long.MAX_VALUE, BIT_64}
+        };
+    }
+
+    @DataProvider(name = "SignedVarLongValues")
+    public static Object[][] signedVarLongValues() {
+        return new Object[][]{
+                {0, 1}, {0, 1}, {0, 1},
+                {-1, 1}, {-1, 1}, {-1, 1},
+                {Short.MIN_VALUE, 3}, {Short.MIN_VALUE, 3},
+                {Integer.MIN_VALUE, 5}, {Integer.MIN_VALUE, 5},
+                {IOConstants.VAR_INT_MAX, 8}, {IOConstants.VAR_INT_MIN, 8}
         };
     }
 
