@@ -48,19 +48,18 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.util.Base64;
 
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILENAME_FIELD;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME_FIELD;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_STRUCT;
-import static org.ballerinalang.mime.util.Constants.DISPOSITION_FIELD;
-import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
-import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_FIELD;
-import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_FIELD;
-import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
-import static org.ballerinalang.mime.util.Constants.SUBTYPE_FIELD;
-import static org.ballerinalang.mime.util.Constants.SUFFIX_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_FILENAME_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_NAME_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_STRUCT;
+import static org.ballerinalang.mime.util.MimeConstants.DISPOSITION_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
+import static org.ballerinalang.mime.util.MimeConstants.PARAMETER_MAP_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.PRIMARY_TYPE_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.mime.util.MimeConstants.SUBTYPE_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.SUFFIX_FIELD;
 
 /**
  * Unit tests for MIME package utilities.
@@ -174,7 +173,7 @@ public class MimeUtilityFunctionTest {
     }
 
     @Test
-    public void testMimeBase64EncodeByteChannel() throws IOException, URISyntaxException {
+    public void testMimeBase64EncodeByteChannel() {
         String expectedValue = "SGVsbG8gQmFsbGVyaW5h";
         BMap<String, BValue> byteChannelStruct = Util.getByteChannelStruct(compileResult);
         InputStream inputStream = new ByteArrayInputStream("Hello Ballerina".getBytes());
@@ -191,7 +190,7 @@ public class MimeUtilityFunctionTest {
     }
 
     @Test
-    public void testMimeBase64DecodeString() throws IOException, URISyntaxException {
+    public void testMimeBase64DecodeString() {
         String expectedValue = "Hello Ballerina";
         BValue[] args = new BValue[]{new BString("SGVsbG8gQmFsbGVyaW5h")};
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testMimeBase64DecodeString", args);
@@ -213,7 +212,7 @@ public class MimeUtilityFunctionTest {
     }
 
     @Test
-    public void testMimeBase64DecodeByteChannel() throws IOException, URISyntaxException {
+    public void testMimeBase64DecodeByteChannel() {
         String expectedValue = "Hello Ballerina!";
         BMap<String, BValue> byteChannelStruct = Util.getByteChannelStruct(compileResult);
         byte[] encodedByteArray = Base64.getMimeEncoder().encode(expectedValue.getBytes());
@@ -392,7 +391,7 @@ public class MimeUtilityFunctionTest {
     }
 
     @Test(description = "Once the temp file channel is closed, check whether the temp file gets deleted")
-    public void testTempFileDeletion() throws IOException {
+    public void testTempFileDeletion() {
         File file;
         try {
             file = File.createTempFile("testFile", ".tmp");
@@ -440,7 +439,7 @@ public class MimeUtilityFunctionTest {
 
     @Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +
             "as a text data source is empty")
-    public void testGetTextDataSource() throws IOException {
+    public void testGetTextDataSource() {
         try {
             File file = File.createTempFile("testFile", ".tmp");
             file.deleteOnExit();
@@ -461,7 +460,7 @@ public class MimeUtilityFunctionTest {
 
     @Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +
             "as a json data source return an error")
-    public void testGetJsonDataSource() throws IOException {
+    public void testGetJsonDataSource() {
         try {
             File file = File.createTempFile("testFile", ".tmp");
             file.deleteOnExit();
@@ -696,7 +695,7 @@ public class MimeUtilityFunctionTest {
     }
 
     @Test
-    public void testGetAnyStreamAsString() throws IOException {
+    public void testGetAnyStreamAsString() {
         try {
             File file = File.createTempFile("testFile", ".tmp");
             file.deleteOnExit();

@@ -68,10 +68,10 @@ service<grpc:Service> ChatMessageListener {
 
 // Non-blocking client
 public type ChatStub object {
-    public {
-        grpc:Client clientEndpoint;
-        grpc:Stub stub;
-    }
+
+    public grpc:Client clientEndpoint;
+    public grpc:Stub stub;
+
 
     function initStub(grpc:Client clientEndpoint) {
         grpc:Stub navStub = new;
@@ -95,10 +95,10 @@ public type ChatStub object {
 
 // Non-blocking client endpoint
 public type ChatClient object {
-    public {
-        grpc:Client client;
-        ChatStub stub;
-    }
+
+    public grpc:Client client;
+    public ChatStub stub;
+
 
     public function init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.

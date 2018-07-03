@@ -103,15 +103,14 @@ documentation {
     F{{minFresh}} Sets the `min-fresh` directive
 }
 public type RequestCacheControl object {
-    public {
-        boolean noCache = false;
-        boolean noStore = false;
-        boolean noTransform = false;
-        boolean onlyIfCached = false;
-        int maxAge = -1;
-        int maxStale = -1;
-        int minFresh = -1;
-    }
+
+    public boolean noCache = false;
+    public boolean noStore = false;
+    public boolean noTransform = false;
+    public boolean onlyIfCached = false;
+    public int maxAge = -1;
+    public int maxStale = -1;
+    public int minFresh = -1;
 
     documentation {
         Builds the cache control directives string from the current `RequestCacheControl` configurations.
@@ -181,18 +180,17 @@ documentation {
                        the rest of the response.
 }
 public type ResponseCacheControl object {
-    public {
-        boolean mustRevalidate = false;
-        boolean noCache = false;
-        boolean noStore = false;
-        boolean noTransform = false;
-        boolean isPrivate = false;
-        boolean proxyRevalidate = false;
-        int maxAge = -1;
-        int sMaxAge = -1;
-        string[] noCacheFields = [];
-        string[] privateFields = [];
-    }
+
+    public boolean mustRevalidate = false;
+    public boolean noCache = false;
+    public boolean noStore = false;
+    public boolean noTransform = false;
+    public boolean isPrivate = false;
+    public boolean proxyRevalidate = false;
+    public int maxAge = -1;
+    public int sMaxAge = -1;
+    public string[] noCacheFields = [];
+    public string[] privateFields = [];
 
     documentation {
         Builds the cache control directives string from the current `ResponseCacheControl` configurations.

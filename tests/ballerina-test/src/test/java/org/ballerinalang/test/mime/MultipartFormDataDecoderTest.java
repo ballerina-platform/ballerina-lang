@@ -36,9 +36,9 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import java.util.ArrayList;
 import java.util.Map;
 
-import static org.ballerinalang.mime.util.Constants.CONTENT_TRANSFER_ENCODING_7_BIT;
-import static org.ballerinalang.mime.util.Constants.CONTENT_TRANSFER_ENCODING_8_BIT;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
+import static org.ballerinalang.mime.util.MimeConstants.CONTENT_TRANSFER_ENCODING_7_BIT;
+import static org.ballerinalang.mime.util.MimeConstants.CONTENT_TRANSFER_ENCODING_8_BIT;
+import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_FORM_DATA;
 
 /**
  * Test cases for multipart/form-data handling.

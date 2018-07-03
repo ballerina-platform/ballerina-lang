@@ -298,14 +298,11 @@ function test18() returns int {
 }
 
 type Person object {
-    public {
-        int age = 3,
-        string name = "Hello Ballerina";
-    }
-    private {
-        int year = 5;
-        string month = "february";
-    }
+    public int age = 3,
+    public string name = "Hello Ballerina";
+
+    private int year = 5;
+    private string month = "february";
 
     function getAttachedFn() returns string {
         int b = 4;
@@ -327,7 +324,7 @@ type Person object {
 
 };
 
-public function Person::externalAttachedFP() returns (function (float) returns (string)) {
+function Person::externalAttachedFP() returns (function (float) returns (string)) {
      int b = 4;
      var foo = (float w) => (string) {
         string d = w + "T" + b + self.year + self.name + self.age;

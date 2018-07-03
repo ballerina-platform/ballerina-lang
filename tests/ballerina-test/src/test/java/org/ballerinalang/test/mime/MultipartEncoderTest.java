@@ -54,10 +54,10 @@ import java.util.List;
 
 import javax.activation.MimeTypeParseException;
 
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FIELD;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILENAME_FIELD;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME_FIELD;
-import static org.ballerinalang.mime.util.Constants.DISPOSITION_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_FILENAME_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_NAME_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.DISPOSITION_FIELD;
 
 /**
  * Unit tests for multipart encoder.

@@ -18,13 +18,13 @@ public function testObjectWithInterface () returns (int, string) {
 
 
 type Person object {
-    public {
-        int age = 10,
-        string name,
-    }
-    private {
-        string month = "february";
-    }
+
+    public int age = 10,
+    public string name,
+
+
+    string month = "february";
+
 
     new (age = 6, string n = "llll") {
         self.name = n;

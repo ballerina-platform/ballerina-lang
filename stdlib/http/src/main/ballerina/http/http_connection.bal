@@ -19,10 +19,10 @@ documentation {
     The caller actions for responding to client requests.
 }
 public type Connection object {
-    private {
-        ServiceEndpointConfiguration config;
-        FilterContext? filterContext;
-    }
+
+    private ServiceEndpointConfiguration config;
+    private FilterContext? filterContext;
+
     documentation {
         Sends the outbound response to the caller.
 
@@ -128,13 +128,13 @@ documentation { Represents the HTTP redirect status code `307 - Temporary Redire
 documentation { Represents the HTTP redirect status code `308 - Permanent Redirect`. }
 @final public RedirectCode REDIRECT_PERMANENT_REDIRECT_308 = 308;
 
-public function Connection::continue() returns error? {
+function Connection::continue() returns error? {
     Response res = new;
     res.statusCode = CONTINUE_100;
     return self.respond(res);
 }
 
-public function Connection::redirect(Response response, RedirectCode code, string[] locations) returns error? {
+function Connection::redirect(Response response, RedirectCode code, string[] locations) returns error? {
     if (code == REDIRECT_MULTIPLE_CHOICES_300) {
         response.statusCode = MULTIPLE_CHOICES_300;
     } else if (code == REDIRECT_MOVED_PERMANENTLY_301) {

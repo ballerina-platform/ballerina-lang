@@ -702,6 +702,7 @@ public class CommonUtil {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(label);
         completionItem.setInsertText(insertText);
+        completionItem.setDetail(ItemResolverConstants.NONE);
         completionItem.setSortText(Priority.PRIORITY110.toString());
 
         return completionItem;
@@ -717,9 +718,9 @@ public class CommonUtil {
         BType getClientFuncType = bEndpointVarSymbol.getClientFunction.type;
         BType boundType = ((BInvokableType) getClientFuncType).retType;
         boundType.tsymbol.scope.entries.forEach((name, scopeEntry) -> {
+            String[] nameComponents = name.toString().split("\\.");
             if (scopeEntry.symbol instanceof BInvokableSymbol
-                    && !scopeEntry.symbol.getName().getValue().equals(UtilSymbolKeys.NEW_KEYWORD_KEY)) {
-                String[] nameComponents = name.toString().split("\\.");
+                    && !nameComponents[nameComponents.length - 1].equals(UtilSymbolKeys.NEW_KEYWORD_KEY)) {
                 SymbolInfo actionFunctionSymbol =
                         new SymbolInfo(nameComponents[nameComponents.length - 1], scopeEntry);
                 endpointActions.add(actionFunctionSymbol);

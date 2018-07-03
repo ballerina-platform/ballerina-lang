@@ -104,7 +104,7 @@ public class URIConverter implements Converter<URI> {
             Patten patten = binaryRepo.calculate(packageID);
             return patten.convertToSources(binaryRepo.getConverterInstance(), packageID);
         } catch (Exception e) {
-            outStream.println("    Error occurred when pulling the remote artifact");
+            outStream.println(isBuild ? "    " : "" + "Error occurred when pulling the remote artifact");
         }
         return Stream.of();
     }

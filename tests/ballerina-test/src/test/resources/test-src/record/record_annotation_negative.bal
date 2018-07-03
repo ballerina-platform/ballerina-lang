@@ -45,7 +45,7 @@ P{{accessMode}} read or write mode
 P{{accessMode}} read or write mode
 R{{successfuls}} boolean `true` or `false`
 }
-public function File::open (string accessMode) returns (boolean) {
+function File::open (string accessMode) returns (boolean) {
     boolean successful;
     return successful;
 }
@@ -54,9 +54,9 @@ documentation { Documentation for File object
 F{{path}} file path. Example: ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
 }
 public type File object {
-    public {
-        string path;
-    }
+
+    public string path;
+
 
     public function open(string accessMode) returns boolean;
 };

@@ -1106,7 +1106,7 @@ public class PackageInfoReader {
         dataInStream.read(code);
         DataInputStream codeStream = new DataInputStream(new ByteArrayInputStream(code));
         while (codeStream.available() > 0) {
-            int i, j, k, h;
+            int i, j, k, h, l;
             int funcRefCPIndex;
             FunctionRefCPEntry funcRefCPEntry;
             int flags;
@@ -1167,14 +1167,6 @@ public class PackageInfoReader {
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.TR_END:
                 case InstructionCodes.ARRAYLEN:
-                case InstructionCodes.INEWARRAY:
-                case InstructionCodes.BINEWARRAY:
-                case InstructionCodes.FNEWARRAY:
-                case InstructionCodes.SNEWARRAY:
-                case InstructionCodes.BNEWARRAY:
-                case InstructionCodes.LNEWARRAY:
-                case InstructionCodes.RNEWARRAY:
-                case InstructionCodes.JSONNEWARRAY:
                 case InstructionCodes.NEWSTRUCT:
                 case InstructionCodes.ITR_NEW:
                 case InstructionCodes.ITR_HAS_NEXT:
@@ -1328,12 +1320,19 @@ public class PackageInfoReader {
                 case InstructionCodes.IS_ASSIGNABLE:
                 case InstructionCodes.TR_RETRY:
                 case InstructionCodes.XMLSEQLOAD:
-                case InstructionCodes.NEWTABLE:
                 case InstructionCodes.T2JSON:
                 case InstructionCodes.MAP2JSON:
                 case InstructionCodes.JSON2MAP:
                 case InstructionCodes.JSON2ARRAY:
                 case InstructionCodes.INT_RANGE:
+                case InstructionCodes.INEWARRAY:
+                case InstructionCodes.BINEWARRAY:
+                case InstructionCodes.FNEWARRAY:
+                case InstructionCodes.SNEWARRAY:
+                case InstructionCodes.BNEWARRAY:
+                case InstructionCodes.LNEWARRAY:
+                case InstructionCodes.RNEWARRAY:
+                case InstructionCodes.JSONNEWARRAY:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
@@ -1349,7 +1348,14 @@ public class PackageInfoReader {
                     h = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j, k, h));
                     break;
-
+                case InstructionCodes.NEWTABLE:
+                    i = codeStream.readInt();
+                    j = codeStream.readInt();
+                    k = codeStream.readInt();
+                    h = codeStream.readInt();
+                    l = codeStream.readInt();
+                    packageInfo.addInstruction(InstructionFactory.get(opcode, i, j, k, h, l));
+                    break;
                 case InstructionCodes.IGLOAD:
                 case InstructionCodes.FGLOAD:
                 case InstructionCodes.SGLOAD:
@@ -1808,12 +1814,12 @@ public class PackageInfoReader {
         }
 
         @Override
-        public BType getArrayType(BType elementType) {
-            return new BArrayType(elementType);
+        public BType getArrayType(BType elementType, int size) {
+            return new BArrayType(elementType, size);
         }
 
         @Override
-        public BType getCollenctionType(char typeChar, List<BType> memberTypes) {
+        public BType getCollectionType(char typeChar, List<BType> memberTypes) {
             switch (typeChar) {
                 case 'O':
                     return new BUnionType(memberTypes);

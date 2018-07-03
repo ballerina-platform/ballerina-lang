@@ -120,6 +120,10 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-websub</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-time</artifactId>
         </dependency>
         <dependency>
@@ -440,7 +444,6 @@
                                 <exclude>org/wso2/ballerinalang/compiler/parser/antlr4/**</exclude>
                             </excludes>
                             <propertyName>jacoco.agent.argLine</propertyName>
-                            (2)
                             <destFile>${project.build.directory}/coverage-reports/jacoco.exec</destFile>
                         </configuration>
                     </execution>
