@@ -61,6 +61,6 @@ public class PrometheusReporter implements MetricReporter {
 
     @Override
     public String getName() {
-        return "prometheus";
+        return PROMETHEUS_PACKAGE;
     }
 }

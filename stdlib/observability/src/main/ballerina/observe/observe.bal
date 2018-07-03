@@ -43,7 +43,7 @@ documentation {
         P{{tagKey}} key of the tag
         P{{tagValue}} value of the tag
         R{{error}} An error if an error occured while attaching tag to the span
-    }
+}
 public native function addTagToSpan(int spanId, string tagKey, string tagValue) returns error?;
 
 documentation {
@@ -53,6 +53,9 @@ documentation {
     }
 public native function finishSpan(int spanId) returns error?;
 
+documentation {
+
+}
 public native function getAllMetrics() returns Metric[];
 
 documentation {
