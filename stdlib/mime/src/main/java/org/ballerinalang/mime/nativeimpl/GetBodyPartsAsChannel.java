@@ -18,8 +18,8 @@ import org.ballerinalang.stdlib.io.utils.IOConstants;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
-import static org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT;
-import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.BYTE_CHANNEL_STRUCT;
+import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 
 /**
  * 'getBodyPartsAsChannel' native function converts a set of body parts into a byte channel.

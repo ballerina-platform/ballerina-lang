@@ -22,7 +22,6 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
-
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
@@ -31,7 +30,6 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.mime.util.Constants;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
@@ -59,6 +57,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.ERROR_MESSAGE_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANNOTATED_TOPIC;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ENTITY_ACCESSED_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.LISTENER_SERVICE_ENDPOINT;
@@ -293,7 +292,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
                     String challenge = params.get(PARAM_HUB_CHALLENGE).stringValue();
                     response.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(
                             challenge.getBytes(StandardCharsets.UTF_8))));
-                    response.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), Constants.TEXT_PLAIN);
+                    response.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN);
                     response.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpResponseStatus.ACCEPTED.code());
                     String intentVerificationMessage = "ballerina: Intent Verification agreed - Mode [" + mode
                             + "], Topic [" + annotatedTopic + "]";

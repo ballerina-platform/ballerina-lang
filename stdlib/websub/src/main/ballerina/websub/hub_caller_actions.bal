@@ -88,7 +88,7 @@ public type CallerActions object {
         P{{headers}} The headers, if any, that need to be set
         R{{}} `error` if an error occurred with the update
     }
-    public function publishUpdate(string topic, string|xml|json|blob|io:ByteChannel payload, string? contentType = (),
+    public function publishUpdate(string topic, string|xml|json|byte[]|io:ByteChannel payload, string? contentType = (),
                                   string? secret = (), string signatureMethod = "sha256", map<string>? headers = ())
         returns error?;
 
@@ -167,7 +167,7 @@ public function CallerActions::unregisterTopic(string topic, string? secret = ()
     }
 }
 
-public function CallerActions::publishUpdate(string topic, string|xml|json|blob|io:ByteChannel payload,
+public function CallerActions::publishUpdate(string topic, string|xml|json|byte[]|io:ByteChannel payload,
                                              string? contentType = (), string? secret = (),
                                              string signatureMethod = "sha256", map<string>? headers = ())
         returns error? {

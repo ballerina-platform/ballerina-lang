@@ -21,6 +21,7 @@
     },
     {
       "label":"Add All Attributes",
+      "detail":"none",
       "sortText":"110",
       "insertText":"age: 0,\nname: \"\""
     }

@@ -66,7 +66,7 @@ public class TypedescTests {
         Assert.assertEquals(returns[0].stringValue(), "xml");
         Assert.assertEquals(returns[1].stringValue(), "json");
         Assert.assertEquals(returns[2].stringValue(), "map");
-        Assert.assertEquals(returns[3].stringValue(), "table<Person>");
+        Assert.assertEquals(returns[3].stringValue(), "table<Employee>");
     }
 
 
