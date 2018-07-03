@@ -89,9 +89,7 @@
     <modules>
         <module>modules/server</module>
         <module>modules/web</module>
-        <!-- Re-enable this once source gen is fixed for new language syntax changes -->
-        <!--module>modules/js-tests</module-->
-        <module>integration-tests</module>
+        <module>modules/integration-tests</module>
         <module>modules/distribution</module>
     </modules>
 

@@ -45,7 +45,7 @@ import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRu
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleGlobalVariableDefinitionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleMatchStatementContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleResourceDefinitionContextResolver;
-import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleServiceBodyContextResolver;
+import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleServiceDefinitionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleServiceEndpointAttachmentContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleStatementContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleThrowStatementContext;
@@ -137,16 +137,16 @@ public enum CompletionItemResolver {
             new ParserRuleExpressionContextResolver()),
     PARSER_RULE_CALLABLE_UNIT_BODY_CONTEXT(BallerinaParser.CallableUnitBodyContext.class,
             new ParserRuleCallableUnitBodyContextResolver()),
-    PARSER_RULE_IF_CLAUSE_CONTEXT(BallerinaParser.IfClauseContext.class,
+    PARSER_RULE_IF_CLAUSE_CONTEXT(BallerinaParser.IfElseStatementContext.class,
             new ParserRuleConditionalClauseContextResolver()),
     PARSER_RULE_WHILE_CLAUSE_CONTEXT(BallerinaParser.WhileStatementContext.class,
             new ParserRuleConditionalClauseContextResolver()),
-    PARSER_RULE_SERVICE_BODY_CONTEXT(BallerinaParser.ServiceBodyContext.class,
-            new ParserRuleServiceBodyContextResolver()),
     PARSER_RULE_RESOURCE_DEF_CONTEXT(BallerinaParser.ResourceDefinitionContext.class,
             new ParserRuleResourceDefinitionContextResolver()),
     PARSER_RULE_SERVICE_EP_CONTEXT(BallerinaParser.ServiceEndpointAttachmentsContext.class,
             new ParserRuleServiceEndpointAttachmentContextResolver()),
+    PARSER_RULE_SERVICE_DEF_CONTEXT(BallerinaParser.ServiceDefinitionContext.class,
+            new ParserRuleServiceDefinitionContextResolver()),
     // TODO: Can be removed
     PARSER_RULE_GLOBAL_EP_DECLARATION_CONTEXT(BallerinaParser.GlobalEndpointDefinitionContext.class,
             new EndpointDeclarationContextResolver()),

@@ -98,13 +98,11 @@ public class TraceManager {
         }
 
         if (spanContextMap != null) {
-
             if (isParent) {
                 spanBuilder = spanBuilder.asChildOf((SpanContext) spanContextMap);
             } else {
                 spanBuilder = spanBuilder.asChildOf((Span) spanContextMap);
             }
-
         }
         return spanBuilder.start();
     }

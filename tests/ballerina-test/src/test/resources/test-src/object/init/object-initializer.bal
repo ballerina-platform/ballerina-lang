@@ -2,11 +2,11 @@
 import initializers as inp;
 
 public type person object {
-    public {
-        int age;
-        string name;
-        string address;
-    }
+
+    public int age;
+    public string name;
+    public string address;
+
 
     new (int a = 10, string n = "Charles") {
         self.name = n;
@@ -31,10 +31,10 @@ function testObjectInitializerInAnotherPackage() returns (int, string){
 }
 
 type employee object {
-    public {
-        int age;
-        string name = "A";
-    }
+
+    public int age;
+    public string name = "A";
+
 
     //TODO: define construvtor as new (int age = 30, string name) once
     // https://github.com/ballerina-platform/ballerina-lang/issues/6849 is fixed.

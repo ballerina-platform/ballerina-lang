@@ -680,11 +680,10 @@ public class TreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangEndpoint endpointNode) {
+        SymbolEnv epEnv = SymbolEnv.createPkgLevelSymbolEnv(endpointNode, symbolEnv.scope, symbolEnv);
+        endpointNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, epEnv));
         if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(endpointNode.getPosition(), endpointNode, this, this.documentServiceContext)) {
-            SymbolEnv epEnv = SymbolEnv
-                    .createPkgLevelSymbolEnv(endpointNode, symbolEnv.scope, symbolEnv);
-            endpointNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, epEnv));
             this.isWithinEndpointContext(endpointNode.getPosition(), epEnv);
         }
     }

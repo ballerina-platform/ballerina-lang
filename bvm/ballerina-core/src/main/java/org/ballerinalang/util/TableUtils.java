@@ -19,15 +19,23 @@
 package org.ballerinalang.util;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBlobArray;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
@@ -37,6 +45,7 @@ import java.io.ByteArrayInputStream;
 import java.sql.Blob;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  * Includes utility methods required for table related operations.
@@ -48,11 +57,11 @@ public class TableUtils {
     private static final String TABLE_PACKAGE_PATH = BLangConstants.BALLERINA_BUILTIN_PKG;
     private static final String EXCEPTION_OCCURRED = "Exception occurred";
 
-    public static String generateInsertDataStatment(String tableName, BStruct constrainedType) {
+    public static String generateInsertDataStatment(String tableName, BMap<?, ?> constrainedType) {
         StringBuilder sbSql = new StringBuilder();
         StringBuilder sbValues = new StringBuilder();
         sbSql.append(TableConstants.SQL_INSERT_INTO).append(tableName).append(" (");
-        BField[] structFields = constrainedType.getType().getFields();
+        BField[] structFields = ((BStructureType) constrainedType.getType()).getFields();
         String sep = "";
         for (BField sf : structFields) {
             String name = sf.getFieldName();
@@ -64,10 +73,10 @@ public class TableUtils {
         return sbSql.toString();
     }
 
-    public static String generateDeleteDataStatment(String tableName, BStruct constrainedType) {
+    public static String generateDeleteDataStatment(String tableName, BMap<?, ?> constrainedType) {
         StringBuilder sbSql = new StringBuilder();
         sbSql.append(TableConstants.SQL_DELETE_FROM).append(tableName).append(TableConstants.SQL_WHERE);
-        BField[] structFields = constrainedType.getType().getFields();
+        BField[] structFields = ((BStructureType) constrainedType.getType()).getFields();
         String sep = "";
         for (BField sf : structFields) {
             String name = sf.getFieldName();
@@ -77,49 +86,49 @@ public class TableUtils {
         return sbSql.toString();
     }
 
-    public static void prepareAndExecuteStatement(PreparedStatement stmt, BStruct constrainedType) {
+    public static void prepareAndExecuteStatement(PreparedStatement stmt, BMap<String, BValue> constrainedType) {
         try {
-            BField[] structFields = constrainedType.getType().getFields();
-            int intFieldIndex = 0;
-            int floatFieldIndex = 0;
-            int stringFieldIndex = 0;
-            int booleanFieldIndex = 0;
-            int refFieldIndex = 0;
-            int blobFieldIndex = 0;
+            BField[] structFields = ((BStructureType) constrainedType.getType()).getFields();
             int index = 1;
             for (BField sf : structFields) {
                 int type = sf.getFieldType().getTag();
+                String fieldName = sf.fieldName;
                 switch (type) {
                 case TypeTags.INT_TAG:
-                    stmt.setLong(index, constrainedType.getIntField(intFieldIndex));
-                    ++intFieldIndex;
+                    stmt.setLong(index, ((BInteger) constrainedType.get(fieldName)).intValue());
                     break;
                 case TypeTags.STRING_TAG:
-                    stmt.setString(index, constrainedType.getStringField(stringFieldIndex));
-                    ++stringFieldIndex;
+                    stmt.setString(index, constrainedType.get(fieldName).stringValue());
                     break;
                 case TypeTags.FLOAT_TAG:
-                    stmt.setDouble(index, constrainedType.getFloatField(floatFieldIndex));
-                    ++floatFieldIndex;
+                    stmt.setDouble(index, ((BFloat) constrainedType.get(fieldName)).floatValue());
                     break;
                 case TypeTags.BOOLEAN_TAG:
-                    stmt.setBoolean(index, constrainedType.getBooleanField(booleanFieldIndex) == 1);
-                    ++booleanFieldIndex;
+                    stmt.setBoolean(index, ((BBoolean) constrainedType.get(fieldName)).booleanValue());
                     break;
                 case TypeTags.XML_TAG:
                 case TypeTags.JSON_TAG:
-                    stmt.setString(index, constrainedType.getRefField(refFieldIndex).toString());
-                    ++refFieldIndex;
+                    stmt.setString(index, constrainedType.get(fieldName).toString());
                     break;
                 case TypeTags.BLOB_TAG:
-                    byte[] blobData = constrainedType.getBlobField(blobFieldIndex);
+                    byte[] blobData = ((BBlob) constrainedType.get(fieldName)).blobValue();
                     stmt.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
-                    ++blobFieldIndex;
                     break;
                 case TypeTags.ARRAY_TAG:
-                    Object[] arrayData = getArrayData(constrainedType.getRefField(refFieldIndex));
-                    stmt.setObject(index, arrayData);
-                    ++refFieldIndex;
+                    boolean isBlobType =
+                            ((BArrayType) sf.getFieldType()).getElementType().getTag() == TypeTags.BYTE_TAG;
+                    if (isBlobType) {
+                        BValue value = constrainedType.get(fieldName);
+                        if (value != null) {
+                            blobData = ((BByteArray) constrainedType.get(fieldName)).getBytes();
+                            stmt.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
+                        } else {
+                            stmt.setNull(index, Types.BLOB);
+                        }
+                    } else {
+                        Object[] arrayData = getArrayData(constrainedType.get(fieldName));
+                        stmt.setObject(index, arrayData);
+                    }
                     break;
                 }
                 ++index;
@@ -184,16 +193,16 @@ public class TableUtils {
      *
      * @param context The context
      * @param throwable The Throwable object to be used
-     * @return {@code {@link BStruct}} of the type {@code error}
+     * @return error value
      */
-    public static BStruct createTableOperationError(Context context, Throwable throwable) {
+    public static BMap<?, ?> createTableOperationError(Context context, Throwable throwable) {
         PackageInfo tableLibPackage = context.getProgramFile().getPackageInfo(TABLE_PACKAGE_PATH);
         StructureTypeInfo errorStructInfo = tableLibPackage.getStructInfo(TABLE_OPERATION_ERROR);
-        BStruct tableOperationError = new BStruct(errorStructInfo.getType());
+        BMap<String, BValue> tableOperationError = new BMap<>(errorStructInfo.getType());
         if (throwable.getMessage() == null) {
-            tableOperationError.setStringField(0, EXCEPTION_OCCURRED);
+            tableOperationError.put(BLangVMErrors.ERROR_MESSAGE_FIELD, new BString(EXCEPTION_OCCURRED));
         } else {
-            tableOperationError.setStringField(0, throwable.getMessage());
+            tableOperationError.put(BLangVMErrors.ERROR_MESSAGE_FIELD, new BString(throwable.getMessage()));
         }
         return tableOperationError;
     }

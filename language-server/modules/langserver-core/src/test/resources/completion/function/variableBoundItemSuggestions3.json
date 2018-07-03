@@ -174,7 +174,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getBinaryPayload()(blob|error)",
+      "label":"getBinaryPayload()(byte[]|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
@@ -198,7 +198,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"setETag(json|xml|string|blob payload)",
+      "label":"setETag(json|xml|string|byte[] payload)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
@@ -238,7 +238,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"setBinaryPayload(blob payload, string contentType \u003d application/octet-stream)",
+      "label":"setBinaryPayload(byte[] payload, string contentType \u003d application/octet-stream)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
@@ -246,7 +246,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"setBodyParts(mime:Entity bodyParts, string contentType \u003d multipart/form-data)",
+      "label":"setBodyParts(mime:Entity[] bodyParts, string contentType \u003d multipart/form-data)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",
@@ -270,7 +270,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"setPayload(string|xml|json|blob|ballerina/io:ByteChannel|ballerina/mime:Entity[] payload)",
+      "label":"setPayload(string|xml|json|byte[]|ballerina/io:ByteChannel|ballerina/mime:Entity[] payload)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"121",

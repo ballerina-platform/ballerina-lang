@@ -16,11 +16,12 @@
  */
 package org.ballerinalang.launcher.util;
 
+import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.BStructureType;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
@@ -262,7 +263,7 @@ public class BCompileUtil {
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
-        BLangPackage packageNode = compiler.compile(packageName);
+        BLangPackage packageNode = compiler.compile(packageName, true);
         comResult.setAST(packageNode);
         if (comResult.getErrorCount() > 0 || CompilerPhase.CODE_GEN.compareTo(compilerPhase) > 0) {
             return comResult;
@@ -360,11 +361,11 @@ public class BCompileUtil {
         return sb.toString();
     }
 
-    public static BStruct createAndGetStruct(ProgramFile programFile, String packagePath, String structName) {
+    public static BMap<String, BValue> createAndGetStruct(ProgramFile programFile, String packagePath,
+                                                          String structName) {
         PackageInfo structPackageInfo = programFile.getPackageInfo(packagePath);
         StructureTypeInfo typeInfo = structPackageInfo.getStructInfo(structName);
-        BStructureType structType = typeInfo.getType();
-        return new BStruct(structType);
+        return BLangVMStructs.createBStruct(typeInfo);
     }
 
 

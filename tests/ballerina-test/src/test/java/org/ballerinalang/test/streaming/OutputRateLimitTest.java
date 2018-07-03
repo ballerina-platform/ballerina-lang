@@ -20,7 +20,7 @@ package org.ballerinalang.test.streaming;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -49,11 +49,11 @@ public class OutputRateLimitTest {
 
         Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");
 
-        BStruct employee0 = (BStruct) outputEmployeeEvents[0];
-        BStruct employee1 = (BStruct) outputEmployeeEvents[1];
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
+        BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[1];
 
-        Assert.assertEquals(employee0.getStringField(0), "Raja");
-        Assert.assertEquals(employee1.getStringField(0), "Praveen");
+        Assert.assertEquals(employee0.get("name").stringValue(), "Raja");
+        Assert.assertEquals(employee1.get("name").stringValue(), "Praveen");
     }
 
     @Test(description = "Test output rate limiting query based on time")
@@ -62,7 +62,7 @@ public class OutputRateLimitTest {
         Assert.assertNotNull(outputEmployeeEvents);
         Assert.assertEquals(outputEmployeeEvents.length, 1, "Expected events are not received");
 
-        BStruct employee0 = (BStruct) outputEmployeeEvents[0];
-        Assert.assertEquals(employee0.getStringField(0), "Raja");
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
+        Assert.assertEquals(employee0.get("name").stringValue(), "Raja");
     }
 }

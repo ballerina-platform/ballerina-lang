@@ -25,9 +25,9 @@ import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -80,7 +80,8 @@ public class UnaryBlockingBasicTestCase extends IntegrationTestCase {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary1_blocking_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BString request = new BString("invalid");
-        final String serverMsg = "Error from Connector: gRPC Client Connector Error :ABORTED: Operation aborted";
+        final String serverMsg = "Error from Connector: Status{ code ABORTED, description Operation aborted, cause " +
+                "null}ABORTED: Operation aborted";
 
         BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);
@@ -138,16 +139,16 @@ public class UnaryBlockingBasicTestCase extends IntegrationTestCase {
         PackageInfo httpPackageInfo = result.getProgFile().getPackageInfo(".");
         StructureTypeInfo structInfo = httpPackageInfo.getStructInfo("Request");
         BStructureType structType = structInfo.getType();
-        BStruct request = new BStruct(structType);
-        request.setStringField(0, "Sam");
-        request.setStringField(1, "Testing.");
-        request.setIntField(0, 10);
+        BMap<String, BValue> request = new BMap<String, BValue>(structType);
+        request.put("name", new BString("Sam"));
+        request.put("message", new BString("Testing."));
+        request.put("age", new BInteger(10));
 
         BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingStructClient", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);
-        Assert.assertTrue(responses[0] instanceof BStruct);
-        final BStruct response = (BStruct) responses[0];
-        Assert.assertEquals(response.getStringField(0), "Acknowledge Sam");
+        Assert.assertTrue(responses[0] instanceof BMap);
+        final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];
+        Assert.assertEquals(response.get("resp").stringValue(), "Acknowledge Sam");
     }
 
     @Test

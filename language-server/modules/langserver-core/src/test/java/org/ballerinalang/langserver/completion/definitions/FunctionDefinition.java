@@ -49,15 +49,6 @@ public class FunctionDefinition extends CompletionTest {
                 {"endpointAttributeSuggestion1.json", "function"},
                 {"recordVarDef1.json", "function"},
                 {"recordVarDef2.json", "function"},
-                // TODO: Following test case has been commented until find a proper fix for endpoints inside function
-//                {"endpointAttributeSuggestion2.json", "function"},
-//                {"enumSuggestAssignment1.json", "function"},
-//                {"enumSuggestAssignment2.json", "function"},
-//                {"enumSuggestVarDef1.json", "function"},
-//                {"enumSuggestVarDef2.json", "function"},
-//                {"structFields.json", "function"},
-//                {"structBoundFunctionsAndFields.json", "function"},
-//                {"packageContentWithSucceedingCharacter1.json", "function"}
         };
     }
 }

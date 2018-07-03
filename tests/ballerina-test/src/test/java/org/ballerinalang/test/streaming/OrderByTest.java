@@ -20,7 +20,8 @@ package org.ballerinalang.test.streaming;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -46,9 +47,11 @@ public class OrderByTest {
         Assert.assertNotNull(outputEmployeeEvents);
         Assert.assertEquals(outputEmployeeEvents.length, 10, "Expected events are not received");
         for (int i = 1; i < outputEmployeeEvents.length; i++) {
-            BStruct currentTeacher = (BStruct) outputEmployeeEvents[i];
-            BStruct previousTeacher = (BStruct) outputEmployeeEvents[i - 1];
-            Assert.assertTrue(currentTeacher.getIntField(0) >= previousTeacher.getIntField(0));
+            BMap<String, BValue> currentTeacher = (BMap<String, BValue>) outputEmployeeEvents[i];
+            BMap<String, BValue> previousTeacher = (BMap<String, BValue>) outputEmployeeEvents[i - 1];
+            long currentTeacherAge = ((BInteger) currentTeacher.get("age")).intValue();
+            long prevTeacherAge = ((BInteger) previousTeacher.get("age")).intValue();
+            Assert.assertTrue(currentTeacherAge >= prevTeacherAge);
         }
     }
 
@@ -58,9 +61,11 @@ public class OrderByTest {
         Assert.assertNotNull(outputEmployeeEvents);
         Assert.assertEquals(outputEmployeeEvents.length, 10, "Expected events are not received");
         for (int i = 1; i < outputEmployeeEvents.length; i++) {
-            BStruct currentTeacher = (BStruct) outputEmployeeEvents[i];
-            BStruct previousTeacher = (BStruct) outputEmployeeEvents[i - 1];
-            Assert.assertTrue(currentTeacher.getIntField(0) >= previousTeacher.getIntField(0));
+            BMap<String, BValue> currentTeacher = (BMap<String, BValue>) outputEmployeeEvents[i];
+            BMap<String, BValue> previousTeacher = (BMap<String, BValue>) outputEmployeeEvents[i - 1];
+            long currentTeacherAge = ((BInteger) currentTeacher.get("age")).intValue();
+            long prevTeacherAge = ((BInteger) previousTeacher.get("age")).intValue();
+            Assert.assertTrue(currentTeacherAge >= prevTeacherAge);
         }
     }
 
@@ -70,9 +75,11 @@ public class OrderByTest {
         Assert.assertNotNull(outputEmployeeEvents);
         Assert.assertEquals(outputEmployeeEvents.length, 10, "Expected events are not received");
         for (int i = 1; i < outputEmployeeEvents.length; i++) {
-            BStruct currentTeacher = (BStruct) outputEmployeeEvents[i];
-            BStruct previousTeacher = (BStruct) outputEmployeeEvents[i - 1];
-            Assert.assertTrue(currentTeacher.getIntField(0) <= previousTeacher.getIntField(0));
+            BMap<String, BValue> currentTeacher = (BMap<String, BValue>) outputEmployeeEvents[i];
+            BMap<String, BValue> previousTeacher = (BMap<String, BValue>) outputEmployeeEvents[i - 1];
+            long currentTeacherAge = ((BInteger) currentTeacher.get("age")).intValue();
+            long prevTeacherAge = ((BInteger) previousTeacher.get("age")).intValue();
+            Assert.assertTrue(currentTeacherAge <= prevTeacherAge);
         }
     }
 
@@ -82,12 +89,15 @@ public class OrderByTest {
         Assert.assertNotNull(outputEmployeeEvents);
         Assert.assertEquals(outputEmployeeEvents.length, 10, "Expected events are not received");
         for (int i = 1; i < outputEmployeeEvents.length; i++) {
-            BStruct currentTeacher = (BStruct) outputEmployeeEvents[i];
-            BStruct previousTeacher = (BStruct) outputEmployeeEvents[i - 1];
-            Assert.assertTrue(currentTeacher.getStringField(1).compareToIgnoreCase(previousTeacher.getStringField(1))
-                              >= 0);
-            if (currentTeacher.getStringField(1).equalsIgnoreCase(previousTeacher.getStringField(1))) {
-                Assert.assertTrue(currentTeacher.getIntField(0) >= previousTeacher.getIntField(0));
+            BMap<String, BValue> currentTeacher = (BMap<String, BValue>) outputEmployeeEvents[i];
+            BMap<String, BValue> previousTeacher = (BMap<String, BValue>) outputEmployeeEvents[i - 1];
+            Assert.assertTrue(currentTeacher.get("status").stringValue()
+                    .compareToIgnoreCase(previousTeacher.get("status").stringValue()) >= 0);
+            if (currentTeacher.get("status").stringValue()
+                    .equalsIgnoreCase(previousTeacher.get("status").stringValue())) {
+                long currentTeacherAge = ((BInteger) currentTeacher.get("age")).intValue();
+                long prevTeacherAge = ((BInteger) previousTeacher.get("age")).intValue();
+                Assert.assertTrue(currentTeacherAge >= prevTeacherAge);
             }
         }
     }
@@ -98,12 +108,15 @@ public class OrderByTest {
         Assert.assertNotNull(outputEmployeeEvents);
         Assert.assertEquals(outputEmployeeEvents.length, 10, "Expected events are not received");
         for (int i = 1; i < outputEmployeeEvents.length; i++) {
-            BStruct currentTeacher = (BStruct) outputEmployeeEvents[i];
-            BStruct previousTeacher = (BStruct) outputEmployeeEvents[i - 1];
-            Assert.assertTrue(currentTeacher.getStringField(1).compareToIgnoreCase(previousTeacher.getStringField(1))
-                              >= 0);
-            if (currentTeacher.getStringField(1).equalsIgnoreCase(previousTeacher.getStringField(1))) {
-                Assert.assertTrue(currentTeacher.getIntField(0) <= previousTeacher.getIntField(0));
+            BMap<String, BValue> currentTeacher = (BMap<String, BValue>) outputEmployeeEvents[i];
+            BMap<String, BValue> previousTeacher = (BMap<String, BValue>) outputEmployeeEvents[i - 1];
+            Assert.assertTrue(currentTeacher.get("status").stringValue()
+                    .compareToIgnoreCase(previousTeacher.get("status").stringValue()) >= 0);
+            if (currentTeacher.get("status").stringValue()
+                    .equalsIgnoreCase(previousTeacher.get("status").stringValue())) {
+                long currentTeacherAge = ((BInteger) currentTeacher.get("age")).intValue();
+                long prevTeacherAge = ((BInteger) previousTeacher.get("age")).intValue();
+                Assert.assertTrue(currentTeacherAge <= prevTeacherAge);
             }
         }
     }

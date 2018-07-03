@@ -24,7 +24,7 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConstants;
@@ -42,7 +42,7 @@ import java.util.Map;
 
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT;
-import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONFIG_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONFIG_FIELD;
 
 /**
  * This contains test utils related to Ballerina service invocations.
@@ -65,7 +65,7 @@ public class Services {
     public static HTTPCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String version,
                                               String endpointName, HTTPTestRequest request) {
         ProgramFile programFile = compileResult.getProgFile();
-        BStruct connectorEndpoint =
+        BMap<String, BValue> connectorEndpoint =
                 BLangConnectorSPIUtil.getPackageEndpoint(programFile, pkgName, version, endpointName);
 
         HTTPServicesRegistry httpServicesRegistry =
@@ -88,9 +88,10 @@ public class Services {
             Object srcHandler = request.getProperty(HttpConstants.SRC_HANDLER);
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
-        BStruct tempEndpoint = BLangConnectorSPIUtil.createObject(programFile, PROTOCOL_PACKAGE_HTTP, SERVICE_ENDPOINT);
+        BMap<String, BValue> tempEndpoint =
+                BLangConnectorSPIUtil.createObject(programFile, PROTOCOL_PACKAGE_HTTP, SERVICE_ENDPOINT);
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request, BLangConnectorSPIUtil
-                .toStruct((BStruct) tempEndpoint.getRefField(SERVICE_ENDPOINT_CONFIG_INDEX)));
+                .toStruct((BMap<String, BValue>) tempEndpoint.get(SERVICE_ENDPOINT_CONFIG_FIELD)));
         callback.setRequestStruct(signatureParams[0]);
         Executor.submit(resource.getBalResource(), callback, properties, null, signatureParams);
         callback.sync();

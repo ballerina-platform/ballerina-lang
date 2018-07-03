@@ -32,6 +32,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -49,7 +50,8 @@ public class EnvVarConfigTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
+                .getAbsolutePath();
         sourceRoot = Paths.get(resourceRoot, "test-src", "config");
         registry.initRegistry(null, null, null); // empty registry
         compileResult = BCompileUtil.compile(sourceRoot.resolve("config.bal").toString());
@@ -63,7 +65,7 @@ public class EnvVarConfigTest {
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                           "Invalid Return Values.");
+                "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
         Assert.assertEquals(returnVals[0].stringValue(), "b7auser");
     }
@@ -76,7 +78,7 @@ public class EnvVarConfigTest {
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                           "Invalid Return Values.");
+                "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
         Assert.assertEquals(returnVals[0].stringValue(), "b7apw");
     }
@@ -89,7 +91,7 @@ public class EnvVarConfigTest {
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsInt", inputArg);
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                           "Invalid Return Values.");
+                "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returnVals[0]).intValue(), 5656);
     }
@@ -102,7 +104,7 @@ public class EnvVarConfigTest {
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsFloat", inputArg);
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                           "Invalid Return Values.");
+                "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BFloat);
         Assert.assertEquals(((BFloat) returnVals[0]).floatValue(), 0.2333333);
     }
@@ -115,7 +117,7 @@ public class EnvVarConfigTest {
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsBoolean", inputArg);
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                           "Invalid Return Values.");
+                "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returnVals[0]).booleanValue());
     }
@@ -128,7 +130,7 @@ public class EnvVarConfigTest {
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsString", inputArg);
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                           "Invalid Return Values.");
+                "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
         Assert.assertEquals(returnVals[0].stringValue(), "");
     }
@@ -141,7 +143,7 @@ public class EnvVarConfigTest {
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsInt", inputArg);
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                           "Invalid Return Values.");
+                "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returnVals[0]).intValue(), 0);
     }
@@ -154,7 +156,7 @@ public class EnvVarConfigTest {
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsFloat", inputArg);
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                           "Invalid Return Values.");
+                "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BFloat);
         Assert.assertEquals(((BFloat) returnVals[0]).floatValue(), 0.0);
     }
@@ -167,20 +169,20 @@ public class EnvVarConfigTest {
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsBoolean", inputArg);
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                           "Invalid Return Values.");
+                "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BBoolean);
         Assert.assertFalse(((BBoolean) returnVals[0]).booleanValue());
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*'string' cannot be converted to 'int'.*")
+            expectedExceptionsMessageRegExp = ".*'string' cannot be converted to 'int'.*")
     public void testInvalidIntEnvVarLookup() {
         BString key = new BString("user.name");
         BRunUtil.invoke(compileResult, "testGetAsInt", new BValue[]{key});
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*'string' cannot be converted to 'float'.*")
+            expectedExceptionsMessageRegExp = ".*'string' cannot be converted to 'float'.*")
     public void testInvalidFloatEnvVarLookup() {
         BString key = new BString("user.name");
         BRunUtil.invoke(compileResult, "testGetAsFloat", new BValue[]{key});
@@ -194,7 +196,7 @@ public class EnvVarConfigTest {
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsBoolean", inputArg);
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                           "Invalid Return Values.");
+                "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BBoolean);
         Assert.assertFalse(((BBoolean) returnVals[0]).booleanValue());
     }

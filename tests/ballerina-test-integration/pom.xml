@@ -31,6 +31,14 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-runtime</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-launcher</artifactId>
         </dependency>
         <dependency>
@@ -43,7 +51,19 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-database</artifactId>
+            <artifactId>ballerina-h2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-mysql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-sql</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -108,24 +128,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-netty</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-protobuf</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-grpc</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>protobuf-ballerina</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-stub</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.protobuf</groupId>
@@ -141,7 +149,7 @@
             <artifactId>observability-test-utils</artifactId>
             <scope>test</scope>
         </dependency>
-        
+
         <!-- balo dependencies -->
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -151,7 +159,25 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-database</artifactId>
+            <artifactId>ballerina-h2</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-jdbc</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-mysql</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-sql</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
@@ -176,6 +202,12 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-grpc</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-observability</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
@@ -236,11 +268,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven.surefire.plugin.version}</version>
                 <configuration>
+                    <argLine>@{jacoco.agent.argLine}</argLine>
                     <systemPropertyVariables>
                         <server.zip>
-                            ${basedir}/../../distribution/zip/ballerina/target/ballerina-${project.version}.zip
+                            ${basedir}/../../distribution/zip/ballerina-tools/target/ballerina-tools-${project.version}.zip
                         </server.zip>
                         <observability-test-natives.jar>
                             ${basedir}/../../tests/observability-test-utils/target/observability-test-utils-${project.version}.jar
@@ -257,6 +289,44 @@
                         <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.7.8</version>
+                <executions>
+                    <execution>
+                        <id>prepare-it-test-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <append>true</append>
+                            <inclNoLocationClasses>true</inclNoLocationClasses>
+                            <excludes>
+                                <exclude>org/wso2/ballerinalang/compiler/parser/antlr4/**</exclude>
+                            </excludes>
+                            <propertyName>jacoco.agent.argLine</propertyName>
+                            <destFile>${project.build.directory}/coverage-reports/jacoco.exec</destFile>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>it-report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report-aggregate</goal>
+                        </goals>
+                        <configuration>
+                            <dataFileIncludes>
+                                <dataFileInclude>**/coverage-reports/jacoco.exec</dataFileInclude>
+                            </dataFileIncludes>
+                            <excludes>
+                                <exclude>org/wso2/ballerinalang/compiler/parser/antlr4/**</exclude>
+                            </excludes>
+                            <outputDirectory>${project.build.directory}/coverage-reports/site</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

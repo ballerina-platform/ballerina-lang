@@ -21,7 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -52,7 +52,7 @@ public class TestFinallyBlock {
 
     @Test
     public void testReturnFromFinallyBlock() {
-        BValue[] args = {new BInteger(11)};
+        BValue[] args = { new BInteger(11) };
         BValue[] returns = BRunUtil.invoke(compileResult, "test2", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
@@ -74,7 +74,8 @@ public class TestFinallyBlock {
         BValue[] returns = BRunUtil.invoke(compileResult, "test4", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "try innerFinally outerFinally");
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get("value").stringValue(),
+                "try innerFinally outerFinally");
     }
 
     @Test(description = "check while condition in a finally block")
@@ -92,7 +93,8 @@ public class TestFinallyBlock {
         BValue[] returns = BRunUtil.invoke(compileResult, "test6", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "try innerFinally outerFinally");
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get("value").stringValue(),
+                "try innerFinally outerFinally");
     }
 
     @Test(description = "check try-finally block inside a finally block ")
@@ -101,8 +103,8 @@ public class TestFinallyBlock {
         BValue[] returns = BRunUtil.invoke(compileResult, "test7", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "try innerFinally innerInnerTry " +
-                "innerInnerFinally outerFinally");
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get("value").stringValue(),
+                "try innerFinally innerInnerTry " + "innerInnerFinally outerFinally");
     }
 
     @Test(description = "check multiple return inside finally block ")
@@ -114,17 +116,15 @@ public class TestFinallyBlock {
         Assert.assertEquals(returns[0].stringValue(), "OuterOk");
     }
 
-
     @Test(description = "check multiple return inside finally block ")
     public void testMultipleReturnInsideFinallyBlockWithRefType() {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(compileResult, "test9", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "try innerFinally innerInnerTry " +
-                "innerInnerFinally outerFinally");
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get("value").stringValue(),
+                "try innerFinally innerInnerTry " + "innerInnerFinally outerFinally");
     }
-
 
     @Test(description = "check break with Finally ")
     public void testBreakWithFinallyBlock() {
@@ -132,7 +132,7 @@ public class TestFinallyBlock {
         BValue[] returns = BRunUtil.invoke(compileResult, "testBreak1", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "s t-f1 t-f2 tf3");
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get("value").stringValue(), "s t-f1 t-f2 tf3");
     }
 
     @Test(description = "check continue with finally ")
@@ -141,7 +141,8 @@ public class TestFinallyBlock {
         BValue[] returns = BRunUtil.invoke(compileResult, "testContinue1", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "s t-f1 t-f2 tf3 t-f4 t-f5");
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get("value").stringValue(),
+                "s t-f1 t-f2 tf3 t-f4 t-f5");
     }
 
     @Test(description = "check abort with finally ")
@@ -150,7 +151,7 @@ public class TestFinallyBlock {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAbort1", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "s tf");
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get("value").stringValue(), "s tf");
     }
 
     @Test(description = "check abort with finally ")
@@ -159,6 +160,6 @@ public class TestFinallyBlock {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAbort2", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "s t-f1 tf2");
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get("value").stringValue(), "s t-f1 tf2");
     }
 }
