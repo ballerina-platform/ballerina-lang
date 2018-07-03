@@ -212,8 +212,8 @@ public class CircuitBreakerTest {
 
         BRefValueArray responses = (BRefValueArray) returnVals[0];
         for (int i = 0; i < responses.size(); i++) {
-            BStruct res = (BStruct) responses.get(i);
-            long statusCode = res.getIntField(0);
+            BMap<String, BValue> res = (BMap<String, BValue>) responses.get(i);
+            long statusCode = ((BInteger) res.get(STATUS_CODE_FIELD)).intValue();
             Assert.assertEquals(statusCode, expectedStatusCodes[i], "Status code does not match.");
         }
     }
@@ -233,8 +233,8 @@ public class CircuitBreakerTest {
 
         BRefValueArray responses = (BRefValueArray) returnVals[0];
         for (int i = 0; i < responses.size(); i++) {
-            BStruct res = (BStruct) responses.get(i);
-            long statusCode = res.getIntField(0);
+            BMap<String, BValue> res = (BMap<String, BValue>) responses.get(i);
+            long statusCode = ((BInteger) res.get(STATUS_CODE_FIELD)).intValue();
             Assert.assertEquals(statusCode, expectedStatusCodes[i], "Status code does not match.");
         }
     }

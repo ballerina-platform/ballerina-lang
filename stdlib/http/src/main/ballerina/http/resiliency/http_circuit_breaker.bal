@@ -146,14 +146,12 @@ documentation {
 }
 public type CircuitBreakerClient object {
 
-    public {
-        string serviceUri;
-        ClientEndpointConfig config;
-        CircuitBreakerInferredConfig circuitBreakerInferredConfig;
-        CallerActions httpClient;
-        CircuitHealth circuitHealth;
-        CircuitState currentCircuitState = CB_CLOSED_STATE;
-    }
+    public string serviceUri;
+    public ClientEndpointConfig config;
+    public CircuitBreakerInferredConfig circuitBreakerInferredConfig;
+    public CallerActions httpClient;
+    public CircuitHealth circuitHealth;
+    public CircuitState currentCircuitState = CB_CLOSED_STATE;
 
     documentation {
         A Circuit Breaker implementation which can be used to gracefully handle network failures.
@@ -344,7 +342,7 @@ public type CircuitBreakerClient object {
     public function getCurrentState() returns CircuitState;
 };
 
-public function CircuitBreakerClient::post(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+function CircuitBreakerClient::post(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
     message) returns Response|error {
     Request req = buildRequest(message);
     CallerActions httpClient = self.httpClient;
@@ -368,7 +366,7 @@ public function CircuitBreakerClient::post(string path, Request|string|xml|json|
     }
 }
 
-public function CircuitBreakerClient::head(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+function CircuitBreakerClient::head(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
     message = ()) returns Response|error {
     Request request = buildRequest(message);
     CallerActions httpClient = self.httpClient;
@@ -392,7 +390,7 @@ public function CircuitBreakerClient::head(string path, Request|string|xml|json|
     }
 }
 
-public function CircuitBreakerClient::put(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+function CircuitBreakerClient::put(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
     message) returns Response|error {
     Request request = buildRequest(message);
     CallerActions httpClient = self.httpClient;
@@ -416,7 +414,7 @@ public function CircuitBreakerClient::put(string path, Request|string|xml|json|b
     }
 }
 
-public function CircuitBreakerClient::execute(string httpVerb, string path, Request|string|xml|json|byte[]|
+function CircuitBreakerClient::execute(string httpVerb, string path, Request|string|xml|json|byte[]|
     io:ByteChannel|mime:Entity[]|() message) returns Response|error {
     Request request = buildRequest(message);
     CallerActions httpClient = self.httpClient;
@@ -440,7 +438,7 @@ public function CircuitBreakerClient::execute(string httpVerb, string path, Requ
     }
 }
 
-public function CircuitBreakerClient::patch(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+function CircuitBreakerClient::patch(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
     message) returns Response|error {
     Request request = buildRequest(message);
     CallerActions httpClient = self.httpClient;
@@ -464,7 +462,7 @@ public function CircuitBreakerClient::patch(string path, Request|string|xml|json
     }
 }
 
-public function CircuitBreakerClient::delete(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+function CircuitBreakerClient::delete(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
     message) returns Response|error {
     Request request = buildRequest(message);
     CallerActions httpClient = self.httpClient;
@@ -488,7 +486,7 @@ public function CircuitBreakerClient::delete(string path, Request|string|xml|jso
     }
 }
 
-public function CircuitBreakerClient::get(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+function CircuitBreakerClient::get(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
     message = ()) returns Response|error {
     Request request = buildRequest(message);
     CallerActions httpClient = self.httpClient;
@@ -512,7 +510,7 @@ public function CircuitBreakerClient::get(string path, Request|string|xml|json|b
     }
 }
 
-public function CircuitBreakerClient::options(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+function CircuitBreakerClient::options(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
     message = ()) returns Response|error {
     Request request = buildRequest(message);
     CallerActions httpClient = self.httpClient;
@@ -536,7 +534,7 @@ public function CircuitBreakerClient::options(string path, Request|string|xml|js
     }
 }
 
-public function CircuitBreakerClient::forward(string path, Request request) returns Response|error {
+function CircuitBreakerClient::forward(string path, Request request) returns Response|error {
     CallerActions httpClient = self.httpClient;
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
@@ -558,42 +556,42 @@ public function CircuitBreakerClient::forward(string path, Request request) retu
     }
 }
 
-public function CircuitBreakerClient::submit(string httpVerb, string path, Request|string|xml|json|byte[]|
+function CircuitBreakerClient::submit(string httpVerb, string path, Request|string|xml|json|byte[]|
     io:ByteChannel|mime:Entity[]|() message) returns HttpFuture|error {
     Request request = buildRequest(message);
     return self.httpClient.submit(httpVerb, path, request);
 }
 
-public function CircuitBreakerClient::getResponse(HttpFuture httpFuture) returns Response|error {
+function CircuitBreakerClient::getResponse(HttpFuture httpFuture) returns Response|error {
     return self.httpClient.getResponse(httpFuture);
 }
 
-public function CircuitBreakerClient::hasPromise(HttpFuture httpFuture) returns boolean {
+function CircuitBreakerClient::hasPromise(HttpFuture httpFuture) returns boolean {
     return self.httpClient.hasPromise(httpFuture);
 }
 
-public function CircuitBreakerClient::getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+function CircuitBreakerClient::getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
     return self.httpClient.getNextPromise(httpFuture);
 }
 
-public function CircuitBreakerClient::getPromisedResponse(PushPromise promise) returns Response|error {
+function CircuitBreakerClient::getPromisedResponse(PushPromise promise) returns Response|error {
     return self.httpClient.getPromisedResponse(promise);
 }
 
-public function CircuitBreakerClient::rejectPromise(PushPromise promise) {
+function CircuitBreakerClient::rejectPromise(PushPromise promise) {
     return self.httpClient.rejectPromise(promise);
 }
 
-public function CircuitBreakerClient::forceClose() {
+function CircuitBreakerClient::forceClose() {
     self.currentCircuitState = CB_CLOSED_STATE;
 }
 
-public function CircuitBreakerClient::forceOpen() {
+function CircuitBreakerClient::forceOpen() {
     self.currentCircuitState = CB_OPEN_STATE;
     self.circuitHealth.lastForcedOpenTime = time:currentTime();
 }
 
-public function CircuitBreakerClient::getCurrentState() returns CircuitState {
+function CircuitBreakerClient::getCurrentState() returns CircuitState {
     return self.currentCircuitState;
 }
 
@@ -611,15 +609,10 @@ function updateCircuitState(CircuitHealth circuitHealth, CircuitState currentSta
         CircuitState currentState = currentStateValue;
         prepareRollingWindow(circuitHealth, circuitBreakerInferredConfig);
         int currentBucketId = getCurrentBucketId(circuitHealth, circuitBreakerInferredConfig);
-        if (currentBucketId != circuitHealth.lastUsedBucketId) {
-            resetBucketStats(circuitHealth, currentBucketId);
-            circuitHealth.lastUsedBucketId = currentBucketId;
-        }
-        circuitHealth.totalBuckets[currentBucketId].totalCount++;
+        updateLastUsedBucketId(currentBucketId, circuitHealth);
         circuitHealth.lastRequestTime = time:currentTime();
         int totalRequestsCount = getTotalRequestsCount(circuitHealth);
         circuitHealth.totalRequestCount = totalRequestsCount;
-
         if (totalRequestsCount >= circuitBreakerInferredConfig.rollingWindow.requestVolumeThreshold) {
             if (currentState == CB_OPEN_STATE) {
                 time:Time effectiveErrorTime = getEffectiveErrorTime(circuitHealth);
@@ -651,6 +644,7 @@ function updateCircuitState(CircuitHealth circuitHealth, CircuitState currentSta
                 }
             }
         }
+        circuitHealth.totalBuckets[currentBucketId].totalCount++;
         return currentState;
     }
 }
@@ -660,10 +654,7 @@ function updateCircuitHealthFailure(CircuitHealth circuitHealth,
     lock {
         int currentBucketId = getCurrentBucketId(circuitHealth, circuitBreakerInferredConfig);
         circuitHealth.lastRequestSucessful = false;
-        if (currentBucketId != circuitHealth.lastUsedBucketId) {
-            resetBucketStats(circuitHealth, currentBucketId);
-            circuitHealth.lastUsedBucketId = currentBucketId;
-        }
+        updateLastUsedBucketId(currentBucketId, circuitHealth);
         circuitHealth.totalBuckets[currentBucketId].failureCount++;
         time:Time lastUpdated = time:currentTime();
         circuitHealth.lastErrorTime = lastUpdated;
@@ -676,10 +667,7 @@ function updateCircuitHealthSuccess(CircuitHealth circuitHealth, Response inResp
     lock {
         int currentBucketId = getCurrentBucketId(circuitHealth, circuitBreakerInferredConfig);
         time:Time lastUpdated = time:currentTime();
-        if (currentBucketId != circuitHealth.lastUsedBucketId) {
-            resetBucketStats(circuitHealth, currentBucketId);
-            circuitHealth.lastUsedBucketId = currentBucketId;
-        }
+        updateLastUsedBucketId(currentBucketId, circuitHealth);
         if (circuitBreakerInferredConfig.statusCodes[inResponse.statusCode] == true) {
             circuitHealth.totalBuckets[currentBucketId].failureCount++;
             circuitHealth.lastRequestSucessful = false;
@@ -727,7 +715,7 @@ function getCurrentFailureRatio(CircuitHealth circuitHealth) returns float {
     int totalFailures;
 
     foreach bucket in circuitHealth.totalBuckets {
-        totalCount =  totalCount + bucket.totalCount;
+        totalCount =  totalCount + bucket.failureCount + (bucket.totalCount - (bucket.failureCount + bucket.rejectedCount));
         totalFailures = totalFailures + bucket.failureCount;
     }
     float ratio = 0;
@@ -776,10 +764,7 @@ documentation {
 }
 function updateRejectedRequestCount(CircuitHealth circuitHealth, CircuitBreakerInferredConfig circuitBreakerInferredConfig) {
     int currentBucketId = getCurrentBucketId(circuitHealth, circuitBreakerInferredConfig);
-    if (currentBucketId != circuitHealth.lastUsedBucketId) {
-        resetBucketStats(circuitHealth, currentBucketId);
-        circuitHealth.lastUsedBucketId = currentBucketId;
-    }
+    updateLastUsedBucketId(currentBucketId, circuitHealth);
     circuitHealth.totalBuckets[currentBucketId].rejectedCount++;
 }
 
@@ -809,16 +794,22 @@ documentation {
 function prepareRollingWindow(CircuitHealth circuitHealth, CircuitBreakerInferredConfig circuitBreakerInferredConfig) {
 
     int currentTime = time:currentTime().time;
-    int idealTime = currentTime - circuitHealth.lastRequestTime.time;
+    int idleTime = currentTime - circuitHealth.lastRequestTime.time;
 
-    if (idealTime > circuitBreakerInferredConfig.rollingWindow.timeWindowMillis){
+    // If the time duration between Two requests greater than timeWindowMillis values, reset the buckets to default.
+    if (idleTime > circuitBreakerInferredConfig.rollingWindow.timeWindowMillis) {
         reInitializeBuckets(circuitHealth);
     } else {
         int currentBucketId = getCurrentBucketId(circuitHealth, circuitBreakerInferredConfig);
         int lastUsedBucketId = circuitHealth.lastUsedBucketId;
-        if (currentBucketId == circuitHealth.lastUsedBucketId && idealTime > circuitBreakerInferredConfig.rollingWindow.
+        // Checks whether subsequent requests received within same bucket(sub time window). If the idle time is greater
+        // than bucketSizeMillis means subsequent calls are received time exceeding the rolling window. if we need to
+        // reset the buckets to default.
+        if (currentBucketId == circuitHealth.lastUsedBucketId && idleTime > circuitBreakerInferredConfig.rollingWindow.
             bucketSizeMillis) {
             reInitializeBuckets(circuitHealth);
+        // If the current bucket (sub time window) is less than last updated bucket. Stats of the current bucket to zeroth
+        // bucket and Last bucket to last used bucket needs to be reset to default.
         } else if (currentBucketId < lastUsedBucketId) {
             int index = currentBucketId;
             while (index >= 0) {
@@ -831,7 +822,9 @@ function prepareRollingWindow(CircuitHealth circuitHealth, CircuitBreakerInferre
                 lastindex--;
             }
         } else {
-            while (currentBucketId > lastUsedBucketId && idealTime > circuitBreakerInferredConfig.rollingWindow.
+            // If the current bucket (sub time window) is greater than last updated bucket. Stats of current bucket to
+            // last used bucket needs to be reset without resetting last used bucket stat.
+            while (currentBucketId > lastUsedBucketId && idleTime > circuitBreakerInferredConfig.rollingWindow.
                 bucketSizeMillis) {
                 circuitHealth.totalBuckets[currentBucketId] = {};
                 currentBucketId--;
@@ -853,4 +846,17 @@ function reInitializeBuckets(CircuitHealth circuitHealth) {
         bucketIndex = bucketIndex + 1;
     }
     circuitHealth.totalBuckets = bucketArray;
+}
+
+documentation {
+    Updates the `lastUsedBucketId` in `CircuitHealth`.
+
+    P{{bucketId}}  Possition of the currrently used bucket
+    P{{circuitHealth}}  Circuit Breaker health status
+}
+function updateLastUsedBucketId(int bucketId, CircuitHealth circuitHealth) {
+    if (bucketId != circuitHealth.lastUsedBucketId) {
+        resetBucketStats(circuitHealth, bucketId);
+        circuitHealth.lastUsedBucketId = bucketId;
+    }
 }

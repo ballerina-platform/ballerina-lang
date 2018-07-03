@@ -38,7 +38,7 @@ function testTypicalScenario() returns (http:Response[], error[]) {
                 bucketSizeMillis:2000,
                 requestVolumeThreshold: 0
             },
-            failureThreshold:0.1,
+            failureThreshold:0.3,
             resetTimeMillis:1000,
             statusCodes:[400, 404, 500, 502, 503]
         },
