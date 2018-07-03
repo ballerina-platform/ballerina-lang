@@ -15,7 +15,7 @@
 // under the License.
 
 @final StatisticConfig[] DEFAULT_GAUGE_STATS_CONFIG = [{ expiry: 600000, buckets: 5,
- percentiles: [0.33, 0.5, 0.66, 0.99] }];
+    percentiles: [0.33, 0.5, 0.66, 0.99] }];
 
 documentation {
     Start a span with no parent span.
@@ -63,126 +63,126 @@ documentation {
 }
 public type Counter object {
 
- @readonly public string name;
- @readonly public string description;
- @readonly public map<string> metricTags;
+    @readonly public string name;
+    @readonly public string description;
+    @readonly public map<string> metricTags;
 
- public new(name, string? desc = "", map<string>? tags) {
-  match desc {
-   string strDesc => description = strDesc;
-   () => description = "";
-  }
-  match tags {
-   map<string> tagsMap => metricTags = tagsMap;
-  }
-  initialize();
- }
+    public new(name, string? desc = "", map<string>? tags) {
+        match desc {
+            string strDesc => description = strDesc;
+            () => description = "";
+        }
+        match tags {
+            map<string> tagsMap => metricTags = tagsMap;
+        }
+        initialize();
+    }
 
- native function initialize();
+    native function initialize();
 
- public native function register() returns error?;
+    public native function register() returns error?;
 
- public native function increment(int amount);
+    public native function increment(int amount);
 
- public native function getValue() returns (int);
+    public native function getValue() returns (int);
 
 };
 
 public type Gauge object {
 
- @readonly public string name;
- @readonly public string description;
- @readonly public map<string> metricTags;
- @readonly public StatisticConfig[] statisticConfigs;
+    @readonly public string name;
+    @readonly public string description;
+    @readonly public map<string> metricTags;
+    @readonly public StatisticConfig[] statisticConfigs;
 
- public new(name, string? desc = "", map<string>? tags = (),
-            StatisticConfig[]?|boolean statisticConfig = true) {
-  match desc {
-   string strDesc => description = strDesc;
-  }
-  match tags {
-   map<string> tagMap => metricTags = tagMap;
-  }
-  match statisticConfig {
-   StatisticConfig[] configs => {
-    statisticConfigs = configs;
-   }
-   () => {
-    statisticConfigs = [];
-   }
-   boolean configs => {
-    if (configs) {
-     statisticConfigs = DEFAULT_GAUGE_STATS_CONFIG;
-    } else {
-     statisticConfigs = [];
+    public new(name, string? desc = "", map<string>? tags = (),
+               StatisticConfig[]?|boolean statisticConfig = true) {
+        match desc {
+            string strDesc => description = strDesc;
+        }
+        match tags {
+            map<string> tagMap => metricTags = tagMap;
+        }
+        match statisticConfig {
+            StatisticConfig[] configs => {
+                statisticConfigs = configs;
+            }
+            () => {
+                statisticConfigs = [];
+            }
+            boolean configs => {
+                if (configs) {
+                    statisticConfigs = DEFAULT_GAUGE_STATS_CONFIG;
+                } else {
+                    statisticConfigs = [];
+                }
+            }
+        }
+        initialize();
     }
-   }
-  }
-  initialize();
- }
 
- native function initialize();
+    native function initialize();
 
- public native function register() returns error?;
+    public native function register() returns error?;
 
- public native function increment(float amount);
+    public native function increment(float amount);
 
- public native function decrement(float amount);
+    public native function decrement(float amount);
 
- public native function setValue(float amount);
+    public native function setValue(float amount);
 
- public native function getValue() returns float;
+    public native function getValue() returns float;
 
- public native function getSnapshot() returns (Snapshot[]);
+    public native function getSnapshot() returns (Snapshot[]);
 
 };
 
 public type Metric record {
- string name;
- string desc;
- map<string> tags;
- string metricType;
- int|float value;
- Snapshot[]? summary;
+    string name;
+    string desc;
+    map<string> tags;
+    string metricType;
+    int|float value;
+    Snapshot[]? summary;
 };
 
 public type CounterEvent record {
- string name;
- int value;
- string tags;
+    string name;
+    int value;
+    string tags;
 };
 
 public type GaugeEvent record {
- string name;
- float value;
- string tags;
+    string name;
+    float value;
+    string tags;
 };
 
 public type GaugeStatisticsEvent record {
- int expiry;
- float averageValue;
- float minValue;
- float maxValue;
- float stdDev;
- string percentiles;
+    int expiry;
+    float averageValue;
+    float minValue;
+    float maxValue;
+    float stdDev;
+    string percentiles;
 };
 
 public type StatisticConfig record {
- float[] percentiles;
- int expiry;
- int buckets;
+    float[] percentiles;
+    int expiry;
+    int buckets;
 };
 
 public type PercentileValue record {
- float percentile;
- float value;
+    float percentile;
+    float value;
 };
 
 public type Snapshot record {
- int expiry;
- float mean;
- float max;
- float min;
- float stdDev;
- PercentileValue[] percentileValues;
+    int expiry;
+    float mean;
+    float max;
+    float min;
+    float stdDev;
+    PercentileValue[] percentileValues;
 };
