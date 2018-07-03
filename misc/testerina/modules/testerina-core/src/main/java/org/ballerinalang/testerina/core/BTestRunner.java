@@ -216,7 +216,7 @@ public class BTestRunner {
                 outStream.println("    " + packageName);
             }
             if (suite.getTests().size() == 0) {
-                outStream.println("\tNo tests to run\n");
+                outStream.println("\tNo tests found\n");
                 return;
             }
             shouldSkip.set(false);
