@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.parser;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.Whitespace;
@@ -38,6 +39,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
@@ -704,12 +706,40 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitSealedTypeName(BallerinaParser.SealedTypeNameContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.markSealedNode(getCurrentPos(ctx), ctx);
+    }
+
+    @Override
     public void exitArrayTypeNameLabel(BallerinaParser.ArrayTypeNameLabelContext ctx) {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.addArrayType(getCurrentPos(ctx), getWS(ctx),
-                (ctx.getChildCount() - 1) / 2);
+
+        int index = 1;
+        int dimensions = 0;
+        List<Integer> sizes = new ArrayList<>();
+        List<ParseTree> children = ctx.children;
+        while (index < children.size()) {
+            if (children.get(index).getText().equals("[")) {
+                if (children.get(index + 1).getText().equals("]")) {
+                    sizes.add(-1);
+                    index += 2;
+                } else {
+                    sizes.add(Integer.parseInt(children.get(index + 1).getText()));
+                    index += 3;
+                }
+                dimensions++;
+            } else {
+                index++;
+            }
+        }
+        Collections.reverse(sizes);
+        this.pkgBuilder.addArrayType(
+                getCurrentPos(ctx), getWS(ctx), dimensions, sizes.stream().mapToInt(val -> val).toArray());
     }
 
     @Override
@@ -3032,7 +3062,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         String identifier = ctx.Identifier() != null ? ctx.Identifier().getText() : null;
-        this.pkgBuilder.addMatchExprPattaern(getCurrentPos(ctx), getWS(ctx), identifier);
+        this.pkgBuilder.addMatchExprPattern(getCurrentPos(ctx), getWS(ctx), identifier);
     }
 
     /**

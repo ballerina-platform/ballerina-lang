@@ -182,7 +182,11 @@ public enum DiagnosticCode {
     INVALID_ANY_VAR_DEF("invalid.any.var.def"),
     INVALID_RECORD_LITERAL("invalid.record.literal"),
     INVALID_ARRAY_LITERAL("invalid.array.literal"),
+    MISMATCHING_ARRAY_LITERAL_VALUES("mismatching.array.literal.values"),
+    INVALID_USAGE_OF_SEALED_TYPE("invalid.usage.of.sealed.type"),
+    ARRAY_INDEX_OUT_OF_RANGE("array.index.out.of.range"),
     INVALID_TYPE_NEW_LITERAL("invalid.type.new.literal"),
+    INVALID_USAGE_OF_KEYWORD("invalid.usage.of.keyword"),
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),

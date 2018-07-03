@@ -132,7 +132,7 @@ annotationDefinition
     ;
 
 globalVariableDefinition
-    :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
+    :   (PUBLIC)? (typeName | sealedType) Identifier (ASSIGN expression )? SEMICOLON
     ;
 
 attachmentPoint
@@ -180,9 +180,13 @@ finiteTypeUnit
     |   typeName
     ;
 
+sealedType
+    :   SEALED typeName                                                             # sealedTypeName
+    ;
+
 typeName
     :   simpleTypeName                                                      # simpleTypeNameLabel
-    |   typeName (LEFT_BRACKET RIGHT_BRACKET)+                              # arrayTypeNameLabel
+    |   typeName (LEFT_BRACKET integerLiteral? RIGHT_BRACKET)+              # arrayTypeNameLabel
     |   typeName (PIPE typeName)+                                           # unionTypeNameLabel
     |   typeName QUESTION_MARK                                              # nullableTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
@@ -281,7 +285,7 @@ statement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier (ASSIGN expression)? SEMICOLON
+    :   (typeName | sealedType) Identifier (ASSIGN expression)? SEMICOLON
     ;
 
 recordLiteral

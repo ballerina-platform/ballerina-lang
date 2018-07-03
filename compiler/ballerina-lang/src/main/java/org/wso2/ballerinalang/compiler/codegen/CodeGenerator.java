@@ -154,6 +154,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
@@ -309,6 +310,8 @@ public class CodeGenerator extends BLangNodeVisitor {
     private Stack<Instruction> loopExitInstructionStack = new Stack<>();
     private Stack<Instruction> abortInstructions = new Stack<>();
     private Stack<Instruction> failInstructions = new Stack<>();
+    private Stack<Integer> tryCatchErrorRangeFromIPStack = new Stack<>();
+    private Stack<Integer> tryCatchErrorRangeToIPStack = new Stack<>();
 
     private int workerChannelCount = 0;
     private int forkJoinCount = 0;
@@ -639,7 +642,13 @@ public class CodeGenerator extends BLangNodeVisitor {
         int opcode = getOpcodeForArrayOperations(etype.tag, InstructionCodes.INEWARRAY);
         Operand arrayVarRegIndex = calcAndGetExprRegIndex(arrayLiteral);
         Operand typeCPIndex = getTypeCPIndex(arrayLiteral.type);
-        emit(opcode, arrayVarRegIndex, typeCPIndex);
+
+        long size = arrayLiteral.type.tag == TypeTags.ARRAY &&
+                ((BArrayType) arrayLiteral.type).state != BArrayState.UNSEALED ?
+                (long) ((BArrayType) arrayLiteral.type).size : -1L;
+        BLangLiteral arraySizeLiteral = generateIntegerLiteralNode(arrayLiteral, size);
+
+        emit(opcode, arrayVarRegIndex, typeCPIndex, arraySizeLiteral.regIndex);
 
         // Emit instructions populate initial array values;
         for (int i = 0; i < arrayLiteral.exprs.size(); i++) {
@@ -667,7 +676,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         arraySizeLiteral.value = (long) argExprs.size();
         arraySizeLiteral.type = symTable.intType;
         genNode(arraySizeLiteral, this.env);
-        emit(InstructionCodes.JSONNEWARRAY, arrayLiteral.regIndex, arraySizeLiteral.regIndex);
+
+        long size = arrayLiteral.type.tag == TypeTags.ARRAY &&
+                ((BArrayType) arrayLiteral.type).state != BArrayState.UNSEALED ?
+                (long) ((BArrayType) arrayLiteral.type).size : -1L;
+        BLangLiteral sealedSizeLiteral = generateIntegerLiteralNode(arrayLiteral, size);
+
+        emit(InstructionCodes.JSONNEWARRAY,
+                arrayLiteral.regIndex, arraySizeLiteral.regIndex, sealedSizeLiteral.regIndex);
 
         for (int i = 0; i < argExprs.size(); i++) {
             BLangExpression argExpr = argExprs.get(i);
@@ -1055,7 +1071,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Emit create array instruction
         RegIndex exprRegIndex = calcAndGetExprRegIndex(bracedOrTupleExpr);
         Operand typeCPIndex = getTypeCPIndex(bracedOrTupleExpr.type);
-        emit(InstructionCodes.RNEWARRAY, exprRegIndex, typeCPIndex);
+        BLangLiteral sizeLiteral =
+                generateIntegerLiteralNode(bracedOrTupleExpr, (long) bracedOrTupleExpr.expressions.size());
+
+        emit(InstructionCodes.RNEWARRAY, exprRegIndex, typeCPIndex, sizeLiteral.regIndex);
 
         // Emit instructions populate initial array values;
         for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
@@ -1317,6 +1336,15 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private String generateFunctionSig(BType[] paramTypes) {
         return "(" + generateSig(paramTypes) + ")()";
+    }
+
+    private BLangLiteral generateIntegerLiteralNode(BLangNode node, long integer) {
+        BLangLiteral literal = new BLangLiteral();
+        literal.pos = node.pos;
+        literal.value = integer;
+        literal.type = symTable.intType;
+        genNode(literal, this.env);
+        return literal;
     }
 
     private int getNextIndex(int typeTag, VariableIndex indexes) {
@@ -3010,33 +3038,68 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     public void visit(BLangTryCatchFinally tryNode) {
+        int toIPPlaceHolder = -1;
         Operand gotoTryCatchEndAddr = getOperand(-1);
         Instruction instructGotoTryCatchEnd = InstructionFactory.get(InstructionCodes.GOTO, gotoTryCatchEndAddr);
         List<int[]> unhandledErrorRangeList = new ArrayList<>();
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
 
-        // Handle try block.
         int fromIP = nextIP();
+        tryCatchErrorRangeToIPStack.push(toIPPlaceHolder);
+        // Handle try block.
         genNode(tryNode.tryBody, env);
-        int toIP = nextIP() - 1;
+
+        // Pop out the final additional IP pushed on to the stack, if pushed when generating finally instrructions due
+        // to a return statement being present in the try block
+        if (!tryCatchErrorRangeFromIPStack.empty()) {
+            tryCatchErrorRangeFromIPStack.pop();
+        }
+
+        while (!tryCatchErrorRangeFromIPStack.empty() && !tryCatchErrorRangeToIPStack.empty()
+                && tryCatchErrorRangeToIPStack.peek() != toIPPlaceHolder) {
+            unhandledErrorRangeList.add(new int[]{tryCatchErrorRangeFromIPStack.pop(),
+                                                    tryCatchErrorRangeToIPStack.pop()});
+        }
+
+        int toIP = tryCatchErrorRangeToIPStack.pop();
+        toIP = (toIP == toIPPlaceHolder) ? (nextIP() - 1) : toIP;
+
+        unhandledErrorRangeList.add(new int[]{fromIP, toIP});
 
         // Append finally block instructions.
         if (tryNode.finallyBody != null) {
             genNode(tryNode.finallyBody, env);
         }
         emit(instructGotoTryCatchEnd);
-        unhandledErrorRangeList.add(new int[]{fromIP, toIP});
+
         // Handle catch blocks.
+        // Temporary error range list for new error ranges identified in catch blocks
+        List<int[]> unhandledCatchErrorRangeList = new ArrayList<>();
         int order = 0;
         for (BLangCatch bLangCatch : tryNode.getCatchBlocks()) {
             addLineNumberInfo(bLangCatch.pos);
             int targetIP = nextIP();
+            tryCatchErrorRangeToIPStack.push(toIPPlaceHolder);
             genNode(bLangCatch, env);
-            unhandledErrorRangeList.add(new int[]{targetIP, nextIP() - 1});
+
+            if (!tryCatchErrorRangeFromIPStack.empty()) {
+                tryCatchErrorRangeFromIPStack.pop();
+            }
+
+            while (tryCatchErrorRangeFromIPStack.size() > 1 && !tryCatchErrorRangeToIPStack.empty()
+                    && tryCatchErrorRangeToIPStack.peek() != toIPPlaceHolder) {
+                unhandledCatchErrorRangeList.add(new int[]{tryCatchErrorRangeFromIPStack.pop(),
+                        tryCatchErrorRangeToIPStack.pop()});
+            }
+            int catchToIP = tryCatchErrorRangeToIPStack.pop();
+            catchToIP = (catchToIP == toIPPlaceHolder) ? (nextIP() - 1) : catchToIP;
+            unhandledCatchErrorRangeList.add(new int[]{targetIP, catchToIP});
+
             // Append finally block instructions.
             if (tryNode.finallyBody != null) {
                 genNode(tryNode.finallyBody, env);
             }
+
             emit(instructGotoTryCatchEnd);
             // Create Error table entry for this catch block
             BTypeSymbol structSymbol = bLangCatch.param.symbol.type.tsymbol;
@@ -3045,11 +3108,18 @@ public class CodeGenerator extends BLangNodeVisitor {
             int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
             StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
             int structCPEntryIndex = currentPkgInfo.addCPEntry(structureRefCPEntry);
-            ErrorTableEntry errorTableEntry = new ErrorTableEntry(fromIP, toIP, targetIP, order++, structCPEntryIndex);
-            errorTable.addErrorTableEntry(errorTableEntry);
+
+            int currentOrder = order++;
+            for (int[] range : unhandledErrorRangeList) {
+                ErrorTableEntry errorTableEntry = new ErrorTableEntry(range[0], range[1], targetIP, currentOrder,
+                                                                      structCPEntryIndex);
+                errorTable.addErrorTableEntry(errorTableEntry);
+            }
         }
 
         if (tryNode.finallyBody != null) {
+            unhandledErrorRangeList.addAll(unhandledCatchErrorRangeList);
+
             // Create Error table entry for unhandled errors in try and catch(s) blocks
             for (int[] range : unhandledErrorRangeList) {
                 ErrorTableEntry errorTableEntry = new ErrorTableEntry(range[0], range[1], nextIP(), order++, -1);
@@ -3196,7 +3266,9 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private void generateFinallyInstructions(BLangStatement statement, NodeKind... expectedParentKinds) {
+        int returnInFinallyToIPPlaceHolder = -2;
         BLangStatement current = statement;
+        boolean hasReturn = false;
         while (current != null && current.statementLink.parent != null) {
             BLangStatement parent = current.statementLink.parent.statement;
             for (NodeKind expected : expectedParentKinds) {
@@ -3204,10 +3276,37 @@ public class CodeGenerator extends BLangNodeVisitor {
                     return;
                 }
             }
+
+            if (current.getKind() == NodeKind.RETURN) {
+                hasReturn = true;
+            }
+
             if (NodeKind.TRY == parent.getKind()) {
+                boolean returnInFinally = false;
+                if (hasReturn) {
+                    //if generateFinallyInstructions is called due to a return statement being present in a try,
+                    // catch block, maintain the current IP (before code generation for the finally block)
+                    // to use as the toIP of the error table entry
+                    if (!tryCatchErrorRangeToIPStack.isEmpty()) {
+                        if (tryCatchErrorRangeToIPStack.peek() != returnInFinallyToIPPlaceHolder) {
+                            tryCatchErrorRangeToIPStack.push(nextIP() - 1);
+                        } else {
+                            returnInFinally = true;
+                        }
+                    } else {
+                        tryCatchErrorRangeToIPStack.push(nextIP() - 1);
+                    }
+                }
+
                 BLangTryCatchFinally tryCatchFinally = (BLangTryCatchFinally) parent;
                 if (tryCatchFinally.finallyBody != null && current != tryCatchFinally.finallyBody) {
+                    tryCatchErrorRangeToIPStack.push(returnInFinallyToIPPlaceHolder);
                     genNode(tryCatchFinally.finallyBody, env);
+                    tryCatchErrorRangeToIPStack.pop();
+                }
+
+                if (!returnInFinally) {
+                    tryCatchErrorRangeFromIPStack.push(nextIP() + 1);
                 }
             } else if (NodeKind.LOCK == parent.getKind()) {
                 BLangLock lockNode = (BLangLock) parent;
