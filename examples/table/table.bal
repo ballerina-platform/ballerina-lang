@@ -14,7 +14,7 @@ type EmployeeSalary record {
 function main(string... args) {
     // This creates an in-memory table constrained by the employee type and with ID as the primary key.
     table<Employee> tb = table {
-        primaryKey: ["id"]
+        { primarykey id, name, salary }
     };
 
     // Create Employee records.
