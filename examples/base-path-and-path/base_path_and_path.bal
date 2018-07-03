@@ -19,10 +19,17 @@ service<http:Service> echo bind { port: 9090 } {
         match result {
             error err => {
                 res.statusCode = 500;
-                res.setPayload(err.message);
+                res.setPayload(untaint err.message);
             }
             json value => {
-                res.setJsonPayload(value);
+                // Perform validation of JSON data before setting it to the response to prevent security vulnerabilities.
+                if (validateJsonData(value)) {
+                    // Since JSON data is known to be valid, `untaint` the data denoting that the data is trusted and set the JSON to response.
+                    res.setJsonPayload(untaint value);
+                } else {
+                    res.statusCode = 400;
+                    res.setPayload("JSON containted invalid data");
+                }
             }
         }
         // Reply to the client with the response.
@@ -30,4 +37,9 @@ service<http:Service> echo bind { port: 9090 } {
             error e => log:printError("Error in responding", err = e)
         };
     }
+}
+
+// Validate the JSON data and check if the value of "hello" is an alpha value.
+function validateJsonData (json jsonData) returns boolean {
+    return jsonData.hello != null && check jsonData.hello.toString().matches("[a-zA-Z]*");
 }
