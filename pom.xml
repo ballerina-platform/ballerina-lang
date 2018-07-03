@@ -1493,7 +1493,7 @@
                 <module>misc/tracing-extensions</module>
                 <module>misc/strip-bouncycastle</module>
 
-                <!--<module>composer</module>-->
+                <module>composer</module>
                 <module>distribution/zip/ballerina</module>
                 <module>distribution/zip/ballerina-tools</module>
 
@@ -1644,7 +1644,7 @@
                 <module>misc/tracing-extensions</module>
                 <module>misc/strip-bouncycastle</module>
 
-                <!--<module>composer</module>-->
+                <module>composer</module>
 
                 <module>distribution/zip/ballerina</module>
                 <module>distribution/zip/ballerina-tools</module>
