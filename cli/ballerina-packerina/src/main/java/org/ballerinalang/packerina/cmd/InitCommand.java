@@ -27,17 +27,21 @@ import org.ballerinalang.packerina.init.models.FileType;
 import org.ballerinalang.packerina.init.models.PackageMdFile;
 import org.ballerinalang.packerina.init.models.SrcFile;
 import org.ballerinalang.toml.model.Manifest;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -51,6 +55,7 @@ public class InitCommand implements BLauncherCmd {
     public static final String DEFAULT_VERSION = "0.0.1";
     private static final String USER_DIR = "user.dir";
     private static final PrintStream outStream = System.err;
+    private final Path homePath = RepoUtils.createAndGetHomeReposPath();
     private JCommander parentCmdParser;
 
     @Parameter(names = {"--interactive", "-i"})
@@ -71,6 +76,28 @@ public class InitCommand implements BLauncherCmd {
 
         // Get source root path.
         Path projectPath = Paths.get(System.getProperty(USER_DIR));
+        try {
+            // Recursively traverse down
+            Optional<Path> childDotBallerina = Files.walk(projectPath)
+                                                  .filter(path -> Files.isDirectory(path) &&
+                                                          path.toFile().getName().equals
+                                                                  (ProjectDirConstants.DOT_BALLERINA_DIR_NAME))
+                                                  .findFirst();
+            if (childDotBallerina.isPresent()) {
+                out.println("A ballerina project is already initialized in " + childDotBallerina.get().toFile()
+                                                                                              .getParent());
+                return;
+            }
+            // Recursively travers up till the root
+            Path projectRoot = findProjectRoot(projectPath);
+            if (projectRoot != null) {
+                out.println("Directory is already within a project :" +  projectRoot.toString());
+                return;
+            }
+        } catch (IOException e) {
+            out.println("Error occurred while walking through the sub directories: " + e.getMessage());
+        }
+
         Scanner scanner = new Scanner(System.in, Charset.defaultCharset().name());
         try {
             Manifest manifest = null;
@@ -234,6 +261,24 @@ public class InitCommand implements BLauncherCmd {
             guessOrgName = guessOrgName.toLowerCase(Locale.getDefault());
         }
         return guessOrgName;
+    }
+
+    /**
+     * Find the project root by recursively up to the root.
+     *
+     * @param projectDir project path
+     * @return project root
+     */
+    private Path findProjectRoot(Path projectDir) {
+        Path path = projectDir.resolve(ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
+        if (!path.equals(homePath) && java.nio.file.Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
+            return projectDir;
+        }
+        Path parentsParent = projectDir.getParent();
+        if (null != parentsParent) {
+            return findProjectRoot(parentsParent);
+        }
+        return null;
     }
 
 }
