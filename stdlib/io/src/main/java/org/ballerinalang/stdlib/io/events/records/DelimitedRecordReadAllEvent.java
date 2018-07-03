@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.channels.ByteChannel;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,5 +99,10 @@ public class DelimitedRecordReadAllEvent implements Event {
     @Override
     public EventType getType() {
         return EventType.READ;
+    }
+
+    @Override
+    public ByteChannel getByteChannel() {
+        return channel.getByteChannel();
     }
 }
