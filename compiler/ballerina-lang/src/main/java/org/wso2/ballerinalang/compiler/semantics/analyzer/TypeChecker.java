@@ -358,32 +358,14 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             actualType = new BArrayType(actualType, null, arrayLiteral.exprs.size(), BArrayState.UNSEALED);
 
-            if (expType.tag == TypeTags.UNION) {
-                BUnionType expType = (BUnionType) this.expType;
-                int count = 0;
-                // array literals can not be assigned to union types that include
-                // any[],
-                // union arrays eg:(int|boolean)[],
-                // two or more matching types eg: int[] | int[4]
-                for (BType memType : expType.memberTypes) {
-                    if (memType.tag == TypeTags.ARRAY) {
-                        if (((BArrayType) memType).eType.tag == TypeTags.ANY ||
-                                ((BArrayType) memType).eType.tag == TypeTags.UNION) {
-                            dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
-                            resultType = symTable.errType;
-                            return;
-                        }
-                        if (types.isAssignable(actualType, memType)) {
-                            checkExprs(arrayLiteral.exprs, this.env, ((BArrayType) memType).eType);
-                            count++;
-                        }
-                    }
-                }
-                if (count > 1) {
-                    dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
-                    resultType = symTable.errType;
-                    return;
-                }
+            List<BType> arrayCompatibleType = getArrayCompatibleType(expType, actualType);
+
+            if (arrayCompatibleType.isEmpty()) {
+                dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expType);
+            } else if (arrayCompatibleType.size() > 1) {
+                dlog.error(arrayLiteral.pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);
+            } else {
+                checkExprs(arrayLiteral.exprs, this.env, ((BArrayType) arrayCompatibleType.get(0)).eType);
             }
         }
 
@@ -439,6 +421,18 @@ public class TypeChecker extends BLangNodeVisitor {
                         type.tag == TypeTags.RECORD ||
                         type.tag == TypeTags.NONE ||
                         type.tag == TypeTags.ANY)
+                .collect(Collectors.toList());
+    }
+
+    private List<BType> getArrayCompatibleType(BType bType, BType actualType) {
+        Set<BType> expTypes = bType.tag == TypeTags.UNION ? ((BUnionType) bType).memberTypes : new HashSet<BType>() {
+            {
+                add(bType);
+            }
+        };
+
+        return expTypes.stream()
+                .filter(type -> types.isAssignable(actualType, type))
                 .collect(Collectors.toList());
     }
 
