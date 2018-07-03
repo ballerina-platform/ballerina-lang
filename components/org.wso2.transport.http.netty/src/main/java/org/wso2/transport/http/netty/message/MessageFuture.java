@@ -20,12 +20,15 @@ package org.wso2.transport.http.netty.message;
 
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.LastHttpContent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents future contents of the message.
  */
 public class MessageFuture {
 
+    private static final Logger log = LoggerFactory.getLogger(MessageFuture.class);
     private MessageListener messageListener;
     private final HTTPCarbonMessage httpCarbonMessage;
     private boolean messageListenerSet = false;
@@ -50,7 +53,11 @@ public class MessageFuture {
     }
 
     void notifyMessageListener(HttpContent httpContent) {
-        this.messageListener.onMessage(httpContent);
+        if (this.messageListener != null) {
+            this.messageListener.onMessage(httpContent);
+        } else {
+            log.error("The message chunk will be lost because the MessageListener is not set.");
+        }
     }
 
     public boolean isMessageListenerSet() {
