@@ -155,10 +155,10 @@ public class AnonymousObjectTest {
         BAssertUtil.validateError(result, 0, "variable 'p1' is not initialized", 2, 1);
         BAssertUtil.validateError(result, 1, "variable 'p2' is not initialized", 3, 1);
         BAssertUtil.validateError(result, 2, "cannot initialize object '$anonType$2', " +
-                "no implementation for the interface '$anonType$2.test'", 4, 62);
+                "no implementation for the interface '$anonType$2.test'", 4, 68);
         BAssertUtil.validateError(result, 3, "variable 'p4' is not initialized", 7, 5);
         BAssertUtil.validateError(result, 4, "variable 'p5' is not initialized", 8, 5);
         BAssertUtil.validateError(result, 5, "cannot initialize object '$anonType$5', " +
-                "no implementation for the interface '$anonType$5.test'", 9, 66);
+                "no implementation for the interface '$anonType$5.test'", 9, 72);
     }
 }

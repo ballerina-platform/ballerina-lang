@@ -19,9 +19,7 @@ documentation { Represents JMS Connection
 }
 public type Connection object {
 
-    public {
-        ConnectionConfiguration config;
-    }
+    public ConnectionConfiguration config;
 
     documentation { JMS connection constructor
     }
@@ -46,11 +44,15 @@ documentation { Configurations related to a JMS connection
     F{{initialContextFactory}} JMS provider specific inital context factory
     F{{providerUrl}} JMS provider specific provider URL used to configure a connection
     F{{connectionFactoryName}} JMS connection factory to be used in creating JMS connections
+    F{{username}} Username for the JMS connection
+    F{{password}} Password for the JMS connection
     F{{properties}} Additional properties use in initializing the initial context
 }
 public type ConnectionConfiguration record {
     string initialContextFactory = "wso2mbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";
+    string? username;
+    string? password;
     map properties;
 };

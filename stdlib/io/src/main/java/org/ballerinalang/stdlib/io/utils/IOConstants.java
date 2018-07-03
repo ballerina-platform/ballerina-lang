@@ -64,4 +64,13 @@ public class IOConstants {
      */
     public static final int PROTO_BUF_BASE = 7;
 
+    /**
+     * The maximum value which will represent var int.
+     */
+    public static final long VAR_INT_MAX = 0xFFFFFFFFFFFFFL;
+
+    /**
+     * Minimum value which will represent var int.
+     */
+    public static final long VAR_INT_MIN = (0xFFFFFFFFFFFFFL * -1);
 }

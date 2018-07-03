@@ -1,12 +1,9 @@
 type Person object {
-    public {
-        int age = 3,
-        string name = "sample name";
-    }
-    private {
-        int year = 5;
-        string month = "february";
-    }
+    public int age = 3,
+    public string name = "sample name";
+
+    private int year = 5;
+    private string month = "february";
 
     function attachedFn1(int a, float b) returns (int) {
         return 7 + a + <int>b;
@@ -103,10 +100,9 @@ function test7() returns (int) {
 }
 
 public type FooObj object {
-    private {
-        (function(string[]) returns string) fp1;
-        (function(int[]) returns int) fp2;
-    }
+    private (function(string[]) returns string) fp1;
+    private (function(int[]) returns int) fp2;
+
     new (fp1, fp2){
         string[] s = ["abc", "afg"];
         int[] i = [1,2,3,4,5];
@@ -151,9 +147,8 @@ function test9() returns string {
 }
 
 public type O1 object {
-    private {
-        (function(string[]) returns string) fpO1;
-    }
+    private (function(string[]) returns string) fpO1;
+
     new (fpO1){
     }
 
@@ -163,9 +158,8 @@ public type O1 object {
 };
 
 public type O2 object {
-    private {
-        (function(string[]) returns string) fpO2;
-    }
+    private (function(string[]) returns string) fpO2;
+
     new (fpO2){}
 
     public function process(string[] vals) returns string{
@@ -174,9 +168,8 @@ public type O2 object {
 };
 
 public type O3 object {
-    private {
-        (function(string[]) returns string) fpO3;
-    }
+    private (function(string[]) returns string) fpO3;
+
     new (fpO3){}
 
     public function process(string[] vals) returns string{
@@ -185,9 +178,8 @@ public type O3 object {
 };
 
 public type O4 object {
-    private {
-        (function(string[]) returns string) fpO4;
-    }
+    private (function(string[]) returns string) fpO4;
+
     new (fpO4){}
 
     public function process(string[] vals) returns string{
@@ -196,9 +188,8 @@ public type O4 object {
 };
 
 public type O5 object {
-    private {
-        (function(string[]) returns string) fpO5;
-    }
+    private (function(string[]) returns string) fpO5;
+
     new (fpO5){}
 
     public function process(string[] vals) returns string{

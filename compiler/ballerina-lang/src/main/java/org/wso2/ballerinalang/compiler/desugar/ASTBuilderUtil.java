@@ -376,6 +376,28 @@ public class ASTBuilderUtil {
         return invokeLambda;
     }
 
+    static BLangInvocation createInvocationExprForMethod(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
+                                                List<BLangExpression> requiredArgs, SymbolResolver symResolver) {
+        return createInvocationExprMethod(pos, invokableSymbol, requiredArgs, new ArrayList<>(), new ArrayList<>(),
+                symResolver);
+    }
+
+    static BLangInvocation createInvocationExprMethod(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
+                                                List<BLangExpression> requiredArgs, List<BLangVariable> namedArgs,
+                                                List<BLangVariable> restArgs, SymbolResolver symResolver) {
+        final BLangInvocation invokeLambda = (BLangInvocation) TreeBuilder.createInvocationNode();
+        invokeLambda.pos = pos;
+        invokeLambda.requiredArgs.addAll(requiredArgs);
+        invokeLambda.namedArgs
+                .addAll(generateArgExprs(pos, namedArgs, invokableSymbol.defaultableParams, symResolver));
+        invokeLambda.restArgs
+                .addAll(generateArgExprs(pos, restArgs, Lists.of(invokableSymbol.restParam), symResolver));
+
+        invokeLambda.symbol = invokableSymbol;
+        invokeLambda.type = ((BInvokableType) invokableSymbol.type).retType;
+        return invokeLambda;
+    }
+
     static List<BLangSimpleVarRef> createVariableRefList(DiagnosticPos pos, List<BLangVariable> args) {
         final List<BLangSimpleVarRef> varRefs = new ArrayList<>();
         args.forEach(variable -> varRefs.add(createVariableRef(pos, variable.symbol)));
@@ -488,7 +510,6 @@ public class ASTBuilderUtil {
         final BLangTableLiteral tableLiteralNode = (BLangTableLiteral) TreeBuilder.createTableLiteralNode();
         tableLiteralNode.pos = pos;
         tableLiteralNode.type = type;
-        tableLiteralNode.configurationExpr = ASTBuilderUtil.createEmptyRecordLiteral(pos, configType);
         return tableLiteralNode;
     }
 

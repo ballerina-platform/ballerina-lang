@@ -44,6 +44,7 @@ public class ConditionalStatementItemSorter extends CompletionItemSorter {
         this.setPriorities(completionItems);
         completionItems.forEach(completionItem -> {
             String detail = completionItem.getDetail();
+            String label = completionItem.getLabel();
             if (detail.equals(ItemResolverConstants.FUNCTION_TYPE)) {
                 String signature = completionItem.getLabel();
                 String returnType = signature
@@ -53,6 +54,9 @@ public class ConditionalStatementItemSorter extends CompletionItemSorter {
                 }
             } else if (detail.equals(ItemResolverConstants.BOOLEAN_TYPE)) {
                 completionItem.setSortText(Priority.shiftPriority(completionItem.getSortText(), -1));
+            } else if (ItemResolverConstants.TRUE_KEYWORD.equals(label) 
+                    || ItemResolverConstants.FALSE_KEYWORD.equals(label)) {
+                completionItem.setSortText(Priority.PRIORITY110.toString());
             }
         });
     }

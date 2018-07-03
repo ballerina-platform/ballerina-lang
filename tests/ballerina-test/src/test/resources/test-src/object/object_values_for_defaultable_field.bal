@@ -8,10 +8,8 @@ public function passValueForDefaultableObjectField () returns (int, string) {
 }
 
 type Person object {
-    public {
-        int age = 10,
-        string name,
-    }
+    public int age = 10,
+    public string name,
 
     new (age = 10, name = "sample result") {
         resValue = age;

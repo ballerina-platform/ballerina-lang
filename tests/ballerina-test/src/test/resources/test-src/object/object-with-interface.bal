@@ -6,14 +6,11 @@ public function testObjectWithInterface () returns (int, string, int, string) {
 
 
 type Person object {
-    public {
-        int age = 10,
-        string name = "sample name";
-    }
-    private {
-        int year = 50;
-        string month = "february";
-    }
+    public int age = 10,
+    public string name = "sample name";
+
+    int year = 50;
+    string month = "february";
 
     new (year, int count, name = "sample value1", string val1 = "default value") {
         age = age + count;
@@ -30,14 +27,11 @@ type Person object {
 };
 
 type Employee object {
-    public {
-        int age = 20,
-        string name = "sample name";
-    }
-    private {
-        int year = 50;
-        string month = "february";
-    }
+    public int age = 20,
+    public string name = "sample name";
+
+    int year = 50;
+    string month = "february";
 
     new (year, int count, name = "sample value1", string val1 = "default value") {
         age = age + count + 50;

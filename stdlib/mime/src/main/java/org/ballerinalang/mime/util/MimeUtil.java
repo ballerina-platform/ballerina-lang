@@ -43,27 +43,32 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
 import javax.activation.MimeTypeParseException;
 
-import static org.ballerinalang.mime.util.Constants.ASSIGNMENT;
-import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FIELD;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILENAME_FIELD;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILE_NAME;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_NAME_FIELD;
-import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_PARA_MAP_FIELD;
-import static org.ballerinalang.mime.util.Constants.DISPOSITION_FIELD;
-import static org.ballerinalang.mime.util.Constants.DOUBLE_QUOTE;
-import static org.ballerinalang.mime.util.Constants.FORM_DATA_PARAM;
-import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_FIELD;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
-import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_FIELD;
-import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_FIELD;
-import static org.ballerinalang.mime.util.Constants.READABLE_BUFFER_SIZE;
-import static org.ballerinalang.mime.util.Constants.SEMICOLON;
-import static org.ballerinalang.mime.util.Constants.SIZE_FIELD;
-import static org.ballerinalang.mime.util.Constants.SUBTYPE_FIELD;
-import static org.ballerinalang.mime.util.Constants.SUFFIX_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.ASSIGNMENT;
+import static org.ballerinalang.mime.util.MimeConstants.BODY_PARTS;
+import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_FILENAME_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_FILE_NAME;
+import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_NAME;
+import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_NAME_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_PARA_MAP_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.DEFAULT_PRIMARY_TYPE;
+import static org.ballerinalang.mime.util.MimeConstants.DEFAULT_SUB_TYPE;
+import static org.ballerinalang.mime.util.MimeConstants.DISPOSITION_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.DOUBLE_QUOTE;
+import static org.ballerinalang.mime.util.MimeConstants.FORM_DATA_PARAM;
+import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
+import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
+import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_FORM_DATA;
+import static org.ballerinalang.mime.util.MimeConstants.PARAMETER_MAP_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.PRIMARY_TYPE_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.mime.util.MimeConstants.READABLE_BUFFER_SIZE;
+import static org.ballerinalang.mime.util.MimeConstants.SEMICOLON;
+import static org.ballerinalang.mime.util.MimeConstants.SIZE_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.SUBTYPE_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.SUFFIX_ATTACHMENT;
+import static org.ballerinalang.mime.util.MimeConstants.SUFFIX_FIELD;
 
 /**
  * Mime utility functions are included in here.
@@ -145,8 +150,8 @@ public class MimeUtil {
                                       String contentType) {
         BMap<String, BValue> mimeType = parseMediaType(mediaType, contentType);
         if (contentType == null) {
-            mimeType.put(PRIMARY_TYPE_FIELD, new BString(Constants.DEFAULT_PRIMARY_TYPE));
-            mimeType.put(SUBTYPE_FIELD, new BString(Constants.DEFAULT_SUB_TYPE));
+            mimeType.put(PRIMARY_TYPE_FIELD, new BString(DEFAULT_PRIMARY_TYPE));
+            mimeType.put(SUBTYPE_FIELD, new BString(DEFAULT_SUB_TYPE));
         }
         entityStruct.put(MEDIA_TYPE_FIELD, mimeType);
     }
@@ -169,9 +174,9 @@ public class MimeUtil {
 
                 String subTypeStr = mimeType.getSubType();
                 subType = new BString(subTypeStr);
-                if (subTypeStr != null && subTypeStr.contains(Constants.SUFFIX_ATTACHMENT)) {
+                if (subTypeStr != null && subTypeStr.contains(SUFFIX_ATTACHMENT)) {
                     suffix = new BString(
-                            subTypeStr.substring(subTypeStr.lastIndexOf(Constants.SUFFIX_ATTACHMENT) + 1));
+                            subTypeStr.substring(subTypeStr.lastIndexOf(SUFFIX_ATTACHMENT) + 1));
                 } else {
                     suffix = BTypes.typeString.getZeroValue();
                 }
@@ -199,8 +204,7 @@ public class MimeUtil {
     }
 
     public static void setMediaTypeToEntity(Context context, BMap<String, BValue> entityStruct, String contentType) {
-        BMap<String, BValue> mediaType = BLangConnectorSPIUtil.createObject(context, Constants.PROTOCOL_PACKAGE_MIME,
-                Constants.MEDIA_TYPE);
+        BMap<String, BValue> mediaType = BLangConnectorSPIUtil.createObject(context, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
         MimeUtil.setContentType(mediaType, entityStruct, contentType);
         HeaderUtil.setHeaderToEntity(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
     }

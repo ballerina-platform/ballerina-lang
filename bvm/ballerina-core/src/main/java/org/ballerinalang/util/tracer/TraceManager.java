@@ -25,7 +25,8 @@ import io.opentracing.propagation.Format;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import static org.ballerinalang.util.observability.ObservabilityConstants.KEY_TRACE_CONTEXT;
 
 /**
  * {@link TraceManager} loads {@link TraceManager} implementation
@@ -50,89 +51,67 @@ public class TraceManager {
             String service = activeBSpan.getConnectorName();
             String resource = activeBSpan.getActionName();
 
-            Map<String, Span> spanList;
+            Span span;
             if (parentBSpan != null) {
-                spanList = startSpan(resource, parentBSpan.getSpans(),
-                        activeBSpan.getTags(), service, false);
+                span = startSpan(resource, parentBSpan.getSpan(), activeBSpan.getTags(), service, false);
             } else {
-                Map<String, String> spanHeaders = activeBSpan.getProperties()
-                        .entrySet().stream().collect(
-                                Collectors.toMap(Map.Entry::getKey, e -> String.valueOf(e.getValue()))
-                        );
-                spanList = startSpan(resource, extractSpanContext(spanHeaders, service),
+                span = startSpan(resource, extractSpanContext(activeBSpan.getProperty(KEY_TRACE_CONTEXT), service),
                         activeBSpan.getTags(), service, true);
             }
 
-            activeBSpan.setSpans(spanList);
+            activeBSpan.setSpan(span);
         }
     }
 
     public void finishSpan(BSpan bSpan) {
-        bSpan.getSpans().values().forEach(Span::finish);
+        bSpan.getSpan().finish();
     }
 
     public void log(BSpan bSpan, Map<String, Object> fields) {
-        bSpan.getSpans().values().forEach(span -> span.log(fields));
+        bSpan.getSpan().log(fields);
     }
 
     public void addTags(BSpan bSpan, Map<String, String> tags) {
-        bSpan.getSpans().values().forEach(span -> {
-            tags.forEach((key, value) -> span.setTag(key, String.valueOf(value)));
-        });
+        tags.forEach((key, value) -> bSpan.getSpan().setTag(key, String.valueOf(value)));
     }
 
-    public Map<String, String> extractTraceContext(Map<String, Span> activeSpanMap, String serviceName) {
+    public Map<String, String> extractTraceContext(Span span, String serviceName, String headerName) {
         Map<String, String> carrierMap = new HashMap<>();
-        for (Map.Entry<String, Span> activeSpanEntry : activeSpanMap.entrySet()) {
-            Map<String, Tracer> tracers = tracerStore.getTracers(serviceName);
-            Tracer tracer = tracers.get(activeSpanEntry.getKey());
-            if (tracer != null) {
-                Span span = activeSpanEntry.getValue();
-                if (span != null) {
-                    Map<String, String> tracerSpecificCarrier = new HashMap<>();
-                    RequestInjector requestInjector = new RequestInjector(tracerSpecificCarrier);
-                    tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, requestInjector);
-                    String value = requestInjector.getCarrierString();
-                    carrierMap.put(TraceConstants.TRACE_HEADER, value);
-                }
-            }
+        Tracer tracer = tracerStore.getTracer(serviceName);
+        if (tracer != null && span != null) {
+            Map<String, String> tracerSpecificCarrier = new HashMap<>();
+            RequestInjector requestInjector = new RequestInjector(tracerSpecificCarrier);
+            tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, requestInjector);
+            String carrierString = requestInjector.getCarrierString();
+            carrierMap.put(headerName, carrierString);
         }
         return carrierMap;
     }
 
-    private Map<String, Span> startSpan(String spanName, Map<String, ?> spanContextMap,
-                                        Map<String, String> tags, String serviceName, boolean isParent) {
-        Map<String, Span> spanMap = new HashMap<>();
-        Map<String, Tracer> tracers = tracerStore.getTracers(serviceName);
-        for (Map.Entry spanContextEntry : spanContextMap.entrySet()) {
-            Tracer tracer = tracers.get(spanContextEntry.getKey().toString());
-            Tracer.SpanBuilder spanBuilder = tracer.buildSpan(spanName);
+    private Span startSpan(String spanName, Object spanContextMap,
+                           Map<String, String> tags, String serviceName, boolean isParent) {
+        Tracer tracer = tracerStore.getTracer(serviceName);
+        Tracer.SpanBuilder spanBuilder = tracer.buildSpan(spanName);
 
-            for (Map.Entry<String, String> tag : tags.entrySet()) {
-                spanBuilder = spanBuilder.withTag(tag.getKey(), tag.getValue());
-            }
-
-            if (spanContextEntry.getValue() != null) {
-                if (isParent) {
-                    spanBuilder = spanBuilder.asChildOf((SpanContext) spanContextEntry.getValue());
-                } else {
-                    spanBuilder = spanBuilder.asChildOf((Span) spanContextEntry.getValue());
-                }
-            }
-
-            Span span = spanBuilder.start();
-            spanMap.put(spanContextEntry.getKey().toString(), span);
+        for (Map.Entry<String, String> tag : tags.entrySet()) {
+            spanBuilder = spanBuilder.withTag(tag.getKey(), tag.getValue());
         }
-        return spanMap;
+
+        if (spanContextMap != null) {
+            if (isParent) {
+                spanBuilder = spanBuilder.asChildOf((SpanContext) spanContextMap);
+            } else {
+                spanBuilder = spanBuilder.asChildOf((Span) spanContextMap);
+            }
+        }
+        return spanBuilder.start();
     }
 
-    private Map<String, Object> extractSpanContext(Map<String, String> headers, String serviceName) {
-        Map<String, Object> spanContext = new HashMap<>();
-        Map<String, Tracer> tracers = tracerStore.getTracers(serviceName);
-        for (Map.Entry<String, Tracer> tracerEntry : tracers.entrySet()) {
-            spanContext.put(tracerEntry.getKey(), tracerEntry.getValue()
-                    .extract(Format.Builtin.HTTP_HEADERS,
-                            new RequestExtractor(headers.get(TraceConstants.TRACE_HEADER))));
+    private Object extractSpanContext(String contextString, String serviceName) {
+        SpanContext spanContext = null;
+        Tracer tracer = tracerStore.getTracer(serviceName);
+        if (tracer != null) {
+            spanContext = tracer.extract(Format.Builtin.HTTP_HEADERS, new RequestExtractor(contextString));
         }
         return spanContext;
     }

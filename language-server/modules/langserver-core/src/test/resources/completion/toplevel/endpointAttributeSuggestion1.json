@@ -63,6 +63,7 @@
     },
     {
       "label":"Add All Attributes",
+      "detail":"none",
       "sortText":"110",
       "insertText":"host: \"\",\nport: 0,\nkeepAlive: ALWAYS|AUTO|NEVER,\nsecureSocket: ServiceSecureSocket?,\nhttpVersion: \"\",\nrequestLimits: RequestLimits?,\nfilters: [],\ntimeoutMillis: 0"
     }
