@@ -161,8 +161,7 @@ public class CPU {
     private static void tryExec(WorkerExecutionContext ctx) {
         BLangScheduler.workerRunning(ctx);
 
-        int i;
-        int j;
+        int i, j, k, l;
         int cpIndex;
         FunctionCallCPEntry funcCallCPEntry;
         FunctionRefCPEntry funcRefCPEntry;
@@ -406,8 +405,8 @@ public class CPU {
                     case InstructionCodes.TR_RETRY:
                         i = operands[0];
                         j = operands[1];
-                        int l = operands[2];
-                        retryTransaction(ctx, i, j, l);
+                        k = operands[2];
+                        retryTransaction(ctx, i, j, k);
                         break;
                     case InstructionCodes.CALL:
                         callIns = (InstructionCALL) instruction;
@@ -428,9 +427,9 @@ public class CPU {
                     case InstructionCodes.TR_BEGIN:
                         i = operands[0];
                         j = operands[1];
-                        int k = operands[2];
-                        int h = operands[3];
-                        beginTransaction(ctx, i, j, k, h);
+                        k = operands[2];
+                        l = operands[3];
+                        beginTransaction(ctx, i, j, k, l);
                         break;
                     case InstructionCodes.TR_END:
                         i = operands[0];
@@ -648,9 +647,13 @@ public class CPU {
                         i = operands[0];
                         cpIndex = operands[1];
                         j = operands[2];
-                        BMap<String, BValue> configStruct = (BMap<String, BValue>) sf.refRegs[j];
+                        k = operands[3];
+                        l = operands[4];
                         typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
-                        sf.refRegs[i] = new BTable(typeRefCPEntry.getType(), configStruct);
+                        BStringArray indexColumns = (BStringArray) sf.refRegs[j];
+                        BStringArray keyColumns = (BStringArray) sf.refRegs[k];
+                        BRefValueArray dataRows = (BRefValueArray) sf.refRegs[l];
+                        sf.refRegs[i] = new BTable(typeRefCPEntry.getType(), indexColumns, keyColumns, dataRows);
                         break;
                     case InstructionCodes.NEWSTREAM:
                         i = operands[0];
@@ -1098,7 +1101,6 @@ public class CPU {
         int k;
         int pkgIndex;
         int lvIndex; // Index of the local variable
-        int fieldIndex;
 
         BIntArray bIntArray;
         BByteArray bByteArray;

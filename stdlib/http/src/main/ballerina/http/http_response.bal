@@ -33,19 +33,15 @@ documentation {
 }
 public type Response object {
 
-    public {
-        int statusCode = 200;
-        string reasonPhrase;
-        string server;
-        string resolvedRequestedURI;
-        ResponseCacheControl? cacheControl;
-    }
+    public int statusCode = 200;
+    public string reasonPhrase;
+    public string server;
+    public string resolvedRequestedURI;
+    public ResponseCacheControl? cacheControl;
 
-    private {
-        int receivedTime;
-        int requestTime;
-        mime:Entity entity;
-    }
+    int receivedTime;
+    int requestTime;
+    private mime:Entity entity;
 
     public new() {
         self.entity = createNewEntity();
@@ -190,11 +186,11 @@ public type Response object {
     public function getByteChannel() returns io:ByteChannel|error;
 
     documentation {
-        Gets the response payload as a `blob`.
+        Gets the response payload as a `byte[]`.
 
-        R{{}} The blob representation of the message payload or `error` in case of errors
+        R{{}} The byte[] representation of the message payload or `error` in case of errors
     }
-    public function getBinaryPayload() returns blob|error;
+    public function getBinaryPayload() returns byte[]|error;
 
     documentation {
         Extracts body parts from the response. If the content type is not a composite media type, an error is returned.
@@ -209,7 +205,7 @@ public type Response object {
 
         P{{payload}} The payload for which the ETag should be set
     }
-    public function setETag(json|xml|string|blob payload);
+    public function setETag(json|xml|string|byte[] payload);
 
     documentation {
         Sets the current time as the `last-modified` header.
@@ -244,13 +240,13 @@ public type Response object {
     public function setTextPayload(string payload, string contentType = "text/plain");
 
     documentation {
-        Sets a `blob` as the payload.
+        Sets a `byte[]` as the payload.
 
-        P{{payload}} The `blob` payload
+        P{{payload}} The `byte[]` payload
         P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
-                         for `blob`
+                         for `byte[]`
     }
-    public function setBinaryPayload(blob payload, string contentType = "application/octet-stream");
+    public function setBinaryPayload(byte[] payload, string contentType = "application/octet-stream");
 
     documentation {
         Set multiparts as the payload.
@@ -282,37 +278,37 @@ public type Response object {
     documentation {
         Sets the response payload.
 
-        P{{payload}} Payload can be of type `string`, `xml`, `json`, `blob`, `ByteChannel` or `Entity[]` (i.e: a set
+        P{{payload}} Payload can be of type `string`, `xml`, `json`, `byte[]`, `ByteChannel` or `Entity[]` (i.e: a set
                      of body parts)
     }
-    public function setPayload(string|xml|json|blob|io:ByteChannel|mime:Entity[] payload);
+    public function setPayload(string|xml|json|byte[]|io:ByteChannel|mime:Entity[] payload);
 };
 
 /////////////////////////////////
 /// Ballerina Implementations ///
 /////////////////////////////////
 
-public function Response::hasHeader(string headerName) returns boolean {
+function Response::hasHeader(string headerName) returns boolean {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.hasHeader(headerName);
 }
 
-public function Response::getHeader(string headerName) returns string {
+function Response::getHeader(string headerName) returns string {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeader(headerName);
 }
 
-public function Response::addHeader(string headerName, string headerValue) {
+function Response::addHeader(string headerName, string headerValue) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.addHeader(headerName, headerValue);
 }
 
-public function Response::getHeaders(string headerName) returns (string[]) {
+function Response::getHeaders(string headerName) returns (string[]) {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeaders(headerName);
 }
 
-public function Response::setHeader(string headerName, string headerValue) {
+function Response::setHeader(string headerName, string headerValue) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setHeader(headerName, headerValue);
 
@@ -322,32 +318,32 @@ public function Response::setHeader(string headerName, string headerValue) {
     }
 }
 
-public function Response::removeHeader(string key) {
+function Response::removeHeader(string key) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.removeHeader(key);
 }
 
-public function Response::removeAllHeaders() {
+function Response::removeAllHeaders() {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.removeAllHeaders();
 }
 
-public function Response::getHeaderNames() returns string[] {
+function Response::getHeaderNames() returns string[] {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getHeaderNames();
 }
 
-public function Response::setContentType(string contentType) {
+function Response::setContentType(string contentType) {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setHeader(mime:CONTENT_TYPE, contentType);
 }
 
-public function Response::getContentType() returns string {
+function Response::getContentType() returns string {
     mime:Entity entity = self.getEntityWithoutBody();
     return entity.getContentType();
 }
 
-public function Response::getJsonPayload() returns json|error {
+function Response::getJsonPayload() returns json|error {
     match self.getEntity() {
         error err => return err;
         mime:Entity mimeEntity => {
@@ -359,7 +355,7 @@ public function Response::getJsonPayload() returns json|error {
     }
 }
 
-public function Response::getXmlPayload() returns xml|error {
+function Response::getXmlPayload() returns xml|error {
     match self.getEntity() {
         error err => return err;
         mime:Entity mimeEntity => {
@@ -371,7 +367,7 @@ public function Response::getXmlPayload() returns xml|error {
     }
 }
 
-public function Response::getTextPayload() returns string|error {
+function Response::getTextPayload() returns string|error {
     match self.getEntity() {
         error err => return err;
         mime:Entity mimeEntity => {
@@ -383,7 +379,7 @@ public function Response::getTextPayload() returns string|error {
     }
 }
 
-public function Response::getPayloadAsString() returns string|error {
+function Response::getPayloadAsString() returns string|error {
     match self.getEntity() {
         error err => return err;
         mime:Entity mimeEntity => {
@@ -395,19 +391,19 @@ public function Response::getPayloadAsString() returns string|error {
     }
 }
 
-public function Response::getBinaryPayload() returns blob|error {
+function Response::getBinaryPayload() returns byte[]|error {
     match self.getEntity() {
         error err => return err;
         mime:Entity mimeEntity => {
-            match mimeEntity.getBlob() {
+            match mimeEntity.getByteArray() {
                 error payloadErr => return payloadErr;
-                blob binaryPayload => return binaryPayload;
+                byte[] binaryPayload => return binaryPayload;
             }
         }
     }
 }
 
-public function Response::getByteChannel() returns io:ByteChannel|error {
+function Response::getByteChannel() returns io:ByteChannel|error {
     match self.getEntity() {
         error err => return err;
         mime:Entity mimeEntity => {
@@ -419,7 +415,7 @@ public function Response::getByteChannel() returns io:ByteChannel|error {
     }
 }
 
-public function Response::getBodyParts() returns mime:Entity[]|error {
+function Response::getBodyParts() returns mime:Entity[]|error {
     var mimeEntity = self.getEntity();
     match mimeEntity {
         mime:Entity entity => return entity.getBodyParts();
@@ -427,66 +423,66 @@ public function Response::getBodyParts() returns mime:Entity[]|error {
     }
 }
 
-public function Response::setETag(json|xml|string|blob payload) {
+function Response::setETag(json|xml|string|byte[] payload) {
     string etag = crypto:crc32(payload);
     self.setHeader(ETAG, etag);
 }
 
-public function Response::setLastModified() {
+function Response::setLastModified() {
     time:Time currentT = time:currentTime();
     string lastModified = currentT.format(time:TIME_FORMAT_RFC_1123);
     self.setHeader(LAST_MODIFIED, lastModified);
 }
 
-public function Response::setJsonPayload(json payload, string contentType = "application/json") {
+function Response::setJsonPayload(json payload, string contentType = "application/json") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setJson(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Response::setXmlPayload(xml payload, string contentType = "application/xml") {
+function Response::setXmlPayload(xml payload, string contentType = "application/xml") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setXml(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Response::setTextPayload(string payload, string contentType = "text/plain") {
+function Response::setTextPayload(string payload, string contentType = "text/plain") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setText(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Response::setBinaryPayload(blob payload, string contentType = "application/octet-stream") {
+function Response::setBinaryPayload(byte[] payload, string contentType = "application/octet-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
-    entity.setBlob(payload, contentType = contentType);
+    entity.setByteArray(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Response::setBodyParts(mime:Entity[] bodyParts, string contentType = "multipart/form-data") {
+function Response::setBodyParts(mime:Entity[] bodyParts, string contentType = "multipart/form-data") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setBodyParts(bodyParts, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Response::setFileAsPayload(string filePath, string contentType = "application/octet-stream")
+function Response::setFileAsPayload(string filePath, string contentType = "application/octet-stream")
 {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setFileAsEntityBody(filePath, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Response::setByteChannel(io:ByteChannel payload, string contentType = "application/octet-stream") {
+function Response::setByteChannel(io:ByteChannel payload, string contentType = "application/octet-stream") {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setByteChannel(payload, contentType = contentType);
     self.setEntity(entity);
 }
 
-public function Response::setPayload(string|xml|json|blob|io:ByteChannel|mime:Entity[] payload) {
+function Response::setPayload(string|xml|json|byte[]|io:ByteChannel|mime:Entity[] payload) {
     match payload {
         string textContent => self.setTextPayload(textContent);
         xml xmlContent => self.setXmlPayload(xmlContent);
         json jsonContent => self.setJsonPayload(jsonContent);
-        blob blobContent => self.setBinaryPayload(blobContent);
+        byte[] blobContent => self.setBinaryPayload(blobContent);
         io:ByteChannel byteChannelContent => self.setByteChannel(byteChannelContent);
         mime:Entity[] bodyParts => self.setBodyParts(bodyParts);
     }

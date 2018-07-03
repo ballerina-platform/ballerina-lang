@@ -33,8 +33,7 @@ function testTableAddOnUnconstrainedTable() returns (int) {
 
 function testTableAddOnConstrainedTable() returns (int) {
     table<Person> t1 = table {
-        primaryKey: ["id", "salary"],
-        index: ["id", "salary"]
+        { primarykey id, primarykey salary, name, age, married }
     };
 
     Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
@@ -57,9 +56,8 @@ function testTableLiteralData() returns (int) {
     Person p3 = { id: 3, age: 30, salary: 300.50, name: "peter", married: true };
 
     table<Person> t1 = table {
-        primaryKey: ["id", "salary"],
-        index: ["id", "salary"],
-        data: [p1, p2, p3]
+        { primarykey id, primarykey salary, name, age, married },
+        [p1, p2, p3]
     };
 
     int count = t1.count();
@@ -74,9 +72,8 @@ function testTableLiteralDataAndAdd() returns (int) {
     Person p5 = { id: 5, age: 30, salary: 300.50, name: "mary", married: true };
 
     table<Person> t1 = table {
-        primaryKey: ["id", "salary"],
-        index: ["id", "salary"],
-        data: [p1, p2, p3]
+        { primarykey id, primarykey salary, name, age, married },
+        [p1, p2, p3]
     };
 
     _ = t1.add(p4);
@@ -86,12 +83,20 @@ function testTableLiteralDataAndAdd() returns (int) {
     return count;
 }
 
-function testTableLiteralDataWithInit() returns (int) {
+function testTableLiteralDataAndAdd2() returns (int) {
+    Person p4 = { id: 4, age: 30, salary: 300.50, name: "john", married: true };
+    Person p5 = { id: 5, age: 30, salary: 300.50, name: "mary", married: true };
+
     table<Person> t1 = table {
-        primaryKey: ["id", "salary"],
-        index: ["id", "salary"],
-        data: [1, 1]
+        { primarykey id, primarykey salary, name, age, married },
+        [{ 1, 300.5, "jane",  30, true },
+         { 2, 302.5, "anne",  23, false },
+         { 3, 320.5, "john",  33, true }
+        ]
     };
+
+    _ = t1.add(p4);
+    _ = t1.add(p5);
 
     int count = t1.count();
     return count;
@@ -102,9 +107,8 @@ function testTableAddOnConstrainedTableWithViolation() returns (int) {
     Person p2 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
 
     table<Person> t1 = table {
-        primaryKey: ["id"],
-        index: ["id"],
-        data: [p1, p2]
+        { primarykey id, salary, name, age, married },
+        [p1, p2]
     };
 
     int count = t1.count();
@@ -117,9 +121,8 @@ function testTableAddOnConstrainedTableWithViolation2() returns (string) {
     Person p3 = { id: 2, age: 30, salary: 300.50, name: "jane", married: true };
 
     table<Person> t1 = table {
-        primaryKey: ["id"],
-        index: ["id"],
-        data: [p1, p2]
+        { primarykey id, salary, name, age, married },
+        [p1, p2]
     };
 
     var ret = t1.add(p3);

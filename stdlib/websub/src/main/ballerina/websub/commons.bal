@@ -137,13 +137,11 @@ documentation {
 }
 public type IntentVerificationRequest object {
 
-    public {
-        string mode;
-        string topic;
-        string challenge;
-        int leaseSeconds;
-        http:Request request;
-    }
+    public string mode;
+    public string topic;
+    public string challenge;
+    public int leaseSeconds;
+    public http:Request request;
 
     documentation {
         Builds the response for the request, verifying intention to subscribe, if the topic matches that expected.
@@ -163,13 +161,13 @@ public type IntentVerificationRequest object {
 
 };
 
-public function IntentVerificationRequest::buildSubscriptionVerificationResponse(string t)
+function IntentVerificationRequest::buildSubscriptionVerificationResponse(string t)
     returns http:Response {
 
     return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, t);
 }
 
-public function IntentVerificationRequest::buildUnsubscriptionVerificationResponse(string t)
+function IntentVerificationRequest::buildUnsubscriptionVerificationResponse(string t)
     returns http:Response {
 
     return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, t);
@@ -297,9 +295,7 @@ documentation {
 }
 public type Notification object {
 
-    private {
-        http:Request request;
-    }
+    private http:Request request;
 
     documentation {
         Retrieves the query parameters of the content delivery request, as a map.
@@ -418,11 +414,11 @@ public type Notification object {
     }
 
     documentation {
-        Retrieves the request payload as a `blob`.
+        Retrieves the request payload as a `byte[]`.
 
-        R{{}} The blob representation of the message payload or `error` in case of errors
+        R{{}} The byte[] representation of the message payload or `error` in case of errors
     }
-    public function getBinaryPayload() returns blob|error {
+    public function getBinaryPayload() returns byte[]|error {
         return request.getBinaryPayload();
     }
 
@@ -527,9 +523,7 @@ documentation {
 }
 public type WebSubHub object {
 
-    public {
-        string hubUrl;
-    }
+    public string hubUrl;
 
     new (hubUrl) {}
 
@@ -548,7 +542,7 @@ public type WebSubHub object {
         P{{contentType}} The content type header to set for the request delivering the payload
         R{{}} `error` if the hub is not initialized or does not represent the internal hub
     }
-    public function publishUpdate(string topic, string|xml|json|blob|io:ByteChannel payload,
+    public function publishUpdate(string topic, string|xml|json|byte[]|io:ByteChannel payload,
                                   string? contentType = ()) returns error?;
 
     documentation {
@@ -569,11 +563,11 @@ public type WebSubHub object {
 
 };
 
-public function WebSubHub::stop() returns (boolean) {
+function WebSubHub::stop() returns (boolean) {
     return stopHubService(self.hubUrl);
 }
 
-public function WebSubHub::publishUpdate(string topic, string|xml|json|blob|io:ByteChannel payload,
+function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:ByteChannel payload,
                                          string? contentType = ()) returns error? {
 
     if (self.hubUrl == "") {
@@ -585,7 +579,7 @@ public function WebSubHub::publishUpdate(string topic, string|xml|json|blob|io:B
 
     match(payload) {
         io:ByteChannel byteChannel => content.payload = constructBlob(byteChannel);
-        string|xml|json|blob => content.payload = payload;
+        string|xml|json|byte[] => content.payload = payload;
     }
 
     match(contentType) {
@@ -595,7 +589,7 @@ public function WebSubHub::publishUpdate(string topic, string|xml|json|blob|io:B
                 string => content.contentType = mime:TEXT_PLAIN;
                 xml => content.contentType = mime:APPLICATION_XML;
                 json => content.contentType = mime:APPLICATION_JSON;
-                blob|io:ByteChannel => content.contentType = mime:APPLICATION_OCTET_STREAM;
+                byte[]|io:ByteChannel => content.contentType = mime:APPLICATION_OCTET_STREAM;
             }
         }
     }
@@ -603,11 +597,11 @@ public function WebSubHub::publishUpdate(string topic, string|xml|json|blob|io:B
     return validateAndPublishToInternalHub(self.hubUrl, topic, content);
 }
 
-public function WebSubHub::registerTopic(string topic) returns error? {
+function WebSubHub::registerTopic(string topic) returns error? {
     return registerTopicAtHub(topic, "");
 }
 
-public function WebSubHub::unregisterTopic(string topic) returns error? {
+function WebSubHub::unregisterTopic(string topic) returns error? {
     return unregisterTopicAtHub(topic, "");
 }
 
@@ -667,7 +661,7 @@ documentation {
     F{{contentType}} The content-type of the payload
 }
 type WebSubContent record {
-    string|xml|json|blob|io:ByteChannel payload,
+    string|xml|json|byte[]|io:ByteChannel payload,
     string contentType,
 };
 

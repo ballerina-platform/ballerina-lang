@@ -1,4 +1,5 @@
 import ballerina/http;
+import ballerina/mime;
 
 endpoint http:NonListener testEP {
     port:9090
@@ -61,8 +62,8 @@ service<http:Service> echo bind testEP {
         methods:["POST"],
         body:"person"
     }
-     body5 (endpoint caller, http:Request req, blob person) {
-        string name = untaint person.toString("UTF-8");
+     body5 (endpoint caller, http:Request req, byte[] person) {
+        string name = untaint mime:byteArrayToString(person, "UTF-8");
         http:Response res = new;
         res.setJsonPayload({Key:name});
         _ = caller -> respond(res);

@@ -21,13 +21,18 @@ package org.ballerinalang.test.services.nativeimpl;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.mime.util.Constants;
+
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_FORM;
+import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
+import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_XML;
+import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
 
 /**
  * Success test cases for ballerina/http parseHeader native function.
@@ -43,26 +48,26 @@ public class ParseHeaderSuccessTest {
 
     @Test(description = "Test function with single header value")
     public void testSingleHeaderValue() {
-        BString value = new BString(Constants.TEXT_PLAIN);
+        BString value = new BString(TEXT_PLAIN);
         BValue[] inputArg = {value};
         BValue[] returnVals = BRunUtil.invoke(result, "testParseHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
+                           "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
-        Assert.assertEquals(returnVals[0].stringValue(), Constants.TEXT_PLAIN);
+        Assert.assertEquals(returnVals[0].stringValue(), TEXT_PLAIN);
         Assert.assertNull(returnVals[1]);
     }
 
     @Test(description = "Test function with single header value and params")
     @SuppressWarnings("unchecked")
     public void testSingleHeaderValueWithParam() {
-        BString value = new BString(Constants.TEXT_PLAIN + ";a=2;b=0.9");
+        BString value = new BString(TEXT_PLAIN + ";a=2;b=0.9");
         BValue[] inputArg = {value};
         BValue[] returnVals = BRunUtil.invoke(result, "testParseHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
+                           "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
-        Assert.assertEquals(returnVals[0].stringValue(), Constants.TEXT_PLAIN);
+        Assert.assertEquals(returnVals[0].stringValue(), TEXT_PLAIN);
         Assert.assertTrue(returnVals[1] instanceof BMap);
         BMap<String, BString> params = (BMap<String, BString>) returnVals[1];
         Assert.assertEquals(params.get("a").stringValue(), String.valueOf(2));
@@ -72,26 +77,26 @@ public class ParseHeaderSuccessTest {
 
     @Test(description = "Test function with multiple header values")
     public void testMultipleHeaderValue() {
-        BString value = new BString(Constants.TEXT_PLAIN + " , " + Constants.APPLICATION_FORM);
+        BString value = new BString(TEXT_PLAIN + " , " + APPLICATION_FORM);
         BValue[] inputArg = {value};
         BValue[] returnVals = BRunUtil.invoke(result, "testParseHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
+                           "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
-        Assert.assertEquals(returnVals[0].stringValue(), Constants.TEXT_PLAIN);
+        Assert.assertEquals(returnVals[0].stringValue(), TEXT_PLAIN);
         Assert.assertNull(returnVals[1]);
     }
 
     @Test(description = "Test function with extra space in between values and params")
     @SuppressWarnings("unchecked")
     public void testWithExtraSpaceInBetweenParams() {
-        BString value = new BString(Constants.APPLICATION_JSON + " ; a = 2 ;    b  =    0.9");
+        BString value = new BString(APPLICATION_JSON + " ; a = 2 ;    b  =    0.9");
         BValue[] inputArg = {value};
         BValue[] returnVals = BRunUtil.invoke(result, "testParseHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
+                           "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
-        Assert.assertEquals(returnVals[0].stringValue(), Constants.APPLICATION_JSON);
+        Assert.assertEquals(returnVals[0].stringValue(), APPLICATION_JSON);
         Assert.assertTrue(returnVals[1] instanceof BMap);
         BMap<String, BString> params = (BMap<String, BString>) returnVals[1];
         Assert.assertEquals(params.get("a").stringValue(), String.valueOf(2));
@@ -100,13 +105,13 @@ public class ParseHeaderSuccessTest {
 
     @Test(description = "Test function with header value ends with semicolon")
     public void testHeaderValueEndingWithSemiColon() {
-        BString value = new BString(Constants.APPLICATION_XML + ";");
+        BString value = new BString(APPLICATION_XML + ";");
         BValue[] inputArg = {value};
         BValue[] returnVals = BRunUtil.invoke(result, "testParseHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
+                           "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
-        Assert.assertEquals(returnVals[0].stringValue(), Constants.APPLICATION_XML);
+        Assert.assertEquals(returnVals[0].stringValue(), APPLICATION_XML);
         Assert.assertNull(returnVals[1]);
     }
 
@@ -116,7 +121,7 @@ public class ParseHeaderSuccessTest {
         BValue[] inputArg = {value};
         BValue[] returnVals = BRunUtil.invoke(result, "testParseHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
+                           "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
         Assert.assertEquals(returnVals[0].stringValue(), "");
         Assert.assertNull(returnVals[1]);
@@ -125,13 +130,13 @@ public class ParseHeaderSuccessTest {
     @Test(description = "Test function when param value is optional. i.e 'text/plain;a, application/xml' ")
     @SuppressWarnings("unchecked")
     public void testValueWithOptionalParam() {
-        BString value = new BString(Constants.TEXT_PLAIN + ";a, " + Constants.APPLICATION_XML);
+        BString value = new BString(TEXT_PLAIN + ";a, " + APPLICATION_XML);
         BValue[] inputArg = {value};
         BValue[] returnVals = BRunUtil.invoke(result, "testParseHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
+                           "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BString);
-        Assert.assertEquals(returnVals[0].stringValue(), Constants.TEXT_PLAIN);
+        Assert.assertEquals(returnVals[0].stringValue(), TEXT_PLAIN);
         Assert.assertTrue(returnVals[1] instanceof BMap);
         BMap<String, BString> params = (BMap<String, BString>) returnVals[1];
         Assert.assertNull(params.get("a"));

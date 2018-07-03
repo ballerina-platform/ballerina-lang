@@ -13,7 +13,7 @@ function testGetTextPayload(http:Response res) returns string|error {
     return res.getTextPayload();
 }
 
-function testGetBinaryPayload(http:Response res) returns blob|error {
+function testGetBinaryPayload(http:Response res) returns byte[]|error {
     return res.getBinaryPayload();
 }
 

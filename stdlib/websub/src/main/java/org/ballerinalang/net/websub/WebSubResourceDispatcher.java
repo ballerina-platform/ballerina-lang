@@ -32,7 +32,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import static org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE;
+import static org.ballerinalang.mime.util.MimeConstants.MESSAGE_DATA_SOURCE;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_METHOD;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_METHOD_GET;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_METHOD_POST;

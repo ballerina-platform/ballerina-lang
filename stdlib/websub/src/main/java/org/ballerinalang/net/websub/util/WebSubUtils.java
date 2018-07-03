@@ -26,9 +26,9 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import static org.ballerinalang.mime.util.Constants.ENTITY;
-import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
-import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
+import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 
 /**
  * Util class for WebSub.

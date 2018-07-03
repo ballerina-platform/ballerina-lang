@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class TestConstant {
     public static final String CONTENT_TYPE_JSON = "application/json";
+    public static final String CONTENT_TYPE_XML = "application/xml";
     public static final String CONTENT_TYPE_TEXT_PLAIN = "text/plain";
     public static final String CONTENT_TYPE_FORM_URL_ENCODED = "application/x-www-form-urlencoded";
     public static final String CHARSET_NAME = "UTF-8";

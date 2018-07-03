@@ -26,9 +26,7 @@ documentation {
 }
 public type AuthzFilter object {
 
-    public {
-        HttpAuthzHandler authzHandler;
-    }
+    public HttpAuthzHandler authzHandler;
 
     public new (authzHandler) {
     }

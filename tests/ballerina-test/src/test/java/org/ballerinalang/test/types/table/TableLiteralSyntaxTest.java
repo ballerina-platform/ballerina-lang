@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.test.types.table;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -32,10 +33,12 @@ import org.testng.annotations.Test;
 public class TableLiteralSyntaxTest {
 
     private CompileResult result;
+    private CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/table/table_literal_syntax.bal");
+        resultNegative = BCompileUtil.compile("test-src/types/table/table_literal_syntax_negative.bal");
     }
 
     @Test
@@ -80,10 +83,10 @@ public class TableLiteralSyntaxTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*initial data should be in struct type.*")
-    public void testTableLiteralDataWithInit() {
-        BRunUtil.invoke(result, "testTableLiteralDataWithInit");
+    @Test
+    public void testTableLiteralDataAndAdd2() {
+        BValue[] returns = BRunUtil.invoke(result, "testTableLiteralDataAndAdd2");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -96,5 +99,19 @@ public class TableLiteralSyntaxTest {
     public void testTableAddOnConstrainedTableWithViolation2() {
         BValue[] returns = BRunUtil.invoke(result, "testTableAddOnConstrainedTableWithViolation2");
         Assert.assertTrue((returns[0]).stringValue().contains("Unique index or primary key violation:"));
+    }
+
+    @Test(description = "Test table remove with function pointer of invalid return type")
+    public void testTableReturnNegativeCases() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 9);
+        BAssertUtil.validateError(resultNegative, 0, "object type not allowed as the constraint", 20, 11);
+        BAssertUtil.validateError(resultNegative, 1, "undefined column 'married2' for table of type 'Person'", 26, 24);
+        BAssertUtil.validateError(resultNegative, 2, "undefined field 'married2' in struct 'Person'", 28, 10);
+        BAssertUtil.validateError(resultNegative, 3, "undefined field 'married2' in struct 'Person'", 29, 9);
+        BAssertUtil.validateError(resultNegative, 4, "undefined field 'married2' in struct 'Person'", 30, 9);
+        BAssertUtil.validateError(resultNegative, 5, "incompatible types: expected 'Person', found 'int'", 44, 10);
+        BAssertUtil.validateError(resultNegative, 6, "incompatible types: expected 'Person', found 'int'", 44, 13);
+        BAssertUtil.validateError(resultNegative, 7, "object type not allowed as the constraint", 56, 5);
+        BAssertUtil.validateError(resultNegative, 8, "table cannot be created without a constraint", 68, 16);
     }
 }

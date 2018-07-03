@@ -185,15 +185,6 @@ class LifeLine extends React.Component {
                     className='invisible-rect'
                 />
             </HoverGroup>
-            {this.props.onDelete &&
-                <ActionBox
-                    show={this.state.active}
-                    bBox={actionBbox}
-                    onDelete={() => this.onDelete()}
-                    onJumptoCodeLine={() => this.onJumptoCodeLine()}
-                    isDefaultWorker={isDefaultWorker}
-                />
-            }
             {(!TreeUtils.isForkJoin(this.props.model.parent) &&
                 (isDefaultWorker || TreeUtils.isWorker(this.props.model))) &&
                 <ArrowDecorator

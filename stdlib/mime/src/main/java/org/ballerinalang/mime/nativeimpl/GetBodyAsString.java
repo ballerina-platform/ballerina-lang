@@ -32,8 +32,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
 
-import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
+import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 
 /**
  * Get the entity body as a string. Content-Type will not be checked with this method.
