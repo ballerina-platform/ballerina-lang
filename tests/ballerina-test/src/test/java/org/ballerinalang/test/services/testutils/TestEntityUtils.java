@@ -23,8 +23,8 @@ import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 
-import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 
 /**
  * Utility functions for interact with Ballerina mime Entity.

@@ -22,9 +22,8 @@ import PropTypes from 'prop-types';
 import WorkerTools from 'plugins/ballerina/tool-palette/item-provider/worker-tools';
 import ControllerUtil from 'plugins/ballerina/diagram/views/default/components/controllers/controller-util';
 import HoverButton from '../controller-utils/hover-button';
-import Toolbox from 'plugins/ballerina/diagram/views/default/components/decorators/action-box';
 
-class MainRegion extends React.Component {
+class DefaultCtrl extends React.Component {
     render() {
         const { model } = this.props;
         const { viewState: { bBox } } = model.getBody();
@@ -47,13 +46,13 @@ class MainRegion extends React.Component {
     }
 }
 
-MainRegion.contextTypes = {
+DefaultCtrl.contextTypes = {
     designer: PropTypes.instanceOf(Object),
 };
 
 export default {
-    regions: {
-        main: MainRegion,
-    },
+    defaults: [
+        DefaultCtrl,
+    ],
     name: 'Lifeline',
 };

@@ -125,7 +125,7 @@ public class GetTable implements NativeCallableUnit {
 
     private static BTable getbTable(Context context, List records) throws BallerinaIOException {
         BTypeDescValue type = (BTypeDescValue) context.getRefArgument(1);
-        BTable table = new BTable(new BTableType(type.value()), null);
+        BTable table = new BTable(new BTableType(type.value()), null, null, null);
         BStructureType structType = (BStructureType) type.value();
         for (Object obj : records) {
             String[] fields = (String[]) obj;

@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 13,
+    "character": 25
+  },
+  "source": "service/source/serviceEndpointBind2.bal",
+  "items": [
+    {
+      "label":"cbrEP",
+      "kind":"Unit",
+      "detail":"ballerina/http:Listener",
+      "sortText":"110",
+      "insertText":"cbrEP"
+    },
+    {
+      "label":"locationEp",
+      "kind":"Unit",
+      "detail":"ballerina/http:Client",
+      "sortText":"110",
+      "insertText":"locationEp"
+    }
+  ]
+}

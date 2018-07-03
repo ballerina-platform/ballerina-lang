@@ -23,7 +23,7 @@ endpoint http:Client clientEP {
 
 function main (string... args) {
     http:Request req = new;
-    var resp = clientEP -> get("/echo/", req);
+    var resp = clientEP -> get("/echo/");
     match resp {
         error err => io:println(err.message);
         http:Response response => {

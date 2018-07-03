@@ -18,19 +18,17 @@ documentation {
     Schedules an appointment.
 }
 public type Appointment object {
-    private {
-        // The function which gets called when the appointment is up
-        (function () returns error?) onTrigger,
-        // The function that gets called if the onTrigger function returns an error
-        (function(error) returns ())? onError,
-        // Specifies the Cron expression of the schedule
-        string scheduleCronExpression;
-        // Unique task ID which will be used when this appointment is cancelled
-        string taskId;
-        // Keeps track whether the appointment is scheduled to ensure that a scheduled appointment cannot be
-        // appointment again unless it is cancelled
-        boolean isRunning;
-    }
+    // The function which gets called when the appointment is up
+    private (function () returns error?) onTrigger,
+    // The function that gets called if the onTrigger function returns an error
+    private (function(error) returns ())? onError,
+    // Specifies the Cron expression of the schedule
+    private string scheduleCronExpression;
+    // Unique task ID which will be used when this appointment is cancelled
+    private string taskId;
+    // Keeps track whether the appointment is scheduled to ensure that a scheduled appointment cannot be
+    // appointment again unless it is cancelled
+    private boolean isRunning;
 
     public new(onTrigger, onError, scheduleCronExpression) {}
 

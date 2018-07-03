@@ -34,12 +34,12 @@ import java.util.stream.Collectors;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
-import static org.ballerinalang.mime.util.Constants.ASSIGNMENT;
-import static org.ballerinalang.mime.util.Constants.BOUNDARY;
-import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
-import static org.ballerinalang.mime.util.Constants.FIRST_ELEMENT;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
-import static org.ballerinalang.mime.util.Constants.SEMICOLON;
+import static org.ballerinalang.mime.util.MimeConstants.ASSIGNMENT;
+import static org.ballerinalang.mime.util.MimeConstants.BOUNDARY;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
+import static org.ballerinalang.mime.util.MimeConstants.FIRST_ELEMENT;
+import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
+import static org.ballerinalang.mime.util.MimeConstants.SEMICOLON;
 
 /**
  * Utility methods for parsing headers.

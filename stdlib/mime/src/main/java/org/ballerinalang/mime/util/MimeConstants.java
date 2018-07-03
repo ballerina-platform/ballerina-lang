@@ -23,7 +23,7 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
 /**
  * Constants related to MIME.
  */
-public class Constants {
+public class MimeConstants {
 
     public static final String ENTITY = "Entity";
     public static final String MEDIA_TYPE = "MediaType";

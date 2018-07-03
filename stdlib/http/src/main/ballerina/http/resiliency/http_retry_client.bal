@@ -29,12 +29,11 @@ documentation {
     F{{httpClient}}  HTTP client for outbound HTTP requests
 }
 public type RetryClient object {
-    public {
-        string serviceUri;
-        ClientEndpointConfig config;
-        RetryConfig retryConfig;
-        CallerActions httpClient;
-    }
+
+    public string serviceUri;
+    public ClientEndpointConfig config;
+    public RetryConfig retryConfig;
+    public CallerActions httpClient;
 
     documentation {
         Provides the HTTP actions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client
@@ -52,10 +51,10 @@ public type RetryClient object {
         retrying functionality for a given endpoint to recover from network level failures.
 
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel` or `mime:Entity[]`
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function post(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
     documentation {
@@ -63,10 +62,10 @@ public type RetryClient object {
         retrying functionality for a given endpoint to recover from network level failures.
 
         P{{path}} Resource path
-        P{{message}} An optional HTTP outbound request message or or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel` or `mime:Entity[]`
+        P{{message}} An optional HTTP outbound request message or or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function head(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message = ()) returns Response|error;
 
     documentation {
@@ -74,10 +73,10 @@ public type RetryClient object {
         retrying functionality for a given endpoint to recover from network level failures.
 
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel` or `mime:Entity[]`
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function put(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
     documentation {
@@ -96,10 +95,10 @@ public type RetryClient object {
         from network level failures.
 
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel` or `mime:Entity[]`
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function execute(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                             message) returns Response|error;
 
     documentation {
@@ -107,10 +106,10 @@ public type RetryClient object {
         retrying functionality for a given endpoint to recover from network level failures.
 
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel` or `mime:Entity[]`
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function patch(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
     documentation {
@@ -118,10 +117,10 @@ public type RetryClient object {
         retrying functionality for a given endpoint to recover from network level failures.
 
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel` or `mime:Entity[]`
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function delete(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                             message) returns Response|error;
 
     documentation {
@@ -129,10 +128,10 @@ public type RetryClient object {
         retrying functionality for a given endpoint to recover from network level failures.
 
         P{{path}} Resource path
-        P{{message}} An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel` or `mime:Entity[]`
+        P{{message}} An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function get(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message = ()) returns Response|error;
 
     documentation {
@@ -140,10 +139,10 @@ public type RetryClient object {
         retrying functionality for a given endpoint to recover from network level failures.
 
         P{{path}} Resource path
-        P{{message}} An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel` or `mime:Entity[]`
+        P{{message}} An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function options(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                             message = ()) returns Response|error;
 
     documentation {
@@ -153,10 +152,10 @@ public type RetryClient object {
 
         P{{httpVerb}} The HTTP verb value
         P{{path}} The resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel` or `mime:Entity[]`
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel` or `mime:Entity[]`
         R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
     }
-    public function submit(string httpVerb, string path,  Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function submit(string httpVerb, string path,  Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                             message) returns HttpFuture|error;
 
     documentation {
@@ -200,81 +199,81 @@ public type RetryClient object {
     public function rejectPromise(PushPromise promise);
 };
 
-public function RetryClient::post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function RetryClient::post(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                 message) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_POST, self);
 }
 
-public function RetryClient::head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function RetryClient::head(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                 message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_HEAD, self);
 }
 
-public function RetryClient::put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function RetryClient::put(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                 message) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_PUT, self);
 }
 
-public function RetryClient::forward(string path, Request request) returns Response|error {
+function RetryClient::forward(string path, Request request) returns Response|error {
     return performRetryAction(path, request, HTTP_FORWARD, self);
 }
 
-public function RetryClient::execute(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel
+function RetryClient::execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel
                                                                     |mime:Entity[]|() message) returns Response|error {
     Request req = buildRequest(message);
     return performRetryClientExecuteAction(path, req, httpVerb, self);
 }
 
-public function RetryClient::patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function RetryClient::patch(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                     message) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_PATCH, self);
 }
 
-public function RetryClient::delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function RetryClient::delete(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                     message) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_DELETE, self);
 }
 
-public function RetryClient::get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function RetryClient::get(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                 message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_GET, self);
 }
 
-public function RetryClient::options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+function RetryClient::options(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                     message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_OPTIONS, self);
 }
 
-public function RetryClient::submit(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|
+function RetryClient::submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel|
                                                                     mime:Entity[]|() message) returns HttpFuture|error {
     Request req = buildRequest(message);
     return self.httpClient.submit(httpVerb, path, req);
 }
 
-public function RetryClient::getResponse(HttpFuture httpFuture) returns Response|error {
+function RetryClient::getResponse(HttpFuture httpFuture) returns Response|error {
     return self.httpClient.getResponse(httpFuture);
 }
 
-public function RetryClient::hasPromise(HttpFuture httpFuture) returns boolean {
+function RetryClient::hasPromise(HttpFuture httpFuture) returns boolean {
     return self.httpClient.hasPromise(httpFuture);
 }
 
-public function RetryClient::getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+function RetryClient::getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
     return self.httpClient.getNextPromise(httpFuture);
 }
 
-public function RetryClient::getPromisedResponse(PushPromise promise) returns Response|error {
+function RetryClient::getPromisedResponse(PushPromise promise) returns Response|error {
     return self.httpClient.getPromisedResponse(promise);
 }
 
-public function RetryClient::rejectPromise(PushPromise promise) {
+function RetryClient::rejectPromise(PushPromise promise) {
     return self.httpClient.rejectPromise(promise);
 }
 
