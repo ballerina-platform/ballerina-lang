@@ -1,12 +1,12 @@
 import ballerina/io;
 
-type Employee {
+type Employee record {
     int id,
     string name,
     float salary,
 };
 
-type EmployeeSalary {
+type EmployeeSalary record {
     int id,
     float salary,
 };
@@ -21,8 +21,8 @@ function main(string... args) {
     // This creates an in-memory table constrained by the `Employee` type with id as the primary key.
     // Two records are inserted to the table.
     table<Employee> tb = table {
-        primaryKey: ["id"],
-        data: [e1, e2]
+        { primarykey id, name, salary },
+        [e1, e2]
     };
 
     Employee[] employees = [e3, e4];
