@@ -27,7 +27,7 @@ service<http:Service> retryDemoService bind { port: 9090 } {
     // Parameters include a reference to the caller endpoint and an object of
     // the request data.
     invokeEndpoint(endpoint caller, http:Request request) {
-        var backendResponse = backendClientEP->get("/hello", message = request);
+        var backendResponse = backendClientEP->get("/hello", message = untaint request);
         // `match` is used to handle union-type returns.
         // If a response is returned, the normal process runs.
         // If the service does not get the expected response,

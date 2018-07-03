@@ -49,7 +49,7 @@ service<http:Service> sample bind serverEP {
         header = req.getHeader("forwarded");
         match header {
             string headerVal => {
-                res.setPayload("forwarded header value : " + headerVal);
+                res.setPayload("forwarded header value : " + untaint headerVal);
             }
             any|() => {
                 res.setPayload("forwarded header value not found");
