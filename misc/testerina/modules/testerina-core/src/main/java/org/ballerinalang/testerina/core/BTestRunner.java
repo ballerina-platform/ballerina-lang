@@ -215,6 +215,10 @@ public class BTestRunner {
             if (!packageName.equals(Names.DOT.value)) {
                 outStream.println("    " + packageName);
             }
+            if (suite.getTests().size() == 0) {
+                outStream.println("\tNo tests to run\n");
+                return;
+            }
             shouldSkip.set(false);
             TestAnnotationProcessor.injectMocks(suite);
             tReport.addPackageReport(packageName);
