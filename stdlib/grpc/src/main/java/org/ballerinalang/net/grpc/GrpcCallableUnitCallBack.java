@@ -17,11 +17,12 @@
  */
 package org.ballerinalang.net.grpc;
 
-import io.grpc.stub.ServerCallStreamObserver;
-import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.grpc.listener.ServerCallHandler;
+
+import static org.ballerinalang.net.grpc.GrpcConstants.EMPTY_DATATYPE_NAME;
 
 /**
  * gRPC call back class registered in B7a executor.
@@ -30,15 +31,15 @@ import org.ballerinalang.model.values.BValue;
  */
 public class GrpcCallableUnitCallBack implements CallableUnitCallback {
 
-    private StreamObserver<Message> requestSender;
+    private StreamObserver requestSender;
     private boolean emptyResponse;
     
-    public GrpcCallableUnitCallBack(StreamObserver<Message> requestSender, boolean isEmptyResponse) {
+    public GrpcCallableUnitCallBack(StreamObserver requestSender, boolean isEmptyResponse) {
         this.requestSender = requestSender;
         this.emptyResponse = isEmptyResponse;
     }
 
-    public GrpcCallableUnitCallBack(StreamObserver<Message> requestSender) {
+    public GrpcCallableUnitCallBack(StreamObserver requestSender) {
         this.requestSender = requestSender;
         this.emptyResponse = false;
     }
@@ -50,8 +51,9 @@ public class GrpcCallableUnitCallBack implements CallableUnitCallback {
             return;
         }
         // check whether connection is closed.
-        if (requestSender instanceof ServerCallStreamObserver) {
-            ServerCallStreamObserver serverCallStreamObserver = (ServerCallStreamObserver) requestSender;
+        if (requestSender instanceof ServerCallHandler.ServerCallStreamObserver) {
+            ServerCallHandler.ServerCallStreamObserver serverCallStreamObserver = (ServerCallHandler
+                    .ServerCallStreamObserver) requestSender;
             if (!serverCallStreamObserver.isReady()) {
                 return;
             }
@@ -62,9 +64,9 @@ public class GrpcCallableUnitCallBack implements CallableUnitCallback {
         // notify success only if response message is empty. Service impl doesn't send empty message. Empty response
         // scenarios handles here.
         if (emptyResponse) {
-            requestSender.onNext(Message.newBuilder("Empty").build());
+            requestSender.onNext(new Message(EMPTY_DATATYPE_NAME));
         }
-        // Notify complete if service impl doesn't call caller->complete();
+        // Notify complete if service impl doesn't call complete;
         requestSender.onCompleted();
     }
     
