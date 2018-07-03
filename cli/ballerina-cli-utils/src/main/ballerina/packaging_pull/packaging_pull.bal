@@ -13,9 +13,7 @@ documentation {
     F{{offset}} - Offset from the terminal width.
 }
 type DefaultLogger object {
-    public {
-        int offset = 0;
-    }
+    int offset = 0;
     function formatLog(string msg) returns string {
         return msg;
     }
@@ -27,9 +25,7 @@ documentation {
     F{{offset}} - Offset from the terminal width.
 }
 type BuildLogger object {
-    public {
-        int offset = 10;
-    }
+    int offset = 10;
     function formatLog(string msg) returns string {
         return "\t" + msg;
     }
