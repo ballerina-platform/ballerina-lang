@@ -76,25 +76,25 @@ function main(string... args) {
 
     // Querying for a table always returns a new in-memory table.
 
-    // 1. This queries for all the records in a table and returns them as another in-memory table.
+    //Queries all the records in a table and returns them as another in-memory table.
     table<Person> personTableCopy = from personTable select *;
     queryStmt = "\ntable<Person> personTableCopy = from personTable select *;";
     printTable(queryStmt,"personTableCopy: ", personTableCopy);
 
-    // 2. This queries for all the records and returns them in the ascending order of the salary.
+    //Queries all the records and returns them in the ascending order of the salary.
     table<Person> orderedPersonTable = from personTable select * order by salary;
     queryStmt = "\ntable<Person> orderedPersonTable = " +
             "from personTable select * order by salary;";
     printTable(queryStmt, "orderedPersonTable: ", orderedPersonTable);
 
-    // 3. This queries for all the records in a table that match a specific filter criterion.
+    //Queries all the records in a table that match a specific filter criterion.
     table<Person> personTableCopyWithFilter =
                  from personTable where name == "jane" select *;
     queryStmt = "\ntable<Person> personTableCopyWithFilter = " +
             "from personTable where name == 'jane' select *;";
     printTable(queryStmt, "personTableCopyWithFilter: ", personTableCopyWithFilter);
 
-    // 4. This queries only few fields in a table and returns the results as a new in-memory
+    //Queries only few fields in a table and returns the results as a new in-memory
     //table constrained by a different type.
     table<PersonPublicProfile> childTable = from personTable
                   select name as knownName, age;
@@ -102,14 +102,14 @@ function main(string... args) {
                     "from personTable select name as knownName, age;";
     printTable(queryStmt, "childTable: ", childTable);
 
-    // 5. This applies the `group by` clause to a table and returns a new table with the result.
+    //This applies the `group by` clause to a table and returns a new table with the result.
     table<SummedOrder> summedOrderTable = from orderTable
                   select personId, sum(amount) group by personId;
     queryStmt = "\ntable<SummedOrder> summedOrderTable = " +
             "from orderTable select personId, sum(amount) group by personId;";
     printTable(queryStmt, "summedOrderTable: ", summedOrderTable);
 
-    // 6. This joins a table with another table and returns the selected fields in a table
+    //Joins a table with another table and returns the selected fields in a table
     //constrained by a different type.
     table<OrderDetails> orderDetailsTable =
                     from personTable as tempPersonTable
@@ -129,7 +129,7 @@ function main(string... args) {
                     "tempOrderTable.amount as amount;";
     printTable(queryStmt, "orderDetailsTable: ", orderDetailsTable);
 
-    // 7. This joins a table with another table using the `where` clause and return the selected fields in a
+    //Joins a table with another table using the `where` clause and return the selected fields in a
     // table constrained by a different type.
     table<OrderDetails> orderDetailsWithFilter =
                     from personTable
