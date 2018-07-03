@@ -36,9 +36,9 @@ import org.ballerinalang.runtime.message.MessageDataSource;
 
 import java.nio.charset.Charset;
 
-import static org.ballerinalang.mime.util.Constants.CHARSET;
-import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
+import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 
 /**
  * Get the entity body as a blob.

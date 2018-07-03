@@ -510,7 +510,6 @@ public class ASTBuilderUtil {
         final BLangTableLiteral tableLiteralNode = (BLangTableLiteral) TreeBuilder.createTableLiteralNode();
         tableLiteralNode.pos = pos;
         tableLiteralNode.type = type;
-        tableLiteralNode.configurationExpr = ASTBuilderUtil.createEmptyRecordLiteral(pos, configType);
         return tableLiteralNode;
     }
 

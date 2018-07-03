@@ -15,23 +15,18 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.completion.definitions;
-
-import org.ballerinalang.langserver.completion.CompletionTest;
-import org.testng.annotations.DataProvider;
+package org.ballerinalang.model.elements;
 
 /**
- * Completion item tests for service definition.
+ * @since 0.980.0
  */
-public class ServiceDefinition extends CompletionTest {
-    @DataProvider(name = "completion-data-provider")
-    @Override
-    public Object[][] dataProvider() {
-        return new Object[][] {
-            {"serviceEndpointBind1.json", "service"},
-            {"serviceEndpointBind2.json", "service"},
-            {"serviceEndpointBind3.json", "service"},
-            {"bindKeywordSuggestion.json", "service"}
-        };
-    }
+public enum TableColumnFlag {
+    /**
+     * Indicates Flagged column is a primary key.
+     */
+    PRIMARYKEY,
+    /**
+     * Indicates Flagged column is a index column.
+     */
+    INDEX
 }
