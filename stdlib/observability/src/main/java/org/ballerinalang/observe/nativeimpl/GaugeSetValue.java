@@ -15,7 +15,7 @@
  * under the License.
  *
  */
-package org.ballerinalang.nativeimpl.observe.metrics;
+package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;

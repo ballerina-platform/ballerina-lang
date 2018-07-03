@@ -15,42 +15,35 @@
  * under the License.
  *
  */
-package org.ballerinalang.nativeimpl.observe.metrics;
+package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.observe.Constants;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.metrics.Gauge;
+import org.ballerinalang.util.metrics.Counter;
 
 /**
- * This is the native getValue function implementation of the Gauge object.
+ * This is the native register function implementation of the Counter object.
  */
 
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
-        functionName = "getValue",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.GAUGE,
+        functionName = "register",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.COUNTER,
                 structPackage = Constants.OBSERVE_PACKAGE_PATH),
-        args = {
-                @Argument(name = "amount", type = TypeKind.FLOAT)
-        },
-        returnType = @ReturnType(type = TypeKind.FLOAT),
         isPublic = true
 )
-public class GaugeGetValue extends BlockingNativeCallableUnit {
+public class CounterRegister extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct bStruct = (BStruct) context.getRefArgument(0);
-        Gauge gauge = (Gauge) bStruct.getNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY);
-        context.setReturnValues(new BFloat(gauge.getValue()));
+        BMap bStruct = (BMap) context.getRefArgument(0);
+        Counter counter = (Counter) bStruct.getNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY);
+        Counter registeredCounter = counter.register();
+        bStruct.addNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY, registeredCounter);
     }
 }

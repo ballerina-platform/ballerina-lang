@@ -15,37 +15,39 @@
  * under the License.
  *
  */
-package org.ballerinalang.nativeimpl.observe.metrics;
+package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.observe.Constants;
-import org.ballerinalang.nativeimpl.observe.Utils;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.util.metrics.Counter;
+import org.ballerinalang.util.metrics.Gauge;
 
 /**
- * This is the native initialize function that's getting called when instantiating the Counter object.
+ * This is the native decrement function implementation of the Gauge object.
  */
+
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
-        functionName = "initialize",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.COUNTER,
-                structPackage = Constants.OBSERVE_PACKAGE_PATH)
+        functionName = "decrement",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.GAUGE,
+                structPackage = Constants.OBSERVE_PACKAGE_PATH),
+        args = {
+                @Argument(name = "amount", type = TypeKind.FLOAT)
+        },
+        isPublic = true
 )
-public class CounterInitialize extends BlockingNativeCallableUnit {
+public class GaugeDecrement extends BlockingNativeCallableUnit {
+
     @Override
     public void execute(Context context) {
-        BStruct bStruct = (BStruct) context.getRefArgument(0);
-        Counter counter = Counter.builder(bStruct.getStringField(0))
-                .description(bStruct.getStringField(1))
-                .tags(Utils.toStringMap((BMap) bStruct.getRefField(0)))
-                .build();
-        bStruct.addNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY, counter);
+        BMap bStruct = (BMap) context.getRefArgument(0);
+        float amount = (float) context.getFloatArgument(0);
+        Gauge gauge = (Gauge) bStruct.getNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY);
+        gauge.decrement(amount);
     }
 }

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.observe;
+package org.ballerinalang.observe.nativeimpl;
 
 /**
  * Constants used in Ballerina Observe package.
@@ -32,4 +32,8 @@ public final class Constants {
     public static final String METRIC = "Metric";
     public static final String PERCENTILE_VALUE = "PercentileValue";
     public static final String METRIC_NATIVE_INSTANCE_KEY = "__metric_native_instance__";
+
+    public static final String NAME_FIELD = "name";
+    public static final String DESCRIPTION_FIELD = "desc";
+    public static final String TAGS_FIELD = "tags";
 }

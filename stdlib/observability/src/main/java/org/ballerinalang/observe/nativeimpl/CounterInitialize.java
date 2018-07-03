@@ -15,37 +15,35 @@
  * under the License.
  *
  */
-package org.ballerinalang.nativeimpl.observe.metrics;
+package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.observe.Constants;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.metrics.Counter;
 
 /**
- * This is the getValue function native implementation of the Counter object.
+ * This is the native initialize function that's getting called when instantiating the Counter object.
  */
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
-        functionName = "getValue",
+        functionName = "initialize",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.COUNTER,
-                structPackage = Constants.OBSERVE_PACKAGE_PATH),
-        returnType = @ReturnType(type = TypeKind.INT),
-        isPublic = true
+                structPackage = Constants.OBSERVE_PACKAGE_PATH)
 )
-
-public class CounterGetValue extends BlockingNativeCallableUnit {
+public class CounterInitialize extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        BStruct bStruct = (BStruct) context.getRefArgument(0);
-        Counter counter = (Counter) bStruct.getNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY);
-        context.setReturnValues(new BInteger(counter.getValue()));
+        BMap<String, BValue> bStruct = (BMap<String, BValue>) context.getRefArgument(0);
+        Counter counter = Counter.builder(bStruct.get(Constants.NAME_FIELD).stringValue())
+                .description(bStruct.get(Constants.DESCRIPTION_FIELD).stringValue())
+                .tags(Utils.toStringMap((BMap) bStruct.get(Constants.TAGS_FIELD)))
+                .build();
+        bStruct.addNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY, counter);
     }
 }
