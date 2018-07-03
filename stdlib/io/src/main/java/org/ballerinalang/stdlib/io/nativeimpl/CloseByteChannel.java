@@ -28,7 +28,10 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.events.EventContext;
+import org.ballerinalang.stdlib.io.events.EventRegister;
 import org.ballerinalang.stdlib.io.events.EventResult;
+import org.ballerinalang.stdlib.io.events.Register;
+import org.ballerinalang.stdlib.io.events.bytes.CloseByteChannelEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 
@@ -73,7 +76,11 @@ public class CloseByteChannel implements NativeCallableUnit {
         BMap<String, BValue> channel = (BMap<String, BValue>) context.getRefArgument(BYTE_CHANNEL_INDEX);
         Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
-        IOUtils.close(byteChannel, eventContext, CloseByteChannel::closeResponse);
+        CloseByteChannelEvent closeEvent = new CloseByteChannelEvent(byteChannel, eventContext);
+        Register register = EventRegister.getFactory().register(closeEvent, CloseByteChannel::closeResponse);
+        eventContext.setRegister(register);
+        register.submit();
+//        IOUtils.close(byteChannel, eventContext, CloseByteChannel::closeResponse);
     }
 
     @Override
