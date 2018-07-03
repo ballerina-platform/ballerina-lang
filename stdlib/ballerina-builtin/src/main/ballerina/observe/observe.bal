@@ -14,9 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/task;
-import ballerina/io;
-
 documentation {
     Start a span with no parent span.
 
@@ -53,6 +50,7 @@ documentation {
     }
 public native function finishSpan(int spanId) returns error?;
 
+public native function getAllMetrics() returns Metric[];
 
 documentation {
     Counter metric, to track counts of events or running totals.
@@ -62,8 +60,7 @@ public type Counter object {
  public {
   @readonly string name,
   @readonly string description,
-  @readonly map<string> metricTags,
-  @readonly stream<CounterEvent> counterEvent;
+  @readonly map<string> metricTags;
  }
 
  public new(name, string? desc = "", map<string>? tags) {
@@ -81,19 +78,7 @@ public type Counter object {
 
  public native function register() returns error?;
 
- public function subscribe(function (CounterEvent) callBackFunction) {
-  counterEvent.subscribe(callBackFunction);
- }
-
- public function increment(int amount = 1) {
-  int currentValue = nativeIncrement(amount);
-  json jsonTags = check <json>metricTags;
-  string strTags = jsonTags.toString();
-  CounterEvent event = { name: name, value: currentValue, tags: strTags };
-  counterEvent.publish(event);
- }
-
- native function nativeIncrement(int amount) returns int;
+ public native function increment(int amount) returns int;
 
  public native function getValue() returns (int);
 
@@ -105,18 +90,10 @@ public type Gauge object {
   @readonly string name,
   @readonly string description,
   @readonly map<string> metricTags,
-  @readonly StatisticConfig[] statisticConfigs,
-  @readonly stream<GaugeEvent> gaugeStream,
-  @readonly boolean isStatsPushEnabled,
-  @readonly stream<GaugeStatisticsEvent> summaryStream,
+  @readonly StatisticConfig[] statisticConfigs;
  }
 
- private {
-  task:Timer? timer,
- }
-
- public new(name, string? desc = "", map<string>? tags = (), StatisticConfig[]? statisticConfig = (),
-            int pushInterval = -1) {
+ public new(name, string? desc = "", map<string>? tags = (), StatisticConfig[]? statisticConfig = ()) {
   match desc {
    string strDesc => description = strDesc;
   }
@@ -129,81 +106,23 @@ public type Gauge object {
    }
   }
   initialize();
-  if (pushInterval != -1) {
-   isStatsPushEnabled = true;
-   timer = new task:Timer(self.onPushSummaryTrigger, self.onPushSummaryError, pushInterval, delay = 0);
-   timer.start();
-  }
  }
 
  native function initialize();
 
- function onPushSummaryTrigger() returns error? {
-  Snapshot[] snapShots = self.getSnapshot();
-  foreach snapShot in snapShots {
-   json jsonPercentiles = check <json>snapShot.percentileValues;
-   GaugeStatisticsEvent event = { expiry: snapShot.expiry, averageValue: snapShot.mean,
-    maxValue: snapShot.max, minValue: snapShot.min, stdDev: snapShot.stdDev, percentiles: jsonPercentiles.toString() };
-   summaryStream.publish(event);
-  }
-  return;
- }
-
- function onPushSummaryError(error e) {
-  io:println("Error occured when pushing the statistics summary to stream");
-  io:println(e);
- }
-
- public function subscribe(function (GaugeEvent) callBackFunction) {
-  gaugeStream.subscribe(callBackFunction);
- }
-
- public function subscribeToStatistics(function (GaugeStatisticsEvent) callBackFunction) returns error? {
-  if (isStatsPushEnabled){
-   summaryStream.subscribe(callBackFunction);
-   return ();
-  } else {
-   error e = { message: "Statistics push is disabled as this Gauge have been configured with pushInterval = -1.
-   Therefore no subscription for statistics is permitted." };
-   throw e;
-  }
- }
-
  public native function register() returns error?;
 
- public function increment(float amount) {
-  float currentVal = nativeIncrement(amount);
-  publishToGaugeStream(currentVal);
- }
+ public native function increment(float amount) returns float;
 
- native function nativeIncrement(float amount) returns float;
+ public native function decrement(float amount) returns float;
 
- public function decrement(float amount) {
-  float currentVal = nativeDecrement(amount);
-  publishToGaugeStream(currentVal);
- }
- native function nativeDecrement(float amount) returns float;
-
- public function setValue(float amount) {
-  nativeSetValue(amount);
-  publishToGaugeStream(amount);
- }
-
- native function nativeSetValue(float amount);
-
- public native function getSnapshot() returns (Snapshot[]);
+ public native function setValue(float amount);
 
  public native function getValue() returns float;
 
- function publishToGaugeStream(float currentValue) {
-  json jsonTags = check <json>metricTags;
-  string strTags = jsonTags.toString();
-  GaugeEvent event = { name: name, value: currentValue, tags: strTags };
-  gaugeStream.publish(event);
- }
-};
+ public native function getSnapshot() returns (Snapshot[]);
 
-public native function getAllMetrics() returns Metric[];
+};
 
 public type Metric record {
  string name;

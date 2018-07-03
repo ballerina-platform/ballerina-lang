@@ -37,7 +37,8 @@ import org.ballerinalang.util.metrics.Counter;
         functionName = "getValue",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.COUNTER,
                 structPackage = Constants.OBSERVE_PACKAGE_PATH),
-        returnType = @ReturnType(type = TypeKind.INT)
+        returnType = @ReturnType(type = TypeKind.INT),
+        isPublic = true
 )
 
 public class CounterGetValue extends BlockingNativeCallableUnit {

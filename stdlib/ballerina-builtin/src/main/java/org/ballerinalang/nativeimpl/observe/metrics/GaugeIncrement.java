@@ -28,26 +28,27 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.util.metrics.Gauge;
 
 /**
- * This is the nativeDecrement function implementation of the Gauge object.
+ * This is the nativeIncrement function implementation of the Gauge object.
  */
 
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
-        functionName = "nativeDecrement",
+        functionName = "increment",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.GAUGE,
                 structPackage = Constants.OBSERVE_PACKAGE_PATH),
         args = {
                 @Argument(name = "amount", type = TypeKind.FLOAT)
-        }
+        },
+        isPublic = true
 )
-public class GaugeNativeDecrement extends BlockingNativeCallableUnit {
+public class GaugeIncrement extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         BStruct bStruct = (BStruct) context.getRefArgument(0);
         float amount = (float) context.getFloatArgument(0);
         Gauge gauge = (Gauge) bStruct.getNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY);
-        gauge.decrement(amount);
+        gauge.increment(amount);
     }
 }

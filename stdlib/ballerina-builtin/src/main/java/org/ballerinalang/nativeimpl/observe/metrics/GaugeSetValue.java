@@ -34,14 +34,15 @@ import org.ballerinalang.util.metrics.Gauge;
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
-        functionName = "nativeSetValue",
+        functionName = "setValue",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.GAUGE,
                 structPackage = Constants.OBSERVE_PACKAGE_PATH),
         args = {
                 @Argument(name = "amount", type = TypeKind.FLOAT)
-        }
+        },
+        isPublic = true
 )
-public class GaugeNativeSetValue extends BlockingNativeCallableUnit {
+public class GaugeSetValue extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {

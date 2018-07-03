@@ -25,29 +25,30 @@ import org.ballerinalang.nativeimpl.observe.Constants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.util.metrics.Gauge;
+import org.ballerinalang.util.metrics.Counter;
 
 /**
- * This is the nativeIncrement function implementation of the Gauge object.
+ * This is the nativeIncrement function implementation of the Counter object.
  */
 
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
-        functionName = "nativeIncrement",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.GAUGE,
+        functionName = "increment",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.COUNTER,
                 structPackage = Constants.OBSERVE_PACKAGE_PATH),
         args = {
-                @Argument(name = "amount", type = TypeKind.FLOAT)
-        }
+                @Argument(name = "amount", type = TypeKind.INT)
+        },
+        isPublic = true
 )
-public class GaugeNativeIncrement extends BlockingNativeCallableUnit {
+public class CounterIncrement extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
         BStruct bStruct = (BStruct) context.getRefArgument(0);
-        float amount = (float) context.getFloatArgument(0);
-        Gauge gauge = (Gauge) bStruct.getNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY);
-        gauge.increment(amount);
+        long amount = context.getIntArgument(0);
+        Counter counter = (Counter) bStruct.getNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY);
+        counter.increment(amount);
     }
 }

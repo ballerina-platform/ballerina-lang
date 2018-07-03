@@ -64,7 +64,6 @@ service<http:Service> PrometheusReporter bind prometheusListener {
     }
    }
   }
-
   http:Response res = new;
   res.setPayload(payload);
   _ = caller->respond(res);
