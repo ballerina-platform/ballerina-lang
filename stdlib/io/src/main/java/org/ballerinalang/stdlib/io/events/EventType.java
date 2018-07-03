@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -14,41 +14,26 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ *
  */
 
 package org.ballerinalang.stdlib.io.events;
 
-import java.util.function.Supplier;
-
 /**
- * <p>
- * Will represent an I/O event.
- * </p>
- * <p>
- * There will be several types of events read,write, close.
- * <p>
- * All these events should implement this interface.
- * </p>
+ * Represents the type of the event.
  */
-public interface Event extends Supplier<EventResult> {
+public enum EventType {
     /**
-     * Provides the unique channel id associated with the event.
-     *
-     * @return the id of the channel.
+     * Represents events which are read ready.
      */
-    int getChannelId();
-
+    READ,
     /**
-     * Specifies whether the event is selectable.
-     *
-     * @return true if the event is selectable.
+     * Represents events which are write ready.
      */
-    boolean isSelectable();
-
+    WRITE,
     /**
-     * Represents the type of the event.
-     *
-     * @return the type of the event.
+     * Represents events which are closable.
      */
-    EventType getType();
+    CLOSE
 }
+

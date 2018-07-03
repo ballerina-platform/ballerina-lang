@@ -28,8 +28,8 @@ import java.util.function.Function;
  */
 public class InstantEventRegister extends Register {
 
-    public InstantEventRegister(int id, Event event, Function<EventResult, EventResult> function) {
-        super(id, event, function);
+    InstantEventRegister(Event event, Function<EventResult, EventResult> function) {
+        super(event, function);
     }
 
     /**
@@ -38,5 +38,10 @@ public class InstantEventRegister extends Register {
     @Override
     public void submit() {
         exec.execute();
+    }
+
+    @Override
+    public void discard() {
+        //Do nothing, since we do not maintain any state
     }
 }

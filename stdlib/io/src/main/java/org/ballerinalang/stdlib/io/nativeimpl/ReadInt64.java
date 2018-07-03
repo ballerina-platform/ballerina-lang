@@ -83,8 +83,8 @@ public class ReadInt64 implements NativeCallableUnit {
         DataChannel channel = (DataChannel) dataChannelStruct.getNativeData(IOConstants.DATA_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
         ReadIntegerEvent event = new ReadIntegerEvent(channel, Representation.BIT_64, eventContext);
-        Register register = EventRegister.getFactory().register(channel.id(),
-                channel.isSelectable(), event, ReadInt64::readResponse);
+        Register register = EventRegister.getFactory().register(event, ReadInt64::readResponse);
+        eventContext.setRegister(register);
         register.submit();
     }
 

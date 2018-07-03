@@ -31,12 +31,17 @@ public abstract class Register {
      */
     protected EventExecutor exec;
 
-    public Register(int id, Event event, Function<EventResult, EventResult> function) {
-        this.exec = new EventExecutor(id, event, function);
+    public Register(Event event, Function<EventResult, EventResult> function) {
+        this.exec = new EventExecutor(event, function);
     }
 
     /**
      * Register event for execution.
      */
     public abstract void submit();
+
+    /**
+     * Discard event from the specified register.
+     */
+    public abstract void discard();
 }

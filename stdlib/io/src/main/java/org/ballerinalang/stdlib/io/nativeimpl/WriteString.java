@@ -90,8 +90,8 @@ public class WriteString implements NativeCallableUnit {
         String encoding = context.getStringArgument(ENCODING_INDEX);
         EventContext eventContext = new EventContext(context, callback);
         WriteStringEvent writeStringEvent = new WriteStringEvent(channel, value, encoding, eventContext);
-        Register register = EventRegister.getFactory().register(channel.id(),
-                channel.isSelectable(), writeStringEvent, WriteString::writeResponse);
+        Register register = EventRegister.getFactory().register(writeStringEvent, WriteString::writeResponse);
+        eventContext.setRegister(register);
         register.submit();
     }
 

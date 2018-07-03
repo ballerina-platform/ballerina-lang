@@ -85,8 +85,8 @@ public class ReadFloat32 implements NativeCallableUnit {
         DataChannel channel = (DataChannel) dataChannelStruct.getNativeData(IOConstants.DATA_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
         ReadFloatEvent event = new ReadFloatEvent(channel, Representation.BIT_32, eventContext);
-        Register register = EventRegister.getFactory().register(channel.id(),
-                channel.isSelectable(), event, ReadFloat32::readResponse);
+        Register register = EventRegister.getFactory().register(event, ReadFloat32::readResponse);
+        eventContext.setRegister(register);
         register.submit();
     }
 

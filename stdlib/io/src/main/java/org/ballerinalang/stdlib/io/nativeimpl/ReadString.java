@@ -95,8 +95,8 @@ public class ReadString implements NativeCallableUnit {
         DataChannel channel = (DataChannel) dataChannelStruct.getNativeData(IOConstants.DATA_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
         ReadStringEvent event = new ReadStringEvent(channel, eventContext, (int) nBytes, encoding);
-        Register register = EventRegister.getFactory().register(channel.id(),
-                channel.isSelectable(), event, ReadString::readResponse);
+        Register register = EventRegister.getFactory().register(event, ReadString::readResponse);
+        eventContext.setRegister(register);
         register.submit();
     }
 

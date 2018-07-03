@@ -114,8 +114,8 @@ public class ReadBytes implements NativeCallableUnit {
         byte[] content = new byte[arraySize];
         EventContext eventContext = new EventContext(context, callback);
         ReadBytesEvent event = new ReadBytesEvent(byteChannel, content, eventContext);
-        Register register = EventRegister.getFactory().register(byteChannel.id(), byteChannel.isSelectable(),
-                event, ReadBytes::readResponse);
+        Register register = EventRegister.getFactory().register(event, ReadBytes::readResponse);
+        eventContext.setRegister(register);
         register.submit();
     }
 

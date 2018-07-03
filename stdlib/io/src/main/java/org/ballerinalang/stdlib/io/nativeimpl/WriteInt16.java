@@ -87,8 +87,8 @@ public class WriteInt16 implements NativeCallableUnit {
         WriteIntegerEvent writeFloatEvent = new WriteIntegerEvent(channel,
                 value, Representation.BIT_16,
                 eventContext);
-        Register register = EventRegister.getFactory().register(channel.id(),
-                channel.isSelectable(), writeFloatEvent, WriteInt16::writeIntegerResponse);
+        Register register = EventRegister.getFactory().register(writeFloatEvent, WriteInt16::writeIntegerResponse);
+        eventContext.setRegister(register);
         register.submit();
     }
 

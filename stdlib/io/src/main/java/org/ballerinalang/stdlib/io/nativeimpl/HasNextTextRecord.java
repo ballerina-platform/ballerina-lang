@@ -84,8 +84,8 @@ public class HasNextTextRecord implements NativeCallableUnit {
             EventContext eventContext = new EventContext(context, callback);
             HasNextDelimitedRecordEvent hasNextEvent = new HasNextDelimitedRecordEvent(textRecordChannel,
                     eventContext);
-            Register register = EventRegister.getFactory().register(textRecordChannel.id(), textRecordChannel
-                            .isSelectable(), hasNextEvent, HasNextTextRecord::response);
+            Register register = EventRegister.getFactory().register(hasNextEvent, HasNextTextRecord::response);
+            eventContext.setRegister(register);
             register.submit();
         }
     }
