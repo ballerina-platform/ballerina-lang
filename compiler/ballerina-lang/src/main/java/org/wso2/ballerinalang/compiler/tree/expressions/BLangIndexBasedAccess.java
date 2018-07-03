@@ -169,4 +169,21 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
             visitor.visit(this);
         }
     }
+
+    /**
+     * @since 0.978.0
+     */
+    public static class BLangTupleAccessExpr extends BLangIndexBasedAccess {
+
+        public BLangTupleAccessExpr(DiagnosticPos pos, BLangVariableReference varRef, BLangExpression indexExpr) {
+            this.pos = pos;
+            this.expr = varRef;
+            this.indexExpr = indexExpr;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
 }

@@ -87,6 +87,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStructFieldAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangTupleAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -936,6 +937,32 @@ public class CodeGenerator extends BLangNodeVisitor {
                 emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, refRegMapValue, except);
                 emit(opcode, refRegMapValue, calcAndGetExprRegIndex(mapKeyAccessExpr));
             }
+        }
+
+        this.varAssignment = variableStore;
+    }
+
+    @Override
+    public void visit(BLangTupleAccessExpr tupleIndexAccessExpr) {
+        boolean variableStore = this.varAssignment;
+        this.varAssignment = false;
+
+        genNode(tupleIndexAccessExpr.expr, this.env);
+        Operand varRefRegIndex = tupleIndexAccessExpr.expr.regIndex;
+
+        genNode(tupleIndexAccessExpr.indexExpr, this.env);
+        Operand indexRegIndex = tupleIndexAccessExpr.indexExpr.regIndex;
+
+        if (variableStore) {
+            int opcode = getValueToRefTypeCastOpcode(tupleIndexAccessExpr.type.tag);
+            RegIndex refRegTupleValue = getRegIndex(TypeTags.ANY);
+            emit(opcode, tupleIndexAccessExpr.regIndex, refRegTupleValue);
+            emit(InstructionCodes.RASTORE, varRefRegIndex, indexRegIndex, refRegTupleValue);
+        } else {
+            int opcode = getRefToValueTypeCastOpcode(tupleIndexAccessExpr.type.tag);
+            RegIndex refRegTupleValue = getRegIndex(TypeTags.ANY);
+            emit(InstructionCodes.RALOAD, varRefRegIndex, indexRegIndex, refRegTupleValue);
+            emit(opcode, refRegTupleValue, calcAndGetExprRegIndex(tupleIndexAccessExpr));
         }
 
         this.varAssignment = variableStore;

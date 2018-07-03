@@ -100,3 +100,14 @@ function testIgnoredValue3 () returns string {
     (a, _, _) = x;
     return a;
 }
+
+function testIndexBasedAccess () returns (string, int, boolean) {
+    (boolean, int, string) x = (true, 3, "abc");
+    boolean tempBool = x[0];
+    int tempInt = x[1];
+    string tempString = x[2];
+    x[0] = false;
+    x[1] = 4;
+    x[2] = "def";
+    return (x[2], x[1], x[0]);
+}

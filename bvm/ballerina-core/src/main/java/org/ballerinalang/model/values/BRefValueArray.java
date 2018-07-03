@@ -18,6 +18,7 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
@@ -47,6 +48,11 @@ public class BRefValueArray extends BNewArray {
             }
             values = (BRefType[]) newArrayInstance(BRefType.class);
             Arrays.fill(values, type.getZeroValue());
+        } else if (type.getTag() == TypeTags.TUPLE_TAG) {
+            BTupleType tupleType = (BTupleType) type;
+            this.size = maxArraySize = tupleType.getTupleTypes().size();
+            values = (BRefType[]) newArrayInstance(BRefType.class);
+            Arrays.fill(values, type.getEmptyValue());
         } else {
             values = (BRefType[]) newArrayInstance(BRefType.class);
             Arrays.fill(values, type.getEmptyValue());
