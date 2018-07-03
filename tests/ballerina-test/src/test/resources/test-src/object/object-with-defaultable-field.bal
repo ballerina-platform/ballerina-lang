@@ -5,14 +5,11 @@ public function testObjectWithSimpleInit () returns (int, string, int, string) {
 }
 
 type Person object {
-    public {
-        int age = 10,
-        string name;
-    }
-    private {
-        int year;
-        string month = "february";
-    }
+    public int age = 10,
+    public string name;
+
+    int year;
+    string month = "february";
 
     new (year = 50, int count, name = "sample value1", string val1 = "default value") {
         age = age + count;

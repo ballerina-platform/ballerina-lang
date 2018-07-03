@@ -526,7 +526,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (isMemberAccessAllowed(env, entry.symbol)) {
                 return entry.symbol;
             } else {
-                dlog.error(pos, DiagnosticCode.ATTEMPT_REFER_NON_PUBLIC_SYMBOL, entry.symbol.name);
+                dlog.error(pos, DiagnosticCode.ATTEMPT_REFER_NON_ACCESSIBLE_SYMBOL, entry.symbol.name);
                 return symTable.notFoundSymbol;
             }
         }
@@ -837,6 +837,22 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     private boolean isMemberAccessAllowed(SymbolEnv env, BSymbol symbol) {
-        return env.enclPkg.symbol.pkgID == symbol.pkgID || Symbols.isPublic(symbol);
+        if (Symbols.isPublic(symbol)) {
+            return true;
+        }
+        if (!Symbols.isFlagOn(symbol.flags, Flags.PRIVATE)) {
+            return env.enclPkg.symbol.pkgID == symbol.pkgID;
+        }
+        if (env.enclTypeDefinition != null) {
+            return env.enclTypeDefinition.symbol == symbol.owner;
+        }
+        return isMemberAllowed(env, symbol);
+    }
+
+    private boolean isMemberAllowed(SymbolEnv env, BSymbol symbol) {
+        return env != null && (env.enclInvokable != null
+                && env.enclInvokable.symbol.receiverSymbol != null
+                && env.enclInvokable.symbol.receiverSymbol.type.tsymbol == symbol.owner
+                || isMemberAllowed(env.enclEnv, symbol));
     }
 }

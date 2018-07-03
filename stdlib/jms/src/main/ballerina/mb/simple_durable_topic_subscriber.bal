@@ -23,14 +23,10 @@ documentation { Simple Durable Topic Subscriber endpoint
 }
 public type SimpleDurableTopicSubscriber object {
 
-    public {
-        SimpleDurableTopicSubscriberEndpointConfiguration config;
-    }
+    public SimpleDurableTopicSubscriberEndpointConfiguration config;
 
-    private {
-        jms:SimpleDurableTopicSubscriber subscriber;
-        DurableTopicSubscriberActions? consumerActions;
-    }
+    private jms:SimpleDurableTopicSubscriber subscriber;
+    private DurableTopicSubscriberActions? consumerActions;
 
     documentation { Initializes the simple durable topic subscriber endpoint
         P{{c}} Configurations related to the endpoint
@@ -124,9 +120,7 @@ public type SimpleDurableTopicSubscriberEndpointConfiguration record {
 
 public type DurableTopicSubscriberActions object {
 
-    public {
-        jms:SimpleDurableTopicSubscriberActions helper;
-    }
+    public jms:SimpleDurableTopicSubscriberActions helper;
 
     public new(helper) {}
 
