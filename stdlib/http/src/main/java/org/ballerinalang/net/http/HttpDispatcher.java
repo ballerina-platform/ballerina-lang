@@ -49,9 +49,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.mime.util.Constants.ENTITY;
-import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
-import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
+import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.net.http.HttpConstants.CONNECTION;
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;

@@ -61,17 +61,17 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.mime.util.Constants.APPLICATION_FORM;
-import static org.ballerinalang.mime.util.Constants.APPLICATION_JSON;
-import static org.ballerinalang.mime.util.Constants.APPLICATION_XML;
-import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
-import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
-import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
-import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
-import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
-import static org.ballerinalang.mime.util.Constants.REQUEST_ENTITY_FIELD;
-import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
+import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_FORM;
+import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
+import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_XML;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
+import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
+import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
+import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
 
 /**
