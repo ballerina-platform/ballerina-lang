@@ -28,6 +28,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -181,8 +182,17 @@ public class OpenRecordTest {
         Assert.assertTrue(person.get("height") instanceof BFloat);
         Assert.assertEquals(((BFloat) person.get("height")).floatValue(), 5.9D);
 
+        Assert.assertTrue(person.get("firstName") instanceof BString);
+        Assert.assertEquals(person.get("firstName").stringValue(), "John");
+
         Assert.assertEquals(person.stringValue(), "{name:\"Foo\", lname:\"\", adrs:{}, age:25, family:{spouse:\"\", " +
-                "noOfChildren:0, children:[]}, parent:null, mname:\"Bar\", height:5.9}");
+                "noOfChildren:0, children:[]}, parent:null, mname:\"Bar\", height:5.9, firstName:\"John\"}");
+    }
+
+    @Test(description = "Test non-existent any rest field RHS access", expectedExceptions = BLangRuntimeException.class,
+          enabled = false)
+    public void testAnyRestFieldRHSAccess() {
+        BRunUtil.invoke(compileResult, "testAnyRestFieldRHSAccess");
     }
 
     @Test(description = "Test string constrained rest field")
@@ -199,6 +209,12 @@ public class OpenRecordTest {
         Assert.assertEquals(person.stringValue(), "{name:\"Foo\", age:25, lname:\"Bar\", address:\"Colombo\"}");
     }
 
+    @Test(description = "Test non-existent String rest field RHS access", expectedExceptions =
+            BLangRuntimeException.class)
+    public void testStringRestFieldRHSAccess() {
+        BRunUtil.invoke(compileResult, "testStringRestFieldRHSAccess");
+    }
+
     @Test(description = "Test int constrained rest field")
     public void testIntRestField() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testIntRestField");
@@ -208,6 +224,12 @@ public class OpenRecordTest {
         Assert.assertEquals(((BInteger) person.get("year")).intValue(), 3L);
 
         Assert.assertEquals(person.stringValue(), "{name:\"Foo\", age:25, year:3}");
+    }
+
+    @Test(description = "Test non-existent int rest field RHS access", expectedExceptions =
+            BLangRuntimeException.class)
+    public void testIntRestFieldRHSAccess() {
+        BRunUtil.invoke(compileResult, "testIntRestFieldRHSAccess");
     }
 
     @Test(description = "Test float constrained rest field")
@@ -221,6 +243,12 @@ public class OpenRecordTest {
         Assert.assertEquals(person.stringValue(), "{name:\"Foo\", age:25, height:5.9}");
     }
 
+    @Test(description = "Test non-existent float rest field RHS access", expectedExceptions =
+            BLangRuntimeException.class)
+    public void testFloatRestFieldRHSAccess() {
+        BRunUtil.invoke(compileResult, "testFloatRestFieldRHSAccess");
+    }
+
     @Test(description = "Test boolean constrained rest field")
     public void testBooleanRestField() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanRestField");
@@ -230,6 +258,12 @@ public class OpenRecordTest {
         Assert.assertTrue(((BBoolean) person.get("isEmployed")).booleanValue());
 
         Assert.assertEquals(person.stringValue(), "{name:\"Foo\", age:25, isEmployed:true}");
+    }
+
+    @Test(description = "Test non-existent boolean rest field RHS access", expectedExceptions =
+            BLangRuntimeException.class)
+    public void testBooleanRestFieldRHSAccess() {
+        BRunUtil.invoke(compileResult, "testBooleanRestFieldRHSAccess");
     }
 
     @Test(description = "Test map constrained rest field")
@@ -245,6 +279,12 @@ public class OpenRecordTest {
                 "\"isEmployed\":true}}");
     }
 
+    @Test(description = "Test non-existent map rest field RHS access", expectedExceptions =
+            BLangRuntimeException.class, enabled = false)
+    public void testMapRestFieldRHSAccess() {
+        BRunUtil.invoke(compileResult, "testMapRestFieldRHSAccess");
+    }
+
     @Test(description = "Test union constrained rest field")
     public void testUnionRestField() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testUnionRestField");
@@ -256,6 +296,12 @@ public class OpenRecordTest {
 
         Assert.assertEquals(person.stringValue(), "{name:\"Foo\", age:25, lname:\"Bar\", height:5.9, " +
                 "isEmployed:true}");
+    }
+
+    @Test(description = "Test non-existent union rest field RHS access", expectedExceptions =
+            BLangRuntimeException.class, enabled = false)
+    public void testUnionRestFieldRHSAccess() {
+        BRunUtil.invoke(compileResult, "testUnionRestFieldRHSAccess");
     }
 
     @Test(description = "Test nil constrained rest field")
@@ -280,6 +326,12 @@ public class OpenRecordTest {
                             "{name:\"Foo\", age:25, dpt:{dptName:\"Engineering\", employees:[]}}");
     }
 
+    @Test(description = "Test non-existent record rest field RHS access", expectedExceptions =
+            BLangRuntimeException.class, enabled = false)
+    public void testRecordRestFieldRHSAccess() {
+        BRunUtil.invoke(compileResult, "testRecordRestFieldRHSAccess");
+    }
+
     @Test(description = "Test object constrained rest field")
     public void testObjectRestField() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testObjectRestField");
@@ -290,6 +342,12 @@ public class OpenRecordTest {
 
         Assert.assertEquals(person.stringValue(),
                             "{name:\"Foo\", age:25, pet:{name:\"Miaw\", kind:\"Cat\"}}");
+    }
+
+    @Test(description = "Test non-existent object rest field RHS access", expectedExceptions =
+            BLangRuntimeException.class, enabled = false)
+    public void testObjectRestFieldRHSAccess() {
+        BRunUtil.invoke(compileResult, "testObjectRestFieldRHSAccess");
     }
 
     @Test(description = "Test tuple constrained rest field")
@@ -306,5 +364,11 @@ public class OpenRecordTest {
 
         Assert.assertEquals(person.stringValue(), "{name:\"Foo\", age:25, misc:(5.9, Bar, {name:\"Miaw\", " +
                 "kind:\"Cat\"})}");
+    }
+
+    @Test(description = "Test non-existent tuple rest field RHS access", expectedExceptions =
+            BLangRuntimeException.class, enabled = false)
+    public void testTupleRestFieldRHSAccess() {
+        BRunUtil.invoke(compileResult, "testTupleRestFieldRHSAccess");
     }
 }

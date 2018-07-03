@@ -146,7 +146,14 @@ function testSetFieldOfNonInitStruct () {
 
 function testAdditionOfARestField() returns Person {
     Person p = {name:"Foo", mname:"Bar", age:25, height: 5.9};
+    p.firstName = "John";
     return p;
+}
+
+function testAnyRestFieldRHSAccess() returns any {
+    Person p = {};
+    any name = p.firstName;
+    return name;
 }
 
 type Person2 record {
@@ -160,6 +167,12 @@ function testStringRestField() returns Person2 {
     return p;
 }
 
+function testStringRestFieldRHSAccess() returns string {
+    Person2 p = {};
+    string name = p.firstName;
+    return name;
+}
+
 type Person3 record {
     string name,
     int age,
@@ -169,6 +182,12 @@ type Person3 record {
 function testIntRestField() returns Person3 {
     Person3 p = {name:"Foo", age:25, year: 3};
     return p;
+}
+
+function testIntRestFieldRHSAccess() returns int {
+    Person3 p = {};
+    int birthYear = p.birthYear;
+    return birthYear;
 }
 
 type Person4 record {
@@ -182,6 +201,12 @@ function testFloatRestField() returns Person4 {
     return p;
 }
 
+function testFloatRestFieldRHSAccess() returns float {
+    Person4 p = {};
+    float height = p.height;
+    return height;
+}
+
 type Person5 record {
     string name,
     int age,
@@ -191,6 +216,12 @@ type Person5 record {
 function testBooleanRestField() returns Person5 {
     Person5 p = {name:"Foo", age:25, isEmployed: true};
     return p;
+}
+
+function testBooleanRestFieldRHSAccess() returns boolean {
+    Person5 p = {};
+    boolean isEmployed = p.isEmployed;
+    return isEmployed;
 }
 
 type Person6 record {
@@ -204,6 +235,12 @@ function testMapRestField() returns Person6 {
     return p;
 }
 
+function testMapRestFieldRHSAccess() returns map {
+    Person6 p = {};
+    map misc = p.misc;
+    return misc;
+}
+
 type Person7 record {
     string name,
     int age,
@@ -213,6 +250,12 @@ type Person7 record {
 function testUnionRestField() returns Person7 {
     Person7 p = {name:"Foo", age:25, lname:"Bar", height:5.9, isEmployed:true};
     return p;
+}
+
+function testUnionRestFieldRHSAccess() returns float|string|boolean {
+    Person7 p = {};
+    float|string|boolean miscFields = p.misc;
+    return miscFields;
 }
 
 type Person8 record {
@@ -237,11 +280,15 @@ function testRecordRestField() returns Person9 {
     return p;
 }
 
+function testRecordRestFieldRHSAccess() returns Department {
+    Person9 p = {};
+    Department dept = p.department;
+    return dept;
+}
+
 type Animal object {
-    public {
-        string kind;
-        string name;
-    }
+    public string kind;
+    public string name;
 
     new(name, kind){
     }
@@ -258,6 +305,12 @@ function testObjectRestField() returns Person10 {
     return p;
 }
 
+function testObjectRestFieldRHSAccess() returns Animal {
+    Person10 p = {};
+    Animal pet = p.pet;
+    return pet;
+}
+
 type Person11 record {
     string name,
     int age,
@@ -267,4 +320,10 @@ type Person11 record {
 function testTupleRestField() returns Person11 {
     Person11 p = {name:"Foo", age:25, misc:(5.9, "Bar", new Animal("Miaw", "Cat"))};
     return p;
+}
+
+function testTupleRestFieldRHSAccess() returns (float, string, Animal) {
+    Person11 p = {};
+    (float, string, Animal) tupType = p.tupType;
+    return tupType;
 }

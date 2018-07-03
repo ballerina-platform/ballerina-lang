@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.ballerinalang.test.types.json;
 
 import org.ballerinalang.bre.bvm.BLangVMErrors;
@@ -33,48 +33,56 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for constraining json types with sealed records.
+ * Test cases for constraining json types with open records.
  */
-public class ConstrainedJSONTest {
+@Test(groups = {"broken"})
+public class OpenRecordConstrainedJSONTest {
 
     private CompileResult compileResult;
     private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/types/jsontype/constrained-json.bal");
-        negativeResult = BCompileUtil.compile("test-src/types/jsontype/constrained-json-negative.bal");
+        compileResult = BCompileUtil.compile("test-src/types/jsontype/open_record_constrained_json.bal");
+        negativeResult = BCompileUtil.compile("test-src/types/jsontype/open_record_constrained_json_negative.bal");
     }
 
+    // TODO: Fix this test if constraining using open records is supported
     @Test(description = "Test basic json struct constraint")
     public void testConstrainedJSONNegative() {
         Assert.assertEquals(negativeResult.getErrorCount(), 9);
-        
-        // testStructConstraintInInitializationInvalid
-        BAssertUtil.validateError(negativeResult, 0, "undefined field 'firstName' in struct 'Person'", 15, 23);
-        
-        // testInvalidStructFieldConstraintLhs
-        BAssertUtil.validateError(negativeResult, 1, "undefined field 'firstName' in struct 'Person'", 21, 5);
-        
+
+        // testConstrainingUsingRecordWithIncompatibleRestField
+        BAssertUtil.validateError(negativeResult, 0,
+                                  "incompatible types: 'json' cannot be constrained with 'InvalidPerson'", 22, 5);
+        BAssertUtil.validateError(negativeResult, 1, "invalid literal for type 'other'", 22, 29);
+
+        // testJsonInitializationWithIncompatibleRestField
+        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'string', found 'float'", 26, 78);
+
+        // testAssigningIncompatibleRestField
+        BAssertUtil.validateError(negativeResult, 3, "incompatible types: expected 'string', found 'float'", 33, 16);
+
         // tesInvalidStructFieldConstraintRhs
         BAssertUtil.validateError(negativeResult, 2, "undefined field 'firstName' in struct 'Person'", 28, 17);
-        
+
         // TODO: testInvalidStructConstraintInPkg
-        
+
         // testConstraintJSONIndexing
         BAssertUtil.validateError(negativeResult, 3, "undefined field 'bus' in struct 'Student'", 34, 12);
-        
+
         // tesInvalidNestedStructFieldAccess
         BAssertUtil.validateError(negativeResult, 4, "undefined field 'foo' in struct 'PhoneNumber'", 58, 14);
-        
+
         // tesInvalidNestedStructFieldIndexAccess
         BAssertUtil.validateError(negativeResult, 5, "undefined field 'bar' in struct 'PhoneNumber'", 63, 14);
-        
+
         // tesInitializationWithInvalidNestedStruct
         BAssertUtil.validateError(negativeResult, 6, "undefined field 'foo' in struct 'PhoneNumber'", 67, 107);
-        
+
         BAssertUtil.validateError(negativeResult, 7,
-                "incompatible types: 'json<Person>[]' cannot be converted to 'json<Student>[]'", 72, 14);
+                                  "incompatible types: 'json<Person>[]' cannot be converted to 'json<Student>[]'", 72,
+                                  14);
 
         BAssertUtil.validateError(negativeResult, 8, "incompatible types: expected 'json', found 'blob[]'", 78, 14);
     }
@@ -96,14 +104,21 @@ public class ConstrainedJSONTest {
         Assert.assertTrue((((BJSON) returns[2]).value()).isString());
         Assert.assertEquals(returns[2].stringValue(), "London");
 
-        Assert.assertTrue(returns[3] instanceof BString);
-        Assert.assertEquals(returns[3].stringValue(), "John Doe");
+        Assert.assertTrue(returns[3] instanceof BJSON);
+        Assert.assertTrue((((BJSON) returns[3]).value()).isString());
+        Assert.assertEquals(returns[3].stringValue(), "UK");
 
-        Assert.assertTrue(returns[4] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[4]).intValue(), 30);
+        Assert.assertTrue(returns[4] instanceof BString);
+        Assert.assertEquals(returns[4].stringValue(), "John Doe");
 
-        Assert.assertTrue(returns[5] instanceof BString);
-        Assert.assertEquals((returns[5]).stringValue(), "London");
+        Assert.assertTrue(returns[5] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[5]).intValue(), 30);
+
+        Assert.assertTrue(returns[6] instanceof BString);
+        Assert.assertEquals((returns[6]).stringValue(), "London");
+
+        Assert.assertTrue(returns[7] instanceof BString);
+        Assert.assertEquals((returns[7]).stringValue(), "UK");
     }
 
     @Test(description = "Test basic json struct constraint during json initialization")
@@ -121,6 +136,10 @@ public class ConstrainedJSONTest {
         Assert.assertTrue(returns[2] instanceof BJSON);
         Assert.assertTrue((((BJSON) returns[2]).value()).isString());
         Assert.assertEquals(returns[2].stringValue(), "London");
+
+        Assert.assertTrue(returns[3] instanceof BJSON);
+        Assert.assertTrue((((BJSON) returns[3]).value()).isString());
+        Assert.assertEquals(returns[3].stringValue(), "UK");
     }
 
     @Test(description = "Test json imported struct constraint")
@@ -204,7 +223,7 @@ public class ConstrainedJSONTest {
         // TODO: in the resulting json, "class" field should not be visible.
         // This test case should be updated once the https://github.com/ballerinalang/ballerina/issues/4252
         Assert.assertEquals(returns[0].stringValue(),
-                "{\"name\":\"John Doe\",\"age\":30,\"address\":\"Colombo\",\"class\":\"5\"}");
+                            "{\"name\":\"John Doe\",\"age\":30,\"address\":\"Colombo\",\"class\":\"5\"}");
     }
 
     @Test(description = "Test Constaint JSON to Constaint JSON unsafe cast postive scenario.")
@@ -212,7 +231,7 @@ public class ConstrainedJSONTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstraintJSONToConstraintJsonUnsafePositiveCast");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(),
-                "{\"name\":\"John Doe\",\"age\":30,\"address\":\"Colombo\",\"class\":\"5\"}");
+                            "{\"name\":\"John Doe\",\"age\":30,\"address\":\"Colombo\",\"class\":\"5\"}");
     }
 
     @Test(description = "Test Constaint JSON to Constaint JSON unsafe cast negative scenario.")
@@ -228,7 +247,7 @@ public class ConstrainedJSONTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJSONArrayToConstraintJsonArrayCastPositive");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(),
-                "[{\"name\":\"John Doe\",\"age\":30,\"address\":\"Colombo\",\"class\":\"5\"}]");
+                            "[{\"name\":\"John Doe\",\"age\":30,\"address\":\"Colombo\",\"class\":\"5\"}]");
     }
 
     @Test
@@ -244,7 +263,7 @@ public class ConstrainedJSONTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJSONArrayToCJsonArrayCast");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(),
-                "[{\"name\":\"John Doe\",\"age\":30,\"address\":\"London\",\"class\":\"B\"}]");
+                            "[{\"name\":\"John Doe\",\"age\":30,\"address\":\"London\",\"class\":\"B\"}]");
     }
 
     @Test
