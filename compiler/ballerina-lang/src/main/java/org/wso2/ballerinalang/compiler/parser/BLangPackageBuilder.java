@@ -448,6 +448,26 @@ public class BLangPackageBuilder {
         }
     }
 
+    void addFieldVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                          boolean exprAvailable, boolean docExist, boolean deprectedDocExit,
+                          int annotCount, boolean isPrivate, boolean isPublic) {
+        BLangVariable field = addVar(pos, ws, identifier, exprAvailable, annotCount);
+
+        attachAnnotations(field, annotCount);
+        if (docExist) {
+            attachDocumentations(field);
+        }
+        if (deprectedDocExit) {
+            attachDeprecatedNode(field);
+        }
+
+        if (isPublic) {
+            field.flagSet.add(Flag.PUBLIC);
+        } else if (isPrivate) {
+            field.flagSet.add(Flag.PRIVATE);
+        }
+    }
+
     void addArrayType(DiagnosticPos pos, Set<Whitespace> ws, int dimensions) {
         BLangType eType = (BLangType) this.typeNodeStack.pop();
         BLangArrayType arrayTypeNode = (BLangArrayType) TreeBuilder.createArrayTypeNode();
@@ -1564,7 +1584,7 @@ public class BLangPackageBuilder {
         this.objFunctionListStack.peek().add(function);
     }
 
-    void endObjectAttachedFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc,
+    void endObjectAttachedFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean privateFunc,
                                       boolean nativeFunc, boolean bodyExists, boolean docPresent,
                                       boolean deprecatedDocPresent, int annCount) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
@@ -1577,6 +1597,8 @@ public class BLangPackageBuilder {
 
         if (publicFunc) {
             function.flagSet.add(Flag.PUBLIC);
+        } else if (privateFunc) {
+            function.flagSet.add(Flag.PRIVATE);
         }
 
         if (nativeFunc) {

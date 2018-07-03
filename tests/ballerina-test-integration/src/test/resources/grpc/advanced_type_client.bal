@@ -138,10 +138,10 @@ function testInputStructNoOutput(StockQuote quote) returns (string) {
 
 public type HelloWorldBlockingStub object {
 
-    public {
-        grpc:Client clientEndpoint;
-        grpc:Stub stub;
-    }
+
+    public grpc:Client clientEndpoint;
+    public grpc:Stub stub;
+
 
     function initStub(grpc:Client ep) {
         grpc:Stub navStub = new;
@@ -246,10 +246,10 @@ public type HelloWorldBlockingStub object {
 
 public type HelloWorldStub object {
 
-    public {
-        grpc:Client clientEndpoint;
-        grpc:Stub stub;
-    }
+
+    public grpc:Client clientEndpoint;
+    public grpc:Stub stub;
+
 
     function initStub(grpc:Client ep) {
         grpc:Stub navStub = new;
@@ -286,10 +286,10 @@ public type HelloWorldStub object {
 
 public type HelloWorldBlockingClient object {
 
-    public {
-        grpc:Client client;
-        HelloWorldBlockingStub stub;
-    }
+
+    public grpc:Client client;
+    public HelloWorldBlockingStub stub;
+
 
     public function init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
@@ -309,10 +309,10 @@ public type HelloWorldBlockingClient object {
 
 public type HelloWorldClient object {
 
-    public {
-        grpc:Client client;
-        HelloWorldStub stub;
-    }
+
+    public grpc:Client client;
+    public HelloWorldStub stub;
+
 
     public function init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.

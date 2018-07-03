@@ -15,10 +15,6 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.client;
 
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
-import io.grpc.stub.StreamObserver;
-
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
@@ -29,6 +25,9 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
+import org.ballerinalang.net.grpc.Status;
+import org.ballerinalang.net.grpc.StreamObserver;
+import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,12 +60,12 @@ public class Complete extends BlockingNativeCallableUnit {
         StreamObserver requestSender = (StreamObserver) connectionStruct.getNativeData(REQUEST_SENDER);
         if (requestSender == null) {
             context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
-                    .fromCode(Status.INTERNAL.getCode()).withDescription("Error while initializing connector. " +
-                            "response sender does not exist"))));
+                    .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while completing the " +
+                            "message. endpoint does not exist"))));
         } else {
             try {
                 requestSender.onCompleted();
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 LOG.error("Error while sending complete message to server.", e);
                 context.setError(MessageUtils.getConnectorError(context, e));
             }

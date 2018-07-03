@@ -19,9 +19,7 @@ documentation { Represents JMS Connection
 }
 public type Connection object {
 
-    public {
-        ConnectionConfiguration config;
-    }
+    public ConnectionConfiguration config;
 
     documentation { JMS connection constructor
     }

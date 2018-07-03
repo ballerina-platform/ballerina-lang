@@ -31,13 +31,12 @@ documentation {
     F{{currentRedirectCount}}  Current redirect count of the HTTP client
 }
 public type RedirectClient object {
-    public {
-        string serviceUri;
-        ClientEndpointConfig config;
-        FollowRedirects redirectConfig;
-        CallerActions httpClient;
-        int currentRedirectCount = 0;
-    }
+
+    public string serviceUri;
+    public ClientEndpointConfig config;
+    public FollowRedirects redirectConfig;
+    public CallerActions httpClient;
+    public int currentRedirectCount = 0;
 
     documentation {
         Create a redirect client with the given configurations.
