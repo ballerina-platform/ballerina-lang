@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.channels.ByteChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -106,6 +107,10 @@ public class DelimitedRecordChannel {
         this.fieldSeparator = fieldSeparator;
         this.channel = channel;
         this.persistentCharSequence = new StringBuilder();
+    }
+
+    public ByteChannel getByteChannel() {
+        return channel.getByteChannel();
     }
 
     /**

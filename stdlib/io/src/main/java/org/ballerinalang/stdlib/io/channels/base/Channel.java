@@ -163,6 +163,10 @@ public abstract class Channel {
         return hasReachedToEnd;
     }
 
+    public ByteChannel getByteChannel() {
+        return channel;
+    }
+
     /**
      * <p>
      * Async read bytes from the channel.

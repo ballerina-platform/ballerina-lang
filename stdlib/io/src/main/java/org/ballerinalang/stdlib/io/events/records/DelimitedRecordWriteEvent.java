@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.channels.ByteChannel;
 
 /**
  * Represents write event of delimited records channel.
@@ -94,5 +95,10 @@ public class DelimitedRecordWriteEvent implements Event {
     @Override
     public EventType getType() {
         return EventType.WRITE;
+    }
+
+    @Override
+    public ByteChannel getByteChannel() {
+        return channel.getByteChannel();
     }
 }

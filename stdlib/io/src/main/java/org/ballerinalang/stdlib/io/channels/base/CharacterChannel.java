@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.nio.channels.ByteChannel;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
@@ -104,6 +105,10 @@ public class CharacterChannel {
         //decoded could contain a fraction of a character which will result in a malformed-input Exception. The bytes
         //which are on the edge should not be replaced with unknown character.
         bytesDecoder.onMalformedInput(CodingErrorAction.REPLACE);
+    }
+
+    public ByteChannel getByteChannel() {
+        return channel.getByteChannel();
     }
 
     /**

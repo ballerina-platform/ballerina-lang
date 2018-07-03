@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.channels.ByteChannel;
 
 /**
  * Represents an event which will write characters.
@@ -99,5 +100,10 @@ public class WriteCharactersEvent implements Event {
     @Override
     public EventType getType() {
         return EventType.WRITE;
+    }
+
+    @Override
+    public ByteChannel getByteChannel() {
+        return channel.getByteChannel();
     }
 }
