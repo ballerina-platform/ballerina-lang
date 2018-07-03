@@ -24,6 +24,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
@@ -71,6 +72,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     private ChunkConfig chunkConfig;
     private KeepAliveConfig keepAliveConfig;
     private boolean headerWritten = false;
+    private final boolean headRequest;
     private long contentLength = 0;
     private String serverName;
     private List<HttpContent> contentList = new ArrayList<>();
@@ -87,6 +89,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         this.chunkConfig = chunkConfig;
         this.serverName = serverName;
         this.sourceErrorHandler = sourceErrorHandler;
+        this.headRequest = requestDataHolder.getHttpMethod().equalsIgnoreCase(Constants.HTTP_HEAD_METHOD);
     }
 
     @Override
@@ -144,7 +147,8 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                         isVersionCompatibleForChunking(requestDataHolder.getHttpVersion()) ||
                                 shouldEnforceChunkingforHttpOneZero(chunkConfig, requestDataHolder.getHttpVersion()))) {
                     writeHeaders(outboundResponseMsg, keepAlive, outboundRespStatusFuture);
-                    outboundChannelFuture = writeOutboundResponseBody(httpContent);
+                    outboundChannelFuture = checkHeadRequestAndWriteOutboundResponseBody(httpContent);
+
                 } else {
                     contentLength += httpContent.content().readableBytes();
                     setupContentLengthRequest(outboundResponseMsg, contentLength);
@@ -152,7 +156,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                             (LastHttpContent) httpContent, keepAlive);
                 }
             } else {
-                outboundChannelFuture = writeOutboundResponseBody(httpContent);
+                outboundChannelFuture = checkHeadRequestAndWriteOutboundResponseBody(httpContent);
             }
 
             if (!keepAlive) {
@@ -169,6 +173,12 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                     writeHeaders(outboundResponseMsg, keepAlive, outboundRespStatusFuture);
                 }
                 incrementWriteCount(writeCounter);
+
+                if (headRequest) {
+                    httpContent.release();
+                    return;
+                }
+
                 ChannelFuture outboundResponseChannelFuture = sourceContext.writeAndFlush(httpContent);
                 sourceErrorHandler.addResponseWriteFailureListener(outboundRespStatusFuture,
                                                                    outboundResponseChannelFuture, writeCounter);
@@ -177,6 +187,17 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                 contentLength += httpContent.content().readableBytes();
             }
         }
+    }
+
+    private ChannelFuture checkHeadRequestAndWriteOutboundResponseBody(HttpContent httpContent) {
+        ChannelFuture outboundChannelFuture;
+        if (headRequest) {
+            httpContent.release();
+            outboundChannelFuture = writeOutboundResponseBody(new DefaultLastHttpContent());
+        } else {
+            outboundChannelFuture = writeOutboundResponseBody(httpContent);
+        }
+        return outboundChannelFuture;
     }
 
     private ChannelFuture writeOutboundResponseHeaderAndBody(HTTPCarbonMessage outboundResponseMsg,
@@ -188,6 +209,12 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
             allContent.addComponent(true, cachedHttpContent.content());
         }
         allContent.addComponent(true, lastHttpContent.content());
+
+        if (headRequest) {
+            allContent.release();
+            allContent = Unpooled.compositeBuffer();
+            allContent.addComponent(true, new DefaultLastHttpContent().content());
+        }
 
         HttpResponse fullOutboundResponse =
                 createFullHttpResponse(outboundResponseMsg, requestDataHolder.getHttpVersion(),

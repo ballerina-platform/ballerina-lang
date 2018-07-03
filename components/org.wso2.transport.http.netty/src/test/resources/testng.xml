@@ -73,6 +73,8 @@
             <class name="org.wso2.transport.http.netty.forwardedextension.ForwardedEnableTestCase" />
             <class name="org.wso2.transport.http.netty.forwardedextension.ForwardedTransitionTestCase" />
             <class name="org.wso2.transport.http.netty.forwardedextension.ForwardedDisableTestCase" />
+
+            <class name="org.wso2.transport.http.netty.method.head.HeadRequestTestCase"/>
         </classes>
     </test>
     <test name="WebSocket Tests" parallel="false">
