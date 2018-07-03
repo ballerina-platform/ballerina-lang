@@ -21,6 +21,7 @@
     },
     {
       "label":"Add All Attributes",
+      "detail":"none",
       "sortText":"110",
       "insertText":"timeWindowMillis: 0,\nbucketSizeMillis: 0"
     }
