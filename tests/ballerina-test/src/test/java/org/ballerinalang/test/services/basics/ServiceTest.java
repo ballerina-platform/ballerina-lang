@@ -43,8 +43,8 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.mime.util.Constants.APPLICATION_FORM;
-import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
+import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_FORM;
+import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
 
 /**
  * Service/Resource dispatchers test class.
@@ -96,7 +96,7 @@ public class ServiceTest {
 
     @Test
     public void testSetString() {
-        List<Header> headers = new ArrayList<Header>();
+        List<Header> headers = new ArrayList<>();
         headers.add(new Header("Content-Type", TEXT_PLAIN));
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/setString", "POST", headers, null);
         requestMsg.waitAndReleaseAllEntities();
@@ -145,7 +145,7 @@ public class ServiceTest {
 
     @Test(description = "Test getString after setting string")
     public void testGetStringAfterSetString() {
-        List<Header> headers = new ArrayList<Header>();
+        List<Header> headers = new ArrayList<>();
         headers.add(new Header("Content-Type", TEXT_PLAIN));
         HTTPTestRequest setStringrequestMsg = MessageUtils
                 .generateHTTPMessage("/echo/setString", "POST", headers, null);

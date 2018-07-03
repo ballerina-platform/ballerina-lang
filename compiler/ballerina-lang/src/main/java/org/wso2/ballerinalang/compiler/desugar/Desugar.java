@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
@@ -1014,10 +1015,33 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTableLiteral tableLiteral) {
-        if (tableLiteral.configurationExpr == null) {
-            tableLiteral.configurationExpr = ASTBuilderUtil.createLiteral(tableLiteral.pos, symTable.nilType, null);
+        tableLiteral.tableDataRows = rewriteExprs(tableLiteral.tableDataRows);
+        //Generate key columns Array
+        List<String> keyColumns = new ArrayList<>();
+        for (BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
+            if (column.flagSet.contains(TableColumnFlag.PRIMARYKEY)) {
+                keyColumns.add(column.columnName);
+            }
         }
-        tableLiteral.configurationExpr = rewriteExpr(tableLiteral.configurationExpr);
+        BLangArrayLiteral keyColumnsArrayLiteral = createArrayLiteralExprNode();
+        keyColumnsArrayLiteral.exprs = keyColumns.stream()
+                .map(expr -> ASTBuilderUtil.createLiteral(tableLiteral.pos, symTable.stringType, expr))
+                .collect(Collectors.toList());
+        keyColumnsArrayLiteral.type = new BArrayType(symTable.stringType);
+        tableLiteral.keyColumnsArrayLiteral = keyColumnsArrayLiteral;
+        //Generate index columns Array
+        List<String> indexColumns = new ArrayList<>();
+        for (BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
+            if (column.flagSet.contains(TableColumnFlag.INDEX)) {
+                indexColumns.add(column.columnName);
+            }
+        }
+        BLangArrayLiteral indexColumnsArrayLiteral = createArrayLiteralExprNode();
+        indexColumnsArrayLiteral.exprs = indexColumns.stream()
+                .map(expr -> ASTBuilderUtil.createLiteral(tableLiteral.pos, symTable.stringType, expr))
+                .collect(Collectors.toList());
+        indexColumnsArrayLiteral.type = new BArrayType(symTable.stringType);
+        tableLiteral.indexColumnsArrayLiteral = indexColumnsArrayLiteral;
         result = tableLiteral;
     }
 

@@ -142,10 +142,8 @@ function testFuncWithNilDefaultParamExpr() returns (any, any) {
 
 public type Employee object {
 
-    public {
-        string name;
-        int salary;
-    }
+    public string name;
+    public int salary;
 
     new (name = "supun", salary = 100) {
     }
@@ -172,9 +170,7 @@ function testDefaultableParamOuterFunc () returns (int, string) {
 }
 
 type Person object {
-    public {
-        int age,
-    }
+    public int age,
 
     function test1(int a = 77, string n = "inner default") returns (int, string);
 

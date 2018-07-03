@@ -15,9 +15,7 @@
 // under the License.
 
 public type Sum object {
-    public {
-        int sumValue = 0;
-    }
+    public int sumValue = 0;
 
     public new() {
 

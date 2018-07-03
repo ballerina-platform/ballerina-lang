@@ -36,6 +36,7 @@ public class Flags {
     public static final int DEFAULTABLE_CHECKED = 256;
     public static final int DEFAULTABLE = 512;
     public static final int RECORD = 1024;
+    public static final int PRIVATE = 2048;
 
     public static int asMask(Set<Flag> flagSet) {
         int mask = 0;
@@ -43,6 +44,9 @@ public class Flags {
             switch (flag) {
                 case PUBLIC:
                     mask |= PUBLIC;
+                    break;
+                case PRIVATE:
+                    mask |= PRIVATE;
                     break;
                 case NATIVE:
                     mask |= NATIVE;

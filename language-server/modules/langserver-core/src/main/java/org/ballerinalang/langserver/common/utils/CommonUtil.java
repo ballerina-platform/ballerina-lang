@@ -702,6 +702,7 @@ public class CommonUtil {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(label);
         completionItem.setInsertText(insertText);
+        completionItem.setDetail(ItemResolverConstants.NONE);
         completionItem.setSortText(Priority.PRIORITY110.toString());
 
         return completionItem;

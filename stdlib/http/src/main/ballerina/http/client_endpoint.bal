@@ -31,11 +31,10 @@ documentation {
     F{{httpClient}} The provider which implements the HTTP methods
 }
 public type Client object {
-    public {
-        string epName;
-        ClientEndpointConfig config;
-        CallerActions httpClient;
-    }
+
+    public string epName;
+    public ClientEndpointConfig config;
+    public CallerActions httpClient;
 
     documentation {
         Gets invoked to initialize the endpoint. During initialization, configurations provided through the `config`
@@ -216,7 +215,7 @@ public type AuthConfig record {
     string clientSecret,
 };
 
-public function Client::init(ClientEndpointConfig c) {
+function Client::init(ClientEndpointConfig c) {
     boolean httpClientRequired = false;
     string url = c.url;
     if (url.hasSuffix("/")) {

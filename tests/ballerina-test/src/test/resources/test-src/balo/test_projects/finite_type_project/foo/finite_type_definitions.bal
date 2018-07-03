@@ -16,9 +16,7 @@ public type PreparedResult "ss"|"sss"|"qqq";
 
 public type Channel object {
 
-    public {
-      State? b,
-    }
+    public State? b,
 
     public new (b = "off", boolean a = true){
         State o =  "on";

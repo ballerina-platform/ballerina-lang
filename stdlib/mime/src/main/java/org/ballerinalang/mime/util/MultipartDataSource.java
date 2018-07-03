@@ -39,13 +39,13 @@ import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.Map;
 
-import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
-import static org.ballerinalang.mime.util.Constants.BOUNDARY;
-import static org.ballerinalang.mime.util.Constants.CONTENT_ID;
-import static org.ballerinalang.mime.util.Constants.CONTENT_ID_FIELD;
-import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
-import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_FIELD;
-import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.BODY_PARTS;
+import static org.ballerinalang.mime.util.MimeConstants.BOUNDARY;
+import static org.ballerinalang.mime.util.MimeConstants.CONTENT_ID;
+import static org.ballerinalang.mime.util.MimeConstants.CONTENT_ID_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
+import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.PARAMETER_MAP_FIELD;
 
 /**
  * Act as multipart encoder.

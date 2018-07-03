@@ -26,6 +26,10 @@ public enum Flag {
      */
     PUBLIC,
     /**
+     * Indicates Flagged node is a public node.
+     */
+    PRIVATE,
+    /**
      * Indicates Flagged node is a native construct.
      */
     NATIVE,
