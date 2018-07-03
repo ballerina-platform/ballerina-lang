@@ -172,6 +172,12 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-swagger</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-system</artifactId>
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
@@ -381,6 +387,7 @@
                                 ballerina-reflect,
                                 ballerina-runtime,
                                 ballerina-streams,
+                                ballerina-swagger,
                                 ballerina-system,
                                 ballerina-task,
                                 ballerina-time,
@@ -549,6 +556,11 @@
                                 <resource>
                                     <directory>
                                         ${project.build.directory}/extracted-distributions/ballerina-streams-ballerina-sources-zip/ballerina
+                                    </directory>
+                                </resource>
+                                <resource>
+                                    <directory>
+                                        ${project.build.directory}/extracted-distributions/ballerina-swagger-ballerina-sources-zip/ballerina
                                     </directory>
                                 </resource>
                                 <resource>

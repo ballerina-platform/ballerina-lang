@@ -56,10 +56,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-http</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>composer-ballerina-parser-service</artifactId>
             <version>${project.version}</version>
         </dependency>
