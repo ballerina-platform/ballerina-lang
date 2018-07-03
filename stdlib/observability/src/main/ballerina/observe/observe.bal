@@ -233,7 +233,7 @@ documentation {
     This represents the statistic configuration that can be used to instatiate gauge metric.
 
     F{{percentiles}} The percentiles that needs to be calculated.
-    F{{expiry}} The time window in which variation of the values are considered.
+    F{{expiry}} The time window (in milli seconds) in which variation of the values are considered.
     F{{buckets}} The number of buckets used in the sliding time window.
 }
 public type StatisticConfig record {

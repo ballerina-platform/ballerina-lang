@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
 import ballerina/observe;
 import ballerina/config;
 
@@ -39,12 +38,19 @@ endpoint http:Listener prometheusListener {
 @http:ServiceConfig {
     basePath: "/metrics"
 }
+documentation {
+    The Prometheus service reporter. This service will be called periodically by prometheus server.
+}
 service<http:Service> PrometheusReporter bind prometheusListener {
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/",
         produces: ["application/text"]
+    }
+    documentation{
+        This method retrieves all metrics registered in the ballerina metrics registry,
+        and reformats based on the expected format by prometheus server.
     }
     getMetrics(endpoint caller, http:Request req) {
         observe:Metric[] metrics = observe:getAllMetrics();
@@ -86,10 +92,20 @@ service<http:Service> PrometheusReporter bind prometheusListener {
     }
 }
 
+documentation{
+    This util function creates the type description based on the prometheus format for the specific metric.
+
+    R{{metric}} Formatted metric information.
+}
 function generateMetricInfo(string name, string metricType) returns string {
     return "# TYPE " + name + " " + metricType + "\n";
 }
 
+documentation{
+    This util function creates the metric help description based on the prometheus format for the specific metric.
+
+    R{{metric}} Formatted metric help information.
+}
 function generateMetricHelp(string name, string description) returns string {
     if (!description.equalsIgnoreCase(EMPTY_STRING)) {
         return "# HELP " + name + " " + description + "\n";
@@ -97,7 +113,12 @@ function generateMetricHelp(string name, string description) returns string {
     return EMPTY_STRING;
 }
 
+documentation{
+    This util function creates the metric along with its name, labels, and values based on the prometheus
+    format for the specific metric.
 
+    R{{metric}} Formatted metric values.
+}
 function generateMetric(string name, map<string>? labels, int|float value) returns string {
     string strValue = "";
     match value {
@@ -115,7 +136,11 @@ function generateMetric(string name, map<string>? labels, int|float value) retur
     }
 }
 
+documentation{
+    This utils function generates the name for the summary metric type.
 
+    R{{metric}} Formatted metric name.
+}
 function getMetricName(string name, string summaryType) returns string {
     return name + "_" + summaryType;
 }
