@@ -28,6 +28,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -48,7 +49,8 @@ public class JwtTest {
                 "datafiles/security/keyStore/ballerinaKeystore.p12").getPath();
         trustStorePath = getClass().getClassLoader().getResource(
                 "datafiles/security/keyStore/ballerinaTruststore.p12").getPath();
-        resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().
+                getLocation().getPath()).getAbsolutePath();
         Path sourceRoot = Paths.get(resourceRoot, "test-src", "jwt");
         compileResult = BCompileUtil.compile(sourceRoot.resolve("jwt-test.bal").toString());
     }

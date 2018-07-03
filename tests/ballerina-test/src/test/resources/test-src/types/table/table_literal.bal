@@ -23,7 +23,7 @@ type TypeTest record {
 
 type BlobTypeTest record {
     int id,
-    blob blobData,
+    byte[] blobData,
 };
 
 type AnyTypeTest record {
@@ -79,10 +79,6 @@ function checkTableCount(string tablePrefix) returns (int) {
         testDB.stop();
     }
     return count;
-}
-
-function testEmptyTableCreateInvalid() {
-    table t1 = table{};
 }
 
 function testAddData() returns (int, int, int, int[], int[], int[]) {
@@ -227,7 +223,9 @@ function testPrintData() {
     Person p2 = { id: 2, age: 20, salary: 200.50, name: "martin", married: true };
     Person p3 = { id: 3, age: 32, salary: 100.50, name: "john", married: false };
 
-    table<Person> dt = table{ index: ["id", "age"], primaryKey: ["id", "age"] };
+    table<Person> dt = table{
+        { primarykey id, primarykey age,  salary, name, married }
+    };
     _ = dt.add(p1);
     _ = dt.add(p2);
     _ = dt.add(p3);
@@ -296,7 +294,7 @@ function testTableWithAllDataToStruct() returns (json, xml) {
 
 function testTableWithBlobDataToJson() returns (json) {
     string text = "Sample Text";
-    blob content = text.toBlob("UTF-8");
+    byte[] content = text.toByteArray("UTF-8");
     BlobTypeTest t1 = { id: 1, blobData: content };
 
     table<BlobTypeTest> dt3 = table{};
@@ -308,7 +306,7 @@ function testTableWithBlobDataToJson() returns (json) {
 
 function testTableWithBlobDataToXml() returns (xml) {
     string text = "Sample Text";
-    blob content = text.toBlob("UTF-8");
+    byte[] content = text.toByteArray("UTF-8");
     BlobTypeTest t1 = { id: 1, blobData: content };
 
     table<BlobTypeTest> dt3 = table{};
@@ -318,15 +316,15 @@ function testTableWithBlobDataToXml() returns (xml) {
     return x;
 }
 
-function testTableWithBlobDataToStruct() returns (blob) {
+function testTableWithBlobDataToStruct() returns (byte[]) {
     string text = "Sample Text";
-    blob content = text.toBlob("UTF-8");
+    byte[] content = text.toByteArray("UTF-8");
     BlobTypeTest t1 = { id: 1, blobData: content };
 
     table<BlobTypeTest> dt3 = table{};
     _ = dt3.add(t1);
 
-    blob bData;
+    byte[] bData;
     while (dt3.hasNext()) {
         BlobTypeTest x = check <BlobTypeTest>dt3.getNext();
         bData = x.blobData;

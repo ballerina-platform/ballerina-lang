@@ -3,13 +3,13 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>composer</artifactId>
-        <version>0.975.1-SNAPSHOT</version>
+        <version>0.976.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>integration-tests</artifactId>
     <packaging>pom</packaging>
-    <name>Ballerina - Composer integration tests</name>
+    <name>Ballerina - Composer - Integration tests</name>
     <modules>
          <!--<module>ui-integration-tests</module>-->
     </modules>

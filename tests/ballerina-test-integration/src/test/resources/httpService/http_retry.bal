@@ -103,15 +103,15 @@ service<http:Service> mockHelloService bind serviceEndpoint {
                                 foreach childPart in childParts {
                                     // When performing passthrough scenarios, message needs to be built before
                                     // invoking the endpoint to create a message datasource.
-                                    var childBlobContent = childPart.getBlob();
+                                    var childBlobContent = childPart.getByteArray();
                                 }
                                 io:println(bodyPart.getContentType());
-                                bodyPart.setBodyParts(childParts, contentType = bodyPart.getContentType());
+                                bodyPart.setBodyParts(untaint childParts, contentType = untaint bodyPart.getContentType());
                             } else {
-                                var bodyPartBlobContent = bodyPart.getBlob();
+                                var bodyPartBlobContent = bodyPart.getByteArray();
                             }
                         }
-                        response.setBodyParts(bodyParts, contentType = req.getContentType());
+                        response.setBodyParts(untaint bodyParts, contentType = untaint req.getContentType());
                     }
                 }
             } else {

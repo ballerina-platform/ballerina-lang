@@ -30,3 +30,19 @@ function initializeGlobalVarSeparately() returns (json, float) {
     foo:glbVarFloatLater = 3432.3423;
     return (foo:glbVarJson, foo:glbVarFloatLater);
 }
+
+function getGlobalVarByte() returns byte {
+    return foo:glbByte;
+}
+
+function getGlobalVarByteArray1() returns byte[] {
+    return foo:glbByteArray1;
+}
+
+function getGlobalVarByteArray2() returns byte[] {
+    return foo:glbByteArray2;
+}
+
+function getGlobalVarByteArray3() returns byte[] {
+    return foo:glbByteArray3;
+}

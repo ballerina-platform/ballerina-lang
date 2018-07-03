@@ -52,7 +52,6 @@ const config = [{
     entry: {
         tree: './src/plugins/ballerina/model/tree-builder.js',
         bundle: './src/index.js',
-        testable: './src/plugins/ballerina/tests/testable.js',
     },
     output: {
         filename: '[name]-[hash].js',
@@ -151,12 +150,12 @@ const config = [{
         new CleanWebpackPlugin([outputPath], {watch: true, exclude:['themes', 'workers']}),
         new webpack.optimize.CommonsChunkPlugin({
             name: 'tree',
-            chunks: ['bundle', 'tree', 'testable'],
+            chunks: ['bundle', 'tree'],
             minChunks: Infinity,
         }),
         new webpack.optimize.CommonsChunkPlugin({
             name: 'vendor',
-            chunks: ['bundle', 'tree', 'testable'],
+            chunks: ['bundle', 'tree'],
             minChunks(module) {
                 const context = module.context;
                 return context && context.indexOf('node_modules') >= 0;

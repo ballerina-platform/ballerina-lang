@@ -18,6 +18,8 @@
 
 package org.ballerinalang.testerina.core.entity;
 
+import org.ballerinalang.testerina.util.Utils;
+
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,63 +41,28 @@ public class TesterinaReport {
             printTestSuiteResult(0, 0, 0);
             return;
         }
-        printTestSuiteResult(testSummary.passedTests.size(), testSummary.failedTests.size(), testSummary.skippedTests
-                .size());
         if (!testSummary.failedTests.isEmpty()) {
-            outStream.println();
-            outStream.println("failed tests:");
             for (TesterinaResult failedResult : testSummary.failedTests) {
-                outStream.println(" " + failedResult.getTestFunctionName() + ": " + failedResult
-                        .getAssertFailureMessage());
+                outStream.println("\t✗ " + failedResult.getTestFunctionName() + ":");
+                outStream.println("\t    " + Utils.formatError(failedResult.getAssertFailureMessage()));
             }
         }
+
+        if (!testSummary.passedTests.isEmpty()) {
+            for (TesterinaResult passedResult : testSummary.passedTests) {
+                outStream.println("\t✔ " + passedResult.getTestFunctionName());
+            }
+            outStream.println();
+        }
+        printTestSuiteResult(testSummary.passedTests.size(), testSummary.failedTests.size(), testSummary.skippedTests
+                .size());
         outStream.println();
     }
 
     private void printTestSuiteResult(int passed, int failed, int skipped) {
-        outStream.println();
-        outStream.print("Tests run: " + (passed + failed));
-        outStream.print(", Passed: " + passed);
-        outStream.print(", Failures: " + failed);
-        outStream.print(", Skipped: " + skipped);
-        outStream.print(" - in TestSuite");
-        outStream.println();
-    }
-
-    public void printSummary() {
-        int totalPassed = 0, totalFailed = 0, totalSkipped = 0;
-        for (TestSummary summary : testReportOfPackage.values()) {
-            totalPassed += summary.passedTests.size();
-            totalFailed += summary.failedTests.size();
-            totalSkipped += summary.skippedTests.size();
-        }
-
-        outStream.println();
-        outStream.println("---------------------------------------------------------------------------");
-        outStream.println("Results:");
-        outStream.println();
-        outStream.print("Tests run: " + (totalPassed + totalFailed));
-        outStream.print(", Passed: " + totalPassed);
-        outStream.print(", Failures: " + totalFailed);
-        outStream.print(", Skipped: " + totalSkipped);
-        outStream.println();
-        outStream.println("---------------------------------------------------------------------------");
-        outStream.println("Summary:");
-        outStream.println();
-        if (testReportOfPackage.size() == 0) {
-            outStream.println("Test Suites: 0");
-        } else {
-            testReportOfPackage.forEach((packageName, summary) -> {
-                outStream.println();
-                outStream.print(String.format("%-" + 67 + "s", packageName).replaceAll("\\s(?=\\s+$|$)", "."));
-                outStream.print(" " + ((summary.failedTests.size() > 0 || summary.skippedTests.size() > 0) ?
-                        "FAILURE" : "SUCCESS"));
-            });
-        }
-        outStream.println();
-        outStream.println("---------------------------------------------------------------------------");
-        outStream.println();
-
+        outStream.println("\t" + passed + " passing");
+        outStream.println("\t" + failed + " failing");
+        outStream.println("\t" + skipped + " skipped");
     }
 
     public void addPackageReport(String packageName) {

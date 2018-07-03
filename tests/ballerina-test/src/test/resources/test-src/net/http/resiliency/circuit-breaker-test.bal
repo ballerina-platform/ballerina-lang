@@ -319,48 +319,46 @@ function testRequestVolumeThresholdFailureResponseScenario() returns (http:Respo
 int actualRequestNumber = 0;
 
 public type MockClient object {
-    public {
-        string serviceUri;
-        http:ClientEndpointConfig config;
-    }
+    public string serviceUri;
+    public http:ClientEndpointConfig config;
 
-    public function post(string path, http:Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function post(string path, http:Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message) returns http:Response|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function head(string path, http:Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function head(string path, http:Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message = ()) returns http:Response|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function put(string path, http:Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function put(string path, http:Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message) returns http:Response|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function execute(string httpVerb, string path, http:Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function execute(string httpVerb, string path, http:Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message) returns http:Response|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function patch(string path, http:Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function patch(string path, http:Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                             message) returns http:Response|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function delete(string path, http:Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function delete(string path, http:Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                             message) returns http:Response|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function get(string path, http:Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function get(string path, http:Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                             message = ()) returns http:Response|error {
         http:Request req = buildRequest(message);
         http:Response response = new;
@@ -421,7 +419,7 @@ public type MockClient object {
         return response;
     }
 
-    public function options(string path, http:Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function options(string path, http:Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                             message = ()) returns http:Response|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
@@ -432,7 +430,7 @@ public type MockClient object {
         return httpConnectorError;
     }
 
-    public function submit(string httpVerb, string path, http:Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function submit(string httpVerb, string path, http:Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                             message) returns http:HttpFuture|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
@@ -534,7 +532,7 @@ function getMockErrorStruct() returns error {
     return err;
 }
 
-function buildRequest(http:Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|() message) returns http:Request {
+function buildRequest(http:Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|() message) returns http:Request {
     http:Request request = new;
     match message {
         () => {}
@@ -542,7 +540,7 @@ function buildRequest(http:Request|string|xml|json|blob|io:ByteChannel|mime:Enti
         string textContent => {request.setTextPayload(textContent);}
         xml xmlContent => {request.setXmlPayload(xmlContent);}
         json jsonContent => {request.setJsonPayload(jsonContent);}
-        blob blobContent => {request.setBinaryPayload(blobContent);}
+        byte[] blobContent => {request.setBinaryPayload(blobContent);}
         io:ByteChannel byteChannelContent => {request.setByteChannel(byteChannelContent);}
         mime:Entity[] bodyParts => {request.setBodyParts(bodyParts);}
     }

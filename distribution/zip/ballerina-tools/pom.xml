@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.975.1-SNAPSHOT</version>
+        <version>0.976.1-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
 
@@ -44,6 +44,10 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>testerina-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-packerina</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -88,42 +92,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-http</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-transactions</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-database</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-websub</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-jms</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-grpc</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>testerina-core</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
@@ -131,6 +99,11 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>language-server-core</artifactId>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-examples</artifactId>
             <type>zip</type>
         </dependency>
     </dependencies>
@@ -216,12 +189,15 @@
                                 ballerina-grpc,
                                 ballerina-http,
                                 ballerina-jms,
+                                ballerina-mb,
                                 ballerina-mime,
                                 ballerina-transactions,
                                 ballerina-websub,
+                                ballerina-observability,
                                 composer-server-distribution,
                                 connectors,
                                 testerina-core,
+                                ballerina-packerina,
                                 language-server-core
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions
@@ -232,51 +208,22 @@
                             <stripVersion>true</stripVersion>
                         </configuration>
                     </execution>
-                </executions>
-            </plugin>
-            <!-- Copy resources -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>${maven.resources.plugin.version}</version>
-                <executions>
                     <execution>
-                        <id>copy-resources</id>
-                        <phase>package</phase>
+                        <id>unpack-examples</id>
+                        <phase>generate-resources</phase>
                         <goals>
-                            <goal>copy-resources</goal>
+                            <goal>unpack-dependencies</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/extracted-distributions/ballerina</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${project.build.directory}/extracted-distributions/ballerina-builtin-jar/META-INF/ballerina</directory>
-                                </resource>
-                                <resource>
-                                    <directory>${project.build.directory}/extracted-distributions/ballerina-database-jar/META-INF/ballerina</directory>
-                                </resource>
-                                <resource>
-                                    <directory>${project.build.directory}/extracted-distributions/ballerina-grpc-jar/META-INF/ballerina</directory>
-                                </resource>
-                                <resource>
-                                    <directory>${project.build.directory}/extracted-distributions/ballerina-http-jar/META-INF/ballerina</directory>
-                                </resource>
-                                <resource>
-                                    <directory>${project.build.directory}/extracted-distributions/ballerina-jms-jar/META-INF/ballerina</directory>
-                                </resource>
-                                <resource>
-                                    <directory>${project.build.directory}/extracted-distributions/ballerina-mime-jar/META-INF/ballerina</directory>
-                                </resource>
-                                <resource>
-                                    <directory>${project.build.directory}/extracted-distributions/ballerina-transactions-jar/META-INF/ballerina</directory>
-                                </resource>
-                                <resource>
-                                    <directory>${project.build.directory}/extracted-distributions/ballerina-websub-jar/META-INF/ballerina</directory>
-                                </resource>
-                                <resource>
-                                    <directory>${project.build.directory}/extracted-distributions/testerina-core-jar/META-INF/ballerina</directory>
-                                </resource>
-                            </resources>
+                            <includeArtifactIds>
+                                ballerina-examples
+                            </includeArtifactIds>
+                            <outputDirectory>${project.build.directory}
+                            </outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <useSubDirectoryPerArtifact>true</useSubDirectoryPerArtifact>
+                            <stripVersion>true</stripVersion>
                         </configuration>
                     </execution>
                 </executions>
@@ -322,6 +269,11 @@
                     </dependency>
                     <dependency>
                         <groupId>org.ballerinalang</groupId>
+                        <artifactId>ballerina-mb</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.ballerinalang</groupId>
                         <artifactId>ballerina-mime</artifactId>
                         <version>${project.version}</version>
                     </dependency>
@@ -333,6 +285,11 @@
                     <dependency>
                         <groupId>org.ballerinalang</groupId>
                         <artifactId>ballerina-transactions</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.ballerinalang</groupId>
+                        <artifactId>ballerina-observability</artifactId>
                         <version>${project.version}</version>
                     </dependency>
                 </dependencies>

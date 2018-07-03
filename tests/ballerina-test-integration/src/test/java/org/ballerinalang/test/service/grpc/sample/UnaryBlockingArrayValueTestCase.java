@@ -28,10 +28,10 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -71,14 +71,14 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
         StructureTypeInfo requestInfo = packageInfo.getStructInfo("TestInt");
         BStructureType requestType = requestInfo.getType();
-        BStruct requestStruct = new BStruct(requestType);
+        BMap<String, BValue> requestStruct = new BMap<String, BValue>(requestType);
         BIntArray intArray = new BIntArray();
         intArray.add(0, 1);
         intArray.add(1, 2);
         intArray.add(2, 3);
         intArray.add(3, 4);
         intArray.add(4, 5);
-        requestStruct.setRefField(0, intArray);
+        requestStruct.put("values", intArray);
 
         BValue[] responses = BRunUtil.invoke(result, "testIntArrayInput", new BValue[]{requestStruct});
         Assert.assertEquals(responses.length, 1);
@@ -95,12 +95,12 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
         StructureTypeInfo requestInfo = packageInfo.getStructInfo("TestString");
         BStructureType requestType = requestInfo.getType();
-        BStruct requestStruct = new BStruct(requestType);
+        BMap<String, BValue> requestStruct = new BMap<String, BValue>(requestType);
         BStringArray stringArray = new BStringArray();
         stringArray.add(0, "A");
         stringArray.add(1, "B");
         stringArray.add(2, "C");
-        requestStruct.setRefField(0, stringArray);
+        requestStruct.put("values", stringArray);
 
         BValue[] responses = BRunUtil.invoke(result, "testStringArrayInput", new BValue[]{requestStruct});
         Assert.assertEquals(responses.length, 1);
@@ -117,14 +117,14 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
         StructureTypeInfo requestInfo = packageInfo.getStructInfo("TestFloat");
         BStructureType requestType = requestInfo.getType();
-        BStruct requestStruct = new BStruct(requestType);
+        BMap<String, BValue> requestStruct = new BMap<String, BValue>(requestType);
         BFloatArray floatArray = new BFloatArray();
         floatArray.add(0, 1.1);
         floatArray.add(1, 1.2);
         floatArray.add(2, 1.3);
         floatArray.add(3, 1.4);
         floatArray.add(4, 1.5);
-        requestStruct.setRefField(0, floatArray);
+        requestStruct.put("values", floatArray);
 
         BValue[] responses = BRunUtil.invoke(result, "testFloatArrayInput", new BValue[]{requestStruct});
         Assert.assertEquals(responses.length, 1);
@@ -141,12 +141,12 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
         StructureTypeInfo requestInfo = packageInfo.getStructInfo("TestBoolean");
         BStructureType requestType = requestInfo.getType();
-        BStruct requestStruct = new BStruct(requestType);
+        BMap<String, BValue> requestStruct = new BMap<String, BValue>(requestType);
         BBooleanArray booleanArray = new BBooleanArray();
         booleanArray.add(0, 1);
         booleanArray.add(1, 0);
         booleanArray.add(2, 1);
-        requestStruct.setRefField(0, booleanArray);
+        requestStruct.put("values", booleanArray);
 
         BValue[] responses = BRunUtil.invoke(result, "testBooleanArrayInput", new BValue[]{requestStruct});
         Assert.assertEquals(responses.length, 1);
@@ -165,17 +165,17 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
         StructureTypeInfo requestInfo = packageInfo.getStructInfo("TestStruct");
         BStructureType requestType = requestInfo.getType();
-        BStruct requestStruct = new BStruct(requestType);
+        BMap<String, BValue> requestStruct = new BMap<String, BValue>(requestType);
         BRefValueArray refArray = new BRefValueArray();
         StructureTypeInfo aInfo = packageInfo.getStructInfo("A");
         BStructureType aType = aInfo.getType();
-        BStruct a1 = new BStruct(aType);
-        a1.setStringField(0, "Sam");
-        BStruct a2 = new BStruct(aType);
-        a2.setStringField(0, "John");
+        BMap<String, BValue> a1 = new BMap<String, BValue>(aType);
+        a1.put("name", new BString("Sam"));
+        BMap<String, BValue> a2 = new BMap<String, BValue>(aType);
+        a2.put("name", new BString("John"));
         refArray.add(0, a1);
         refArray.add(1, a2);
-        requestStruct.setRefField(0, refArray);
+        requestStruct.put("values", refArray);
 
         BValue[] responses = BRunUtil.invoke(result, "testStructArrayInput", new BValue[]{requestStruct});
         Assert.assertEquals(responses.length, 1);
@@ -191,11 +191,11 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
 
         BValue[] responses = BRunUtil.invoke(result, "testIntArrayOutput", new BValue[]{});
         Assert.assertEquals(responses.length, 1);
-        Assert.assertTrue(responses[0] instanceof BStruct);
-        final BStruct response = (BStruct) responses[0];
+        Assert.assertTrue(responses[0] instanceof BMap);
+        final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];
 //        {values:[1, 2, 3, 4, 5]}
-        Assert.assertTrue(response.getRefField(0) instanceof BIntArray);
-        final BIntArray structArray = (BIntArray) response.getRefField(0);
+        Assert.assertTrue(response.get("values") instanceof BIntArray);
+        final BIntArray structArray = (BIntArray) response.get("values");
         Assert.assertEquals(structArray.size(), 5);
         Assert.assertEquals(structArray.get(0), 1);
         Assert.assertEquals(structArray.get(1), 2);
@@ -211,11 +211,11 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
 
         BValue[] responses = BRunUtil.invoke(result, "testStringArrayOutput", new BValue[]{});
         Assert.assertEquals(responses.length, 1);
-        Assert.assertTrue(responses[0] instanceof BStruct);
-        final BStruct response = (BStruct) responses[0];
+        Assert.assertTrue(responses[0] instanceof BMap);
+        final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];
 //      {values:["A", "B", "C"]}
-        Assert.assertTrue(response.getRefField(0) instanceof BStringArray);
-        final BStringArray structArray = (BStringArray) response.getRefField(0);
+        Assert.assertTrue(response.get("values") instanceof BStringArray);
+        final BStringArray structArray = (BStringArray) response.get("values");
         Assert.assertEquals(structArray.size(), 3);
         Assert.assertEquals(structArray.get(0), "A");
         Assert.assertEquals(structArray.get(1), "B");
@@ -229,11 +229,11 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
 
         BValue[] responses = BRunUtil.invoke(result, "testFloatArrayOutput", new BValue[]{});
         Assert.assertEquals(responses.length, 1);
-        Assert.assertTrue(responses[0] instanceof BStruct);
-        final BStruct response = (BStruct) responses[0];
+        Assert.assertTrue(responses[0] instanceof BMap);
+        final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];
 //      {values:[1.1, 1.2, 1.3, 1.4, 1.5]}
-        Assert.assertTrue(response.getRefField(0) instanceof BFloatArray);
-        final BFloatArray structArray = (BFloatArray) response.getRefField(0);
+        Assert.assertTrue(response.get("values") instanceof BFloatArray);
+        final BFloatArray structArray = (BFloatArray) response.get("values");
         Assert.assertEquals(structArray.size(), 5);
         Assert.assertEquals(structArray.get(0), 1.1);
         Assert.assertEquals(structArray.get(1), 1.2);
@@ -247,11 +247,11 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
 
         BValue[] responses = BRunUtil.invoke(result, "testBooleanArrayOutput", new BValue[]{});
         Assert.assertEquals(responses.length, 1);
-        Assert.assertTrue(responses[0] instanceof BStruct);
-        final BStruct response = (BStruct) responses[0];
+        Assert.assertTrue(responses[0] instanceof BMap);
+        final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];
 //      {values:[true, false, true]}
-        Assert.assertTrue(response.getRefField(0) instanceof BBooleanArray);
-        final BBooleanArray structArray = (BBooleanArray) response.getRefField(0);
+        Assert.assertTrue(response.get("values") instanceof BBooleanArray);
+        final BBooleanArray structArray = (BBooleanArray) response.get("values");
         Assert.assertEquals(structArray.size(), 3);
         Assert.assertEquals(structArray.get(0), 1);
         Assert.assertEquals(structArray.get(1), 0);
@@ -265,13 +265,13 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
 
         BValue[] responses = BRunUtil.invoke(result, "testStructArrayOutput", new BValue[]{});
         Assert.assertEquals(responses.length, 1);
-        Assert.assertTrue(responses[0] instanceof BStruct);
-        final BStruct response = (BStruct) responses[0];
+        Assert.assertTrue(responses[0] instanceof BMap);
+        final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];
 //      {values:[{name:"Sam"}, {name:"John"}]}
-        Assert.assertTrue(response.getRefField(0) instanceof BRefValueArray);
-        final BRefValueArray structArray = (BRefValueArray) response.getRefField(0);
+        Assert.assertTrue(response.get("values") instanceof BRefValueArray);
+        final BRefValueArray structArray = (BRefValueArray) response.get("values");
         Assert.assertEquals(structArray.size(), 2);
-        Assert.assertEquals(((BStruct) structArray.get(0)).getStringField(0), "Sam");
+        Assert.assertEquals(((BMap<String, BValue>) structArray.get(0)).get("name").stringValue(), "Sam");
     }
     
     @AfterClass

@@ -25,11 +25,12 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -64,6 +65,9 @@ public class BLangVMUtils {
             switch (paramType.getTag()) {
             case TypeTags.INT_TAG:
                 callee.longRegs[++longRegIndex] = caller.longRegs[argReg];
+                break;
+            case TypeTags.BYTE_TAG:
+                callee.intRegs[++booleanRegIndex] = caller.intRegs[argReg];
                 break;
             case TypeTags.FLOAT_TAG:
                 callee.doubleRegs[++doubleRegIndex] = caller.doubleRegs[argReg];
@@ -150,6 +154,13 @@ public class BLangVMUtils {
                 }
                 data.longRegs[callersRetRegIndex] = ((BInteger) vals[i]).intValue();
                 break;
+            case TypeTags.BYTE_TAG:
+                if (vals[i] == null) {
+                    data.intRegs[callersRetRegIndex] = 0;
+                    break;
+                }
+                data.intRegs[callersRetRegIndex] = ((BByte) vals[i]).byteValue();
+                break;
             case TypeTags.FLOAT_TAG:
                 if (vals[i] == null) {
                     data.doubleRegs[callersRetRegIndex] = 0;
@@ -205,6 +216,13 @@ public class BLangVMUtils {
                 }
                 result.longRegs[longRegCount++] = ((BInteger) vals[i]).intValue();
                 break;
+            case TypeTags.BYTE_TAG:
+                if (vals[i] == null) {
+                    result.intRegs[intRegCount++] = 0;
+                    break;
+                }
+                result.intRegs[intRegCount++] = ((BByte) vals[i]).byteValue();
+                break;
             case TypeTags.FLOAT_TAG:
                 if (vals[i] == null) {
                     result.doubleRegs[doubleRegCount++] = 0;
@@ -250,6 +268,9 @@ public class BLangVMUtils {
             case TypeTags.INT_TAG:
                 returnValues[i] = new BInteger(data.longRegs[retRegs[i]]);
                 break;
+            case TypeTags.BYTE_TAG:
+                returnValues[i] = new BByte((byte) data.intRegs[retRegs[i]]);
+                break;
             case TypeTags.FLOAT_TAG:
                 returnValues[i] = new BFloat(data.doubleRegs[retRegs[i]]);
                 break;
@@ -279,6 +300,9 @@ public class BLangVMUtils {
             switch (retType.getTag()) {
             case TypeTags.INT_TAG:
                 result[i] += paramWDI.longRegCount;
+                break;
+            case TypeTags.BYTE_TAG:
+                result[i] += paramWDI.intRegCount;
                 break;
             case TypeTags.FLOAT_TAG:
                 result[i] += paramWDI.doubleRegCount;
@@ -318,6 +342,14 @@ public class BLangVMUtils {
                         local.longRegs[longParamCount] = ((BInteger) args[i]).intValue();
                     }
                     longParamCount++;
+                    break;
+                case TypeTags.BYTE_TAG:
+                    if (args[i] instanceof BString) {
+                        local.intRegs[intParamCount] = ((BString) args[i]).byteValue();
+                    } else {
+                        local.intRegs[intParamCount] = ((BByte) args[i]).byteValue();
+                    }
+                    intParamCount++;
                     break;
                 case TypeTags.FLOAT_TAG:
                     if (args[i] instanceof BString) {
@@ -378,6 +410,9 @@ public class BLangVMUtils {
             case TypeTags.INT_TAG:
                 targetData.longRegs[callersRetRegIndex] = sourceData.longRegs[longRegCount++];
                 break;
+            case TypeTags.BYTE_TAG:
+                targetData.intRegs[callersRetRegIndex] = sourceData.intRegs[intRegCount++];
+                break;
             case TypeTags.FLOAT_TAG:
                 targetData.doubleRegs[callersRetRegIndex] = sourceData.doubleRegs[doubleRegCount++];
                 break;
@@ -419,7 +454,8 @@ public class BLangVMUtils {
         }
     }
     
-    public static WorkerExecutionContext handleNativeInvocationError(WorkerExecutionContext parentCtx, BStruct error) {
+    public static WorkerExecutionContext handleNativeInvocationError(WorkerExecutionContext parentCtx,
+                                                                     BMap<String, BValue> error) {
         parentCtx.setError(error);
         try {
             CPU.handleError(parentCtx);

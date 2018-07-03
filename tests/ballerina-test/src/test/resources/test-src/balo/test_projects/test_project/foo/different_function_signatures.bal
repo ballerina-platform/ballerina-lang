@@ -65,10 +65,8 @@ public function funcWithNilDefaultParamExpr_2(Student? s = ()) returns Student? 
 
 public type Employee object {
 
-    public {
-        string name;
-        int salary;
-    }
+    public string name;
+    public int salary;
 
     public new (name = "supun", salary = 100) {
     }
@@ -80,9 +78,7 @@ public type Employee object {
 
 
 public type Person object {
-    public {
-        int age,
-    }
+    public int age,
 
     public function test1(int a = 77, string n = "inner default") returns (int, string);
 
@@ -93,7 +89,7 @@ public type Person object {
     }
 };
 
-public function Person::test1(int a = 77, string n = "hello") returns (int, string) {
+function Person::test1(int a = 77, string n = "hello") returns (int, string) {
     string val = n + " world";
     int intVal = a + 10;
     return (intVal, val);

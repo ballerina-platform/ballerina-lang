@@ -105,7 +105,7 @@ service<http:Service> participant2 bind participant2EP {
                    io:println(reg);
                    payload = reg.REGISTRATIONID;
                }
-               res.setTextPayload(payload);
+               res.setTextPayload(untaint payload);
             }
             error err1 => {
                res.statusCode = 500;
@@ -166,12 +166,12 @@ function onLocalParticipantCommit(string transactionid) {
 }
 
 type State object {
-    private {
-        boolean abortedFunctionCalled;
-        boolean committedFunctionCalled;
-        boolean localParticipantCommittedFunctionCalled;
-        boolean localParticipantAbortedFunctionCalled;
-    }
+
+    boolean abortedFunctionCalled;
+    boolean committedFunctionCalled;
+    boolean localParticipantCommittedFunctionCalled;
+    boolean localParticipantAbortedFunctionCalled;
+
 
     function reset() {
         abortedFunctionCalled = false;

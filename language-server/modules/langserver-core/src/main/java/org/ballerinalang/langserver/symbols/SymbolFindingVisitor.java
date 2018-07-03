@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langserver.symbols;
 
+import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.eclipse.lsp4j.Location;
@@ -40,6 +41,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -94,22 +96,24 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * A visitor for creating a flat list of symbols found in a compilation unit.
  */
 public class SymbolFindingVisitor extends BLangNodeVisitor {
-    private List<SymbolInformation> symbols = new ArrayList<SymbolInformation>();
+    private List<SymbolInformation> symbols;
     private String uri = "";
+    private String query = "";
 
     public SymbolFindingVisitor(LSServiceOperationContext documentServiceContext) {
         this.symbols = documentServiceContext.get(DocumentServiceKeys.SYMBOL_LIST_KEY);
         this.uri = documentServiceContext.get(DocumentServiceKeys.FILE_URI_KEY);
+        this.query = documentServiceContext.get(DocumentServiceKeys.SYMBOL_QUERY);
     }
 
     public void visit(BLangCompilationUnit compUnit) {
@@ -119,17 +123,31 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangFunction funcNode) {
-        this.addSymbol(funcNode, funcNode.symbol, SymbolKind.Function);
+        SymbolKind symbolKind = SymbolKind.Function;
+        if (UtilSymbolKeys.NEW_KEYWORD_KEY.equals(funcNode.name.value)) {
+            symbolKind = SymbolKind.Constructor;
+        }
+        this.addSymbol(funcNode, funcNode.symbol, symbolKind);
         funcNode.getBody().accept(this);
     }
 
-    // TODO: Fix the following with the new struct remove changes
-//    public void visit(BLangStruct structNode) {
-//        this.addSymbol(structNode, structNode.symbol, null);
-//    }
+    public void visit(BLangTypeDefinition typeDefinition) {
+        this.addSymbol(typeDefinition, typeDefinition.symbol, SymbolKind.Class);
+        typeDefinition.typeNode.accept(this);
+    }
+
+    @Override
+    public void visit(BLangObjectTypeNode objectTypeNode) {
+        this.visit(objectTypeNode.initFunction);
+        objectTypeNode.fields.forEach(field -> {
+            this.addSymbol(field, field.symbol, SymbolKind.Field);
+        });
+        objectTypeNode.functions.forEach(this::visit);
+    }
 
     public void visit(BLangService serviceNode) {
-        this.addSymbol(serviceNode, serviceNode.symbol, SymbolKind.Function);
+        this.addSymbol(serviceNode, serviceNode.symbol, SymbolKind.Class);
+        serviceNode.getResources().forEach(bLangResource -> bLangResource.accept(this));
     }
 
     public void visit(BLangEnum enumNode) {
@@ -150,6 +168,14 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
 
             case "float":
                 kind = SymbolKind.Number;
+                break;
+
+            case "string":
+                kind = SymbolKind.String;
+                break;
+
+            case "package":
+                kind = SymbolKind.Package;
                 break;
 
             default:
@@ -179,11 +205,12 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
-        // ignore
+        this.addSymbol(xmlnsNode, xmlnsNode.symbol, SymbolKind.Namespace);
     }
 
     public void visit(BLangResource resourceNode) {
-        // ignore
+        this.addSymbol(resourceNode, resourceNode.symbol, SymbolKind.Function);
+        resourceNode.body.accept(this);
     }
 
     public void visit(BLangAction actionNode) {
@@ -195,7 +222,8 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
     }
 
     public void visit(BLangWorker workerNode) {
-        // ignore
+        this.addSymbol(workerNode, workerNode.symbol, SymbolKind.Class);
+        workerNode.body.accept(this);
     }
 
     public void visit(BLangIdentifier identifierNode) {
@@ -438,7 +466,7 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
         // ignore
     }
 
-    public void visit(BLangFieldBasedAccess.BLangStructFieldAccessExpr fieldAccessExpr) {
+    public void visit(BLangIndexBasedAccess.BLangStructFieldAccessExpr fieldAccessExpr) {
         // ignore
     }
 
@@ -495,8 +523,12 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
     }
 
     private void addSymbol(BLangNode node, BSymbol balSymbol, SymbolKind kind) {
+        String symbolName = balSymbol.getName().getValue();
+        if (query != null && !query.isEmpty() && !symbolName.startsWith(query)) {
+            return;
+        }
         SymbolInformation lspSymbol = new SymbolInformation();
-        lspSymbol.setName(balSymbol.getName().getValue());
+        lspSymbol.setName(symbolName);
         lspSymbol.setKind(kind);
         lspSymbol.setLocation(new Location(this.uri, getRange(node)));
         this.symbols.add(lspSymbol);

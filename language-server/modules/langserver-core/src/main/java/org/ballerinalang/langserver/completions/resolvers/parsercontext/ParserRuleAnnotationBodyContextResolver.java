@@ -18,13 +18,14 @@
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
 import org.antlr.v4.runtime.TokenStream;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * annotation body context resolver for the completion items.
@@ -37,11 +38,11 @@ public class ParserRuleAnnotationBodyContextResolver extends AbstractItemResolve
      * @return {@link ArrayList}
      */
     @Override
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
-        int tokenIndex = completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
+        TokenStream tokenStream = completionContext.get(CompletionKeys.TOKEN_STREAM_KEY);
+        int tokenIndex = /*completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY)*/0;
         int searchIndex = tokenIndex - 1;
 
         while (true) {

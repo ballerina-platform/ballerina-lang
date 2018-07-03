@@ -21,12 +21,15 @@ package org.ballerinalang.test.balo.globalvar;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.balo.BaloCreator;
+import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -114,6 +117,46 @@ public class GlobalVarFunctionInBaloTest {
 
         Assert.assertEquals(((BJSON) returns[0]).stringValue(), "{\"name\":\"James\",\"age\":30}");
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 3432.3423);
+    }
+
+    @Test(description = "Test global variable byte")
+    public void testGlobalVarByte() {
+        BValue[] returns = BRunUtil.invoke(result, "getGlobalVarByte");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BByte.class);
+        Assert.assertEquals(((BByte) returns[0]).byteValue(), (byte) 234);
+    }
+
+    @Test(description = "Test global variable byte array1")
+    public void testGlobalVarByteArray1() {
+        byte[] bytes1 = new byte[]{2, 3, 4, 67, 89};
+        BValue[] returns = BRunUtil.invoke(result, "getGlobalVarByteArray1");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BByteArray.class);
+        BByteArray blob1 = (BByteArray) returns[0];
+        ByteArrayUtils.assertJBytesWithBBytes(bytes1, blob1);
+    }
+
+    @Test(description = "Test global variable byte array2")
+    public void testGlobalVarByteArray2() {
+        String b1 = "afcd34abcdef+dfginermkmf123w/bc234cd/1a4bdfaaFGTdaKMN8923as=";
+        byte[] bytes1 = ByteArrayUtils.decodeBase64(b1);
+        BValue[] returns = BRunUtil.invoke(result, "getGlobalVarByteArray2");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BByteArray.class);
+        BByteArray blob1 = (BByteArray) returns[0];
+        ByteArrayUtils.assertJBytesWithBBytes(bytes1, blob1);
+    }
+
+    @Test(description = "Test global variable byte array3")
+    public void testGlobalVarByteArray3() {
+        String b1 = "afcd34abcdef123abc234bcd1a4bdfaaabadabcd892312df";
+        byte[] bytes1 = ByteArrayUtils.hexStringToByteArray(b1);
+        BValue[] returns = BRunUtil.invoke(result, "getGlobalVarByteArray3");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BByteArray.class);
+        BByteArray blob1 = (BByteArray) returns[0];
+        ByteArrayUtils.assertJBytesWithBBytes(bytes1, blob1);
     }
 
     @AfterClass

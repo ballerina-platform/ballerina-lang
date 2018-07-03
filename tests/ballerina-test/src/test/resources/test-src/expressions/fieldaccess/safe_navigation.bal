@@ -240,10 +240,8 @@ function testCountOnNullJSON (json inputJson) {
 }
 
 type Student object {
-    public {
-        string name;
-        int marks = 60;
-    }
+    public string name;
+    public int marks = 60;
 
     function increaseMarks() {
         marks = marks + 1;

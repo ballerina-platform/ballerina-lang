@@ -57,24 +57,24 @@ public class MatchStatementScopeResolver extends CursorPositionResolver {
         List<BLangMatch.BLangMatchStmtPatternClause> patternClauseList = matchNode.getPatternClauses();
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
-        int nodeLine = nodePos.getStartLine();
+        int nodeStartLine = nodePos.getStartLine();
+        int nodeEndLine = nodePos.getEndLine();
         int nodeCol = nodePos.getStartColumn();
         boolean isBeforeNode = false;
         
-        if ((line < nodeLine) || (line == nodeLine && col < nodeCol)) {
-            isBeforeNode = true;
-        } else if (patternClauseList.indexOf(node) == patternClauseList.size() - 1) {
-            isBeforeNode = (line < matchNodePos.getEndLine()) 
-                    || (line == matchNodePos.getEndLine() && col < matchNodePos.getEndColumn());
-        }
-        
-        if (isBeforeNode) {
+        if ((line < nodeStartLine)
+                || (line == nodeStartLine && col < nodeCol)
+                || (matchNodePos.getStartLine() <= line
+                && matchNodePos.getEndLine() >= line
+                && patternClauseList.indexOf(node) == patternClauseList.size() - 1)
+                && nodeEndLine < line) {
             Map<Name, Scope.ScopeEntry> visibleSymbolEntries =
                     treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());
             SymbolEnv matchEnv = createMatchEnv(matchNode, treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(visibleSymbolEntries, matchEnv);
             treeVisitor.setTerminateVisitor(true);
             treeVisitor.setNextNode(node);
+            isBeforeNode = true;
         }
         
         return isBeforeNode;

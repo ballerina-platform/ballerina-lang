@@ -39,15 +39,15 @@ class DiagramMenu extends React.Component {
                         <AddDefinitionMenu model={this.props.model} />
                     </Menu.Item>
                     <Menu.Item onClick={() => { this.props.onModeChange({ mode: 'action', fitToWidth: true }); }}>
-                        <Icon name='fw fw-uneditable menu-icon' />
+                        <Icon name='fw fw-uneditable menu-icon' title='Disable Edit' />
                     </Menu.Item>
                     { this.props.mode === 'action' &&
                     <Menu.Item onClick={() => { this.props.onModeChange({ mode: 'default', fitToWidth: false }); }}>
-                        <Icon name='fw fw-zoom-in menu-icon-right' />
+                        <Icon name='fw fw-zoom-in menu-icon-right' title='Collapse' />
                     </Menu.Item>}
                     { this.props.mode === 'default' &&
                     <Menu.Item onClick={() => { this.props.onModeChange({ mode: 'action', fitToWidth: false }); }}>
-                        <Icon name='fw fw-zoom-out menu-icon-right' />
+                        <Icon name='fw fw-zoom-out menu-icon-right' title='Expand' />
                     </Menu.Item>}
                 </Menu.Menu>
                 }

@@ -20,10 +20,11 @@ package org.ballerinalang.test.services.testutils;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.mime.util.EntityBodyHandler;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 
-import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 
 /**
  * Utility functions for interact with Ballerina mime Entity.
@@ -39,7 +40,7 @@ public class TestEntityUtils {
      * @param contentType content-type header value.
      * @param payload     mime entity payload.
      */
-    public static void enrichTestEntity(BStruct entity, String contentType, String payload) {
+    public static void enrichTestEntity(BMap<String, BValue> entity, String contentType, String payload) {
         enrichTestEntityHeaders(entity, contentType);
         entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getEntityWrapper(payload));
     }
@@ -50,7 +51,7 @@ public class TestEntityUtils {
      * @param entity      mime entity to be enriched.
      * @param contentType content-type header value.
      */
-    public static void enrichTestEntityHeaders(BStruct entity, String contentType) {
+    public static void enrichTestEntityHeaders(BMap<String, BValue> entity, String contentType) {
         HttpHeaders httpHeaders = new DefaultHttpHeaders();
         httpHeaders.add(CONTENT_TYPE, contentType);
         entity.addNativeData(ENTITY_HEADERS, httpHeaders);

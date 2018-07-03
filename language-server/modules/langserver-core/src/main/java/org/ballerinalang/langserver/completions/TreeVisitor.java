@@ -107,6 +107,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -128,7 +129,6 @@ public class TreeVisitor extends LSNodeVisitor {
     private Class cursorPositionResolver;
     private LSServiceOperationContext documentServiceContext;
     private BLangNode previousNode = null;
-    private BLangNode nextNode = null;
 
     public TreeVisitor(LSServiceOperationContext documentServiceContext) {
         this.documentServiceContext = documentServiceContext;
@@ -156,6 +156,19 @@ public class TreeVisitor extends LSNodeVisitor {
                 node.getPosition().getSource().getCompilationUnitName().equals(fileName)
         ).collect(Collectors.toList());
 
+        List<BLangImportPackage> imports = pkgNode.getImports().stream().filter(
+                node -> node.getPosition().getSource().getCompilationUnitName().equals(fileName)
+        ).collect(Collectors.toList());
+
+        if (!imports.isEmpty()) {
+            cursorPositionResolver = PackageNodeScopeResolver.class;
+            imports.forEach(bLangImportPackage -> {
+                cursorPositionResolver = TopLevelNodeScopeResolver.class;
+                this.blockOwnerStack.push(pkgNode);
+                acceptNode((BLangNode) bLangImportPackage, pkgEnv);
+            });
+        }
+
         if (topLevelNodes.isEmpty()) {
             this.setTerminateVisitor(true);
             acceptNode(null, null);
@@ -172,7 +185,10 @@ public class TreeVisitor extends LSNodeVisitor {
     public void visit(BLangImportPackage importPkgNode) {
         BPackageSymbol pkgSymbol = importPkgNode.symbol;
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
-        acceptNode(pkgEnv.node, pkgEnv);
+        if (isCursorWithinBlock(importPkgNode.getPosition(), pkgEnv)) {
+            this.populateSymbols(this.resolveAllVisibleSymbols(pkgEnv), pkgEnv);
+            setTerminateVisitor(true);
+        }
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
@@ -189,6 +205,8 @@ public class TreeVisitor extends LSNodeVisitor {
 
         String functionName = funcNode.getName().getValue();
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, symbolEnv);
+
+        funcNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, funcEnv));
 
         if (isWithinParameterContext(functionName, UtilSymbolKeys.FUNCTION_KEYWORD_KEY)) {
             this.populateSymbols(this.resolveAllVisibleSymbols(funcEnv), funcEnv);
@@ -662,11 +680,11 @@ public class TreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangEndpoint endpointNode) {
+        SymbolEnv epEnv = SymbolEnv.createPkgLevelSymbolEnv(endpointNode, symbolEnv.scope, symbolEnv);
+        endpointNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, epEnv));
         if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(endpointNode.getPosition(), endpointNode, this, this.documentServiceContext)) {
-            SymbolEnv endpointEnv = SymbolEnv
-                    .createPkgLevelSymbolEnv(endpointNode, symbolEnv.scope, symbolEnv);
-            this.isWithinEndpointContext(endpointNode.getPosition(), endpointEnv, endpointNode.getName().getValue());
+            this.isWithinEndpointContext(endpointNode.getPosition(), epEnv);
         }
     }
 
@@ -713,16 +731,20 @@ public class TreeVisitor extends LSNodeVisitor {
         if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(bLangMatchExpression.getPosition(), bLangMatchExpression, this,
                         this.documentServiceContext)) {
+            SymbolEnv matchExprEnv = new SymbolEnv(bLangMatchExpression, symbolEnv.scope);
             final TreeVisitor visitor = this;
             Class fallbackCursorPositionResolver = this.cursorPositionResolver;
             this.cursorPositionResolver = MatchExpressionScopeResolver.class;
             this.blockOwnerStack.push(bLangMatchExpression);
             // Visit all pattern clauses
+            if (bLangMatchExpression.patternClauses.isEmpty()) {
+                this.isCursorWithinBlock(bLangMatchExpression.getPosition(), matchExprEnv);
+            }
             bLangMatchExpression.getPatternClauses().forEach(patternClause -> {
                 BLangNode node = patternClause;
                 CursorPositionResolver posResolver = ScopeResolverConstants.getResolverByClass(cursorPositionResolver);
                 posResolver.isCursorBeforeNode(node.getPosition(), node, visitor, visitor.documentServiceContext);
-                visitor.acceptNode(node, symbolEnv);
+                visitor.acceptNode(node, matchExprEnv);
             });
             this.blockOwnerStack.pop();
             this.cursorPositionResolver = fallbackCursorPositionResolver;
@@ -760,7 +782,8 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     public void setNextNode(BLangNode nextNode) {
-        this.nextNode = nextNode;
+        documentServiceContext.put(CompletionKeys.NEXT_NODE_KEY,
+                nextNode.getKind().toString().toLowerCase(Locale.ENGLISH));
     }
 
     /**
@@ -819,7 +842,6 @@ public class TreeVisitor extends LSNodeVisitor {
     // Private Methods
     private void acceptNode(BLangNode node, SymbolEnv env) {
         if (this.terminateVisitor) {
-            documentServiceContext.put(CompletionKeys.NEXT_NODE_KEY, nextNode);
             return;
         }
 
@@ -849,29 +871,8 @@ public class TreeVisitor extends LSNodeVisitor {
         return false;
     }
 
-    private boolean isWithinEndpointContext(DiagnosticPos diagnosticPos, SymbolEnv symbolEnv, String epName) {
-        if (documentServiceContext.get(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY)
-                .get(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY) == null) {
-            // No syntax errors has occurred
-            return this.isCursorWithinBlock(diagnosticPos, symbolEnv);
-        } else if (documentServiceContext.get(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY)
-                .get(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY)) {
-            // Syntax errors has occurred
-            boolean isWithinEndpoint = documentServiceContext.get(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY)
-                    .get(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY);
-            String name = documentServiceContext.get(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY)
-                    .get(CompletionKeys.META_CONTEXT_ENDPOINT_NAME_KEY);
-
-            if (isWithinEndpoint && epName.equals(name)) {
-                // Evaluating the particular Endpoint
-                this.populateSymbols(new HashMap<>(), symbolEnv);
-                this.setTerminateVisitor(true);
-
-                return true;
-            }
-        }
-
-        return false;
+    private boolean isWithinEndpointContext(DiagnosticPos diagnosticPos, SymbolEnv symbolEnv) {
+        return this.isCursorWithinBlock(diagnosticPos, symbolEnv);
     }
 
     /**
@@ -882,8 +883,8 @@ public class TreeVisitor extends LSNodeVisitor {
      * @return {@link Boolean}      Whether the cursor is within the parameter context
      */
     private boolean isWithinParameterContext(String nodeName, String nodeType) {
-        ParserRuleContext parserRuleContext = documentServiceContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY);
-        TokenStream tokenStream = documentServiceContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
+        ParserRuleContext parserRuleContext = documentServiceContext.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
+        TokenStream tokenStream = documentServiceContext.get(CompletionKeys.TOKEN_STREAM_KEY);
         String terminalToken = "";
 
         // If the parser rule context is not parameter context or parameter list context, we skipp the calculation

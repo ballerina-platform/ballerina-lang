@@ -22,10 +22,10 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
@@ -138,12 +138,12 @@ public class SecureClientSocketTest {
     public void testOpenSecureClientSocket() throws URISyntaxException {
         PackageInfo ioPackageInfo = socketClient.getProgFile().getPackageInfo("ballerina/io");
         StructureTypeInfo socketProperties = ioPackageInfo.getStructInfo("SocketProperties");
-        BStruct propertyStruct = BLangVMStructs.createBStruct(socketProperties);
+        BMap<String, BValue> propertyStruct = BLangVMStructs.createBStruct(socketProperties);
         URL resource = getClass().getClassLoader().
                 getResource("datafiles/security/keyStore/ballerinaTruststore.p12");
         Assert.assertNotNull(resource, "Unable to find TrustStore.");
-        propertyStruct.setStringField(2, Paths.get(resource.toURI()).toFile().getAbsolutePath());
-        propertyStruct.setStringField(3, "ballerina");
+        propertyStruct.put("trustStoreFile", new BString(Paths.get(resource.toURI()).toFile().getAbsolutePath()));
+        propertyStruct.put("trustStorePassword", new BString("ballerina"));
         BValue[] args = { new BString("localhost"), new BInteger(port), propertyStruct };
         BRunUtil.invokeStateful(socketClient, "openSocketConnection", args);
     }
@@ -153,15 +153,13 @@ public class SecureClientSocketTest {
         final String newline = System.lineSeparator();
         String content = "Hello World" + newline;
         final byte[] contentBytes = content.getBytes();
-        BValue[] args = { new BBlob(contentBytes)};
+        BValue[] args = { new BByteArray(contentBytes)};
         final BValue[] writeReturns = BRunUtil.invokeStateful(socketClient, "write", args);
         BInteger returnedSize = (BInteger) writeReturns[0];
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Write content size is not match.");
         args = new BValue[] { new BInteger(content.length()) };
         final BValue[] readReturns = BRunUtil.invokeStateful(socketClient, "read", args);
-        final BBlob readContent = (BBlob) readReturns[0];
         returnedSize = (BInteger) readReturns[1];
-        Assert.assertEquals(readContent.stringValue(), content, "Return content are not match with written content.");
         Assert.assertEquals(returnedSize.intValue(), content.length(), "Read size not match with the request size");
     }
 

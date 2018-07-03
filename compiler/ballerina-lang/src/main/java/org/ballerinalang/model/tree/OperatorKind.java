@@ -38,7 +38,6 @@ public enum OperatorKind {
     LESS_THAN("<"),
     LESS_EQUAL("<="),
     IS_ASSIGNABLE("isassignable"),
-    POW("^"),
     NOT("!"),
     LENGTHOF("lengthof"),
     UNTAINT("untaint"),
@@ -46,6 +45,11 @@ public enum OperatorKind {
     DECREMENT("--"),
     CHECK("check"),
     ELVIS("?:"),
+    BITWISE_AND("&"),
+    BITWISE_OR("|"),
+    BITWISE_XOR("^"),
+    BITWISE_LEFT_SHIFT("<<"),
+    BITWISE_RIGHT_SHIFT(">>"),
     CLOSED_RANGE("..."),
     HALF_OPEN_RANGE("..<");
 

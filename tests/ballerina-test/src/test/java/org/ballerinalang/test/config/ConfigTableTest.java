@@ -11,6 +11,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,7 +31,8 @@ public class ConfigTableTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+       resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
+               .getAbsolutePath();
         sourceRoot = Paths.get(resourceRoot, "test-src", "config");
         ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", BALLERINA_CONF);
 

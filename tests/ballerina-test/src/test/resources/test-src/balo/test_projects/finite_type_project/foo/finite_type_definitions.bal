@@ -16,9 +16,7 @@ public type PreparedResult "ss"|"sss"|"qqq";
 
 public type Channel object {
 
-    public {
-      State? b,
-    }
+    public State? b,
 
     public new (b = "off", boolean a = true){
         State o =  "on";
@@ -42,3 +40,8 @@ public type ParamTest string|int;
 
 public type ArrayCustom int[];
 
+public type ByteType byte;
+
+public type ByteArrayType byte[];
+
+public type BFType byte|float;

@@ -83,15 +83,7 @@ typeDefinition
     ;
 
 objectBody
-    : publicObjectFields? privateObjectFields? objectInitializer? objectFunctions?
-    ;
-
-publicObjectFields
-    :   PUBLIC LEFT_BRACE fieldDefinition* RIGHT_BRACE
-    ;
-
-privateObjectFields
-    :   PRIVATE LEFT_BRACE fieldDefinition* RIGHT_BRACE
+    :   objectFieldDefinition* objectInitializer? objectFunctions?
     ;
 
 objectInitializer
@@ -106,37 +98,30 @@ objectFunctions
     :   objectFunctionDefinition+
     ;
 
-// TODO merge with fieldDefinition later
+objectFieldDefinition
+    :   annotationAttachment* documentationAttachment? deprecatedAttachment? (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
+    ;
+
 fieldDefinition
     :   annotationAttachment* typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
     ;
 
-// TODO try to merge with formalParameterList later
 objectParameterList
     :   (objectParameter | objectDefaultableParameter) (COMMA (objectParameter | objectDefaultableParameter))* (COMMA restParameter)?
     |   restParameter
     ;
 
-// TODO try to merge with parameter later
 objectParameter
     :   annotationAttachment* typeName? Identifier
     ;
 
-// TODO try to merge with defaultableParameter later
 objectDefaultableParameter
     :   objectParameter ASSIGN expression
     ;
 
-// TODO merge with functionDefinition later
 objectFunctionDefinition
-    :   annotationAttachment* documentationAttachment? deprecatedAttachment? (PUBLIC)? (NATIVE)? FUNCTION objectCallableUnitSignature (callableUnitBody | SEMICOLON)
+    :   annotationAttachment* documentationAttachment? deprecatedAttachment? (PUBLIC | PRIVATE)? (NATIVE)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
-
-//TODO merge with callableUnitSignature later
-objectCallableUnitSignature
-    :   anyIdentifierName LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter?
-    ;
-
 
 annotationDefinition
     : (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
@@ -227,6 +212,7 @@ userDefineTypeName
 valueTypeName
     :   TYPE_BOOL
     |   TYPE_INT
+    |   TYPE_BYTE
     |   TYPE_FLOAT
     |   TYPE_STRING
     |   TYPE_BLOB
@@ -307,11 +293,28 @@ recordKey
     ;
 
 tableLiteral
-    :   TYPE_TABLE tableInitialization
+    :   TYPE_TABLE LEFT_BRACE tableColumnDefinition? (COMMA tableDataArray)? RIGHT_BRACE
     ;
 
-tableInitialization
-    :   recordLiteral
+tableColumnDefinition
+    :   LEFT_BRACE (tableColumn (COMMA tableColumn)*)? RIGHT_BRACE
+    ;
+
+tableColumn
+    :   PRIMARYKEY? Identifier
+    ;
+
+tableDataArray
+    :   LEFT_BRACKET tableDataList? RIGHT_BRACKET
+    ;
+
+tableDataList
+    :   tableData (COMMA tableData)*
+    |   expressionList
+    ;
+
+tableData
+    :   LEFT_BRACE expressionList RIGHT_BRACE
     ;
 
 arrayLiteral
@@ -581,7 +584,6 @@ expression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   (ADD | SUB | NOT | LENGTHOF | UNTAINT) expression                   # unaryExpression
     |   LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS   # bracedOrTupleExpression
-    |   expression POW expression                                           # binaryPowExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
     |   expression (ADD | SUB) expression                                   # binaryAddSubExpression
     |   expression (LT_EQUAL | GT_EQUAL | GT | LT) expression               # binaryCompareExpression
@@ -594,12 +596,22 @@ expression
     |	expression matchExpression										    # matchExprExpression
     |	CHECK expression										            # checkedExpression
     |   expression ELVIS expression                                         # elvisExpression
+    |   expression (BITAND | PIPE | BITXOR) expression                      # bitwiseExpression
+    |   expression (shiftExpression) expression                             # bitwiseShiftExpression
     |   typeName                                                            # typeAccessExpression
     ;
 
 awaitExpression
     :   AWAIT expression                                                    # awaitExpr
     ;
+
+shiftExpression
+    : GT shiftExprPredicate GT
+    | LT shiftExprPredicate LT
+    | GT shiftExprPredicate GT shiftExprPredicate GT
+    ;
+
+shiftExprPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
 matchExpression
     :   BUT LEFT_BRACE matchExpressionPatternClause (COMMA matchExpressionPatternClause)* RIGHT_BRACE
@@ -863,7 +875,7 @@ setAssignmentClause
     ;
 
 streamingInput
-    :   variableReference whereClause? functionInvocation* windowClause? functionInvocation* whereClause? (AS
+    :   expression whereClause? functionInvocation* windowClause? functionInvocation* whereClause? (AS
     alias=Identifier)?
     ;
 
