@@ -1593,14 +1593,24 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, this.env,
                 fieldName, structType.tsymbol);
         if (fieldSymbol == symTable.notFoundSymbol) {
-            // check if it is an attached function pointer call
-            Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(structType.tsymbol.name.value,
-                    fieldName.value));
-            fieldSymbol = symResolver.resolveObjectField(varReferExpr.pos, env, objFuncName, structType.tsymbol);
+            if (structType.tag == TypeTags.OBJECT) {
+                // check if it is an attached function pointer call
+                Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(structType.tsymbol.name.value,
+                                                                                      fieldName.value));
+                fieldSymbol = symResolver.resolveObjectField(varReferExpr.pos, env, objFuncName, structType.tsymbol);
 
-            if (fieldSymbol == symTable.notFoundSymbol) {
-                dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, structType.tsymbol);
-                return symTable.errType;
+                if (fieldSymbol == symTable.notFoundSymbol) {
+                    dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, structType.tsymbol);
+                    return symTable.errType;
+                }
+            } else {
+                // Assuming this method is only used for objects and records
+                if (((BRecordType) structType).sealed) {
+                    dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, structType.tsymbol);
+                    return symTable.errType;
+                }
+
+                return ((BRecordType) structType).restFieldType;
             }
         }
 

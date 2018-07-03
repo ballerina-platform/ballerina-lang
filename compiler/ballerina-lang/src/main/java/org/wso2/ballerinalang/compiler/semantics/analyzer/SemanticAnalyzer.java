@@ -62,7 +62,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -520,6 +522,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // eg: struct types.
         if (varDefNode.var.expr == null && !types.defaultValueExists(varDefNode.pos, varDefNode.var.type)) {
             dlog.error(varDefNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varDefNode.var.name);
+        }
+
+        if (varDefNode.var.type != null && varDefNode.var.type.tag == TypeTags.JSON) {
+            BType constrainType = ((BJSONType) varDefNode.var.type).constraint;
+
+            if (constrainType.tag == TypeTags.RECORD && !((BRecordType) constrainType).sealed) {
+                dlog.error(varDefNode.pos, DiagnosticCode.OPEN_RECORD_CONSTRAINT_NOT_ALLOWED, varDefNode.var.name);
+            }
         }
     }
 
