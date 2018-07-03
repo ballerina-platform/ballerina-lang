@@ -596,7 +596,6 @@
                             <goal>docerina</goal>
                         </goals>
                         <configuration>
-                            <!--<ballerinaHome>${project.build.directory}</ballerinaHome>-->
                             <outputZip>${project.build.directory}/ballerina-api-docs-${project.version}.zip</outputZip>
                             <outputDir>${project.build.directory}/api-docs</outputDir>
                             <sourceRoot>${project.build.directory}/extracted-distributions/ballerina</sourceRoot>
@@ -605,53 +604,6 @@
                         </configuration>
                     </execution>
                 </executions>
-                <dependencies>
-                    <!--<dependency>-->
-                        <!--<groupId>org.ballerinalang</groupId>-->
-                        <!--<artifactId>ballerina-database</artifactId>-->
-                        <!--<version>${project.version}</version>-->
-                    <!--</dependency>-->
-                    <!--<dependency>-->
-                        <!--<groupId>org.ballerinalang</groupId>-->
-                        <!--<artifactId>ballerina-grpc</artifactId>-->
-                        <!--<version>${project.version}</version>-->
-                    <!--</dependency>-->
-                    <!--<dependency>-->
-                        <!--<groupId>org.ballerinalang</groupId>-->
-                        <!--<artifactId>ballerina-http</artifactId>-->
-                        <!--<version>${project.version}</version>-->
-                    <!--</dependency>-->
-                    <!--<dependency>-->
-                        <!--<groupId>org.ballerinalang</groupId>-->
-                        <!--<artifactId>ballerina-jms</artifactId>-->
-                        <!--<version>${project.version}</version>-->
-                    <!--</dependency>-->
-                    <!--<dependency>-->
-                        <!--<groupId>org.ballerinalang</groupId>-->
-                        <!--<artifactId>ballerina-mb</artifactId>-->
-                        <!--<version>${project.version}</version>-->
-                    <!--</dependency>-->
-                    <!--<dependency>-->
-                        <!--<groupId>org.ballerinalang</groupId>-->
-                        <!--<artifactId>ballerina-mime</artifactId>-->
-                        <!--<version>${project.version}</version>-->
-                    <!--</dependency>-->
-                    <!--<dependency>-->
-                        <!--<groupId>org.ballerinalang</groupId>-->
-                        <!--<artifactId>ballerina-websub</artifactId>-->
-                        <!--<version>${project.version}</version>-->
-                    <!--</dependency>-->
-                    <!--<dependency>-->
-                        <!--<groupId>org.ballerinalang</groupId>-->
-                        <!--<artifactId>ballerina-transactions</artifactId>-->
-                        <!--<version>${project.version}</version>-->
-                    <!--</dependency>-->
-                    <!--<dependency>-->
-                        <!--<groupId>org.ballerinalang</groupId>-->
-                        <!--<artifactId>ballerina-observability</artifactId>-->
-                        <!--<version>${project.version}</version>-->
-                    <!--</dependency>-->
-                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
