@@ -44,6 +44,8 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 
     private int removeTokenCount = 0;
 
+    private Token removeStartToken = null;
+
     private Stack<Token> forceConsumedTokens = new Stack<>();
 
     private Token lastTerminationToken = null;
@@ -77,7 +79,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 
     @Override
     public void reportMatch(Parser recognizer) {
-        removePendingTokensAfterThisToken(recognizer, lastTerminationToken);
+        removePendingTokensAfterThisToken(recognizer, removeStartToken);
         boolean inFirstTokenOfCursorLine = isInFirstTokenOfCursorLine(recognizer);
         boolean inLastTermination = isInLastTermination(recognizer);
         super.reportMatch(recognizer);
@@ -88,7 +90,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 
     @Override
     public void sync(Parser recognizer) throws RecognitionException {
-        removePendingTokensAfterThisToken(recognizer, lastTerminationToken);
+        removePendingTokensAfterThisToken(recognizer, removeStartToken);
         boolean inFirstTokenOfCursorLine = isInFirstTokenOfCursorLine(recognizer);
         boolean inLastTermination = isInLastTermination(recognizer);
         if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && inFirstTokenOfCursorLine) {
@@ -101,7 +103,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 
     private void removePendingTokensAfterThisToken(Parser recognizer, Token token) {
         int currentTokenIndex = recognizer.getCurrentToken().getTokenIndex();
-        if (token != null && currentTokenIndex <= token.getTokenIndex()) {
+        if (token != null && currentTokenIndex < token.getTokenIndex()) {
             return;
         }
         while (removeTokenCount > 0) {
@@ -139,7 +141,9 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         int tLine = beforeCursorToken.getLine();
         int tCol = beforeCursorToken.getCharPositionInLine();
 
-        boolean noTerminationToken = (isInFirstTokenOfCursorLine && lastTerminationToken == null);
+        boolean noTerminationToken = ((isInFirstTokenOfCursorLine && lastTerminationToken == null)
+                || (firstTokenOfCursorLine != null && lastTerminationToken.getTokenIndex()
+                > firstTokenOfCursorLine.getTokenIndex()));
         int needToRemoveTokenCount = noTerminationToken ? 0 : -1;
         while (type != BallerinaParser.EOF && ((tLine < cursorLine) || (tLine == cursorLine && tCol < cursorCol))) {
             index++;
@@ -152,8 +156,11 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 
         if (isInLastTermination) {
             removeTokenCount = needToRemoveTokenCount;
+            removeStartToken = lastTerminationToken;
         } else if (noTerminationToken) {
             removeTokenCount = needToRemoveTokenCount;
+            removeStartToken = recognizer.getInputStream().LT(1);
+            removePendingTokensAfterThisToken(recognizer, removeStartToken);
         }
     }
 
