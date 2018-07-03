@@ -124,6 +124,12 @@ function createByteSealedArrayWithLabel() returns int {
     sealed byte[] sealedArray = [a, a, a, a, a];
     return lengthof sealedArray;
 }
+
+function createByteDefaultSealedArray() returns (byte[], int) {
+    byte[5] sealedArray;
+    return (sealedArray, lengthof sealedArray);
+}
+
 // Tuple Arrays
 
 function createTupleSealedArray() returns int {
