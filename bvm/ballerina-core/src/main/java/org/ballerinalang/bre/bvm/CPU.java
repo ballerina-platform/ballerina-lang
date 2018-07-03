@@ -113,6 +113,7 @@ import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.ballerinalang.util.transactions.TransactionConstants;
 import org.ballerinalang.util.transactions.TransactionResourceManager;
 import org.ballerinalang.util.transactions.TransactionUtils;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 import java.io.PrintStream;
 import java.util.Arrays;
@@ -3090,6 +3091,11 @@ public class CPU {
         if (lhsType.getTag() == TypeTags.ARRAY_TAG && rhsValue instanceof BNewArray) {
             BType sourceType = rhsValue.getType();
             if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
+                if (((BArrayType) sourceType).getState() == BArrayState.CLOSED_SEALED
+                        && ((BArrayType) lhsType).getState() == BArrayState.CLOSED_SEALED
+                        && ((BArrayType) sourceType).getSize() != ((BArrayType) lhsType).getSize()) {
+                    return false;
+                }
                 sourceType = ((BArrayType) rhsValue.getType()).getElementType();
             }
             return checkArrayCast(sourceType, ((BArrayType) lhsType).getElementType());
@@ -3970,6 +3976,11 @@ public class CPU {
         }
 
         if (targetType.getTag() == TypeTags.ARRAY_TAG && sourceType.getTag() == TypeTags.ARRAY_TAG) {
+            if (((BArrayType) sourceType).getState() == BArrayState.CLOSED_SEALED
+                    && ((BArrayType) targetType).getState() == BArrayState.CLOSED_SEALED
+                    && ((BArrayType) sourceType).getSize() != ((BArrayType) targetType).getSize()) {
+                return false;
+            }
             return checkArrayCast(((BArrayType) sourceType).getElementType(),
                                   ((BArrayType) targetType).getElementType());
         }
