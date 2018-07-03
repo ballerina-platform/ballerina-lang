@@ -22,6 +22,7 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.metrics.spi.MetricReporter;
+import org.ballerinalang.util.observability.ObservabilityConstants;
 import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
 
 import java.io.PrintStream;
@@ -38,8 +39,10 @@ public class PrometheusReporter implements MetricReporter {
     private static final String PROMETHEUS_PACKAGE = "prometheus";
     private static final String REPORTER_BALX_FILE_NAME = "reporter.balx";
     private static final String BALX_LIB_DIRECTORY = "lib";
-    private static final String PROMETHEUS_HOST_CONFIG = "b7a.observability.metrics.prometheus.host";
-    private static final String PROMETHEUS_PORT_CONFIG = "b7a.observability.metrics.prometheus.port";
+    private static final String PROMETHEUS_HOST_CONFIG = ObservabilityConstants.CONFIG_TABLE_METRICS
+            + "." + PROMETHEUS_PACKAGE + ".host";
+    private static final String PROMETHEUS_PORT_CONFIG = ObservabilityConstants.CONFIG_TABLE_METRICS + "."
+            + PROMETHEUS_PACKAGE + ".port";
     private static final String DEFAULT_PROMETHEUS_HOST = "0.0.0.0";
     private static final String DEFAULT_PROMETHEUS_PORT = "9797";
 
