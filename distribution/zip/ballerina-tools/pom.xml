@@ -188,6 +188,7 @@
                                 ballerina-database,
                                 ballerina-grpc,
                                 ballerina-http,
+                                ballerina-swagger,
                                 ballerina-jms,
                                 ballerina-mb,
                                 ballerina-mime,
@@ -260,6 +261,11 @@
                     <dependency>
                         <groupId>org.ballerinalang</groupId>
                         <artifactId>ballerina-http</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.ballerinalang</groupId>
+                        <artifactId>ballerina-swagger</artifactId>
                         <version>${project.version}</version>
                     </dependency>
                     <dependency>
