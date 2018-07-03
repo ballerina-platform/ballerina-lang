@@ -40,16 +40,15 @@ public class EventRegister {
     /**
      * Returns the register which corresponds to the channel.
      *
-     * @param isSelectable specifies whether the given channel is selectable.
-     * @param event        the event of execution.
-     * @param function     the callback function.
+     * @param event    the event of execution.
+     * @param function the callback function.
      * @return the register.
      */
-    public Register register(int id, boolean isSelectable, Event event, Function<EventResult, EventResult> function) {
-        if (isSelectable) {
-            return new SelectableEventRegister(id, event, function);
+    public Register register(Event event, Function<EventResult, EventResult> function) {
+        if (event.isSelectable()) {
+            return new SelectableEventRegister(event, function);
         } else {
-            return new InstantEventRegister(id, event, function);
+            return new InstantEventRegister(event, function);
         }
     }
 }

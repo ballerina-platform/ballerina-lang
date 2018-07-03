@@ -85,8 +85,8 @@ public class WriteFloat32 implements NativeCallableUnit {
         double value = context.getFloatArgument(VALUE_INDEX);
         EventContext eventContext = new EventContext(context, callback);
         WriteFloatEvent writeFloatEvent = new WriteFloatEvent(channel, value, Representation.BIT_32, eventContext);
-        Register register = EventRegister.getFactory().register(channel.id(),
-                channel.isSelectable(), writeFloatEvent, WriteFloat32::writeFloatResponse);
+        Register register = EventRegister.getFactory().register(writeFloatEvent, WriteFloat32::writeFloatResponse);
+        eventContext.setRegister(register);
         register.submit();
     }
 

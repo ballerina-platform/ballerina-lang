@@ -41,6 +41,10 @@ public class EventContext {
      */
     private Throwable error;
     /**
+     * Represents the register which will hold the context of the event.
+     */
+    private Register register;
+    /**
      * Will hold the list of properties related to the context.
      */
     private Map<String, Object> properties = new HashMap<>();
@@ -57,8 +61,16 @@ public class EventContext {
         this.callback = callback;
     }
 
+    public void setRegister(Register register) {
+        this.register = register;
+    }
+
     public CallableUnitCallback getCallback() {
         return callback;
+    }
+
+    public Register getRegister() {
+        return register;
     }
 
     public Context getContext() {

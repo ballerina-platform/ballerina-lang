@@ -84,8 +84,8 @@ public class GetTable implements NativeCallableUnit {
                     .getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
             EventContext eventContext = new EventContext(context, callback);
             DelimitedRecordReadAllEvent event = new DelimitedRecordReadAllEvent(delimitedChannel, eventContext);
-            Register register = EventRegister.getFactory().register(delimitedChannel.id(), delimitedChannel
-                            .isSelectable(), event, GetTable::response);
+            Register register = EventRegister.getFactory().register(event, GetTable::response);
+            eventContext.setRegister(register);
             register.submit();
         } catch (Exception e) {
             String msg = "Failed to process the delimited file: " + e.getMessage();

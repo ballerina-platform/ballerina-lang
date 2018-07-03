@@ -86,8 +86,8 @@ public class WriteVarInt implements NativeCallableUnit {
         EventContext eventContext = new EventContext(context, callback);
         WriteIntegerEvent writeIntegerEvent = new WriteIntegerEvent(channel, value, Representation.VARIABLE,
                 eventContext);
-        Register register = EventRegister.getFactory().register(channel.id(),
-                channel.isSelectable(), writeIntegerEvent, WriteVarInt::writeIntegerResponse);
+        Register register = EventRegister.getFactory().register(writeIntegerEvent, WriteVarInt::writeIntegerResponse);
+        eventContext.setRegister(register);
         register.submit();
     }
 

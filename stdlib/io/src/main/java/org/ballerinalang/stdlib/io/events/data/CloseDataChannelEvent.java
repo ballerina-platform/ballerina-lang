@@ -22,6 +22,7 @@ import org.ballerinalang.stdlib.io.channels.base.DataChannel;
 import org.ballerinalang.stdlib.io.events.Event;
 import org.ballerinalang.stdlib.io.events.EventContext;
 import org.ballerinalang.stdlib.io.events.EventResult;
+import org.ballerinalang.stdlib.io.events.EventType;
 import org.ballerinalang.stdlib.io.events.result.BooleanResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,5 +65,20 @@ public class CloseDataChannelEvent implements Event {
             result = new BooleanResult(context);
         }
         return result;
+    }
+
+    @Override
+    public int getChannelId() {
+        return channel.id();
+    }
+
+    @Override
+    public boolean isSelectable() {
+        return channel.isSelectable();
+    }
+
+    @Override
+    public EventType getType() {
+        return EventType.CLOSE;
     }
 }

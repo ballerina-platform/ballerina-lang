@@ -18,7 +18,7 @@
 package org.ballerinalang.net.grpc.exception;
 
 /**
- * Exception that is thrown when gRPC service registration.
+ * Exception thrown when failure occurred at client side.
  *
  * @since 1.0.0
  */

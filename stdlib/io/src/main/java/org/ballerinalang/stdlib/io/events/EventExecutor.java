@@ -27,10 +27,6 @@ import java.util.function.Function;
  */
 public class EventExecutor {
     /**
-     * Unique identifier to co-relate between the channel and io events (read, write).
-     */
-    private int id;
-    /**
      * Holds the event context of the task.
      */
     private Event evt;
@@ -39,14 +35,17 @@ public class EventExecutor {
      */
     private Function<EventResult, EventResult> function;
 
-    public EventExecutor(int id, Event evt, Function<EventResult, EventResult> function) {
-        this.id = id;
+    EventExecutor(Event evt, Function<EventResult, EventResult> function) {
         this.evt = evt;
         this.function = function;
     }
 
     public int getId() {
-        return id;
+        return evt.getChannelId();
+    }
+
+    public EventType getType() {
+        return evt.getType();
     }
 
     /**

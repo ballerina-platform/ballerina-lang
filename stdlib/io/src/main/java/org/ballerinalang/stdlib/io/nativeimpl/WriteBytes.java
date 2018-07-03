@@ -107,8 +107,8 @@ public class WriteBytes implements NativeCallableUnit {
         Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
         WriteBytesEvent writeBytesEvent = new WriteBytesEvent(byteChannel, content, offset, eventContext);
-        Register register = EventRegister.getFactory().register(byteChannel.id(), byteChannel.isSelectable(),
-                writeBytesEvent, WriteBytes::writeResponse);
+        Register register = EventRegister.getFactory().register(writeBytesEvent, WriteBytes::writeResponse);
+        eventContext.setRegister(register);
         register.submit();
     }
 

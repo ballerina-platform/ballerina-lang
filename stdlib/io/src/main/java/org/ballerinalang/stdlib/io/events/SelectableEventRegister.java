@@ -28,8 +28,8 @@ import java.util.function.Function;
  */
 public class SelectableEventRegister extends Register {
 
-    public SelectableEventRegister(int id, Event event, Function<EventResult, EventResult> function) {
-        super(id, event, function);
+    SelectableEventRegister(Event event, Function<EventResult, EventResult> function) {
+        super(event, function);
     }
 
     /**
@@ -37,6 +37,20 @@ public class SelectableEventRegister extends Register {
      */
     @Override
     public void submit() {
+        throw new NotImplementedException();
+    }
+
+    /**
+     * <p>
+     * This method will inform the relevant selector to discard the channel information.
+     * </p>
+     * <p>
+     * This will be triggered at an event whether the channel returns a read error, reaching eof
+     * </p>
+     * {@inheritDoc}
+     */
+    @Override
+    public void discard() {
         throw new NotImplementedException();
     }
 }

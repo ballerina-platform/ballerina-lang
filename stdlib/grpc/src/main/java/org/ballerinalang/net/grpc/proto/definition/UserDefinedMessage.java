@@ -65,6 +65,7 @@ public class UserDefinedMessage extends Message {
         return new UserDefinedMessage.Builder(name);
     }
 
+    @Override
     public String getMessageDefinition() {
         StringBuilder msgDefinition = new StringBuilder();
         msgDefinition.append("message ").append(messageName).append(" {\n");

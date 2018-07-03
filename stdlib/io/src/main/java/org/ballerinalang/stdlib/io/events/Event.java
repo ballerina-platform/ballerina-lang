@@ -31,4 +31,24 @@ import java.util.function.Supplier;
  * </p>
  */
 public interface Event extends Supplier<EventResult> {
+    /**
+     * Provides the unique channel id associated with the event.
+     *
+     * @return the id of the channel.
+     */
+    int getChannelId();
+
+    /**
+     * Specifies whether the event is selectable.
+     *
+     * @return true if the event is selectable.
+     */
+    boolean isSelectable();
+
+    /**
+     * Represents the type of the event.
+     *
+     * @return the type of the event.
+     */
+    EventType getType();
 }

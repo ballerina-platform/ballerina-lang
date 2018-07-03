@@ -82,8 +82,8 @@ public class ReadBool implements NativeCallableUnit {
         DataChannel channel = (DataChannel) dataChannelStruct.getNativeData(IOConstants.DATA_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
         ReadBoolEvent event = new ReadBoolEvent(channel, eventContext);
-        Register register = EventRegister.getFactory().register(channel.id(), channel.isSelectable(), event,
-                ReadBool::readResponse);
+        Register register = EventRegister.getFactory().register(event, ReadBool::readResponse);
+        eventContext.setRegister(register);
         register.submit();
     }
 
