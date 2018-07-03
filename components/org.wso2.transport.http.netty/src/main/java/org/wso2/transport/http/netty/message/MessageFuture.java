@@ -21,35 +21,25 @@ package org.wso2.transport.http.netty.message;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.LastHttpContent;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 /**
  * Represents future contents of the message.
  */
 public class MessageFuture {
 
     private MessageListener messageListener;
-    private ConcurrentLinkedQueue<HttpContent> pendingPayload;
     private final HTTPCarbonMessage httpCarbonMessage;
+    private boolean messageListenerSet = false;
 
-     public MessageFuture(HTTPCarbonMessage httpCarbonMessage) {
+    public MessageFuture(HTTPCarbonMessage httpCarbonMessage) {
         this.httpCarbonMessage = httpCarbonMessage;
-        this.pendingPayload = new ConcurrentLinkedQueue<>();
     }
 
     public void setMessageListener(MessageListener messageListener) {
         synchronized (httpCarbonMessage) {
             this.messageListener = messageListener;
+            this.messageListenerSet = true;
             while (!httpCarbonMessage.isEmpty()) {
                 HttpContent httpContent = httpCarbonMessage.getHttpContent();
-                notifyMessageListener(httpContent);
-                if (httpContent instanceof LastHttpContent) {
-                    this.httpCarbonMessage.removeMessageFuture();
-                    return;
-                }
-            }
-            while (!pendingPayload.isEmpty()) {
-                HttpContent httpContent = pendingPayload.poll();
                 notifyMessageListener(httpContent);
                 if (httpContent instanceof LastHttpContent) {
                     this.httpCarbonMessage.removeMessageFuture();
@@ -60,11 +50,11 @@ public class MessageFuture {
     }
 
     void notifyMessageListener(HttpContent httpContent) {
-        if (this.messageListener != null) {
-            this.messageListener.onMessage(httpContent);
-        } else {
-            pendingPayload.add(httpContent);
-        }
+        this.messageListener.onMessage(httpContent);
+    }
+
+    public boolean isMessageListenerSet() {
+        return messageListenerSet;
     }
 
     public synchronized HttpContent sync() {
