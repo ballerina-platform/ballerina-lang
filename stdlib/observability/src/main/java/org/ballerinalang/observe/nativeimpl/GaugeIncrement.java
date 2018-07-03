@@ -20,8 +20,7 @@ package org.ballerinalang.observe.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.observe.Constants;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -46,7 +45,7 @@ public class GaugeIncrement extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct bStruct = (BStruct) context.getRefArgument(0);
+        BMap bStruct = (BMap) context.getRefArgument(0);
         float amount = (float) context.getFloatArgument(0);
         Gauge gauge = (Gauge) bStruct.getNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY);
         gauge.increment(amount);

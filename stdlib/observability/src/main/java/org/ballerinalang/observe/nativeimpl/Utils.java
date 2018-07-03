@@ -22,9 +22,12 @@ package org.ballerinalang.observe.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
+import org.ballerinalang.util.metrics.PercentileValue;
+import org.ballerinalang.util.metrics.Snapshot;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,5 +56,36 @@ public class Utils {
         PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BALLERINA_BUILTIN_PKG);
         StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
         return BLangVMStructs.createBStruct(errorStructInfo, message);
+    }
+
+    public static BRefValueArray createBSnapshots(Snapshot[] snapshots, Context context) {
+        if (snapshots != null && snapshots.length > 0) {
+            PackageInfo observePackage = context.getProgramFile().getPackageInfo(Constants.OBSERVE_PACKAGE_PATH);
+            StructureTypeInfo snapshotStructInfo = observePackage.getStructInfo(Constants.SNAPSHOT);
+            StructureTypeInfo percentileStructInfo = observePackage.getStructInfo(Constants.PERCENTILE_VALUE);
+
+            BRefValueArray bSnapshots = new BRefValueArray(observePackage.getTypeInfo(Constants.SNAPSHOT).getType());
+            int index = 0;
+            for (Snapshot snapshot : snapshots) {
+                BRefValueArray bPercentiles = new BRefValueArray(observePackage.
+                        getTypeInfo(Constants.PERCENTILE_VALUE).getType());
+                int percentileIndex = 0;
+                for (PercentileValue percentileValue : snapshot.getPercentileValues()) {
+                    BMap<String, BValue> bPercentileValue = BLangVMStructs.createBStruct(percentileStructInfo,
+                            percentileValue.getPercentile(),
+                            percentileValue.getValue());
+                    bPercentiles.add(percentileIndex, bPercentileValue);
+                    percentileIndex++;
+                }
+                BMap<String, BValue> aSnapshot = BLangVMStructs.createBStruct(snapshotStructInfo,
+                        snapshot.getExpiry().toMillis(), snapshot.getMean(), snapshot.getMax(),
+                        snapshot.getMin(), snapshot.getStdDev(), bPercentiles);
+                bSnapshots.add(index, aSnapshot);
+                index++;
+            }
+            return bSnapshots;
+        } else {
+            return null;
+        }
     }
 }

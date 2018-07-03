@@ -463,6 +463,13 @@
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-prometheus-extension</artifactId>
+            <version>${ballerina.version}</version>
+            <classifier>ballerina-balx-repo</classifier>
+            <type>zip</type>
+        </dependency>
     </dependencies>
 
     <build>
@@ -480,6 +487,24 @@
                         <configuration>
                             <includeClassifiers>ballerina-binary-repo</includeClassifiers>
                             <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-balx-dependencies</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeClassifiers>ballerina-balx-repo</includeClassifiers>
+                            <outputDirectory>${project.build.directory}/lib/balx</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>

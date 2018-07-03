@@ -540,6 +540,13 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-prometheus-extension</artifactId>
+                <version>${ballerina.version}</version>
+                <classifier>ballerina-balx-repo</classifier>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-jms</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>

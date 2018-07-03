@@ -21,11 +21,10 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFloatArray;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.observe.Constants;
-import org.ballerinalang.nativeimpl.observe.Utils;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.util.metrics.Gauge;
@@ -46,18 +45,20 @@ import java.time.Duration;
 public class GaugeInitialize extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        BStruct bStruct = (BStruct) context.getRefArgument(0);
-        BRefValueArray summaryConfigs = (BRefValueArray) bStruct.getRefField(1);
-        Gauge.Builder gaugeBuilder = Gauge.builder(bStruct.getStringField(0))
-                .description(bStruct.getStringField(1))
-                .tags(Utils.toStringMap((BMap) bStruct.getRefField(0)));
+        BMap<String, BValue> bStruct = (BMap<String, BValue>) context.getRefArgument(0);
+        BRefValueArray summaryConfigs = (BRefValueArray) bStruct.get(Constants.STATISTICS_CONFIG_FIELD);
+        Gauge.Builder gaugeBuilder = Gauge.builder(bStruct.get(Constants.NAME_FIELD).stringValue())
+                .description(bStruct.get(Constants.DESCRIPTION_FIELD).stringValue())
+                .tags(Utils.toStringMap((BMap) bStruct.get(Constants.TAGS_FIELD)));
         if (summaryConfigs != null && summaryConfigs.size() > 0) {
             for (int i = 0; i < summaryConfigs.size(); i++) {
-                BStruct summaryConfigStruct = (BStruct) summaryConfigs.getBValue(i);
+                BMap summaryConfigStruct = (BMap) summaryConfigs.getBValue(i);
                 StatisticConfig.Builder statisticBuilder = StatisticConfig.builder()
-                        .expiry(Duration.ofMillis(summaryConfigStruct.getIntField(0)))
-                        .buckets(summaryConfigStruct.getIntField(1));
-                BFloatArray bFloatArray = (BFloatArray) summaryConfigStruct.getRefField(0);
+                        .expiry(Duration.ofMillis(((BInteger) summaryConfigStruct
+                                .get(Constants.EXPIRY_FIELD)).intValue()))
+                        .buckets(((BInteger) summaryConfigStruct
+                                .get(Constants.BUCKETS_FIELD)).intValue());
+                BFloatArray bFloatArray = (BFloatArray) summaryConfigStruct.get(Constants.PERCENTILES_FIELD);
                 double[] percentiles = new double[(int) bFloatArray.size()];
                 for (int j = 0; j < bFloatArray.size(); j++) {
                     percentiles[j] = bFloatArray.get(j);

@@ -182,6 +182,7 @@
                 <include>com.squareup.okio:okio</include>
                 <include>org.ballerinalang:ballerina-metrics-extension</include>
                 <include>org.hdrhistogram:HdrHistogram</include>
+                <include>org.ballerinalang:ballerina-prometheus-extension:jar</include>
 
                 <!-- Siddhi Dependencies -->
                 <include>org.ballerinalang:siddhi-core:jar</include>

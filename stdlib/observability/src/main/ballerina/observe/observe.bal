@@ -60,11 +60,9 @@ documentation {
 }
 public type Counter object {
 
- public {
-  @readonly string name,
-  @readonly string description,
-  @readonly map<string> metricTags;
- }
+ @readonly public string name;
+ @readonly public string description;
+ @readonly public map<string> metricTags;
 
  public new(name, string? desc = "", map<string>? tags) {
   match desc {
@@ -89,12 +87,10 @@ public type Counter object {
 
 public type Gauge object {
 
- public {
-  @readonly string name,
-  @readonly string description,
-  @readonly map<string> metricTags,
-  @readonly StatisticConfig[] statisticConfigs;
- }
+ @readonly public string name;
+ @readonly public string description;
+ @readonly public map<string> metricTags;
+ @readonly public StatisticConfig[] statisticConfigs;
 
  public new(name, string? desc = "", map<string>? tags = (),
             StatisticConfig[]?|boolean statisticConfig = true) {

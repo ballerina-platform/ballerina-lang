@@ -29,9 +29,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.observe.Utils;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -47,8 +45,8 @@ import org.ballerinalang.util.metrics.Tag;
 
 import java.util.Set;
 
-import static org.ballerinalang.nativeimpl.observe.Constants.METRIC;
-import static org.ballerinalang.nativeimpl.observe.Constants.OBSERVE_PACKAGE_PATH;
+import static org.ballerinalang.observe.nativeimpl.Constants.METRIC;
+import static org.ballerinalang.observe.nativeimpl.Constants.OBSERVE_PACKAGE_PATH;
 
 /**
  * This is the getAllMetrics function native implementation for the registered metrics.
@@ -90,7 +88,7 @@ public class GetAllMetrics extends BlockingNativeCallableUnit {
                 metricType = Constants.GAUGE;
             }
             if (metricValue != null) {
-                BStruct metricStruct = BLangVMStructs.createBStruct(metricStructInfo,
+                BMap metricStruct = BLangVMStructs.createBStruct(metricStructInfo,
                         metricId.getName(), metricId.getDescription(), getTags(metricId), metricType,
                         metricValue, summary);
                 bMetrics.add(metricIndex, metricStruct);

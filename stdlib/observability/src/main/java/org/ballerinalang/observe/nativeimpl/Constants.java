@@ -34,6 +34,10 @@ public final class Constants {
     public static final String METRIC_NATIVE_INSTANCE_KEY = "__metric_native_instance__";
 
     public static final String NAME_FIELD = "name";
-    public static final String DESCRIPTION_FIELD = "desc";
-    public static final String TAGS_FIELD = "tags";
+    public static final String DESCRIPTION_FIELD = "description";
+    public static final String TAGS_FIELD = "metricTags";
+    public static final String STATISTICS_CONFIG_FIELD = "statisticConfigs";
+    public static final String EXPIRY_FIELD = "expiry";
+    public static final String BUCKETS_FIELD = "buckets";
+    public static final String PERCENTILES_FIELD = "percentiles";
 }
