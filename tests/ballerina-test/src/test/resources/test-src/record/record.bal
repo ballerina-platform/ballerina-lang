@@ -149,8 +149,3 @@ function testStructWithRecordKeyword() returns Employee {
     Employee emp = {name:"John", lname:"Doe", address:address, age:25, designation:"Software Engineer"};
     return emp;
 }
-
-type EmptyRecord record {
-
-
-};
