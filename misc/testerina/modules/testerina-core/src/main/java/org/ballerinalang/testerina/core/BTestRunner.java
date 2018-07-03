@@ -158,6 +158,11 @@ public class BTestRunner {
 
             registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite
                 (packageName));
+
+            if (packageName.equals(Names.DEFAULT_PACKAGE.value)) {
+                registry.getTestSuites().get(packageName).setSourceFileName(sourcePackage.toString());
+            }
+
             // compile
             CompileResult compileResult = BCompileUtil.compileWithTests(sourceRoot, sourcePackage.toString(),
                 CompilerPhase.CODE_GEN);
@@ -212,7 +217,9 @@ public class BTestRunner {
         outStream.println("Running tests");
         keys.forEach(packageName -> {
             TestSuite suite = testSuites.get(packageName);
-            if (!packageName.equals(Names.DOT.value)) {
+            if (packageName.equals(Names.DOT.value)) {
+                outStream.println("    " + suite.getSourceFileName());
+            } else {
                 outStream.println("    " + packageName);
             }
             if (suite.getTests().size() == 0) {
