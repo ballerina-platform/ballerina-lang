@@ -11,7 +11,7 @@ function testRefTypes() returns (typedesc, typedesc, typedesc, typedesc) {
     typedesc a = xml;
     typedesc b = json;
     typedesc c = map;
-    typedesc d = table<Person>;
+    typedesc d = table<Employee>;
     return (a, b, c, d);
 }
 
@@ -34,6 +34,12 @@ type Person object {
         return name;
     }
 };
+
+
+type Employee record {
+    string name;
+};
+
 
 function testArrayTypes() returns (typedesc, typedesc) {
     typedesc a = int[];
