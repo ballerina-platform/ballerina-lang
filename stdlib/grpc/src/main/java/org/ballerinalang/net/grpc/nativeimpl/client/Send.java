@@ -16,9 +16,6 @@
 package org.ballerinalang.net.grpc.nativeimpl.client;
 
 import com.google.protobuf.Descriptors;
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
-import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
@@ -31,6 +28,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
+import org.ballerinalang.net.grpc.Status;
+import org.ballerinalang.net.grpc.StreamObserver;
+import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,19 +62,18 @@ public class Send extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BMap<String, BValue> connectionStruct = (BMap<String, BValue>) context.getRefArgument(0);
         BValue responseValue = context.getRefArgument(1);
-        StreamObserver<Message> requestSender = (StreamObserver<Message>) connectionStruct.getNativeData
-                (REQUEST_SENDER);
+        StreamObserver requestSender = (StreamObserver) connectionStruct.getNativeData(REQUEST_SENDER);
         if (requestSender == null) {
             context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
-                    .fromCode(Status.INTERNAL.getCode()).withDescription("Error while initializing connector. " +
-                            "response sender does not exist"))));
+                    .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while sending the " +
+                            "message. endpoint does not exist"))));
         } else {
             Descriptors.Descriptor inputType = (Descriptors.Descriptor) connectionStruct.getNativeData(GrpcConstants
                     .REQUEST_MESSAGE_DEFINITION);
             try {
                 Message requestMessage = MessageUtils.generateProtoMessage(responseValue, inputType);
                 requestSender.onNext(requestMessage);
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 LOG.error("Error while sending request message to server.", e);
                 context.setError(MessageUtils.getConnectorError(context, e));
             }

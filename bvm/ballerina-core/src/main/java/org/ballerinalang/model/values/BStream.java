@@ -21,8 +21,8 @@ package org.ballerinalang.model.values;
 import io.ballerina.messaging.broker.core.BrokerException;
 import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.Message;
+import org.ballerinalang.broker.BallerinaBroker;
 import org.ballerinalang.broker.BallerinaBrokerByteBuf;
-import org.ballerinalang.broker.BrokerUtils;
 import org.ballerinalang.model.types.BAnyType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BIndexedType;
@@ -53,6 +53,8 @@ public class BStream implements BRefType<Object> {
 
     private String streamId = "";
 
+    private BallerinaBroker brokerInstance;
+
     /**
      * The name of the underlying broker topic representing the stream object.
      */
@@ -61,6 +63,11 @@ public class BStream implements BRefType<Object> {
     public BStream(BType type, String name) {
         if (((BStreamType) type).getConstrainedType() == null) {
             throw new BallerinaException("a stream cannot be declared without a constraint");
+        }
+        try {
+            this.brokerInstance = BallerinaBroker.getBrokerInstance();
+        } catch (Exception e) {
+            throw new BallerinaException("Error starting up internal broker for streams");
         }
         this.constraintType = ((BStreamType) type).getConstrainedType();
         if (constraintType.getName() != null) {
@@ -116,7 +123,7 @@ public class BStream implements BRefType<Object> {
             throw new BallerinaException("incompatible types: value of type:" + dataType.getName()
                     + " cannot be added to a stream of type:" + this.constraintType.getName());
         }
-        BrokerUtils.publish(topicName, new BallerinaBrokerByteBuf(data));
+        brokerInstance.publish(topicName, new BallerinaBrokerByteBuf(data));
     }
 
     /**
@@ -135,7 +142,7 @@ public class BStream implements BRefType<Object> {
                                                  + ":" + this.constraintType.getName());
         }
         String queueName = String.valueOf(System.currentTimeMillis()) + UUID.randomUUID().toString();
-        BrokerUtils.addSubscription(topicName, new StreamSubscriber(queueName, functionPointer));
+        brokerInstance.addSubscription(topicName, new StreamSubscriber(queueName, functionPointer));
     }
 
     public void subscribe(InputHandler inputHandler) {
@@ -144,7 +151,7 @@ public class BStream implements BRefType<Object> {
             throw new BallerinaException("Streaming Support is only available with streams accepting objects");
         }
         String queueName = String.valueOf(UUID.randomUUID());
-        BrokerUtils.addSubscription(topicName, new InternalStreamSubscriber(topicName, queueName, inputHandler));
+        brokerInstance.addSubscription(topicName, new InternalStreamSubscriber(topicName, queueName, inputHandler));
     }
 
     private class StreamSubscriber extends Consumer {
