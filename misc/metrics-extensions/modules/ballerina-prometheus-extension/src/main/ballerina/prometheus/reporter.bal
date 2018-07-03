@@ -12,6 +12,9 @@ import ballerina/config;
 @final int REPORTER_PORT = config:getAsInt(PROMETHEUS_PORT_CONFIG, default = 9797);
 @final string REPORTER_HOST = config:getAsString(PROMETHEUS_HOST_CONFIG, default = "0.0.0.0");
 
+@final string EXPIRY_TAG = "expiry";
+@final string PERCENTILE_TAG = "quantile";
+
 endpoint http:Listener prometheusListener {
  host: REPORTER_HOST,
  port: REPORTER_PORT
@@ -31,26 +34,30 @@ service<http:Service> PrometheusReporter bind prometheusListener {
   observe:Metric[] metrics = observe:getAllMetrics();
   string payload = EMPTY_STRING;
   foreach metric in metrics {
-   payload += generateMetricHelp(metric.name, metric.desc);
-   payload += generateMetricInfo(metric.name, metric.metricType);
-   payload += generateMetric(metric.name, metric.tags, metric.value);
+   string metricReportName = getMetricName(metric.name, "value");
+   payload += generateMetricHelp(metricReportName, metric.desc);
+   payload += generateMetricInfo(metricReportName, metric.metricType);
+   payload += generateMetric(metricReportName, metric.tags, metric.value);
    if (metric.metricType.equalsIgnoreCase(METRIC_TYPE_GAUGE) && metric.summary != null){
+    map<string> tags = metric.tags;
     observe:Snapshot[]? summaries = metric.summary;
     match summaries {
      observe:Snapshot[] snapshots => {
       foreach aSnapshot in snapshots{
-       string expiry = <string>aSnapshot.expiry;
-       string summaryMetricName = getMetricName(metric.name, expiry);
-       payload += generateMetricHelp(summaryMetricName, "A Summary of " + metric.name + " for window of "
+       tags[EXPIRY_TAG] = <string> aSnapshot.expiry;
+       payload += generateMetricHelp(metric.name, "A Summary of " + metric.name + " for window of "
          + aSnapshot.expiry);
-       payload += generateMetricInfo(summaryMetricName, METRIC_TYPE_SUMMARY);
-       payload += generateMetric(getMetricName(summaryMetricName, "mean"), (), aSnapshot.mean);
-       payload += generateMetric(getMetricName(summaryMetricName, "max"), (), aSnapshot.max);
-       payload += generateMetric(getMetricName(summaryMetricName, "min"), (), aSnapshot.min);
-       payload += generateMetric(getMetricName(summaryMetricName, "stdDev"), (), aSnapshot.stdDev);
+       payload += generateMetricInfo(metric.name, METRIC_TYPE_SUMMARY);
+       payload += generateMetric(getMetricName(metric.name, "mean"), tags, aSnapshot.mean);
+       payload += generateMetric(getMetricName(metric.name, "max"), tags, aSnapshot.max);
+       payload += generateMetric(getMetricName(metric.name, "min"), tags, aSnapshot.min);
+       payload += generateMetric(getMetricName(metric.name, "stdDev"), tags, aSnapshot.stdDev);
        foreach percentileValue in aSnapshot.percentileValues  {
-        payload += generatePercentileMetric(summaryMetricName, percentileValue.percentile, percentileValue.value);
+        tags[PERCENTILE_TAG] = <string> percentileValue.percentile;
+        payload += generateMetric(metric.name, tags,percentileValue.value);
        }
+       _ = tags.remove(EXPIRY_TAG);
+       _ = tags.remove(PERCENTILE_TAG);
       }
      }
      () => {payload += "\n";}
@@ -83,18 +90,16 @@ function generateMetric(string name, map<string>? labels, int|float value) retur
  }
  match labels {
   map<string> mapLabels => {
-   json jsonLabels = check <json>labels;
+   json jsonLabels = check <json>mapLabels;
    return (name + jsonLabels.toString() + " " + strValue + "\n");
   }
-  () => return (name + " " + strValue + "\n");
+  () => {
+   return (name + " " + strValue + "\n");
+  }
  }
 }
 
+
 function getMetricName(string name, string summaryType) returns string {
  return name + "_" + summaryType;
-}
-
-function generatePercentileMetric(string name, float percentile, float value) returns string {
- string strValue = <string>value;
- return (name + "{quantile=" + percentile + "} " + strValue + "\n");
 }

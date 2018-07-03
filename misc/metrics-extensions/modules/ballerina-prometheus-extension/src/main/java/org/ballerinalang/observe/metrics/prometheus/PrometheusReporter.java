@@ -36,7 +36,7 @@ public class PrometheusReporter implements MetricReporter {
 
     private static final PrintStream console = System.out;
     private static final String PROMETHEUS_PACKAGE = "prometheus";
-    private static final String REPORTER_BALX_FILE_NAME = "reporter.balx";
+    private static final String REPORTER_BALX_FILE_NAME = "reporter.bal"; //TODO: change to balx
     private static final String BALX_LIB_DIRECTORY = "lib";
     private static final String PROMETHEUS_HOST_CONFIG = "b7a.observability.metrics.prometheus.host";
     private static final String PROMETHEUS_PORT_CONFIG = "b7a.observability.metrics.prometheus.port";

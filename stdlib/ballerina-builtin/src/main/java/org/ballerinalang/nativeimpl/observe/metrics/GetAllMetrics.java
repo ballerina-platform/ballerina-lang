@@ -21,6 +21,8 @@ package org.ballerinalang.nativeimpl.observe.metrics;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.model.types.BMapType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -99,7 +101,7 @@ public class GetAllMetrics extends BlockingNativeCallableUnit {
     }
 
     private BMap<String, BString> getTags(MetricId metricId) {
-        BMap<String, BString> bTags = new BMap<>();
+        BMap<String, BString> bTags = new BMap<>(new BMapType(BTypes.typeString));
         Set<Tag> tags = metricId.getTags();
         for (Tag tag : tags) {
             bTags.put(tag.getKey(), new BString(tag.getValue()));
