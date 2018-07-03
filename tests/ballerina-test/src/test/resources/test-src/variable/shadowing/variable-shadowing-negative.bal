@@ -27,9 +27,9 @@ function formatName(any a) returns any {
 }
 
 type User object {
-    public {
-        string name;
-    }
+
+    public string name;
+
 
     function f(string name) {
         xmlns "http://sample.com/wso2/a4" as ns;

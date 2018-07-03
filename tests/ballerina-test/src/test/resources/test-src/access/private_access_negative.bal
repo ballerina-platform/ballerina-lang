@@ -1,7 +1,7 @@
 type Foo object {
-    public {
-        string s;
-    }
+
+    public string s;
+
 };
 
 type Bar record {
@@ -16,28 +16,28 @@ public Bar b = {s:"K"};
 
 public Baz baz = 1;
 
-object {public {
-                 string s;
-                 Baz z = 1;
-                 Foo foo1;
-             }
+object {
+             public string s;
+             public Baz z = 1;
+             public Foo foo1;
+
          } anonObj;
 
 public type ParentFoo object {
-    public {
-        int i;
-        ChildFoo c;
-        Foo f;
-        Baz z = 1;
-    }
+
+    public int i;
+    public ChildFoo c;
+    public Foo f;
+    public Baz z = 1;
+
 
     public new (i, c){}
 };
 
 type ChildFoo object {
-    private {
-        string name;
-    }
+
+    private string name;
+
 
     new (name) {}
 };
@@ -62,28 +62,28 @@ public function BazFunc (Foo... fArg) returns (Baz) {
     return z;
 }
 
-public function test1(object {public {
-                                              string s;
-                                              Baz z = 1;
-                                              Foo foo1;
-                                          }
+public function test1(object {
+                                          public string s;
+                                          public Baz z = 1;
+                                          public Foo foo1;
+
                                       } anonObj1) returns string {
     return "K";
 }
 
 public function test2() returns object {
-                                            public {
-                                                string s;
-                                                Baz z = 1;
-                                                Foo foo1;
-                                            }
+
+                                            public string s;
+                                            public Baz z = 1;
+                                            public Foo foo1;
+
                                         }{
     object {
-        public {
-            string s;
-            Baz z = 1;
-            Foo foo1;
-        }
+
+        public string s;
+        public Baz z = 1;
+        public Foo foo1;
+
     } m = new;
 
     return m;
@@ -91,11 +91,11 @@ public function test2() returns object {
 
 function test3() returns string {
     object {
-        public {
-            string s;
-            Baz z = 1;
-            Foo foo1;
-        }
+
+        public string s;
+        public Baz z = 1;
+        public Foo foo1;
+
     } m = new;
 
     return m.s;
@@ -103,11 +103,11 @@ function test3() returns string {
 
 function test4() returns string {
     object {
-        public {
-            string s;
-            Baz z = 1;
-            Foo foo1;
-        }
+
+        public string s;
+        public Baz z = 1;
+        public Foo foo1;
+
     } m = new;
 
     return m.s;
@@ -178,9 +178,9 @@ public function test7() returns record {
 }
 
 type FooTypeObj object {
-    public {
-        string s;
-    }
+
+    public string s;
+
 };
 
 type BarTypeRecord record {
@@ -197,9 +197,9 @@ public type TypeC BazTypeFinite;
 
 
 public type FooTypePublicObj object {
-    public {
-        string s;
-    }
+
+    public string s;
+
 };
 
 public type BarTypePublicRecord record {

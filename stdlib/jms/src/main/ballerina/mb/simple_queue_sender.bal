@@ -24,14 +24,10 @@ documentation { Simplified queue sender endpoint.
 }
 public type SimpleQueueSender object {
 
-    public {
-        SimpleQueueSenderEndpointConfiguration config;
-    }
+    public SimpleQueueSenderEndpointConfiguration config;
 
-    private {
-        jms:SimpleQueueSender? sender;
-        QueueSenderActions? producerActions;
-    }
+    private jms:SimpleQueueSender? sender;
+    private QueueSenderActions? producerActions;
 
     documentation { Initialize the SimpleQueueSender endpoint
         P{{c}} Configurations related to the SimpleQueueSender endpoint
@@ -102,9 +98,7 @@ public type SimpleQueueSender object {
 documentation { Caller action handler related to SimpleQueueSender endpoint }
 public type QueueSenderActions object {
 
-    private {
-        jms:SimpleQueueSender sender;
-    }
+    private jms:SimpleQueueSender sender;
 
     new(sender) {}
 
