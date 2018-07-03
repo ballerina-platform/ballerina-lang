@@ -28,7 +28,6 @@ public class TypeTags {
     public static final int FLOAT_TAG = 3;
     public static final int STRING_TAG = 4;
     public static final int BOOLEAN_TAG = 5;
-    public static final int BLOB_TAG = 6;
     public static final int ANY_TAG = 7;
     public static final int MAP_TAG = 8;
     public static final int XML_TAG = 9;

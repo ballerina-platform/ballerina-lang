@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -69,8 +68,6 @@ public class BArrayType extends BType implements BIndexedType {
                 return (V) new BBooleanArray();
             case TypeTags.STRING_TAG:
                 return (V) new BStringArray();
-            case TypeTags.BLOB_TAG:
-                return (V) new BBlobArray();
             default:
                 return (V) new BRefValueArray();
         }

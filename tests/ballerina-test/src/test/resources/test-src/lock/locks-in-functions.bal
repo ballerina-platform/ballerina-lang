@@ -4,7 +4,7 @@ int lockWithinLockInt1 = 0;
 
 string lockWithinLockString1 = "";
 
-blob blobValue;
+byte[] blobValue;
 
 boolean boolValue;
 
@@ -272,7 +272,7 @@ function lockWithinLockInWorkersForBlobAndBoolean() returns (boolean, blob) {
         lock {
             boolValue = true;
             string strVal = "sample blob output";
-            blobValue = strVal.toBlob("UTF-8");
+            blobValue = strVal.toByteArray("UTF-8");
             lock {
                 boolValue = true;
             }
@@ -285,7 +285,7 @@ function lockWithinLockInWorkersForBlobAndBoolean() returns (boolean, blob) {
             boolValue = false;
             lock {
                 string wrongStr = "wrong output";
-                blobValue = wrongStr.toBlob("UTF-8");
+                blobValue = wrongStr.toByteArray("UTF-8");
             }
             boolValue = false;
         }

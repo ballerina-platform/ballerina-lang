@@ -65,8 +65,6 @@ abstract class AbstractExecute extends BlockingNativeCallableUnit {
             return BTypes.typeBoolean;
         } else if (protoType.equalsIgnoreCase("StringValue")) {
             return BTypes.typeString;
-        } else if (protoType.equalsIgnoreCase("BytesValue")) {
-            return BTypes.typeBlob;
         } else {
             return context.getProgramFile().getEntryPackage().getStructInfo(protoType).getType();
         }

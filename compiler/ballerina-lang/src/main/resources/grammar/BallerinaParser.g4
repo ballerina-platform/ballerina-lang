@@ -230,7 +230,6 @@ valueTypeName
     |   TYPE_BYTE
     |   TYPE_FLOAT
     |   TYPE_STRING
-    |   TYPE_BLOB
     ;
 
 builtInReferenceTypeName

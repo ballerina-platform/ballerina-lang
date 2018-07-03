@@ -1232,7 +1232,6 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.STRING:
             case TypeTags.INT:
             case TypeTags.FLOAT:
-            case TypeTags.BLOB:
             case TypeTags.JSON:
             case TypeTags.XML:
             case TypeTags.MAP:
@@ -1801,8 +1800,6 @@ public class Desugar extends BLangNodeVisitor {
                 type = TypeTags.FLOAT;
             } else if (value instanceof Boolean) {
                 type = TypeTags.BOOLEAN;
-            } else if (value instanceof Byte[]) {
-                type = TypeTags.BLOB;
             } else if (value instanceof Object[]) {
                 type = TypeTags.ARRAY;
             }
@@ -2360,11 +2357,6 @@ public class Desugar extends BLangNodeVisitor {
                 return getBooleanLiteral(false);
             case TypeTags.STRING:
                 return getStringLiteral("");
-            case TypeTags.BLOB:
-                BLangLiteral blobDefault = (BLangLiteral) TreeBuilder.createLiteralExpression();
-                blobDefault.value = new byte[0];
-                blobDefault.type = symTable.blobType;
-                return blobDefault;
             case TypeTags.XML:
                 return new BLangXMLSequenceLiteral(type);
             case TypeTags.MAP:

@@ -1069,8 +1069,6 @@ public class CompiledPackageSymbolEnter {
                     return symTable.stringType;
                 case 'B':
                     return symTable.booleanType;
-                case 'L':
-                    return symTable.blobType;
                 case 'Y':
                     return symTable.typeDesc;
                 case 'A':

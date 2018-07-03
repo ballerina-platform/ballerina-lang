@@ -22,8 +22,8 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -191,7 +191,7 @@ public class LocksInMainTest {
                 BRunUtil.invoke(compileResult, "lockWithinLockInWorkersForBlobAndBoolean");
         assertEquals(returns.length, 2);
         assertSame(returns[0].getClass(), BBoolean.class);
-        assertSame(returns[1].getClass(), BBlob.class);
+        assertSame(returns[1].getClass(), BByteArray.class);
 
         assertEquals(((BBoolean) returns[0]).booleanValue(), true);
         assertEquals(returns[1].stringValue(), "sample blob output");

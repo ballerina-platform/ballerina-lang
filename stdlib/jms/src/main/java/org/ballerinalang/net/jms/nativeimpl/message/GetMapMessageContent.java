@@ -22,7 +22,6 @@ package org.ballerinalang.net.jms.nativeimpl.message;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -80,8 +79,6 @@ public class GetMapMessageContent extends AbstractBlockinAction {
                         messageContent.put(key, new BInteger((Long) value));
                     } else if (value instanceof Float || value instanceof Double) {
                         messageContent.put(key, new BFloat((Double) value));
-                    } else if (value instanceof byte[]) {
-                        messageContent.put(key, new BBlob((byte[]) value));
                     } else {
                         log.error("Couldn't set invalid data type to map : " + value.getClass().getSimpleName());
                     }

@@ -244,11 +244,8 @@ public class Symbols {
                 case TypeTags.STRING:
                     opcode = InstructionCodes.ANY2S;
                     break;
-                case TypeTags.BOOLEAN:
-                    opcode = InstructionCodes.ANY2B;
-                    break;
                 default:
-                    opcode = InstructionCodes.ANY2L;
+                    opcode = InstructionCodes.ANY2B;
                     break;
             }
         }

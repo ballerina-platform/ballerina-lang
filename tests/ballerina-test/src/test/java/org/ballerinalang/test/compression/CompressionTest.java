@@ -21,7 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -226,7 +226,7 @@ public class CompressionTest {
         byte[] fileContentAsByteArray = Files.readAllBytes(new File(dirPath +
                 File.separator + "test.zip").toPath());
         BString destDir = new BString(dirPath);
-        BBlob contentAsByteArray = new BBlob(fileContentAsByteArray);
+        BByteArray contentAsByteArray = new BByteArray(fileContentAsByteArray);
         BValue[] inputArg = {contentAsByteArray, destDir};
         BRunUtil.invoke(compileResult, "decompressBlob", inputArg);
 
@@ -244,7 +244,7 @@ public class CompressionTest {
     public void testDecompressBlobWithoutBytes() throws IOException, URISyntaxException {
         String dirPath = getAbsoluteFilePath("datafiles/compression/");
         BString destDir = new BString(dirPath);
-        BBlob contentAsByteArray = new BBlob(new byte[0]);
+        BByteArray contentAsByteArray = new BByteArray(new byte[0]);
         BValue[] inputArg = {contentAsByteArray, destDir};
         BValue[] returns = BRunUtil.invoke(compileResult, "decompressBlob", inputArg);
         Assert.assertNotNull(returns);
@@ -259,7 +259,7 @@ public class CompressionTest {
         String dirPath = getAbsoluteFilePath("datafiles/compression/");
         byte[] fileContentAsByteArray = Files.readAllBytes(new File(dirPath +
                 File.separator + "test.zip").toPath());
-        BBlob contentAsByteArray = new BBlob(fileContentAsByteArray);
+        BByteArray contentAsByteArray = new BByteArray(fileContentAsByteArray);
         BValue[] inputArg = {contentAsByteArray, new BString("")};
         BValue[] returns = BRunUtil.invoke(compileResult, "decompressBlob", inputArg);
         Assert.assertNotNull(returns);
@@ -275,7 +275,7 @@ public class CompressionTest {
         byte[] fileContentAsByteArray = Files.readAllBytes(new File(dirPath +
                 File.separator + "test.zip").toPath());
         BString destDir = new BString(dirPath + File.separator + "sample");
-        BBlob contentAsByteArray = new BBlob(fileContentAsByteArray);
+        BByteArray contentAsByteArray = new BByteArray(fileContentAsByteArray);
         BValue[] inputArg = {contentAsByteArray, destDir};
         BValue[] returns = BRunUtil.invoke(compileResult, "decompressBlob", inputArg);
         Assert.assertNotNull(returns);
@@ -295,8 +295,8 @@ public class CompressionTest {
 
         // Write the byte array to a file
         FileOutputStream fos = new FileOutputStream(dirPath + File.separator + "temp.zip");
-        BBlob readBytes = (BBlob) returns[0];
-        fos.write(readBytes.blobValue());
+        BByteArray readBytes = (BByteArray) returns[0];
+        fos.write(readBytes.getBytes());
         fos.close();
         File file = new File(dirPath + File.separator + "temp.zip");
         // Check if file is written
@@ -335,7 +335,7 @@ public class CompressionTest {
         byte[] fileContentAsByteArray = Files.readAllBytes(new File(dirPath +
                 File.separator + "zip-slip.zip").toPath());
         BString destDir = new BString(dirPath);
-        BBlob contentAsByteArray = new BBlob(fileContentAsByteArray);
+        BByteArray contentAsByteArray = new BByteArray(fileContentAsByteArray);
         BValue[] inputArg = {contentAsByteArray, destDir};
         BValue[] returns = BRunUtil.invoke(compileResult, "decompressBlob", inputArg);
         Assert.assertNotNull(returns);

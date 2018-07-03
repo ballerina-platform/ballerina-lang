@@ -24,7 +24,6 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -86,8 +85,6 @@ public class CreateMapMessage extends AbstractBlockinAction {
                         jmsMessage.setString(key, value.stringValue());
                     } else if (value instanceof BBoolean) {
                         jmsMessage.setBoolean(key, value.booleanValue());
-                    } else if (value instanceof BBlob) {
-                        jmsMessage.setBytes(key, value.blobValue());
                     } else if (value instanceof BInteger) {
                         jmsMessage.setLong(key, value.intValue());
                     } else if (value instanceof BFloat) {

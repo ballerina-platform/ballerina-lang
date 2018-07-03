@@ -26,7 +26,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.LockableStructureType;
 import org.ballerinalang.util.BLangConstants;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.StringJoiner;
@@ -48,8 +47,6 @@ public final class GlobalMemoryBlock implements BRefType, LockableStructureType 
     private VarLock[] stringLocks;
     private int[] intFields;
     private VarLock[] intLocks;
-    private byte[][] byteFields;
-    private VarLock[] byteLocks;
     private BRefType[] refFields;
     private VarLock[] refLocks;
 
@@ -68,11 +65,9 @@ public final class GlobalMemoryBlock implements BRefType, LockableStructureType 
         doubleFields = new double[fieldCount[1]];
         stringFields = new String[fieldCount[2]];
         intFields = new int[fieldCount[3]];
-        byteFields = new byte[fieldCount[4]][];
         refFields = new BRefType[fieldCount[5]];
 
         Arrays.fill(stringFields, BLangConstants.STRING_EMPTY_VALUE);
-        Arrays.fill(byteFields, BLangConstants.BLOB_EMPTY_VALUE);
     }
 
     /**
@@ -111,9 +106,6 @@ public final class GlobalMemoryBlock implements BRefType, LockableStructureType 
                     fieldVal = doubleFields[doubleIndex++];
                 } else if (fieldType == BTypes.typeBoolean) {
                     fieldVal = intFields[intIndex++] == 1;
-                } else if (fieldType == BTypes.typeBlob) {
-                    byte[] blob = byteFields[byteIndex++];
-                    fieldVal = blob == null ? null : new String(blob, StandardCharsets.UTF_8);
                 } else {
                     BValue val = refFields[refValIndex++];
                     fieldVal = val == null ? null : val.stringValue();
@@ -162,16 +154,6 @@ public final class GlobalMemoryBlock implements BRefType, LockableStructureType 
     @Override
     public int getBooleanField(int index) {
         return intFields[index];
-    }
-
-    @Override
-    public byte[] getBlobField(int index) {
-        return byteFields[index];
-    }
-
-    @Override
-    public void setBlobField(int index, byte[] value) {
-        byteFields[index] = value;
     }
 
     @Override
@@ -312,36 +294,6 @@ public final class GlobalMemoryBlock implements BRefType, LockableStructureType 
     }
 
     @Override
-    public boolean lockBlobField(WorkerExecutionContext ctx, int index) {
-        /*
-        TODO below synchronization is done on non final variable(which is getting changed in copy method)
-        This is ok for the time being as below synchronizations are only valid for global memory block which is
-        not getting copied, even in that case there shouldn't be a problem as synchronization always happens after
-        copying, but look into that when implementing locking support for struct fields and connector variables.
-         */
-        if (byteLocks == null) {
-            synchronized (byteFields) {
-                if (byteLocks == null) {
-                    byteLocks = new VarLock[byteFields.length];
-                }
-            }
-        }
-        if (byteLocks[index] == null) {
-            synchronized (byteFields) {
-                if (byteLocks[index] == null) {
-                    byteLocks[index] = new VarLock();
-                }
-            }
-        }
-        return byteLocks[index].lock(ctx);
-    }
-
-    @Override
-    public void unlockBlobField(int index) {
-        byteLocks[index].unlock();
-    }
-
-    @Override
     public boolean lockRefField(WorkerExecutionContext ctx, int index) {
         /*
         TODO below synchronization is done on non final variable(which is getting changed in copy method)
@@ -378,7 +330,6 @@ public final class GlobalMemoryBlock implements BRefType, LockableStructureType 
         bStruct.doubleFields = Arrays.copyOf(doubleFields, doubleFields.length);
         bStruct.stringFields = Arrays.copyOf(stringFields, stringFields.length);
         bStruct.intFields = Arrays.copyOf(intFields, intFields.length);
-        bStruct.byteFields = Arrays.copyOf(byteFields, byteFields.length);
         bStruct.refFields = Arrays.copyOf(refFields, refFields.length);
         return bStruct;
     }

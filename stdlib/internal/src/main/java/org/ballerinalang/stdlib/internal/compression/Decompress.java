@@ -70,7 +70,7 @@ public class Decompress extends BlockingNativeCallableUnit {
     private static void decompress(Path dirPath, Path outputFolder, Context context) {
         try {
             InputStream inputStream = new FileInputStream(dirPath.toFile());
-            DecompressFromBlob.decompress(inputStream, outputFolder, context);
+            DecompressFromByteArray.decompress(inputStream, outputFolder, context);
         } catch (IOException e) {
             throw new BLangRuntimeException("Error occurred when decompressing");
         }

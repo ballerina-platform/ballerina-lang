@@ -175,20 +175,6 @@ public class NativeCallContext implements Context {
     }
 
     @Override
-    public byte[] getBlobArgument(int index) {
-        if (index < 0) {
-            throw new ArgumentOutOfRangeException(index);
-        }
-
-        byte[] result = workerLocal.byteRegs[index];
-        if (result == null) {
-            throw new BallerinaException("argument " + index + " is null");
-        }
-
-        return result;
-    }
-
-    @Override
     public BValue getRefArgument(int index) {
         if (index < 0) {
             throw new ArgumentOutOfRangeException(index);

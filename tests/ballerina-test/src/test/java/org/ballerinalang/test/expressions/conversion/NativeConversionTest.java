@@ -22,8 +22,8 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.JsonNode;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
@@ -496,7 +496,7 @@ public class NativeConversionTest {
         Assert.assertEquals(((BFloat) bValue.get("f")).floatValue(), 5.3);
         Assert.assertEquals(((BBoolean) bValue.get("b")).booleanValue(), true);
         Assert.assertEquals(bValue.get("j"), null);
-        Assert.assertEquals(((BBlob) bValue.get("blb")).blobValue().length, 0);
+        Assert.assertEquals(((BByteArray) bValue.get("blb")).size(), 0);
     }
 
     @Test
@@ -510,7 +510,7 @@ public class NativeConversionTest {
         Assert.assertEquals(((BFloat) bValue.get("f")).floatValue(), 0.0);
         Assert.assertEquals(((BBoolean) bValue.get("b")).booleanValue(), false);
         Assert.assertEquals(bValue.get("j"), null);
-        Assert.assertEquals(((BBlob) bValue.get("blb")).blobValue().length, 0);
+        Assert.assertEquals(((BByteArray) bValue.get("blb")).size(), 0);
     }
 
     @Test

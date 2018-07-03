@@ -584,7 +584,7 @@ public function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io
     WebSubContent content = {};
 
     match(payload) {
-        io:ByteChannel byteChannel => content.payload = constructBlob(byteChannel);
+        io:ByteChannel byteChannel => content.payload = constructByteArray(byteChannel);
         string|xml|json|byte[] => content.payload = payload;
     }
 

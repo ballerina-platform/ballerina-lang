@@ -491,14 +491,12 @@ public class PackageInfoWriter {
                 attrDataOutStream.writeShort(codeAttributeInfo.maxDoubleLocalVars);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxStringLocalVars);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxIntLocalVars);
-                attrDataOutStream.writeShort(codeAttributeInfo.maxByteLocalVars);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxRefLocalVars);
 
                 attrDataOutStream.writeShort(codeAttributeInfo.maxLongRegs);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxDoubleRegs);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxStringRegs);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxIntRegs);
-                attrDataOutStream.writeShort(codeAttributeInfo.maxByteRegs);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxRefRegs);
                 break;
 
@@ -508,7 +506,6 @@ public class PackageInfoWriter {
                 attrDataOutStream.writeShort(varCountAttributeInfo.getMaxDoubleVars());
                 attrDataOutStream.writeShort(varCountAttributeInfo.getMaxStringVars());
                 attrDataOutStream.writeShort(varCountAttributeInfo.getMaxIntVars());
-                attrDataOutStream.writeShort(varCountAttributeInfo.getMaxByteVars());
                 attrDataOutStream.writeShort(varCountAttributeInfo.getMaxRefVars());
                 break;
 

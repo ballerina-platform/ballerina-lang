@@ -20,10 +20,12 @@ package org.ballerinalang.stdlib.crypto.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -59,8 +61,9 @@ public class Crc32 extends BlockingNativeCallableUnit {
         if (argType == BTypes.typeJSON || argType == BTypes.typeXML || argType == BTypes.typeString) {
             // TODO: Look at the possibility of making the encoding configurable
             bytes = entityBody.stringValue().getBytes(StandardCharsets.UTF_8);
-        } else if (argType == BTypes.typeBlob) {
-            bytes = ((BBlob) entityBody).blobValue();
+        } else if (argType.getTag() == TypeTags.ARRAY_TAG &&
+                ((BArrayType)argType).getElementType().getTag() == TypeTags.BYTE_TAG) {
+            bytes = ((BByteArray) entityBody).getBytes();
         } else {
             throw new BallerinaException(
                     "failed to generate hash: unsupported data type: " + entityBody.getType().getName());
