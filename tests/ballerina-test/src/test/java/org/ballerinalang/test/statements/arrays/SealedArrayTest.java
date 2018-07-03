@@ -316,7 +316,7 @@ public class SealedArrayTest {
 
     @Test(description = "Test accessing invalid index of sealed array",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*message: index number too large: 5.*")
+            expectedExceptionsMessageRegExp = ".*message: array index out of range: index: 5, size: 3.*")
     public void invalidIndexAccess() {
         BValue[] args = {new BInteger(5)};
         BRunUtil.invoke(compileResult, "invalidIndexAccess", args);
@@ -324,14 +324,14 @@ public class SealedArrayTest {
 
     @Test(description = "Test accessing invalid index of sealed array when assigned to unsealed array",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*message: index number too large: 4.*")
+            expectedExceptionsMessageRegExp = ".*message: array index out of range: index: 4, size: 3.*")
     public void assignedArrayInvalidIndexAccess() {
         BRunUtil.invoke(compileResult, "assignedArrayInvalidIndexAccess");
     }
 
     @Test(description = "Test accessing invalid index of sealed array matched union type",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*message: index number too large: 5.*")
+            expectedExceptionsMessageRegExp = ".*message: array index out of range: index: 5, size: 3.*")
     public void accessInvalidIndexOfMatchedSealedArray() {
         BIntArray bIntArray = new BIntArray(3);
         bIntArray.add(0, 1);

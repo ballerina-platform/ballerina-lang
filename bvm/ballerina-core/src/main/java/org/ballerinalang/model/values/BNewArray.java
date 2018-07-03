@@ -80,12 +80,12 @@ public abstract class BNewArray implements BRefType, BCollection {
     }
 
     protected void rangeCheck(long index, int size) {
-        if (index + 1 > maxArraySize || index < Integer.MIN_VALUE) {
+        if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
             throw BLangExceptionHelper.getRuntimeException(
                     RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
 
-        if ((int) index < 0) {
+        if ((int) index < 0 || index >= maxArraySize) {
             throw BLangExceptionHelper.getRuntimeException(
                     RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
         }
