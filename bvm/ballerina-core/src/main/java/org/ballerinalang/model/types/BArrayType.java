@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 /**
  * {@code BArrayType} represents a type of an arrays in Ballerina.
@@ -40,6 +41,7 @@ public class BArrayType extends BType implements BIndexedType {
     private BType elementType;
     private int dimensions = 1;
     private int size = -1;
+    private BArrayState state = BArrayState.UNSEALED;
 
     public BArrayType(BType elementType) {
         super(null, null, BNewArray.class);
@@ -55,7 +57,10 @@ public class BArrayType extends BType implements BIndexedType {
         if (elementType instanceof BArrayType) {
             dimensions = ((BArrayType) elementType).getDimensions() + 1;
         }
-        this.size = size;
+        if (size != -1) {
+            state = BArrayState.CLOSED_SEALED;
+            this.size = size;
+        }
     }
 
     public BType getElementType() {
@@ -130,7 +135,7 @@ public class BArrayType extends BType implements BIndexedType {
     public boolean equals(Object obj) {
         if (obj instanceof BArrayType) {
             BArrayType other = (BArrayType) obj;
-            if (other.size != -1 && this.size != other.size) {
+            if (other.state == BArrayState.CLOSED_SEALED && this.size != other.size) {
                 return false;
             }
             return this.elementType.equals(other.elementType);
@@ -157,5 +162,9 @@ public class BArrayType extends BType implements BIndexedType {
 
     public int getSize() {
         return size;
+    }
+
+    public BArrayState getState() {
+        return state;
     }
 }

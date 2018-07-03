@@ -20,6 +20,7 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 import java.util.Arrays;
 import java.util.StringJoiner;
@@ -41,7 +42,7 @@ public class BRefValueArray extends BNewArray {
         super.arrayType = type;
         if (type.getTag() == TypeTags.ARRAY_TAG) {
             BArrayType arrayType = (BArrayType) type;
-            if (arrayType.getSize() != -1) {
+            if (arrayType.getState() == BArrayState.CLOSED_SEALED) {
                 this.size = maxArraySize = arrayType.getSize();
             }
             values = (BRefType[]) newArrayInstance(BRefType.class);

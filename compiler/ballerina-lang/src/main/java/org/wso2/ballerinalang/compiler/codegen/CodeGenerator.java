@@ -640,15 +640,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         Operand arrayVarRegIndex = calcAndGetExprRegIndex(arrayLiteral);
         Operand typeCPIndex = getTypeCPIndex(arrayLiteral.type);
 
-        BLangLiteral arraySizeLiteral = new BLangLiteral();
-        arraySizeLiteral.pos = arrayLiteral.pos;
-        arraySizeLiteral.value = -1L;
-        if (arrayLiteral.type.tag == TypeTags.ARRAY &&
-                ((BArrayType) arrayLiteral.type).state != BArrayState.UNSEALED) {
-            arraySizeLiteral.value = (long) ((BArrayType) arrayLiteral.type).size;
-        }
-        arraySizeLiteral.type = symTable.intType;
-        genNode(arraySizeLiteral, this.env);
+        long size = arrayLiteral.type.tag == TypeTags.ARRAY &&
+                ((BArrayType) arrayLiteral.type).state != BArrayState.UNSEALED ?
+                (long) ((BArrayType) arrayLiteral.type).size : -1L;
+        BLangLiteral arraySizeLiteral = generateIntegerLiteralNode(arrayLiteral, size);
 
         emit(opcode, arrayVarRegIndex, typeCPIndex, arraySizeLiteral.regIndex);
 
@@ -679,15 +674,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         arraySizeLiteral.type = symTable.intType;
         genNode(arraySizeLiteral, this.env);
 
-        BLangLiteral sealedSizeLiteral = new BLangLiteral();
-        sealedSizeLiteral.pos = arrayLiteral.pos;
-        sealedSizeLiteral.value = -1L;
-        if (arrayLiteral.type.tag == TypeTags.ARRAY &&
-                ((BArrayType) arrayLiteral.type).state != BArrayState.UNSEALED) {
-            sealedSizeLiteral.value = (long) ((BArrayType) arrayLiteral.type).size;
-        }
-        sealedSizeLiteral.type = symTable.intType;
-        genNode(sealedSizeLiteral, this.env);
+        long size = arrayLiteral.type.tag == TypeTags.ARRAY &&
+                ((BArrayType) arrayLiteral.type).state != BArrayState.UNSEALED ?
+                (long) ((BArrayType) arrayLiteral.type).size : -1L;
+        BLangLiteral sealedSizeLiteral = generateIntegerLiteralNode(arrayLiteral, size);
 
         emit(InstructionCodes.JSONNEWARRAY,
                 arrayLiteral.regIndex, arraySizeLiteral.regIndex, sealedSizeLiteral.regIndex);
@@ -1078,12 +1068,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Emit create array instruction
         RegIndex exprRegIndex = calcAndGetExprRegIndex(bracedOrTupleExpr);
         Operand typeCPIndex = getTypeCPIndex(bracedOrTupleExpr.type);
-
-        BLangLiteral sizeLiteral = new BLangLiteral();
-        sizeLiteral.pos = bracedOrTupleExpr.pos;
-        sizeLiteral.value = (long) bracedOrTupleExpr.expressions.size();
-        sizeLiteral.type = symTable.intType;
-        genNode(sizeLiteral, this.env);
+        BLangLiteral sizeLiteral =
+                generateIntegerLiteralNode(bracedOrTupleExpr, (long) bracedOrTupleExpr.expressions.size());
 
         emit(InstructionCodes.RNEWARRAY, exprRegIndex, typeCPIndex, sizeLiteral.regIndex);
 
@@ -1347,6 +1333,15 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     private String generateFunctionSig(BType[] paramTypes) {
         return "(" + generateSig(paramTypes) + ")()";
+    }
+
+    private BLangLiteral generateIntegerLiteralNode(BLangNode node, long integer) {
+        BLangLiteral literal = new BLangLiteral();
+        literal.pos = node.pos;
+        literal.value = integer;
+        literal.type = symTable.intType;
+        genNode(literal, this.env);
+        return literal;
     }
 
     private int getNextIndex(int typeTag, VariableIndex indexes) {
