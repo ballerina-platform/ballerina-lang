@@ -448,34 +448,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous);
     }
 
-//    /**
-//     * {@inheritDoc}
-//     *
-//     * <p>The default implementation does nothing.</p>
-//     */
-//    @Override
-//    public void exitPublicObjectFields(BallerinaParser.PublicObjectFieldsContext ctx) {
-//        if (ctx.exception != null) {
-//            return;
-//        }
-//
-//        this.pkgBuilder.addObjectFieldsBlock(getWS(ctx));
-//    }
-//
-//    /**
-//     * {@inheritDoc}
-//     *
-//     * <p>The default implementation does nothing.</p>
-//     */
-//    @Override
-//    public void exitPrivateObjectFields(BallerinaParser.PrivateObjectFieldsContext ctx) {
-//        if (ctx.exception != null) {
-//            return;
-//        }
-//
-//        this.pkgBuilder.addObjectFieldsBlock(getWS(ctx));
-//    }
-
     /**
      * {@inheritDoc}
      *
