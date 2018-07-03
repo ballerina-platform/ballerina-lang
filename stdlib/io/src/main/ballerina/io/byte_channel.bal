@@ -30,7 +30,7 @@ public type ByteChannel object {
         P{{nBytes}} Positive integer. Represents the number of bytes which should be read
         R{{}} Content, the number of bytes read or an error
     }
-    public native function read(@sensitive int nBytes) returns @tainted (blob, int)|error;
+    public native function read(@sensitive int nBytes) returns @tainted (byte[], int)|error;
 
     documentation {
         Sink bytes from a given input/output resource.
@@ -41,7 +41,7 @@ public type ByteChannel object {
         R{{offset}} Offset which should be kept when writing bytes
         R{{}} Number of bytes written or an error
     }
-    public native function write(blob content, int offset) returns int|error;
+    public native function write(byte[] content, int offset) returns int|error;
 
     documentation {
         Closes a given byte channel.

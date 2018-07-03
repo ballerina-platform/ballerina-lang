@@ -55,7 +55,7 @@ documentation {
     P{{content}} Content which should be exposed as channel
     R{{}} ByteChannel represenation to read the memory content
 }
-public native function createMemoryChannel(blob content) returns ByteChannel;
+public native function createMemoryChannel(byte[] content) returns ByteChannel;
 
 documentation {
     Retrieves a CSV channel from a give file path.
@@ -71,8 +71,8 @@ public function openCsvFile(@sensitive string path,
                             @sensitive Mode mode = "r",
                             @sensitive Separator fieldSeparator = ",",
                             @sensitive string charset = "UTF-8",
-                            @sensitive int skipHeaders=0) returns @tainted CSVChannel {
+                            @sensitive int skipHeaders = 0) returns @tainted CSVChannel {
     ByteChannel channel = openFile(path, mode);
     CharacterChannel charChannel = new(channel, charset);
-    return new CSVChannel(charChannel, fs = fieldSeparator,nHeaders = skipHeaders);
+    return new CSVChannel(charChannel, fs = fieldSeparator, nHeaders = skipHeaders);
 }

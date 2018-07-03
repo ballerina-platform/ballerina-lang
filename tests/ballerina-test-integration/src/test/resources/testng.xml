@@ -90,4 +90,9 @@
         </classes>
     </test>
 
+    <test name="ballerina-security-tests" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.security.HTTPResponseXMLSecurityTestCase"/>
+        </classes>
+    </test>
 </suite>
