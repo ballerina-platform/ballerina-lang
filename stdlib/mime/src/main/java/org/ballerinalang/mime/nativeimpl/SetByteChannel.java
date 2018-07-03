@@ -31,10 +31,10 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 
-import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
-import static org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE;
-import static org.ballerinalang.mime.util.Constants.SECOND_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
+import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.MESSAGE_DATA_SOURCE;
+import static org.ballerinalang.mime.util.MimeConstants.SECOND_PARAMETER_INDEX;
 
 /**
  * Set byte channel as entity body.

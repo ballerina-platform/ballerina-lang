@@ -37,12 +37,12 @@ public type AuthStoreProvider object {
 };
 
 //Dummy implementation, please fix
-public function AuthStoreProvider::authenticate (string username, string password) returns boolean {
+function AuthStoreProvider::authenticate (string username, string password) returns boolean {
     return true;
 }
 
 //Dummy implementation, please fix
-public function AuthStoreProvider::getScopes (string username) returns string[] {
+function AuthStoreProvider::getScopes (string username) returns string[] {
     string[] val;
     return val;
 }

@@ -24,14 +24,10 @@ documentation { Simplified topic publisher
 }
 public type SimpleTopicPublisher object {
 
-    public {
-        SimpleTopicPublisherEndpointConfiguration config;
-    }
+    public SimpleTopicPublisherEndpointConfiguration config;
 
-    private {
-        jms:SimpleTopicPublisher? publisher;
-        TopicPublisherActions? producerActions;
-    }
+    private jms:SimpleTopicPublisher? publisher;
+    private TopicPublisherActions? producerActions;
 
     documentation { Initialize SimpleTopicPublisher endpoint
         P{{c}} Configurations related to SimpleTopicPublisher endpoint
@@ -103,9 +99,7 @@ public type SimpleTopicPublisher object {
 documentation { Caller action handler related to SimpleQueuePublisher endpoint }
 public type TopicPublisherActions object {
 
-    private {
-        jms:SimpleTopicPublisher publisher;
-    }
+    private jms:SimpleTopicPublisher publisher;
 
     new(publisher) {}
 

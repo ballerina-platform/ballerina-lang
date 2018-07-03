@@ -1106,7 +1106,7 @@ public class PackageInfoReader {
         dataInStream.read(code);
         DataInputStream codeStream = new DataInputStream(new ByteArrayInputStream(code));
         while (codeStream.available() > 0) {
-            int i, j, k, h;
+            int i, j, k, h, l;
             int funcRefCPIndex;
             FunctionRefCPEntry funcRefCPEntry;
             int flags;
@@ -1328,7 +1328,6 @@ public class PackageInfoReader {
                 case InstructionCodes.IS_ASSIGNABLE:
                 case InstructionCodes.TR_RETRY:
                 case InstructionCodes.XMLSEQLOAD:
-                case InstructionCodes.NEWTABLE:
                 case InstructionCodes.T2JSON:
                 case InstructionCodes.MAP2JSON:
                 case InstructionCodes.JSON2MAP:
@@ -1349,7 +1348,14 @@ public class PackageInfoReader {
                     h = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j, k, h));
                     break;
-
+                case InstructionCodes.NEWTABLE:
+                    i = codeStream.readInt();
+                    j = codeStream.readInt();
+                    k = codeStream.readInt();
+                    h = codeStream.readInt();
+                    l = codeStream.readInt();
+                    packageInfo.addInstruction(InstructionFactory.get(opcode, i, j, k, h, l));
+                    break;
                 case InstructionCodes.IGLOAD:
                 case InstructionCodes.FGLOAD:
                 case InstructionCodes.SGLOAD:

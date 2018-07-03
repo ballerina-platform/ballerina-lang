@@ -86,19 +86,20 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
-import static org.ballerinalang.mime.util.Constants.BOUNDARY;
-import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
-import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
-import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
-import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
-import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
-import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
-import static org.ballerinalang.mime.util.Constants.ONE_BYTE;
-import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
-import static org.ballerinalang.mime.util.Constants.REQUEST_ENTITY_FIELD;
-import static org.ballerinalang.mime.util.Constants.RESPONSE_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.EntityBodyHandler.checkEntityBodyAvailability;
+import static org.ballerinalang.mime.util.MimeConstants.BOUNDARY;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
+import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
+import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
+import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
+import static org.ballerinalang.mime.util.MimeConstants.NO_CONTENT_LENGTH_FOUND;
+import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
+import static org.ballerinalang.mime.util.MimeConstants.ONE_BYTE;
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.RESPONSE_ENTITY_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.ALWAYS;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_CHUNKING;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
@@ -178,9 +179,7 @@ public class HttpUtil {
      * @param httpMessageStruct request/response struct.
      */
     public static BMap<String, BValue> createNewEntity(Context context, BMap<String, BValue> httpMessageStruct) {
-        BMap<String, BValue> entity = ConnectorUtils.createAndGetStruct(context
-                , org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME
-                , org.ballerinalang.mime.util.Constants.ENTITY);
+        BMap<String, BValue> entity = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, ENTITY);
         HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(httpMessageStruct,
                 HttpUtil.createHttpCarbonMessage(isRequestStruct(httpMessageStruct)));
         entity.addNativeData(ENTITY_HEADERS, httpCarbonMessage.getHeaders());

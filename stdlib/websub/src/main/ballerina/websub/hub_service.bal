@@ -167,7 +167,7 @@ service<http:Service> hubService {
 
             if (mode == MODE_PUBLISH && hubRemotePublishingEnabled) {
                 if (!hubTopicRegistrationRequired || isTopicRegistered(topic)) {
-                    blob|error binaryPayload;
+                    byte[]|error binaryPayload;
                     string stringPayload;
                     string contentType;
                     if (hubRemotePublishingMode == REMOTE_PUBLISHING_MODE_FETCH) {
@@ -233,7 +233,7 @@ service<http:Service> hubService {
 
                     error? publishStatus = ();
                     match (binaryPayload) {
-                        blob payload => {
+                        byte[] payload => {
                             WebSubContent notification = { payload:payload, contentType:contentType };
                             publishStatus = publishToInternalHub(topic, notification);
                         }
@@ -711,11 +711,9 @@ documentation {
 }
 type PendingSubscriptionChangeRequest object {
 
-    public {
-        string mode;
-        string topic;
-        string callback;
-    }
+    public string mode;
+    public string topic;
+    public string callback;
 
     new (mode, topic, callback) {}
 

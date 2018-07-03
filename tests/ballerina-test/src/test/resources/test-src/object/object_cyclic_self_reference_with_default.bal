@@ -8,25 +8,19 @@ function testCyclicReferenceWithDefaultable () returns int {
 }
 
 type Person object {
-    public {
-        int age,
-        Employee? emp,
-    }
+    public int age,
+    public Employee? emp,
 };
 
 type Employee object {
-    public {
-        int age,
-        Foo? foo,
-        Bar? bar,
-    }
+    public int age,
+    public Foo? foo,
+    public Bar? bar,
 };
 
 type Foo object {
-    public {
-        int calc,
-        Bar? bar1,
-    }
+    public int calc,
+    public Bar? bar1,
 };
 
 type Bar record {

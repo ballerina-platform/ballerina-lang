@@ -21,9 +21,7 @@ documentation {
     F{{name}} Name of the http authn handler
 }
 public type HttpAuthnHandler object {
-    public {
-        string name;
-    }
+    public string name;
 
     documentation {
         Checks if the request can be authenticated with the relevant `HttpAuthnHandler` implementation
