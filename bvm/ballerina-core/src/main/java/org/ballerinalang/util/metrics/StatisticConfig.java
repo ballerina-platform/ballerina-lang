@@ -27,8 +27,8 @@ import java.util.Objects;
 public class StatisticConfig {
 
     public static final StatisticConfig DEFAULT = StatisticConfig.builder()
-            // Compute 50th, 75th, 98th, 99th and 99.9th percentiles.
-            .percentiles(0.5, 0.75, 0.98, 0.99, 0.999).build();
+            // Compute 33rd, 50th, 66th, 99th, and 99.9th percentiles.
+            .percentiles(0.33, 0.5, 0.66, 0.99, 0.999).build();
 
     private StatisticConfig() {
     }

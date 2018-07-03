@@ -14,6 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+@final StatisticConfig[] DEFAULT_GAUGE_STATS_CONFIG = [{ expiry: 600000, buckets: 5,
+ percentiles: [0.33, 0.5, 0.66, 0.99] }];
+
 documentation {
     Start a span with no parent span.
 
@@ -78,7 +81,7 @@ public type Counter object {
 
  public native function register() returns error?;
 
- public native function increment(int amount) returns int;
+ public native function increment(int amount);
 
  public native function getValue() returns (int);
 
@@ -93,7 +96,8 @@ public type Gauge object {
   @readonly StatisticConfig[] statisticConfigs;
  }
 
- public new(name, string? desc = "", map<string>? tags = (), StatisticConfig[]? statisticConfig = ()) {
+ public new(name, string? desc = "", map<string>? tags = (),
+            StatisticConfig[]?|boolean statisticConfig = true) {
   match desc {
    string strDesc => description = strDesc;
   }
@@ -104,6 +108,16 @@ public type Gauge object {
    StatisticConfig[] configs => {
     statisticConfigs = configs;
    }
+   () => {
+    statisticConfigs = [];
+   }
+   boolean configs => {
+    if (configs) {
+     statisticConfigs = DEFAULT_GAUGE_STATS_CONFIG;
+    } else {
+     statisticConfigs = [];
+    }
+   }
   }
   initialize();
  }
@@ -112,9 +126,9 @@ public type Gauge object {
 
  public native function register() returns error?;
 
- public native function increment(float amount) returns float;
+ public native function increment(float amount);
 
- public native function decrement(float amount) returns float;
+ public native function decrement(float amount);
 
  public native function setValue(float amount);
 

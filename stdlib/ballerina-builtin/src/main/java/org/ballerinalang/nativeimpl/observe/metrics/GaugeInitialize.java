@@ -66,8 +66,6 @@ public class GaugeInitialize extends BlockingNativeCallableUnit {
                 StatisticConfig config = statisticBuilder.build();
                 gaugeBuilder.summarize(config);
             }
-        } else {
-            gaugeBuilder.summarize(StatisticConfig.DEFAULT);
         }
         Gauge gauge = gaugeBuilder.build();
         bStruct.addNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY, gauge);
