@@ -23,7 +23,6 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
@@ -322,7 +321,7 @@ public class NativeConversionTest {
     @Test(description = "Test converting a struct with map of blob to a JSON",
             expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = ".*cannot convert 'Info' to type 'json': error while mapping 'bar': " +
-                    "incompatible types: expected 'json', found 'blob'.*")
+                    "incompatible types: expected 'json', found 'byte\\[\\]'.*")
     public void testStructWithIncompatibleTypeMapToJson() {
         BRunUtil.invoke(compileResult, "testStructWithIncompatibleTypeMapToJson");
     }
@@ -496,7 +495,7 @@ public class NativeConversionTest {
         Assert.assertEquals(((BFloat) bValue.get("f")).floatValue(), 5.3);
         Assert.assertEquals(((BBoolean) bValue.get("b")).booleanValue(), true);
         Assert.assertEquals(bValue.get("j"), null);
-        Assert.assertEquals(((BByteArray) bValue.get("blb")).size(), 0);
+        Assert.assertEquals(bValue.get("blb"), null);
     }
 
     @Test
@@ -510,21 +509,21 @@ public class NativeConversionTest {
         Assert.assertEquals(((BFloat) bValue.get("f")).floatValue(), 0.0);
         Assert.assertEquals(((BBoolean) bValue.get("b")).booleanValue(), false);
         Assert.assertEquals(bValue.get("j"), null);
-        Assert.assertEquals(((BByteArray) bValue.get("blb")).size(), 0);
+        Assert.assertEquals(bValue.get("blb"), null);
     }
 
     @Test
     public void testEmptyMaptoStructWithDefaults() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testEmptyMaptoStructWithDefaults");
         Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].stringValue(), "{s:\"string value\", a:45, f:5.3, b:true, j:null, blb:}");
+        Assert.assertEquals(returns[0].stringValue(), "{s:\"string value\", a:45, f:5.3, b:true, j:null, blb:null}");
     }
 
     @Test
     public void testEmptyMaptoStructWithoutDefaults() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testEmptyMaptoStructWithoutDefaults");
         Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].stringValue(), "{s:\"\", a:0, f:0.0, b:false, j:null, blb:}");
+        Assert.assertEquals(returns[0].stringValue(), "{s:\"\", a:0, f:0.0, b:false, j:null, blb:null}");
     }
 
     @Test

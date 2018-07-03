@@ -267,7 +267,7 @@ function throwErrorInsideTryCatchInsideLock() returns (int, string) {
 }
 
 
-function lockWithinLockInWorkersForBlobAndBoolean() returns (boolean, blob) {
+function lockWithinLockInWorkersForBlobAndBoolean() returns (boolean, byte[]) {
     worker w1 {
         lock {
             boolValue = true;

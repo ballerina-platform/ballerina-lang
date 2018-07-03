@@ -62,7 +62,7 @@ public class Crc32 extends BlockingNativeCallableUnit {
             // TODO: Look at the possibility of making the encoding configurable
             bytes = entityBody.stringValue().getBytes(StandardCharsets.UTF_8);
         } else if (argType.getTag() == TypeTags.ARRAY_TAG &&
-                ((BArrayType)argType).getElementType().getTag() == TypeTags.BYTE_TAG) {
+                ((BArrayType) argType).getElementType().getTag() == TypeTags.BYTE_TAG) {
             bytes = ((BByteArray) entityBody).getBytes();
         } else {
             throw new BallerinaException(

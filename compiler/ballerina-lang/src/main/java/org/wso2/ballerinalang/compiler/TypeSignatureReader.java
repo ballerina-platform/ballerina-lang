@@ -42,7 +42,6 @@ public class TypeSignatureReader<T> {
             case 'F':
             case 'S':
             case 'B':
-            case 'L':
             case 'Y':
             case 'A':
             case 'N':
@@ -120,7 +119,6 @@ public class TypeSignatureReader<T> {
             case 'S':
             case 'B':
             case 'Y':
-            case 'L':
             case 'A':
             case 'N':
                 return typeCreater.getBasicType(ch);

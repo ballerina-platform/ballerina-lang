@@ -57,7 +57,7 @@ public class DecompressFromByteArray extends BlockingNativeCallableUnit {
     /**
      * File path of the destination directory.
      */
-    private static final int DEST_PATH_FIELD_INDEX = 0;
+    private static final int DEST_PATH_FIELD_INDEX = 1;
 
     /**
      * Decompresses a blob.

@@ -76,7 +76,7 @@ public class ConstrainedJSONTest {
         BAssertUtil.validateError(negativeResult, 7,
                 "incompatible types: 'json<Person>[]' cannot be converted to 'json<Student>[]'", 72, 14);
 
-        BAssertUtil.validateError(negativeResult, 8, "incompatible types: expected 'json', found 'blob[]'", 78, 14);
+        BAssertUtil.validateError(negativeResult, 8, "incompatible types: expected 'json', found 'byte[]'", 78, 14);
     }
 
     // disabled due to json to string conversion fails

@@ -24,6 +24,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -241,10 +242,10 @@ public class ConstrainedMapTest {
                 "testConstrainedMapBlobTypePositive");
         Assert.assertNotNull(returns[0]);
         Assert.assertNotNull(returns[1]);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals(((BString) returns[0]).stringValue(), "hi");
-        Assert.assertEquals(((BString) returns[1]).stringValue(), "ballerina");
+        Assert.assertTrue(returns[0] instanceof BByteArray);
+        Assert.assertTrue(returns[1] instanceof BByteArray);
+        Assert.assertEquals(returns[0].stringValue(), "hi");
+        Assert.assertEquals(returns[1].stringValue(), "ballerina");
     }
 
     @Test(description = "Test Map constrained with value type blob negative.")
@@ -253,10 +254,10 @@ public class ConstrainedMapTest {
                 "testConstrainedMapBlobTypeNegative");
         Assert.assertNotNull(returns[0]);
         Assert.assertNotNull(returns[1]);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals(((BString) returns[0]).stringValue(), "hi");
-        Assert.assertEquals(((BString) returns[1]).stringValue(), "ballerina");
+        Assert.assertTrue(returns[0] instanceof BByteArray);
+        Assert.assertTrue(returns[1] instanceof BByteArray);
+        Assert.assertEquals(returns[0].stringValue(), "hi");
+        Assert.assertEquals(returns[1].stringValue(), "ballerina");
     }
 
     @Test(description = "Test cast map constrained with value type from map any positive.")

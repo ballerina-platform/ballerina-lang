@@ -65,7 +65,7 @@ public final class GlobalMemoryBlock implements BRefType, LockableStructureType 
         doubleFields = new double[fieldCount[1]];
         stringFields = new String[fieldCount[2]];
         intFields = new int[fieldCount[3]];
-        refFields = new BRefType[fieldCount[5]];
+        refFields = new BRefType[fieldCount[4]];
 
         Arrays.fill(stringFields, BLangConstants.STRING_EMPTY_VALUE);
     }
@@ -87,7 +87,6 @@ public final class GlobalMemoryBlock implements BRefType, LockableStructureType 
                 intIndex = 0,
                 longIndex = 0,
                 doubleIndex = 0,
-                byteIndex = 0,
                 refValIndex = 0;
 
         StringJoiner sj = new StringJoiner(", ", "{", "}");

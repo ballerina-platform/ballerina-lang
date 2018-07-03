@@ -56,7 +56,7 @@ public class TypedescTests {
         Assert.assertEquals(returns[1].stringValue(), "string");
         Assert.assertEquals(returns[2].stringValue(), "float");
         Assert.assertEquals(returns[3].stringValue(), "boolean");
-        Assert.assertEquals(returns[4].stringValue(), "blob");
+        Assert.assertEquals(returns[4].stringValue(), "byte");
     }
 
     @Test(description = "Test buildin ref types")

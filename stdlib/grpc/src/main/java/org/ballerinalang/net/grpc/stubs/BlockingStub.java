@@ -174,7 +174,7 @@ public class BlockingStub extends AbstractStub {
             } else if (protoType.equalsIgnoreCase(WRAPPER_STRING_MESSAGE)) {
                 return BTypes.typeString;
             } else if (protoType.equalsIgnoreCase(WRAPPER_BYTES_MESSAGE)) {
-                return BTypes.typeBlob;
+                return BTypes.typeByteArray;
             } else {
                 return context.getProgramFile().getEntryPackage().getStructInfo(protoType).getType();
             }

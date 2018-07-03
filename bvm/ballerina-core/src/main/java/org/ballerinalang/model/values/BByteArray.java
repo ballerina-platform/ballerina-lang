@@ -22,8 +22,8 @@ import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.StringJoiner;
 
 /**
  * {@code BByteArray} represents a byte array in Ballerina.
@@ -78,11 +78,7 @@ public class BByteArray extends BNewArray {
 
     @Override
     public String stringValue() {
-        StringJoiner sj = new StringJoiner(", ", "[", "]");
-        for (int i = 0; i < size; i++) {
-            sj.add("\'" + Byte.toUnsignedInt(values[i]) + "\'");
-        }
-        return sj.toString();
+        return new String(values, StandardCharsets.UTF_8);
     }
 
     @Override
