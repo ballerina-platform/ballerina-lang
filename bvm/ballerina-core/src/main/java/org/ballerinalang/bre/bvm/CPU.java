@@ -2198,7 +2198,7 @@ public class CPU {
             case InstructionCodes.I2BI:
                 i = operands[0];
                 j = operands[1];
-                if (isByteLiteral((int) sf.longRegs[i])) {
+                if (isByteLiteral(sf.longRegs[i])) {
                     sf.refRegs[j] = new BByte((byte) sf.longRegs[i]);
                 } else {
                     handleTypeConversionError(ctx, sf, j, TypeConstants.INT_TNAME, TypeConstants.BYTE_TNAME);
@@ -2410,7 +2410,7 @@ public class CPU {
         }
     }
 
-    private static boolean isByteLiteral(int longValue) {
+    private static boolean isByteLiteral(long longValue) {
         return (longValue >= BBYTE_MIN_VALUE && longValue <= BBYTE_MAX_VALUE);
     }
 
@@ -3049,11 +3049,15 @@ public class CPU {
         }
 
         BType rhsType = rhsValue.getType();
+
+        if (rhsType.getTag() == TypeTags.INT_TAG && lhsType.getTag() == TypeTags.BYTE_TAG) {
+            return isByteLiteral(((BInteger) rhsValue).intValue());
+        }
+
         if (rhsType.equals(lhsType)) {
             return true;
         } else if (rhsType.getTag() == TypeTags.INT_TAG &&
-                (lhsType.getTag() == TypeTags.JSON_TAG || lhsType.getTag() == TypeTags.FLOAT_TAG ||
-                        lhsType.getTag() == TypeTags.BYTE_TAG)) {
+                (lhsType.getTag() == TypeTags.JSON_TAG || lhsType.getTag() == TypeTags.FLOAT_TAG)) {
             return true;
         } else if (rhsType.getTag() == TypeTags.FLOAT_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
             return true;
