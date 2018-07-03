@@ -22,7 +22,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.ConnectorUtils;
-import org.ballerinalang.mime.util.Constants;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
@@ -31,7 +30,9 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import static org.ballerinalang.mime.util.Constants.STRING_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.mime.util.MimeConstants.STRING_INDEX;
 
 /**
  * Construct MediaType struct from Content-Type string.
@@ -51,7 +52,7 @@ public class GetMediaType extends BlockingNativeCallableUnit {
         try {
             String contentType = context.getStringArgument(STRING_INDEX);
             BMap<String, BValue> mediaType =
-                    ConnectorUtils.createAndGetStruct(context, Constants.PROTOCOL_PACKAGE_MIME, Constants.MEDIA_TYPE);
+                    ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
             mediaType = MimeUtil.parseMediaType(mediaType, contentType);
             context.setReturnValues(mediaType);
         } catch (Throwable e) {

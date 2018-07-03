@@ -983,6 +983,48 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void enterTableLiteral(BallerinaParser.TableLiteralContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.startTableLiteral();
+    }
+
+    @Override
+    public void exitTableColumn(BallerinaParser.TableColumnContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        String columnName = ctx.getChild(0).getText();
+        boolean keyColumn = ctx.PRIMARYKEY() != null;
+        if (keyColumn) {
+            columnName = ctx.getChild(1).getText();
+            this.pkgBuilder.addTableColumn(columnName);
+            this.pkgBuilder.markPrimaryKeyColumn(columnName);
+        } else {
+            this.pkgBuilder.addTableColumn(columnName);
+        }
+    }
+
+    @Override
+    public void exitTableDataList(BallerinaParser.TableDataListContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        if (ctx.expressionList() != null) {
+            this.pkgBuilder.endTableDataRow();
+        }
+    }
+
+    @Override
+    public void exitTableData(BallerinaParser.TableDataContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.endTableDataList(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
     public void exitTableLiteral(BallerinaParser.TableLiteralContext ctx) {
         if (ctx.exception != null) {
             return;

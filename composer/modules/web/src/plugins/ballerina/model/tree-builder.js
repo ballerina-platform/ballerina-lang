@@ -20,6 +20,7 @@ import _ from 'lodash';
 import Node from './tree/node';
 
 const isRetry = n => n.kind === 'Retry';
+const anonTypes = {};
 
 // TODO: Move this to a generic place.
 function requireAll(requireContext) {
@@ -204,6 +205,11 @@ class TreeBuilder {
         }
 
         if (node.kind === 'Variable') {
+
+            if (node.typeNode && node.typeNode.isAnonType) {
+                node.isAnonType = true;
+            }
+
             if (node.initialExpression && node.initialExpression.async) {
                 if (node.ws) {
                     for (let i = 0; i < node.ws.length; i++) {
@@ -359,6 +365,14 @@ class TreeBuilder {
         }
 
         if (node.kind === 'TypeDefinition' && node.typeNode) {
+            if (!node.ws) {
+                node.notVisible = true;
+            }
+
+            if (node.name && node.name.value.startsWith('$anonType$')) {
+                anonTypes[node.name.value] = node.typeNode;
+            }
+
             if (node.typeNode.kind === 'ObjectType') {
                 node.isObjectType = true;
             }
@@ -550,6 +564,12 @@ class TreeBuilder {
         if (node.kind === 'UserDefinedType') {
             if (node.ws && node.nullable && _.find(node.ws, (ws) => ws.text === '?')) {
                 node.nullableOperatorAvailable = true;
+            }
+
+            if (node.typeName && node.typeName.value && anonTypes[node.typeName.value]) {
+                node.isAnonType = true;
+                node.anonType = anonTypes[node.typeName.value];
+                delete anonTypes[node.typeName.value];
             }
         }
 

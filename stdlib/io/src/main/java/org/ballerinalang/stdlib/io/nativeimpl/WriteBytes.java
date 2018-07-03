@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -44,7 +45,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
         orgName = "ballerina", packageName = "io",
         functionName = "write",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "ByteChannel", structPackage = "ballerina/io"),
-        args = {@Argument(name = "content", type = TypeKind.BLOB),
+        args = {@Argument(name = "content", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
                 @Argument(name = "offset", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.INT),
                 @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},
@@ -60,7 +61,7 @@ public class WriteBytes implements NativeCallableUnit {
     /**
      * Index which holds the content in ballerina/io#writeBytes.
      */
-    private static final int CONTENT_INDEX = 0;
+    private static final int CONTENT_INDEX = 1;
 
     /*
      * Index which holds the start offset in ballerina/io#writeBytes.
@@ -98,7 +99,7 @@ public class WriteBytes implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         BMap<String, BValue> channel = (BMap<String, BValue>) context.getRefArgument(BYTE_CHANNEL_INDEX);
-        byte[] content = context.getBlobArgument(CONTENT_INDEX);
+        byte[] content = ((BByteArray) context.getRefArgument(CONTENT_INDEX)).getBytes();
         int offset = (int) context.getIntArgument(START_OFFSET_INDEX);
         Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);

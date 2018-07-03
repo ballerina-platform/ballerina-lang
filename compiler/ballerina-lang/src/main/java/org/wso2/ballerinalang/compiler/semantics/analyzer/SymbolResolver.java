@@ -682,6 +682,11 @@ public class SymbolResolver extends BLangNodeVisitor {
         BType type = resolveTypeNode(constrainedTypeNode.type, env);
         BType constraintType = resolveTypeNode(constrainedTypeNode.constraint, env);
         if (type.tag == TypeTags.TABLE) {
+            if (constraintType.tag == TypeTags.OBJECT) {
+                dlog.error(constrainedTypeNode.pos, DiagnosticCode.OBJECT_TYPE_NOT_ALLOWED);
+                resultType = symTable.errType;
+                return;
+            }
             resultType = new BTableType(TypeTags.TABLE, constraintType, type.tsymbol);
         } else if (type.tag == TypeTags.STREAM) {
             resultType = new BStreamType(TypeTags.STREAM, constraintType, type.tsymbol);

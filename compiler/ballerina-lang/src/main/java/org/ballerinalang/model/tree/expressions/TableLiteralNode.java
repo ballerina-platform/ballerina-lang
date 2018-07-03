@@ -16,10 +16,16 @@
  */
 package org.ballerinalang.model.tree.expressions;
 
+import org.ballerinalang.model.tree.Node;
+
+import java.util.List;
+
 /**
  * @since 0.970.0
  */
 public interface TableLiteralNode extends ExpressionNode {
 
-    ExpressionNode getConfigurationExpression();
+    List<? extends ExpressionNode> getDataRows();
+
+    List<? extends Node> getTableColumns();
 }

@@ -19,11 +19,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
 import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
+import HoverGroup from 'plugins/ballerina/graphical-editor/controller-utils/hover-group';
 import Node from '../../../../../model/tree/node';
 import TreeUtil from '../../../../../model/tree-util';
 import DropZone from '../../../../../drag-drop/DropZone';
 import './compound-statement-decorator.css';
-import ActionBox from '../decorators/action-box';
 import ActiveArbiter from '../decorators/active-arbiter';
 import Breakpoint from '../decorators/breakpoint';
 import { getComponentForNodeArray } from './../../../../diagram-util';
@@ -369,28 +369,30 @@ class WhileStatementDecorator extends React.Component {
                     enableDragBg
                     enableCenterOverlayLine={!this.props.disableDropzoneMiddleLineOverlay}
                 />
-                <g>
-                    <rect
-                        x={p2X}
-                        y={p9Y}
-                        width={titleW}
-                        height={titleH}
-                        className='invisible-rect'
-                    />
-                    {expression && <title> {expression.text} </title>}
-                </g>
+                <HoverGroup model={this.props.model} region='actionBox'>
+                    <g>
+                        <rect
+                            x={p2X}
+                            y={p9Y}
+                            width={titleW}
+                            height={titleH}
+                            className='invisible-rect'
+                        />
+                        {expression && <title> {expression.text} </title>}
+                    </g>
+                </HoverGroup>
                 { isBreakpoint && this.renderBreakpointIndicator() }
                 {this.props.children}
                 {body}
-                <ActionBox
-                    bBox={actionBoxBbox}
-                    show={this.state.active}
-                    isBreakpoint={isBreakpoint}
-                    onDelete={() => this.onDelete()}
-                    onJumptoCodeLine={() => this.onJumpToCodeLine()}
-                    onBreakpointClick={() => this.props.onBreakpointClick()}
-                    disableButtons={this.props.disableButtons}
-                />
+                <HoverGroup model={this.props.model} region='main'>
+                    <rect
+                        x={p8X - 25}
+                        y={p8Y}
+                        width={50}
+                        height={30}
+                        className='invisible-rect'
+                    />
+                </HoverGroup>
             </g>);
     }
 }
