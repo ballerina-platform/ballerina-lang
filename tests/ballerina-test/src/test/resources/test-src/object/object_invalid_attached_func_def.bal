@@ -63,7 +63,7 @@ function Person::test5(int a, string name) returns int {
     return 7;
 }
 
-function Person::test6(int a, string name) returns string {
+public function Person::test6(int a, string name) returns string {
     return "ddd";
 }
 

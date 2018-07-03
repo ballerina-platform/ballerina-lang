@@ -179,8 +179,8 @@ public class HtmlDocTest {
                 "public function " + "testAction() returns boolean;\n" + "\n" + "    documentation {Test Connector "
                 + "action testSend P{{ep}}" + " endpoint url R{{}} whether successful or not}\n" + "    public " +
                 "function" + " testSend(string ep) " + "returns boolean;\n" + "};\n" +
-                "public function TestConnector::testAction() returns boolean {return true;}\n" +
-                "public function TestConnector::testSend(string ep) returns boolean {return true;}");
+                "function TestConnector::testAction() returns boolean {return true;}\n" +
+                "function TestConnector::testSend(string ep) returns boolean {return true;}");
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 3);
 

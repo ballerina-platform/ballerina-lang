@@ -42,7 +42,7 @@ public class ObjectWithPrivateFieldsNegativeTest {
     public void testPrivateFieldAccess() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-private-fields-02-negative.bal");
 
-        BAssertUtil.validateError(compileResult, 0, "attempt to refer to non-public symbol 'ssn'", 7, 18);
+        BAssertUtil.validateError(compileResult, 0, "attempt to refer to non-accessible symbol 'ssn'", 7, 18);
         BAssertUtil.validateError(compileResult, 1, "undefined field 'ssn' in struct 'org.foo:person'", 7, 18);
     }
 
@@ -51,7 +51,7 @@ public class ObjectWithPrivateFieldsNegativeTest {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src/object", "private-field1");
 
         Assert.assertEquals(compileResult.getErrorCount(), 15);
-        String expectedErrMsg1 = "attempt to refer to non-public symbol ";
+        String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";
         String expectedErrMsg2 = "attempt to expose non-public symbol ";
 
         BAssertUtil.validateError(compileResult, 0, expectedErrMsg2 + "'ChildFoo'", 5, 5);
@@ -75,7 +75,7 @@ public class ObjectWithPrivateFieldsNegativeTest {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src/object", "private-field2");
 
         Assert.assertEquals(compileResult.getErrorCount(), 10);
-        String expectedErrMsg1 = "attempt to refer to non-public symbol ";
+        String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";
         String expectedErrMsg2 = "attempt to expose non-public symbol ";
 
         BAssertUtil.validateError(compileResult, 0, expectedErrMsg2 + "'ChildFoo'", 5, 5);
