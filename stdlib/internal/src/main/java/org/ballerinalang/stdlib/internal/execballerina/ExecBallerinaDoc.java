@@ -178,103 +178,7 @@ public class ExecBallerinaDoc extends BlockingNativeCallableUnit {
             }
             
             if (null == missingPackage) {
-                // Output path
-                BValue outputDir = context.getNullableRefArgument(2);
-                if (null != outputDir) {
-                    Path outputPath = Paths.get(outputDir.stringValue());
-                    if (Files.exists(outputPath)) {
-                        commandToPass.append("-o ").append(outputDir).append(" ");
-                    } else {
-                        String msg = "non existing or invalid output path found: " + outputPath;
-                        log.error(msg);
-                        context.setReturnValues(BLangVMErrors.createError(context, msg));
-                        return null;
-                    }
-                }
-                
-                // Template path
-                BValue templateDir = context.getNullableRefArgument(3);
-                if (null != templateDir) {
-                    Path templatePath = Paths.get(templateDir.stringValue());
-                    if (Files.exists(templatePath)) {
-                        commandToPass.append("-t ").append(templateDir).append(" ");
-                    } else {
-                        String msg = "non existing or invalid templates path found: " + templatePath;
-                        log.error(msg);
-                        context.setReturnValues(BLangVMErrors.createError(context, msg));
-                        return null;
-                    }
-                }
-                
-                // Exclude packages
-                BValue bExclude = context.getNullableRefArgument(4);
-                if (bExclude instanceof BStringArray) {
-                    BStringArray bExcludePackages = (BStringArray) bExclude;
-                    String missingExcludePackage = null;
-                    for (String packageName : bExcludePackages.getStringArray()) {
-                        if (!packageList.contains(packageName)) {
-                            missingExcludePackage = packageName;
-                            break;
-                        }
-                    }
-                    if (null == missingExcludePackage) {
-                        commandToPass.append("--exclude ").append(bExclude.stringValue()).append(" ");
-                    } else {
-                        String msg = "invalid exclude package found: " + missingExcludePackage;
-                        log.error(msg);
-                        context.setReturnValues(BLangVMErrors.createError(context, msg));
-                        return null;
-                    }
-                }
-                
-                // Exclude packages
-                boolean includeNatives = context.getBooleanArgument(0);
-                if (includeNatives) {
-                    commandToPass.append("-n ").append(" ");
-                }
-                
-                // Environment variables
-                BValue bEnvVars = context.getNullableRefArgument(5);
-                if (bEnvVars instanceof BMap) {
-                    BMap<String, BString> envVapMap = (BMap) bEnvVars;
-                    if (envVapMap.size() > 0) {
-                        commandToPass.append(" -e ");
-                    }
-                    for (Map.Entry<String, BString> envVarEntry : envVapMap.getMap().entrySet()) {
-                        commandToPass
-                                .append(envVarEntry.getKey())
-                                .append("=")
-                                .append(envVarEntry.getValue().stringValue())
-                                .append(" ");
-                    }
-                }
-                
-                // Config path
-                BValue configDir = context.getNullableRefArgument(6);
-                if (null != configDir) {
-                    Path configPath = Paths.get(configDir.stringValue());
-                    if (Files.exists(configPath)) {
-                        commandToPass.append(" --config ").append(configDir).append(" ");
-                    } else {
-                        String msg = "non existing or invalid config path found: " + configPath;
-                        log.error(msg);
-                        context.setReturnValues(BLangVMErrors.createError(context, msg));
-                        return null;
-                    }
-                }
-                
-                // Verbose
-                boolean verbose = context.getBooleanArgument(1);
-                if (verbose) {
-                    commandToPass.append(" -v ").append(" ");
-                }
-                
-                // Package List
-                for (String packageName : bPackageList.getStringArray()) {
-                    commandToPass.append(packageName).append(" ");
-                }
-                
-                return commandToPass.toString();
+                return getCommandAsString(context, commandToPass, bPackageList, packageList);
             } else {
                 String msg = "package does not exists to generate api docs: " + missingPackage;
                 log.error(msg);
@@ -287,6 +191,115 @@ public class ExecBallerinaDoc extends BlockingNativeCallableUnit {
             context.setReturnValues(BLangVMErrors.createError(context, msg));
             return null;
         }
+    }
+    
+    /**
+     * Get the command as a string parsing the variables.
+     * @param context Ballerina function context.
+     * @param commandToPass The command builder.
+     * @param bPackageList List of packages requested to generate docs.
+     * @param packageList List of packages in the project.
+     * @return The command.
+     */
+    private static String getCommandAsString(Context context, StringBuilder commandToPass, BStringArray bPackageList,
+                                             List<String> packageList) {
+        // Output path
+        BValue outputDir = context.getNullableRefArgument(2);
+        if (null != outputDir) {
+            Path outputPath = Paths.get(outputDir.stringValue());
+            if (Files.exists(outputPath)) {
+                commandToPass.append("-o ").append(outputDir).append(" ");
+            } else {
+                String msg = "non existing or invalid output path found: " + outputPath;
+                log.error(msg);
+                context.setReturnValues(BLangVMErrors.createError(context, msg));
+                return null;
+            }
+        }
+        
+        // Template path
+        BValue templateDir = context.getNullableRefArgument(3);
+        if (null != templateDir) {
+            Path templatePath = Paths.get(templateDir.stringValue());
+            if (Files.exists(templatePath)) {
+                commandToPass.append("-t ").append(templateDir).append(" ");
+            } else {
+                String msg = "non existing or invalid templates path found: " + templatePath;
+                log.error(msg);
+                context.setReturnValues(BLangVMErrors.createError(context, msg));
+                return null;
+            }
+        }
+        
+        // Exclude packages
+        BValue bExclude = context.getNullableRefArgument(4);
+        if (bExclude instanceof BStringArray) {
+            BStringArray bExcludePackages = (BStringArray) bExclude;
+            String missingExcludePackage = null;
+            for (String packageName : bExcludePackages.getStringArray()) {
+                if (!packageList.contains(packageName)) {
+                    missingExcludePackage = packageName;
+                    break;
+                }
+            }
+            if (null == missingExcludePackage) {
+                commandToPass.append("--exclude ").append(bExclude.stringValue()).append(" ");
+            } else {
+                String msg = "invalid exclude package found: " + missingExcludePackage;
+                log.error(msg);
+                context.setReturnValues(BLangVMErrors.createError(context, msg));
+                return null;
+            }
+        }
+        
+        // Exclude packages
+        boolean includeNatives = context.getBooleanArgument(0);
+        if (includeNatives) {
+            commandToPass.append("-n ").append(" ");
+        }
+        
+        // Environment variables
+        BValue bEnvVars = context.getNullableRefArgument(5);
+        if (bEnvVars instanceof BMap) {
+            BMap<String, BString> envVapMap = (BMap) bEnvVars;
+            if (envVapMap.size() > 0) {
+                commandToPass.append(" -e ");
+            }
+            for (Map.Entry<String, BString> envVarEntry : envVapMap.getMap().entrySet()) {
+                commandToPass
+                        .append(envVarEntry.getKey())
+                        .append("=")
+                        .append(envVarEntry.getValue().stringValue())
+                        .append(" ");
+            }
+        }
+        
+        // Config path
+        BValue configDir = context.getNullableRefArgument(6);
+        if (null != configDir) {
+            Path configPath = Paths.get(configDir.stringValue());
+            if (Files.exists(configPath)) {
+                commandToPass.append(" --config ").append(configDir).append(" ");
+            } else {
+                String msg = "non existing or invalid config path found: " + configPath;
+                log.error(msg);
+                context.setReturnValues(BLangVMErrors.createError(context, msg));
+                return null;
+            }
+        }
+        
+        // Verbose
+        boolean verbose = context.getBooleanArgument(1);
+        if (verbose) {
+            commandToPass.append(" -v ").append(" ");
+        }
+        
+        // Package List
+        for (String packageName : bPackageList.getStringArray()) {
+            commandToPass.append(packageName).append(" ");
+        }
+        
+        return commandToPass.toString();
     }
     
     /**
