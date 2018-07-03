@@ -413,7 +413,7 @@ scopeClause
     ;
 
 compensationClause
-    : COMPENSATION LEFT_PARENTHESIS variableReferenceList? RIGHT_PARENTHESIS callableUnitBody
+    : COMPENSATION callableUnitBody
     ;
 
 compensateStatement

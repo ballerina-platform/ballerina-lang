@@ -470,11 +470,11 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
             this.acceptNode(scopeNode.scopeBody);
         }
 
-        if (!scopeNode.varRefs.isEmpty()) {
-            scopeNode.varRefs.forEach(bLangVariableReference -> this.acceptNode(bLangVariableReference));
-        }
+//        if (!scopeNode.varRefs.isEmpty()) {
+//            scopeNode.varRefs.forEach(bLangVariableReference -> this.acceptNode(bLangVariableReference));
+//        }
 
-        this.acceptNode(scopeNode.compensationFunction);
+        visit(scopeNode.compensationFunction);
     }
 
     /**

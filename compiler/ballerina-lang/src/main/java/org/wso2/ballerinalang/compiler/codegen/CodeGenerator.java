@@ -1311,15 +1311,15 @@ public class CodeGenerator extends BLangNodeVisitor {
         int funcRefCPIndex =  currentPkgInfo.addCPEntry(funcRefCPEntry);
         int i = 0;
         //functionRefCP, scopenameUTF8CP, nArgs, args, nChild, children
-        Operand[] operands = new Operand[4 + scopeNode.varRefs.size() + scopeNode.childScopes.size()];
+        Operand[] operands = new Operand[4 + 0 + scopeNode.childScopes.size()];
         operands[i++] = getOperand(funcRefCPIndex);
         int scopeNameCPIndex = addUTF8CPEntry(currentPkgInfo, scopeNode.getScopeName().getValue());
         operands[i++] = getOperand(scopeNameCPIndex);
 
-        operands[i++] = getOperand(scopeNode.varRefs.size());
-        for (BLangExpression expr : scopeNode.varRefs) {
-            operands[i++] = ((BVarSymbol) (((BLangSimpleVarRef) expr)).symbol).varIndex;
-        }
+        operands[i++] = getOperand(0);
+//        for (BLangExpression expr : scopeNode.varRefs) {
+//            operands[i++] = ((BVarSymbol) (((BLangSimpleVarRef) expr)).symbol).varIndex;
+//        }
 
         operands[i++] = getOperand(scopeNode.childScopes.size());
 

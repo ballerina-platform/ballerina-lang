@@ -3129,7 +3129,7 @@ public class BLangPackageBuilder {
         addExpressionNode(matchExpr);
     }
 
-    BLangFunction getScopesFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean bodyExists, String name) {
+    BLangLambdaFunction getScopesFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean bodyExists, String name) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         endEndpointDeclarationScope();
         function.pos = pos;
@@ -3137,6 +3137,7 @@ public class BLangPackageBuilder {
 
         //always a public function
         function.flagSet.add(Flag.PUBLIC);
+        function.flagSet.add(Flag.LAMBDA);
 
         if (!bodyExists) {
             function.body = null;
@@ -3152,7 +3153,9 @@ public class BLangPackageBuilder {
         function.returnTypeNode = typeNode;
 
         function.receiver = null;
-        return function;
+        BLangLambdaFunction lambda = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
+        lambda.function = function;
+        return lambda;
     }
 
     void startScopeStmt() {
@@ -3173,9 +3176,9 @@ public class BLangPackageBuilder {
     }
 
     void endScopeStmt(DiagnosticPos pos, Set<Whitespace> ws, BLangIdentifier scopeName,
-            BLangFunction compensationFunction) {
+            BLangLambdaFunction compensationFunction) {
         BLangScope scope = (BLangScope) scopeNodeStack.pop();
-        scope.varRefs = getVariableReferences();
+//        scope.varRefs = getVariableReferences();
         scope.pos = pos;
         scope.addWS(ws);
         scope.setScopeName(scopeName);
@@ -3187,10 +3190,11 @@ public class BLangPackageBuilder {
             scopeNodeStack.peek().addChildScope(scopeName.getValue());
         }
 
-        scope.varRefs.forEach(
-                varRef -> compensationFunction.addParameter(getParameterFromExpr((BLangSimpleVarRef) varRef, pos)));
+//        scope.varRefs.forEach(
+//                varRef -> compensationFunction.addParameter(getParameterFromExpr((BLangSimpleVarRef) varRef, pos)));
 
         scope.setCompensationFunction(compensationFunction);
+//        this.compUnit.addTopLevelNode(compensationFunction);
     }
 
     private BLangVariable getParameterFromExpr(BLangSimpleVarRef varRef, DiagnosticPos pos) {

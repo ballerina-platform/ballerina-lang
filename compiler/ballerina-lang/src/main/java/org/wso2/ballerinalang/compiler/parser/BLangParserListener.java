@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTempl
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
@@ -3127,7 +3128,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         return null;
     }
 
-    private BLangFunction getFunctionDefinition(BallerinaParser.ScopeStatementContext ctx) {
+    private BLangLambdaFunction getFunctionDefinition(BallerinaParser.ScopeStatementContext ctx) {
         boolean bodyExists = ctx.compensationClause().callableUnitBody() != null;
 
         return this.pkgBuilder.getScopesFunctionDef(getCurrentPos(ctx), getWS(ctx), bodyExists,

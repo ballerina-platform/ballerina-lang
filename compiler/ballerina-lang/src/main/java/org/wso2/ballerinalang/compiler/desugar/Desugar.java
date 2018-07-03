@@ -937,23 +937,23 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangScope scopeNode) {
         int i = 0;
-        for (BLangExpression expr : scopeNode.varRefs) {
-            String varName = GEN_VAR_PREFIX.value + i++;
-            BLangVariable exprVar = ASTBuilderUtil.createVariable(expr.pos, varName, expr.type, null,
-                    new BVarSymbol(0, names.fromString(varName), this.env.scope.owner.pkgID, expr.type,
-                            this.env.scope.owner));
-
-            scopeNode.compensationFunction.addParameter(exprVar);
-            scopeNode.compensationFunction.requiredParams.add(exprVar);
-        }
-
-        scopeNode.getCompensationFunction().body.scope = env.scope;
+//        for (BLangExpression expr : scopeNode.varRefs) {
+//            String varName = GEN_VAR_PREFIX.value + i++;
+//            BLangVariable exprVar = ASTBuilderUtil.createVariable(expr.pos, varName, expr.type, null,
+//                    new BVarSymbol(0, names.fromString(varName), this.env.scope.owner.pkgID, expr.type,
+//                            this.env.scope.owner));
+//
+//            scopeNode.compensationFunction.addParameter(exprVar);
+//            scopeNode.compensationFunction.requiredParams.add(exprVar);
+//        }
+//
+//        scopeNode.getCompensationFunction().body.scope = env.scope;
         scopeNode.compensationFunction = rewrite(scopeNode.getCompensationFunction(), env);
-        env.enclPkg.functions.add(scopeNode.getCompensationFunction());
-        env.enclPkg.topLevelNodes.add(scopeNode.getCompensationFunction());
+//        env.enclPkg.functions.add(scopeNode.getCompensationFunction());
+//        env.enclPkg.topLevelNodes.add(scopeNode.getCompensationFunction());
 
         scopeNode.scopeBody = rewrite(scopeNode.scopeBody, env);
-        scopeNode.varRefs.forEach(bLangSimpleVarRef -> rewrite(bLangSimpleVarRef, env));
+//        scopeNode.varRefs.forEach(bLangSimpleVarRef -> rewrite(bLangSimpleVarRef, env));
 
         result = scopeNode;
     }

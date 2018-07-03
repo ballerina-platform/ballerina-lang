@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 
 import java.util.List;
 import java.util.Stack;
@@ -34,18 +35,18 @@ import java.util.Stack;
 public class BLangScope extends BLangStatement implements ScopeNode {
 
     public BLangBlockStmt scopeBody;
-    public BLangFunction compensationFunction;
+    public BLangLambdaFunction compensationFunction;
     public BLangIdentifier name;
     public Stack<String> childScopes = new Stack<>();
-    public List<BLangExpression> varRefs;
+//    public List<BLangExpression> varRefs;
 
     public BLangScope() {}
 
     public BLangScope(BLangBlockStmt scopeBody,
-            BLangIdentifier name, List<BLangExpression> varRefs) {
+            BLangIdentifier name) {
         this.scopeBody = scopeBody;
         this.name = name;
-        this.varRefs = varRefs;
+//        this.varRefs = varRefs;
     }
 
     public void addChildScope(String name) {
@@ -82,11 +83,11 @@ public class BLangScope extends BLangStatement implements ScopeNode {
         return NodeKind.SCOPE;
     }
 
-    public BLangFunction getCompensationFunction() {
+    public BLangLambdaFunction getCompensationFunction() {
         return compensationFunction;
     }
 
-    public void setCompensationFunction(BLangFunction compensationFunction) {
+    public void setCompensationFunction(BLangLambdaFunction compensationFunction) {
         this.compensationFunction = compensationFunction;
     }
 }
