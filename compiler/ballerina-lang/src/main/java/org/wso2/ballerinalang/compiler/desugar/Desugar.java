@@ -2770,11 +2770,13 @@ public class Desugar extends BLangNodeVisitor {
         if (kind == NodeKind.FIELD_BASED_ACCESS_EXPR || kind == NodeKind.INDEX_BASED_ACCESS_EXPR ||
                 kind == NodeKind.INVOCATION) {
             BLangAccessExpression accessExpr = (BLangAccessExpression) expr;
-            this.accessExprStack.push(accessExpr);
             if (accessExpr.expr != null) {
+                this.accessExprStack.push(accessExpr);
                 // If the parent of current expr is the root, terminate
                 stmts.addAll(createLHSSafeNavigation((BLangVariableReference) accessExpr.expr, type, rhsExpr,
                         safeAssignment));
+
+                this.accessExprStack.pop();
             }
             accessExpr.type = accessExpr.childType;
 
@@ -2789,12 +2791,11 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
-        if (!expr.type.isNullable()) {
-            return stmts;
+        if (expr.type.isNullable()) {
+            BLangIf ifStmt = getSafeNaviDefaultInitStmt(expr);
+            stmts.add(ifStmt);
         }
 
-        BLangIf ifStmt = getSafeNaviDefaultInitStmt(expr);
-        stmts.add(ifStmt);
         return stmts;
     }
 
@@ -2896,17 +2897,18 @@ public class Desugar extends BLangNodeVisitor {
                         symTable.intType));
     }
 
-    private BLangExpression getDefaultValueExpr(BLangAccessExpression expr) {
-        BType type = expr.type;
+    private BLangExpression getDefaultValueExpr(BLangAccessExpression accessExpr) {
+        BType fieldType = accessExpr.type;
+        BType type = accessExpr.expr.type;
         switch (type.tag) {
             case TypeTags.JSON:
-                if (expr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR &&
-                        ((BLangIndexBasedAccess) expr).indexExpr.type.tag == TypeTags.INT) {
-                    return new BLangJSONArrayLiteral(new ArrayList<>(), type);
+                if (accessExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR &&
+                        ((BLangIndexBasedAccess) accessExpr).indexExpr.type.tag == TypeTags.INT) {
+                    return new BLangJSONArrayLiteral(new ArrayList<>(), fieldType);
                 }
-                return new BLangJSONLiteral(new ArrayList<>(), type);
+                return new BLangJSONLiteral(new ArrayList<>(), fieldType);
             case TypeTags.MAP:
-                return new BLangMapLiteral(new ArrayList<>(), type);
+                return new BLangMapLiteral(new ArrayList<>(), fieldType);
             default:
                 throw new IllegalStateException();
         }
