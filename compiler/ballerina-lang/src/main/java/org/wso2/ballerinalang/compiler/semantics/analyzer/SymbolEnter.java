@@ -433,7 +433,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangFunction funcNode) {
         boolean validAttachedFunc = validateFuncReceiver(funcNode);
         if (funcNode.attachedOuterFunction) {
-            if (funcNode.flagSet.size() > 1) { //only flag that should be there is ATTACHED flag
+            if (Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PUBLIC)) { //no visibility modifiers allowed
                 dlog.error(funcNode.pos, DiagnosticCode.ATTACHED_FUNC_CANT_HAVE_VISIBILITY_MODIFIERS, funcNode.name);
             }
             if (funcNode.body == null) { //object outer attached function must have a body
