@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.net.grpc.builder.components;
 
-import org.ballerinalang.net.grpc.exception.GrpcServerValidationException;
+import org.ballerinalang.net.grpc.exception.BalGenerationException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -114,7 +114,7 @@ public class ClientBuilder {
             }
             stubObjectNonBlocking.addStub(stubTypeName, stubType);
         } else {
-            throw new GrpcServerValidationException("invalid stub type '" + stubType + "'.");
+            throw new BalGenerationException("invalid stub type '" + stubType + "'.");
         }
     }
     

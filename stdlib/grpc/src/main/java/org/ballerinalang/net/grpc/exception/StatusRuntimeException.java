@@ -17,22 +17,30 @@
  */
 package org.ballerinalang.net.grpc.exception;
 
+import org.ballerinalang.net.grpc.Status;
+
 /**
- * Exception that is thrown when gRPC service registration.
- *
- * @since 1.0.0
+ * Propagating Status information via exceptions.
+ * <p>
+ * Referenced from grpc-java implementation.
+ * <p>
  */
-public class GrpcSSLValidationException extends RuntimeException {
+public class StatusRuntimeException extends RuntimeException {
 
-    public GrpcSSLValidationException(String message, Throwable throwable) {
-        super(message, throwable);
+    private final Status status;
+
+    /**
+     * Constructs the exception with both a status and trailers.
+     */
+    public StatusRuntimeException(Status status) {
+        super(Status.formatThrowableMessage(status), status.getCause());
+        this.status = status;
     }
 
-    public GrpcSSLValidationException(String message) {
-        super(message);
-    }
-
-    public GrpcSSLValidationException(Throwable throwable) {
-        super(throwable);
+    /**
+     * Returns the status code as a {@link Status} object.
+     */
+    public final Status getStatus() {
+        return status;
     }
 }

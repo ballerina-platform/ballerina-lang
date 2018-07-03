@@ -18,21 +18,21 @@
 package org.ballerinalang.net.grpc.exception;
 
 /**
- * Exception that is thrown when gRPC service registration.
+ * Exception thrown when runtime failure occurred at client side.
  *
- * @since 1.0.0
+ * @since 0.980.0
  */
-public class GrpcServerValidationException extends RuntimeException {
+public class ClientRuntimeException extends RuntimeException {
 
-    public GrpcServerValidationException(String message, Throwable throwable) {
+    public ClientRuntimeException(String message, Throwable throwable) {
         super(message, throwable);
     }
 
-    public GrpcServerValidationException(String message) {
+    public ClientRuntimeException(String message) {
         super(message);
     }
 
-    public GrpcServerValidationException(Throwable throwable) {
+    public ClientRuntimeException(Throwable throwable) {
         super(throwable);
     }
 }
