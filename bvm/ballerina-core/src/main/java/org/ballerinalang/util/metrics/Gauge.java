@@ -114,10 +114,6 @@ public interface Gauge extends Metric {
         }
     }
 
-    default Gauge register() {
-        return DefaultMetricRegistry.getInstance().register(this);
-    }
-
     /**
      * Increment the gauge by one.
      */
@@ -178,5 +174,12 @@ public interface Gauge extends Metric {
      * @return Snapshots of all distribution statistics at a point in time.
      */
     Snapshot[] getSnapshots();
+
+    /**
+     * Returns statistics configs added for summarization.
+     *
+     * @return Array of statistics configurations.
+     */
+    StatisticConfig[] getStatisticsConfig();
 
 }

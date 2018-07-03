@@ -103,6 +103,9 @@ public interface Counter extends Metric {
         return DefaultMetricRegistry.getInstance().register(this);
     }
 
+    default void unregister() {
+        DefaultMetricRegistry.getInstance().unregister(this);
+    }
     /**
      * Increment the counter by one.
      */

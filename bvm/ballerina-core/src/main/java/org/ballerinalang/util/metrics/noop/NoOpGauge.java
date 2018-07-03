@@ -21,6 +21,7 @@ import org.ballerinalang.util.metrics.AbstractMetric;
 import org.ballerinalang.util.metrics.Gauge;
 import org.ballerinalang.util.metrics.MetricId;
 import org.ballerinalang.util.metrics.Snapshot;
+import org.ballerinalang.util.metrics.StatisticConfig;
 
 /**
  * Implementation of No-Op {@link Gauge}.
@@ -64,5 +65,10 @@ public class NoOpGauge extends AbstractMetric implements Gauge {
     @Override
     public Snapshot[] getSnapshots() {
         return new Snapshot[0];
+    }
+
+    @Override
+    public StatisticConfig[] getStatisticsConfig() {
+        return new StatisticConfig[0];
     }
 }

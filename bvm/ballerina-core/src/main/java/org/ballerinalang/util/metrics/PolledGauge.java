@@ -107,10 +107,22 @@ public interface PolledGauge extends Metric {
         }
     }
 
+    /**
+     * Default implementation for register gauge.
+     *
+     * @return The registered gauge instance.
+     */
     default PolledGauge register() {
         return DefaultMetricRegistry.getInstance().register(this);
     }
 
+    /**
+     * Default implementation for register gauge.
+     *
+     */
+    default void unregister() {
+        DefaultMetricRegistry.getInstance().unregister(this);
+    }
     /**
      * @return The value of the gauge.
      */

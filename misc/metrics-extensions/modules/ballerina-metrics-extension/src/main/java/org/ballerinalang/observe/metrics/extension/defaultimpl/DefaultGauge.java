@@ -117,4 +117,15 @@ public class DefaultGauge extends AbstractMetric implements Gauge {
         }
         return snapshots;
     }
+
+    @Override
+    public StatisticConfig[] getStatisticsConfig() {
+        StatisticConfig[] configs = new StatisticConfig[this.rollingHistograms.length];
+        int index = 0;
+        for (RollingHistogram rollingHistogram : this.rollingHistograms) {
+            configs[index] = rollingHistogram.getStatisticConfig();
+            index++;
+        }
+        return configs;
+    }
 }

@@ -20,6 +20,7 @@ package org.ballerinalang.util.metrics;
 import org.ballerinalang.util.metrics.spi.MetricProvider;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.StampedLock;
@@ -65,6 +66,15 @@ public class MetricRegistry {
     }
 
     /**
+     * Unregister the counter metrics instance.
+     *
+     * @param counter The {@link Counter} instacne.
+     */
+    public void unregister(Counter counter) {
+        unregister(counter, Counter.class);
+    }
+
+    /**
      * Use {@link Gauge#builder(String)}.
      *
      * @param id               The {@link MetricId}.
@@ -82,6 +92,15 @@ public class MetricRegistry {
      */
     public Gauge register(Gauge gauge) {
         return register(gauge, Gauge.class);
+    }
+
+    /**
+     * Unregister the gauge metrics instance.
+     *
+     * @param gauge The {@link Gauge} instacne.
+     */
+    public void unregister(Gauge gauge) {
+        unregister(gauge, Gauge.class);
     }
 
     /**
@@ -104,6 +123,15 @@ public class MetricRegistry {
      */
     public PolledGauge register(PolledGauge gauge) {
         return register(gauge, PolledGauge.class);
+    }
+
+    /**
+     * Unregisters the polled gauge metrics instance.
+     *
+     * @param gauge The {@link PolledGauge} instacne.
+     */
+    public void unregister(PolledGauge gauge) {
+        unregister(gauge, PolledGauge.class);
     }
 
     private <M extends Metric> M getOrCreate(MetricId id, Class<M> metricClass, Supplier<M> metricSupplier) {
@@ -140,8 +168,7 @@ public class MetricRegistry {
         }
     }
 
-
-    private <M extends Metric> M register(Metric registerMetric, Class<M> metricClass) {
+    private <M extends Metric> M readMetric(Metric registerMetric, Class<M> metricClass) {
         long stamp = stampedLock.tryOptimisticRead();
         Metric existingMetrics = metrics.get(registerMetric.getId());
         if (!stampedLock.validate(stamp)) {
@@ -157,21 +184,42 @@ public class MetricRegistry {
                 return (M) existingMetrics;
             }
         }
-        stamp = stampedLock.writeLock();
-        try {
-            final Metric existing = metrics.putIfAbsent(registerMetric.getId(), registerMetric);
-            if (existing != null) {
-                if (!metricClass.isInstance(existing)) {
-                    throw new IllegalArgumentException(existing.getId() +
-                            " is already used for a different type of metric: "
-                            + metricClass.getSimpleName());
-                } else {
-                    return (M) existing;
+        return null;
+    }
+
+    private <M extends Metric> M register(Metric registerMetric, Class<M> metricClass) {
+        Metric metric = readMetric(registerMetric, metricClass);
+        if (metric == null) {
+            long stamp = stampedLock.writeLock();
+            try {
+                final Metric existing = metrics.putIfAbsent(registerMetric.getId(), registerMetric);
+                if (existing != null) {
+                    if (!metricClass.isInstance(existing)) {
+                        throw new IllegalArgumentException(existing.getId() +
+                                " is already used for a different type of metric: "
+                                + metricClass.getSimpleName());
+                    } else {
+                        return (M) existing;
+                    }
                 }
+                return (M) registerMetric;
+            } finally {
+                stampedLock.unlockWrite(stamp);
             }
-            return (M) registerMetric;
-        } finally {
-            stampedLock.unlockWrite(stamp);
+        } else {
+            return (M) metric;
+        }
+    }
+
+    private void unregister(Metric registerMetric, Class metricClass) {
+        Metric metric = readMetric(registerMetric, metricClass);
+        if (metric != null) {
+            long stamp = stampedLock.writeLock();
+            try {
+                metrics.remove(registerMetric.getId());
+            } finally {
+                stampedLock.unlockWrite(stamp);
+            }
         }
     }
 
@@ -197,5 +245,9 @@ public class MetricRegistry {
 
     public Metric[] getAllMetrics() {
         return this.metrics.values().toArray(new Metric[this.metrics.values().size()]);
+    }
+
+    public Metric lookup(MetricId metricId) {
+        return this.metrics.get(metricId);
     }
 }

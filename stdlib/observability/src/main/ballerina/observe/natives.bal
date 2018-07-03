@@ -61,6 +61,13 @@ documentation {
 public native function getAllMetrics() returns Metric[];
 
 documentation {
+    Retrieves the specific metric that is described by the given name and tags.
+
+    R{{metric}} The metric instance.
+}
+public native function lookupMetric(string name, map<string>? tags=()) returns Counter|Gauge|();
+
+documentation {
     This represents the metric type - counter, that can be only increased by an integer number.
 
     F{{name}} Name of the counter metric.
@@ -96,6 +103,11 @@ public type Counter object {
         but different parameters or in a different kind.
     }
     public native function register() returns error?;
+
+    documentation {
+        Unregister the counter metric instance with the Metric Registry.
+    }
+    public native function unregister();
 
     documentation{
         Increment the counter's value by an amount.
@@ -169,6 +181,11 @@ public type Gauge object {
         but different parameters or in a different kind.
     }
     public native function register() returns error?;
+
+    documentation {
+        Unregister the counter metric instance with the Metric Registry.
+    }
+    public native function unregister();
 
     documentation{
         Increment the gauge's value by an amount.

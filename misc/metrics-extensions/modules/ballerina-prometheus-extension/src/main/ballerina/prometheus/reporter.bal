@@ -38,9 +38,9 @@ endpoint http:Listener prometheusListener {
 @http:ServiceConfig {
     basePath: "/metrics"
 }
-documentation {
-    The Prometheus service reporter. This service will be called periodically by prometheus server.
-}
+//documentation {
+//    The Prometheus service reporter. This service will be called periodically by prometheus server.
+//}
 service<http:Service> PrometheusReporter bind prometheusListener {
 
     @http:ResourceConfig {

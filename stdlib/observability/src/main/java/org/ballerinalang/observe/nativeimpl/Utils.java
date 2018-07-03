@@ -21,13 +21,21 @@ package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
+import org.ballerinalang.util.codegen.TypeInfo;
 import org.ballerinalang.util.metrics.PercentileValue;
 import org.ballerinalang.util.metrics.Snapshot;
+import org.ballerinalang.util.metrics.StatisticConfig;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import sun.jvm.hotspot.debugger.cdbg.basic.BasicFloatType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -86,6 +94,30 @@ public class Utils {
             return bSnapshots;
         } else {
             return null;
+        }
+    }
+
+    public static BRefValueArray createBStatisticConfig(StatisticConfig[] configs, Context context) {
+        PackageInfo observePackage = context.getProgramFile().getPackageInfo(Constants.OBSERVE_PACKAGE_PATH);
+        StructureTypeInfo statisticConfigInfo = observePackage.getStructInfo(Constants.STATISTIC_CONFIG);
+        if (configs != null) {
+            BRefValueArray bStatsConfig = new BRefValueArray(statisticConfigInfo.getType());
+            int index = 0;
+            for (StatisticConfig config : configs) {
+                BRefValueArray bPercentiles = new BRefValueArray(BTypes.typeFloat);
+                int percentileIndex = 0;
+                for (Double percentile : config.getPercentiles()) {
+                    bPercentiles.add(percentileIndex, new BFloat(percentile));
+                    percentileIndex++;
+                }
+                BMap<String, BValue> aSnapshot = BLangVMStructs.createBStruct(statisticConfigInfo,
+                        bPercentiles, config.getExpiry(), config.getBuckets());
+                bStatsConfig.add(index, aSnapshot);
+                index++;
+            }
+            return bStatsConfig;
+        } else {
+            return new BRefValueArray(statisticConfigInfo.getType());
         }
     }
 }

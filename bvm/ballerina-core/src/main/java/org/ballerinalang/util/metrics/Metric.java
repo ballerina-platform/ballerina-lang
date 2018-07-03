@@ -29,8 +29,17 @@ public interface Metric {
      */
     MetricId getId();
 
-
+    /**
+     * Registers the metric with Metric registry.
+     *
+     * @return The registered metric instance.
+     */
     Metric register();
+
+    /**
+     * Unregisters the metric with Metric registry.
+     */
+    void unregister();
 
     /**
      * Builder for metrics.

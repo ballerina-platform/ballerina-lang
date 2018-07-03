@@ -153,6 +153,10 @@ public class RollingHistogram {
         }
     }
 
+    public StatisticConfig getStatisticConfig() {
+        return statisticConfig;
+    }
+
     public Snapshot getSnapshot() {
         rotate();
         synchronized (this) {
