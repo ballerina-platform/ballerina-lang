@@ -39,7 +39,6 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Unit tests for server socket.
  */
-@Test(groups = { "broken" })
 public class ServerSocketTest {
 
     private static final Logger log = LoggerFactory.getLogger(ServerSocketTest.class);
@@ -50,7 +49,7 @@ public class ServerSocketTest {
         serverBal = BCompileUtil.compileAndSetup("test-src/io/server_socket_io.bal");
     }
 
-    //@Test(description = "Check server socket accept functionality.")
+    @Test(description = "Check server socket accept functionality.")
     public void testSeverSocketAccept() {
         int port = ThreadLocalRandom.current().nextInt(47000, 51000);
         String welcomeMsg = "Hello Ballerina";
@@ -60,6 +59,7 @@ public class ServerSocketTest {
             BRunUtil.invokeStateful(serverBal, "startServerSocket", args);
         });
         try {
+            Thread.sleep(2500);
             boolean connectionStatus;
             int numberOfRetryAttempts = 10;
             connectionStatus = isConnected("localhost", port, numberOfRetryAttempts);
@@ -77,10 +77,11 @@ public class ServerSocketTest {
         boolean isConnected = false;
         final int retryInterval = 1000;
         final int initialRetryCount = 0;
-        for (int retryCount = initialRetryCount; retryCount < numberOfRetries && !isConnected; retryCount++) {
+        for (int retryCount = initialRetryCount; retryCount < numberOfRetries; retryCount++) {
             try {
                 temporarySocketConnection = new Socket(hostName, port);
                 isConnected = true;
+                break;
             } catch (IOException e) {
                 log.error("Error occurred while establishing a connection with test server", e);
                 sleep(retryInterval);

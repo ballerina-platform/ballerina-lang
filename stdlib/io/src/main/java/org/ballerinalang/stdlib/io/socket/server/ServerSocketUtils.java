@@ -69,7 +69,7 @@ public class ServerSocketUtils {
     private static BMap<String, BValue> getByteChannelStruct(SocketChannel socketChannel, PackageInfo ioPackageInfo)
             throws IOException {
         StructureTypeInfo channelStructInfo = ioPackageInfo.getStructInfo(BYTE_CHANNEL_STRUCT_TYPE);
-        Channel ballerinaSocketChannel = new SocketIOChannel(socketChannel, 0);
+        Channel ballerinaSocketChannel = new SocketIOChannel(socketChannel, 0, true);
         BMap<String, BValue> channelStruct = BLangVMStructs.createBStruct(channelStructInfo, ballerinaSocketChannel);
         channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, ballerinaSocketChannel);
         return channelStruct;

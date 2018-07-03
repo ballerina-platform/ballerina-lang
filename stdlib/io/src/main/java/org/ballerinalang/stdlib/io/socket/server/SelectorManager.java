@@ -23,13 +23,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -69,21 +69,19 @@ public class SelectorManager {
             executor.execute(() -> {
                 while (true) {
                     try {
-                        try {
-                            selector.select(2000);
-                        } catch (IOException e) {
-                            log.error("An error occurred in selector wait: " + e.getMessage(), e);
+                        final int readyChannels = selector.select(2000);
+                        if (readyChannels == 0) {
                             continue;
                         }
-                        Set<SelectionKey> selectedKeys = selector.selectedKeys();
-                        Iterator<SelectionKey> iter = selectedKeys.iterator();
+                        Iterator<SelectionKey> iter = selector.selectedKeys().iterator();
                         while (iter.hasNext()) {
                             SelectionKey key = iter.next();
                             if (key.isAcceptable()) {
                                 handleAccept(key);
-                            }
-                            if (key.isReadable()) {
-                                log.info("Read ready implementation not done yet.");
+                            } else if (key.isReadable()) {
+                                readData(key);
+                            } else if (key.isWritable()) {
+
                             }
                             iter.remove();
                         }
@@ -100,6 +98,9 @@ public class SelectorManager {
         ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.attachment();
         try {
             final SocketChannel client = serverSocketChannel.accept();
+            if (client == null) {
+                return;
+            }
             client.configureBlocking(false);
             client.register(selector, SelectionKey.OP_READ);
             int serverSocketHash = serverSocketChannel.hashCode();
@@ -115,5 +116,20 @@ public class SelectorManager {
         } catch (IOException e) {
             log.error("Unable to accept a new client socket connection: " + e.getMessage(), e);
         }
+    }
+
+    private static void readData(SelectionKey key) {
+        ByteBuffer buffer = ByteBuffer.allocate(8192);
+        SocketChannel clientSocketChannel = (SocketChannel) key.channel();
+        int numRead;
+        try {
+            numRead = clientSocketChannel.read(buffer);
+            if (numRead == -1) {
+                key.cancel();
+            }
+        } catch (IOException e) {
+            return;
+        }
+        buffer.flip();
     }
 }
