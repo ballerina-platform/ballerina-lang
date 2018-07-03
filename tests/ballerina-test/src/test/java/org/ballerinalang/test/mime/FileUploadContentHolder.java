@@ -19,13 +19,13 @@
 package org.ballerinalang.test.mime;
 
 import io.netty.handler.codec.http.HttpRequest;
-import org.ballerinalang.mime.util.Constants;
+import org.ballerinalang.mime.util.MimeConstants;
 
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
-import static org.ballerinalang.mime.util.Constants.CONTENT_TRANSFER_ENCODING_7_BIT;
+import static org.ballerinalang.mime.util.MimeConstants.CONTENT_TRANSFER_ENCODING_7_BIT;
 
 /**
  * This class holds attributes required for creating a body part as a file upload for testing purpose.
@@ -43,7 +43,7 @@ public class FileUploadContentHolder {
     private long fileSize;
     private InputStream contentStream;
     private File file; //When the content is given as a file
-    private Constants.BodyPartForm bodyPartFormat; //Type of the body part
+    private MimeConstants.BodyPartForm bodyPartFormat; //Type of the body part
 
     public HttpRequest getRequest() {
         return request;
@@ -112,11 +112,11 @@ public class FileUploadContentHolder {
         this.charset = charset;
     }
 
-    public Constants.BodyPartForm getBodyPartFormat() {
+    public MimeConstants.BodyPartForm getBodyPartFormat() {
         return bodyPartFormat;
     }
 
-    public void setBodyPartFormat(Constants.BodyPartForm bodyPartFormat) {
+    public void setBodyPartFormat(MimeConstants.BodyPartForm bodyPartFormat) {
         this.bodyPartFormat = bodyPartFormat;
     }
 

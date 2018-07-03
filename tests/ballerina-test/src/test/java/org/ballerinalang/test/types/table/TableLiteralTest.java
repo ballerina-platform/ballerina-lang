@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -111,7 +112,7 @@ public class TableLiteralTest {
             System.setOut(new PrintStream(outContent));
             BRunUtil.invoke(result, "testPrintData");
             Assert.assertEquals(outContent.toString().replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
-                    "table<Person> {index: [\"id\", \"age\"], primaryKey: [\"id\", \"age\"], data: [{id:1, age:30, "
+                    "table<Person> {index: [], primaryKey: [\"id\", \"age\"], data: [{id:1, age:30, "
                             + "salary:300.5, name:\"jane\", married:true}, {id:2, age:20, salary:200.5, "
                             + "name:\"martin\", married:true}, {id:3, age:32, salary:100.5, name:\"john\", "
                             + "married:false}]}\n");
@@ -206,7 +207,7 @@ public class TableLiteralTest {
     @Test(priority = 1)
     public void testTableWithBlobDataToStruct() {
         BValue[] returns = BRunUtil.invoke(result, "testTableWithBlobDataToStruct");
-        Assert.assertEquals((returns[0]).stringValue(), "Sample Text");
+        Assert.assertEquals(new String(((BByteArray) returns[0]).getBytes()), "Sample Text");
     }
 
     @Test(priority = 1)
@@ -333,14 +334,6 @@ public class TableLiteralTest {
     }
 
     @Test(priority = 1,
-          description = "Test invalid empty table create",
-          expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*message: table cannot be created without a constraint.*")
-    public void testEmptyTableCreateInvalid() {
-        BRunUtil.invoke(result, "testEmptyTableCreateInvalid");
-    }
-
-    @Test(priority = 1,
           description = "Test add data with  mismatched types")
     public void testTableAddInvalid() {
         BValue[] returns = BRunUtil.invoke(result, "testTableAddInvalid");
@@ -376,7 +369,8 @@ public class TableLiteralTest {
     @Test(description = "Test table remove with function pointer of invalid return type")
     public void testTableReturnNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
-        BAssertUtil.validateError(resultNegative, 0, "incompatible types: expected 'function (any) returns (boolean)', "
-                + "found 'function (Person) returns (())'", 20, 33);
+        BAssertUtil.validateError(resultNegative, 0,
+           "incompatible types: expected 'function (any) returns (boolean)', found 'function (Person) returns (())'",
+           20, 33);
     }
 }

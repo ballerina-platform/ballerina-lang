@@ -34,9 +34,9 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.Arrays;
 
-import static org.ballerinalang.mime.util.Constants.COMMA;
-import static org.ballerinalang.mime.util.Constants.PARSER_ERROR;
-import static org.ballerinalang.mime.util.Constants.SEMICOLON;
+import static org.ballerinalang.mime.util.MimeConstants.COMMA;
+import static org.ballerinalang.mime.util.MimeConstants.PARSER_ERROR;
+import static org.ballerinalang.mime.util.MimeConstants.SEMICOLON;
 
 /**
  * Native function to parse header value and get value with parameter map.

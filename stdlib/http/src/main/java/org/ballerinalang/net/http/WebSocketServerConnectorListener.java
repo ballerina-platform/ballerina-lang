@@ -68,7 +68,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         HttpResource onUpgradeResource = wsService.getUpgradeResource();
         if (onUpgradeResource != null) {
             webSocketInitMessage.getHttpCarbonRequest().setProperty(HttpConstants.RESOURCES_CORS,
-                                                                    onUpgradeResource.getCorsHeaders());
+                    onUpgradeResource.getCorsHeaders());
             Resource balResource = onUpgradeResource.getBalResource();
             BValue[] signatureParams = HttpDispatcher.getSignatureParameters(onUpgradeResource, webSocketInitMessage
                     .getHttpCarbonRequest(), httpEndpointConfig);
@@ -82,7 +82,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
 
             // TODO: Need to revisit this code of observation.
             Optional<ObserverContext> observerContext = ObservabilityUtils.startServerObservation(
-                    SERVER_CONNECTOR_WEBSOCKET, balResource.getServiceName(), balResource.getName(),
+                    SERVER_CONNECTOR_WEBSOCKET, wsService.getServiceInfo(), balResource.getName(),
                     null);
 
             Executor.submit(balResource, new CallableUnitCallback() {
@@ -90,7 +90,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                 public void notifySuccess() {
                     if (!webSocketInitMessage.isCancelled() && !webSocketInitMessage.isHandshakeStarted()) {
                         WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketInitMessage, null,
-                                                      null);
+                                null);
                         // TODO: Change this to readNextFrame
                     } else {
                         if (!webSocketInitMessage.isCancelled()) {
@@ -104,7 +104,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                                     .get(WebSocketConstants.LISTENER_CONNECTOR_FIELD);
                             if (onOpenResource != null) {
                                 WebSocketUtil.executeOnOpenResource(onOpenResource, webSocketEndpoint,
-                                                                    webSocketConnection);
+                                        webSocketConnection);
                             } else {
                                 WebSocketUtil.readFirstFrame(webSocketConnection, webSocketConnector);
                             }
@@ -161,9 +161,8 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
         WebSocketDispatcher.dispatchIdleTimeout(connectionManager.getConnectionInfo(controlMessage.getSessionID()),
-                                                controlMessage);
+                controlMessage);
     }
 
 }
-
 

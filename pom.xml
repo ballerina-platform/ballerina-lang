@@ -594,6 +594,24 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-observability</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-observability</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-observability</artifactId>
+                <version>${ballerina.version}</version>
+                <classifier>ballerina-binary-repo</classifier>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>strip-bouncycastle</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -1155,6 +1173,18 @@
                 <classifier>ballerina-binary-repo</classifier>
                 <type>zip</type>
             </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-streams</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-streams</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
 
             <!-- Siddhi Stream Dependencies -->
             <dependency>
@@ -1366,6 +1396,12 @@
                 <artifactId>mysql</artifactId>
                 <version>${testcontainers.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-examples</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -1475,10 +1511,12 @@
                 <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
+                <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/jdbc</module>
                 <module>stdlib/database/mysql</module>
                 <module>stdlib/database/sql</module>
+                <module>stdlib/streams</module>
 
                 <module>misc/lib-creator</module>
 
@@ -1548,10 +1586,12 @@
                 <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
+                <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/jdbc</module>
                 <module>stdlib/database/mysql</module>
                 <module>stdlib/database/sql</module>
+                <module>stdlib/streams</module>
 
                 <module>misc/lib-creator</module>
 
@@ -1571,6 +1611,8 @@
                 <module>language-server</module>
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
+                <module>misc/swagger-ballerina</module>
+                <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
                 <module>misc/metrics-extensions</module>
                 <module>misc/tracing-extensions</module>
@@ -1617,10 +1659,12 @@
                 <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
+                <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/jdbc</module>
                 <module>stdlib/database/mysql</module>
                 <module>stdlib/database/sql</module>
+                <module>stdlib/streams</module>
 
                 <module>misc/lib-creator</module>
 
@@ -1988,7 +2032,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.204</transport.http.version>
+        <transport.http.version>6.0.206</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>

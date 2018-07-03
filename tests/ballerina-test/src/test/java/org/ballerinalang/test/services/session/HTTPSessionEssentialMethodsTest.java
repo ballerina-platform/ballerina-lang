@@ -36,7 +36,7 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
+import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
 import static org.ballerinalang.net.http.HttpConstants.COOKIE_HEADER;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_COOKIE_HEADER;
 import static org.ballerinalang.net.http.HttpConstants.SESSION_ID;
@@ -127,7 +127,7 @@ public class HTTPSessionEssentialMethodsTest {
         Assert.assertNotNull(response);
 
         String responseMsgPayload = StringUtils
-                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());;
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
         Assert.assertEquals(responseMsgPayload, "wso2");
     }
@@ -251,7 +251,7 @@ public class HTTPSessionEssentialMethodsTest {
         Assert.assertNotNull(response);
 
         String responseMsgPayload = StringUtils
-                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());;
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
         Assert.assertEquals(responseMsgPayload, "attribute not available");
 
@@ -264,7 +264,7 @@ public class HTTPSessionEssentialMethodsTest {
         Assert.assertNotNull(response);
 
         String responseMsgPayload = StringUtils
-                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());;
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
         Assert.assertEquals(responseMsgPayload, "1");
 
@@ -289,7 +289,7 @@ public class HTTPSessionEssentialMethodsTest {
         Assert.assertNotNull(response);
 
         String responseMsgPayload = StringUtils
-                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());;
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
         Assert.assertEquals(responseMsgPayload, "arraysize:2");
 
@@ -314,7 +314,7 @@ public class HTTPSessionEssentialMethodsTest {
         Assert.assertNotNull(response);
 
         String responseMsgPayload = StringUtils
-                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());;
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
         Assert.assertEquals(responseMsgPayload, "1");
 
@@ -339,7 +339,7 @@ public class HTTPSessionEssentialMethodsTest {
         Assert.assertNotNull(response);
 
         String responseMsgPayload = StringUtils
-                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());;
+                .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
         Assert.assertEquals(responseMsgPayload, "wso2");
 
@@ -409,7 +409,7 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for struct attribute")
     public void testSessionForStructAttribute() {
-        List<Header> headers = new ArrayList<Header>();
+        List<Header> headers = new ArrayList<>();
         headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN));
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample2/myStruct", "POST", headers, "wso2");
         HTTPCarbonMessage response = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, cMsg);
@@ -436,7 +436,7 @@ public class HTTPSessionEssentialMethodsTest {
 
     @Test(description = "Test for POST method string attribute")
     public void testPOSTForStringOutput() {
-        List<Header> headers = new ArrayList<Header>();
+        List<Header> headers = new ArrayList<>();
         headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN));
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/sample/hello", "POST", headers, "chamil");
         HTTPCarbonMessage response = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, cMsg);

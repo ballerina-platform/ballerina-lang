@@ -99,7 +99,7 @@ public class PushUtils {
                                             ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName,
                                             packageName, version, packageName + ".zip");
         if (Files.notExists(pkgPathFromPrjtDir)) {
-            BuilderUtils.compileAndWrite(prjDirPath, packageName, packageName, false, false, false);
+            BuilderUtils.compileWithTestsAndWrite(prjDirPath, packageName, packageName, false, false, false, true);
         }
 
         if (installToRepo == null) {

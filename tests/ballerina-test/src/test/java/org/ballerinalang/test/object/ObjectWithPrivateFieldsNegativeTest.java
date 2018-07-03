@@ -42,7 +42,7 @@ public class ObjectWithPrivateFieldsNegativeTest {
     public void testPrivateFieldAccess() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-private-fields-02-negative.bal");
 
-        BAssertUtil.validateError(compileResult, 0, "attempt to refer to non-public symbol 'ssn'", 7, 18);
+        BAssertUtil.validateError(compileResult, 0, "attempt to refer to non-accessible symbol 'ssn'", 7, 18);
         BAssertUtil.validateError(compileResult, 1, "undefined field 'ssn' in struct 'org.foo:person'", 7, 18);
     }
 
@@ -51,13 +51,13 @@ public class ObjectWithPrivateFieldsNegativeTest {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src/object", "private-field1");
 
         Assert.assertEquals(compileResult.getErrorCount(), 15);
-        String expectedErrMsg1 = "attempt to refer to non-public symbol ";
+        String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";
         String expectedErrMsg2 = "attempt to expose non-public symbol ";
 
-        BAssertUtil.validateError(compileResult, 0, expectedErrMsg2 + "'ChildFoo'", 5, 9);
+        BAssertUtil.validateError(compileResult, 0, expectedErrMsg2 + "'ChildFoo'", 5, 5);
         BAssertUtil.validateError(compileResult, 1, expectedErrMsg2 + "'privatePerson'", 33, 45);
         BAssertUtil.validateError(compileResult, 2, expectedErrMsg2 + "'privatePerson'", 41, 73);
-        BAssertUtil.validateError(compileResult, 3, expectedErrMsg2 + "'FooFamily'", 16, 9);
+        BAssertUtil.validateError(compileResult, 3, expectedErrMsg2 + "'FooFamily'", 16, 5);
         BAssertUtil.validateError(compileResult, 5, expectedErrMsg1 + "'ChildFoo.new'", 4, 32);
         BAssertUtil.validateError(compileResult, 6, expectedErrMsg1 + "'ParentFoo.new'", 4, 24);
         BAssertUtil.validateError(compileResult, 7, expectedErrMsg1 + "'privatePerson'", 8, 9);
@@ -75,11 +75,11 @@ public class ObjectWithPrivateFieldsNegativeTest {
         CompileResult compileResult = BCompileUtil.compile(this, "test-src/object", "private-field2");
 
         Assert.assertEquals(compileResult.getErrorCount(), 10);
-        String expectedErrMsg1 = "attempt to refer to non-public symbol ";
+        String expectedErrMsg1 = "attempt to refer to non-accessible symbol ";
         String expectedErrMsg2 = "attempt to expose non-public symbol ";
 
-        BAssertUtil.validateError(compileResult, 0, expectedErrMsg2 + "'ChildFoo'", 5, 9);
-        BAssertUtil.validateError(compileResult, 3, expectedErrMsg2 + "'FooFamily'", 16, 9);
+        BAssertUtil.validateError(compileResult, 0, expectedErrMsg2 + "'ChildFoo'", 5, 5);
+        BAssertUtil.validateError(compileResult, 3, expectedErrMsg2 + "'FooFamily'", 16, 5);
         BAssertUtil.validateError(compileResult, 5, expectedErrMsg1 + "'FooFamily'", 5, 13);
         BAssertUtil.validateError(compileResult, 7, expectedErrMsg1 + "'FooFamily'", 10, 13);
         BAssertUtil.validateError(compileResult, 8, expectedErrMsg1 + "'address'", 15, 13);

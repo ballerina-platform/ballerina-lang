@@ -36,6 +36,8 @@ import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -125,10 +127,11 @@ public class BStream implements BRefType<Object> {
      */
     public void subscribe(BFunctionPointer functionPointer) {
         BType[] parameters = functionPointer.funcRefCPEntry.getFunctionInfo().getParamTypes();
-        if (parameters[0].getTag() != constraintType.getTag()
-                || (constraintType instanceof BStructureType && ((BStructureType) parameters[0])
+        int lastArrayIndex = parameters.length - 1;
+        if (parameters[lastArrayIndex].getTag() != constraintType.getTag()
+                || (constraintType instanceof BStructureType && ((BStructureType) parameters[lastArrayIndex])
                 .getTypeInfo().getType() != constraintType)) {
-            throw new BallerinaException("incompatible function: subscription function needs to be a function accepting"
+         throw new BallerinaException("incompatible function: subscription function needs to be a function accepting"
                                                  + ":" + this.constraintType.getName());
         }
         String queueName = String.valueOf(System.currentTimeMillis()) + UUID.randomUUID().toString();
@@ -147,17 +150,25 @@ public class BStream implements BRefType<Object> {
     private class StreamSubscriber extends Consumer {
         final String queueName;
         final BFunctionPointer functionPointer;
+        List<BValue> closureArgs = new ArrayList<>();
 
         StreamSubscriber(String queueName, BFunctionPointer functionPointer) {
             this.queueName = queueName;
             this.functionPointer = functionPointer;
+            for (BClosure closure : functionPointer.getClosureVars()) {
+                closureArgs.add(closure.value());
+            }
         }
 
         @Override
         protected void send(Message message) throws BrokerException {
             BValue data =
                     ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).getValue();
-            BLangFunctions.invokeCallable(functionPointer.value().getFunctionInfo(), new BValue[] { data });
+            List<BValue> argsList = new ArrayList<>();
+            argsList.addAll(closureArgs);
+            argsList.add(data);
+            BLangFunctions.invokeCallable(functionPointer.value().getFunctionInfo(),
+                    argsList.toArray(new BValue[argsList.size()]));
         }
 
         @Override

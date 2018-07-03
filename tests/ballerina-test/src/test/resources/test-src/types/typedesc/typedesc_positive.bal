@@ -11,29 +11,32 @@ function testRefTypes() returns (typedesc, typedesc, typedesc, typedesc) {
     typedesc a = xml;
     typedesc b = json;
     typedesc c = map;
-    typedesc d = table<Person>;
+    typedesc d = table<Employee>;
     return (a, b, c, d);
 }
 
 function testObjectTypes() returns (typedesc, typedesc) {
     typedesc a = Person;
     typedesc b = object {
-        public {
-            string name;
-        }
+        public string name;
     };
     return (a,b);
 }
 
 type Person object {
-    public {
-        string name;
-    }
+    public string name;
+
     new (name){}
     public function getName() returns string {
         return name;
     }
 };
+
+
+type Employee record {
+    string name;
+};
+
 
 function testArrayTypes() returns (typedesc, typedesc) {
     typedesc a = int[];

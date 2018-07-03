@@ -78,10 +78,10 @@ service<grpc:Service> HelloWorldMessageListener {
 
 // Non-blocking client
 public type HelloWorldStub object {
-    public {
-        grpc:Client clientEndpoint;
-        grpc:Stub stub;
-    }
+
+    public grpc:Client clientEndpoint;
+    public grpc:Stub stub;
+
     function initStub(grpc:Client ep) {
         grpc:Stub navStub = new;
         navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
@@ -96,10 +96,10 @@ public type HelloWorldStub object {
 
 // Non-blocking client endpoint
 public type HelloWorldClient object {
-    public {
-        grpc:Client client;
-        HelloWorldStub stub;
-    }
+
+    public grpc:Client client;
+    public HelloWorldStub stub;
+
 
     public function init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.

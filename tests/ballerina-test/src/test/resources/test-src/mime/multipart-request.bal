@@ -95,8 +95,8 @@ service<http:Service> test bind mockEP {
                 setErrorResponse(response, err);
             }
             mime:Entity[] bodyParts => {
-            match bodyParts[0].getBlob() {
-                  blob blobContent => {response.setBinaryPayload(untaint blobContent);}
+            match bodyParts[0].getByteArray() {
+                  byte[] blobContent => {response.setBinaryPayload(untaint blobContent);}
                   error err => {
                         setErrorResponse(response, err);
                   }
@@ -217,10 +217,10 @@ function handleContent (mime:Entity bodyPart) returns (string) {
             string textContent => return textContent;
         }
     } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
-        var payload = bodyPart.getBlob();
+        var payload = bodyPart.getByteArray();
         match payload {
             error err => return "Error in getting blob payload";
-            blob blobContent => return blobContent.toString(mime:DEFAULT_CHARSET);
+            byte[] blobContent => return mime:byteArrayToString(blobContent, mime:DEFAULT_CHARSET);
       }
     }
     return "";

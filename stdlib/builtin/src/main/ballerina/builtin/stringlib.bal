@@ -198,3 +198,11 @@ documentation {
     R{{}} the encoded string.
 }
 public native function string::base64ToBase16Encode() returns string;
+
+documentation {
+    Converts string to a byte array.
+
+    P{{encoding}} Encoding to be used in the conversion
+    R{{}} The byte array representation of the given String
+}
+public native function string::toByteArray(string encoding) returns byte[];

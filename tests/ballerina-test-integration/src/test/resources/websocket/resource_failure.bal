@@ -40,11 +40,11 @@ service<http:WebSocketService> castErrror {
         endpoint http:WebSocketClient val;
         val = check <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION];
     }
-    onBinary(endpoint wsEp, blob data) {
+    onBinary(endpoint wsEp, byte[] data) {
         endpoint http:WebSocketClient val;
         val = check <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION];
     }
-    onPing(endpoint wsEp, blob data) {
+    onPing(endpoint wsEp, byte[] data) {
         endpoint http:WebSocketClient val;
         val = check <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION];
     }

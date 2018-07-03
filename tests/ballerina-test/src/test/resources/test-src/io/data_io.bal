@@ -15,6 +15,21 @@ function testReadFixedSignedInt(string path) returns int|error {
     return result;
 }
 
+function testWriteVarInt(int value, string path) {
+    io:ByteChannel ch = io:openFile(path, io:WRITE);
+    io:DataChannel dataChannel = new(ch);
+    var result = dataChannel.writeVarInt(value);
+    var closeResult = dataChannel.close();
+}
+
+function testReadVarInt(string path) returns int|error {
+    io:ByteChannel ch = io:openFile(path, io:READ);
+    io:DataChannel dataChannel = new(ch);
+    int result = check dataChannel.readVarInt();
+    var closeResult = dataChannel.close();
+    return result;
+}
+
 function testWriteFixedFloat(float value, string path) {
     io:ByteChannel ch = io:openFile(path, io:WRITE);
     io:DataChannel dataChannel = new(ch);

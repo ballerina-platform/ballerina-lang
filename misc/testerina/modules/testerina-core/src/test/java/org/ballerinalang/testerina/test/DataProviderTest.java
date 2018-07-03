@@ -65,8 +65,7 @@ public class DataProviderTest {
             "function \\[invalidDataGen\\] should return an array of arrays.*")
     public void testInvalidDataProviderPrimitiveReturn() {
         new BTestRunner().runTest(sourceRoot, new Path[]{Paths.get
-                        ("invalid-data-provider-test-3.bal")},
-                new ArrayList<>());
+                        ("invalid-data-provider-test-3.bal")}, new ArrayList<>());
 
     }
 
