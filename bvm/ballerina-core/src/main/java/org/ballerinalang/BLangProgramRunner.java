@@ -17,15 +17,16 @@
 */
 package org.ballerinalang;
 
+import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.XMLUtils;
-import org.ballerinalang.model.values.BBlob;
-import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -48,6 +49,9 @@ import org.ballerinalang.util.program.BLangFunctions;
  * @since 0.8.0
  */
 public class BLangProgramRunner {
+
+    private static final String TRUE = "TRUE";
+    private static final String FALSE = "FALSE";
 
     public static void runService(ProgramFile programFile) {
         if (!programFile.isServiceEPAvailable()) {
@@ -98,19 +102,19 @@ public class BLangProgramRunner {
         for (int index = 0; index < paramTypes.length; index++) {
             switch (paramTypes[index].getTag()) {
                 case TypeTags.INT_TAG:
-                    bValueArgs[index] = getBIntegerValue(args[index]);
+                    bValueArgs[index] = new BInteger(getIntegerValue(args[index]));
                     break;
                 case TypeTags.FLOAT_TAG:
-                    bValueArgs[index] = getBFloatValue(args[index]);
+                    bValueArgs[index] = new BFloat(getFloatValue(args[index]));
                     break;
                 case TypeTags.STRING_TAG:
                     bValueArgs[index] = new BString(args[index]);
                     break;
                 case TypeTags.BOOLEAN_TAG:
-                    bValueArgs[index] = getBBooleanValue(args[index]);
+                    bValueArgs[index] = new BBoolean(getBooleanValue(args[index]));
                     break;
-                case TypeTags.BLOB_TAG:
-                    bValueArgs[index] = new BBlob(args[index].getBytes());
+                case TypeTags.BYTE_TAG:
+                    bValueArgs[index] = new BByte(getByteValue(args[index]));
                     break;
                 case TypeTags.XML_TAG:
                     bValueArgs[index] = XMLUtils.parse(args[index]);
@@ -124,14 +128,14 @@ public class BLangProgramRunner {
                             case TypeTags.INT_TAG:
                                 BIntArray intArrayArgs = new BIntArray();
                                 for (int i = index; i < args.length; i++) {
-                                    intArrayArgs.add(i - index, Integer.parseInt(args[i]));
+                                    intArrayArgs.add(i - index, getIntegerValue(args[i]));
                                 }
                                 bValueArgs[index] = intArrayArgs;
                                 break;
                             case TypeTags.FLOAT_TAG:
                                 BFloatArray floatArrayArgs = new BFloatArray();
                                 for (int i = index; i < args.length; i++) {
-                                    floatArrayArgs.add(i - index, Double.parseDouble(args[i]));
+                                    floatArrayArgs.add(i - index, getFloatValue(args[i]));
                                 }
                                 bValueArgs[index] = floatArrayArgs;
                                 break;
@@ -145,16 +149,16 @@ public class BLangProgramRunner {
                             case TypeTags.BOOLEAN_TAG:
                                 BBooleanArray booleanArrayArgs = new BBooleanArray();
                                 for (int i = index; i < args.length; i++) {
-                                    booleanArrayArgs.add(i - index, Boolean.parseBoolean(args[i]) ? 1 : 0);
+                                    booleanArrayArgs.add(i - index, getBooleanValue(args[i]) ? 1 : 0);
                                 }
                                 bValueArgs[index] = booleanArrayArgs;
                                 break;
-                            case TypeTags.BLOB_TAG:
-                                BBlobArray blobArrayArgs = new BBlobArray();
+                            case TypeTags.BYTE_TAG:
+                                BByteArray byteArrayArgs = new BByteArray();
                                 for (int i = index; i < args.length; i++) {
-                                    blobArrayArgs.add(i - index, args[i].getBytes());
+                                    byteArrayArgs.add(i - index, getByteValue(args[i]));
                                 }
-                                bValueArgs[index] = blobArrayArgs;
+                                bValueArgs[index] = byteArrayArgs;
                                 break;
                             case TypeTags.XML_TAG:
                                 BRefValueArray xmlArrayArgs = new BRefValueArray();
@@ -182,27 +186,40 @@ public class BLangProgramRunner {
         return bValueArgs;
     }
 
-    private static BInteger getBIntegerValue(String argument) {
+    private static long getIntegerValue(String argument) {
         try {
-            return new BInteger(Integer.parseInt(argument));
+            return Long.parseLong(argument);
         } catch (NumberFormatException e) {
             throw new BallerinaException("invalid argument: " + argument + ", integer expected");
         }
     }
 
-    private static BFloat getBFloatValue(String argument) {
+    private static double getFloatValue(String argument) {
         try {
-            return new BFloat(Double.parseDouble(argument));
+            return Double.parseDouble(argument);
         } catch (NumberFormatException e) {
             throw new BallerinaException("invalid argument: " + argument + ", float expected");
         }
     }
 
-    private static BBoolean getBBooleanValue(String argument) {
-        if (!"TRUE".equalsIgnoreCase(argument) && !"FALSE".equalsIgnoreCase(argument)) {
+    private static boolean getBooleanValue(String argument) {
+        if (!TRUE.equalsIgnoreCase(argument) && !FALSE.equalsIgnoreCase(argument)) {
             throw new BallerinaException("invalid argument: " + argument + ", boolean expected");
         }
-        return new BBoolean(Boolean.parseBoolean(argument));
+        return Boolean.parseBoolean(argument);
+    }
+
+    private static byte getByteValue(String argument) {
+        long longValue; // TODO: 7/4/18 Allow byte literals?
+        try {
+            longValue = Long.parseLong(argument);
+            if (!CPU.isByteLiteral(longValue)) {
+                throw new Exception();
+            }
+        } catch (Exception e) {
+            throw new BallerinaException("invalid argument: " + argument + ", byte expected");
+        }
+        return (byte) longValue;
     }
 
     private static void initDebugger(ProgramFile programFile, Debugger debugger) {
