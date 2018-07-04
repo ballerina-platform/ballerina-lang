@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
-import static org.ballerinalang.mime.util.Constants.UTF_8;
+import static org.ballerinalang.mime.util.MimeConstants.UTF_8;
 
 /**
  * Utility class for managing responses.

@@ -1,0 +1,15 @@
+{
+  "position": {
+    "line": 13,
+    "character": 39
+  },
+  "source": "service/source/serviceEndpointBind1.bal",
+  "items": [
+    {
+      "label":"cbrEP",
+      "kind":"Unit",
+      "detail":"ballerina/http:Listener",
+      "insertText":"cbrEP"
+    }
+  ]
+}

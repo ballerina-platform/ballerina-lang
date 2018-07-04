@@ -1,7 +1,6 @@
 type TestObject object {
-    public {
-        string testString;
-    }
+    public string testString;
+
     new (testString) {}
     function testFunction (string input) returns string;
 };

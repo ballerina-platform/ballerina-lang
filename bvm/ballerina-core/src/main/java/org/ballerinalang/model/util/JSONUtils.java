@@ -140,7 +140,7 @@ public class JSONUtils {
         }
         
         if (targetType != null) {
-            if (!CPU.isAssignable(bjson, targetType)) {
+            if (!CPU.checkCast(bjson, targetType)) {
                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON, 
                         targetType, bjson.getType());
             }
@@ -333,7 +333,7 @@ public class JSONUtils {
         }
         
         if (targetType != null) {
-            if (!CPU.isAssignable(bjson, targetType)) {
+            if (!CPU.checkCast(bjson, targetType)) {
                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON, 
                         targetType, bjson.getType());
             }
@@ -485,6 +485,10 @@ public class JSONUtils {
 
         JsonNode jsonElement = element == null ? null : element.value();
         try {
+            if (json.size != -1 && index >= json.size) {
+                throw BLangExceptionHelper.getRuntimeException(
+                        RuntimeErrors.INDEX_NUMBER_TOO_LARGE, "size: " + json.size + " index: " + index);
+            }
             if (arrayNode.size() <= index) {
                 // auto-grow the array
                 for (int i = arrayNode.size(); i < index; i++) {

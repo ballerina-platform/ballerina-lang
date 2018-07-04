@@ -5,14 +5,11 @@ public function testObjectFieldDefaultable () returns (int, string, int, string)
 }
 
 type Person object {
-    public {
-        int age = 10,
-        string name = "sample name";
-    }
-    private {
-        int year = 50;
-        string month = "february";
-    }
+    public int age = 10,
+    public string name = "sample name";
+
+    int year = 50;
+    string month = "february";
 
     new (age = 10, name = "sample name") {
 

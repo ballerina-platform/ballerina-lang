@@ -19,8 +19,8 @@
 package org.ballerinalang.net.websub.hub;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.broker.BallerinaBroker;
 import org.ballerinalang.broker.BallerinaBrokerByteBuf;
-import org.ballerinalang.broker.BrokerUtils;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
@@ -29,6 +29,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.websub.BallerinaWebSubException;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,9 @@ public class Hub {
     private static final Logger logger = LoggerFactory.getLogger(Hub.class);
 
     private static Hub instance = new Hub();
+    private BallerinaBroker brokerInstance = null;
     private BMap<String, BValue> hubObject = null;
+    private BValue hubEndpoint = null;
     private String hubUrl;
     private boolean hubTopicRegistrationRequired;
     private boolean hubPersistenceEnabled;
@@ -70,6 +73,14 @@ public class Hub {
     }
 
     private Hub() {
+    }
+
+    private void setHubEndpoint(BValue hubEndpoint) {
+        this.hubEndpoint = hubEndpoint;
+    }
+
+    public BValue getHubEndpoint() {
+        return hubEndpoint;
     }
 
     private void setHubUrl(String hubUrl) {
@@ -157,7 +168,7 @@ public class Hub {
                 subscriptionDetails.put(SUBSCRIPTION_DETAILS_SECRET, new BString(""));
             }
             HubSubscriber subscriberToAdd = new HubSubscriber(queue, topic, callback, subscriptionDetails);
-            BrokerUtils.addSubscription(topic, subscriberToAdd);
+            brokerInstance.addSubscription(topic, subscriberToAdd);
             subscribers.add(subscriberToAdd);
         }
     }
@@ -187,7 +198,7 @@ public class Hub {
                 }
             }
         }
-        BrokerUtils.removeSubscription(subscriberToUnregister);
+        brokerInstance.removeSubscription(subscriberToUnregister);
         subscribers.remove(subscriberToUnregister);
     }
 
@@ -205,7 +216,7 @@ public class Hub {
         } else if (!topics.containsKey(topic) && hubTopicRegistrationRequired) {
             throw new BallerinaWebSubException("Publish call ignored for unregistered topic[" + topic + "]");
         } else {
-            BrokerUtils.publish(topic, new BallerinaBrokerByteBuf(content));
+            brokerInstance.publish(topic, new BallerinaBrokerByteBuf(content));
         }
     }
 
@@ -224,7 +235,7 @@ public class Hub {
             throw new BallerinaWebSubException("Publish call ignored for unregistered topic[" + topic + "]");
         } else {
             byte[] payload = stringPayload.getBytes(StandardCharsets.UTF_8);
-            BrokerUtils.publish(topic, payload);
+            brokerInstance.publish(topic, payload);
         }
     }
 
@@ -238,11 +249,16 @@ public class Hub {
     public void startUpHubService(Context context, BBoolean topicRegistrationRequired, BString publicUrl) {
         synchronized (this) {
             if (!isStarted()) {
+                try {
+                    brokerInstance = BallerinaBroker.getBrokerInstance();
+                } catch (Exception e) {
+                    throw new BallerinaException("Error starting up internal broker for WebSub Hub");
+                }
                 ProgramFile hubProgramFile = context.getProgramFile();
                 PackageInfo hubPackageInfo = hubProgramFile.getPackageInfo(WEBSUB_PACKAGE);
                 if (hubPackageInfo != null) {
-                    BLangFunctions.invokeCallable(hubPackageInfo.getFunctionInfo("startHubService"),
-                                                  new BValue[] {});
+                    BValue[] returns = BLangFunctions.invokeCallable(hubPackageInfo.getFunctionInfo("startHubService"),
+                                                                     new BValue[]{});
                     hubTopicRegistrationRequired = topicRegistrationRequired.booleanValue();
 
                     String hubUrl = publicUrl.stringValue();
@@ -256,9 +272,10 @@ public class Hub {
                     setHubProgramFile(hubProgramFile);
                     started = true;
                     BLangFunctions.invokeCallable(hubPackageInfo.getFunctionInfo("setupOnStartup"), args);
+                    setHubEndpoint(returns[0]);
                     setHubUrl(hubUrl);
                     setHubObject(BLangConnectorSPIUtil.createObject(context, WEBSUB_PACKAGE,
-                                                                     STRUCT_WEBSUB_BALLERINA_HUB, new BString(hubUrl)));
+                                                     STRUCT_WEBSUB_BALLERINA_HUB, new BString(hubUrl), returns[0]));
                 }
             } else {
                 throw new BallerinaWebSubException("Hub Service already started up");
@@ -285,9 +302,10 @@ public class Hub {
                 hubPersistenceEnabled = false;
                 topics = new HashMap<>();
                 for (HubSubscriber subscriber : subscribers) {
-                    BrokerUtils.removeSubscription(subscriber);
+                    brokerInstance.removeSubscription(subscriber);
                 }
                 subscribers = new ArrayList<>();
+                brokerInstance = null;
             } else {
                 throw new BallerinaWebSubException("Hub Service already stopped");
             }
