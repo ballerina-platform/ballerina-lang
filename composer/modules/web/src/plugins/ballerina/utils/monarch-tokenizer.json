@@ -1130,7 +1130,7 @@
             "\\b(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\")\\b",
             {
                 "next": "@pop",
-                "token": "entity.name.function.ballerina"
+                "token": "source.ballerina"
             }
         ],
         {
@@ -1280,7 +1280,7 @@
             "\\b(?:(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\"))\\b|(?=\\,)|(?=;)",
             {
                 "next": "@pop",
-                "token": "variable.ballerina"
+                "token": "source.ballerina"
             }
         ],
         {
