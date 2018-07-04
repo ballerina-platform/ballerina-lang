@@ -86,7 +86,7 @@ public class MetricsTestCase {
         }
 
         // Read the metrics from the prometheus endpoint and test
-        URL metricsEndPoint = new URL("http://localhost:9797/");
+        URL metricsEndPoint = new URL("http://localhost:9797/metrics");
         BufferedReader reader = new BufferedReader(new InputStreamReader(metricsEndPoint.openConnection()
                 .getInputStream()));
         List<String> metricsList = reader.lines().filter(s -> !s.startsWith("#")).collect(Collectors.toList());
