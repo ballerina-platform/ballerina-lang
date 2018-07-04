@@ -17,19 +17,19 @@ Note: Make sure that all started spans are closed properly to ensure that all sp
 
 ```ballerina
 
-int spanId = observe:startRootSpan("Parent Span");
-
-//Do Something
-
-int spanId2 = check observe:startSpan("Child Span", parentSpanId = spanId);
-
-// Do Something
-
-_ = observe:finishSpan(spanId2);
-
-// Do Something
-
-_ = observe:finishSpan(spanId);
+    int spanId = observe:startRootSpan("Parent Span");
+    
+    //Do Something
+    
+    int spanId2 = check observe:startSpan("Child Span", parentSpanId = spanId);
+    
+    // Do Something
+    
+    _ = observe:finishSpan(spanId2);
+    
+    // Do Something
+    
+    _ = observe:finishSpan(spanId);
 ```
 
 #### Start a span attached to a system trace
@@ -37,11 +37,11 @@ _ = observe:finishSpan(spanId);
 When no parentSpanId is given or a parentSpanId of -1 is given, a span is started as a child span to the current active span in the ootb system trace.
 
 ```ballerina
-int spanId = check observe:startSpan("Child Span");
-
-// Do Something
-
-_ = observe:finishSpan(spanId);
+    int spanId = check observe:startSpan("Child Span");
+    
+    // Do Something
+    
+    _ = observe:finishSpan(spanId);
 ```
 
 #### Attach a tag to a span
@@ -49,7 +49,7 @@ _ = observe:finishSpan(spanId);
 It is possible to add tags to span by using the `observe:addTagToSpan()` api by providing the span id and relevant tag key and tag value.
 
 ```ballerina
-_ = observe:addTagToSpan(spanId, "Tag Key", "Tag Value");
+    _ = observe:addTagToSpan(spanId, "Tag Key", "Tag Value");
 ```
 
 ## Metrics 
@@ -66,15 +66,15 @@ The following code snippets provides the information on how Counter instances ca
 will simply create an instance based on the params passed. 
 
 ```ballerina
-//Create counter with simply by name.
-observe:Counter simpleCounter = new ("SimpleCounter"); 
-
-//Create counter with description.
-observe:Counter counterWithDesc = new ("CounterWithDesc", desc = "This is a sample counter description");
-
-//Create counter with tags.
-map<string> counterTags = { "method": "GET" };
-observe:Counter counterWithTags = new ("CounterWithTags", desc = "Some description", tags = counterTags);
+    //Create counter with simply by name.
+    observe:Counter simpleCounter = new ("SimpleCounter"); 
+    
+    //Create counter with description.
+    observe:Counter counterWithDesc = new ("CounterWithDesc", desc = "This is a sample counter description");
+    
+    //Create counter with tags.
+    map<string> counterTags = { "method": "GET" };
+    observe:Counter counterWithTags = new ("CounterWithTags", desc = "Some description", tags = counterTags);
 
 ```
 
@@ -86,7 +86,6 @@ then there will be an error returned. But if it's another counter instance, then
 be returned.
 
 ```ballerina
-
     map<string> counterTags = { "method": "GET" };
     observe:Counter counterWithTags = new ("CounterWithTags", desc = "Some description", tags = counterTags);
     counterWithTags.register() but {
@@ -100,7 +99,6 @@ The counter can unregistered with the global metrics registry if it is already r
 then further it'll not be included in metrics reporting.
 
 ```ballerina
-
     map<string> counterTags = { "method": "GET" };
     observe:Counter counterWithTags = new ("CounterWithTags", desc = "Some description", tags = counterTags);
     counterWithTags.register() but {
@@ -114,7 +112,6 @@ then further it'll not be included in metrics reporting.
 The counter can be incremented without passing any params (defaulted to 1), or by a specific amount. 
 
 ```ballerina
-
     map<string> counterTags = { "method": "GET" };
     observe:Counter counterWithTags = new ("CounterWithTags", desc = "Some description", tags = counterTags);
     //Increment by 1.
@@ -128,7 +125,6 @@ The counter can be incremented without passing any params (defaulted to 1), or b
 The counter can be resetted to default amount = 0. 
 
 ```ballerina
-
     map<string> counterTags = { "method": "GET" };
     observe:Counter counterWithTags = new ("CounterWithTags", desc = "Some description", tags = counterTags);
     counterWithTags.reset(); 
@@ -139,7 +135,6 @@ The counter can be resetted to default amount = 0.
 The current value can be retrieved by this operation. 
 
 ```ballerina
-
     map<string> counterTags = { "method": "GET" };
     observe:Counter counterWithTags = new ("CounterWithTags", desc = "Some description", tags = counterTags);
     int currentValue = counterWithTags.getValue(); 
@@ -153,29 +148,29 @@ The following code snippets provides the information on how Gauge instances can 
 will simply create an instance based on the params passed. 
 
 ```ballerina
-    /Create gauge with simply by name. 
-        //Uses the default statistics configuration. 
-        observe:Gauge simpleGauge = new ("SimpleGauge"); 
+    //Create gauge with simply by name. 
+    //Uses the default statistics configuration. 
+    observe:Gauge simpleGauge = new ("SimpleGauge"); 
         
-        //Create gauge with description.
-        //Uses the default statistics configuration. 
-        observe:Gauge gaugeWithDesc = new ("GaugeWithDesc", desc = "This is a sample gauge description");
+    //Create gauge with description.
+    //Uses the default statistics configuration. 
+    observe:Gauge gaugeWithDesc = new ("GaugeWithDesc", desc = "This is a sample gauge description");
         
-        //Create gauge with tags.
-        //Uses the default statistics configuration. 
-        map<string> gaugeTags = { "method": "GET" };
-        observe:Counter gaugeWithTags = new ("GaugeWithTags", desc = "Some description", tags = gaugeTags);
+    //Create gauge with tags.
+    //Uses the default statistics configuration. 
+    map<string> gaugeTags = { "method": "GET" };
+    observe:Counter gaugeWithTags = new ("GaugeWithTags", desc = "Some description", tags = gaugeTags);
         
-        //Create gauge with disabled statistics. 
-        observe:StatisticConfig[] statsConfigs = [];
-        observe:Gauge gaugeWithNoStats = new ("GaugeWithTags", desc = "Some description", 
+    //Create gauge with disabled statistics. 
+    observe:StatisticConfig[] statsConfigs = [];
+    observe:Gauge gaugeWithNoStats = new ("GaugeWithTags", desc = "Some description", 
                                         tags = gaugeTags, statisticConfig = statsConfigs);
                                         
-        //Create gauge with statistics config. 
-        observe:StatisticConfig config = {expiry:30000, percentiles:[0.33, 0.5, 0.9, 0.99], buckets:3};
-        statsConfigs[0]=config; 
+    //Create gauge with statistics config. 
+    observe:StatisticConfig config = {expiry:30000, percentiles:[0.33, 0.5, 0.9, 0.99], buckets:3};
+    statsConfigs[0]=config; 
         
-        observe:Gauge gaugeWithStats = new ("GaugeWithTags", desc = "Some description", 
+    observe:Gauge gaugeWithStats = new ("GaugeWithTags", desc = "Some description", 
                                         tags = gaugeTags, statisticConfig = statsConfigs);                                        
 
 ```
@@ -188,7 +183,6 @@ then there will be an error returned. But if it's another gauge instance, then t
 be returned.
 
 ```ballerina
-
     map<string> gaugeTags = { "method": "GET" };
     observe:Gauge gaugeWithTags = new ("GaugeWithTags", desc = "Some description", tags = gaugeTags);
     gaugeWithTags.register() but {
@@ -202,7 +196,6 @@ The gauge can unregistered with the global metrics registry if it is already reg
 then further it'll not be included in metrics reporting.
 
 ```ballerina
-
      map<string> gaugeTags = { "method": "GET" };
      observe:Gauge gaugeWithTags = new ("GaugeWithTags", desc = "Some description", tags = gaugeTags);
      gaugeWithTags.register() but {
@@ -216,9 +209,8 @@ then further it'll not be included in metrics reporting.
 The gauge can be incremented without passing any params (defaulted to 1.0), or by a specific amount. 
 
 ```ballerina
-
-     map<string> gaugeTags = { "method": "GET" };
-     observe:Gauge gaugeWithTags = new ("GaugeWithTags", desc = "Some description", tags = gaugeTags);
+    map<string> gaugeTags = { "method": "GET" };
+    observe:Gauge gaugeWithTags = new ("GaugeWithTags", desc = "Some description", tags = gaugeTags);
     //Increment by 1.
     gaugeWithTags.increment(); 
     //Increment by amount 10.
@@ -230,9 +222,8 @@ The gauge can be incremented without passing any params (defaulted to 1.0), or b
 The gauge can be decremented without passing any params (defaulted to 1.0), or by a specific amount. 
 
 ```ballerina
-
-     map<string> gaugeTags = { "method": "GET" };
-     observe:Gauge gaugeWithTags = new ("GaugeWithTags", desc = "Some description", tags = gaugeTags);
+    map<string> gaugeTags = { "method": "GET" };
+    observe:Gauge gaugeWithTags = new ("GaugeWithTags", desc = "Some description", tags = gaugeTags);
     //Increment by 1.
     gaugeWithTags.decrement(); 
     //Increment by amount 10.
@@ -244,7 +235,6 @@ The gauge can be decremented without passing any params (defaulted to 1.0), or b
 This method sets the gauge's value with specific amount. 
 
 ```ballerina
-
      map<string> gaugeTags = { "method": "GET" };
      observe:Gauge gaugeWithTags = new ("GaugeWithTags", desc = "Some description", tags = gaugeTags);
      gaugeWithTags.setValue(100.0);
@@ -255,7 +245,6 @@ This method sets the gauge's value with specific amount.
 The current value can be retrieved by this operation. 
 
 ```ballerina
-
     map<string> gaugeTags = { "method": "GET" };
     observe:Gauge gaugeWithTags = new ("GaugeWithTags", desc = "Some description", tags = gaugeTags);
     float currentValue = gaugeWithTags.getValue(); 
@@ -266,7 +255,6 @@ The current value can be retrieved by this operation.
 This method retrieves the times that gauge value has been modified through out. 
 
 ```ballerina
-
     map<string> gaugeTags = { "method": "GET" };
     observe:Gauge gaugeWithTags = new ("GaugeWithTags", desc = "Some description", tags = gaugeTags);
     int count = gaugeWithTags.getCount(); 
@@ -277,7 +265,6 @@ This method retrieves the times that gauge value has been modified through out.
 This method retrieves the total sum of the values of the gauge. 
 
 ```ballerina
-
     map<string> gaugeTags = { "method": "GET" };
     observe:Gauge gaugeWithTags = new ("GaugeWithTags", desc = "Some description", tags = gaugeTags);
     float sum = gaugeWithTags.getSum(); 
