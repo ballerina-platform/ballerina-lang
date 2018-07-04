@@ -89,12 +89,14 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
                     CommonUtil.invocationsAndFieldsOnIdentifier(ctx, variableName, UtilSymbolKeys.DOT_SYMBOL_KEY)
                             .stream().filter(symbolInfo -> {
                 BSymbol symbol = symbolInfo.getScopeEntry().symbol;
-                return symbol instanceof BInvokableSymbol;
+                return symbol instanceof BInvokableSymbol || symbol instanceof BVarSymbol;
             }).collect(Collectors.toList());
             filteredSymbols.forEach(symbolInfo -> {
                 BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
                 if (bSymbol instanceof BInvokableSymbol) {
                     this.fillInvokableSymbolMatchSnippet((BInvokableSymbol) bSymbol, completionItems, ctx);
+                } else if (bSymbol instanceof BVarSymbol) {
+                    this.fillVarSymbolMatchSnippet((BVarSymbol) bSymbol, completionItems, ctx);
                 }
             });
         } else {
@@ -111,6 +113,7 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
                     this.fillInvokableSymbolMatchSnippet((BInvokableSymbol) bSymbol, completionItems, ctx);
                 } else if (bSymbol instanceof BVarSymbol) {
                     this.fillVarSymbolMatchSnippet((BVarSymbol) bSymbol, completionItems, ctx);
+                    completionItems.add(this.populateVariableDefCompletionItem(symbolInfo));
                 } else if (bSymbol instanceof BPackageSymbol
                         && !bSymbol.pkgID.name.getValue().equals("builtin")
                         && !bSymbol.pkgID.name.getValue().contains("runtime")) {
