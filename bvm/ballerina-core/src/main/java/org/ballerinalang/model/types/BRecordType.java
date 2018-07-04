@@ -31,6 +31,9 @@ public class BRecordType extends BStructureType {
 
     public RecordTypeInfo recordTypeInfo;
 
+    public boolean sealed;
+    public BType restFieldType;
+
     /**
      * Create a {@code BStructType} which represents the user defined struct type.
      *

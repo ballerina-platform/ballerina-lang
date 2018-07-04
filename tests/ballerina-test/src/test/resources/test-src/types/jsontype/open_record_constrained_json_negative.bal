@@ -1,26 +1,39 @@
-type Person sealed record {
+type Person record {
     string name;
     int age;
     string address;
+    string...
 };
 
-type Student sealed record {
+type InvalidPerson record {
+    string fname,
+    string lname,
+    int age,
+};
+
+type Student record {
     string name;
     int age;
     string address;
     string class;
+    string...
 };
 
-function testJsonInitializationWithStructConstraintInvalid() returns (json, json, json){
-    json<Person> j = {firstName:"John Doe", age:5, address:"London"};
-    return (j.name, j.age, j.address);
+function testConstrainingUsingRecordWithIncompatibleRestField() {
+    json<InvalidPerson> j = {fname:"John", lname:"Doe", age:20};
 }
 
-function testInvalidStructFieldConstraintLhs() returns (json){
-    json<Person> j = {};
-    j.firstName = "Ann";
-    return j;
+function testJsonInitializationWithIncompatibleRestField() returns (json, json, json, json){
+    json<Person> j = {firstName:"John Doe", age:20, address:"London", height:5.5};
+    return (j.name, j.age, j.address, j.height);
 }
+
+// TODO: Enable this test once type checking for constrained JSON is supported
+//function testAssigningIncompatibleRestField() returns (json){
+//    json<Person> j = {};
+//    j.height = 5.5;
+//    return j;
+//}
 
 function tesInvalidStructFieldConstraintRhs() returns (json){
     json<Person> j = {};
@@ -34,21 +47,21 @@ function testConstraintJSONIndexing() returns (json){
     return j["bus"];
 }
 
-type Employee sealed record {
+type Employee record {
     string first_name;
     string last_name;
     int age;
     Address address;
 };
 
-type Address sealed record {
+type Address record {
     string number;
     string street;
     string city;
     PhoneNumber phoneNumber;
 };
 
-type PhoneNumber sealed record {
+type PhoneNumber record {
     string areaCode;
     string number;
 };

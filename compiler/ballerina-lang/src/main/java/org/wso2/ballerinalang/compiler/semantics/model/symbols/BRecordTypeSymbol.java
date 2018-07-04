@@ -36,8 +36,7 @@ public class BRecordTypeSymbol extends BStructureTypeSymbol {
 
     @Override
     public BRecordTypeSymbol createLabelSymbol() {
-        BRecordTypeSymbol copy = (BRecordTypeSymbol) Symbols
-                .createRecordSymbol(flags, Names.EMPTY, pkgID, type, owner);
+        BRecordTypeSymbol copy = Symbols.createRecordSymbol(flags, Names.EMPTY, pkgID, type, owner);
         copy.attachedFuncs = attachedFuncs;
         copy.initializerFunc = initializerFunc;
         copy.defaultsValuesInitFunc = defaultsValuesInitFunc;

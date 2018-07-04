@@ -1,9 +1,9 @@
-type Department record {
+type Department sealed record {
     string dptName;
     Person[] employees;
 };
 
-type Person record {
+type Person sealed record {
     string name = "default first name";
     string lname;
     map adrs;
@@ -12,13 +12,13 @@ type Person record {
     Person? parent;
 };
 
-type Family record {
+type Family sealed record {
     string spouse;
     int noOfChildren;
     string[] children;
 };
 
-type Employee record {
+type Employee sealed record {
     string name = "default first name";
     string lname;
     map address;
@@ -99,7 +99,7 @@ function testNestedStructInit () returns (Person) {
     return p1;
 }
 
-type NegativeValTest record {
+type NegativeValTest sealed record {
     int negativeInt = -9;
     int negativeSpaceInt = -8;
     float negativeFloat = -88.234;
@@ -148,4 +148,19 @@ function testStructWithRecordKeyword() returns Employee {
     map address = {"country":"USA", "state":"CA"};
     Employee emp = {name:"John", lname:"Doe", address:address, age:25, designation:"Software Engineer"};
     return emp;
+}
+
+type PersonA sealed record {
+    string fname,
+    string lname,
+    function() returns string fullName,
+};
+
+function testFuncPtrAsRecordField() returns string {
+    PersonA p = {fname:"John", lname:"Doe"};
+    p.fullName = () => string {
+        return p.lname + ", " + p.fname;
+    };
+
+    return p.fullName();
 }

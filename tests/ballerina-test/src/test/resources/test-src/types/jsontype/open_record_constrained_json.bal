@@ -1,30 +1,34 @@
-type Person sealed record {
+type Person record {
     string name;
     int age;
     string address;
+    string...
 };
 
-type Student sealed record {
+type Student record {
     string name;
     int age;
     string address;
     string class;
+    string...
 };
 
-function testJsonStructConstraint() returns (json, json, json, string|error, int|error, string|error) {
+function testJsonStructConstraint() returns (json, json, json, json, string|error, int|error, string|error, string|error) {
     json<Person> j = {};
     j.name = "John Doe";
     j.age = 30;
     j.address = "London";
+    j.country = "UK";
     var name = <string> j.name;
     var age = <int> j.age;
     var address = <string> j.address;
-    return (j.name, j.age, j.address, name, age, address);
+    var country = <string> j.country;
+    return (j.name, j.age, j.address, j.country, name, age, address, country);
 }
 
-function testJsonInitializationWithStructConstraint() returns (json, json, json){
-    json<Person> j = {name:"John Doe", age:30, address:"London"};
-    return (j.name, j.age, j.address);
+function testJsonInitializationWithStructConstraint() returns (json, json, json, json){
+    json<Person> j = {name:"John Doe", age:30, address:"London", country:"UK"};
+    return (j.name, j.age, j.address, j.country);
 }
 
 function testGetPlainJson() returns (json) {
@@ -62,23 +66,26 @@ function getStudent() returns (json<Student>){
     return j;
 }
 
-type Employee sealed record {
+type Employee record {
     string first_name;
     string last_name;
     int age;
     Address address;
+    float...
 };
 
-type Address sealed record {
+type Address record {
     string number;
     string street;
     string city;
     PhoneNumber phoneNumber;
+    boolean...
 };
 
-type PhoneNumber sealed record {
+type PhoneNumber record {
     string areaCode;
     string number;
+    int...
 };
 
 function testContrainingWithNestedStructs() returns (json, json, json) {

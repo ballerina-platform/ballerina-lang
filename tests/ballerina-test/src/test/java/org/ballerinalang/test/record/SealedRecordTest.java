@@ -31,15 +31,15 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for user defined record types in ballerina.
+ * Test cases for user defined sealed record types in Ballerina.
  */
-public class RecordTest {
+public class SealedRecordTest {
 
     private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/record/record.bal");
+        compileResult = BCompileUtil.compile("test-src/record/sealed_record.bal");
     }
 
     @Test(description = "Test using expressions as index for record arrays")
@@ -175,5 +175,11 @@ public class RecordTest {
         Assert.assertEquals(returns[0].stringValue(), "{name:\"John\", lname:\"Doe\", address:{\"country\":\"USA\", " +
                 "\"state\":\"CA\"}, age:25, family:{spouse:\"\", noOfChildren:0, children:[]}, parent:null, " +
                 "designation:\"Software Engineer\"}");
+    }
+
+    @Test(description = "Test function pointer as a record field")
+    public void testFuncPtrAsAField() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFuncPtrAsRecordField");
+        Assert.assertEquals(returns[0].stringValue(), "Doe, John");
     }
 }
