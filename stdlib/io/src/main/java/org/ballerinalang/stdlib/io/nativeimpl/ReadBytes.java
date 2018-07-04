@@ -94,6 +94,7 @@ public class ReadBytes implements NativeCallableUnit {
             contentTuple.add(1, new BInteger(numberOfBytes));
             context.setReturnValues(contentTuple);
         }
+        IOUtils.validateChannelState(eventContext);
         callback.notifySuccess();
         return result;
     }

@@ -75,6 +75,7 @@ public class ReadFloat64 implements NativeCallableUnit {
             Double readDouble = result.getResponse();
             context.setReturnValues(new BFloat(readDouble));
         }
+        IOUtils.validateChannelState(eventContext);
         callback.notifySuccess();
         return result;
     }

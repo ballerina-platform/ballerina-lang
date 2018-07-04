@@ -73,6 +73,7 @@ public class ReadInt16 implements NativeCallableUnit {
             Long readLong = result.getResponse();
             context.setReturnValues(new BInteger(readLong));
         }
+        IOUtils.validateChannelState(eventContext);
         callback.notifySuccess();
         return result;
     }

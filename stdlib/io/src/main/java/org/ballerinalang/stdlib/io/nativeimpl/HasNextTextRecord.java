@@ -35,6 +35,7 @@ import org.ballerinalang.stdlib.io.events.EventResult;
 import org.ballerinalang.stdlib.io.events.Register;
 import org.ballerinalang.stdlib.io.events.records.HasNextDelimitedRecordEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
+import org.ballerinalang.stdlib.io.utils.IOUtils;
 
 /**
  * Native function ballerina/io#hasNextTextRecord.
@@ -68,6 +69,7 @@ public class HasNextTextRecord implements NativeCallableUnit {
         CallableUnitCallback callback = eventContext.getCallback();
         Boolean response = result.getResponse();
         context.setReturnValues(new BBoolean(response));
+        IOUtils.validateChannelState(eventContext);
         callback.notifySuccess();
         return result;
     }

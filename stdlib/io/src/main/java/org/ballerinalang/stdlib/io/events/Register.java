@@ -35,6 +35,10 @@ public abstract class Register {
         this.exec = new EventExecutor(event, function);
     }
 
+    public EventExecutor getExec() {
+        return exec;
+    }
+
     /**
      * Register event for execution.
      */

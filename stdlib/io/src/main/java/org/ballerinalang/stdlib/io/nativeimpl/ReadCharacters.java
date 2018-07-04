@@ -81,6 +81,7 @@ public class ReadCharacters implements NativeCallableUnit {
             String readChars = result.getResponse();
             context.setReturnValues(new BString(readChars));
         }
+        IOUtils.validateChannelState(eventContext);
         callback.notifySuccess();
         return result;
     }

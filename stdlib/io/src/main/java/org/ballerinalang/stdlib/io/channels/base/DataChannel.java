@@ -23,7 +23,6 @@ import org.ballerinalang.stdlib.io.channels.base.data.LongResult;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.channels.ByteChannel;
 
 /**
  * Represents a channel which will allow performing data i/o operations.
@@ -48,8 +47,8 @@ public class DataChannel {
         this.order = order;
     }
 
-    public ByteChannel getByteChannel() {
-        return channel.getByteChannel();
+    public Channel getChannel() {
+        return channel;
     }
 
     /**

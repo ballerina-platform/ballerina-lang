@@ -83,6 +83,7 @@ public class ReadString implements NativeCallableUnit {
             String readStr = result.getResponse();
             context.setReturnValues(new BString(readStr));
         }
+        IOUtils.validateChannelState(eventContext);
         callback.notifySuccess();
         return result;
     }
