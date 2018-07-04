@@ -139,7 +139,7 @@ public class JSONUtils {
         }
         
         if (targetType != null) {
-            if (!CPU.isAssignable(bjson, targetType)) {
+            if (!CPU.checkCast(bjson, targetType)) {
                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON, 
                         targetType, bjson.getType());
             }
@@ -329,7 +329,7 @@ public class JSONUtils {
         }
         
         if (targetType != null) {
-            if (!CPU.isAssignable(bjson, targetType)) {
+            if (!CPU.checkCast(bjson, targetType)) {
                 throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON, 
                         targetType, bjson.getType());
             }
