@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -644,8 +645,9 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        BTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                                                                    Names.EMPTY, env.enclPkg.symbol.pkgID, null,
+                                                                    env.scope.owner);
 
         BRecordType recordType = new BRecordType(recordSymbol);
         recordSymbol.type = recordType;
@@ -702,6 +704,11 @@ public class SymbolResolver extends BLangNodeVisitor {
         } else {
             if (!types.checkStructToJSONCompatibility(constraintType) && constraintType != symTable.errType) {
                 dlog.error(constrainedTypeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, type, constraintType);
+                resultType = symTable.errType;
+                return;
+            }
+            if (constraintType.tag == TypeTags.RECORD && !((BRecordType) constraintType).sealed) {
+                dlog.error(constrainedTypeNode.pos, DiagnosticCode.OPEN_RECORD_CONSTRAINT_NOT_ALLOWED, type);
                 resultType = symTable.errType;
                 return;
             }

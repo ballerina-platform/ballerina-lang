@@ -33,7 +33,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for constraining json types with structs.
+ * Test cases for constraining json types with sealed records.
  */
 public class ConstrainedJSONTest {
 

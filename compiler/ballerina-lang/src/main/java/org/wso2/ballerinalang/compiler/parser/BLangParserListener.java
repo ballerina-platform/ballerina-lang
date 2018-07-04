@@ -785,7 +785,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override
-    public void enterFieldDefinitionList(BallerinaParser.FieldDefinitionListContext ctx) {
+    public void enterRecordFieldDefinitionList(BallerinaParser.RecordFieldDefinitionListContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -793,13 +793,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.startVarList();
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
     @Override
-    public void exitFieldDefinitionList(BallerinaParser.FieldDefinitionListContext ctx) {
+    public void exitRecordFieldDefinitionList(BallerinaParser.RecordFieldDefinitionListContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -810,7 +805,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
                         ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext) ||
                         ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
-        this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous);
+
+        boolean hasRestField = ctx.recordRestFieldDefinition() != null;
+
+        boolean sealed = "sealed".equals(ctx.parent.getChild(0).getText());
+
+        this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous, sealed,
+                                      hasRestField);
     }
 
     @Override
