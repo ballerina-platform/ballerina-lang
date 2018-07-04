@@ -79,12 +79,10 @@ documentation {
 }
 public type ContentDisposition object {
 
-    public {
-        string fileName;
-        string disposition;
-        string name;
-        map<string> parameters;
-    }
+    public string fileName;
+    public string disposition;
+    public string name;
+    public map<string> parameters;
 
     documentation {
         Converts the `ContentDisposition` type to a string suitable for use as the value of a corresponding MIME header.
@@ -103,12 +101,10 @@ documentation {
 }
 public type MediaType object {
 
-    public {
-        string primaryType;
-        string subType;
-        string suffix;
-        map<string> parameters;
-    }
+    public string primaryType;
+    public string subType;
+    public string suffix;
+    public map<string> parameters;
 
     documentation {
         Gets “primaryType/subtype+suffix” combination in string format.
@@ -124,11 +120,11 @@ public type MediaType object {
     public function toString() returns (string);
 };
 
-public function MediaType::getBaseType() returns (string) {
+function MediaType::getBaseType() returns (string) {
     return self.primaryType + "/" + self.subType;
 }
 
-public function MediaType::toString() returns (string) {
+function MediaType::toString() returns (string) {
     string contentType = self.getBaseType();
     // map<string> parameters = self.parameters;
     string[] arrKeys = self.parameters.keys();
@@ -161,12 +157,10 @@ documentation {
 }
 public type Entity object {
 
-    private {
-        MediaType cType;
-        string cId;
-        int cLength;
-        ContentDisposition cDisposition;
-    }
+    private MediaType cType;
+    private string cId;
+    private int cLength;
+    private ContentDisposition cDisposition;
 
     documentation {
         Sets the content-type to entity.
@@ -476,13 +470,13 @@ public type Entity object {
     public native function hasHeader(@sensitive string headerName) returns boolean;
 };
 
-public function Entity::setFileAsEntityBody(@sensitive string filePath,
+function Entity::setFileAsEntityBody(@sensitive string filePath,
                                             @sensitive string contentType = "application/octet-stream") {
     io:ByteChannel channel = io:openFile(filePath, READ_PERMISSION);
     self.setByteChannel(channel, contentType = contentType);
 }
 
-public function Entity::setBody(@sensitive (string|xml|json|byte[]|io:ByteChannel|Entity[]) entityBody) {
+function Entity::setBody(@sensitive (string|xml|json|byte[]|io:ByteChannel|Entity[]) entityBody) {
     match entityBody {
         string textContent => self.setText(textContent);
         xml xmlContent => self.setXml(xmlContent);

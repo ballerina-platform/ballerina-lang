@@ -15,9 +15,7 @@
 // under the License.
 
 public type OutputProcess object {
-    private {
-        function (any) outputFunc;
-    }
+    private function (any) outputFunc;
 
     new(outputFunc) {
 

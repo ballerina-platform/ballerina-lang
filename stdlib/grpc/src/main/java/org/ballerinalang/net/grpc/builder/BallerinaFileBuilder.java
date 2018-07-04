@@ -18,8 +18,8 @@
 package org.ballerinalang.net.grpc.builder;
 
 import com.google.protobuf.DescriptorProtos;
-import io.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.MessageUtils;
+import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.builder.components.ActionBuilder;
 import org.ballerinalang.net.grpc.builder.components.ClientBuilder;
 import org.ballerinalang.net.grpc.builder.components.ClientStruct;

@@ -51,20 +51,6 @@ public class ServiceProtoConstants {
     public static final String SERVICE_CONFIG_CLIENT_STREAMING = "clientStreaming";
     public static final String SERVICE_CONFIG_SERVER_STREAMING = "serverStreaming";
 
-
-    // proto wrapper message constants
-    public static final String WRAPPER_DOUBLE_MESSAGE = "DoubleValue";
-    public static final String WRAPPER_FLOAT_MESSAGE = "FloatValue";
-    public static final String WRAPPER_INT64_MESSAGE = "Int64Value";
-    public static final String WRAPPER_UINT64_MESSAGE = "UInt64Value";
-    public static final String WRAPPER_INT32_MESSAGE = "Int32Value";
-    public static final String WRAPPER_UINT32_MESSAGE = "UInt32Value";
-    public static final String WRAPPER_BOOL_MESSAGE = "BoolValue";
-    public static final String WRAPPER_STRING_MESSAGE = "StringValue";
-    public static final String WRAPPER_BYTES_MESSAGE = "BytesValue";
-
-    public static final String STRUCT_LIST_MESSAGE = "ListValue";
-
     public static final Map<Integer, String> FIELD_TYPE_MAP;
     static {
         Map<Integer, String> sTypeMap = new HashMap<>();
@@ -84,5 +70,9 @@ public class ServiceProtoConstants {
         sTypeMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING_VALUE, "string");
         sTypeMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES_VALUE, "bytes");
         FIELD_TYPE_MAP = Collections.unmodifiableMap(sTypeMap);
+    }
+
+    private ServiceProtoConstants() {
+
     }
 }

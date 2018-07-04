@@ -18,9 +18,7 @@ documentation {
     Represents a WebSocket connector in ballerina. This include all connector oriented operations.
 }
 public type WebSocketConnector object {
-    private {
-        boolean isReady = false;
-    }
+    private boolean isReady = false;
 
     documentation {
         Push text to the connection.

@@ -1,6 +1,8 @@
 version: '{build}'
 skip_tags: true
 clone_depth: 1
+image:
+- Visual Studio 2017
 environment:
   MAVEN_VERSION: 3.5.0
   matrix:
@@ -18,7 +20,7 @@ install:
   - cmd: mvn --version
   - cmd: java -version
 build_script:
-  - mvn clean install -P ballerina -DskipTests -V
+  - mvn clean install -V -DskipTests
 cache:
   - C:\maven\ -> appveyor.yml
   - C:\Users\appveyor\.m2\ -> pom.xml

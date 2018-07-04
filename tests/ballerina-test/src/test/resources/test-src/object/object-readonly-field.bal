@@ -3,16 +3,12 @@ import org.bar;
 @readonly public int globalInt = 10;
 
 public type Employee object {
-   public {
-       @readonly int age = 10,
-       float salary = 50.5,
-       string name = "john";
-   }
+   @readonly public int age = 10,
+   public float salary = 50.5,
+   public string name = "john";
 
-   private {
-       int id = 50;
-       string ssn = "aaa";
-   }
+   private int id = 50;
+   private string ssn = "aaa";
 };
 
 public function createEmployee() returns (Employee) {

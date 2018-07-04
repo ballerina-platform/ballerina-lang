@@ -45,9 +45,7 @@ public class VariableDefContextItemSorter extends CompletionItemSorter {
                 .map(Token::getText)
                 .collect(Collectors.toList());
 
-        if (!poppedTokens.contains("=")) {
-            completionItems.clear();
-        } else {
+        if (poppedTokens.contains("=")) {
             completionItems.forEach(completionItem -> {
                 if (completionItem.getDetail().equals(ItemResolverConstants.FUNCTION_TYPE)) {
                     String label = completionItem.getLabel();

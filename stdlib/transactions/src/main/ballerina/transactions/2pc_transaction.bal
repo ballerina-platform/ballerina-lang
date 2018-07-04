@@ -20,17 +20,15 @@ import ballerina/time;
 
 type TwoPhaseCommitTransaction object {
 
-    private {
-        string transactionId;
-        int transactionBlockId;
-        string coordinationType;
-        boolean isInitiated; // Indicates whether this is a transaction that was initiated or is participated in
-        map<Participant> participants;
-        Protocol[] coordinatorProtocols;
-        int createdTime = time:currentTime().time;
-        TransactionState state = TXN_STATE_ACTIVE;
-        boolean possibleMixedOutcome;
-    }
+    string transactionId;
+    int transactionBlockId;
+    string coordinationType;
+    boolean isInitiated; // Indicates whether this is a transaction that was initiated or is participated in
+    map<Participant> participants;
+    Protocol[] coordinatorProtocols;
+    int createdTime = time:currentTime().time;
+    TransactionState state = TXN_STATE_ACTIVE;
+    private boolean possibleMixedOutcome;
 
     new(transactionId, transactionBlockId, coordinationType = "2pc") {
 

@@ -18,12 +18,9 @@ package org.ballerinalang.langserver.compiler;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageLoader;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -37,34 +34,11 @@ import java.util.List;
  */
 public class LSPackageLoader {
 
-    private static final String SOURCE_DIR = "src";
-    private static final String BALLERINA_ORG = "ballerina";
+    private static final String LIB_REPO_DIR = "lib/repo";
     private static final String DOT = ".";
     private static final String BALLERINA_HOME = "ballerina.home";
-    @Deprecated
-    private static final String[] STATIC_PKG_NAMES = {"http", "swagger", "mime", "auth", "cache", "config", "sql",
-            "file", "internal", "io", "log", "math", "system", "reflect", "runtime", "crypto", "task",
-            "time", "transactions", "builtin"};
     private static List<BallerinaPackage> sdkPackages = getSDKPackagesFromSrcDir();
     private static List<BallerinaPackage> homeRepoPackages = getPackagesFromHomeRepo();
-
-    /**
-     * Get the Builtin Package.
-     *
-     * @return {@link BLangPackage} Builtin BLang package
-     */
-    public static List<BLangPackage> getBuiltinPackages(CompilerContext context) {
-        List<BLangPackage> builtins = new ArrayList<>();
-        PackageLoader pkgLoader = PackageLoader.getInstance(context);
-        SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
-        CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
-        BLangPackage builtInPkg =
-                codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(Names.BUILTIN_ORG.getValue(),
-                        Names.BUILTIN_PACKAGE.getValue(), Names.EMPTY.getValue())));
-        builtins.add(builtInPkg);
-
-        return builtins;
-    }
 
     /**
      * Get the package by ID via Package loader.
@@ -105,16 +79,6 @@ public class LSPackageLoader {
     }
 
     /**
-     * Returns a static packages list.
-     *
-     * @return static packages list
-     */
-    @Deprecated
-    public static String[] getStaticPkgNames() {
-        return STATIC_PKG_NAMES.clone();
-    }
-
-    /**
      * Get packages from the source directory.
      *
      * @return {@link List} array of package names available in SDK source directory
@@ -123,13 +87,20 @@ public class LSPackageLoader {
         List<BallerinaPackage> ballerinaPackages = new ArrayList<>();
         String ballerinaSDKHome = System.getProperty(BALLERINA_HOME);
         if (ballerinaSDKHome != null) {
-            String ballerinaSDKSrcDir = Paths.get(ballerinaSDKHome, SOURCE_DIR).toString();
-            File projectDir = new File(ballerinaSDKSrcDir);
-            String[] packageNames = projectDir.list(((dir, name) -> !name.startsWith(DOT)));
-            if (packageNames != null) {
-                for (String name : packageNames) {
-                    BallerinaPackage ballerinaPackage = new BallerinaPackage(BALLERINA_ORG, name, null);
-                    ballerinaPackages.add(ballerinaPackage);
+            String ballerinaLibRepoDir = Paths.get(ballerinaSDKHome, LIB_REPO_DIR).toString();
+            File reposDir = new File(ballerinaLibRepoDir);
+            String[] repos = reposDir.list((dir, name) -> !name.startsWith(DOT));
+            if (repos != null) {
+                for (String repo : repos) {
+                    String repoDir = Paths.get(ballerinaLibRepoDir, repo).toString();
+                    File packageDir = new File(repoDir);
+                    String[] packageNames = packageDir.list(((dir, name) -> !name.startsWith(DOT)));
+                    if (packageNames != null) {
+                        for (String name : packageNames) {
+                            BallerinaPackage ballerinaPackage = new BallerinaPackage(repo, name, null);
+                            ballerinaPackages.add(ballerinaPackage);
+                        }
+                    }
                 }
             }
         }

@@ -23,10 +23,8 @@ documentation { JMS topic subscriber
 }
 public type TopicSubscriber object {
 
-    public {
-        TopicSubscriberActions consumerActions;
-        TopicSubscriberEndpointConfiguration config;
-    }
+    public TopicSubscriberActions consumerActions;
+    public TopicSubscriberEndpointConfiguration config;
 
     documentation { Initialize topic subscriber endpoint
         P{{c}} Topic subscriber configuration
