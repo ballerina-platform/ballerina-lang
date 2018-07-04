@@ -3805,24 +3805,7 @@ public class CPU {
             return true;
         }
 
-        if ((value.getType().getTag() == TypeTags.OBJECT_TYPE_TAG
-                || value.getType().getTag() == TypeTags.RECORD_TYPE_TAG)
-                && (constraintType.getTag() == TypeTags.OBJECT_TYPE_TAG
-                || constraintType.getTag() == TypeTags.RECORD_TYPE_TAG) &&
-                checkStructEquivalency((BStructureType) value.getType(), (BStructureType) constraintType)) {
-            return true;
-        }
-
-        // TODO: check for subsets
-        if (constraintType.getTag() == TypeTags.UNION_TAG) {
-            BUnionType unionType = (BUnionType) constraintType;
-            if (unionType.getMemberTypes().contains(BTypes.typeAny)) {
-                return true;
-            }
-            return unionType.getMemberTypes().contains(value.getType());
-        }
-
-        return false;
+        return checkCast(value, constraintType);
     }
 
     public static boolean isAssignable(BType sourceType, BType targetType) {
