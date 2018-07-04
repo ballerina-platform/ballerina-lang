@@ -372,4 +372,31 @@ public class SealedArrayTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "accessIndexOfMatchedSealedArray", args);
         Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 10, "Invalid match for sealed array");
     }
+
+    @Test
+    public void testSealedArrayConstrainedMap() {
+        BIntArray bIntArray = new BIntArray(3);
+        bIntArray.add(0, 1);
+        bIntArray.add(1, 3);
+        bIntArray.add(2, 5);
+        BIntArray bIntArray2 = new BIntArray();
+        bIntArray2.add(0, 1);
+        bIntArray2.add(1, 3);
+        bIntArray2.add(2, 5);
+        BValue[] args = {bIntArray, bIntArray2};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testSealedArrayConstrainedMap", args);
+        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Invalid match for sealed array");
+    }
+
+    @Test(description = "Test accessing invalid index of sealed array of constrained map",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*message: array index out of range: index: 3, size: 3.*")
+    public void testSealedArrayConstrainedMapInvalidIndex() {
+        BIntArray bIntArray = new BIntArray(3);
+        bIntArray.add(0, 1);
+        bIntArray.add(1, 3);
+        bIntArray.add(2, 5);
+        BValue[] args = {bIntArray, new BInteger(3)};
+        BRunUtil.invoke(compileResult, "testSealedArrayConstrainedMapInvalidIndex", args);
+    }
 }
