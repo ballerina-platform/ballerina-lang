@@ -20,7 +20,7 @@ import ballerina/log;
 @final string REMOTE_BACKEND_URL = "ws://localhost:15500/websocket";
 @final string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
 @final string data = "data";
-@final blob APPLICATION_DATA = data.toBlob("UTF-8");
+@final byte[] APPLICATION_DATA = data.toByteArray("UTF-8");
 
 @http:WebSocketServiceConfig {
     path: "/pingpong/ws"

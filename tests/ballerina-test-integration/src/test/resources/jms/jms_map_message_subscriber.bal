@@ -31,7 +31,7 @@ service<jms:Consumer> jmsListener bind topicSubscriber {
         io:print(messageRetrieved["b"]);
         io:print(messageRetrieved["c"]);
         io:print(messageRetrieved["d"]);
-        blob retrievedBlob = check <blob>messageRetrieved["e"];
+        byte[] retrievedBlob = check <byte[]>messageRetrieved["e"];
         io:println(retrievedBlob.toString("UTF-8"));
     }
 }

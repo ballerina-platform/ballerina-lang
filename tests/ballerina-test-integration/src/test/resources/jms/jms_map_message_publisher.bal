@@ -20,7 +20,7 @@ endpoint jms:TopicPublisher publisher {
 function main(string... args) {
     // Create a Text message.
     string stringValue = "abcde";
-    blob blobValue = stringValue.toBlob("UTF-8");
+    byte[] blobValue = stringValue.toByteArray("UTF-8");
     map message = { "a": 1, "b": "abc", "c": true, "d": 1.2, "e": blobValue };
     jms:Message m = check jmsSession.createMapMessage(message);
     // Send the Ballerina message to the JMS provider.
