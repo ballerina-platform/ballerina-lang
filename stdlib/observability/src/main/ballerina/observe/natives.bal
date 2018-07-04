@@ -168,15 +168,13 @@ public type Gauge object {
          F{{desc}} Description of the Gauge instance. If no description is provided, the the default empty string
                    will be used.
          F{{tags}} The key/value pair of Tags. If no tags are provided, the default nil value will be used.
-         F{{statisticConfig}} This can be either boolean field to use the default configuration or actual
-                              statistic configurations. If boolean param is passed, and if it is true, then default
-                              statistics configuration is used, else statistics calculation is disabled. If non empty
-                              actual statistics configurations array is passed, then it will be used for statistics
-                              calculation. In case if empty statistics configurations array is passed, then no
-                              statistics will be calculated.
+         F{{statisticConfig}} Statistics configurations array is used for statistics calculation. In case if empty
+                              statistics configurations array is passed, then statistics calculation will be disabled.
+                              If nil () is passed, then default statistics configs will be used for the statitics
+                              calculation.
     }
     public new(name, string? desc = "", map<string>? tags = (),
-               StatisticConfig[]?|boolean statisticConfig = true) {
+               StatisticConfig[]? statisticConfig = ()) {
         match desc {
             string strDesc => description = strDesc;
         }
@@ -185,17 +183,10 @@ public type Gauge object {
         }
         match statisticConfig {
             StatisticConfig[] configs => {
-                statisticConfigs = configs;
+                    statisticConfigs = configs;
             }
             () => {
-                statisticConfigs = [];
-            }
-            boolean configs => {
-                if (configs) {
-                    statisticConfigs = DEFAULT_GAUGE_STATS_CONFIG;
-                } else {
-                    statisticConfigs = [];
-                }
+                statisticConfigs = DEFAULT_GAUGE_STATS_CONFIG;
             }
         }
         initialize();
@@ -250,14 +241,14 @@ public type Gauge object {
     public native function getValue() returns float;
 
     documentation{
-        Retrieves the gauge's current value.
+        Retrieves the times that gauge value has been modified.
 
         R{{value}} The current count of the gauge.
     }
     public native function getCount() returns int;
 
     documentation{
-         Retrieves the gauge's current value.
+         Retrieves the total sum of the gauge's values.
 
          R{{value}} The current sum of the gauge.
     }
