@@ -236,7 +236,10 @@ public class TreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
-        this.acceptNode(typeDefinition.typeNode, symbolEnv);
+        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(typeDefinition.getPosition(), typeDefinition, this, this.documentServiceContext)) {
+            this.acceptNode(typeDefinition.typeNode, symbolEnv);
+        }
     }
 
     @Override
@@ -268,7 +271,8 @@ public class TreeVisitor extends LSNodeVisitor {
         SymbolEnv objectEnv = SymbolEnv.createPkgLevelSymbolEnv(objectTypeNode, objectSymbol.scope, symbolEnv);
         blockOwnerStack.push(objectTypeNode);
         if (objectTypeNode.fields.isEmpty() && objectTypeNode.functions.isEmpty()) {
-            this.isCursorWithinBlock(objectTypeNode.getPosition(), objectEnv);
+            // TODO: Currently consider the type definition's position since the object body's position is wrong
+            this.isCursorWithinBlock(objectTypeNode.parent.getPosition(), objectEnv);
         }
         objectTypeNode.fields.forEach(field -> {
             this.cursorPositionResolver = ObjectTypeScopeResolver.class;
