@@ -622,24 +622,6 @@ public class NativeConversionTest {
         BMap<String, BValue> struct = (BMap<String, BValue>) returns[0];
         Assert.assertEquals(((BInteger) struct.get("z")).intValue(), 2);
     }
-
-    @Test(enabled = false)
-    public void testObjectRecordConversion1() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectRecordConversion1");
-        Assert.assertTrue(returns[0] instanceof BMap);
-    }
-    
-    @Test(enabled = false)
-    public void testObjectRecordConversion2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectRecordConversion2");
-        Assert.assertTrue(returns[0] instanceof BMap);
-    }
-    
-    @Test(enabled = false)
-    public void testObjectRecordConversion3() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectRecordConversion3");
-        Assert.assertTrue(returns[0] instanceof BMap);
-    }
     
     @Test(description = "Test performing an invalid object to record conversion", 
             expectedExceptions = { BLangRuntimeException.class },

@@ -732,29 +732,6 @@ public type O2 object {
   public int z;
 };
 
-//function testObjectRecordConversion1() returns T3 {
-//    O1 a;
-//    T3 b;
-//    a = <O1> b;
-//    b = <T3> a;
-//    return b;
-//}
-//
-//function testObjectRecordConversion2() returns T3 {
-//    O2 a;
-//    T3 b;
-//    b = <T3> a;
-//    return b;
-//}
-//
-//function testObjectRecordConversion3() returns O2 {
-//    O2 a;
-//    T3 b;
-//    b = <T3> a;
-//    a = check <O2> b;
-//    return a;
-//}
-
 function testObjectRecordConversionFail() {
     O2 a;
     T3 b;

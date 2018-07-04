@@ -68,7 +68,7 @@ public class ObjectWithPrivateFieldsTest {
     }
 
     @Test(description = "Test compile time struct equivalence with private fields. " +
-            "Structs are in different packages", enabled = false)
+            "Structs are in different packages")
     public void testCompileTimeStructEqWithPrivateFieldsTwoPackages() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCompileTimeStructEqWithPrivateFieldsTwoPackages");
 
@@ -89,7 +89,7 @@ public class ObjectWithPrivateFieldsTest {
     }
 
     @Test(description = "Test runtime time struct equivalence with private fields. " +
-            "Structs are in different packages", enabled = false)
+            "Structs are in different packages")
     public void testRuntimeStructEqWithPrivateFieldsTwoPackages1() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeStructEqWithPrivateFieldsTwoPackages1");
 
@@ -100,7 +100,7 @@ public class ObjectWithPrivateFieldsTest {
     }
 
     @Test(description = "Test runtime time struct equivalence with private fields. " +
-            "Structs are in different packages", enabled = false)
+            "Structs are in different packages")
     public void testRuntimeStructEqWithPrivateFieldsTwoPackages2() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeStructEqWithPrivateFieldsTwoPackages2");
 
