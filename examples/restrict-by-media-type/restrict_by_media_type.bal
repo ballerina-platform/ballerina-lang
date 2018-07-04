@@ -21,17 +21,20 @@ service<http:Service> infoService bind { port: 9092 } {
             json jsonMsg => {
                 // Get the string value that is relevant to the key "name".
                 string nameString = check <string>jsonMsg["name"];
-                // Create XML payload and send back a response.
-                xml name = xml `<name>{{nameString}}</name>`;
-                res.setXmlPayload(name);
+                if (check nameString.matches("[a-zA-Z]+")) {
+                    // Create XML payload and send back a response.
+                    xml name = xml `<name>{{untaint nameString}}</name>`;
+                    res.setXmlPayload(name);
+                } else {
+                    res.statusCode = 400;
+                    res.setPayload("Name contains invalid data");
+                }
             }
             error err => {
                 res.statusCode = 500;
-                res.setPayload(err.message);
-
+                res.setPayload(untaint err.message);
             }
         }
         caller->respond(res) but { error e => log:printError("Error in responding", err = e) };
     }
 }
-

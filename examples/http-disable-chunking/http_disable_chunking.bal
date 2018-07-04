@@ -42,16 +42,37 @@ service<http:Service> echo bind { port: 9090 } {
     }
     echoResource(endpoint caller, http:Request req) {
         string value;
+
+        http:Response res = new;
+        boolean validationErrorFound = false;
         //Set the response according to the request headers.
         if (req.hasHeader("content-length")) {
-            value = "Length-" + req.getHeader("content-length");
+            value = req.getHeader("content-length");
+            //Perform data validation for content-length.
+            if (check value.matches("\\d+")) {
+                value = "Length-" + value;
+            } else {
+                res.statusCode = 400;
+                res.setPayload("Content-Length contains invalid data");
+                validationErrorFound = true;
+            }
         } else if (req.hasHeader("Transfer-Encoding")) {
             value = req.getHeader("Transfer-Encoding");
+            //Perform data validation for transfer-encoding.
+            if (value != "chunked" && value != "compress" && value != "deflate"
+                && value != "gzip" && value != "identity") {
+                res.statusCode = 400;
+                res.setPayload("Transfer-Encoding contains invalid data");
+                validationErrorFound = true;
+            }
         } else {
             value = "Neither Transfer-Encoding nor content-length header found";
         }
-        http:Response res = new;
-        res.setPayload({ "Outbound request content": value });
+
+        if (!validationErrorFound) {
+            // Since there is no validation error, mark the `value` as trusted data and set to the response.
+            res.setPayload({ "Outbound request content": untaint value });
+        }
         caller->respond(res) but { error e => log:printError("Error sending response from echo service", err = e) };
     }
 }

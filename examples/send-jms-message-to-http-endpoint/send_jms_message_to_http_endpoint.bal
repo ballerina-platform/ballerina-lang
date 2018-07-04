@@ -21,7 +21,7 @@ service<jms:Consumer> jmsListener bind consumerEndpoint {
                 log:printInfo("Message received from broker. Payload: "
                               + textContent);
 
-                forwardToBakend(textContent);
+                forwardToBakend(untaint textContent);
             }
             error e => log:printError("Error while reading message", err=e);
         }

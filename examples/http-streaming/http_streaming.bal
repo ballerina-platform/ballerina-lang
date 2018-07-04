@@ -32,7 +32,7 @@ service<http:Service> HTTPStreamingService bind { port: 9090 } {
                 match resp.getTextPayload() {
                     string payload => {
                         //Set the response payload.
-                        res.setTextPayload(payload);
+                        res.setTextPayload(untaint payload);
 
                     }
                     error err => {
@@ -163,6 +163,6 @@ function copy(io:ByteChannel src, io:ByteChannel dst) {
 }
 
 function setError(http:Response response, string message) {
-    response.setPayload(message);
+    response.setPayload(untaint message);
     response.statusCode = 500;
 }

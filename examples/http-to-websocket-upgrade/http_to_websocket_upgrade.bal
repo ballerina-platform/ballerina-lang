@@ -18,7 +18,7 @@ service<http:Service> httpService bind { port: 9090 } {
         match payload {
             error err => {
                 log:printError("Error sending message", err = err);
-                resp.setPayload(err.message);
+                resp.setPayload(untaint err.message);
                 resp.statusCode = 500;
             }
             string val => {

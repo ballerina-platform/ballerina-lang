@@ -32,7 +32,7 @@ service<http:Service> helloWorld bind { port: 9090 } {
             }
             error err => {
                 res.statusCode = 500;
-                res.setPayload(err.message);
+                res.setPayload(untaint err.message);
                 caller->respond(res) but {
                     error e => log:printError("Error sending response", err = e)
                 };
