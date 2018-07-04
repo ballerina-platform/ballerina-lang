@@ -126,10 +126,17 @@ onClose (endpoint conn, int statusCode, string reason) {}}`);
             }
         `);
     },
-    createStruct: () => {
+    createRecord: () => {
         return FragmentUtils.createTopLevelNodeFragment(`
-type record1 {
-};
+            type record1 record {
+            };
+        `);
+    },
+    createAnonRecord: () => {
+        return FragmentUtils.createAnonRecordFragment(`
+            record {
+
+            } record2;
         `);
     },
     /*createTransformer: () => {

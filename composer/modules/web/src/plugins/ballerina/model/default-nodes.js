@@ -210,6 +210,7 @@ export default {
             "parameters": [],
             "kind": "Function",
             "public": true,
+            "private": false,
             "native": false,
             "final": false,
             "attached": false,
@@ -410,6 +411,7 @@ export default {
                                 "documentationAttachments": [],
                                 "kind": "Variable",
                                 "public": false,
+                                "private": false,
                                 "native": false,
                                 "final": false,
                                 "attached": false,
@@ -499,12 +501,12 @@ export default {
                                         "kind": "Literal"
                                     }
                                 ],
+                                "async": false,
                                 "packageAlias": {
                                     "literal": false,
                                     "value": "",
                                     "kind": "Identifier"
                                 },
-                                "async": false,
                                 "actionInvocation": false,
                                 "name": {
                                     "literal": false,
@@ -662,12 +664,12 @@ export default {
                                         "kind": "SimpleVariableRef"
                                     }
                                 ],
+                                "async": false,
                                 "packageAlias": {
                                     "literal": false,
                                     "value": "",
                                     "kind": "Identifier"
                                 },
-                                "async": false,
                                 "actionInvocation": true,
                                 "name": {
                                     "literal": false,
@@ -749,6 +751,7 @@ export default {
                         "documentationAttachments": [],
                         "kind": "Variable",
                         "public": false,
+                        "private": false,
                         "native": false,
                         "final": false,
                         "attached": false,
@@ -766,6 +769,7 @@ export default {
                 ],
                 "kind": "Resource",
                 "public": true,
+                "private": false,
                 "native": false,
                 "final": false,
                 "attached": false,
@@ -988,6 +992,188 @@ export default {
             "kind": "UserDefinedType"
         },
         "public": false,
+        "private": false,
+        "native": false,
+        "final": false,
+        "attached": false,
+        "lambda": false,
+        "parallel": false,
+        "connector": false,
+        "deprecated": false,
+        "readonly": false,
+        "function_final": false,
+        "interface": false,
+        "defaultable_checked": false,
+        "defaultable": false,
+        "record": false
+    },
+    "createWSEndpointDef": {
+        "ws": [
+            {
+                "ws": "",
+                "i": 0,
+                "text": "endpoint",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 6,
+                "text": "wsEnpointName",
+                "static": false
+            },
+            {
+                "ws": "",
+                "i": 13,
+                "text": ";",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 1,
+            "startLine": 1,
+            "endColumn": 49,
+            "endLine": 1
+        },
+        "symbolType": [
+            "other"
+        ],
+        "configurationExpression": {
+            "ws": [
+                {
+                    "ws": " ",
+                    "i": 8,
+                    "text": "{",
+                    "static": true
+                },
+                {
+                    "ws": "",
+                    "i": 12,
+                    "text": "}",
+                    "static": true
+                }
+            ],
+            "position": {
+                "startColumn": 38,
+                "startLine": 1,
+                "endColumn": 48,
+                "endLine": 1
+            },
+            "symbolType": [
+                "other"
+            ],
+            "keyValuePairs": [
+                {
+                    "ws": [
+                        {
+                            "ws": "",
+                            "i": 10,
+                            "text": ":",
+                            "static": true
+                        }
+                    ],
+                    "value": {
+                        "ws": [
+                            {
+                                "ws": "",
+                                "i": 11,
+                                "text": "9090",
+                                "static": false
+                            }
+                        ],
+                        "position": {
+                            "startColumn": 44,
+                            "startLine": 1,
+                            "endColumn": 44,
+                            "endLine": 1
+                        },
+                        "value": "9090",
+                        "kind": "Literal"
+                    },
+                    "key": {
+                        "ws": [
+                            {
+                                "ws": "",
+                                "i": 9,
+                                "text": "port",
+                                "static": false
+                            }
+                        ],
+                        "position": {
+                            "startColumn": 39,
+                            "startLine": 1,
+                            "endColumn": 39,
+                            "endLine": 1
+                        },
+                        "variableName": {
+                            "literal": false,
+                            "value": "port",
+                            "kind": "Identifier"
+                        },
+                        "packageAlias": {
+                            "literal": false,
+                            "value": "",
+                            "kind": "Identifier"
+                        },
+                        "kind": "SimpleVariableRef"
+                    },
+                    "kind": "RecordLiteralKeyValue"
+                }
+            ],
+            "kind": "RecordLiteralExpr"
+        },
+        "name": {
+            "literal": false,
+            "value": "wsEnpointName",
+            "kind": "Identifier"
+        },
+        "annotationAttachments": [],
+        "kind": "Endpoint",
+        "endPointType": {
+            "ws": [
+                {
+                    "ws": " ",
+                    "i": 2,
+                    "text": "http",
+                    "static": false
+                },
+                {
+                    "ws": "",
+                    "i": 3,
+                    "text": ":",
+                    "static": true
+                },
+                {
+                    "ws": "",
+                    "i": 4,
+                    "text": "Listener",
+                    "static": false
+                }
+            ],
+            "position": {
+                "startColumn": 10,
+                "startLine": 1,
+                "endColumn": 15,
+                "endLine": 1
+            },
+            "symbolType": [
+                "other"
+            ],
+            "packageAlias": {
+                "literal": false,
+                "value": "http",
+                "kind": "Identifier"
+            },
+            "grouped": false,
+            "typeName": {
+                "literal": false,
+                "value": "Listener",
+                "kind": "Identifier"
+            },
+            "nullable": false,
+            "kind": "UserDefinedType"
+        },
+        "public": false,
+        "private": false,
         "native": false,
         "final": false,
         "attached": false,
@@ -1449,6 +1635,7 @@ export default {
             "parameters": [],
             "kind": "Function",
             "public": true,
+            "private": false,
             "native": false,
             "final": false,
             "attached": false,
@@ -1573,6 +1760,7 @@ export default {
                         "documentationAttachments": [],
                         "kind": "Variable",
                         "public": false,
+                        "private": false,
                         "native": false,
                         "final": false,
                         "attached": false,
@@ -1590,6 +1778,7 @@ export default {
                 ],
                 "kind": "Resource",
                 "public": true,
+                "private": false,
                 "native": false,
                 "final": false,
                 "attached": false,
@@ -1722,6 +1911,7 @@ export default {
                         "documentationAttachments": [],
                         "kind": "Variable",
                         "public": false,
+                        "private": false,
                         "native": false,
                         "final": false,
                         "attached": false,
@@ -1788,6 +1978,7 @@ export default {
                         "documentationAttachments": [],
                         "kind": "Variable",
                         "public": false,
+                        "private": false,
                         "native": false,
                         "final": false,
                         "attached": false,
@@ -1854,6 +2045,7 @@ export default {
                         "documentationAttachments": [],
                         "kind": "Variable",
                         "public": false,
+                        "private": false,
                         "native": false,
                         "final": false,
                         "attached": false,
@@ -1871,6 +2063,7 @@ export default {
                 ],
                 "kind": "Resource",
                 "public": true,
+                "private": false,
                 "native": false,
                 "final": false,
                 "attached": false,
@@ -2003,6 +2196,7 @@ export default {
                         "documentationAttachments": [],
                         "kind": "Variable",
                         "public": false,
+                        "private": false,
                         "native": false,
                         "final": false,
                         "attached": false,
@@ -2069,6 +2263,7 @@ export default {
                         "documentationAttachments": [],
                         "kind": "Variable",
                         "public": false,
+                        "private": false,
                         "native": false,
                         "final": false,
                         "attached": false,
@@ -2135,6 +2330,7 @@ export default {
                         "documentationAttachments": [],
                         "kind": "Variable",
                         "public": false,
+                        "private": false,
                         "native": false,
                         "final": false,
                         "attached": false,
@@ -2152,6 +2348,7 @@ export default {
                 ],
                 "kind": "Resource",
                 "public": true,
+                "private": false,
                 "native": false,
                 "final": false,
                 "attached": false,
@@ -2207,186 +2404,6 @@ export default {
         },
         "variables": [],
         "kind": "Service"
-    },
-    "createWSEndpointDef": {
-        "ws": [
-            {
-                "ws": "",
-                "i": 0,
-                "text": "endpoint",
-                "static": true
-            },
-            {
-                "ws": " ",
-                "i": 6,
-                "text": "wsEnpointName",
-                "static": false
-            },
-            {
-                "ws": "",
-                "i": 13,
-                "text": ";",
-                "static": true
-            }
-        ],
-        "position": {
-            "startColumn": 1,
-            "startLine": 1,
-            "endColumn": 49,
-            "endLine": 1
-        },
-        "symbolType": [
-            "other"
-        ],
-        "configurationExpression": {
-            "ws": [
-                {
-                    "ws": " ",
-                    "i": 8,
-                    "text": "{",
-                    "static": true
-                },
-                {
-                    "ws": "",
-                    "i": 12,
-                    "text": "}",
-                    "static": true
-                }
-            ],
-            "position": {
-                "startColumn": 38,
-                "startLine": 1,
-                "endColumn": 48,
-                "endLine": 1
-            },
-            "symbolType": [
-                "other"
-            ],
-            "keyValuePairs": [
-                {
-                    "ws": [
-                        {
-                            "ws": "",
-                            "i": 10,
-                            "text": ":",
-                            "static": true
-                        }
-                    ],
-                    "value": {
-                        "ws": [
-                            {
-                                "ws": "",
-                                "i": 11,
-                                "text": "9090",
-                                "static": false
-                            }
-                        ],
-                        "position": {
-                            "startColumn": 44,
-                            "startLine": 1,
-                            "endColumn": 44,
-                            "endLine": 1
-                        },
-                        "value": "9090",
-                        "kind": "Literal"
-                    },
-                    "key": {
-                        "ws": [
-                            {
-                                "ws": "",
-                                "i": 9,
-                                "text": "port",
-                                "static": false
-                            }
-                        ],
-                        "position": {
-                            "startColumn": 39,
-                            "startLine": 1,
-                            "endColumn": 39,
-                            "endLine": 1
-                        },
-                        "variableName": {
-                            "literal": false,
-                            "value": "port",
-                            "kind": "Identifier"
-                        },
-                        "packageAlias": {
-                            "literal": false,
-                            "value": "",
-                            "kind": "Identifier"
-                        },
-                        "kind": "SimpleVariableRef"
-                    },
-                    "kind": "RecordLiteralKeyValue"
-                }
-            ],
-            "kind": "RecordLiteralExpr"
-        },
-        "name": {
-            "literal": false,
-            "value": "wsEnpointName",
-            "kind": "Identifier"
-        },
-        "annotationAttachments": [],
-        "kind": "Endpoint",
-        "endPointType": {
-            "ws": [
-                {
-                    "ws": " ",
-                    "i": 2,
-                    "text": "http",
-                    "static": false
-                },
-                {
-                    "ws": "",
-                    "i": 3,
-                    "text": ":",
-                    "static": true
-                },
-                {
-                    "ws": "",
-                    "i": 4,
-                    "text": "Listener",
-                    "static": false
-                }
-            ],
-            "position": {
-                "startColumn": 10,
-                "startLine": 1,
-                "endColumn": 15,
-                "endLine": 1
-            },
-            "symbolType": [
-                "other"
-            ],
-            "packageAlias": {
-                "literal": false,
-                "value": "http",
-                "kind": "Identifier"
-            },
-            "grouped": false,
-            "typeName": {
-                "literal": false,
-                "value": "Listener",
-                "kind": "Identifier"
-            },
-            "nullable": false,
-            "kind": "UserDefinedType"
-        },
-        "public": false,
-        "native": false,
-        "final": false,
-        "attached": false,
-        "lambda": false,
-        "parallel": false,
-        "connector": false,
-        "deprecated": false,
-        "readonly": false,
-        "function_final": false,
-        "interface": false,
-        "defaultable_checked": false,
-        "defaultable": false,
-        "record": false
     },
     "createFSServiceDef": {
         "ws": [
@@ -2513,6 +2530,7 @@ export default {
             "parameters": [],
             "kind": "Function",
             "public": true,
+            "private": false,
             "native": false,
             "final": false,
             "attached": false,
@@ -2675,6 +2693,7 @@ export default {
                         "documentationAttachments": [],
                         "kind": "Variable",
                         "public": false,
+                        "private": false,
                         "native": false,
                         "final": false,
                         "attached": false,
@@ -2692,6 +2711,7 @@ export default {
                 ],
                 "kind": "Resource",
                 "public": true,
+                "private": false,
                 "native": false,
                 "final": false,
                 "attached": false,
@@ -2716,6 +2736,9 @@ export default {
         },
         "variables": [],
         "kind": "Service"
+    },
+    "createJMSServiceDef": {
+        "error": "Index: 0, Size: 0"
     },
     "createFTPServiceDef": {
         "ws": [
@@ -2842,6 +2865,7 @@ export default {
             "parameters": [],
             "kind": "Function",
             "public": true,
+            "private": false,
             "native": false,
             "final": false,
             "attached": false,
@@ -3004,6 +3028,7 @@ export default {
                         "documentationAttachments": [],
                         "kind": "Variable",
                         "public": false,
+                        "private": false,
                         "native": false,
                         "final": false,
                         "attached": false,
@@ -3021,6 +3046,7 @@ export default {
                 ],
                 "kind": "Resource",
                 "public": true,
+                "private": false,
                 "native": false,
                 "final": false,
                 "attached": false,
@@ -3190,6 +3216,7 @@ export default {
             "documentationAttachments": [],
             "kind": "Variable",
             "public": false,
+            "private": false,
             "native": false,
             "final": false,
             "attached": false,
@@ -3206,6 +3233,7 @@ export default {
         },
         "kind": "Function",
         "public": false,
+        "private": false,
         "native": false,
         "final": false,
         "attached": false,
@@ -3299,6 +3327,7 @@ export default {
         "parameters": [],
         "kind": "Function",
         "public": false,
+        "private": false,
         "native": false,
         "final": false,
         "attached": false,
@@ -3463,6 +3492,7 @@ export default {
                 "documentationAttachments": [],
                 "kind": "Variable",
                 "public": false,
+                "private": false,
                 "native": false,
                 "final": false,
                 "attached": false,
@@ -3550,6 +3580,7 @@ export default {
                 "documentationAttachments": [],
                 "kind": "Variable",
                 "public": false,
+                "private": false,
                 "native": false,
                 "final": false,
                 "attached": false,
@@ -3567,6 +3598,7 @@ export default {
         ],
         "kind": "Resource",
         "public": true,
+        "private": false,
         "native": false,
         "final": false,
         "attached": false,
@@ -3580,9 +3612,6 @@ export default {
         "defaultable_checked": false,
         "defaultable": false,
         "record": false
-    },
-    "createJMSServiceDef": {
-        "error": "Index: 0, Size: 0"
     },
     "createFSResource": {
         "ws": [
@@ -3728,6 +3757,7 @@ export default {
                 "documentationAttachments": [],
                 "kind": "Variable",
                 "public": false,
+                "private": false,
                 "native": false,
                 "final": false,
                 "attached": false,
@@ -3745,6 +3775,7 @@ export default {
         ],
         "kind": "Resource",
         "public": true,
+        "private": false,
         "native": false,
         "final": false,
         "attached": false,
@@ -3903,6 +3934,7 @@ export default {
                 "documentationAttachments": [],
                 "kind": "Variable",
                 "public": false,
+                "private": false,
                 "native": false,
                 "final": false,
                 "attached": false,
@@ -3920,6 +3952,7 @@ export default {
         ],
         "kind": "Resource",
         "public": true,
+        "private": false,
         "native": false,
         "final": false,
         "attached": false,
@@ -4078,6 +4111,7 @@ export default {
                 "documentationAttachments": [],
                 "kind": "Variable",
                 "public": false,
+                "private": false,
                 "native": false,
                 "final": false,
                 "attached": false,
@@ -4095,6 +4129,7 @@ export default {
         ],
         "kind": "Resource",
         "public": true,
+        "private": false,
         "native": false,
         "final": false,
         "attached": false,
@@ -4108,6 +4143,356 @@ export default {
         "defaultable_checked": false,
         "defaultable": false,
         "record": false
+    },
+    "createRecord": {
+        "ws": [
+            {
+                "ws": "\n            ",
+                "i": 2,
+                "text": "type",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 4,
+                "text": "record1",
+                "static": false
+            },
+            {
+                "ws": " ",
+                "i": 6,
+                "text": "record",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 8,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n            ",
+                "i": 11,
+                "text": "}",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 12,
+                "text": ";",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 2,
+            "endColumn": 14,
+            "endLine": 3
+        },
+        "name": {
+            "literal": false,
+            "value": "record1",
+            "kind": "Identifier"
+        },
+        "deprecatedAttachments": [],
+        "annotationAttachments": [],
+        "typeNode": {
+            "position": {
+                "startColumn": 13,
+                "startLine": 3,
+                "endColumn": 33,
+                "endLine": 2
+            },
+            "symbolType": [
+                "record"
+            ],
+            "fields": [],
+            "grouped": false,
+            "nullable": false,
+            "kind": "RecordType"
+        },
+        "documentationAttachments": [],
+        "kind": "TypeDefinition",
+        "public": false,
+        "private": false,
+        "native": false,
+        "final": false,
+        "attached": false,
+        "lambda": false,
+        "parallel": false,
+        "connector": false,
+        "deprecated": false,
+        "readonly": false,
+        "function_final": false,
+        "interface": false,
+        "defaultable_checked": false,
+        "defaultable": false,
+        "record": false
+    },
+    "createAnonRecord": {
+        "ws": [
+            {
+                "ws": "",
+                "i": 21,
+                "text": "<EOF>",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 1,
+            "startLine": 1,
+            "endColumn": 1,
+            "endLine": 1
+        },
+        "name": "untitled.bal",
+        "topLevelNodes": [
+            {
+                "position": {
+                    "startColumn": 13,
+                    "startLine": 5,
+                    "endColumn": 20,
+                    "endLine": 3
+                },
+                "name": {
+                    "literal": false,
+                    "value": "$anonType$0",
+                    "kind": "Identifier"
+                },
+                "deprecatedAttachments": [],
+                "annotationAttachments": [],
+                "typeNode": {
+                    "position": {
+                        "startColumn": 13,
+                        "startLine": 5,
+                        "endColumn": 20,
+                        "endLine": 3
+                    },
+                    "symbolType": [
+                        "record"
+                    ],
+                    "fields": [],
+                    "grouped": false,
+                    "nullable": false,
+                    "kind": "RecordType"
+                },
+                "documentationAttachments": [],
+                "kind": "TypeDefinition",
+                "public": true,
+                "private": false,
+                "native": false,
+                "final": false,
+                "attached": false,
+                "lambda": false,
+                "parallel": false,
+                "connector": false,
+                "deprecated": false,
+                "readonly": false,
+                "function_final": false,
+                "interface": false,
+                "defaultable_checked": false,
+                "defaultable": false,
+                "record": false
+            },
+            {
+                "ws": [
+                    {
+                        "ws": "",
+                        "i": 0,
+                        "text": "function",
+                        "static": true
+                    },
+                    {
+                        "ws": " ",
+                        "i": 2,
+                        "text": "testFunction",
+                        "static": false
+                    },
+                    {
+                        "ws": "",
+                        "i": 3,
+                        "text": "(",
+                        "static": true
+                    },
+                    {
+                        "ws": "",
+                        "i": 4,
+                        "text": ")",
+                        "static": true
+                    },
+                    {
+                        "ws": "",
+                        "i": 5,
+                        "text": "{",
+                        "static": true
+                    },
+                    {
+                        "ws": "\n        \n",
+                        "i": 20,
+                        "text": "}",
+                        "static": true
+                    }
+                ],
+                "position": {
+                    "startColumn": 1,
+                    "startLine": 1,
+                    "endColumn": 1,
+                    "endLine": 7
+                },
+                "workers": [],
+                "returnTypeAnnotationAttachments": [],
+                "name": {
+                    "literal": false,
+                    "value": "testFunction",
+                    "kind": "Identifier"
+                },
+                "annotationAttachments": [],
+                "documentationAttachments": [],
+                "returnTypeNode": {
+                    "position": {
+                        "startColumn": 10,
+                        "startLine": 1,
+                        "endColumn": 23,
+                        "endLine": 1
+                    },
+                    "symbolType": [
+                        "null"
+                    ],
+                    "typeKind": "nil",
+                    "grouped": false,
+                    "nullable": false,
+                    "kind": "ValueType"
+                },
+                "defaultableParameters": [],
+                "deprecatedAttachments": [],
+                "body": {
+                    "statements": [
+                        {
+                            "ws": [
+                                {
+                                    "ws": "",
+                                    "i": 16,
+                                    "text": ";",
+                                    "static": true
+                                }
+                            ],
+                            "position": {
+                                "startColumn": 13,
+                                "startLine": 3,
+                                "endColumn": 22,
+                                "endLine": 5
+                            },
+                            "variable": {
+                                "ws": [
+                                    {
+                                        "ws": "\n\n            ",
+                                        "i": 8,
+                                        "text": "record",
+                                        "static": true
+                                    },
+                                    {
+                                        "ws": " ",
+                                        "i": 10,
+                                        "text": "{",
+                                        "static": true
+                                    },
+                                    {
+                                        "ws": "\n\n            ",
+                                        "i": 13,
+                                        "text": "}",
+                                        "static": true
+                                    },
+                                    {
+                                        "ws": " ",
+                                        "i": 15,
+                                        "text": "record2",
+                                        "static": false
+                                    }
+                                ],
+                                "position": {
+                                    "startColumn": 13,
+                                    "startLine": 3,
+                                    "endColumn": 22,
+                                    "endLine": 5
+                                },
+                                "symbolType": [
+                                    "record"
+                                ],
+                                "safeAssignment": false,
+                                "typeNode": {
+                                    "position": {
+                                        "startColumn": 13,
+                                        "startLine": 5,
+                                        "endColumn": 20,
+                                        "endLine": 3
+                                    },
+                                    "symbolType": [
+                                        "record"
+                                    ],
+                                    "packageAlias": {
+                                        "literal": false,
+                                        "value": "",
+                                        "kind": "Identifier"
+                                    },
+                                    "grouped": false,
+                                    "typeName": {
+                                        "literal": false,
+                                        "value": "$anonType$0",
+                                        "kind": "Identifier"
+                                    },
+                                    "nullable": false,
+                                    "kind": "UserDefinedType"
+                                },
+                                "deprecatedAttachments": [],
+                                "annotationAttachments": [],
+                                "name": {
+                                    "literal": false,
+                                    "value": "record2",
+                                    "kind": "Identifier"
+                                },
+                                "documentationAttachments": [],
+                                "kind": "Variable",
+                                "public": false,
+                                "private": false,
+                                "native": false,
+                                "final": false,
+                                "attached": false,
+                                "lambda": false,
+                                "parallel": false,
+                                "connector": false,
+                                "deprecated": false,
+                                "readonly": false,
+                                "function_final": false,
+                                "interface": false,
+                                "defaultable_checked": false,
+                                "defaultable": false,
+                                "record": false
+                            },
+                            "kind": "VariableDef"
+                        }
+                    ],
+                    "kind": "Block"
+                },
+                "endpointNodes": [],
+                "parameters": [],
+                "kind": "Function",
+                "public": false,
+                "private": false,
+                "native": false,
+                "final": false,
+                "attached": false,
+                "lambda": false,
+                "parallel": false,
+                "connector": false,
+                "deprecated": false,
+                "readonly": false,
+                "function_final": false,
+                "interface": false,
+                "defaultable_checked": false,
+                "defaultable": false,
+                "record": false
+            }
+        ],
+        "kind": "CompilationUnit"
     },
     "createWorkerFragment": {
         "ws": [
@@ -4176,84 +4561,7 @@ export default {
         "parameters": [],
         "kind": "Worker",
         "public": false,
-        "native": false,
-        "final": false,
-        "attached": false,
-        "lambda": false,
-        "parallel": false,
-        "connector": false,
-        "deprecated": false,
-        "readonly": false,
-        "function_final": false,
-        "interface": false,
-        "defaultable_checked": false,
-        "defaultable": false,
-        "record": false
-    },
-    "createStruct": {
-        "ws": [
-            {
-                "ws": "\n",
-                "i": 1,
-                "text": "type",
-                "static": true
-            },
-            {
-                "ws": " ",
-                "i": 3,
-                "text": "record1",
-                "static": false
-            },
-            {
-                "ws": " ",
-                "i": 5,
-                "text": "{",
-                "static": true
-            },
-            {
-                "ws": "\n",
-                "i": 7,
-                "text": "}",
-                "static": true
-            },
-            {
-                "ws": "",
-                "i": 8,
-                "text": ";",
-                "static": true
-            }
-        ],
-        "position": {
-            "startColumn": 1,
-            "startLine": 2,
-            "endColumn": 2,
-            "endLine": 3
-        },
-        "name": {
-            "literal": false,
-            "value": "record1",
-            "kind": "Identifier"
-        },
-        "deprecatedAttachments": [],
-        "annotationAttachments": [],
-        "typeNode": {
-            "position": {
-                "startColumn": 1,
-                "startLine": 3,
-                "endColumn": 14,
-                "endLine": 2
-            },
-            "symbolType": [
-                "record"
-            ],
-            "fields": [],
-            "grouped": false,
-            "nullable": false,
-            "kind": "RecordType"
-        },
-        "documentationAttachments": [],
-        "kind": "TypeDefinition",
-        "public": false,
+        "private": false,
         "native": false,
         "final": false,
         "attached": false,
@@ -4335,6 +4643,7 @@ export default {
         "parameters": [],
         "kind": "Worker",
         "public": false,
+        "private": false,
         "native": false,
         "final": false,
         "attached": false,
@@ -4527,6 +4836,7 @@ export default {
             "documentationAttachments": [],
             "kind": "Variable",
             "public": false,
+            "private": false,
             "native": false,
             "final": false,
             "attached": false,
@@ -4930,12 +5240,12 @@ export default {
                     "kind": "SimpleVariableRef"
                 }
             ],
+            "async": false,
             "packageAlias": {
                 "literal": false,
                 "value": "",
                 "kind": "Identifier"
             },
-            "async": false,
             "actionInvocation": false,
             "name": {
                 "literal": false,
@@ -5204,6 +5514,7 @@ export default {
                     "documentationAttachments": [],
                     "kind": "Variable",
                     "public": false,
+                    "private": false,
                     "native": false,
                     "final": false,
                     "attached": false,
@@ -5276,59 +5587,6 @@ export default {
             "kind": "SimpleVariableRef"
         }
     },
-    "createReturn": {
-        "ws": [
-            {
-                "ws": "\n\n            ",
-                "i": 8,
-                "text": "return",
-                "static": true
-            },
-            {
-                "ws": "",
-                "i": 11,
-                "text": ";",
-                "static": true
-            }
-        ],
-        "position": {
-            "startColumn": 13,
-            "startLine": 3,
-            "endColumn": 21,
-            "endLine": 3
-        },
-        "expression": {
-            "ws": [
-                {
-                    "ws": " ",
-                    "i": 10,
-                    "text": "m",
-                    "static": false
-                }
-            ],
-            "position": {
-                "startColumn": 20,
-                "startLine": 3,
-                "endColumn": 20,
-                "endLine": 3
-            },
-            "symbolType": [
-                "other"
-            ],
-            "variableName": {
-                "literal": false,
-                "value": "m",
-                "kind": "Identifier"
-            },
-            "packageAlias": {
-                "literal": false,
-                "value": "",
-                "kind": "Identifier"
-            },
-            "kind": "SimpleVariableRef"
-        },
-        "kind": "Return"
-    },
     "createWorkerInvocation": {
         "ws": [
             {
@@ -5393,6 +5651,59 @@ export default {
         },
         "forkJoinedSend": false,
         "kind": "WorkerSend"
+    },
+    "createReturn": {
+        "ws": [
+            {
+                "ws": "\n\n            ",
+                "i": 8,
+                "text": "return",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 11,
+                "text": ";",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 3,
+            "endColumn": 21,
+            "endLine": 3
+        },
+        "expression": {
+            "ws": [
+                {
+                    "ws": " ",
+                    "i": 10,
+                    "text": "m",
+                    "static": false
+                }
+            ],
+            "position": {
+                "startColumn": 20,
+                "startLine": 3,
+                "endColumn": 20,
+                "endLine": 3
+            },
+            "symbolType": [
+                "other"
+            ],
+            "variableName": {
+                "literal": false,
+                "value": "m",
+                "kind": "Identifier"
+            },
+            "packageAlias": {
+                "literal": false,
+                "value": "",
+                "kind": "Identifier"
+            },
+            "kind": "SimpleVariableRef"
+        },
+        "kind": "Return"
     },
     "createWorkerReceive": {
         "ws": [
@@ -5739,6 +6050,7 @@ export default {
             "documentationAttachments": [],
             "kind": "Variable",
             "public": false,
+            "private": false,
             "native": false,
             "final": false,
             "attached": false,
@@ -5753,6 +6065,7 @@ export default {
             "defaultable": false,
             "record": false
         },
+        "joinedWorkerIdentifiers": [],
         "workers": [
             {
                 "ws": [
@@ -5806,6 +6119,7 @@ export default {
                 "parameters": [],
                 "kind": "Worker",
                 "public": false,
+                "private": false,
                 "native": false,
                 "final": false,
                 "attached": false,
@@ -5872,6 +6186,7 @@ export default {
                 "parameters": [],
                 "kind": "Worker",
                 "public": false,
+                "private": false,
                 "native": false,
                 "final": false,
                 "attached": false,
@@ -5887,7 +6202,6 @@ export default {
                 "record": false
             }
         ],
-        "joinedWorkerIdentifiers": [],
         "joinResultVar": {
             "ws": [
                 {
@@ -5940,6 +6254,7 @@ export default {
             "documentationAttachments": [],
             "kind": "Variable",
             "public": false,
+            "private": false,
             "native": false,
             "final": false,
             "attached": false,
