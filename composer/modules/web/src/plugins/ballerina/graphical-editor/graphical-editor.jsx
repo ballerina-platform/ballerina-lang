@@ -41,6 +41,9 @@ class GraphicalEditor extends React.Component {
      * @inheritDoc
      */
     render() {
+        if (this.props.fitToWidth) {
+            return null;
+        }
         return (
             <GraphicalEditorErrorBoundary>
                 <ControllerOverlay

@@ -210,6 +210,7 @@ class DesignView extends React.Component {
                                         <GraphicalEditor
                                             model={this.props.model}
                                             mode={this.props.mode}
+                                            fitToWidth={this.props.fitToWidth}
                                         />
                                     </DesignViewErrorBoundary>
                                 }
