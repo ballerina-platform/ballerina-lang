@@ -23,7 +23,7 @@ import {
     getConfig,
 } from 'plugins/ballerina/diagram/diagram-util';
 import ControllerOverlay from './controller-overlay';
-
+import GraphicalEditorErrorBoundary from './graphical-editor-error-boundary';
 
 class GraphicalEditor extends React.Component {
     /**
@@ -42,10 +42,12 @@ class GraphicalEditor extends React.Component {
      */
     render() {
         return (
-            <ControllerOverlay
-                model={this.props.model}
-                mode={this.props.mode}
-            />
+            <GraphicalEditorErrorBoundary>
+                <ControllerOverlay
+                    model={this.props.model}
+                    mode={this.props.mode}
+                />
+            </GraphicalEditorErrorBoundary>
         );
     }
 }
