@@ -41,7 +41,7 @@ public final class BByte extends BValueType implements BRefType<Byte> {
 
     @Override
     public long intValue() {
-        return this.value;
+        return Byte.toUnsignedInt(value);
     }
 
     @Override

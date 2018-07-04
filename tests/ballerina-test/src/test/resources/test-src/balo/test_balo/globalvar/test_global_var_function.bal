@@ -46,3 +46,12 @@ function getGlobalVarByteArray2() returns byte[] {
 function getGlobalVarByteArray3() returns byte[] {
     return foo:glbByteArray3;
 }
+
+
+function getGlobalArrays() returns (int, int, int, int, int, int, int) {
+    int[2][3] x = foo:glbSealed2DArray;
+    int[3][] x1 = foo:glbSealed2DArray2;
+    return (lengthof foo:glbArray, lengthof foo:glbSealedArray, lengthof foo:glbSealedArray2, lengthof x,
+                                                                        lengthof x[0], lengthof x1, lengthof x1[0]);
+
+}
