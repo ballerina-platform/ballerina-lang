@@ -16,7 +16,6 @@
  */
 package org.ballerinalang.util.program;
 
-import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.util.codegen.FunctionInfo;
 
