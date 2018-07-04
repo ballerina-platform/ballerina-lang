@@ -3178,7 +3178,6 @@ public class BLangPackageBuilder {
     void endScopeStmt(DiagnosticPos pos, Set<Whitespace> ws, BLangIdentifier scopeName,
             BLangLambdaFunction compensationFunction) {
         BLangScope scope = (BLangScope) scopeNodeStack.pop();
-//        scope.varRefs = getVariableReferences();
         scope.pos = pos;
         scope.addWS(ws);
         scope.setScopeName(scopeName);
@@ -3190,21 +3189,7 @@ public class BLangPackageBuilder {
             scopeNodeStack.peek().addChildScope(scopeName.getValue());
         }
 
-//        scope.varRefs.forEach(
-//                varRef -> compensationFunction.addParameter(getParameterFromExpr((BLangSimpleVarRef) varRef, pos)));
-
         scope.setCompensationFunction(compensationFunction);
-//        this.compUnit.addTopLevelNode(compensationFunction);
-    }
-
-    private BLangVariable getParameterFromExpr(BLangSimpleVarRef varRef, DiagnosticPos pos) {
-        BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
-        var.pos = pos;
-        IdentifierNode name = varRef.getVariableName();
-        var.setName(name);
-        var.addWS(null);
-        var.isField = true;
-        return var;
     }
 
     void addScopeBlock(DiagnosticPos currentPos) {
@@ -3216,15 +3201,5 @@ public class BLangPackageBuilder {
 
     void startOnCompensationBlock() {
         startFunctionDef();
-    }
-
-    private List<BLangExpression> getVariableReferences() {
-
-        List<BLangExpression> varRefs = new ArrayList<>();
-        if (this.exprNodeListStack != null && !this.exprNodeListStack.isEmpty()) {
-            List<ExpressionNode> exprNodes = this.exprNodeListStack.pop();
-            exprNodes.forEach(expressionNode -> varRefs.add((BLangExpression) expressionNode));
-        }
-        return varRefs;
     }
 }

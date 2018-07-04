@@ -19,6 +19,7 @@ package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.codegen.cpentries.ForkJoinCPEntry;
+import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -284,6 +285,7 @@ public class Instruction {
         }
 
         @Override
+
         public String toString() {
             StringJoiner sj = new StringJoiner(" ");
             sj.add(String.valueOf(scopeName));
@@ -301,14 +303,13 @@ public class Instruction {
 
         public FunctionInfo function;
         public ArrayList<String> childScopes;
-        public int[] argRegs;
         public String scopeName;
+        public FunctionRefCPEntry functionCP;
 
-        InstructionScopeEnd(int opcode, FunctionInfo function, int[] argRegs, ArrayList<String> childScopes,
-                String scopeName) {
+        InstructionScopeEnd(int opcode, FunctionInfo function, ArrayList<String> childScopes,
+                String scopeName, FunctionRefCPEntry funcCP) {
             super(opcode);
             this.function = function;
-            this.argRegs = argRegs;
             this.childScopes = childScopes;
             this.scopeName = scopeName;
         }
@@ -320,8 +321,6 @@ public class Instruction {
             for (String child : childScopes) {
                 sj.add(child);
             }
-            sj.add(String.valueOf(argRegs.length));
-            Arrays.stream(argRegs).forEach(i -> sj.add(String.valueOf(i)));
             return Mnemonics.getMnem(opcode) + " " + sj.toString();
         }
     }

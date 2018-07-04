@@ -1402,11 +1402,14 @@ public class PackageInfoReader {
                     packageInfo.addInstruction(InstructionFactory.get(opcode, funcRefCPIndex, funcCallCPIndex));
                     break;
                 case InstructionCodes.SCOPE_END:
-                    FunctionInfo scopeFunction = ((FunctionRefCPEntry) packageInfo.getCPEntry(codeStream.readInt()))
-                            .getFunctionInfo();
+                    FunctionRefCPEntry funcCP = ((FunctionRefCPEntry) packageInfo.getCPEntry(codeStream.readInt()));
+                    FunctionInfo scopeFunction = funcCP.getFunctionInfo();
                     String scopeName = ((UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt())).getValue();
-                    packageInfo.addInstruction(new InstructionScopeEnd(opcode, scopeFunction, getArgRegs(codeStream),
-                            getChildScopesList(codeStream, packageInfo), scopeName));
+                    Instruction scopeInstruction = new InstructionScopeEnd(opcode, scopeFunction,
+                            getChildScopesList(codeStream, packageInfo), scopeName, funcCP);
+                    int[] pointerOperands = getFunctionPointerLoadOperands(codeStream);
+                    scopeInstruction.operands = pointerOperands;
+                    packageInfo.addInstruction(scopeInstruction);
                     break;
                 case InstructionCodes.WRKSEND:
                 case InstructionCodes.WRKRECEIVE:
@@ -1477,6 +1480,10 @@ public class PackageInfoReader {
 
     private void readFunctionPointerLoadInstruction(PackageInfo packageInfo, DataInputStream codeStream, int opcode)
             throws IOException {
+        packageInfo.addInstruction(InstructionFactory.get(opcode, getFunctionPointerLoadOperands(codeStream)));
+    }
+
+    private int[] getFunctionPointerLoadOperands(DataInputStream codeStream) throws IOException {
         int h;
         int i;
         int j;
@@ -1502,7 +1509,8 @@ public class PackageInfoReader {
                 operands[x + 4] = codeStream.readInt();
             }
         }
-        packageInfo.addInstruction(InstructionFactory.get(opcode, operands));
+
+        return operands;
     }
 
     private void resolveCPEntries(PackageInfo currentPackageInfo) {

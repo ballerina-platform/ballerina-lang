@@ -1461,11 +1461,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangScope scopeNode) {
         visit(scopeNode.scopeBody);
-//        scopeNode.varRefs.forEach(bLangVariableReference -> typeChecker.checkExpr(bLangVariableReference, env));
 
-//        scopeNode.compensationFunction.getParameters().forEach(param -> param.flagSet.add(Flag.COMPENSATE));
-//        symbolEnter.defineNode(scopeNode.compensationFunction, env);
-//        visit(scopeNode.compensationFunction);
         symbolEnter.defineNode(scopeNode.compensationFunction.function, env);
         typeChecker.checkExpr(scopeNode.compensationFunction, env);
         symbolEnter.defineNode(scopeNode, env);

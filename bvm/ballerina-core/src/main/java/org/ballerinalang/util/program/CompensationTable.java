@@ -17,6 +17,7 @@
 package org.ballerinalang.util.program;
 
 import org.ballerinalang.bre.bvm.WorkerData;
+import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.util.codegen.FunctionInfo;
 
 import java.util.ArrayList;
@@ -64,6 +65,6 @@ public class CompensationTable {
     public static class CompensationEntry {
         public String scope;
         public FunctionInfo functionInfo;
-        public WorkerData workerData;
+        public BFunctionPointer fPointer;
     }
 }

@@ -38,7 +38,6 @@ public class BLangScope extends BLangStatement implements ScopeNode {
     public BLangLambdaFunction compensationFunction;
     public BLangIdentifier name;
     public Stack<String> childScopes = new Stack<>();
-//    public List<BLangExpression> varRefs;
 
     public BLangScope() {}
 
@@ -46,7 +45,6 @@ public class BLangScope extends BLangStatement implements ScopeNode {
             BLangIdentifier name) {
         this.scopeBody = scopeBody;
         this.name = name;
-//        this.varRefs = varRefs;
     }
 
     public void addChildScope(String name) {

@@ -459,9 +459,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
             this.acceptNode(typeDefinition.typeNode);
         }
 
-//        if (typeDefinition.valueSpace != null) {
-//            typeDefinition.valueSpace.forEach(this::acceptNode);
-//        }
     }
 
     @Override
@@ -469,10 +466,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
         if (scopeNode.scopeBody != null) {
             this.acceptNode(scopeNode.scopeBody);
         }
-
-//        if (!scopeNode.varRefs.isEmpty()) {
-//            scopeNode.varRefs.forEach(bLangVariableReference -> this.acceptNode(bLangVariableReference));
-//        }
 
         visit(scopeNode.compensationFunction);
     }

@@ -1310,16 +1310,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
         int funcRefCPIndex =  currentPkgInfo.addCPEntry(funcRefCPEntry);
         int i = 0;
-        //functionRefCP, scopenameUTF8CP, nArgs, args, nChild, children
-        Operand[] operands = new Operand[4 + 0 + scopeNode.childScopes.size()];
+        //functionRefCP, scopenameUTF8CP, nChild, children
+        Operand[] operands = new Operand[3 + scopeNode.childScopes.size()];
         operands[i++] = getOperand(funcRefCPIndex);
         int scopeNameCPIndex = addUTF8CPEntry(currentPkgInfo, scopeNode.getScopeName().getValue());
         operands[i++] = getOperand(scopeNameCPIndex);
-
-        operands[i++] = getOperand(0);
-//        for (BLangExpression expr : scopeNode.varRefs) {
-//            operands[i++] = ((BVarSymbol) (((BLangSimpleVarRef) expr)).symbol).varIndex;
-//        }
 
         operands[i++] = getOperand(scopeNode.childScopes.size());
 
@@ -1328,7 +1323,16 @@ public class CodeGenerator extends BLangNodeVisitor {
             operands[i++] = getOperand(childScopeNameIndex);
         }
 
-        emit(InstructionCodes.SCOPE_END, operands);
+        Operand typeCPIndex = getTypeCPIndex(scopeNode.compensationFunction.function.symbol.type);
+        RegIndex nextIndex = calcAndGetExprRegIndex(scopeNode.compensationFunction);
+        Operand[] closureOperands = calcClosureOperands(scopeNode.compensationFunction.function, funcRefCPIndex,
+                nextIndex, typeCPIndex);
+
+        Operand[] finalOperands = new Operand[operands.length + closureOperands.length];
+        System.arraycopy(operands, 0, finalOperands, 0, operands.length);
+        System.arraycopy(closureOperands, 0, finalOperands, operands.length, closureOperands.length);
+
+        emit(InstructionCodes.SCOPE_END, finalOperands);
     }
 
     public void visit(BLangCompensate compensate) {

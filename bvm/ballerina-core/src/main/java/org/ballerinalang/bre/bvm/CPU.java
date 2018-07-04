@@ -773,7 +773,13 @@ public class CPU {
                         break;
                     case InstructionCodes.SCOPE_END:
                         Instruction.InstructionScopeEnd scopeEnd = (Instruction.InstructionScopeEnd) instruction;
-                        addToCompensationTable(scopeEnd, ctx);
+                        i = operands[0];
+                        k = operands[2];
+                        funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[i];
+                        typeEntry = (TypeRefCPEntry) ctx.constPool[k];
+                        BFunctionPointer fp = new BFunctionPointer(funcRefCPEntry, typeEntry.getType());
+                        findAndAddAdditionalVarRegIndexes(ctx, operands, fp);
+                        addToCompensationTable(scopeEnd, ctx, fp);
                         break;
                     case InstructionCodes.COMPENSATE:
                         Instruction.InstructionCompensate compIn = (Instruction.InstructionCompensate) instruction;
@@ -781,7 +787,8 @@ public class CPU {
                         int index = --table.index;
                         if (index >= 0 && (table.compensations.get(index).scope.equals(compIn
                                 .scopeName) || compIn.childScopes.contains(table.compensations.get(index).scope))) {
-                            ctx = handleCompensate(ctx, table.compensations.get(index).functionInfo);
+                            CompensationTable.CompensationEntry entry = table.compensations.get(index);
+                            ctx = invokeCompensate(ctx, entry.fPointer, entry.functionInfo, sf);
                         }
                         if (ctx == null) {
                             return;
@@ -870,6 +877,64 @@ public class CPU {
         return BLangFunctions.invokeCallable(functionInfo, ctx, newArgRegs, funcCallCPEntry.getRetRegs(), false);
     }
 
+    private static WorkerExecutionContext invokeCompensate(WorkerExecutionContext ctx, BFunctionPointer fp,
+            FunctionInfo functionInfo, WorkerData sf) {
+        List<BClosure> closureVars = fp.getClosureVars();
+        if (closureVars.isEmpty()) {
+            //compensate functions has no args apart from closure vars, no return as well
+            return BLangFunctions.invokeCallable(functionInfo, ctx, new int[0], new int[0], false);
+        }
+
+        int[] newArgRegs = new int[closureVars.size()];
+        int argRegIndex = 0;
+
+        int longIndex = expandLongRegs(sf, fp);
+        int doubleIndex = expandDoubleRegs(sf, fp);
+        int intIndex = expandIntRegs(sf, fp);
+        int stringIndex = expandStringRegs(sf, fp);
+        int byteIndex = expandByteRegs(sf, fp);
+        int refIndex = expandRefRegs(sf, fp);
+
+        for (BClosure closure : closureVars) {
+            switch (closure.getType().getTag()) {
+            case TypeTags.INT_TAG: {
+                sf.longRegs[longIndex] = ((BInteger) closure.value()).intValue();
+                newArgRegs[argRegIndex++] = longIndex++;
+                break;
+            }
+            case TypeTags.BYTE_TAG: {
+                sf.intRegs[intIndex] = ((BByte) closure.value()).byteValue();
+                newArgRegs[argRegIndex++] = intIndex++;
+                break;
+            }
+            case TypeTags.FLOAT_TAG: {
+                sf.doubleRegs[doubleIndex] = ((BFloat) closure.value()).floatValue();
+                newArgRegs[argRegIndex++] = doubleIndex++;
+                break;
+            }
+            case TypeTags.BOOLEAN_TAG: {
+                sf.intRegs[intIndex] = ((BBoolean) closure.value()).booleanValue() ? 1 : 0;
+                newArgRegs[argRegIndex++] = intIndex++;
+                break;
+            }
+            case TypeTags.STRING_TAG: {
+                sf.stringRegs[stringIndex] = (closure.value()).stringValue();
+                newArgRegs[argRegIndex++] = stringIndex++;
+                break;
+            }
+            case TypeTags.BLOB_TAG: {
+                sf.byteRegs[byteIndex] = ((BBlob) closure.value()).blobValue();
+                newArgRegs[argRegIndex++] = byteIndex++;
+                break;
+            }
+            default:
+                sf.refRegs[refIndex] = ((BRefType) closure.value());
+                newArgRegs[argRegIndex++] = refIndex++;
+            }
+        }
+
+        return BLangFunctions.invokeCallable(functionInfo, ctx, newArgRegs, new int[0], false);
+    }
 
     private static int expandLongRegs(WorkerData sf, BFunctionPointer fp) {
         int longIndex = 0;
@@ -4203,31 +4268,18 @@ public class CPU {
     }
 
     /**
-     * Invokes a callable after marking it as a compensate function. This is a non native, sync call.
-     * @param ctx current WorkerExecutionContext
-     * @param funcInfo compensate function to invoke
-     * @return result WorkerExecutionContext
-     */
-    private static WorkerExecutionContext handleCompensate(WorkerExecutionContext ctx, CallableUnitInfo funcInfo) {
-        int flags = 0;
-        flags = FunctionFlags.markCompensate(flags);
-
-        return BLangFunctions.invokeCallable(funcInfo, ctx, new int[0], new int[0], false, flags);
-    }
-
-    /**
      * Add the corresponding compensation function pointer of the given scope, to the compensations table. A copy of
      * current worker data of the args also added to the table.
      * @param scopeEnd current scope instruction
      * @param ctx current WorkerExecutionContext
      */
-    private static void addToCompensationTable(Instruction.InstructionScopeEnd scopeEnd, WorkerExecutionContext ctx) {
+    private static void addToCompensationTable(Instruction.InstructionScopeEnd scopeEnd, WorkerExecutionContext ctx,
+            BFunctionPointer fp) {
         CompensationTable compensationTable = (CompensationTable) ctx.globalProps.get(Constants.COMPENSATION_TABLE);
         CompensationTable.CompensationEntry entry = compensationTable.getNewEntry();
         entry.functionInfo = scopeEnd.function;
         entry.scope = scopeEnd.scopeName;
-        entry.workerData = BLangVMUtils
-                .createWorkerDataForLocal(ctx.workerInfo, ctx, scopeEnd.argRegs, scopeEnd.function.getParamTypes());
+        entry.fPointer = fp;
         compensationTable.compensations.add(entry);
         compensationTable.index++;
     }

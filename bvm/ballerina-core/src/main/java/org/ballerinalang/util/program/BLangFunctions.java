@@ -315,7 +315,7 @@ public class BLangFunctions {
                     wdi, initWorkerLocalData, initWorkerCAI, false, observerContext);
         }
         WorkerExecutionContext runInCallerCtx = executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, 
-                workerSet.generalWorkers[0], wdi, initWorkerLocalData, initWorkerCAI, true, observerContext, flags);
+                workerSet.generalWorkers[0], wdi, initWorkerLocalData, initWorkerCAI, true, observerContext);
         if (waitForResponse) {
             BLangScheduler.executeNow(runInCallerCtx);
             respCallback.waitForResponse();
@@ -431,26 +431,12 @@ public class BLangFunctions {
         throw new BLangRuntimeException("error: " + BLangVMErrors.getPrintableStackTrace(ctx.getError()));
     }
 
-    private static WorkerExecutionContext executeWorker(WorkerResponseContext respCtx,
-            WorkerExecutionContext parentCtx, int[] argRegs, CallableUnitInfo callableUnitInfo,
-            WorkerInfo workerInfo, WorkerDataIndex wdi, WorkerData initWorkerLocalData,
-            CodeAttributeInfo initWorkerCAI, boolean runInCaller, ObserverContext observerContext) {
-        return executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerInfo, wdi, initWorkerLocalData,
-                initWorkerCAI, runInCaller, observerContext, 0);
-    }
-
-    private static WorkerExecutionContext executeWorker(WorkerResponseContext respCtx,
-            WorkerExecutionContext parentCtx, int[] argRegs, CallableUnitInfo callableUnitInfo, 
-            WorkerInfo workerInfo, WorkerDataIndex wdi, WorkerData initWorkerLocalData, 
-            CodeAttributeInfo initWorkerCAI, boolean runInCaller, ObserverContext observerContext, int flags) {
-        WorkerData workerLocal;
-        if (FunctionFlags.isCompensate(flags)) {
-            workerLocal = ((CompensationTable) parentCtx.globalProps.get(Constants.COMPENSATION_TABLE))
-                    .getCurrentEntry().workerData;
-        } else {
-            workerLocal = BLangVMUtils.createWorkerDataForLocal(workerInfo, parentCtx, argRegs,
-                    callableUnitInfo.getParamTypes());
-        }
+    private static WorkerExecutionContext executeWorker(WorkerResponseContext respCtx, WorkerExecutionContext parentCtx,
+            int[] argRegs, CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerDataIndex wdi,
+            WorkerData initWorkerLocalData, CodeAttributeInfo initWorkerCAI, boolean runInCaller,
+            ObserverContext observerContext) {
+        WorkerData workerLocal = BLangVMUtils
+                .createWorkerDataForLocal(workerInfo, parentCtx, argRegs, callableUnitInfo.getParamTypes());
         if (initWorkerLocalData != null) {
             BLangVMUtils.mergeInitWorkertData(initWorkerLocalData, workerLocal, initWorkerCAI);
         }
