@@ -24,7 +24,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.internal.utils.Constants;
+import org.ballerinalang.stdlib.internal.Constants;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.io.FileInputStream;
@@ -38,13 +38,14 @@ import java.nio.file.Path;
  * @since 0.970.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "internal",
+        orgName = Constants.ORG_NAME,
+        packageName = Constants.PACKAGE_NAME,
         functionName = "decompress",
         args = {
-                @Argument(name = "dirPath", type = TypeKind.RECORD, structType = "Path",
-                        structPackage = "ballerina/file"),
-                @Argument(name = "destDir", type = TypeKind.RECORD, structType = "Path",
-                        structPackage = "ballerina/file")
+                @Argument(name = "dirPath", type = TypeKind.OBJECT, structType = Constants.PATH_STRUCT,
+                          structPackage = Constants.PACKAGE_PATH),
+                @Argument(name = "destDir", type = TypeKind.OBJECT, structType = Constants.PATH_STRUCT,
+                          structPackage = Constants.PACKAGE_PATH)
         },
         returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true
@@ -86,11 +87,10 @@ public class Decompress extends BlockingNativeCallableUnit {
 
         if (!srcPath.toFile().exists()) {
             context.setReturnValues(CompressionUtils.createCompressionError(context, "Path of the folder to be " +
-                    "decompressed is not available"));
+                    "decompressed is not available: " + srcPath));
         } else if (!destPath.toFile().exists()) {
             context.setReturnValues(CompressionUtils.createCompressionError(context,
-                    "Path to place the decompressed file " +
-                            "is not available"));
+                    "Path to place the decompressed file is not available: " + destPath));
         } else {
             decompress(srcPath, destPath, context);
             if (context.getReturnValues() == null) {

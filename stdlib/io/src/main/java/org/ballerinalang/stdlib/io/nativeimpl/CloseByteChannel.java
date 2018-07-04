@@ -80,7 +80,6 @@ public class CloseByteChannel implements NativeCallableUnit {
         Register register = EventRegister.getFactory().register(closeEvent, CloseByteChannel::closeResponse);
         eventContext.setRegister(register);
         register.submit();
-//        IOUtils.close(byteChannel, eventContext, CloseByteChannel::closeResponse);
     }
 
     @Override

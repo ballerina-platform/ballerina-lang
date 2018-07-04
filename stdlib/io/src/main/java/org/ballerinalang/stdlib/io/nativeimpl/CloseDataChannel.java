@@ -90,8 +90,6 @@ public class CloseDataChannel implements NativeCallableUnit {
         Register register = EventRegister.getFactory().register(dataChannelCloseEvt, CloseDataChannel::closeResponse);
         eventContext.setRegister(register);
         register.submit();
-/*        CompletableFuture<EventResult> publish = EventManager.getInstance().publish(dataChannelCloseEvt);
-        publish.thenApply(CloseDataChannel::closeResponse);*/
     }
 
     @Override
