@@ -797,17 +797,17 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override
-    public void exitFieldDefinitionList(BallerinaParser.FieldDefinitionListContext ctx) {
+    public void exitRecordTypeNameLabel(BallerinaParser.RecordTypeNameLabelContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
+        boolean isAnonymous = !(ctx.parent instanceof BallerinaParser.FiniteTypeUnitContext);
 
         boolean isFieldAnalyseRequired =
-                (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
-                        ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext) ||
-                        ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
+                (ctx.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
+                        ctx.parent instanceof BallerinaParser.ReturnParameterContext) ||
+                        ctx.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
         this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous);
     }
 
