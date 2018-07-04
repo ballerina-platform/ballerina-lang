@@ -72,7 +72,7 @@ public class MetricsTestCase {
         addMetrics();
     }
 
-    @Test
+    @Test(enabled = false)
     public void testMetrics() throws Exception {
         // Test Service
         Assert.assertEquals(HttpClientRequest.doGet("http://localhost:9090/test").getData(),
