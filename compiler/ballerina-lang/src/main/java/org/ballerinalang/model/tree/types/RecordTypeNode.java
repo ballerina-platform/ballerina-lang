@@ -29,4 +29,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 public interface RecordTypeNode extends StructureTypeNode {
 
     BLangType getRestFieldType();
+
+    boolean isSealed();
 }

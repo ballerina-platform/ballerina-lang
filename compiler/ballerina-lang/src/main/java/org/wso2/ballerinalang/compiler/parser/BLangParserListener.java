@@ -792,7 +792,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitOpenRecordTypeNameLabel(BallerinaParser.OpenRecordTypeNameLabelContext ctx) {
+    public void exitRecordTypeNameLabel(BallerinaParser.RecordTypeNameLabelContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -806,26 +806,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean hasRestField = ctx.recordFieldDefinitionList().recordRestFieldDefinition() != null;
 
-        this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous, false,
-                                      hasRestField);
-    }
+        boolean sealed = ctx.SEALED() != null;
 
-    @Override
-    public void exitSealedRecordTypeNameLabel(BallerinaParser.SealedRecordTypeNameLabelContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        boolean isAnonymous = !(ctx.parent instanceof BallerinaParser.FiniteTypeUnitContext);
-
-        boolean isFieldAnalyseRequired =
-                (ctx.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
-                        ctx.parent instanceof BallerinaParser.ReturnParameterContext) ||
-                        ctx.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
-
-        boolean hasRestField = ctx.recordFieldDefinitionList().recordRestFieldDefinition() != null;
-
-        this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous, true,
+        this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous, sealed,
                                       hasRestField);
     }
 

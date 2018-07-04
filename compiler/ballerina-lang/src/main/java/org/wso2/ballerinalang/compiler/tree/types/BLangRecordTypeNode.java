@@ -55,4 +55,9 @@ public class BLangRecordTypeNode extends BLangStructureTypeNode implements Recor
     public BLangType getRestFieldType() {
         return restFieldType;
     }
+
+    @Override
+    public boolean isSealed() {
+        return sealed;
+    }
 }
