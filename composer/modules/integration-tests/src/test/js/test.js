@@ -43,7 +43,6 @@ describe('Ballerina Composer Test Suite', () => {
     
     before(function (beforeAllDone) {
         this.timeout(10000);
-        console.log(sourceGenSkip)
         const targetPath = path.join(global.targetPath, 'lib', `composer-server.jar`);
         backEndProcess = spawn('java', [`-Dballerina.home=${global.targetPath}`, '-jar', targetPath]);
         backEndProcess.stderr.pipe(process.stderr);
@@ -65,17 +64,18 @@ describe('Ballerina Composer Test Suite', () => {
             let model;
             let content;
             
-            beforeEach(done => {
+            before(done => {
                 model = undefined;
                 content = undefined;
                 fs.readFile(testFile, 'utf8', (err, fileContent) => {
                     parse(fileContent, testFile, parsedModel => {
                         content = fileContent;
                         model = parsedModel;
+                        let error;
                         if (!model) {
-                            done(new Error('could not parse'));
+                            error = new Error('Could not parse!');
                         }
-                        done();
+                        done(error);
                     });
                 })
             });
