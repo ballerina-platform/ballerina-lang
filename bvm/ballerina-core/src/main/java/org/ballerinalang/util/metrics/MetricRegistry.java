@@ -22,7 +22,6 @@ import org.ballerinalang.util.metrics.spi.MetricProvider;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.locks.StampedLock;
 import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
@@ -36,13 +35,10 @@ public class MetricRegistry {
     private final MetricProvider metricProvider;
     // Metrics Map by ID
     private final ConcurrentMap<MetricId, Metric> metrics;
-    // Lock used to read and write to metrics maps
-    private final StampedLock stampedLock;
 
     public MetricRegistry(MetricProvider metricProvider) {
         this.metricProvider = metricProvider;
         this.metrics = new ConcurrentHashMap<>();
-        this.stampedLock = new StampedLock();
     }
 
     /**
@@ -134,91 +130,54 @@ public class MetricRegistry {
     }
 
     private <M extends Metric> M getOrCreate(MetricId id, Class<M> metricClass, Supplier<M> metricSupplier) {
-        long stamp = stampedLock.tryOptimisticRead();
-        Metric metric = metrics.get(id);
-        if (!stampedLock.validate(stamp)) {
-            stamp = stampedLock.readLock();
-            try {
-                metric = metrics.get(id);
-            } finally {
-                stampedLock.unlockRead(stamp);
-            }
-        }
-        if (metric != null) {
-            if (metricClass.isInstance(metric)) {
-                return (M) metric;
-            }
-        }
-        stamp = stampedLock.writeLock();
-        try {
+        Metric metric = readMetric(id, metricClass);
+        if (metric == null) {
             Metric newMetric = metricSupplier.get();
-            final Metric existing = metrics.putIfAbsent(id, newMetric);
-            if (existing != null) {
-                if (metricClass.isInstance(existing)) {
-                    return (M) existing;
-                } else {
-                    throw new IllegalArgumentException(id + " is already used for a different type of metric: "
-                            + metricClass.getSimpleName());
-                }
-            }
-            return (M) newMetric;
-        } finally {
-            stampedLock.unlockWrite(stamp);
+            return writeMetricIfNotExists(newMetric, metricClass);
+        } else {
+            return (M) metric;
         }
     }
 
-    private <M extends Metric> M readMetric(Metric registerMetric, Class<M> metricClass) {
-        long stamp = stampedLock.tryOptimisticRead();
-        Metric existingMetrics = metrics.get(registerMetric.getId());
-        if (!stampedLock.validate(stamp)) {
-            stamp = stampedLock.readLock();
-            try {
-                existingMetrics = metrics.get(registerMetric.getId());
-            } finally {
-                stampedLock.unlockRead(stamp);
-            }
-        }
+    private <M extends Metric> M readMetric(MetricId metricId, Class<M> metricClass) {
+        Metric existingMetrics = lookup(metricId);
         if (existingMetrics != null) {
             if (metricClass.isInstance(existingMetrics)) {
                 return (M) existingMetrics;
+            } else {
+                throw new IllegalArgumentException(metricId + " is already used for a different type " +
+                        "of metric: " + metricClass.getSimpleName());
             }
         }
         return null;
     }
 
-    private <M extends Metric> M register(Metric registerMetric, Class<M> metricClass) {
-        Metric metric = readMetric(registerMetric, metricClass);
-        if (metric == null) {
-            long stamp = stampedLock.writeLock();
-            try {
-                final Metric existing = metrics.putIfAbsent(registerMetric.getId(), registerMetric);
-                if (existing != null) {
-                    if (!metricClass.isInstance(existing)) {
-                        throw new IllegalArgumentException(existing.getId() +
-                                " is already used for a different type of metric: "
-                                + metricClass.getSimpleName());
-                    } else {
-                        return (M) existing;
-                    }
-                }
-                return (M) registerMetric;
-            } finally {
-                stampedLock.unlockWrite(stamp);
+    private <M extends Metric> M writeMetricIfNotExists(Metric metric, Class<M> metricClass) {
+        final Metric existing = metrics.putIfAbsent(metric.getId(), metric);
+        if (existing != null) {
+            if (metricClass.isInstance(existing)) {
+                return (M) existing;
+            } else {
+                throw new IllegalArgumentException(metric.getId() + " is already used for a different type of metric: "
+                        + metricClass.getSimpleName());
             }
+        }
+        return (M) metric;
+    }
+
+    private <M extends Metric> M register(Metric registerMetric, Class<M> metricClass) {
+        Metric metric = readMetric(registerMetric.getId(), metricClass);
+        if (metric == null) {
+            return writeMetricIfNotExists(registerMetric, metricClass);
         } else {
             return (M) metric;
         }
     }
 
     private void unregister(Metric registerMetric, Class metricClass) {
-        Metric metric = readMetric(registerMetric, metricClass);
+        Metric metric = readMetric(registerMetric.getId(), metricClass);
         if (metric != null) {
-            long stamp = stampedLock.writeLock();
-            try {
-                metrics.remove(registerMetric.getId());
-            } finally {
-                stampedLock.unlockWrite(stamp);
-            }
+            metrics.remove(registerMetric.getId());
         }
     }
 
@@ -228,14 +187,9 @@ public class MetricRegistry {
      * @param name the name of the metric
      */
     public void remove(String name) {
-        long stamp = stampedLock.writeLock();
-        try {
-            List<MetricId> ids = metrics.keySet().stream()
-                    .filter(id -> id.getName().equals(name)).collect(Collectors.toList());
-            ids.forEach(metrics::remove);
-        } finally {
-            stampedLock.unlockWrite(stamp);
-        }
+        List<MetricId> ids = metrics.keySet().stream()
+                .filter(id -> id.getName().equals(name)).collect(Collectors.toList());
+        ids.forEach(metrics::remove);
     }
 
     public MetricProvider getMetricProvider() {
@@ -247,6 +201,6 @@ public class MetricRegistry {
     }
 
     public Metric lookup(MetricId metricId) {
-        return this.metrics.get(metricId);
+        return metrics.get(metricId);
     }
 }
