@@ -31,7 +31,6 @@ public class MessageFuture {
     private static final Logger log = LoggerFactory.getLogger(MessageFuture.class);
     private MessageListener messageListener;
     private final HTTPCarbonMessage httpCarbonMessage;
-    private boolean messageListenerSet = false;
 
     public MessageFuture(HTTPCarbonMessage httpCarbonMessage) {
         this.httpCarbonMessage = httpCarbonMessage;
@@ -40,7 +39,6 @@ public class MessageFuture {
     public void setMessageListener(MessageListener messageListener) {
         synchronized (httpCarbonMessage) {
             this.messageListener = messageListener;
-            this.messageListenerSet = true;
             while (!httpCarbonMessage.isEmpty()) {
                 HttpContent httpContent = httpCarbonMessage.getHttpContent();
                 notifyMessageListener(httpContent);
@@ -61,7 +59,7 @@ public class MessageFuture {
     }
 
     public boolean isMessageListenerSet() {
-        return messageListenerSet;
+        return messageListener != null;
     }
 
     public synchronized HttpContent sync() {
