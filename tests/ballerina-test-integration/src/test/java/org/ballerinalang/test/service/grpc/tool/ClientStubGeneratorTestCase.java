@@ -29,7 +29,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -51,7 +50,7 @@ public class ClientStubGeneratorTestCase {
 
     @Test
     public void testUnaryHelloWorld() throws IllegalAccessException,
-            ClassNotFoundException, InstantiationException, IOException {
+            ClassNotFoundException, InstantiationException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
         Path sourcePath = Paths.get("grpc", "tool");
@@ -81,7 +80,7 @@ public class ClientStubGeneratorTestCase {
 
     @Test
     public void testClientStreamingHelloWorld() throws IllegalAccessException,
-            ClassNotFoundException, InstantiationException, IOException {
+            ClassNotFoundException, InstantiationException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
         Path sourcePath = Paths.get("grpc", "tool");
@@ -104,7 +103,7 @@ public class ClientStubGeneratorTestCase {
 
     @Test
     public void testServerStreamingHelloWorld() throws IllegalAccessException,
-            ClassNotFoundException, InstantiationException, IOException {
+            ClassNotFoundException, InstantiationException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
         Path sourcePath = Paths.get("grpc", "tool");
@@ -127,7 +126,7 @@ public class ClientStubGeneratorTestCase {
 
     @Test
     public void testStandardDataTypes() throws IllegalAccessException,
-            ClassNotFoundException, InstantiationException, IOException {
+            ClassNotFoundException, InstantiationException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
         Path sourcePath = Paths.get("grpc", "tool");
@@ -155,6 +154,36 @@ public class ClientStubGeneratorTestCase {
         Assert.assertNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
                         .getFunctionInfo("helloWorldStub.bye"),
                 "function should not exist in pb.bal file.");
+    }
+
+    @Test
+    public void testDifferentOutputPath() throws IllegalAccessException,
+            ClassNotFoundException, InstantiationException {
+        Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
+        GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
+        Path sourcePath = Paths.get("grpc", "client");
+        Path sourceRoot = resourceDir.resolve(sourcePath);
+        Path protoPath = Paths.get("grpc", "tool", "helloWorld.proto");
+        Path protoRoot = resourceDir.resolve(protoPath);
+        grpcCmd1.setBalOutPath(sourceRoot.toAbsolutePath().toString());
+        grpcCmd1.setProtoPath(protoRoot.toAbsolutePath().toString());
+        grpcCmd1.execute();
+        Path sourceFileRoot = resourceDir.resolve(Paths.get("grpc", "client", "helloWorld_pb.bal"));
+        CompileResult compileResult = BCompileUtil.compile(sourceFileRoot.toString());
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                .getStructInfo("helloWorldClient"), "Connector not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                .getStructInfo("helloWorldBlockingClient"), "Connector not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                .getStructInfo("helloWorldBlockingStub"), "Connector not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                .getFunctionInfo("helloWorldBlockingStub.hello"), "Connector not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                .getFunctionInfo("helloWorldStub.hello"), "Connector not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                .getFunctionInfo("helloWorldBlockingStub.bye"), "Connector not found.");
+        Assert.assertNotNull(compileResult.getProgFile().getPackageInfo(PACKAGE_NAME)
+                .getFunctionInfo("helloWorldStub.bye"), "Connector not found.");
     }
 
     @AfterClass
