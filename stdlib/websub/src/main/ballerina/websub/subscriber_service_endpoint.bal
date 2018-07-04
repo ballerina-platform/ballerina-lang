@@ -136,28 +136,28 @@ function Listener::sendSubscriptionRequests() {
             continue;
         }
 
-        string strSubscribeOnStartUp = <string>subscriptionDetails["subscribeOnStartUp"];
+        string strSubscribeOnStartUp = <string>subscriptionDetails.subscribeOnStartUp;
         boolean subscribeOnStartUp = <boolean>strSubscribeOnStartUp;
 
         if (subscribeOnStartUp) {
-            string resourceUrl = <string>subscriptionDetails["resourceUrl"];
-            string hub = <string>subscriptionDetails["hub"];
-            string topic = <string>subscriptionDetails["topic"];
+            string resourceUrl = <string>subscriptionDetails.resourceUrl;
+            string hub = <string>subscriptionDetails.hub;
+            string topic = <string>subscriptionDetails.topic;
 
             http:SecureSocket? newSecureSocket;
-            match (<http:SecureSocket>subscriptionDetails["secureSocket"]) {
+            match (<http:SecureSocket>subscriptionDetails.secureSocket) {
                 http:SecureSocket s => { newSecureSocket = s; }
                 error => { newSecureSocket = (); }
             }
 
             http:AuthConfig? auth;
-            match (<http:AuthConfig>subscriptionDetails["auth"]) {
+            match (<http:AuthConfig>subscriptionDetails.auth) {
                 http:AuthConfig httpAuth => { auth = httpAuth; }
                 error => { auth = (); }
             }
 
             http:FollowRedirects? followRedirects;
-            match (<http:FollowRedirects>subscriptionDetails["followRedirects"]) {
+            match (<http:FollowRedirects>subscriptionDetails.followRedirects) {
                 http:FollowRedirects httpFollowRedirects => { followRedirects = httpFollowRedirects; }
                 error => { followRedirects = (); }
             }
@@ -176,7 +176,7 @@ function Listener::sendSubscriptionRequests() {
                         subscriptionDetails["hub"] = retHub;
                         hub = retHub;
                         subscriptionDetails["topic"] = retTopic;
-                        string webSubServiceName = <string>subscriptionDetails["webSubServiceName"];
+                        string webSubServiceName = <string>subscriptionDetails.webSubServiceName;
                         self.setTopic(webSubServiceName, retTopic);
                     }
                     error websubError => {
@@ -298,8 +298,8 @@ function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth,
         followRedirects:followRedirects
     };
 
-    string topic = <string>subscriptionDetails["topic"];
-    string callback = <string>subscriptionDetails["callback"];
+    string topic = <string>subscriptionDetails.topic;
+    string callback = <string>subscriptionDetails.callback;
 
     if (hub == "" || topic == "" || callback == "") {
         log:printError("Subscription Request not sent since hub, topic and/or callback not specified");
@@ -308,7 +308,7 @@ function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth,
 
     int leaseSeconds;
 
-    string strLeaseSeconds = <string>subscriptionDetails["leaseSeconds"];
+    string strLeaseSeconds = <string>subscriptionDetails.leaseSeconds;
     match (<int>strLeaseSeconds) {
         int convIntLeaseSeconds => { leaseSeconds = convIntLeaseSeconds; }
         error convError => {
@@ -317,7 +317,7 @@ function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth,
         }
     }
 
-    string secret = <string>subscriptionDetails["secret"];
+    string secret = <string>subscriptionDetails.secret;
 
     SubscriptionChangeRequest subscriptionChangeRequest = { topic:topic, callback:callback };
 

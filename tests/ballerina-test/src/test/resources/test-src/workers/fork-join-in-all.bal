@@ -15,8 +15,8 @@ function testForkJoinAll() returns int[] {
                 x -> fork;
             }
         } join (all) (map airlineResponses) {
-            int abc = check <int> airlineResponses["ABC_Airline"];
-            int xyz = check <int> airlineResponses["XYZ_Airline"];
+            int abc = check <int> airlineResponses.ABC_Airline;
+            int xyz = check <int> airlineResponses.XYZ_Airline;
             results[0] = abc;
             results[1] = xyz;
         } timeout (30000) (map airlineResponses) {

@@ -211,7 +211,6 @@ public class BMapValueTest {
 
     @Test(dependsOnMethods = "testGrammar")
     public void testMapOrder() {
-//        BValue[] returnVals = BLangFunctions.invokeNew(programFile, "testMapOrder", new BValue[0]);
         BValue[] returnVals = BRunUtil.invoke(programFile, "testMapOrder", new BValue[0]);
         BMap m = (BMap) returnVals[0];
         Set set = m.keySet();
