@@ -22,6 +22,8 @@ package org.wso2.transport.http.netty.common;
  * Inbound request and outbound response state.
  *
  * CONNECTED - State between connection creation and start of payload read
+ * EXPECT_CONTINUE_HEADER_RECEIVED - Special state of receiving request with expect continue header
+ * HEADER_100_CONTINUE_SENT - Special state of sending response with 100-continue header
  * RECEIVING_ENTITY_BODY - State between start and end of payload read
  * ENTITY_BODY_RECEIVED - State between end of payload read and start of response write
  * SENDING_ENTITY_BODY - State between start and end of response write
@@ -29,6 +31,8 @@ package org.wso2.transport.http.netty.common;
  */
 public enum SourceInteractiveState {
     CONNECTED,
+    EXPECT_CONTINUE_HEADER_RECEIVED,
+    HEADER_100_CONTINUE_SENT,
     RECEIVING_ENTITY_BODY,
     ENTITY_BODY_RECEIVED,
     SENDING_ENTITY_BODY,

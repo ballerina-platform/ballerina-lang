@@ -48,14 +48,21 @@ import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.netty.buffer.Unpooled.copiedBuffer;
+import static org.wso2.transport.http.netty.common.Constants
+        .IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_100_CONTINUE_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.common.Constants
+        .REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST;
+import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_100_CONTINUE_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED;
+import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_RECEIVED;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_SENT;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.SENDING_ENTITY_BODY;
 
@@ -78,6 +85,7 @@ public class SourceErrorHandler {
 
     void handleErrorCloseScenario(HTTPCarbonMessage inboundRequestMsg) {
         this.inboundRequestMsg = inboundRequestMsg;
+        System.out.println("state----------------" + state.toString());
         try {
             switch (state) {
                 case CONNECTED:
@@ -85,6 +93,14 @@ public class SourceErrorHandler {
                             new ServerConnectorException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST));
                     // Error is notified to server connector. Debug log is to make transport layer aware
                     log.debug(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST);
+                    break;
+                case EXPECT_CONTINUE_HEADER_RECEIVED:
+                    serverConnectorFuture.notifyErrorListener(
+                            new ServerConnectorException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE));
+                    break;
+                case HEADER_100_CONTINUE_SENT:
+                    // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
+                    log.error(REMOTE_CLIENT_CLOSED_WHILE_WRITING_100_CONTINUE_RESPONSE);
                     break;
                 case RECEIVING_ENTITY_BODY:
                     handleIncompleteInboundRequest(REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST);
@@ -118,13 +134,17 @@ public class SourceErrorHandler {
                     // Error is notified to server connector. Debug log is to make transport layer aware
                     log.debug(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST);
                     break;
+                case HEADER_100_CONTINUE_SENT:
+                    // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
+                    log.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_100_CONTINUE_RESPONSE);
+                    break;
                 case RECEIVING_ENTITY_BODY:
                     //408 Request Timeout is sent if the idle timeout triggered when reading request
                     return sendRequestTimeoutResponse(ctx, HttpResponseStatus.REQUEST_TIMEOUT, Unpooled.EMPTY_BUFFER,
                                                       0);
+                case EXPECT_CONTINUE_HEADER_RECEIVED:
                 case ENTITY_BODY_RECEIVED:
-                    // This means we have received the complete inbound request. But nothing happened
-                    // after that.
+                    // This means we have received the complete inbound request. But nothing happened after that.
                     if (evt.state() != IdleState.READER_IDLE) {
                         //500 Internal Server error is sent if the idle timeout is reached
                         String responseValue = "Server time out";
@@ -132,8 +152,11 @@ public class SourceErrorHandler {
                                                           copiedBuffer(responseValue, CharsetUtil.UTF_8),
                                                           responseValue.length());
                     }
-                    serverConnectorFuture.notifyErrorListener(
-                            new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE));
+
+                    String errorMsg = state.equals(ENTITY_BODY_RECEIVED) ?
+                            IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE :
+                            IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
+                    serverConnectorFuture.notifyErrorListener(new ServerConnectorException(errorMsg));
                     break;
                 case SENDING_ENTITY_BODY:
                     // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
@@ -165,6 +188,10 @@ public class SourceErrorHandler {
         this.state = state;
     }
 
+    public SourceInteractiveState getState() {
+        return state;
+    }
+
     public void checkForResponseWriteStatus(HTTPCarbonMessage inboundRequestMsg,
                                             HttpResponseFuture outboundRespStatusFuture, ChannelFuture channelFuture) {
         channelFuture.addListener(writeOperationPromise -> {
@@ -177,6 +204,8 @@ public class SourceErrorHandler {
             } else {
                 outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
                 this.setState(ENTITY_BODY_SENT);
+                System.out.println(ENTITY_BODY_SENT);
+
             }
         });
     }
@@ -193,10 +222,6 @@ public class SourceErrorHandler {
             }
             writeCounter.decrementAndGet();
         });
-    }
-
-    SourceInteractiveState getState() {
-        return state;
     }
 
     private ChannelFuture sendRequestTimeoutResponse(ChannelHandlerContext ctx, HttpResponseStatus status,
