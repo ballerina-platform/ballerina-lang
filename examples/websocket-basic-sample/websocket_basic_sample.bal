@@ -10,7 +10,7 @@ import ballerina/http;
 service<http:WebSocketService> basic bind { port: 9090 } {
 
     string ping = "ping";
-    blob pingData = ping.toBlob("UTF-8");
+    byte[] pingData = ping.toByteArray("UTF-8");
 
     // This resource is triggered after a successful client connection.
     onOpen(endpoint caller) {
@@ -38,20 +38,21 @@ service<http:WebSocketService> basic bind { port: 9090 } {
     }
 
     // This resource is triggered when a new binary frame is received from a client.
-    onBinary(endpoint caller, blob b) {
+    onBinary(endpoint caller, byte[] b) {
         io:println("\nNew binary message received");
-        io:println("UTF-8 decoded binary message: " + b.toString("UTF-8"));
+        io:print("UTF-8 decoded binary message: ");
+        io:println(b);
         caller->pushBinary(b) but { error e => log:printError("Error occurred when sending binary", err = e) };
     }
 
     // This resource is triggered when a ping message is received from the client. If this resource is not implemented,
     // a pong message is automatically sent to the connected endpoint when a ping is received.
-    onPing(endpoint caller, blob data) {
+    onPing(endpoint caller, byte[] data) {
         caller->pong(data) but { error e => log:printError("Error occurred when closing the connection", err = e) };
     }
 
     // This resource is triggered when a pong message is received.
-    onPong(endpoint caller, blob data) {
+    onPong(endpoint caller, byte[] data) {
         io:println("Pong received");
     }
 
