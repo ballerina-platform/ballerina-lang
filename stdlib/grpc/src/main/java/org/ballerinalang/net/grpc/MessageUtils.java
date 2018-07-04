@@ -147,9 +147,7 @@ public class MessageUtils {
         BMap<String, BValue> errorStruct = new BMap<>(errorType);
         if (error instanceof StatusRuntimeException) {
             StatusRuntimeException statusException = (StatusRuntimeException) error;
-            String status = statusException.getStatus() != null ? statusException.getStatus().toString() : "";
-            String message = status + statusException.getMessage();
-            errorStruct.put(ERROR_MESSAGE_FIELD, new BString(message));
+            errorStruct.put(ERROR_MESSAGE_FIELD, new BString(statusException.getStatus().toString()));
         } else {
             if (error.getMessage() == null) {
                 errorStruct.put(ERROR_MESSAGE_FIELD, new BString(UNKNOWN_ERROR));

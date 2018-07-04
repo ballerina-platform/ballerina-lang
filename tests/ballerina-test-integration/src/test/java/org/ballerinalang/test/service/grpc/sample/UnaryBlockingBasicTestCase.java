@@ -81,7 +81,7 @@ public class UnaryBlockingBasicTestCase extends IntegrationTestCase {
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BString request = new BString("invalid");
         final String serverMsg = "Error from Connector: Status{ code ABORTED, description Operation aborted, cause " +
-                "null}ABORTED: Operation aborted";
+                "null}";
 
         BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);
