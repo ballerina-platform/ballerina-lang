@@ -49,10 +49,6 @@ public class OutboundMsgHolder {
     private long lastReadWriteTime;
     private boolean requestWritten;
 
-    private boolean markedForRedirection = false;
-    private AtomicInteger redirectCount = new AtomicInteger(0);
-    private Http2Headers redirectResponseHeaders;
-
     public OutboundMsgHolder(HTTPCarbonMessage httpCarbonMessage) {
         this.requestCarbonMessage = httpCarbonMessage;
         promises = new LinkedBlockingQueue<>();
@@ -213,36 +209,6 @@ public class OutboundMsgHolder {
      */
     public void setRequestWritten(boolean requestWritten) {
         this.requestWritten = requestWritten;
-    }
-
-    /**
-     * Increments and gets the redirects count.
-     *
-     * @return number of redirects
-     */
-    int incrementRedirectCount() {
-        return redirectCount.incrementAndGet();
-    }
-
-    boolean isMarkedForRedirection() {
-        return markedForRedirection;
-    }
-
-    void markForRedirection() {
-        this.markedForRedirection = true;
-    }
-
-    Http2Headers getRedirectResponseHeaders() {
-        return redirectResponseHeaders;
-    }
-
-    void setRedirectResponseHeaders(Http2Headers redirectResponseHeaders) {
-        this.redirectResponseHeaders = redirectResponseHeaders;
-    }
-
-    void clearRedirectionState() {
-        markedForRedirection = false;
-        redirectResponseHeaders = null;
     }
 
     void updateRequest(HTTPCarbonMessage requestCarbonMessage) {
