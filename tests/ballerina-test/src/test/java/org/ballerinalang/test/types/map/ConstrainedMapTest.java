@@ -31,6 +31,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -244,8 +245,8 @@ public class ConstrainedMapTest {
         Assert.assertNotNull(returns[1]);
         Assert.assertTrue(returns[0] instanceof BByteArray);
         Assert.assertTrue(returns[1] instanceof BByteArray);
-        Assert.assertEquals(returns[0].stringValue(), "hi");
-        Assert.assertEquals(returns[1].stringValue(), "ballerina");
+        ByteArrayUtils.assertJBytesWithBBytes(((BByteArray) returns[0]).getBytes(), "hi".getBytes());
+        ByteArrayUtils.assertJBytesWithBBytes(((BByteArray) returns[1]).getBytes(), "ballerina".getBytes());
     }
 
     @Test(description = "Test Map constrained with value type blob negative.")
@@ -256,8 +257,8 @@ public class ConstrainedMapTest {
         Assert.assertNotNull(returns[1]);
         Assert.assertTrue(returns[0] instanceof BByteArray);
         Assert.assertTrue(returns[1] instanceof BByteArray);
-        Assert.assertEquals(returns[0].stringValue(), "hi");
-        Assert.assertEquals(returns[1].stringValue(), "ballerina");
+        ByteArrayUtils.assertJBytesWithBBytes(((BByteArray) returns[0]).getBytes(), "hi".getBytes());
+        ByteArrayUtils.assertJBytesWithBBytes(((BByteArray) returns[1]).getBytes(), "ballerina".getBytes());
     }
 
     @Test(description = "Test cast map constrained with value type from map any positive.")
