@@ -76,10 +76,14 @@ public class CopyTo extends BlockingNativeCallableUnit {
         File source = new File(sourcePath.toString());
         File target = new File(targetPath.toString());
         try {
-            FileUtils.copyDirectory(source, target);
+            if (source.isDirectory()) {
+                FileUtils.copyDirectory(source, target);
+            } else {
+                FileUtils.copyFile(source, target);
+            }
         } catch (IOException ex) {
             String msg = "IO error occurred while copying file/directory from: \'" + sourcePath + "\' to: \'" +
-                        targetPath + "\'";
+                        targetPath + "\'. " + ex.getMessage();
             log.error(msg, ex);
             context.setReturnValues(BLangVMErrors.createError(context, msg));
         }

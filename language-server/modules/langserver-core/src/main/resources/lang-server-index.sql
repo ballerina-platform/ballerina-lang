@@ -12,6 +12,8 @@ CREATE TABLE bLangFunction (
   packageId int(11) NOT NULL,
   objectId int(11) NOT NULL DEFAULT '-1',
   name varchar(256) NOT NULL,
+  private BIT NOT NULL DEFAULT 1,
+  attached BIT NOT NULL DEFAULT 0,
   completionItem varchar(MAX) NOT NULL
 );
 
@@ -22,6 +24,7 @@ CREATE TABLE bLangObject (
   fields varchar(256),
   type int(2) NOT NULL DEFAULT '3',
   actionHolderId int(11) DEFAULT '-1',
+  private BIT NOT NULL DEFAULT 1,
   completionItem varchar(MAX) DEFAULT NULL
 );
 
@@ -37,6 +40,7 @@ CREATE TABLE bLangRecord (
   packageId int(11) NOT NULL,
   name varchar(256) NOT NULL,
   fields varchar(MAX) NOT NULL,
+  private BIT NOT NULL DEFAULT 1,
   completionItem varchar(MAX) DEFAULT NULL
 );
 

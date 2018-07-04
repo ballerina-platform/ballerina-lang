@@ -30,18 +30,27 @@ import java.util.StringJoiner;
  */
 public class BStringArray extends BNewArray {
 
-    private static BType arrayType = new BArrayType(BTypes.typeString);
-
     private String[] values;
 
     public BStringArray(String[] values) {
         this.values = values;
         this.size = values.length;
+        super.arrayType = new BArrayType(BTypes.typeString);
     }
 
     public BStringArray() {
         values = (String[]) newArrayInstance(String.class);
         Arrays.fill(values, BLangConstants.STRING_EMPTY_VALUE);
+        super.arrayType = new BArrayType(BTypes.typeString);
+    }
+
+    public BStringArray(int size) {
+        if (size != -1) {
+            this.size = maxArraySize = size;
+        }
+        values = (String[]) newArrayInstance(String.class);
+        Arrays.fill(values, BLangConstants.STRING_EMPTY_VALUE);
+        super.arrayType = new BArrayType(BTypes.typeString, size);
     }
 
     public void add(long index, String value) {
