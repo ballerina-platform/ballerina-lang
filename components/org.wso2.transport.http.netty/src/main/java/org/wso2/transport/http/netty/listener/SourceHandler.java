@@ -115,7 +115,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         this.ctx = ctx;
         this.remoteAddress = ctx.channel().remoteAddress();
         sourceErrorHandler.setState(CONNECTED);
-        System.out.println(CONNECTED);
     }
 
     @Override
@@ -145,16 +144,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpRequest) {
-            System.out.println("headers receiving");
-
             sourceErrorHandler.setState(CONNECTED);
-            System.out.println(CONNECTED);
             HttpRequest httpRequest = (HttpRequest) msg;
             inboundRequestMsg = setupCarbonMessage(httpRequest, ctx);
             if (is100ContinueRequest(inboundRequestMsg)) {
                 sourceErrorHandler.setState(EXPECT_CONTINUE_HEADER_RECEIVED);
-                System.out.println(EXPECT_CONTINUE_HEADER_RECEIVED);
-
             }
             notifyRequestListener(inboundRequestMsg, ctx);
 
@@ -165,7 +159,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             if (inboundRequestMsg != null) {
                 if (msg instanceof HttpContent) {
                     sourceErrorHandler.setState(RECEIVING_ENTITY_BODY);
-                    System.out.println(RECEIVING_ENTITY_BODY);
                     HttpContent httpContent = (HttpContent) msg;
                     try {
                         inboundRequestMsg.addHttpContent(httpContent);
@@ -178,7 +171,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                             }
                             inboundRequestMsg = null;
                             sourceErrorHandler.setState(ENTITY_BODY_RECEIVED);
-                            System.out.println(ENTITY_BODY_RECEIVED);
                         }
                     } catch (RuntimeException ex) {
                         httpContent.release();

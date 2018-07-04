@@ -85,7 +85,6 @@ public class SourceErrorHandler {
 
     void handleErrorCloseScenario(HTTPCarbonMessage inboundRequestMsg) {
         this.inboundRequestMsg = inboundRequestMsg;
-        System.out.println("state----------------" + state.toString());
         try {
             switch (state) {
                 case CONNECTED:
@@ -204,8 +203,6 @@ public class SourceErrorHandler {
             } else {
                 outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
                 this.setState(ENTITY_BODY_SENT);
-                System.out.println(ENTITY_BODY_SENT);
-
             }
         });
     }

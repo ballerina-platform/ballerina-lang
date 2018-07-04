@@ -65,7 +65,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
     private static final Logger log = LoggerFactory.getLogger(HttpOutboundRespListener.class);
     private final SourceErrorHandler sourceErrorHandler;
-    private final boolean continueRequest;
+    private boolean continueRequest;
 
     private ChannelHandlerContext sourceContext;
     private RequestDataHolder requestDataHolder;
@@ -140,17 +140,16 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         }
         if (continueRequest) {
             sourceErrorHandler.setState(HEADER_100_CONTINUE_SENT);
-            System.out.println(HEADER_100_CONTINUE_SENT);
-
+            continueRequest = false;
         } else {
             if (sourceErrorHandler.getState().equals(SourceInteractiveState.RECEIVING_ENTITY_BODY)) {
-                // Response is being sent before finish reading the inbound request full entity body,
+                // Response is being sent before finish reading the inbound request,
                 // hence close the connection once the response is sent.
                 keepAlive = false;
             }
             sourceErrorHandler.setState(SENDING_ENTITY_BODY);
-            System.out.println(SENDING_ENTITY_BODY);
         }
+
         ChannelFuture outboundChannelFuture;
         HttpResponseFuture outboundRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
         if (isLastHttpContent(httpContent)) {
@@ -158,9 +157,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                 if (chunkConfig == ChunkConfig.ALWAYS && (
                         isVersionCompatibleForChunking(requestDataHolder.getHttpVersion()) ||
                                 shouldEnforceChunkingforHttpOneZero(chunkConfig, requestDataHolder.getHttpVersion()))) {
-                    System.out.println("chunking last http content headers");
                     writeHeaders(outboundResponseMsg, keepAlive, outboundRespStatusFuture);
-                    System.out.println("chunking last http content body");
                     outboundChannelFuture = writeOutboundResponseBody(httpContent);
                 } else {
                     contentLength += httpContent.content().readableBytes();
@@ -174,7 +171,6 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
             if (!keepAlive) {
                 outboundChannelFuture.addListener(ChannelFutureListener.CLOSE);
-                System.out.println("*******************************************close connection");
             }
             if (handlerExecutor != null) {
                 handlerExecutor.executeAtSourceResponseSending(outboundResponseMsg);
@@ -212,7 +208,6 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                 serverName, keepAlive, allContent);
 
         headerWritten = true;
-        System.out.println("sending headers and body");
         ChannelFuture outboundChannelFuture = sourceContext.writeAndFlush(fullOutboundResponse);
         sourceErrorHandler.checkForResponseWriteStatus(inboundRequestMsg, outRespStatusFuture, outboundChannelFuture);
         return outboundChannelFuture;
@@ -221,7 +216,6 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     private ChannelFuture writeOutboundResponseBody(HttpContent lastHttpContent) {
         HttpResponseFuture outRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
         incrementWriteCount(writeCounter);
-        System.out.println("sending body");
         ChannelFuture outboundChannelFuture = sourceContext.writeAndFlush(lastHttpContent);
         sourceErrorHandler.checkForResponseWriteStatus(inboundRequestMsg, outRespStatusFuture, outboundChannelFuture);
         return outboundChannelFuture;
@@ -231,7 +225,6 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                               HttpResponseFuture outboundRespStatusFuture) {
         setupChunkedRequest(outboundResponseMsg);
         incrementWriteCount(writeCounter);
-        System.out.println("sending headers");
         ChannelFuture outboundHeaderFuture = writeOutboundResponseHeaders(outboundResponseMsg, keepAlive);
         sourceErrorHandler.addResponseWriteFailureListener(outboundRespStatusFuture, outboundHeaderFuture,
                                                            writeCounter);
