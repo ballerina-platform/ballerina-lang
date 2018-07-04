@@ -5,10 +5,10 @@ function testNestedScopes() returns (int) {
         scope scopeB {
             string s = "abc";
             a = 5;
-        } compensation(a) {
+        } compensation {
             //compensate
         }
-    } compensation() {
+    } compensation {
 
     }
     a = 3;
@@ -24,10 +24,10 @@ function testLoopScopes() returns (int) {
         scope scopeA {
             scope scopeB {
                 a = 5;
-            } compensation() {
+            } compensation {
                 string abc = "abc";
             }
-        } compensation(a) {
+        } compensation {
 
         }
         k = k +2;
