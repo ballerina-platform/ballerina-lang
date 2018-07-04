@@ -54,5 +54,5 @@ EXAMPLES
 
      Build hello package by skipping test execution
      $ ballerina build hello --skiptests
-     This will generate a hello.balx output binary file and place
-     within target folder
+     This will generate a hello.balx output binary file without test
+     execution and place within target folder
