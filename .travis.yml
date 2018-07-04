@@ -23,19 +23,19 @@ script:
 
 # Ballerina
 - wget https://product-dist.ballerina.io/nightly/$BALLERINA_VERSION/$DISTRIBUTION_NAME.zip
-- unzip $DISTRIBUTION_NAME.zip
+- unzip -q $DISTRIBUTION_NAME.zip
 - export PATH=$PATH:$(pwd)/$DISTRIBUTION_NAME/bin
 - ballerina version
 
 # JDBC
 - wget http://dev.mysql.com/get/Downloads/Connector-J/$MYSQL_CONNECTOR_VERSION.tar.gz
-- tar xvzf $MYSQL_CONNECTOR_VERSION.tar.gz
+- tar xzf $MYSQL_CONNECTOR_VERSION.tar.gz
 - mv $MYSQL_CONNECTOR_VERSION/$MYSQL_CONNECTOR_VERSION-bin.jar $DISTRIBUTION_NAME/bre/lib
 
 
 # ActiveMQ
 - wget https://archive.apache.org/dist/activemq/5.12.0/$ACTIVEMQ_VERSION-bin.tar.gz
-- tar xvzf $ACTIVEMQ_VERSION-bin.tar.gz
+- tar xzf $ACTIVEMQ_VERSION-bin.tar.gz
 - cp $ACTIVEMQ_VERSION/activemq-all-5.12.0.jar $DISTRIBUTION_NAME/bre/lib
 - ./$ACTIVEMQ_VERSION/bin/activemq start
 
