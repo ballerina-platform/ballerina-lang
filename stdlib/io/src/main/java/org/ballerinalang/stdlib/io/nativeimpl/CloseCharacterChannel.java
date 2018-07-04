@@ -83,7 +83,6 @@ public class CloseCharacterChannel implements NativeCallableUnit {
         Register register = EventRegister.getFactory().register(closeEvent, CloseCharacterChannel::closeResponse);
         eventContext.setRegister(register);
         register.submit();
-//        IOUtils.close(charChannel, eventContext, CloseCharacterChannel::closeResponse);
     }
 
     @Override

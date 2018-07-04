@@ -86,7 +86,6 @@ public class CloseDelimitedRecordChannel implements NativeCallableUnit {
         Register register = EventRegister.getFactory().register(closeEvent, CloseDelimitedRecordChannel::closeResponse);
         eventContext.setRegister(register);
         register.submit();
-//        IOUtils.close(recordChannel, eventContext, CloseDelimitedRecordChannel::closeResponse);
     }
 
     @Override
