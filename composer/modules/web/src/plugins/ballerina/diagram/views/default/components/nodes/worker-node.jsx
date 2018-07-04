@@ -24,6 +24,7 @@ import LifeLine from '../decorators/lifeline';
 import ImageUtil from '../../../../image-util';
 import FragmentUtils from '../../../../../utils/fragment-utils';
 import TreeBuilder from '../../../../../model/tree-builder';
+import HoverGroup from 'plugins/ballerina/graphical-editor/controller-utils/hover-group';
 
 /**
  * Worker Node Decorator.
@@ -97,6 +98,15 @@ class WorkerNode extends React.Component {
                     icon={ImageUtil.getCodePoint('worker')}
                     onDelete={this.onDelete}
                 />
+                <HoverGroup model={model} region='actionBox'>
+                    <rect
+                        x={model.x}
+                        y={model.y}
+                        width={model.w}
+                        height={model.h}
+                        className='invisible-rect'
+                    />
+                </HoverGroup>
                 {blockNode}
             </g>
         );
