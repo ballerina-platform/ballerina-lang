@@ -19,7 +19,8 @@
 
 package org.ballerinalang.stdlib.io.events;
 
-import java.nio.channels.ByteChannel;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
@@ -49,8 +50,8 @@ public class EventExecutor {
         return evt.getType();
     }
 
-    public ByteChannel getChannel() {
-        return evt.getByteChannel();
+    public Channel getChannel() {
+        return evt.getChannel();
     }
 
     /**

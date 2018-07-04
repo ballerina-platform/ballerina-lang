@@ -19,6 +19,7 @@
 
 package org.ballerinalang.stdlib.io.events.data;
 
+import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.DataChannel;
 import org.ballerinalang.stdlib.io.events.Event;
 import org.ballerinalang.stdlib.io.events.EventContext;
@@ -29,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.channels.ByteChannel;
 
 /**
  * Writes boolean to a given source.
@@ -93,7 +93,7 @@ public class WriteBoolEvent implements Event {
     }
 
     @Override
-    public ByteChannel getByteChannel() {
-        return channel.getByteChannel();
+    public Channel getChannel() {
+        return channel.getChannel();
     }
 }

@@ -118,6 +118,7 @@ public class GetTable implements NativeCallableUnit {
                 context.setReturnValues(errorStruct);
             }
         }
+        IOUtils.validateChannelState(eventContext);
         CallableUnitCallback callback = eventContext.getCallback();
         callback.notifySuccess();
         return result;

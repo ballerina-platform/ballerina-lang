@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.channels.ByteChannel;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
@@ -107,8 +106,8 @@ public class CharacterChannel {
         bytesDecoder.onMalformedInput(CodingErrorAction.REPLACE);
     }
 
-    public ByteChannel getByteChannel() {
-        return channel.getByteChannel();
+    public Channel getChannel() {
+        return channel;
     }
 
     /**

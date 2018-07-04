@@ -29,8 +29,10 @@ import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.stdlib.io.csv.Format;
 import org.ballerinalang.stdlib.io.events.EventContext;
+import org.ballerinalang.stdlib.io.events.EventExecutor;
 import org.ballerinalang.stdlib.io.events.EventManager;
 import org.ballerinalang.stdlib.io.events.EventResult;
+import org.ballerinalang.stdlib.io.events.Register;
 import org.ballerinalang.stdlib.io.events.bytes.ReadBytesEvent;
 import org.ballerinalang.stdlib.io.events.bytes.WriteBytesEvent;
 import org.ballerinalang.stdlib.io.events.characters.WriteCharactersEvent;
@@ -117,6 +119,29 @@ public class IOUtils {
             throw new ExecutionException(error);
         }
         return offset;
+    }
+
+    /**
+     * <p>
+     * Validates whether the channel has reached it's end or the channel is closed.
+     * </p>
+     * <p>
+     * At an event the channel has reached it's end, the corresponding discard will be called.
+     * Discard will clean the existing state.
+     * </p>
+     *
+     * @param event the event which was executed.
+     * @return true if the channel has reached it's end.
+     */
+    public static boolean validateChannelState(EventContext event) {
+        Register register = event.getRegister();
+        EventExecutor exec = register.getExec();
+        Channel channel = exec.getChannel();
+        if (channel.hasReachedEnd() || !channel.getByteChannel().isOpen()) {
+            register.discard();
+            return true;
+        }
+        return false;
     }
 
     /**

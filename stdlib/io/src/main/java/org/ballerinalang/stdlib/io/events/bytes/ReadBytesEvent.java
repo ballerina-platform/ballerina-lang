@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.ByteChannel;
 import java.util.Arrays;
 
 /**
@@ -121,7 +120,7 @@ public class ReadBytesEvent implements Event {
     }
 
     @Override
-    public ByteChannel getByteChannel() {
-        return channel.getByteChannel();
+    public Channel getChannel() {
+        return channel;
     }
 }

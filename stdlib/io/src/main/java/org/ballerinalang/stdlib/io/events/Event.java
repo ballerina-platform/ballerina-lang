@@ -18,7 +18,8 @@
 
 package org.ballerinalang.stdlib.io.events;
 
-import java.nio.channels.ByteChannel;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
+
 import java.util.function.Supplier;
 
 /**
@@ -55,5 +56,5 @@ public interface Event extends Supplier<EventResult> {
      *
      * @return byte channel which represents the event.
      */
-    ByteChannel getByteChannel();
+     Channel getChannel();
 }

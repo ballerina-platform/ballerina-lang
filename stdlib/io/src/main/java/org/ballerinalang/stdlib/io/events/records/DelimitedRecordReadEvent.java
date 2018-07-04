@@ -19,6 +19,7 @@
 package org.ballerinalang.stdlib.io.events.records;
 
 
+import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.stdlib.io.events.Event;
 import org.ballerinalang.stdlib.io.events.EventContext;
@@ -29,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.channels.ByteChannel;
 
 /**
  * Represents delimited record read event.
@@ -92,7 +92,7 @@ public class DelimitedRecordReadEvent implements Event {
     }
 
     @Override
-    public ByteChannel getByteChannel() {
-        return channel.getByteChannel();
+    public Channel getChannel() {
+        return channel.getChannel();
     }
 }

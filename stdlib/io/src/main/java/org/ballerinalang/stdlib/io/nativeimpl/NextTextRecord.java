@@ -75,6 +75,7 @@ public class NextTextRecord implements NativeCallableUnit {
             String[] fields = result.getResponse();
             context.setReturnValues(new BStringArray(fields));
         }
+        IOUtils.validateChannelState(eventContext);
         callback.notifySuccess();
         return result;
     }
