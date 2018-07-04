@@ -20,6 +20,7 @@ package org.ballerinalang.test.observe;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -65,5 +66,11 @@ public class CounterTest extends MetricTest {
     public void testCounterWithoutTags() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCounterWithoutTags");
         Assert.assertEquals(returns[0], new BInteger(3));
+    }
+
+    @Test
+    public void testReset() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testReset");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 }

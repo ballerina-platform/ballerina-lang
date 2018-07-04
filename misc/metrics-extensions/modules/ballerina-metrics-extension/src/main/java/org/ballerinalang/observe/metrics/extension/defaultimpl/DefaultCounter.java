@@ -40,6 +40,11 @@ public class DefaultCounter extends AbstractMetric implements Counter {
     }
 
     @Override
+    public void reset() {
+        count.reset();
+    }
+
+    @Override
     public void increment(long amount) {
         if (amount < 0) {
             throw new IllegalArgumentException("Amount to increment must be non-negative.");

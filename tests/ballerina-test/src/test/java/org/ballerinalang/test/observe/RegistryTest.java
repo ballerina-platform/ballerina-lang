@@ -35,20 +35,21 @@ public class RegistryTest extends MetricTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compileAndSetup("test-src/observe/metrics_registry_test.bal");
+        compileResult = BCompileUtil.
+                compileAndSetup("test-src/observe/metrics_registry_test.bal");
     }
 
     @Test
     public void testGetAllMetrics() {
         BValue[] returns = BRunUtil.invoke(compileResult, "getAllMetricsSize");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0,
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1,
                 "There shouldn't be any metrics registered in initial state.");
     }
 
     @Test(dependsOnMethods = "testGetAllMetrics")
     public void testRegister() {
         BValue[] returns = BRunUtil.invoke(compileResult, "registerAngGetMetrics");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1,
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2,
                 "One metric should have been registered.");
     }
 

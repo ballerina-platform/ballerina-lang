@@ -63,6 +63,8 @@ public native function getAllMetrics() returns Metric[];
 documentation {
     Retrieves the specific metric that is described by the given name and tags.
 
+    P{{name}} Name of the metric to lookup.
+    P{{tags}} The key/value pair tags that associated with the metric that should be looked up.
     R{{metric}} The metric instance.
 }
 public native function lookupMetric(string name, map<string>? tags=()) returns Counter|Gauge|();
@@ -80,6 +82,15 @@ public type Counter object {
     @readonly public string description;
     @readonly public map<string> metricTags;
 
+    documentation{
+        This instantiates the Counter object. Name field is mandatory, and description and tags fields
+         are optional and have its own default values when no params are passed.
+
+         F{{name}} Name of the Counter instance.
+         F{{desc}} Description of the Counter instance. If no description is provided, the the default empty string
+                   will be used.
+         F{{tags}} The key/value pair of Tags. If no tags are provided, the default nil value will be used.
+    }
     public new(name, string? desc = "", map<string>? tags=()) {
         match desc {
             string strDesc => description = strDesc;
@@ -100,7 +111,7 @@ public type Counter object {
         Register the counter metric instance with the Metric Registry.
 
         R{{error}} Returns error if there is any metric registered already with the same name
-        but different parameters or in a different kind.
+                   but different parameters or in a different kind.
     }
     public native function register() returns error?;
 
@@ -113,9 +124,15 @@ public type Counter object {
         Increment the counter's value by an amount.
 
         P{{amount}} The amount by which the value needs to be increased. The amount is defaulted as 1 and will be
-        used if there is no amount passed in.
+                    used if there is no amount passed in.
     }
     public native function increment(int amount = 1);
+
+    documentation{
+        Resets the counter's value to zero.
+
+    }
+    public native function reset();
 
     documentation{
         Retrieves the counter's current value.
@@ -134,7 +151,7 @@ documentation {
     F{{decription}} Description of the counter metric.
     F{{metricTags}} Tags associated with the counter metric.
     F{{statisticConfigs}} Array of StatisticConfig objects which defines about the statistical calculation
-    of the gauge during its usage.
+                          of the gauge during its usage.
 }
 public type Gauge object {
 
@@ -143,6 +160,21 @@ public type Gauge object {
     @readonly public map<string> metricTags;
     @readonly public StatisticConfig[] statisticConfigs;
 
+    documentation{
+        This instantiates the Gauge object. Name field is mandatory, and description, tags, and statitics config fields
+         are optional and have its own default values when no params are passed.
+
+         F{{name}} Name of the Gauge instance.
+         F{{desc}} Description of the Gauge instance. If no description is provided, the the default empty string
+                   will be used.
+         F{{tags}} The key/value pair of Tags. If no tags are provided, the default nil value will be used.
+         F{{statisticConfig}} This can be either boolean field to use the default configuration or actual
+                              statistic configurations. If boolean param is passed, and if it is true, then default
+                              statistics configuration is used, else statistics calculation is disabled. If non empty
+                              actual statistics configurations array is passed, then it will be used for statistics
+                              calculation. In case if empty statistics configurations array is passed, then no
+                              statistics will be calculated.
+    }
     public new(name, string? desc = "", map<string>? tags = (),
                StatisticConfig[]?|boolean statisticConfig = true) {
         match desc {

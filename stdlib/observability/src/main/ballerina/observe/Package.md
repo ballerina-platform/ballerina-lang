@@ -52,3 +52,6 @@ It is possible to add tags to span by using the `observe:addTagToSpan()` api by 
 _ = observe:addTagToSpan(spanId, "Tag Key", "Tag Value");
 ```
 
+## Metrics 
+There are mainly two kind of metrics instances supported; Counter and Gauge. A counter is a cumulative metric that 
+represents a single monotonically increasing counter whose value can only increase or be reset to zero on restart. For example, you can use a counter to represent the number of requests served, tasks completed, or errors.. The Gauge metric instances are used to measure the 

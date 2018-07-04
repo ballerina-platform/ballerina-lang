@@ -117,6 +117,12 @@ public interface Counter extends Metric {
     }
 
     /**
+     * Reset to the counter's current value to zero.
+     *
+     */
+    void reset();
+
+    /**
      * Increment the counter by {@code amount}.
      *
      * @param amount Amount to add to the counter.
