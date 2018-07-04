@@ -19,6 +19,9 @@
             "include": "objectDec"
         },
         {
+            "include": "record"
+        },
+        {
             "include": "annotationDec"
         },
         {
@@ -166,7 +169,7 @@
     ],
     "continuedTupleType__b__0": [
         [
-            "(?=\\))",
+            "(?=\\)|;)",
             {
                 "next": "@pop",
                 "token": ""
@@ -1131,13 +1134,6 @@
             }
         ],
         {
-            "include": "objectDec"
-        },
-        [
-            "(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\")",
-            "entity.name.function.ballerina"
-        ],
-        {
             "include": "comment"
         }
     ],
@@ -1195,6 +1191,12 @@
             "include": "functionDec"
         },
         {
+            "include": "annotationDec"
+        },
+        {
+            "include": "variableDef"
+        },
+        {
             "include": "comment"
         },
         {
@@ -1212,38 +1214,86 @@
     ],
     "varDefBlock__b__0": [
         [
-            "\\}|;",
+            "\\}|;|,",
             {
                 "next": "@pop",
                 "token": ""
             }
         ],
         {
-            "include": "varDefBlockBody"
+            "include": "objectMemberFunctionDec"
         },
         {
-            "include": "functionDec"
+            "include": "variableDef"
+        },
+        {
+            "include": "code"
         }
     ],
-    "varDefBlockBody": [
+    "objectMemberFunctionDec": [
         [
-            "\\{",
+            "\\bfunction\\b",
             {
-                "next": "varDefBlockBody__b__0",
-                "token": "punctuation.definition.block.ballerina.documentation"
+                "next": "objectMemberFunctionDec__b__0",
+                "token": "keyword.ballerina"
             }
         ]
     ],
-    "varDefBlockBody__b__0": [
+    "objectMemberFunctionDec__b__0": [
         [
-            "(?=\\})",
+            "(?=(?:\\}|;))",
             {
                 "next": "@pop",
-                "token": "punctuation.definition.block.ballerina.documentation"
+                "token": "punctuation.definition.block.ballerina"
             }
         ],
         {
-            "include": "code"
+            "include": "functionReceiver"
+        },
+        {
+            "include": "functionParameters"
+        },
+        {
+            "include": "functionReturns"
+        },
+        {
+            "include": "functionName"
+        },
+        {
+            "include": "callableUnitBody"
+        },
+        {
+            "include": "comment"
+        }
+    ],
+    "variableDef": [
+        [
+            "\\b(?:(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\"))\\b|(?=\\()",
+            {
+                "next": "variableDef__b__0",
+                "token": "type.ballerina"
+            }
+        ]
+    ],
+    "variableDef__b__0": [
+        [
+            "\\b(?:(?:[a-zA-Z_][a-zA-Z0-9_]*)|(?:\\^\"([^|\"\\\\\\f\\n\\r\\t]|\\\\\\\\[btnfr]|\\\\[|\"\\\\/])+\"))\\b|(?=\\,)|(?=;)",
+            {
+                "next": "@pop",
+                "token": "variable.ballerina"
+            }
+        ],
+        {
+            "include": "continuedTupleType"
+        },
+        {
+            "include": "continuedType"
+        },
+        {
+            "include": "constrainType"
+        },
+        {
+            "include": "comment"
         }
     ],
     "objectInitDec": [
@@ -1312,6 +1362,60 @@
                 "token": "punctuation.definition.block.ballerina"
             }
         ],
+        {
+            "include": "comment"
+        },
+        {
+            "include": "code"
+        }
+    ],
+    "record": [
+        [
+            "\\brecord\\b",
+            {
+                "next": "record__b__0",
+                "token": "keyword.ballerina"
+            }
+        ]
+    ],
+    "record__b__0": [
+        [
+            "\\}",
+            {
+                "next": "@pop",
+                "token": "delimiter.curly"
+            }
+        ],
+        {
+            "include": "recordBody"
+        },
+        {
+            "include": "comment"
+        }
+    ],
+    "recordBody": [
+        [
+            "\\{",
+            {
+                "next": "recordBody__b__0",
+                "token": "punctuation.definition.block.ballerina"
+            }
+        ]
+    ],
+    "recordBody__b__0": [
+        [
+            "(?=\\})",
+            {
+                "next": "@pop",
+                "token": "punctuation.definition.block.ballerina"
+            }
+        ],
+        {
+            "include": "annotationDec"
+        },
+        {
+            "include": "variableDef"
+        },
         {
             "include": "comment"
         },
