@@ -98,7 +98,8 @@ public class LauncherUtils {
 
         // If there is no main or service entry point, throw an error
         if (!programFile.isMainEPAvailable() && !programFile.isServiceEPAvailable()) {
-            throw new RuntimeException("main function not found in '" + programFile.getProgramFilePath() + "'");
+            throw LauncherUtils.createLauncherException(
+                    "error: '" + programFile.getProgramFilePath() + "' does not contain a main function or a service");
         }
 
         boolean runServicesOrNoMainEP = runServices || !programFile.isMainEPAvailable();
