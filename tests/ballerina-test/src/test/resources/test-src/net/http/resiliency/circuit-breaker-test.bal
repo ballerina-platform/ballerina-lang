@@ -26,6 +26,8 @@ import ballerina/runtime;
 @final string SCENARIO_HTTP_SC_FAILURE = "http-status-code-failure";
 @final string SCENARIO_CB_FORCE_OPEN = "cb-force-open-scenario";
 @final string SCENARIO_CB_FORCE_CLOSE = "cb-force-close-scenario";
+@final string SCENARIO_REQUEST_VOLUME_THRESHOLD_SUCCESS = "request-volume-threshold-success-scenario";
+@final string SCENARIO_REQUEST_VOLUME_THRESHOLD_FAILURE = "request-volume-threshold-failure-scenario";
 
 function testTypicalScenario() returns (http:Response[], error[]) {
     endpoint http:Client backendClientEP {
@@ -33,7 +35,8 @@ function testTypicalScenario() returns (http:Response[], error[]) {
         circuitBreaker: {
             rollingWindow: {
                 timeWindowMillis:10000,
-                bucketSizeMillis:2000
+                bucketSizeMillis:2000,
+                requestVolumeThreshold: 0
             },
             failureThreshold:0.3,
             resetTimeMillis:1000,
@@ -75,7 +78,8 @@ function testTrialRunFailure() returns (http:Response[], error[]) {
         circuitBreaker: {
             rollingWindow: {
                 timeWindowMillis:10000,
-                bucketSizeMillis:2000
+                bucketSizeMillis:2000,
+                requestVolumeThreshold: 0
             },
             failureThreshold:0.3,
             resetTimeMillis:1000,
@@ -117,7 +121,8 @@ function testHttpStatusCodeFailure() returns (http:Response[], error[]) {
         circuitBreaker: {
             rollingWindow: {
                 timeWindowMillis:10000,
-                bucketSizeMillis:2000
+                bucketSizeMillis:2000,
+                requestVolumeThreshold: 0
             },
             failureThreshold:0.3,
             resetTimeMillis:1000,
@@ -155,7 +160,8 @@ function testForceOpenScenario() returns (http:Response[], error[]) {
         circuitBreaker: {
             rollingWindow: {
                 timeWindowMillis:10000,
-                bucketSizeMillis:2000
+                bucketSizeMillis:2000,
+                requestVolumeThreshold: 0
             },
             failureThreshold:0.3,
             resetTimeMillis:1000,
@@ -196,7 +202,8 @@ function testForceCloseScenario() returns (http:Response[], error[]) {
         circuitBreaker: {
             rollingWindow: {
                 timeWindowMillis:10000,
-                bucketSizeMillis:2000
+                bucketSizeMillis:2000,
+                requestVolumeThreshold: 0
             },
             failureThreshold:0.3,
             resetTimeMillis:1000,
@@ -218,6 +225,84 @@ function testForceCloseScenario() returns (http:Response[], error[]) {
         if (counter > 2) {
             cbClient.forceClose();
         }
+        match cbClient.get("/hello", message = request) {
+            http:Response res => {
+                responses[counter] = res;
+            }
+            error httpConnectorError => {
+                errs[counter] = httpConnectorError;
+            }
+        }
+        counter = counter + 1;
+    }
+    return (responses, errs);
+}
+
+function testRequestVolumeThresholdSuccessResponseScenario() returns (http:Response[], error[]) {
+    endpoint http:Client backendClientEP {
+        url: "http://localhost:8080",
+        circuitBreaker: {
+            rollingWindow: {
+                timeWindowMillis:10000,
+                bucketSizeMillis:2000,
+                requestVolumeThreshold: 6
+            },
+            failureThreshold:0.3,
+            resetTimeMillis:1000,
+            statusCodes:[500, 502, 503]
+        },
+        timeoutMillis:2000
+    };
+
+    http:Response[] responses = [];
+    error[] errs = [];
+    int counter = 0;
+    http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getCallerActions();
+    MockClient mockClient = new;
+    cbClient.httpClient = <http:CallerActions> mockClient;
+
+    while (counter < 6) {
+        http:Request request = new;
+        request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_REQUEST_VOLUME_THRESHOLD_SUCCESS);
+        match cbClient.get("/hello", message = request) {
+            http:Response res => {
+                responses[counter] = res;
+            }
+            error httpConnectorError => {
+                errs[counter] = httpConnectorError;
+            }
+        }
+        counter = counter + 1;
+    }
+    return (responses, errs);
+}
+
+function testRequestVolumeThresholdFailureResponseScenario() returns (http:Response[], error[]) {
+    endpoint http:Client backendClientEP {
+        url: "http://localhost:8080",
+        circuitBreaker: {
+            rollingWindow: {
+                timeWindowMillis:10000,
+                bucketSizeMillis:2000,
+                requestVolumeThreshold: 6
+            },
+            failureThreshold:0.3,
+            resetTimeMillis:1000,
+            statusCodes:[500, 502, 503]
+        },
+        timeoutMillis:2000
+    };
+
+    http:Response[] responses = [];
+    error[] errs = [];
+    int counter = 0;
+    http:CircuitBreakerClient cbClient = check <http:CircuitBreakerClient>backendClientEP.getCallerActions();
+    MockClient mockClient = new;
+    cbClient.httpClient = <http:CallerActions> mockClient;
+
+    while (counter < 6) {
+        http:Request request = new;
+        request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_REQUEST_VOLUME_THRESHOLD_FAILURE);
         match cbClient.get("/hello", message = request) {
             http:Response res => {
                 responses[counter] = res;
@@ -326,6 +411,10 @@ public type MockClient object {
                     response.setTextPayload(errMessage);
                 }
             }
+        } else if (scenario == SCENARIO_REQUEST_VOLUME_THRESHOLD_SUCCESS) {
+            response = handleRequestVolumeThresholdSuccessResponseScenario();
+        } else if (scenario == SCENARIO_REQUEST_VOLUME_THRESHOLD_FAILURE) {
+            response = handleRequestVolumeThresholdFailureResponseScenario();
         }
         return response;
     }
@@ -413,6 +502,16 @@ function handleCBForceCloseScenario(int requestNo) returns http:Response|error {
         return err;
     }
     http:Response response = getResponse();
+    return response;
+}
+
+function handleRequestVolumeThresholdSuccessResponseScenario() returns http:Response {
+    return getResponse();
+}
+
+function handleRequestVolumeThresholdFailureResponseScenario() returns http:Response {
+    http:Response response = new;
+    response.statusCode = http:INTERNAL_SERVER_ERROR_500;
     return response;
 }
 
