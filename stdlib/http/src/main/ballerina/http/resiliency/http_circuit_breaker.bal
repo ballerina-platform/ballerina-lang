@@ -50,7 +50,7 @@ documentation {
 documentation {
     Maintains the health of the Circuit Breaker.
 
-    F{{lastRequestSucessful}} Whether last request is successful or not
+    F{{lastRequestSuccess}} Whether last request is success or not
     F{{totalRequestCount}} Total request count received within the `RollingWindow`
     F{{lastUsedBucketId}} ID of the last bucket used in Circuit Breaker calculations
     F{{startTime}} Circuit Breaker start time
@@ -60,7 +60,7 @@ documentation {
     F{{totalBuckets}} The discrete time buckets into which the time window is divided
 }
 public type CircuitHealth record {
-    boolean lastRequestSucessful,
+    boolean lastRequestSuccess,
     int totalRequestCount,
     int lastUsedBucketId,
     time:Time startTime,
@@ -623,7 +623,7 @@ function updateCircuitState(CircuitHealth circuitHealth, CircuitState currentSta
                     );
                 }
             } else if (currentState == CB_HALF_OPEN_STATE) {
-                if (!circuitHealth.lastRequestSucessful) {
+                if (!circuitHealth.lastRequestSuccess) {
                     // If the trial run has failed, trip the circuit again
                     currentState = CB_OPEN_STATE;
                     log:printInfo("CircuitBreaker trial run has failed. Circuit switched from HALF_OPEN to OPEN state.")
@@ -653,7 +653,7 @@ function updateCircuitHealthFailure(CircuitHealth circuitHealth,
                                     error httpConnectorErr, CircuitBreakerInferredConfig circuitBreakerInferredConfig) {
     lock {
         int currentBucketId = getCurrentBucketId(circuitHealth, circuitBreakerInferredConfig);
-        circuitHealth.lastRequestSucessful = false;
+        circuitHealth.lastRequestSuccess = false;
         updateLastUsedBucketId(currentBucketId, circuitHealth);
         circuitHealth.totalBuckets[currentBucketId].failureCount++;
         time:Time lastUpdated = time:currentTime();
@@ -670,11 +670,11 @@ function updateCircuitHealthSuccess(CircuitHealth circuitHealth, Response inResp
         updateLastUsedBucketId(currentBucketId, circuitHealth);
         if (circuitBreakerInferredConfig.statusCodes[inResponse.statusCode] == true) {
             circuitHealth.totalBuckets[currentBucketId].failureCount++;
-            circuitHealth.lastRequestSucessful = false;
+            circuitHealth.lastRequestSuccess = false;
             circuitHealth.lastErrorTime = lastUpdated;
             circuitHealth.totalBuckets[currentBucketId].lastUpdatedTime = lastUpdated;
         } else {
-            circuitHealth.lastRequestSucessful = true;
+            circuitHealth.lastRequestSuccess = true;
             circuitHealth.totalBuckets[currentBucketId].lastUpdatedTime = lastUpdated;
         }
     }
@@ -775,9 +775,7 @@ documentation {
     P{{bucketId}}  - Id of the bucket should reset.
 }
 function resetBucketStats(CircuitHealth circuitHealth, int bucketId) {
-    circuitHealth.totalBuckets[bucketId].totalCount = 0;
-    circuitHealth.totalBuckets[bucketId].failureCount = 0;
-    circuitHealth.totalBuckets[bucketId].rejectedCount = 0;
+    circuitHealth.totalBuckets[bucketId] = {};
 }
 
 function getEffectiveErrorTime(CircuitHealth circuitHealth) returns time:Time {
@@ -795,38 +793,36 @@ function prepareRollingWindow(CircuitHealth circuitHealth, CircuitBreakerInferre
 
     int currentTime = time:currentTime().time;
     int idleTime = currentTime - circuitHealth.lastRequestTime.time;
-
-    // If the time duration between Two requests greater than timeWindowMillis values, reset the buckets to default.
-    if (idleTime > circuitBreakerInferredConfig.rollingWindow.timeWindowMillis) {
+    RollingWindow rollingWindow = circuitBreakerInferredConfig.rollingWindow;
+    // If the time duration between two requests greater than timeWindowMillis values, reset the buckets to default.
+    if (idleTime > rollingWindow.timeWindowMillis) {
         reInitializeBuckets(circuitHealth);
     } else {
         int currentBucketId = getCurrentBucketId(circuitHealth, circuitBreakerInferredConfig);
         int lastUsedBucketId = circuitHealth.lastUsedBucketId;
-        // Checks whether subsequent requests received within same bucket(sub time window). If the idle time is greater
+        // Check whether subsequent requests received within same bucket(sub time window). If the idle time is greater
         // than bucketSizeMillis means subsequent calls are received time exceeding the rolling window. if we need to
         // reset the buckets to default.
-        if (currentBucketId == circuitHealth.lastUsedBucketId && idleTime > circuitBreakerInferredConfig.rollingWindow.
-            bucketSizeMillis) {
+        if (currentBucketId == circuitHealth.lastUsedBucketId && idleTime > rollingWindow.bucketSizeMillis) {
             reInitializeBuckets(circuitHealth);
         // If the current bucket (sub time window) is less than last updated bucket. Stats of the current bucket to zeroth
         // bucket and Last bucket to last used bucket needs to be reset to default.
         } else if (currentBucketId < lastUsedBucketId) {
             int index = currentBucketId;
             while (index >= 0) {
-                circuitHealth.totalBuckets[currentBucketId] = {};
+                resetBucketStats(circuitHealth, index);
                 index--;
             }
-            int lastindex = (lengthof circuitHealth.totalBuckets) - 1;
-            while (lastindex > currentBucketId) {
-                circuitHealth.totalBuckets[currentBucketId] = {};
-                lastindex--;
+            int lastIndex = (lengthof circuitHealth.totalBuckets) - 1;
+            while (lastIndex > currentBucketId) {
+                resetBucketStats(circuitHealth, lastIndex);
+                lastIndex--;
             }
         } else {
             // If the current bucket (sub time window) is greater than last updated bucket. Stats of current bucket to
             // last used bucket needs to be reset without resetting last used bucket stat.
-            while (currentBucketId > lastUsedBucketId && idleTime > circuitBreakerInferredConfig.rollingWindow.
-                bucketSizeMillis) {
-                circuitHealth.totalBuckets[currentBucketId] = {};
+            while (currentBucketId > lastUsedBucketId && idleTime > rollingWindow.bucketSizeMillis) {
+                resetBucketStats(circuitHealth, currentBucketId);
                 currentBucketId--;
             }
         }
@@ -843,7 +839,7 @@ function reInitializeBuckets(CircuitHealth circuitHealth) {
     int bucketIndex = 0;
     while (bucketIndex < lengthof circuitHealth.totalBuckets) {
         bucketArray[bucketIndex] = {};
-        bucketIndex = bucketIndex + 1;
+        bucketIndex++;
     }
     circuitHealth.totalBuckets = bucketArray;
 }
