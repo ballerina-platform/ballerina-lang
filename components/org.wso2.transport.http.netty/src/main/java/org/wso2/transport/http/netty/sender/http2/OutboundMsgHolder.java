@@ -18,7 +18,6 @@
 
 package org.wso2.transport.http.netty.sender.http2;
 
-import io.netty.handler.codec.http2.Http2Headers;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpResponseFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -28,7 +27,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * {@code OutboundMsgHolder} holds data related to a single outbound invocation.
