@@ -855,37 +855,44 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineFields(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
         for (BLangTypeDefinition typeDef : typeDefNodes) {
-            if (typeDef.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
+            if (typeDef.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE ||
+                    (typeDef.symbol.kind != SymbolKind.OBJECT && typeDef.symbol.kind != SymbolKind.RECORD)) {
                 continue;
             }
-            if (typeDef.symbol.kind == SymbolKind.OBJECT || typeDef.symbol.kind == SymbolKind.RECORD) {
-                // Create typeDef type
-                BStructureType structureType = (BStructureType) typeDef.symbol.type;
-                BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDef.typeNode;
-                SymbolEnv typeDefEnv = SymbolEnv.createTypeDefEnv(typeDef, typeDef.symbol.scope, pkgEnv);
-                structureType.fields = structureTypeNode.fields.stream()
-                        .peek(field -> defineNode(field, typeDefEnv))
-                        .map(field -> new BField(names.fromIdNode(field.name),
-                                                 field.symbol, field.expr != null))
-                        .collect(Collectors.toList());
 
-                if (typeDef.symbol.kind == SymbolKind.RECORD) {
-                    BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) structureTypeNode;
-                    BRecordType recordType = (BRecordType) structureType;
-                    recordType.sealed = recordTypeNode.sealed;
+            // Create typeDef type
+            BStructureType structureType = (BStructureType) typeDef.symbol.type;
+            BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDef.typeNode;
+            SymbolEnv typeDefEnv = SymbolEnv.createTypeDefEnv(typeDef, typeDef.symbol.scope, pkgEnv);
+            structureType.fields = structureTypeNode.fields.stream()
+                    .peek(field -> defineNode(field, typeDefEnv))
+                    .map(field -> new BField(names.fromIdNode(field.name),
+                                             field.symbol, field.expr != null))
+                    .collect(Collectors.toList());
 
-                    if (recordTypeNode.restFieldType == null) {
-                        if (recordTypeNode.sealed) {
-                            recordType.restFieldType = symTable.noType;
-                        } else {
-                            recordType.restFieldType = symTable.anyType;
-                        }
-                    } else {
-                        recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType,
-                                                                               typeDefEnv);
-                    }
-                }
+            if (typeDef.symbol.kind != SymbolKind.RECORD) {
+                continue;
             }
+
+            BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) structureTypeNode;
+            BRecordType recordType = (BRecordType) structureType;
+            recordType.sealed = recordTypeNode.sealed;
+
+            if (recordTypeNode.sealed && recordTypeNode.restFieldType != null) {
+                dlog.error(recordTypeNode.restFieldType.pos, DiagnosticCode.REST_FIELD_NOT_ALLOWED_IN_SEALED_RECORDS);
+                continue;
+            }
+
+            if (recordTypeNode.restFieldType == null) {
+                if (recordTypeNode.sealed) {
+                    recordType.restFieldType = symTable.noType;
+                    continue;
+                }
+                recordType.restFieldType = symTable.anyType;
+                continue;
+            }
+
+            recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType, typeDefEnv);
         }
     }
 

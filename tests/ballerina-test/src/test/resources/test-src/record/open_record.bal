@@ -327,3 +327,18 @@ function testTupleRestFieldRHSAccess() returns (float, string, Animal) {
     (float, string, Animal) tupType = p.tupType;
     return tupType;
 }
+
+type PersonA record {
+    string fname,
+    string lname,
+    function() returns string fullName,
+};
+
+function testFuncPtrAsRecordField() returns string {
+    PersonA p = {fname:"John", lname:"Doe"};
+    p.fullName = () => string {
+        return p.lname + ", " + p.fname;
+    };
+
+    return p.fullName();
+}

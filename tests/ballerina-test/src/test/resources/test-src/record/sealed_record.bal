@@ -149,3 +149,18 @@ function testStructWithRecordKeyword() returns Employee {
     Employee emp = {name:"John", lname:"Doe", address:address, age:25, designation:"Software Engineer"};
     return emp;
 }
+
+type PersonA sealed record {
+    string fname,
+    string lname,
+    function() returns string fullName,
+};
+
+function testFuncPtrAsRecordField() returns string {
+    PersonA p = {fname:"John", lname:"Doe"};
+    p.fullName = () => string {
+        return p.lname + ", " + p.fname;
+    };
+
+    return p.fullName();
+}

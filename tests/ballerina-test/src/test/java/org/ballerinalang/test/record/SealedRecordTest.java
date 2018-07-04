@@ -176,4 +176,10 @@ public class SealedRecordTest {
                 "\"state\":\"CA\"}, age:25, family:{spouse:\"\", noOfChildren:0, children:[]}, parent:null, " +
                 "designation:\"Software Engineer\"}");
     }
+
+    @Test(description = "Test function pointer as a record field")
+    public void testFuncPtrAsAField() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFuncPtrAsRecordField");
+        Assert.assertEquals(returns[0].stringValue(), "Doe, John");
+    }
 }

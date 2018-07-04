@@ -371,4 +371,10 @@ public class OpenRecordTest {
     public void testTupleRestFieldRHSAccess() {
         BRunUtil.invoke(compileResult, "testTupleRestFieldRHSAccess");
     }
+
+    @Test(description = "Test function pointer as a record field")
+    public void testFuncPtrAsAField() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFuncPtrAsRecordField");
+        Assert.assertEquals(returns[0].stringValue(), "Doe, John");
+    }
 }
