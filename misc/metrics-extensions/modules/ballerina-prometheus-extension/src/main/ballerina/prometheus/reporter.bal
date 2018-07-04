@@ -145,7 +145,6 @@ function getLabelsString(map<string> labels) returns string {
         string entry = labelKey + "=\"" + labels[key] + "\"";
         stringLabel += (entry + ",");
     }
-    //stringLabel = stringLabel.substring(0, (stringLabel.length() - 1));
     if (stringLabel != "{") {
         return (stringLabel + "}");
     } else {
