@@ -56,6 +56,7 @@ service<http:Service> PrometheusReporter bind prometheusListener {
         observe:Metric[] metrics = observe:getAllMetrics();
         string payload = EMPTY_STRING;
         foreach metric in metrics {
+            metric.name = metric.name.replaceAll("/", "_");
             string metricReportName = getMetricName(metric.name, "value");
             payload += generateMetricHelp(metricReportName, metric.desc);
             payload += generateMetricInfo(metricReportName, metric.metricType);
@@ -122,17 +123,33 @@ documentation{
 function generateMetric(string name, map<string>? labels, int|float value) returns string {
     string strValue = "";
     match value {
-        int intValue => strValue = <string>intValue;
+        int intValue => strValue = (<string>intValue) + ".0";
         float floatValue => strValue = <string>floatValue;
     }
     match labels {
         map<string> mapLabels => {
-            json jsonLabels = check <json>mapLabels;
-            return (name + jsonLabels.toString() + " " + strValue + "\n");
+            string strLabels = getLabelsString(mapLabels);
+            return (name + strLabels + " " + strValue + "\n");
         }
         () => {
             return (name + " " + strValue + "\n");
         }
+    }
+}
+
+function getLabelsString(map<string> labels) returns string {
+    string[] keys = labels.keys();
+    string stringLabel = "{";
+    foreach key in keys {
+        string labelKey = key.replaceAll("\\.", "_");
+        string entry = labelKey + "=\"" + labels[key] + "\"";
+        stringLabel += (entry + ",");
+    }
+    //stringLabel = stringLabel.substring(0, (stringLabel.length() - 1));
+    if (stringLabel != "{") {
+        return (stringLabel + "}");
+    } else {
+        return "";
     }
 }
 
