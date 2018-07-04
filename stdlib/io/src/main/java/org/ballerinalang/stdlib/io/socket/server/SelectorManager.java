@@ -19,11 +19,11 @@
 package org.ballerinalang.stdlib.io.socket.server;
 
 import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
+import org.ballerinalang.stdlib.io.events.EventExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -47,6 +47,7 @@ public class SelectorManager {
     private static boolean running = false;
     private static ThreadFactory blangThreadFactory = new BLangThreadFactory("socket-select");
     private static ExecutorService executor = Executors.newSingleThreadExecutor(blangThreadFactory);
+    private static boolean execution = true;
 
     /**
      * Get selector instance.
@@ -65,25 +66,29 @@ public class SelectorManager {
      * Start the selector loop.
      */
     public static void start() {
+        SocketAcceptCallbackQueue acceptCallbackQueue = SocketAcceptCallbackQueue.getInstance();
+        SocketIOExecutorQueue ioQueue = SocketIOExecutorQueue.getInstance();
+        SocketQueue socketQueue = SocketQueue.getInstance();
         if (!running) {
             executor.execute(() -> {
-                while (true) {
+                while (execution) {
                     try {
-                        final int readyChannels = selector.select(2000);
-                        if (readyChannels == 0) {
-                            continue;
-                        }
+                        selector.select(2000);
                         Iterator<SelectionKey> iter = selector.selectedKeys().iterator();
                         while (iter.hasNext()) {
                             SelectionKey key = iter.next();
-                            if (key.isAcceptable()) {
-                                handleAccept(key);
+                            if (!key.isValid()) {
+                                key.cancel();
+                                iter.remove();
+                            } else if (key.isAcceptable()) {
+                                handleAccept(key, acceptCallbackQueue, socketQueue);
+                                iter.remove();
                             } else if (key.isReadable()) {
-                                readData(key);
-                            } else if (key.isWritable()) {
-
+                                final boolean readDispatchSuccess = readData(key, ioQueue);
+                                if (readDispatchSuccess) {
+                                    iter.remove();
+                                }
                             }
-                            iter.remove();
                         }
                     } catch (Throwable e) {
                         log.error("An error occurred: " + e.getMessage(), e);
@@ -94,7 +99,8 @@ public class SelectorManager {
         }
     }
 
-    private static void handleAccept(SelectionKey key) {
+    private static void handleAccept(SelectionKey key, SocketAcceptCallbackQueue acceptCallbackQueue,
+            SocketQueue socketQueue) {
         ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.attachment();
         try {
             final SocketChannel client = serverSocketChannel.accept();
@@ -104,32 +110,40 @@ public class SelectorManager {
             client.configureBlocking(false);
             client.register(selector, SelectionKey.OP_READ);
             int serverSocketHash = serverSocketChannel.hashCode();
-            SocketQueue.addSocket(serverSocketHash, client);
-            final Queue<SocketAcceptCallback> callbackQueue = SocketAcceptCallbackQueue
-                    .getCallbackQueue(serverSocketHash);
+            socketQueue.addSocket(serverSocketHash, client);
+            final Queue<SocketAcceptCallback> callbackQueue = acceptCallbackQueue.getCallbackQueue(serverSocketHash);
             if (callbackQueue != null) {
                 final SocketAcceptCallback callback = callbackQueue.poll();
                 if (callback != null) {
                     callback.notifyAccept();
                 }
             }
-        } catch (IOException e) {
+        } catch (Throwable e) {
             log.error("Unable to accept a new client socket connection: " + e.getMessage(), e);
         }
     }
 
-    private static void readData(SelectionKey key) {
-        ByteBuffer buffer = ByteBuffer.allocate(8192);
+    private static boolean readData(SelectionKey key, SocketIOExecutorQueue ioQueue) {
         SocketChannel clientSocketChannel = (SocketChannel) key.channel();
-        int numRead;
-        try {
-            numRead = clientSocketChannel.read(buffer);
-            if (numRead == -1) {
-                key.cancel();
+        final Queue<EventExecutor> readQueue = ioQueue.getReadQueue(clientSocketChannel.hashCode());
+        if (readQueue != null) {
+            final EventExecutor poll = readQueue.poll();
+            if (poll != null) {
+                poll.execute();
+                return true;
             }
-        } catch (IOException e) {
-            return;
         }
-        buffer.flip();
+        return false;
+    }
+
+    public static void stop() {
+        try {
+            execution = false;
+            running = false;
+            selector.close();
+            executor.shutdownNow();
+        } catch (Throwable e) {
+            log.error("Error occurred while stopping selector loop: " + e.getMessage(), e);
+        }
     }
 }

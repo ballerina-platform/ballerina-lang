@@ -30,8 +30,20 @@ import java.util.Queue;
  */
 public class SocketIOExecutorQueue {
 
-    private static Map<Integer, Queue<EventExecutor>> readRegistry = new HashMap<>();
-    private static Map<Integer, Queue<EventExecutor>> writeRegistry = new HashMap<>();
+    private final Object readLock = new Object();
+    private final Object writeLock = new Object();
+
+    private static SocketIOExecutorQueue instance = new SocketIOExecutorQueue();
+
+    private SocketIOExecutorQueue() {
+    }
+
+    public static SocketIOExecutorQueue getInstance() {
+        return instance;
+    }
+
+    private Map<Integer, Queue<EventExecutor>> readRegistry = new HashMap<>();
+    private Map<Integer, Queue<EventExecutor>> writeRegistry = new HashMap<>();
 
     /**
      * Register EventExecutor for a read operation against a channel.
@@ -39,14 +51,16 @@ public class SocketIOExecutorQueue {
      * @param channelHash Channel's hashcode.
      * @param e           EventExecutor instance.
      */
-    public static void registerRead(int channelHash, EventExecutor e) {
-        Queue<EventExecutor> eventExecutorQueue = readRegistry.get(channelHash);
-        if (eventExecutorQueue == null) {
-            Queue<EventExecutor> queue = new LinkedList<>();
-            readRegistry.put(channelHash, queue);
-            eventExecutorQueue = queue;
+    public void registerRead(int channelHash, EventExecutor e) {
+        synchronized (readLock) {
+            Queue<EventExecutor> eventExecutorQueue = readRegistry.get(channelHash);
+            if (eventExecutorQueue == null) {
+                Queue<EventExecutor> queue = new LinkedList<>();
+                readRegistry.put(channelHash, queue);
+                eventExecutorQueue = queue;
+            }
+            eventExecutorQueue.add(e);
         }
-        eventExecutorQueue.add(e);
     }
 
     /**
@@ -55,8 +69,10 @@ public class SocketIOExecutorQueue {
      * @param channelHash Channel's hashcode.
      * @return EventExecutor queue that contains a read callbacks.
      */
-    public static Queue<EventExecutor> getReadQueue(int channelHash) {
-        return readRegistry.get(channelHash);
+    public Queue<EventExecutor> getReadQueue(int channelHash) {
+        synchronized (readLock) {
+            return readRegistry.get(channelHash);
+        }
     }
 
     /**
@@ -65,14 +81,16 @@ public class SocketIOExecutorQueue {
      * @param channelHash Channel's hashcode.
      * @param e           EventExecutor instance.
      */
-    public static void registerWrite(int channelHash, EventExecutor e) {
-        Queue<EventExecutor> eventExecutorQueue = writeRegistry.get(channelHash);
-        if (eventExecutorQueue == null) {
-            Queue<EventExecutor> queue = new LinkedList<>();
-            writeRegistry.put(channelHash, queue);
-            eventExecutorQueue = queue;
+    public void registerWrite(int channelHash, EventExecutor e) {
+        synchronized (writeLock) {
+            Queue<EventExecutor> eventExecutorQueue = writeRegistry.get(channelHash);
+            if (eventExecutorQueue == null) {
+                Queue<EventExecutor> queue = new LinkedList<>();
+                writeRegistry.put(channelHash, queue);
+                eventExecutorQueue = queue;
+            }
+            eventExecutorQueue.add(e);
         }
-        eventExecutorQueue.add(e);
     }
 
     /**
@@ -81,7 +99,9 @@ public class SocketIOExecutorQueue {
      * @param channelHash Channel's hashcode.
      * @return EventExecutor queue that contains a write callbacks.
      */
-    public static Queue<EventExecutor> getWriteQueue(int channelHash) {
-        return writeRegistry.get(channelHash);
+    public Queue<EventExecutor> getWriteQueue(int channelHash) {
+        synchronized (writeLock) {
+            return writeRegistry.get(channelHash);
+        }
     }
 }

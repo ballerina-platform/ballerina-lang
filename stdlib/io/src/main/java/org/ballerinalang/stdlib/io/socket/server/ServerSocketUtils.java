@@ -18,7 +18,9 @@
 
 package org.ballerinalang.stdlib.io.socket.server;
 
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -27,8 +29,11 @@ import org.ballerinalang.stdlib.io.channels.SocketIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.socket.SocketConstants;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
+import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -40,6 +45,8 @@ import java.nio.channels.SocketChannel;
  * @since 0.975.1
  */
 public class ServerSocketUtils {
+
+    private static final Logger log = LoggerFactory.getLogger(ServerSocketUtils.class);
 
     private static final String SOCKET_STRUCT_TYPE = "Socket";
     private static final String BYTE_CHANNEL_STRUCT_TYPE = "ByteChannel";
@@ -73,5 +80,18 @@ public class ServerSocketUtils {
         BMap<String, BValue> channelStruct = BLangVMStructs.createBStruct(channelStructInfo, ballerinaSocketChannel);
         channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, ballerinaSocketChannel);
         return channelStruct;
+    }
+
+    public static void createSocket(Context context, CallableUnitCallback callback, SocketChannel socketChannel) {
+        try {
+            PackageInfo ioPackageInfo = context.getProgramFile().getPackageInfo(SocketConstants.SOCKET_PACKAGE);
+            BMap<String, BValue> socketStruct = ServerSocketUtils.getSocketStruct(socketChannel, ioPackageInfo);
+            context.setReturnValues(socketStruct);
+            callback.notifySuccess();
+        } catch (IOException e) {
+            String msg = "Failed to open a client connection: " + e.getMessage();
+            log.error(msg, e);
+            context.setReturnValues(IOUtils.createError(context, msg));
+        }
     }
 }
