@@ -72,10 +72,10 @@ function testForEachInTable() returns (int, int, float, string) {
     table<Person> dt = check testDB->select("SELECT * from Person where id = 1", Person);
 
     dt.foreach((Person p) => {
-            idValue = untaint p.id;
-            ageValue = untaint p.age;
-            salValue = untaint p.salary;
-            nameValue = untaint p.name;
+            idValue = p.id;
+            ageValue = p.age;
+            salValue = p.salary;
+            nameValue = p.name;
         }
     );
     int id = idValue;

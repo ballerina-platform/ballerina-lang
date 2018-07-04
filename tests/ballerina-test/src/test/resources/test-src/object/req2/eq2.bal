@@ -1,8 +1,10 @@
 
 public type userPB object {
-    public int age;
-    public string name;
-    public string address;
+    public {
+        int age;
+        string name;
+        string address;
+    }
 
     new () {}
 
@@ -11,10 +13,10 @@ public type userPB object {
     public function getAge () returns (int);
 };
 
-function userPB::getName () returns (string) {
+public function userPB::getName () returns (string) {
     return self.name;
 }
 
-function userPB::getAge () returns (int) {
+public function userPB::getAge () returns (int) {
     return self.age;
 }

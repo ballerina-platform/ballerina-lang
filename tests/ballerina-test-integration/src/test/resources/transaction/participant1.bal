@@ -196,13 +196,13 @@ function onLocalParticipantCommit(string transactionid) {
 }
 
 type State object {
-
-    boolean abortedByParticipant;
-    boolean abortedFunctionCalled;
-    boolean committedFunctionCalled;
-    boolean localParticipantAbortedFunctionCalled;
-    boolean localParticipantCommittedFunctionCalled;
-
+    private {
+        boolean abortedByParticipant;
+        boolean abortedFunctionCalled;
+        boolean committedFunctionCalled;
+        boolean localParticipantAbortedFunctionCalled;
+        boolean localParticipantCommittedFunctionCalled;
+    }
 
     function reset() {
         abortedByParticipant = false;

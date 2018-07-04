@@ -51,7 +51,7 @@ import ballerina/log;
 documentation {
     Function to bind and start the Ballerina WebSub Hub service.
 }
-function startHubService() returns http:Listener {
+function startHubService() {
     http:Listener hubServiceEP = new;
     hubServiceEP.init({
             port:hubPort,
@@ -59,7 +59,6 @@ function startHubService() returns http:Listener {
     });
     hubServiceEP.register(hubService);
     hubServiceEP.start();
-    return hubServiceEP;
 }
 
 documentation {

@@ -18,7 +18,9 @@ documentation{
      Represents a reader which will wrap string content as a channel.
 }
 public type StringReader object {
-    private CharacterChannel? channel;
+    private {
+        CharacterChannel? channel;
+    }
 
     documentation{
       Constructs a channel to read string.

@@ -47,8 +47,10 @@ documentation {
 }
 
 public type Client object {
-    private ClientEndpointConfiguration config;
-    private sql:CallerActions h2Client;
+    private {
+        ClientEndpointConfiguration config;
+        sql:CallerActions h2Client;
+    }
 
     documentation {
         Gets called when the endpoint is being initialized during the package initialization.

@@ -9,7 +9,7 @@ R{{successful}} boolean `true` or `false`}
 deprecated {
   This function is deprecated use `openFile(string accessMode){}` instead.
 }
-function File::open (string accessMode) returns boolean {
+public function File::open (string accessMode) returns boolean {
     return true;
 }
 
@@ -19,7 +19,9 @@ deprecated {
   This Object is deprecated use `File2` instead.
 }
 public type File object {
-    public string path;
+    public {
+        string path;
+    }
 
     public function open(string accessMode) returns boolean;
 };
@@ -43,9 +45,11 @@ F{{a}} annotation `field a` documentation
 F{{b}} annotation `field b` documentation
 F{{c}} annotation `field c` documentation}
 type Tst object {
-    public string a;
-    public string b;
-    public string c;
+    public {
+        string a;
+        string b;
+        string c;
+    }
 };
 
 documentation { Documentation for Test annotation

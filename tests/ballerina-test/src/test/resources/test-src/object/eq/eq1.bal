@@ -1,11 +1,13 @@
 
 public type person object {
-    public int age;
-    public string name;
-    public string address;
-    public string zipcode = "95134";
-    public string ssn;
-    public int id;
+    public {
+        int age;
+        string name;
+        string address;
+        string zipcode = "95134";
+        string ssn;
+        int id;
+    }
 
     public function getName() returns (string);
 
@@ -17,30 +19,32 @@ public type person object {
 };
 
 
-function person::getName() returns (string) {
+public function person::getName() returns (string) {
     return self.name;
 }
 
-function person::getAge() returns (int) {
+public function person::getAge() returns (int) {
     return self.age;
 }
 
-function person::getSSN() returns (string) {
+public function person::getSSN() returns (string) {
     return self.ssn;
 }
 
-function person::setSSN(string s) {
+public function person::setSSN(string s) {
     self.ssn = s;
 }
 
 public type employee object {
-    public int age;
-    public string name;
-    public string address;
-    public string zipcode = "95134";
-    public string ssn;
-    public int id;
-    public int employeeId = 123456;
+    public {
+        int age;
+        string name;
+        string address;
+        string zipcode = "95134";
+        string ssn;
+        int id;
+        int employeeId = 123456;
+    }
 
     public new (age, name) {}
 
@@ -55,29 +59,31 @@ public type employee object {
     public function getEmployeeId() returns (int);
 };
 
-function employee::getName() returns (string) {
+public function employee::getName() returns (string) {
     return self.name;
 }
 
-function employee::getAge() returns (int) {
+public function employee::getAge() returns (int) {
     return self.age;
 }
 
-function employee::getSSN() returns (string) {
+public function employee::getSSN() returns (string) {
     return self.ssn + ":employee";
 }
 
-function employee::setSSN(string s) {
+public function employee::setSSN(string s) {
     self.ssn = s;
 }
 
-function employee::getEmployeeId() returns (int) {
+public function employee::getEmployeeId() returns (int) {
     return self.employeeId;
 }
 
 public type BarObj object {
-    public int age;
-    public string name;
+    public {
+        int age;
+        string name;
+    }
 
     public function getName() returns (string);
 
@@ -86,6 +92,6 @@ public type BarObj object {
     }
 };
 
-function BarObj::getName() returns (string) {
+public function BarObj::getName() returns (string) {
     return self.name;
 }

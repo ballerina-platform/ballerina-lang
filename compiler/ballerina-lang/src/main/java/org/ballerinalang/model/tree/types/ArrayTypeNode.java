@@ -18,10 +18,7 @@
 package org.ballerinalang.model.tree.types;
 
 /**
- * {@code ArrayTypeNode} represents an array type node in Ballerina
- * array type node can be of multiple dimensions and each dimension can be sealed with a specific size
- * <p>
- * e.g. int[2][][4];
+ * int[][][][].
  *
  * @since 0.94
  */
@@ -29,6 +26,4 @@ public interface ArrayTypeNode extends ReferenceTypeNode {
     TypeNode getElementType();
 
     int getDimensions();
-
-    int[] getSizes();
 }

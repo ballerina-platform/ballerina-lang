@@ -23,8 +23,10 @@ documentation { JMS QueueSender Endpoint
 }
 public type QueueSender object {
 
-    public QueueSenderActions producerActions;
-    public QueueSenderEndpointConfiguration config;
+    public {
+        QueueSenderActions producerActions;
+        QueueSenderEndpointConfiguration config;
+    }
 
     documentation { Default constructor of the endpoint }
     public new() {

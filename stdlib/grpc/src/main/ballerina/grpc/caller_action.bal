@@ -31,9 +31,10 @@ public type CallerAction object {
     documentation {
         Informs the caller, server finished sending messages.
 
+        P{{headers}} - Optional headers parameter. Passes header value if needed. Default sets to nil.
         R{{}} - Returns an error if encounters an error while sending the response, returns nil otherwise.
     }
-    public native function complete() returns error?;
+    public native function complete(Headers? headers = ()) returns error?;
 
     documentation {
         Checks whether the connection is closed by the caller.

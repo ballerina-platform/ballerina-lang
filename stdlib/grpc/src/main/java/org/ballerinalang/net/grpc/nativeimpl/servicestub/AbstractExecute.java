@@ -19,15 +19,17 @@ package org.ballerinalang.net.grpc.nativeimpl.servicestub;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
+import io.grpc.MethodDescriptor;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.MessageUtils;
-import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
@@ -41,7 +43,34 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
  *
  * @since 1.0.0
  */
-abstract class AbstractExecute implements NativeCallableUnit {
+abstract class AbstractExecute extends BlockingNativeCallableUnit {
+    
+    /**
+     * Returns corresponding Ballerina type for the proto buffer type.
+     *
+     * @param protoType Protocol buffer type
+     * @param context   Ballerina Context
+     * @return .
+     */
+    BType getBalType(String protoType, Context context) {
+        if (protoType.equalsIgnoreCase("DoubleValue") || protoType
+                .equalsIgnoreCase("FloatValue")) {
+            return BTypes.typeFloat;
+        } else if (protoType.equalsIgnoreCase("Int32Value") || protoType
+                .equalsIgnoreCase("Int64Value") || protoType
+                .equalsIgnoreCase("UInt32Value") || protoType
+                .equalsIgnoreCase("UInt64Value")) {
+            return BTypes.typeInt;
+        } else if (protoType.equalsIgnoreCase("BoolValue")) {
+            return BTypes.typeBoolean;
+        } else if (protoType.equalsIgnoreCase("StringValue")) {
+            return BTypes.typeString;
+        } else if (protoType.equalsIgnoreCase("BytesValue")) {
+            return BTypes.typeBlob;
+        } else {
+            return context.getProgramFile().getEntryPackage().getStructInfo(protoType).getType();
+        }
+    }
     
     MethodDescriptor.MethodType getMethodType(Descriptors.MethodDescriptor
                                                       methodDescriptor) throws GrpcClientException {

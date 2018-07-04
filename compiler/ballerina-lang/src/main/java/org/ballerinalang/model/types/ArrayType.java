@@ -24,6 +24,4 @@ package org.ballerinalang.model.types;
  */
 public interface ArrayType extends ReferenceType {
     Type getElementType();
-
-    int getSize();
 }

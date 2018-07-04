@@ -1,8 +1,8 @@
 
 type Person object {
-
-    public int age,
-
+    public {
+        int age,
+    }
 
     new (age) {
 
@@ -10,9 +10,9 @@ type Person object {
 };
 
 type Employee object {
-
-    public int age,
-
+    public {
+        int age,
+    }
 
     new (age, int addVal) {
         age = age + addVal;

@@ -26,8 +26,10 @@ documentation {
 public type CallerActions object {
     //These properties are populated from the init call to the client connector as these were needed later stage
     //for retry and other few places.
-    public string serviceUri;
-    public ClientEndpointConfig config;
+    public {
+        string serviceUri;
+        ClientEndpointConfig config;
+    }
 
     documentation {
         The `post()` function can be used to send HTTP POST requests to HTTP endpoints.

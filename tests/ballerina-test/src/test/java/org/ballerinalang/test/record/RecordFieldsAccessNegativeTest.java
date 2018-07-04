@@ -34,7 +34,7 @@ public class RecordFieldsAccessNegativeTest {
 
         Assert.assertEquals(compileResult.getErrorCount(), 12);
         String expectedErrMsg1 = "attempt to expose non-public symbol ";
-        String expectedErrMsg2 = "attempt to refer to non-accessible symbol ";
+        String expectedErrMsg2 = "attempt to refer to non-public symbol ";
 
         BAssertUtil.validateError(compileResult, 0, expectedErrMsg1 + "'ChildFoo'", 4, 5);
         BAssertUtil.validateError(compileResult, 1, expectedErrMsg1 + "'privatePerson'", 16, 44);
@@ -56,7 +56,7 @@ public class RecordFieldsAccessNegativeTest {
 
         Assert.assertEquals(compileResult.getErrorCount(), 8);
         String expectedErrMsg1 = "attempt to expose non-public symbol ";
-        String expectedErrMsg2 = "attempt to refer to non-accessible symbol ";
+        String expectedErrMsg2 = "attempt to refer to non-public symbol ";
 
         BAssertUtil.validateError(compileResult, 0, expectedErrMsg1 + "'ChildFoo'", 4, 5);
         BAssertUtil.validateError(compileResult, 1, expectedErrMsg1 + "'privatePerson'", 16, 44);

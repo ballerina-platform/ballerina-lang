@@ -31,19 +31,13 @@ public class PackageFunctionDAO {
     private String functionName;
     
     private CompletionItem completionItem;
-    
-    private boolean isPrivate;
-    
-    private boolean isAttached;
 
     public PackageFunctionDAO(String packageName, String packageOrgName, String functionName,
-                              CompletionItem completionItem, boolean isPrivate, boolean isAttached) {
+                              CompletionItem completionItem) {
         this.packageName = packageName;
         this.packageOrgName = packageOrgName;
         this.functionName = functionName;
         this.completionItem = completionItem;
-        this.isPrivate = isPrivate;
-        this.isAttached = isAttached;
     }
 
     public String getPackageName() {
@@ -60,13 +54,5 @@ public class PackageFunctionDAO {
 
     public CompletionItem getCompletionItem() {
         return completionItem;
-    }
-
-    public boolean isPrivate() {
-        return isPrivate;
-    }
-
-    public boolean isAttached() {
-        return isAttached;
     }
 }

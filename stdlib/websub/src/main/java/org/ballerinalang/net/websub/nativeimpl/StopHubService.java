@@ -26,6 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.websub.BallerinaWebSubException;
 import org.ballerinalang.net.websub.hub.Hub;
+import org.ballerinalang.util.program.BLangFunctions;
 
 /**
  * Native function to stop the default Ballerina WebSub Hub, if started.
@@ -44,6 +45,8 @@ public class StopHubService extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         Hub hubInstance = Hub.getInstance();
         if (hubInstance.isStarted()) {
+            BLangFunctions.invokeVMUtilFunction(
+                    hubInstance.getHubProgramFile().getEntryPackage().getStopFunctionInfo());
             try {
                 hubInstance.stopHubService(context);
             } catch (BallerinaWebSubException e) {

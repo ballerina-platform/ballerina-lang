@@ -718,9 +718,9 @@ public class CommonUtil {
         BType getClientFuncType = bEndpointVarSymbol.getClientFunction.type;
         BType boundType = ((BInvokableType) getClientFuncType).retType;
         boundType.tsymbol.scope.entries.forEach((name, scopeEntry) -> {
-            String[] nameComponents = name.toString().split("\\.");
             if (scopeEntry.symbol instanceof BInvokableSymbol
-                    && !nameComponents[nameComponents.length - 1].equals(UtilSymbolKeys.NEW_KEYWORD_KEY)) {
+                    && !scopeEntry.symbol.getName().getValue().equals(UtilSymbolKeys.NEW_KEYWORD_KEY)) {
+                String[] nameComponents = name.toString().split("\\.");
                 SymbolInfo actionFunctionSymbol =
                         new SymbolInfo(nameComponents[nameComponents.length - 1], scopeEntry);
                 endpointActions.add(actionFunctionSymbol);

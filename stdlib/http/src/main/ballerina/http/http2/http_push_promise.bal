@@ -21,9 +21,10 @@ documentation {
     F{{method}} The HTTP method
 }
 public type PushPromise object {
-
-    public string path;
-    public string method;
+    public {
+        string path;
+        string method;
+    }
 
     documentation {
         Constructs a `PushPromise` from a given path and a method.

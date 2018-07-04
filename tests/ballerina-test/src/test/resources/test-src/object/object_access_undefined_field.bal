@@ -1,7 +1,7 @@
 type Person object {
-
-    public int age,
-
+    public {
+        int age,
+    }
 
     new (agea) {
         abc = "pp";

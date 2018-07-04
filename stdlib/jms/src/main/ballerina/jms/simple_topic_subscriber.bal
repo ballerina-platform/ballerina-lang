@@ -22,11 +22,15 @@ documentation { JMS simple topic subscriber
 }
 public type SimpleTopicSubscriber object {
 
-    public SimpleTopicSubscriberEndpointConfiguration config;
+    public {
+        SimpleTopicSubscriberEndpointConfiguration config;
+    }
 
-    private Connection? connection;
-    private Session? session;
-    private TopicSubscriber? subscriber;
+    private {
+        Connection? connection;
+        Session? session;
+        TopicSubscriber? subscriber;
+    }
 
     documentation { Initialize simple topic subscirber endpoint
         P{{c}} Simple topic subscrirber enpoint configuration

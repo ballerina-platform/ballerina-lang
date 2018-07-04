@@ -39,6 +39,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BCallableFuture;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo.WorkerSet;
@@ -108,6 +109,8 @@ public class BLangFunctions {
         }
         invokePackageInitFunctions(programFile, parentCtx);
         invokePackageStartFunctions(programFile, parentCtx);
+        //Add compensation table
+        parentCtx.globalProps.put(Constants.COMPENSATION_TABLE, CompensationTable.getInstance());
         BValue[] result = invokeCallable(functionInfo, parentCtx, args);
         BLangScheduler.waitForWorkerCompletion();
         return result;
@@ -312,7 +315,7 @@ public class BLangFunctions {
                     wdi, initWorkerLocalData, initWorkerCAI, false, observerContext);
         }
         WorkerExecutionContext runInCallerCtx = executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, 
-                workerSet.generalWorkers[0], wdi, initWorkerLocalData, initWorkerCAI, true, observerContext);
+                workerSet.generalWorkers[0], wdi, initWorkerLocalData, initWorkerCAI, true, observerContext, flags);
         if (waitForResponse) {
             BLangScheduler.executeNow(runInCallerCtx);
             respCallback.waitForResponse();
@@ -427,13 +430,27 @@ public class BLangFunctions {
     private static void handleError(WorkerExecutionContext ctx) {
         throw new BLangRuntimeException("error: " + BLangVMErrors.getPrintableStackTrace(ctx.getError()));
     }
-    
-    private static WorkerExecutionContext executeWorker(WorkerResponseContext respCtx, 
+
+    private static WorkerExecutionContext executeWorker(WorkerResponseContext respCtx,
+            WorkerExecutionContext parentCtx, int[] argRegs, CallableUnitInfo callableUnitInfo,
+            WorkerInfo workerInfo, WorkerDataIndex wdi, WorkerData initWorkerLocalData,
+            CodeAttributeInfo initWorkerCAI, boolean runInCaller, ObserverContext observerContext) {
+        return executeWorker(respCtx, parentCtx, argRegs, callableUnitInfo, workerInfo, wdi, initWorkerLocalData,
+                initWorkerCAI, runInCaller, observerContext, 0);
+    }
+
+    private static WorkerExecutionContext executeWorker(WorkerResponseContext respCtx,
             WorkerExecutionContext parentCtx, int[] argRegs, CallableUnitInfo callableUnitInfo, 
             WorkerInfo workerInfo, WorkerDataIndex wdi, WorkerData initWorkerLocalData, 
-            CodeAttributeInfo initWorkerCAI, boolean runInCaller, ObserverContext observerContext) {
-        WorkerData workerLocal = BLangVMUtils.createWorkerDataForLocal(workerInfo, parentCtx, argRegs,
-                callableUnitInfo.getParamTypes());
+            CodeAttributeInfo initWorkerCAI, boolean runInCaller, ObserverContext observerContext, int flags) {
+        WorkerData workerLocal;
+        if (FunctionFlags.isCompensate(flags)) {
+            workerLocal = ((CompensationTable) parentCtx.globalProps.get(Constants.COMPENSATION_TABLE))
+                    .getCurrentEntry().workerData;
+        } else {
+            workerLocal = BLangVMUtils.createWorkerDataForLocal(workerInfo, parentCtx, argRegs,
+                    callableUnitInfo.getParamTypes());
+        }
         if (initWorkerLocalData != null) {
             BLangVMUtils.mergeInitWorkertData(initWorkerLocalData, workerLocal, initWorkerCAI);
         }

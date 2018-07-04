@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.headers;
 
-import io.netty.handler.codec.http.HttpHeaders;
+import io.grpc.Metadata;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
@@ -26,13 +26,16 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.grpc.MessageHeaders;
 
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
-import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageHeaders.METADATA_KEY;
 
 /**
  * Get the Headers of the Message.
@@ -54,15 +57,34 @@ public class GetAll extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         String headerName = context.getStringArgument(0);
         BMap<String, BValue> headerValues = (BMap<String, BValue>) context.getRefArgument(0);
-        HttpHeaders headers = headerValues != null ? (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS) : null;
-        List<String> headersList =  headers != null ? headers.getAll(headerName) : null;
+        MessageHeaders metadata = headerValues != null ? (MessageHeaders) headerValues.getNativeData(METADATA_KEY)
+                : null;
+        String[] headerValue = getHeaderValues(metadata, headerName);
+        context.setReturnValues(new BStringArray(headerValue));
+    }
 
-        if (headersList != null) {
-            String[] headerValue = new String[headersList.size()];
-            headerValue = headers.getAll(headerName).toArray(headerValue);
-            context.setReturnValues(new BStringArray(headerValue));
-        } else {
-            context.setReturnValues();
+    private String[] getHeaderValues(MessageHeaders metadata, String keyName) {
+
+        List<String> headerValues = new ArrayList<>();
+        if (metadata != null) {
+            if (keyName.endsWith(Metadata.BINARY_HEADER_SUFFIX)) {
+                Metadata.Key<byte[]> key = Metadata.Key.of(keyName, Metadata.BINARY_BYTE_MARSHALLER);
+                Iterable<byte[]> valueIterator = metadata.getAll(key);
+                // Referred : https://stackoverflow
+                // .com/questions/1536054/how-to-convert-byte-array-to-string-and-vice-versa
+                // https://stackoverflow.com/questions/2418485/how-do-i-convert-a-byte-array-to-base64-in-java
+                List<String> values = new ArrayList<>();
+                valueIterator.forEach(value -> values.add(value != null ? Base64.getEncoder().encodeToString(value) :
+                        null));
+                headerValues = values;
+            } else {
+                Metadata.Key<String> key = Metadata.Key.of(keyName, Metadata.ASCII_STRING_MARSHALLER);
+                Iterable<String> valueIterator = metadata.getAll(key);
+                List<String> values = new ArrayList<>();
+                valueIterator.forEach(values::add);
+                headerValues = values;
+            }
         }
+        return headerValues.toArray(new String[headerValues.size()]);
     }
 }

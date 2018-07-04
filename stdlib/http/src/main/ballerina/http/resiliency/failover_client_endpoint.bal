@@ -24,10 +24,14 @@ documentation {
 }
 public type FailoverClient object {
 
-    public string epName;
-    public FailoverClientEndpointConfiguration failoverClientConfig;
+    public {
+        string epName;
+        FailoverClientEndpointConfiguration failoverClientConfig;
+    }
 
-    private Client httpEP;
+    private {
+        Client httpEP;
+    }
 
     documentation {
         Initializes the endpoint using the configurations provided.
@@ -85,7 +89,7 @@ public type FailoverClientEndpointConfiguration record {
     int intervalMillis,
 };
 
-function FailoverClient::init(FailoverClientEndpointConfiguration foClientConfig) {
+public function FailoverClient::init(FailoverClientEndpointConfiguration foClientConfig) {
     self.httpEP.httpClient = createFailOverClient(foClientConfig);
     self.httpEP.config.circuitBreaker = foClientConfig.circuitBreaker;
     self.httpEP.config.timeoutMillis = foClientConfig.timeoutMillis;

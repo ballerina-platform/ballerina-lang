@@ -16,11 +16,14 @@
 package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.DescriptorProtos;
+import io.grpc.Context;
+import io.grpc.Metadata;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static io.grpc.Metadata.ASCII_STRING_MARSHALLER;
 import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
@@ -29,15 +32,19 @@ import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
  * @since 1.0.0
  */
 public class GrpcConstants {
+    public static final int MAX_MESSAGE_SIZE = 16 * 1024 * 1024;
+    public static final Context.Key<String> CONTENT_TYPE_KEY = Context.key("content-type");
+    public static final Metadata.Key<String> CONTENT_TYPE_MD_KEY = Metadata.Key.of("content-type",
+            ASCII_STRING_MARSHALLER);
+    
     //gRPC package name.
     public static final String PROTOCOL_PACKAGE_GRPC = "grpc";
+    public static final String PROTOCOL_STRUCT_PACKAGE_GRPC = "ballerina" + ORG_NAME_SEPARATOR + "grpc";
     public static final String ORG_NAME = "ballerina";
-    public static final String PROTOCOL_STRUCT_PACKAGE_GRPC = ORG_NAME + ORG_NAME_SEPARATOR + "grpc";
 
     //server side endpoint constants.
-    public static final String SERVICE_REGISTRY_BUILDER = "SERVICE_REGISTRY_BUILDER";
-    public static final String SERVER_CONNECTOR = "SERVER_CONNECTOR";
-    public static final String CONNECTOR_STARTED = "CONNECTOR_STARTED";
+    public static final String SERVICE_BUILDER = "SERVICE_BUILDER";
+    public static final String GRPC_SERVER = "SERVER";
     public static final String SERVICE_ENDPOINT_TYPE = "Listener";
     public static final String CALLER_ACTION = "CallerAction";
     public static final String RESPONSE_OBSERVER = "RESPONSE_OBSERVER";
@@ -47,12 +54,9 @@ public class GrpcConstants {
     
     //client side endpoint constants
     public static final String CLIENT_ENDPOINT_TYPE = "Client";
-    public static final String CALLER_ACTIONS = "CallerActions";
-    public static final String CLIENT_ENDPOINT_CONFIG = "config";
-    public static final String MESSAGE_HEADERS = "MessageHeaders";
-    public static final int SERVICE_ENDPOINT_INDEX = 0;
-    public static final String CLIENT_END_POINT = "clientEndpoint";
-
+    public static final String DEFAULT_HOSTNAME = "localhost";
+    public static final String CHANNEL_KEY = "channel";
+    public static final String ENUM_KEY = "enum";
     public static final String SERVICE_STUB = "Stub";
     public static final String METHOD_DESCRIPTORS = "MethodDescriptors";
     public static final int SERVICE_STUB_REF_INDEX = 0;
@@ -68,15 +72,18 @@ public class GrpcConstants {
 
     public static final String CLIENT = "Client";
     public static final String ANN_RESOURCE_CONFIG = "ResourceConfig";
+    public static final String EMPTY_STRING = "";
+    public static final String TRUST_FILE = "trustStoreFile";
+    public static final String KEY_FILE = "keyStoreFile";
     public static final String ANN_ATTR_RESOURCE_SERVER_STREAM = "streaming";
-    // InboundMessage Message Param index in service resource.
+    // Request Message Param index in service resource.
     public static final int REQUEST_MESSAGE_PARAM_INDEX = 1;
     
-    // OutboundMessage Message Param index in callback service
+    // Response Message Param index in callback service
     public static final int CALLBACK_MESSAGE_PARAM_INDEX = 0;
     
     public static final Map<DescriptorProtos.FieldDescriptorProto.Type, Integer> WIRE_TYPE_MAP;
-
+    
     static {
         Map<DescriptorProtos.FieldDescriptorProto.Type, Integer> wireMap = new HashMap<>();
         wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE, 1);
@@ -97,18 +104,8 @@ public class GrpcConstants {
         wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES, 2);
         WIRE_TYPE_MAP = Collections.unmodifiableMap(wireMap);
     }
-
-    // proto wrapper message constants
-    public static final String WRAPPER_DOUBLE_MESSAGE = "DoubleValue";
-    public static final String WRAPPER_FLOAT_MESSAGE = "FloatValue";
-    public static final String WRAPPER_INT64_MESSAGE = "Int64Value";
-    public static final String WRAPPER_UINT64_MESSAGE = "UInt64Value";
-    public static final String WRAPPER_INT32_MESSAGE = "Int32Value";
-    public static final String WRAPPER_UINT32_MESSAGE = "UInt32Value";
-    public static final String WRAPPER_BOOL_MESSAGE = "BoolValue";
-    public static final String WRAPPER_STRING_MESSAGE = "StringValue";
-    public static final String WRAPPER_BYTES_MESSAGE = "BytesValue";
-
+    
+    public static final String COMPONENT_IDENTIFIER = "grpc";
     // Server Streaming method resources.
     public static final String ON_OPEN_RESOURCE = "onOpen";
     public static final String ON_COMPLETE_RESOURCE = "onComplete";
@@ -120,6 +117,7 @@ public class GrpcConstants {
     public static final String FLOAT = "float";
     public static final String DOUBLE = "double";
     public static final String BOOLEAN = "boolean";
+    public static final String BLOB = "blob";
     
     //stub template builder constants
     public static final String COMMA = ",";
@@ -136,55 +134,55 @@ public class GrpcConstants {
     
     //Service Endpoint Config
     public static final String ENDPOINT_CONFIG_HOST = "host";
+    public static final String ENDPOINT_CONFIG_TRANSFER_ENCODING = "transferEncoding";
     public static final String ENDPOINT_CONFIG_PORT = "port";
+    public static final String ENDPOINT_CONFIG_KEEP_ALIVE = "keepAlive";
+    public static final String ENDPOINT_CONFIG_CHUNKING = "chunking";
+    public static final String ENDPOINT_CONFIG_VERSION = "httpVersion";
+    public static final String ENDPOINT_REQUEST_LIMITS = "requestLimits";
+    public static final String REQUEST_LIMITS_MAXIMUM_URL_LENGTH = "maxUriLength";
+    public static final String REQUEST_LIMITS_MAXIMUM_HEADER_SIZE = "maxHeaderSize";
+    public static final String REQUEST_LIMITS_MAXIMUM_ENTITY_BODY_SIZE = "maxEntityBodySize";
     public static final String ENDPOINT_CONFIG_SECURE_SOCKET = "secureSocket";
+    public static final String TARGET_SERVICES = "targets";
     public static final String SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
     public static final String HTTP_DEFAULT_HOST = "0.0.0.0";
 
+    public static final String ENDPOINT_CONFIG_TRUST_STORE = "trustStore";
+    public static final String FILE_PATH = "path";
+    public static final String PASSWORD = "password";
+    public static final String PROTOCOL_VERSION = "name";
+    public static final String ENABLED_PROTOCOLS = "versions";
+    public static final String ENABLE = "enable";
+    public static final String ENDPOINT_CONFIG_OCSP_STAPLING = "ocspStapling";
+    public static final String ENDPOINT_CONFIG_KEY_STORE = "keyStore";
+    public static final String ENDPOINT_CONFIG_PROTOCOLS = "protocol";
+    public static final String ENDPOINT_CONFIG_VALIDATE_CERT = "certValidation";
+    
+    //SslConfiguration indexes
+    public static final String SSL_CONFIG_SSL_VERIFY_CLIENT = "sslVerifyClient";
+    public static final String SSL_CONFIG_CIPHERS = "ciphers";
+    public static final String SSL_CONFIG_CACHE_SIZE = "cacheSize";
+    public static final String SSL_CONFIG_CACHE_VALIDITY_PERIOD = "cacheValidityPeriod";
+    public static final String SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED = "verifyHostname";
+    public static final String SSL_CONFIG_ENABLE_SESSION_CREATION = "shareSession";
     public static final String PROTOCOL_HTTPS = "https";
     public static final String ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
     public static final String CIPHERS = "ciphers";
     public static final String PKCS_STORE_TYPE = "PKCS12";
-
+    
+    //Proxy Indexed
+    public static final String PROXY_STRUCT_REFERENCE = "proxy";
+    public static final String PROXY_HOST = "host";
+    public static final String PROXY_PORT = "port";
+    public static final String PROXY_USERNAME = "userName";
+    public static final String PROXY_PASSWORD = "password";
+    public static final String CLIENT_EP_HTTP_VERSION = "httpVersion";
+    
     public static final String CLIENT_ENDPOINT_URL = "url";
-
-    //Header keys
-    static final String GRPC_STATUS_KEY = "grpc-status";
-    static final String GRPC_MESSAGE_KEY = "grpc-message";
-    static final String CONTENT_TYPE_KEY = "content-type";
-    static final String TE_KEY = "te";
-    static final String TO_HEADER = "TO";
-    static final String STATUS_HEADER = "HTTP_STATUS_CODE";
-    public static final String SCHEME_HEADER = "scheme";
-    public static final String AUTHORITY = "authority";
-
-    //Content-Type used for GRPC-over-HTTP/2.
-    public static final String CONTENT_TYPE_GRPC = "application/grpc";
-
-    //The HTTP method used for GRPC requests.
-    public static final String HTTP_METHOD = "POST";
-
-
-    //The TE (transport encoding) header for requests over HTTP/2.
-    public static final String TE_TRAILERS = "trailers";
-
-    //The message encoding (i.e. compression) that can be used in the stream.
-    static final String MESSAGE_ENCODING = "grpc-encoding";
-
-    //The accepted message encodings (i.e. compression) that can be used in the stream.
-    static final String MESSAGE_ACCEPT_ENCODING = "grpc-accept-encoding";
-
-    //The content-encoding used to compress the full gRPC stream.
-    static final String CONTENT_ENCODING = "content-encoding";
-
-    //The default maximum uncompressed size (in bytes) for inbound messages. Defaults to 4 MiB.
-    static final int DEFAULT_MAX_MESSAGE_SIZE = 4 * 1024 * 1024;
-
-    private GrpcConstants() {
-    }
-
+    
     // Listener struct fields
     public static final String LISTENER_ID_FIELD = "id";
     public static final String LISTENER_CONNECTION_FIELD = "conn";
-
+    
 }

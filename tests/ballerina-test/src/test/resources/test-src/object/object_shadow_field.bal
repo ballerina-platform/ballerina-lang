@@ -6,8 +6,10 @@ public function testShadowingObjectField () returns (int, string) {
 }
 
 type Person object {
-    public int age = 10,
-    public string name,
+    public {
+        int age = 10,
+        string name,
+    }
 
     new (int a = 10, string n = "sample result") {
         self.age = a;

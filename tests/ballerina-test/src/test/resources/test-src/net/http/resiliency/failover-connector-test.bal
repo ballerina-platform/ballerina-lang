@@ -83,8 +83,10 @@ io:println(counter);
 }
 
 public type MockClient object {
-    public string serviceUri;
-    public http:ClientEndpointConfig config;
+    public {
+        string serviceUri;
+        http:ClientEndpointConfig config;
+    }
 
     public function post (string path, http:Request req) returns (http:Response | error) {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};

@@ -1,45 +1,55 @@
 
 public type userFoo object {
-    public int age;
-    public string name;
-    public string address;
-    public string zipcode = "23468";
+    public {
+        int age;
+        string name;
+        string address;
+        string zipcode = "23468";
+    }
 
     public function getName() returns (string);
 
     public function getAge() returns (int);
 };
 
-function userFoo::getName () returns (string) {
+public function userFoo::getName () returns (string) {
     return self.name;
 }
 
-function userFoo::getAge () returns (int) {
+public function userFoo::getAge () returns (int) {
     return self.age;
 }
 
 public type user object {
-    public int age;
-    public string name;
-    public string address;
-    public string zipcode = "23468";
+    public {
+        int age;
+        string name;
+        string address;
+        string zipcode = "23468";
+    }
 };
 
 public type person object {
-    public int age;
-    public string name;
-
-    string ssn;
-    int id;
+    public {
+        int age;
+        string name;
+    }
+    private {
+        string ssn;
+        int id;
+    }
 };
 
 type student object {
-    public int age;
-    public string name;
-
-    string ssn;
-    int id;
-    int schoolId;
+    public {
+        int age;
+        string name;
+    }
+    private {
+        string ssn;
+        int id;
+        int schoolId;
+    }
 };
 
 public function newPerson() returns (person) {
@@ -59,12 +69,14 @@ public function newUser() returns (user) {
 }
 
 public type FooObj object {
-    public int age;
-    public string name;
+    public {
+        int age;
+        string name;
+    }
 
     public function getName() returns (string);
 };
 
-function FooObj::getName() returns (string) {
+public function FooObj::getName() returns (string) {
     return self.name;
 }

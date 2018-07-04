@@ -19,7 +19,6 @@ package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -29,12 +28,12 @@ import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 
+import static org.ballerinalang.net.grpc.EndpointConstants.SERVICE_ENDPOINT_INDEX;
 import static org.ballerinalang.net.grpc.GrpcConstants.CALLER_ACTION;
 import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER_CONNECTION_FIELD;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_INDEX;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
 
 /**
@@ -61,7 +60,7 @@ public class GetCallerActions extends AbstractGrpcNativeFunction {
         // Service client responder is populated in method listener. There we create new service endpoint instance
         // and bind client responder instance.
         BValue clientType = serviceEndpoint.get(LISTENER_CONNECTION_FIELD);
-        if (clientType != null && clientType.getType().getTag() == TypeTags.OBJECT_TYPE_TAG) {
+        if (clientType instanceof BMap) {
             BMap<String, BValue> endpointClient = (BMap<String, BValue>) clientType;
             context.setReturnValues(endpointClient);
         } else {

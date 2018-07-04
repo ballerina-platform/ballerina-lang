@@ -80,6 +80,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -88,6 +89,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
@@ -126,6 +128,7 @@ public class TreeVisitor extends LSNodeVisitor {
     private Stack<Node> blockOwnerStack;
     private Stack<BLangBlockStmt> blockStmtStack;
     private Stack<Boolean> isCurrentNodeTransactionStack;
+    private Stack<Boolean> isCurrentNodeScopeStack;
     private Class cursorPositionResolver;
     private LSServiceOperationContext documentServiceContext;
     private BLangNode previousNode = null;
@@ -139,6 +142,7 @@ public class TreeVisitor extends LSNodeVisitor {
         blockOwnerStack = new Stack<>();
         blockStmtStack = new Stack<>();
         isCurrentNodeTransactionStack = new Stack<>();
+        isCurrentNodeScopeStack = new Stack<>();
         symTable = SymbolTable.getInstance(compilerContext);
         symbolResolver = SymbolResolver.getInstance(compilerContext);
         documentServiceContext.put(DocumentServiceKeys.SYMBOL_TABLE_KEY, symTable);
@@ -775,6 +779,23 @@ public class TreeVisitor extends LSNodeVisitor {
     public void visit(BLangRecordLiteral recordLiteral) {
         SymbolEnv annotationAttachmentEnv = new SymbolEnv(recordLiteral, symbolEnv.scope);
         this.isCursorWithinBlock(recordLiteral.getPosition(), annotationAttachmentEnv);
+    }
+
+    @Override
+    public void visit(BLangScope scopeNode) {
+        this.blockOwnerStack.push(scopeNode);
+        this.isCurrentNodeScopeStack.push(true);
+        this.acceptNode(scopeNode.scopeBody, symbolEnv);
+        this.blockOwnerStack.pop();
+        this.isCurrentNodeScopeStack.pop();
+
+        this.acceptNode(scopeNode.compensationFunction, symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangCompensate node) {
+        ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
+                .isCursorBeforeNode(node.getPosition(), node, this, this.documentServiceContext);
     }
 
     public void setPreviousNode(BLangNode previousNode) {

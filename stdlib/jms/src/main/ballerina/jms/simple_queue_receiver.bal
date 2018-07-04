@@ -25,11 +25,15 @@ documentation { Simplified queue receiver endpoint.
 }
 public type SimpleQueueReceiver object {
 
-    public SimpleQueueReceiverEndpointConfiguration config;
+    public {
+        SimpleQueueReceiverEndpointConfiguration config;
+    }
 
-    private Connection? connection;
-    private Session? session;
-    private QueueReceiver? queueReceiver;
+    private {
+        Connection? connection;
+        Session? session;
+        QueueReceiver? queueReceiver;
+    }
 
     documentation { Initialize the SimpleQueueReceiver endpoint
         P{{c}} Configurations related to the SimpleQueueReceiver endpoint

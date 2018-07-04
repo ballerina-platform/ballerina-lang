@@ -33,7 +33,9 @@ documentation {
     Represents a CSVChannel which could be used to read/write records from CSV file.
 }
 public type CSVChannel object {
-    private DelimitedTextRecordChannel? dc;
+    private {
+        DelimitedTextRecordChannel? dc;
+    }
 
     documentation {
         Constructs a CSV channel from a CharacterChannel to read/write CSV records.

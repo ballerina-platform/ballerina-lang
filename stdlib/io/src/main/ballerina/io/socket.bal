@@ -26,11 +26,13 @@ documentation {
 }
 public type Socket object {
 
-    @readonly public ByteChannel channel;
-    @readonly public int remotePort;
-    @readonly public int localPort;
-    @readonly public string remoteAddress;
-    @readonly public string localAddress;
+    public {
+        @readonly ByteChannel channel;
+        @readonly int remotePort;
+        @readonly int localPort;
+        @readonly string remoteAddress;
+        @readonly string localAddress;
+    }
 
     public new() {
         init();

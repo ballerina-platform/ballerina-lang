@@ -21,8 +21,9 @@ documentation {
     F{{httpAuthHandlers}} map for auth handlers. key = auth provider id
 }
 public type AuthHandlerRegistry object {
-    private map<HttpAuthnHandler> httpAuthHandlers;
-
+    private {
+        map<HttpAuthnHandler> httpAuthHandlers;
+    }
     public new () {
     }
 
@@ -61,25 +62,25 @@ public type AuthHandlerRegistry object {
     public function clear ();
 };
 
-function AuthHandlerRegistry::add (string id, HttpAuthnHandler authnHandler) {
+public function AuthHandlerRegistry::add (string id, HttpAuthnHandler authnHandler) {
     self.httpAuthHandlers[id] = authnHandler;
 }
 
-function AuthHandlerRegistry::get (string id) returns HttpAuthnHandler? {
+public function AuthHandlerRegistry::get (string id) returns HttpAuthnHandler? {
     if (self.httpAuthHandlers.hasKey(id)) {
         return self.httpAuthHandlers[id];
     }
     return ();
 }
 
-function AuthHandlerRegistry::getAll () returns map<HttpAuthnHandler> {
+public function AuthHandlerRegistry::getAll () returns map<HttpAuthnHandler> {
     return self.httpAuthHandlers;
 }
 
-function AuthHandlerRegistry::remove (string id) {
+public function AuthHandlerRegistry::remove (string id) {
     _ = self.httpAuthHandlers.remove(id);
 }
 
-function AuthHandlerRegistry::clear () {
+public function AuthHandlerRegistry::clear () {
     self.httpAuthHandlers.clear();
 }

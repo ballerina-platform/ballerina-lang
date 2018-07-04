@@ -17,34 +17,33 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.servicestub;
 
+import io.grpc.Channel;
+import io.grpc.MethodDescriptor;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
-import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.ServiceDefinition;
-import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
-import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
-import org.ballerinalang.net.grpc.stubs.BlockingStub;
-import org.ballerinalang.net.grpc.stubs.NonBlockingStub;
-import org.wso2.transport.http.netty.contract.HttpClientConnector;
+import org.ballerinalang.net.grpc.stubs.GrpcBlockingStub;
+import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_END_POINT;
 import static org.ballerinalang.net.grpc.GrpcConstants.BLOCKING_TYPE;
-import static org.ballerinalang.net.grpc.GrpcConstants.CALLER_ACTIONS;
-import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_CONFIG;
+import static org.ballerinalang.net.grpc.GrpcConstants.CHANNEL_KEY;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_REF_INDEX;
-import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_END_POINT;
 import static org.ballerinalang.net.grpc.GrpcConstants.DESCRIPTOR_KEY_STRING_INDEX;
 import static org.ballerinalang.net.grpc.GrpcConstants.DESCRIPTOR_MAP_REF_INDEX;
 import static org.ballerinalang.net.grpc.GrpcConstants.METHOD_DESCRIPTORS;
@@ -81,16 +80,15 @@ public class InitStub extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BMap<String, BValue> serviceStub = (BMap<String, BValue>) context.getRefArgument(SERVICE_STUB_REF_INDEX);
         BMap<String, BValue> clientEndpoint = (BMap<String, BValue>) context.getRefArgument(CLIENT_ENDPOINT_REF_INDEX);
-        HttpClientConnector clientConnector = (HttpClientConnector) clientEndpoint.getNativeData(CALLER_ACTIONS);
-        Struct endpointConfig = (Struct) clientEndpoint.getNativeData(CLIENT_ENDPOINT_CONFIG);
+        Channel channel = (Channel) clientEndpoint.getNativeData(CHANNEL_KEY);
         String stubType = context.getStringArgument(STUB_TYPE_STRING_INDEX);
         String descriptorKey = context.getStringArgument(DESCRIPTOR_KEY_STRING_INDEX);
         BMap<String, BValue> descriptorMap = (BMap<String, BValue>) context.getRefArgument(DESCRIPTOR_MAP_REF_INDEX);
         
         if (stubType == null || descriptorKey == null || descriptorMap == null) {
             context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
-                    .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while initializing " +
-                            "connector. message descriptor keys not exist. Please check the generated sub file"))));
+                    .fromCode(Status.INTERNAL.getCode()).withDescription("Error while initializing connector. " +
+                            "message descriptor keys not exist. Please check the generated sub file"))));
             return;
         }
         
@@ -112,24 +110,25 @@ public class InitStub extends BlockingNativeCallableUnit {
             
             if (fileDescriptor == null) {
                 context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
-                        .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while " +
-                                "establishing the connection. service descriptor is null."))));
+                        .fromCode(Status.INTERNAL.getCode()).withDescription("Error while establishing the connection" +
+                                ". service descriptor is null."))));
                 return;
             }
             ServiceDefinition serviceDefinition = new ServiceDefinition(fileDescriptor, dependentDescriptors);
-            Map<String, MethodDescriptor> methodDescriptorMap = serviceDefinition.getMethodDescriptors();
+            Map<String, MethodDescriptor<Message, Message>> methodDescriptorMap = serviceDefinition
+                    .getMethodDescriptors();
             
             serviceStub.addNativeData(METHOD_DESCRIPTORS, methodDescriptorMap);
             if (BLOCKING_TYPE.equalsIgnoreCase(stubType)) {
-                BlockingStub blockingStub = new BlockingStub(clientConnector, endpointConfig);
-                serviceStub.addNativeData(SERVICE_STUB, blockingStub);
+                GrpcBlockingStub grpcBlockingStub = new GrpcBlockingStub(channel);
+                serviceStub.addNativeData(SERVICE_STUB, grpcBlockingStub);
             } else if (NON_BLOCKING_TYPE.equalsIgnoreCase(stubType)) {
-                NonBlockingStub nonBlockingStub = new NonBlockingStub(clientConnector, endpointConfig);
+                GrpcNonBlockingStub nonBlockingStub = new GrpcNonBlockingStub(channel);
                 serviceStub.addNativeData(SERVICE_STUB, nonBlockingStub);
             } else {
                 context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
-                        .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while " +
-                                "initializing connector. invalid connector type"))));
+                        .fromCode(Status.INTERNAL.getCode()).withDescription("Error while initializing connector. " +
+                                "invalid connector type"))));
                 return;
             }
             serviceStub.addNativeData(CLIENT_END_POINT, clientEndpoint);

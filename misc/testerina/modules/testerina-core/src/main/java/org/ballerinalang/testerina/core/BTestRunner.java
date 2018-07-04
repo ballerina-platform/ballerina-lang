@@ -158,11 +158,6 @@ public class BTestRunner {
 
             registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite
                 (packageName));
-
-            if (packageName.equals(Names.DEFAULT_PACKAGE.value)) {
-                registry.getTestSuites().get(packageName).setSourceFileName(sourcePackage.toString());
-            }
-
             // compile
             CompileResult compileResult = BCompileUtil.compileWithTests(sourceRoot, sourcePackage.toString(),
                 CompilerPhase.CODE_GEN);
@@ -217,14 +212,8 @@ public class BTestRunner {
         outStream.println("Running tests");
         keys.forEach(packageName -> {
             TestSuite suite = testSuites.get(packageName);
-            if (packageName.equals(Names.DOT.value)) {
-                outStream.println("    " + suite.getSourceFileName());
-            } else {
+            if (!packageName.equals(Names.DOT.value)) {
                 outStream.println("    " + packageName);
-            }
-            if (suite.getTests().size() == 0) {
-                outStream.println("\tNo tests found\n");
-                return;
             }
             shouldSkip.set(false);
             TestAnnotationProcessor.injectMocks(suite);

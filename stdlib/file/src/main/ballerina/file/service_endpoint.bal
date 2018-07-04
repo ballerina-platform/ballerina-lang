@@ -24,7 +24,9 @@ documentation {
     F{{config}} Represents necessary configurations that need to configure
 }
 public type Listener object {
-    private ListenerEndpointConfiguration config;
+    private {
+        ListenerEndpointConfiguration config;
+    }
 
     public function init(ListenerEndpointConfiguration listenerConfig) {
         self.config = listenerConfig;

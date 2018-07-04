@@ -1652,9 +1652,29 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.valueSet, pretty, replaceLambda, l, w, '', '|') + w() + ';';
             }
         case 'ObjectType':
-            return join(node.fields, pretty, replaceLambda, l, w, '')
+            if (node.noFieldsAvailable && node.initFunction && node.functions) {
+                return getSourceOf(node.initFunction, pretty, l, replaceLambda)
+                 + join(node.functions, pretty, replaceLambda, l, w, '');
+            } else if (node.noPrivateFieldsAvailable && node.publicFields
+                         && node.initFunction && node.functions) {
+                return dent() + w() + 'public' + w() + '{' + indent()
+                 + join(node.publicFields, pretty, replaceLambda, l, w, '') + outdent() + w() + '}'
                  + getSourceOf(node.initFunction, pretty, l, replaceLambda)
                  + join(node.functions, pretty, replaceLambda, l, w, '');
+            } else if (node.noPublicFieldAvailable && node.privateFields
+                         && node.initFunction && node.functions) {
+                return dent() + w() + 'private' + w() + '{' + indent()
+                 + join(node.privateFields, pretty, replaceLambda, l, w, '') + outdent() + w()
+                 + '}' + getSourceOf(node.initFunction, pretty, l, replaceLambda)
+                 + join(node.functions, pretty, replaceLambda, l, w, '');
+            } else {
+                return dent() + dent() + w() + 'public' + w() + '{' + indent()
+                 + join(node.publicFields, pretty, replaceLambda, l, w, '') + outdent()
+                 + w() + '}' + w() + 'private' + w() + '{' + indent()
+                 + join(node.privateFields, pretty, replaceLambda, l, w, '') + outdent() + w()
+                 + '}' + getSourceOf(node.initFunction, pretty, l, replaceLambda)
+                 + join(node.functions, pretty, replaceLambda, l, w, '');
+            }
         case 'RecordType':
             return join(node.fields, pretty, replaceLambda, l, w, '');
         case 'TypedescExpression':
@@ -1846,39 +1866,6 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                 return getSourceOf(node.typeNode, pretty, l, replaceLambda) + w(' ')
                  + node.name.valueWithBar + a(' ') + w() + '=?'
                  + getSourceOf(node.initialExpression, pretty, l, replaceLambda) + w() + ',';
-            } else if (node.endWithSemicolon && node.inObject && node.typeNode
-                         && node.name.valueWithBar && node.initialExpression) {
-                return dent() + (node.public ? w() + 'public' + a(' ') : '')
-                 + (node.private ? w() + 'private' : '')
-                 + getSourceOf(node.typeNode, pretty, l, replaceLambda) + w(' ') + node.name.valueWithBar + a(' ')
-                 + w(' ') + '=' + a(' ')
-                 + getSourceOf(node.initialExpression, pretty, l, replaceLambda) + w() + ';';
-            } else if (node.endWithComma && node.inObject && node.typeNode
-                         && node.name.valueWithBar && node.initialExpression) {
-                return (node.public ? w() + 'public' + a(' ') : '')
-                 + (node.private ? w() + 'private' : '')
-                 + getSourceOf(node.typeNode, pretty, l, replaceLambda) + w(' ') + node.name.valueWithBar + a(' ') + w(' ')
-                 + '=' + a(' ')
-                 + getSourceOf(node.initialExpression, pretty, l, replaceLambda) + w() + ',';
-            } else if (node.endWithSemicolon && node.inObject
-                         && node.annotationAttachments && node.documentationAttachments
-                         && node.deprecatedAttachments && node.typeNode && node.name.valueWithBar) {
-                return dent()
-                 + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
-                 + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
-                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' + a(' ') : '')
-                 + (node.private ? w() + 'private' : '')
-                 + getSourceOf(node.typeNode, pretty, l, replaceLambda) + (node.rest ? w() + '...' : '')
-                 + w(' ') + node.name.valueWithBar + a(' ') + w() + ';';
-            } else if (node.endWithComma && node.inObject && node.annotationAttachments
-                         && node.documentationAttachments && node.deprecatedAttachments
-                         && node.typeNode && node.name.valueWithBar) {
-                return join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
-                 + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
-                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' + a(' ') : '')
-                 + (node.private ? w() + 'private' : '')
-                 + getSourceOf(node.typeNode, pretty, l, replaceLambda) + (node.rest ? w() + '...' : '') + w(' ')
-                 + node.name.valueWithBar + a(' ') + w() + ',';
             } else if (node.endWithSemicolon && node.typeNode && node.name.valueWithBar
                          && node.initialExpression) {
                 return dent() + getSourceOf(node.typeNode, pretty, l, replaceLambda)
@@ -1921,9 +1908,9 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             } else {
                 return join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
-                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' + a(' ') : '')
-                 + getSourceOf(node.typeNode, pretty, l, replaceLambda) + (node.rest ? w()
-                 + '...' : '') + w(' ') + node.name.valueWithBar + a(' ');
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + getSourceOf(node.typeNode, pretty, l, replaceLambda)
+                 + (node.rest ? w() + '...' : '') + w(' ')
+                 + node.name.valueWithBar + a(' ');
             }
         case 'VariableDef':
             if (node.endpoint && node.variable) {

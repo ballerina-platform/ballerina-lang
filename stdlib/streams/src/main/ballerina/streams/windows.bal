@@ -23,12 +23,16 @@ public type StreamEvent record {
 };
 
 public type LengthWindow object {
-    public int counter;
-    public int size;
-    public EventType eventType = "ALL";
+    public {
+        int counter;
+        int size;
+        EventType eventType = "ALL";
+    }
 
-    private StreamEvent[] events = [];
-    private function (StreamEvent[]) nextProcessorPointer;
+    private {
+        StreamEvent[] events = [];
+        function (StreamEvent[]) nextProcessorPointer;
+    }
 
     new(nextProcessorPointer, size, eventType) {
 
@@ -81,8 +85,10 @@ public function lengthWindow(int length, EventType eventType, function (StreamEv
 }
 
 type QNode object {
-    public any data;
-    public QNode? nextNode;
+    public {
+        any data;
+        QNode? nextNode;
+    }
 
     new(data) {
 
@@ -90,8 +96,10 @@ type QNode object {
 };
 
 type Queue object {
-    private QNode? front;
-    private QNode? rear;
+    private {
+        QNode? front;
+        QNode? rear;
+    }
 
     public function isEmpty() returns boolean {
         match front {
@@ -184,12 +192,16 @@ type Queue object {
 };
 
 public type TimeWindow object {
-    public int counter;
-    public int timeLength;
-    public EventType eventType = "ALL";
+    public {
+        int counter;
+        int timeLength;
+        EventType eventType = "ALL";
+    }
 
-    private Queue eventQueue;
-    private function (StreamEvent[]) nextProcessorPointer;
+    private {
+        Queue eventQueue;
+        function (StreamEvent[]) nextProcessorPointer;
+    }
 
     new(timeLength, eventType, nextProcessorPointer) {
         eventQueue = new;

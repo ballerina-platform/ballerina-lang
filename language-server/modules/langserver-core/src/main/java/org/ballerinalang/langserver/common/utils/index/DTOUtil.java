@@ -47,7 +47,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
-import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -178,10 +177,7 @@ public class DTOUtil {
      */
     public static BFunctionDTO getFunctionDTO(int pkgEntryId, int objectId, BInvokableSymbol bInvokableSymbol) {
         CompletionItem completionItem = BInvokableSymbolUtil.getFunctionCompletionItem(bInvokableSymbol);
-        boolean isPrivate = !((bInvokableSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC);
-        boolean isAttached = (bInvokableSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED;
-        return new BFunctionDTO(pkgEntryId, objectId, bInvokableSymbol.getName().getValue(), completionItem, isPrivate,
-                isAttached);
+        return new BFunctionDTO(pkgEntryId, objectId, bInvokableSymbol.getName().getValue(), completionItem);
     }
 
     /**
@@ -194,13 +190,11 @@ public class DTOUtil {
     public static BObjectTypeSymbolDTO getObjectTypeSymbolDTO(int pkgEntryId, BObjectTypeSymbol bObjectTypeSymbol,
                                                      ObjectType type) {
         CompletionItem completionItem = null;
-        boolean isPrivate = !((bObjectTypeSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC);
         if (type == ObjectType.OBJECT) {
             completionItem = BPackageSymbolUtil.getBTypeCompletionItem(bObjectTypeSymbol.getName().getValue());
         }
 
-        return new BObjectTypeSymbolDTO(pkgEntryId, bObjectTypeSymbol.getName().getValue(), null, type, isPrivate,
-                completionItem);
+        return new BObjectTypeSymbolDTO(pkgEntryId, bObjectTypeSymbol.getName().getValue(), null, type, completionItem);
     }
 
     /**
@@ -212,9 +206,7 @@ public class DTOUtil {
     public static BRecordTypeSymbolDTO getRecordTypeSymbolDTO(int pkgEntryId, BRecordTypeSymbol recordTypeSymbol) {
         CompletionItem completionItem = BPackageSymbolUtil
                 .getBTypeCompletionItem(recordTypeSymbol.getName().getValue());
-        boolean isPrivate = !((recordTypeSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC);
-        return new BRecordTypeSymbolDTO(pkgEntryId, recordTypeSymbol.getName().getValue(), null, isPrivate,
-                completionItem);
+        return new BRecordTypeSymbolDTO(pkgEntryId, recordTypeSymbol.getName().getValue(), null, completionItem);
     }
 
     /**

@@ -17,12 +17,12 @@ package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
-import io.netty.handler.codec.http.DefaultHttpRequest;
-import io.netty.handler.codec.http.DefaultHttpResponse;
-import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
+
+import io.grpc.MethodDescriptor;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import io.grpc.stub.StreamObserver;
+
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
@@ -45,7 +45,6 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
 import org.ballerinalang.services.ErrorHandlerUtils;
@@ -54,23 +53,14 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.nio.charset.Charset;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.ERROR_MESSAGE_FIELD;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
-import static org.ballerinalang.net.grpc.GrpcConstants.CONTENT_TYPE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageHeaders.METADATA_KEY;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
@@ -81,9 +71,6 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 public class MessageUtils {
     private static final Logger LOG = LoggerFactory.getLogger(MessageUtils.class);
     private static final String UNKNOWN_ERROR = "Unknown Error";
-
-    /** maximum buffer to be read is 16 KB. */
-    private static final int MAX_BUFFER_LENGTH = 16384;
 
     public static BMap<String, BValue> getHeaderStruct(Resource resource) {
         if (resource == null || resource.getParamDetails() == null) {
@@ -102,32 +89,43 @@ public class MessageUtils {
         return headerStruct;
     }
 
-    public static long copy(InputStream from, OutputStream to) throws IOException {
-        byte[] buf = new byte[MAX_BUFFER_LENGTH];
-        long total = 0;
-        while (true) {
-            int r = from.read(buf);
-            if (r == -1) {
-                break;
+    public static io.grpc.Context getContextHeader(BValue headerValues) {
+
+        // Set response headers.
+        if (headerValues instanceof BMap) {
+            MessageHeaders metadata =
+                    (MessageHeaders) ((BMap<String, BValue>) headerValues).getNativeData(METADATA_KEY);
+            if (metadata != null) {
+                return io.grpc.Context.current().withValue(MessageHeaders.DATA_KEY, metadata);
             }
-            to.write(buf, 0, r);
-            total += r;
         }
-        return total;
+        return null;
     }
 
-    public static StreamObserver getResponseObserver(BRefType refType) {
+
+
+    public static MessageHeaders getMessageHeaders(BValue headerValues) {
+
+        // Set request headers.
+        MessageHeaders metadata = null;
+        if (headerValues instanceof BMap) {
+            metadata = (MessageHeaders) ((BMap<String, BValue>) headerValues).getNativeData(METADATA_KEY);
+        }
+        return metadata;
+    }
+
+    public static StreamObserver<Message> getResponseObserver(BRefType refType) {
         Object observerObject = null;
         if (refType instanceof BMap) {
             observerObject = ((BMap<String, BValue>) refType).getNativeData(GrpcConstants.RESPONSE_OBSERVER);
         }
         if (observerObject instanceof StreamObserver) {
-            return ((StreamObserver) observerObject);
+            return ((StreamObserver<Message>) observerObject);
         }
         return null;
     }
     
-    public static BMap<String, BValue> getConnectorError(Context context, Throwable throwable) {
+    public static BMap<?, ?> getConnectorError(Context context, Throwable throwable) {
         ProgramFile progFile = context.getProgramFile();
         PackageInfo errorPackageInfo = progFile.getPackageInfo(BALLERINA_BUILTIN_PKG);
         StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
@@ -170,13 +168,13 @@ public class MessageUtils {
      * @param streamObserver observer used the send the error back
      * @param error          error message struct
      */
-    static void handleFailure(StreamObserver streamObserver, BMap<String, BValue> error) {
-        String errorMsg = error.getMessageAsString();
+    static void handleFailure(StreamObserver<Message> streamObserver, BMap<String, BValue> error) {
+        String errorMsg = error.get(ERROR_MESSAGE_FIELD).stringValue();
         LOG.error(errorMsg);
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
         if (streamObserver != null) {
-            streamObserver.onError(new Message(new StatusRuntimeException(Status.fromCodeValue(Status
-                    .Code.INTERNAL.value()).withDescription(errorMsg))));
+            streamObserver.onError(new StatusRuntimeException(Status.fromCodeValue(Status.Code.INTERNAL.value())
+                    .withDescription(errorMsg)));
         }
     }
     
@@ -205,7 +203,8 @@ public class MessageUtils {
         }
     }
 
-    static void setNestedMessages(Descriptors.Descriptor resMessage, MessageRegistry messageRegistry) {
+    public static void setNestedMessages(Descriptors.Descriptor resMessage, MessageRegistry messageRegistry) {
+
         for (Descriptors.Descriptor nestedType : resMessage.getNestedTypes()) {
             messageRegistry.addMessageDescriptor(nestedType.getName(), nestedType);
         }
@@ -235,7 +234,7 @@ public class MessageUtils {
      * @return generated protobuf message.
      */
     public static Message generateProtoMessage(BValue responseValue, Descriptors.Descriptor outputType) {
-        Message responseMessage = new Message(outputType.getName());
+        Message.Builder responseBuilder = Message.newBuilder(outputType.getName());
         for (Descriptors.FieldDescriptor fieldDescriptor : outputType.getFields()) {
             String fieldName = fieldDescriptor.getName();
             switch (fieldDescriptor.getType().toProto().getNumber()) {
@@ -251,16 +250,16 @@ public class MessageUtils {
                                 double indexValue = valueArray.get(i);
                                 messages[i] = indexValue;
                             }
-                            responseMessage.addField(fieldName, messages);
+                            responseBuilder.addField(fieldName, messages);
                         } else {
                             value = ((BFloat) response.get(fieldName)).floatValue();
-                            responseMessage.addField(fieldName, value);
+                            responseBuilder.addField(fieldName, value);
                         }
                     } else {
                         if (responseValue instanceof BFloat) {
                             value = ((BFloat) responseValue).value();
                         }
-                        responseMessage.addField(fieldName, value);
+                        responseBuilder.addField(fieldName, value);
                     }
                     break;
                 }
@@ -275,17 +274,17 @@ public class MessageUtils {
                                 float indexValue = Float.parseFloat(String.valueOf(valueArray.get(i)));
                                 messages[i] = indexValue;
                             }
-                            responseMessage.addField(fieldName, messages);
+                            responseBuilder.addField(fieldName, messages);
                         } else {
                             BValue bValue = ((BMap<String, BValue>) responseValue).get(fieldName);
                             value = Float.parseFloat(String.valueOf(bValue));
-                            responseMessage.addField(fieldName, value);
+                            responseBuilder.addField(fieldName, value);
                         }
                     } else {
                         if (responseValue instanceof BFloat) {
                             value = Float.parseFloat(String.valueOf(((BFloat) responseValue).value()));
                         }
-                        responseMessage.addField(fieldName, value);
+                        responseBuilder.addField(fieldName, value);
                     }
                     break;
                 }
@@ -302,16 +301,16 @@ public class MessageUtils {
                                 long indexValue = valueArray.get(i);
                                 messages[i] = indexValue;
                             }
-                            responseMessage.addField(fieldName, messages);
+                            responseBuilder.addField(fieldName, messages);
                         } else {
                             BValue bValue = ((BMap<String, BValue>) responseValue).get(fieldName);
                             value = ((BInteger) bValue).intValue();
-                            responseMessage.addField(fieldName, value);
+                            responseBuilder.addField(fieldName, value);
                         }
                     } else {
                         if (responseValue instanceof BInteger) {
                             value = ((BInteger) responseValue).value();
-                            responseMessage.addField(fieldName, value);
+                            responseBuilder.addField(fieldName, value);
                         }
                     }
                     break;
@@ -328,17 +327,17 @@ public class MessageUtils {
                                 int indexValue = Integer.parseInt(String.valueOf(valueArray.get(i)));
                                 messages[i] = indexValue;
                             }
-                            responseMessage.addField(fieldName, messages);
+                            responseBuilder.addField(fieldName, messages);
                         } else {
                             value = Integer
                                     .parseInt(String.valueOf(((BMap<String, BValue>) responseValue).get(fieldName)));
-                            responseMessage.addField(fieldName, value);
+                            responseBuilder.addField(fieldName, value);
                         }
                     } else {
                         if (responseValue instanceof BInteger) {
                             value = Integer.parseInt(String.valueOf(((BInteger) responseValue).value()));
                         }
-                        responseMessage.addField(fieldName, value);
+                        responseBuilder.addField(fieldName, value);
                     }
                     break;
                 }
@@ -353,16 +352,16 @@ public class MessageUtils {
                                 int indexValue = valueArray.get(i);
                                 messages[i] = indexValue != 0;
                             }
-                            responseMessage.addField(fieldName, messages);
+                            responseBuilder.addField(fieldName, messages);
                         } else {
                             BValue bValue = ((BMap<String, BValue>) responseValue).get(fieldName);
                             value = ((BBoolean) bValue).booleanValue();
-                            responseMessage.addField(fieldName, value);
+                            responseBuilder.addField(fieldName, value);
                         }
                     } else {
                         if (responseValue instanceof BBoolean) {
                             value = ((BBoolean) responseValue).value();
-                            responseMessage.addField(fieldName, value);
+                            responseBuilder.addField(fieldName, value);
                         }
                     }
                     break;
@@ -378,23 +377,23 @@ public class MessageUtils {
                                 String indexValue = valueArray.get(i);
                                 messages[i] = indexValue;
                             }
-                            responseMessage.addField(fieldName, messages);
+                            responseBuilder.addField(fieldName, messages);
                         } else {
                             value = ((BMap<String, BValue>) responseValue).get(fieldName).stringValue();
-                            responseMessage.addField(fieldName, value);
+                            responseBuilder.addField(fieldName, value);
                         }
                     } else {
                         if (responseValue instanceof BString) {
                             value = ((BString) responseValue).value();
                         }
-                        responseMessage.addField(fieldName, value);
+                        responseBuilder.addField(fieldName, value);
                     }
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM_VALUE: {
                     if (responseValue instanceof BMap) {
                         BValue bValue = ((BMap<String, BValue>) responseValue).get(fieldName);
-                        responseMessage.addField(fieldName, fieldDescriptor.getEnumType().findValueByName(bValue
+                        responseBuilder.addField(fieldName, fieldDescriptor.getEnumType().findValueByName(bValue
                                 .stringValue()));
                     }
                     break;
@@ -409,9 +408,9 @@ public class MessageUtils {
                                 BValue value = valueArray.get(i);
                                 messages[i] = generateProtoMessage(value, fieldDescriptor.getMessageType());
                             }
-                            responseMessage.addField(fieldName, messages);
+                            responseBuilder.addField(fieldName, messages);
                         } else {
-                            responseMessage.addField(fieldName, generateProtoMessage(bValue, fieldDescriptor
+                            responseBuilder.addField(fieldName, generateProtoMessage(bValue, fieldDescriptor
                                     .getMessageType()));
                         }
                     }
@@ -423,16 +422,18 @@ public class MessageUtils {
                 }
             }
         }
-        return responseMessage;
+        return responseBuilder.build();
     }
 
     public static BValue generateRequestStruct(Message request, ProgramFile programFile, String fieldName, BType
             structType) {
+
         BValue bValue = null;
         Map<String, Object> fields = request.getFields();
         if (fields.size() == 1 && fields.containsKey("value")) {
             fieldName = "value";
         }
+
         if (TypeKind.STRING.typeName().equals(structType.getName())) {
             bValue = new BString((String) fields.get(fieldName));
         } else if (TypeKind.INT.typeName().equals(structType.getName())) {
@@ -565,116 +566,5 @@ public class MessageUtils {
             }
         }
         return false;
-    }
-
-    /** Closes an InputStream, ignoring IOExceptions. */
-    static void closeQuietly(InputStream message) {
-        try {
-            message.close();
-        } catch (IOException ignore) {
-            // do nothing
-        }
-    }
-
-    /**
-     * Indicates whether or not the given value is a valid gRPC content-type.
-     *
-     * <p>
-     * Referenced from grpc-java implementation.
-     * <p>
-     */
-    public static boolean isGrpcContentType(String contentType) {
-        if (contentType == null) {
-            return false;
-        }
-        if (CONTENT_TYPE_GRPC.length() > contentType.length()) {
-            return false;
-        }
-        contentType = contentType.toLowerCase(Locale.ENGLISH);
-        if (!contentType.startsWith(CONTENT_TYPE_GRPC)) {
-            return false;
-        }
-        if (contentType.length() == CONTENT_TYPE_GRPC.length()) {
-            // The strings match exactly.
-            return true;
-        }
-        // The contentType matches, but is longer than the expected string.
-        // We need to support variations on the content-type (e.g. +proto, +json) as defined by the gRPC wire spec.
-        char nextChar = contentType.charAt(CONTENT_TYPE_GRPC.length());
-        return nextChar == '+' || nextChar == ';';
-    }
-
-    public static HttpWsConnectorFactory createHttpWsConnectionFactory() {
-        return new DefaultHttpWsConnectorFactory();
-    }
-
-    public static HTTPCarbonMessage createHttpCarbonMessage(boolean isRequest) {
-        HTTPCarbonMessage httpCarbonMessage;
-        if (isRequest) {
-            httpCarbonMessage = new HTTPCarbonMessage(
-                    new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, ""));
-        } else {
-            httpCarbonMessage = new HTTPCarbonMessage(
-                    new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
-        }
-        return httpCarbonMessage;
-    }
-
-    public static Status httpStatusToGrpcStatus(int httpStatusCode) {
-        return httpStatusToGrpcCode(httpStatusCode).toStatus()
-                .withDescription("HTTP status code " + httpStatusCode);
-    }
-
-    private static Status.Code httpStatusToGrpcCode(int httpStatusCode) {
-        if (httpStatusCode >= 100 && httpStatusCode < 200) {
-            // 1xx. These headers should have been ignored.
-            return Status.Code.INTERNAL;
-        }
-        switch (httpStatusCode) {
-            case HttpURLConnection.HTTP_BAD_REQUEST:  // 400
-            case 431:
-                return Status.Code.INTERNAL;
-            case HttpURLConnection.HTTP_UNAUTHORIZED:  // 401
-                return Status.Code.UNAUTHENTICATED;
-            case HttpURLConnection.HTTP_FORBIDDEN:  // 403
-                return Status.Code.PERMISSION_DENIED;
-            case HttpURLConnection.HTTP_NOT_FOUND:  // 404
-                return Status.Code.UNIMPLEMENTED;
-            case 429:
-            case HttpURLConnection.HTTP_BAD_GATEWAY:  // 502
-            case HttpURLConnection.HTTP_UNAVAILABLE:  // 503
-            case HttpURLConnection.HTTP_GATEWAY_TIMEOUT:  // 504
-                return Status.Code.UNAVAILABLE;
-            default:
-                return Status.Code.UNKNOWN;
-        }
-    }
-
-    /**
-     * Reads an entire {@link HttpContent} to a new array. After calling this method, the buffer
-     * will contain no readable bytes.
-     */
-    private static byte[] readArray(HttpContent httpContent) {
-        if (httpContent == null || httpContent.content() == null) {
-            throw new RuntimeException("Http content is null");
-        }
-        int length = httpContent.content().readableBytes();
-        byte[] bytes = new byte[length];
-        httpContent.content().readBytes(bytes, 0, length);
-        return bytes;
-    }
-
-    /**
-     * Reads the entire {@link HttpContent} to a new {@link String} with the given charset.
-     */
-    static String readAsString(HttpContent httpContent, Charset charset) {
-        if (charset == null) {
-            throw new RuntimeException("Charset cannot be null");
-        }
-        byte[] bytes = readArray(httpContent);
-        return new String(bytes, charset);
-    }
-
-    private MessageUtils() {
     }
 }

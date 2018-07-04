@@ -1,24 +1,30 @@
 type Department object {
-    public string dptName;
-    public Person[] employees;
-
+    public {
+        string dptName;
+        Person[] employees;
+    }
+    
     new (dptName = "", employees) {
         
     }
 };
 
 type Person object {
-    public string name = "default first name";
-    public string lname;
-    public map adrs;
-    public int age = 999;
-    public Family family;
+    public {
+        string name = "default first name";
+        string lname;
+        map adrs;
+        int age = 999;
+        Family family;
+    }
 };
 
 type Family object {
-    public string spouse;
-    public int noOfChildren;
-    public string[] children;
+    public {
+        string spouse;
+        int noOfChildren;
+        string[] children;
+    }
 };
 
 function testCreateObject () returns (string, map, int) {

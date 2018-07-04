@@ -23,23 +23,19 @@ import org.eclipse.lsp4j.CompletionItem;
  * DAO for ObjectTypeSymbol.
  */
 public class ObjectDAO {
-
     private String packageName;
 
     private String packageOrgName;
 
     private String objectName;
 
-    private boolean isPrivate;
-
     private CompletionItem completionItem;
 
-    public ObjectDAO(String packageName, String packageOrgName, String objectName, boolean isPrivate,
+    public ObjectDAO(String packageName, String packageOrgName, String objectName,
                      CompletionItem completionItem) {
         this.packageName = packageName;
         this.packageOrgName = packageOrgName;
         this.objectName = objectName;
-        this.isPrivate = isPrivate;
         this.completionItem = completionItem;
     }
 
@@ -53,10 +49,6 @@ public class ObjectDAO {
 
     public String getObjectName() {
         return objectName;
-    }
-
-    public boolean isPrivate() {
-        return isPrivate;
     }
 
     public CompletionItem getCompletionItem() {

@@ -3,19 +3,19 @@ function testAnonObjectAsFuncParam() returns (int) {
     return testAnonObjectFunc(10, new (14, "sameera"));
 }
 
-function testAnonObjectFunc(int i, object {public int k = 10; public string s; new (k, s){}} anonSt) returns (int) {
+function testAnonObjectFunc(int i, object {public {int k = 10; string s;} new (k, s){}} anonSt) returns (int) {
     return anonSt.k + i;
 }
 
 
 function testAnonObjectAsLocalVar() returns (int) {
-    object {public int k = 11; public string s;} anonSt = new;
+    object {public{int k = 11; string s;}} anonSt = new;
 
     return anonSt.k;
 }
 
 
-object { public string fname; public string lname; public int age; new (fname = "default fname", lname = "default lname") {}} person;
+object { public {string fname; string lname; int age;} new (fname = "default fname", lname = "default lname") {}} person;
 
 function testAnonObjectAsPkgVar() returns (string) {
 
@@ -26,21 +26,23 @@ function testAnonObjectAsPkgVar() returns (string) {
 }
 
 type employee object {
-    public string fname;
-    public string lname;
-    public int age;
-    public object {public string line01;
-            public string line02;
-            public string city;
-            public string state;
-            public string zipcode;
-          new (line01, city, state, zipcode) {}} address;
+    public {
+        string fname;
+        string lname;
+        int age;
+        object {public{ string line01;
+            string line02;
+            string city;
+            string state;
+            string zipcode;
+        } new (line01, city, state, zipcode) {}} address;
 
-    public object {
-        public string month = "JAN";
-        public string day = "01";
-        public string year = "1970";
-        } dateOfBirth;
+        object {public{
+        string month = "JAN";
+        string day = "01";
+        string year = "1970";
+        }} dateOfBirth;
+    }
 
     new (fname, lname, age, address, dateOfBirth) {}
 };
@@ -53,23 +55,27 @@ function testAnonObjectAsObjectField() returns (string) {
     return e.dateOfBirth.month + ":" + e.address.line01 + ":" + e.address["state"] + ":" + e.fname;
 }
 
-object { public int age, public string name; new (age, string lname) {name = "a " + lname;} function getName() returns string {return name;}} p = new (5, "hello");
+object { public {int age, string name;} new (age, string lname) {name = "a " + lname;} function getName() returns string {return name;}} p = new (5, "hello");
 
 function testAnonObjectWithFunctionAsGlobalVar () returns string {
     return p.getName();
 }
 
 function testAnonObjectWithFunctionAsLocalVar () returns string {
-    object { public int age, public string name; new (age, string lname) {name = "a " + lname;} function getName() returns string {return name;}} p1 = new (5, "hello");
+    object { public {int age, string name;} new (age, string lname) {name = "a " + lname;} function getName() returns string {return name;}} p1 = new (5, "hello");
     return p1.getName();
 }
 
 
 public type Person object {
-    public int age;
-    public string name;
-    public int length;
-    public string kind;
+    public {
+        int age;
+        string name;
+    //}
+    //private {
+        int length;
+        string kind;
+    }
 
     public new (age, name, length) {
 
@@ -82,12 +88,12 @@ public type Person object {
     public function getKind() returns string;
 };
 
-function Person::getKind() returns string {
+public function Person::getKind() returns string {
     return self.kind;
 }
 
 function testObjectEquivalencyBetweenAnonAndNormalObject() returns (int, string, string) {
-    object { public int age; public string name;public int length; public string kind;
+    object { public { int age; string name;int length; string kind; }
     public new (age, name, string value) {
         kind = " hello " + value;
     }
@@ -101,7 +107,7 @@ function testObjectEquivalencyBetweenAnonAndNormalObject() returns (int, string,
 }
 
 function testAnonObjectWithRecordLiteral() returns (int, string) {
-    object { public record {int age; string name;} details; private int length; private string kind;
+    object { public { record {int age; string name;} details;} private { int length; string kind; }
     new (details, kind) {
     }
     function getName () returns string { return details.name; }} value = new ({age:8, name:"sanjiva"}, "passed kind");
@@ -110,10 +116,13 @@ function testAnonObjectWithRecordLiteral() returns (int, string) {
 }
 
 type Foo object {
-    public record {int age; string name;} details;
-
-    private int length;
-    private string kind;
+    public {
+        record {int age; string name;} details;
+    }
+    private {
+        int length;
+        string kind;
+    }
 
     new (details, kind) {
     }
@@ -130,7 +139,7 @@ function testObjectWithAnonRecordLiteral() returns (int, string) {
 }
 
 function testObjectWithSelfReference() returns (int, string) {
-    object {public int age, public string name,new () {self.age = 88;self.name = "Tyler ";}function test(int a, string n) {
+    object {public{int age, string name,}new () {self.age = 88;self.name = "Tyler ";}function test(int a, string n) {
         self.age = self.age + a;
         self.name = self.name + n;
     }} sample;

@@ -6,12 +6,16 @@ function testRecursiveObjectWithNill() returns int {
 
 
 type Person object {
-    public int age = 90,
-    public Employee ep,
+    public {
+        int age = 90,
+        Employee ep,
+    }
 };
 
 
 type Employee object {
-    public int pp,
-    public Person? p,
+    public {
+        int pp,
+        Person? p,
+    }
 };

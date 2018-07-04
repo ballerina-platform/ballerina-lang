@@ -73,7 +73,7 @@ public class EmptyMessage extends Message {
         public Descriptors.Descriptor getDescriptor() throws GrpcServerException {
             List<Descriptors.Descriptor> descriptors = com.google.protobuf.EmptyProto.getDescriptor()
                     .getMessageTypes();
-            if (descriptors.isEmpty()) {
+            if (descriptors.size() == 0) {
                 throw new GrpcServerException("Error while deriving message definition. Cannot find descriptor for " +
                         "empty message");
             } else {

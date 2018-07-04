@@ -57,10 +57,8 @@ public class DAOUtil {
                 String pkgOrgName = resultSet.getString(2);
                 String funcName = resultSet.getString(4);
                 String completionItem = resultSet.getString(3);
-                boolean isPrivate = resultSet.getBoolean(5);
-                boolean isAttached = resultSet.getBoolean(6);
-                PackageFunctionDAO packageFunctionDAO = new PackageFunctionDAO(pkgName, pkgOrgName, funcName,
-                        jsonToCompletionItem(completionItem), isPrivate, isAttached);
+                PackageFunctionDAO packageFunctionDAO =
+                        new PackageFunctionDAO(pkgName, pkgOrgName, funcName, jsonToCompletionItem(completionItem));
                 packageFunctionDAOs.add(packageFunctionDAO);
             }
         } catch (SQLException e) {
@@ -83,9 +81,8 @@ public class DAOUtil {
                 String pkgOrgName = resultSet.getString(2);
                 String recordName = resultSet.getString(4);
                 String completionItem = resultSet.getString(3);
-                boolean isPrivate = resultSet.getBoolean(5);
                 RecordDAO recordDAO =
-                        new RecordDAO(pkgName, pkgOrgName, recordName, isPrivate, jsonToCompletionItem(completionItem));
+                        new RecordDAO(pkgName, pkgOrgName, recordName, jsonToCompletionItem(completionItem));
                 recordDAOs.add(recordDAO);
             }
         } catch (SQLException e) {
@@ -131,10 +128,9 @@ public class DAOUtil {
                 String pkgName = resultSet.getString(1);
                 String pkgOrgName = resultSet.getString(2);
                 String recordName = resultSet.getString(4);
-                boolean isPrivate = resultSet.getBoolean(5);
                 String completionItem = resultSet.getString(3);
                 ObjectDAO recordDAO =
-                        new ObjectDAO(pkgName, pkgOrgName, recordName, isPrivate, jsonToCompletionItem(completionItem));
+                        new ObjectDAO(pkgName, pkgOrgName, recordName, jsonToCompletionItem(completionItem));
                 objectDAOs.add(recordDAO);
             }
         } catch (SQLException e) {

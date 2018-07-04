@@ -647,14 +647,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         filterConditionalExpression = literalExpr;
     }
 
-    public void visit(BLangInvocation invocationExpr) {
-        filterConditionalExpression = invocationExpr;
-    }
-
-    public void visit(BLangSimpleVarRef varRefExpr) {
-        filterConditionalExpression = varRefExpr;
-    }
-
     //----------------------------------------- Util Methods ---------------------------------------------------------
 
     private String getFunctionName(String name) {
@@ -775,7 +767,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 (selectFieldExpression).type = fieldAccessExpr.type;
                 recordKeyValue.valueExpr = selectFieldExpression;
             } else {
-                recordKeyValue.valueExpr = (BLangExpression) selectExpression.getExpression();
+                recordKeyValue.valueExpr = (BLangLiteral) selectExpression.getExpression();
             }
 
             recordKeyValueList.add(recordKeyValue);

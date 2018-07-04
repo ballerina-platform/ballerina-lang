@@ -284,4 +284,10 @@ public class Symbols {
     public static boolean isAttachPointPresent(int mask, int attachPoint) {
         return (mask & attachPoint) == attachPoint;
     }
+
+    public static BTypeSymbol createScopeSymbol(Name name, PackageID pkgID, BType type, BSymbol owner) {
+        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.SCOPE, 0, name, pkgID, type, owner);
+        typeSymbol.kind = SymbolKind.SCOPE;
+        return typeSymbol;
+    }
 }

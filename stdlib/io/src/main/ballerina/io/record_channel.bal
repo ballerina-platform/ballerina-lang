@@ -18,9 +18,11 @@ documentation {
     Represents a channel which will allow to read/write records through a given CharacterChannel.
 }
 public type DelimitedTextRecordChannel object {
-    private CharacterChannel channel;
-    private string rs;
-    private string fs;
+    private {
+        CharacterChannel channel;
+        string rs;
+        string fs;
+    }
 
     documentation {
         Constructs a DelimitedTextRecordChannel from a given CharacterChannel.

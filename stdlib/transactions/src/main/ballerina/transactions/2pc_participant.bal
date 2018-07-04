@@ -48,7 +48,9 @@ public type RemoteProtocol record {
 
 type Participant object {
 
-    string participantId;
+    private {
+        string participantId;
+    }
 
     function prepare(string protocol) returns ((PrepareResult|error)?, Participant);
 
@@ -57,9 +59,11 @@ type Participant object {
 
 type RemoteParticipant object {
 
-    private string participantId;
-    private string transactionId;
-    private RemoteProtocol[] participantProtocols;
+    private {
+        string participantId;
+        string transactionId;
+        RemoteProtocol[] participantProtocols;
+    }
 
     new(participantId, transactionId, participantProtocols) {}
 
@@ -164,10 +168,11 @@ type RemoteParticipant object {
 };
 
 type LocalParticipant object {
-
-    private string participantId;
-    private TwoPhaseCommitTransaction participatedTxn;
-    private LocalProtocol[] participantProtocols;
+    private {
+        string participantId;
+        TwoPhaseCommitTransaction participatedTxn;
+        LocalProtocol[] participantProtocols;
+    }
 
     new(participantId, participatedTxn, participantProtocols) {}
 

@@ -33,7 +33,7 @@ import org.ballerinalang.natives.annotations.Receiver;
         orgName = "ballerina", packageName = "http",
         functionName = "start",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "NonListener",
-                structPackage = "ballerina.http"),
+                structPackage = "ballerina/http"),
         isPublic = true
 )
 public class NonListeningStart extends org.ballerinalang.net.http.serviceendpoint.Start {

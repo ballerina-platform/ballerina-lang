@@ -72,10 +72,6 @@ import static org.ballerinalang.net.grpc.GrpcConstants.ANN_ATTR_RESOURCE_SERVER_
 import static org.ballerinalang.net.grpc.GrpcConstants.ANN_RESOURCE_CONFIG;
 import static org.ballerinalang.net.grpc.GrpcConstants.ON_COMPLETE_RESOURCE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ON_MESSAGE_RESOURCE;
-import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_BOOL_MESSAGE;
-import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_FLOAT_MESSAGE;
-import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_INT64_MESSAGE;
-import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_STRING_MESSAGE;
 
 /**
  * Utility class providing proto file based of the Ballerina service.
@@ -85,10 +81,6 @@ import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_STRING_MESSAGE;
 public class ServiceProtoUtils {
 
     private static final String NO_PACKAGE_PATH = ".";
-
-    private ServiceProtoUtils() {
-
-    }
 
     static File generateProtoDefinition(ServiceNode serviceNode) throws GrpcServerException {
         // Protobuf file definition builder.
@@ -161,27 +153,27 @@ public class ServiceProtoUtils {
         
         for (ResourceNode resourceNode : serviceNode.getResources()) {
             Message requestMessage = getRequestMessage(resourceNode);
-            if (requestMessage == null) {
-                throw new GrpcServerException("Error while deriving request message of the resource");
-            }
             if (requestMessage.getMessageKind() == MessageKind.USER_DEFINED) {
                 updateFileBuilder(fileBuilder, requestMessage);
             }
-            if (requestMessage.getDependency() != null && !fileBuilder.getRegisteredDependencies().contains
-                    (requestMessage.getDependency())) {
-                fileBuilder.setDependency(requestMessage.getDependency());
+            if (requestMessage.getDependency() != null) {
+                if (!fileBuilder.getRegisteredDependencies().contains(requestMessage.getDependency())) {
+                    fileBuilder.setDependency(requestMessage.getDependency());
+                }
             }
-
             Message responseMessage = getResponseMessage(resourceNode);
+            
             if (responseMessage == null) {
                 throw new GrpcServerException("Connection send expression not found in resource body");
             }
+            
             if (responseMessage.getMessageKind() == MessageKind.USER_DEFINED) {
                 updateFileBuilder(fileBuilder, responseMessage);
             }
-            if (responseMessage.getDependency() != null && !fileBuilder.getRegisteredDependencies().contains
-                    (responseMessage.getDependency())) {
-                fileBuilder.setDependency(responseMessage.getDependency());
+            if (responseMessage.getDependency() != null) {
+                if (!fileBuilder.getRegisteredDependencies().contains(responseMessage.getDependency())) {
+                    fileBuilder.setDependency(responseMessage.getDependency());
+                }
             }
             
             boolean serverStreaming = isServerStreaming(resourceNode);
@@ -254,17 +246,21 @@ public class ServiceProtoUtils {
         if (requestMessage.getMessageKind() == MessageKind.USER_DEFINED) {
             updateFileBuilder(fileBuilder, requestMessage);
         }
-        if (requestMessage.getDependency() != null && !fileBuilder.getRegisteredDependencies().contains
-                (requestMessage.getDependency())) {
-            fileBuilder.setDependency(requestMessage.getDependency());
+        if (requestMessage.getDependency() != null) {
+            if (!fileBuilder.getRegisteredDependencies().contains(requestMessage.getDependency())) {
+                fileBuilder.setDependency(requestMessage.getDependency());
+            }
         }
+
         if (responseMessage.getMessageKind() == MessageKind.USER_DEFINED) {
             updateFileBuilder(fileBuilder, responseMessage);
         }
-        if (responseMessage.getDependency() != null && !fileBuilder.getRegisteredDependencies().contains
-                (responseMessage.getDependency())) {
-            fileBuilder.setDependency(responseMessage.getDependency());
+        if (responseMessage.getDependency() != null) {
+            if (!fileBuilder.getRegisteredDependencies().contains(responseMessage.getDependency())) {
+                fileBuilder.setDependency(responseMessage.getDependency());
+            }
         }
+        
         Method resourceMethod = Method.newBuilder(serviceConfig.getRpcEndpoint())
                 .setClientStreaming(serviceConfig.isClientStreaming())
                 .setServerStreaming(serviceConfig.isServerStreaming())
@@ -276,6 +272,7 @@ public class ServiceProtoUtils {
     }
 
     private static void updateFileBuilder(File.Builder fileBuilder, Message message) {
+
         if (isNewMessageDefinition(fileBuilder, message)) {
             fileBuilder.setMessage(message);
         }
@@ -327,7 +324,7 @@ public class ServiceProtoUtils {
     }
     
     private static Message getRequestMessage(ResourceNode resourceNode) throws GrpcServerException {
-        if (!(!resourceNode.getParameters().isEmpty() || resourceNode.getParameters().size() < 4)) {
+        if (!(resourceNode.getParameters().size() > 0 || resourceNode.getParameters().size() < 4)) {
             throw new GrpcServerException("Service resource definition should contain more than one and less than " +
                     "four params. but contains " + resourceNode.getParameters().size());
         }
@@ -336,7 +333,9 @@ public class ServiceProtoUtils {
     }
 
     private static BType getMessageParamType(List<?> variableNodes) throws GrpcServerException {
+
         BType requestType = null;
+
         for (Object variable : variableNodes)  {
             if (variable instanceof BLangNode) {
                 BType tempType = ((BLangNode) variable).type;
@@ -371,19 +370,19 @@ public class ServiceProtoUtils {
         Message message = null;
         switch (messageType.getKind()) {
             case STRING: {
-                message = WrapperMessage.newBuilder(WRAPPER_STRING_MESSAGE).build();
+                message = WrapperMessage.newBuilder(ServiceProtoConstants.WRAPPER_STRING_MESSAGE).build();
                 break;
             }
             case INT: {
-                message = WrapperMessage.newBuilder(WRAPPER_INT64_MESSAGE).build();
+                message = WrapperMessage.newBuilder(ServiceProtoConstants.WRAPPER_INT64_MESSAGE).build();
                 break;
             }
             case FLOAT: {
-                message = WrapperMessage.newBuilder(WRAPPER_FLOAT_MESSAGE).build();
+                message = WrapperMessage.newBuilder(ServiceProtoConstants.WRAPPER_FLOAT_MESSAGE).build();
                 break;
             }
             case BOOLEAN: {
-                message = WrapperMessage.newBuilder(WRAPPER_BOOL_MESSAGE).build();
+                message = WrapperMessage.newBuilder(ServiceProtoConstants.WRAPPER_BOOL_MESSAGE).build();
                 break;
             }
             case OBJECT:
@@ -439,6 +438,7 @@ public class ServiceProtoUtils {
                 fieldType = elementType;
                 fieldLabel = "repeated";
             }
+
             messageField = Field.newBuilder(fieldName)
                     .setIndex(++fieldIndex)
                     .setLabel(fieldLabel)
@@ -466,7 +466,7 @@ public class ServiceProtoUtils {
         }
         for (StatementNode statementNode : body.getStatements()) {
             BLangExpression expression = null;
-            // send inside while block.
+            // example : conn.send inside while block.
             if (statementNode instanceof BLangWhile) {
                 BLangWhile langWhile = (BLangWhile) statementNode;
                 BLangInvocation invocExp = getInvocationExpression(langWhile.getBody());
@@ -474,7 +474,7 @@ public class ServiceProtoUtils {
                     return invocExp;
                 }
             }
-            // send inside for block.
+            // example : conn.send inside for block.
             if (statementNode instanceof BLangForeach) {
                 BLangForeach langForeach = (BLangForeach) statementNode;
                 BLangInvocation invocExp = getInvocationExpression(langForeach.getBody());
@@ -482,7 +482,7 @@ public class ServiceProtoUtils {
                     return invocExp;
                 }
             }
-            // send inside if block.
+            // example : conn.send inside if block.
             if (statementNode instanceof BLangIf) {
                 BLangIf langIf = (BLangIf) statementNode;
                 BLangInvocation invocExp = getInvocationExpression(langIf.getBody());
@@ -494,12 +494,12 @@ public class ServiceProtoUtils {
                     return invocExp;
                 }
             }
-            // ignore return value of send method.
+            // example : _ = conn.send(msg);
             if (statementNode instanceof BLangAssignment) {
                 BLangAssignment assignment = (BLangAssignment) statementNode;
                 expression = assignment.getExpression();
             }
-            // variable assignment.
+            // example : grpc:HttpConnectorError err = conn.send(msg);
             if (statementNode instanceof BLangVariableDef) {
                 BLangVariableDef variableDef = (BLangVariableDef) statementNode;
                 BLangVariable variable = variableDef.getVariable();

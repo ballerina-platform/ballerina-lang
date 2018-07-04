@@ -6,9 +6,12 @@ public function testObjectWithInterface () returns (int, string) {
 
 
 type Person object {
-    public int age = 10,
-
-    string month = "february";
+    public {
+        int age = 10,
+    }
+    private {
+        string month = "february";
+    }
 
     function attachInterface(int add) returns int;
 };

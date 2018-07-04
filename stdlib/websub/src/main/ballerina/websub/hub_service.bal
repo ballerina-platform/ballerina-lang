@@ -711,9 +711,11 @@ documentation {
 }
 type PendingSubscriptionChangeRequest object {
 
-    public string mode;
-    public string topic;
-    public string callback;
+    public {
+        string mode;
+        string topic;
+        string callback;
+    }
 
     new (mode, topic, callback) {}
 

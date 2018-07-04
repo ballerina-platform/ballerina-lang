@@ -25,7 +25,9 @@ documentation {
 }
 public type AuthnFilter object {
 
-    public AuthnHandlerChain authnHandlerChain;
+    public {
+        AuthnHandlerChain authnHandlerChain;
+    }
 
     public new(authnHandlerChain) {}
 

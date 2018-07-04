@@ -23,7 +23,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.internal.Constants;
+import org.ballerinalang.stdlib.internal.utils.Constants;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -40,12 +40,11 @@ import java.util.zip.ZipInputStream;
  * @since 0.970.0
  */
 @BallerinaFunction(
-        orgName = Constants.ORG_NAME,
-        packageName = Constants.PACKAGE_NAME,
+        orgName = "ballerina", packageName = "internal",
         functionName = "decompressFromBlob",
         args = {@Argument(name = "content", type = TypeKind.BLOB),
-                @Argument(name = "destDir", type = TypeKind.OBJECT, structType = Constants.PATH_STRUCT,
-                          structPackage = Constants.PACKAGE_PATH)},
+                @Argument(name = "destDir", type = TypeKind.RECORD, structType = "Path",
+                        structPackage = "ballerina/file")},
         returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )

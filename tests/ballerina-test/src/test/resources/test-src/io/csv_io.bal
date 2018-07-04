@@ -11,11 +11,11 @@ type Employee record {
 function initCSVChannel(string filePath, io:Mode permission, string encoding, io:Separator fieldSeparator) {
     io:ByteChannel byteChannel = io:openFile(filePath, permission);
     io:CharacterChannel charChannel = new io:CharacterChannel(byteChannel, encoding);
-    csvChannel = untaint new io:CSVChannel(charChannel, fs = fieldSeparator);
+    csvChannel = new io:CSVChannel(charChannel, fs = fieldSeparator);
 }
 
 function initOpenCsv(string filePath, io:Mode permission, string encoding, io:Separator fs, int nHeaders = 0) {
-    csvChannel = untaint io:openCsvFile(filePath, fieldSeparator=fs, skipHeaders = nHeaders);
+    csvChannel = io:openCsvFile(filePath, fieldSeparator=fs, skipHeaders = nHeaders);
 }
 
 function nextRecord() returns (string[]|error) {

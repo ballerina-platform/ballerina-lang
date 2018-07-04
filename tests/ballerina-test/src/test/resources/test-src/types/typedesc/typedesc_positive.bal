@@ -18,14 +18,17 @@ function testRefTypes() returns (typedesc, typedesc, typedesc, typedesc) {
 function testObjectTypes() returns (typedesc, typedesc) {
     typedesc a = Person;
     typedesc b = object {
-        public string name;
+        public {
+            string name;
+        }
     };
     return (a,b);
 }
 
 type Person object {
-    public string name;
-
+    public {
+        string name;
+    }
     new (name){}
     public function getName() returns string {
         return name;

@@ -1,48 +1,48 @@
 
 public type FooDepartment object {
-
-    public string dptName;
-    public FooPerson[] employees;
-
+    public {
+        string dptName;
+        FooPerson[] employees;
+    }
     public new (employees) {}
 };
 
 public type FooPerson object {
-
-    public string name = "default first name";
-    public string lname;
-    public map adrs;
-    public int age = 999;
-    public FooFamily family;
-
+    public {
+        string name = "default first name";
+        string lname;
+        map adrs;
+        int age = 999;
+        FooFamily family;
+    }
 
     public new (name, adrs, age){}
 };
 
 type FooFamily object {
-
-    public string spouse;
-    public int noOfChildren;
-    public string[] children;
-
+    public {
+        string spouse;
+        int noOfChildren;
+        string[] children;
+    }
 };
 
 public type FooEmployee object {
-
-    public string fname;
-    public string lname;
-    public int age;
-
-
-    private object {
-
-            public string city;
-            public string state;
-            public string zipcode;
-
+    public {
+        string fname;
+        string lname;
+        int age;
+    }
+    private {
+        object {
+            public {
+                string city;
+                string state;
+                string zipcode;
+            }
             new (city, state, zipcode) {}
         } address;
-
+    }
 
     public new (fname, lname, age, address){}
 };

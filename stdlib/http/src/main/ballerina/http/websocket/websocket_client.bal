@@ -24,16 +24,19 @@ documentation {
     F{{attributes}} A map to store connection related attributes
 }
 public type WebSocketClient object {
+    public {
+        @readonly string id;
+        @readonly string negotiatedSubProtocol;
+        @readonly boolean isSecure;
+        @readonly boolean isOpen;
+        @readonly Response response;
+        @readonly map attributes;
+    }
 
-    @readonly public string id;
-    @readonly public string negotiatedSubProtocol;
-    @readonly public boolean isSecure;
-    @readonly public boolean isOpen;
-    @readonly public Response response;
-    @readonly public map attributes;
-
-    private WebSocketConnector conn;
-    private WebSocketClientEndpointConfig config;
+    private {
+        WebSocketConnector conn;
+        WebSocketClientEndpointConfig config;
+    }
 
     documentation {
         Gets called when the endpoint is being initialize during package init time.

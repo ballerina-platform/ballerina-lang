@@ -89,6 +89,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
@@ -433,12 +434,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangFunction funcNode) {
         boolean validAttachedFunc = validateFuncReceiver(funcNode);
         if (funcNode.attachedOuterFunction) {
-            if (Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PUBLIC)) { //no visibility modifiers allowed
-                dlog.error(funcNode.pos, DiagnosticCode.ATTACHED_FUNC_CANT_HAVE_VISIBILITY_MODIFIERS, funcNode.name);
-            }
-            if (funcNode.body == null) { //object outer attached function must have a body
-                dlog.error(funcNode.pos, DiagnosticCode.ATTACHED_FUNCTIONS_MUST_HAVE_BODY, funcNode.name);
-            }
             if (funcNode.receiver.type.tsymbol.kind == SymbolKind.RECORD) {
                 dlog.error(funcNode.pos, DiagnosticCode.CANNOT_ATTACH_FUNCTIONS_TO_RECORDS, funcNode.name,
                         funcNode.receiver.type.tsymbol.name);
@@ -523,14 +518,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         BInvokableType sourceType = (BInvokableType) funcNode.symbol.type;
-        //this was used earlier to one to one match object declaration with definitions for attached functions
-        // keeping this commented as we may need uncomment this later.
-//        int flags = Flags.asMask(funcNode.flagSet);
-//        if (((flags & Flags.NATIVE) != (funcNode.symbol.flags & Flags.NATIVE))
-//                || ((flags & Flags.PUBLIC) != (funcNode.symbol.flags & Flags.PUBLIC))) {
-//            dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_INTERFACE, funcNode.name, objName);
-//            return;
-//        }
+        int flags = Flags.asMask(funcNode.flagSet);
+        if (((flags & Flags.NATIVE) != (funcNode.symbol.flags & Flags.NATIVE))
+                || ((flags & Flags.PUBLIC) != (funcNode.symbol.flags & Flags.PUBLIC))) {
+            dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_INTERFACE, funcNode.name, objName);
+            return;
+        }
 
         if (typesMissMatch(paramTypes, sourceType.paramTypes)
                 || namesMissMatch(funcNode.requiredParams, funcNode.symbol.params)
@@ -672,23 +665,33 @@ public class SymbolEnter extends BLangNodeVisitor {
         // this is a field variable defined for object init function
         if (varNode.isField) {
             Name varName = names.fromIdNode(varNode.name);
-            BSymbol symbol = symResolver.resolveObjectField(varNode.pos, env, varName,
-                    env.enclTypeDefinition.symbol.type.tsymbol);
+            BSymbol symbol;
+            if (env.enclTypeDefinition != null) {
+                symbol = symResolver.resolveObjectField(varNode.pos, env, varName,
+                        env.enclTypeDefinition.symbol.type.tsymbol);
+            } else {
+                symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
+            }
 
             if (symbol == symTable.notFoundSymbol) {
                 dlog.error(varNode.pos, DiagnosticCode.UNDEFINED_OBJECT_FIELD, varName, env.enclTypeDefinition.name);
             }
             varNode.type = symbol.type;
-            Name updatedVarName = getFieldSymbolName(((BLangFunction) env.enclInvokable).receiver, varNode);
+            Name updatedVarName = varName;
+            if (((BLangFunction) env.enclInvokable).receiver != null) {
+               updatedVarName = getFieldSymbolName(((BLangFunction) env.enclInvokable).receiver, varNode);
+            }
             BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, updatedVarName, env);
 
             // Reset the name of the symbol to the original var name
             varSymbol.name = varName;
 
             // This means enclosing type definition is a object type defintion
-            BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) env.enclTypeDefinition.typeNode;
-            objectTypeNode.initFunction.initFunctionStmts.put(symbol,
-                    (BLangStatement) createAssignmentStmt(varNode, varSymbol, symbol));
+            if (env.enclTypeDefinition != null) {
+                BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) env.enclTypeDefinition.typeNode;
+                objectTypeNode.initFunction.initFunctionStmts
+                        .put(symbol, (BLangStatement) createAssignmentStmt(varNode, varSymbol, symbol));
+            }
             varSymbol.docTag = varNode.docTag;
             varNode.symbol = varSymbol;
             return;
@@ -772,6 +775,16 @@ public class SymbolEnter extends BLangNodeVisitor {
             env.scope.define(xmlnsSymbol.name, xmlnsSymbol);
             bLangXMLAttribute.symbol = xmlnsSymbol;
         }
+    }
+
+    @Override
+    public void visit(BLangScope scopeNode) {
+        BTypeSymbol symbol = Symbols.createScopeSymbol(names.fromIdNode(scopeNode.name), env.enclPkg.symbol.pkgID,
+                scopeNode.type, env
+                .scope
+                .owner);
+        scopeNode.type = symbol.type;
+        env.scope.define(names.fromIdNode(scopeNode.name), symbol);
     }
 
 

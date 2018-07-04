@@ -15,16 +15,13 @@
  */
 package org.ballerinalang.net.grpc;
 
-import com.google.protobuf.ByteString;
-import com.google.protobuf.CodedInputStream;
-import com.google.protobuf.CodedOutputStream;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
-import com.google.protobuf.WireFormat;
-import io.netty.handler.codec.http.HttpHeaders;
+import com.google.protobuf.GeneratedMessageV3;
+import com.google.protobuf.MessageLite;
+import io.grpc.Status;
 import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,226 +32,236 @@ import java.util.Map;
  *
  * @since 1.0.0
  */
-public class Message {
+public class Message extends GeneratedMessageV3 {
+    private static final long serialVersionUID = 0L;
     private Map<String, Object> fields = new HashMap<>();
     private String messageName;
-    private int memoizedSize = -1;
-    private HttpHeaders headers;
-
-    private boolean isError = false;
-    private Throwable error;
-
+    
+    // Use Message.newBuilder() to construct.
+    protected Message(Builder builder) {
+        super(builder);
+        this.messageName = builder.messageName;
+    }
+    
     protected Message(String messageName) {
         this.messageName = messageName;
     }
-
-    protected void addField(String fieldName, Object value) {
-        fields.put(fieldName, value);
+    
+    void setFieldValues(Map<String, Object> fieldValues) {
+        this.fields = fieldValues;
     }
     
     public Map<String, Object> getFields() {
         return fields;
     }
-
-    public HttpHeaders getHeaders() {
-        return headers;
+    
+    @Override
+    public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
+        return this.unknownFields;
     }
-
-    public void setHeaders(HttpHeaders headers) {
-        this.headers = headers;
-    }
-
-    public boolean isError() {
-        return isError;
-    }
-
-    public Throwable getError() {
-        return error;
-    }
-
-    public Message(Throwable error) {
-        this.error = error;
-        this.isError = true;
-    }
-
+    
     public Message(
             String messageName,
-            com.google.protobuf.CodedInputStream input)
-            throws IOException {
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
         this(messageName);
         Descriptors.Descriptor messageDescriptor = getDescriptor();
-        Map<Integer, Descriptors.FieldDescriptor> fieldDescriptors = new HashMap<>();
+        Map<Integer, Descriptors.FieldDescriptor> fields = new HashMap<>();
         for (Descriptors.FieldDescriptor fieldDescriptor : messageDescriptor.getFields()) {
             Descriptors.FieldDescriptor.Type fieldType = fieldDescriptor.getType();
             int number = fieldDescriptor.getNumber();
             int byteCode = ((number << 3) + MessageUtils.getFieldWireType(fieldType));
-            fieldDescriptors.put(byteCode, fieldDescriptor);
+            fields.put(byteCode, fieldDescriptor);
         }
-
-        boolean done = false;
-        while (!done) {
-            int tag = input.readTag();
-            if (tag == 0) {
-                done = true;
-            } else if (fieldDescriptors.containsKey(tag)) {
-                Descriptors.FieldDescriptor fieldDescriptor = fieldDescriptors.get(tag);
-                String name = fieldDescriptor.getName();
-                switch (fieldDescriptor.getType().toProto().getNumber()) {
-                    case DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE_VALUE: {
-                        if (fieldDescriptor.isRepeated()) {
-                            List<Double> messages = new ArrayList<>();
-                            if (this.fields.containsKey(name)) {
-                                messages = (List<Double>) this.fields.get(name);
+        
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+                com.google.protobuf.UnknownFieldSet.newBuilder();
+        try {
+            boolean done = false;
+            while (!done) {
+                int tag = input.readTag();
+                if (tag == 0) {
+                    done = true;
+                } else if (fields.containsKey(tag)) {
+                    Descriptors.FieldDescriptor fieldDescriptor = fields.get(tag);
+                    String name = fieldDescriptor.getName();
+                    switch (fieldDescriptor.getType().toProto().getNumber()) {
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE_VALUE: {
+                            if (fieldDescriptor.isRepeated()) {
+                                List<Double> messages = new ArrayList<>();
+                                if (this.fields.containsKey(name)) {
+                                    messages = (List<Double>) this.fields.get(name);
+                                }
+                                messages.add(input.readDouble());
+                                this.fields.put(name, messages);
+                            } else {
+                                this.fields.put(name, input.readDouble());
                             }
-                            messages.add(input.readDouble());
-                            this.fields.put(name, messages);
-                        } else {
-                            this.fields.put(name, input.readDouble());
+                            break;
                         }
-                        break;
-                    }
-                    case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT_VALUE: {
-                        if (fieldDescriptor.isRepeated()) {
-                            List<Float> messages = new ArrayList<>();
-                            if (this.fields.containsKey(name)) {
-                                messages = (List<Float>) this.fields.get(name);
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT_VALUE: {
+                            if (fieldDescriptor.isRepeated()) {
+                                List<Float> messages = new ArrayList<>();
+                                if (this.fields.containsKey(name)) {
+                                    messages = (List<Float>) this.fields.get(name);
+                                }
+                                messages.add(input.readFloat());
+                                this.fields.put(name, messages);
+                            } else {
+                                this.fields.put(name, input.readFloat());
                             }
-                            messages.add(input.readFloat());
-                            this.fields.put(name, messages);
-                        } else {
-                            this.fields.put(name, input.readFloat());
+                            break;
                         }
-                        break;
-                    }
-                    case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64_VALUE: {
-                        if (fieldDescriptor.isRepeated()) {
-                            List<Long> messages = new ArrayList<>();
-                            if (this.fields.containsKey(name)) {
-                                messages = (List<Long>) this.fields.get(name);
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT64_VALUE: {
+                            if (fieldDescriptor.isRepeated()) {
+                                List<Long> messages = new ArrayList<>();
+                                if (this.fields.containsKey(name)) {
+                                    messages = (List<Long>) this.fields.get(name);
+                                }
+                                messages.add(input.readInt64());
+                                this.fields.put(name, messages);
+                            } else {
+                                this.fields.put(name, input.readInt64());
                             }
-                            messages.add(input.readInt64());
-                            this.fields.put(name, messages);
-                        } else {
-                            this.fields.put(name, input.readInt64());
+                            break;
                         }
-                        break;
-                    }
-                    case DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT64_VALUE: {
-                        if (fieldDescriptor.isRepeated()) {
-                            List<Long> messages = new ArrayList<>();
-                            if (this.fields.containsKey(name)) {
-                                messages = (List<Long>) this.fields.get(name);
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_UINT64_VALUE: {
+                            if (fieldDescriptor.isRepeated()) {
+                                List<Long> messages = new ArrayList<>();
+                                if (this.fields.containsKey(name)) {
+                                    messages = (List<Long>) this.fields.get(name);
+                                }
+                                messages.add(input.readUInt64());
+                                this.fields.put(name, messages);
+                            } else {
+                                this.fields.put(name, input.readUInt64());
                             }
-                            messages.add(input.readUInt64());
-                            this.fields.put(name, messages);
-                        } else {
-                            this.fields.put(name, input.readUInt64());
+                            break;
                         }
-                        break;
-                    }
-                    case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32_VALUE: {
-                        if (fieldDescriptor.isRepeated()) {
-                            List<Integer> messages = new ArrayList<>();
-                            if (this.fields.containsKey(name)) {
-                                messages = (List<Integer>) this.fields.get(name);
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_INT32_VALUE: {
+                            if (fieldDescriptor.isRepeated()) {
+                                List<Integer> messages = new ArrayList<>();
+                                if (this.fields.containsKey(name)) {
+                                    messages = (List<Integer>) this.fields.get(name);
+                                }
+                                messages.add(input.readInt32());
+                                this.fields.put(name, messages);
+                            } else {
+                                this.fields.put(name, input.readInt32());
                             }
-                            messages.add(input.readInt32());
-                            this.fields.put(name, messages);
-                        } else {
-                            this.fields.put(name, input.readInt32());
+                            break;
                         }
-                        break;
-                    }
-                    case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED64_VALUE: {
-                        if (fieldDescriptor.isRepeated()) {
-                            List<Long> messages = new ArrayList<>();
-                            if (this.fields.containsKey(name)) {
-                                messages = (List<Long>) this.fields.get(name);
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED64_VALUE: {
+                            if (fieldDescriptor.isRepeated()) {
+                                List<Long> messages = new ArrayList<>();
+                                if (this.fields.containsKey(name)) {
+                                    messages = (List<Long>) this.fields.get(name);
+                                }
+                                messages.add(input.readFixed64());
+                                this.fields.put(name, messages);
+                            } else {
+                                this.fields.put(name, input.readFixed64());
                             }
-                            messages.add(input.readFixed64());
-                            this.fields.put(name, messages);
-                        } else {
-                            this.fields.put(name, input.readFixed64());
+                            break;
                         }
-                        break;
-                    }
-                    case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED32_VALUE: {
-                        if (fieldDescriptor.isRepeated()) {
-                            List<Integer> messages = new ArrayList<>();
-                            if (this.fields.containsKey(name)) {
-                                messages = (List<Integer>) this.fields.get(name);
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_FIXED32_VALUE: {
+                            if (fieldDescriptor.isRepeated()) {
+                                List<Integer> messages = new ArrayList<>();
+                                if (this.fields.containsKey(name)) {
+                                    messages = (List<Integer>) this.fields.get(name);
+                                }
+                                messages.add(input.readFixed32());
+                                this.fields.put(name, messages);
+                            } else {
+                                this.fields.put(name, input.readFixed32());
                             }
-                            messages.add(input.readFixed32());
-                            this.fields.put(name, messages);
-                        } else {
-                            this.fields.put(name, input.readFixed32());
+                            break;
                         }
-                        break;
-                    }
-                    case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL_VALUE: {
-                        if (fieldDescriptor.isRepeated()) {
-                            List<Boolean> messages = new ArrayList<>();
-                            if (this.fields.containsKey(name)) {
-                                messages = (List<Boolean>) this.fields.get(name);
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL_VALUE: {
+                            if (fieldDescriptor.isRepeated()) {
+                                List<Boolean> messages = new ArrayList<>();
+                                if (this.fields.containsKey(name)) {
+                                    messages = (List<Boolean>) this.fields.get(name);
+                                }
+                                messages.add(input.readBool());
+                                this.fields.put(name, messages);
+                            } else {
+                                this.fields.put(name, input.readBool());
                             }
-                            messages.add(input.readBool());
-                            this.fields.put(name, messages);
-                        } else {
-                            this.fields.put(name, input.readBool());
+                            break;
                         }
-                        break;
-                    }
-                    case DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING_VALUE: {
-                        if (fieldDescriptor.isRepeated()) {
-                            List<String> messages = new ArrayList<>();
-                            if (this.fields.containsKey(name)) {
-                                messages = (List<String>) this.fields.get(name);
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING_VALUE: {
+                            if (fieldDescriptor.isRepeated()) {
+                                List<String> messages = new ArrayList<>();
+                                if (this.fields.containsKey(name)) {
+                                    messages = (List<String>) this.fields.get(name);
+                                }
+                                messages.add(input.readStringRequireUtf8());
+                                this.fields.put(name, messages);
+                            } else {
+                                this.fields.put(name, input.readStringRequireUtf8());
                             }
-                            messages.add(input.readStringRequireUtf8());
-                            this.fields.put(name, messages);
-                        } else {
-                            this.fields.put(name, input.readStringRequireUtf8());
+                            break;
                         }
-                        break;
-                    }
-                    case DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM_VALUE: {
-                        if (fieldDescriptor.isRepeated()) {
-                            List<Integer> messages = new ArrayList<>();
-                            if (this.fields.containsKey(name)) {
-                                messages = (List<Integer>) this.fields.get(name);
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM_VALUE: {
+                            if (fieldDescriptor.isRepeated()) {
+                                List<Integer> messages = new ArrayList<>();
+                                if (this.fields.containsKey(name)) {
+                                    messages = (List<Integer>) this.fields.get(name);
+                                }
+                                messages.add(input.readEnum());
+                                this.fields.put(name, messages);
+                            } else {
+                                this.fields.put(name, input.readEnum());
                             }
-                            messages.add(input.readEnum());
-                            this.fields.put(name, messages);
-                        } else {
-                            this.fields.put(name, input.readEnum());
+                            break;
                         }
-                        break;
-                    }
-                    case DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE: {
-                        if (fieldDescriptor.isRepeated()) {
-                            List<Message> messages = new ArrayList<>();
-                            if (this.fields.containsKey(name)) {
-                                messages = (List<Message>) this.fields.get(name);
+                        case DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE: {
+                            if (fieldDescriptor.isRepeated()) {
+                                List<Message> messages = new ArrayList<>();
+                                if (this.fields.containsKey(name)) {
+                                    messages = (List<Message>) this.fields.get(name);
+                                }
+                                messages.add(input.readMessage(new MessageParser(fieldDescriptor
+                                        .getMessageType().getName()), extensionRegistry));
+                                this.fields.put(name, messages);
+                            } else {
+                                Message message = input.readMessage(new MessageParser(fieldDescriptor.getMessageType()
+                                        .getName()), extensionRegistry);
+                                this.fields.put(name, message);
                             }
-                            messages.add(readMessage(fieldDescriptor, input));
-                            this.fields.put(name, messages);
-                        } else {
-                            Message message = readMessage(fieldDescriptor, input);
-                            this.fields.put(name, message);
+                            break;
                         }
-                        break;
+                        default: {
+                            throw new UnsupportedFieldTypeException("Error while decoding request message. Field " +
+                                    "type is not supported : " + fieldDescriptor.getType());
+                        }
                     }
-                    default: {
-                        throw new UnsupportedFieldTypeException("Error while decoding request message. Field " +
-                                "type is not supported : " + fieldDescriptor.getType());
+                } else {
+                    if (!parseUnknownFieldProto3(
+                            input, unknownFields, extensionRegistry, tag)) {
+                        done = true;
                     }
                 }
             }
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            throw e.setUnfinishedMessage(this);
+        } catch (java.io.IOException e) {
+            throw new com.google.protobuf.InvalidProtocolBufferException(
+                    e).setUnfinishedMessage(this);
+        } finally {
+            this.unknownFields = unknownFields.build();
+            makeExtensionsImmutable();
         }
     }
     
     public com.google.protobuf.Descriptors.Descriptor getDescriptor() {
         return MessageRegistry.getInstance().getMessageDescriptor(messageName);
+    }
+    
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
+        throw new UnsupportedOperationException("Operation is not supported");
     }
     
     private byte memoizedIsInitialized = -1;
@@ -267,24 +274,11 @@ public class Message {
         if (isInitialized == 0) {
             return false;
         }
+        
         memoizedIsInitialized = 1;
         return true;
     }
-
-    @Override
-    public String toString() {
-        StringBuilder payload = new StringBuilder("Message { fields: ");
-        if (fields != null) {
-            for (Map.Entry<String, Object> entry : fields.entrySet()) {
-                payload.append(entry.getKey()).append(":").append(entry.getValue()).append(",");
-            }
-            payload.append("}");
-        } else {
-            payload.append("null");
-        }
-        return payload.toString();
-    }
-
+    
     public void writeTo(com.google.protobuf.CodedOutputStream output)
             throws java.io.IOException {
         Descriptors.Descriptor messageDescriptor = getDescriptor();
@@ -395,27 +389,20 @@ public class Message {
                                 output.writeString(fieldDescriptor.getNumber(), message);
                             }
                         } else {
-                            if (msgObject instanceof String) {
-                                output.writeString(fieldDescriptor.getNumber(), (String) msgObject);
-                            } else {
-                                output.writeBytes(fieldDescriptor.getNumber(), (ByteString) msgObject);
-                            }
+                            com.google.protobuf.GeneratedMessageV3.writeString(output, fieldDescriptor.getNumber(),
+                                    msgObject);
                         }
                         break;
                     }
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE: {
                         Object msgObject = fields.get(fieldDescriptor.getName());
                         if (MessageUtils.isArray(msgObject)) {
-                            Message[] messages = (Message[]) msgObject;
-                            for (Message message : messages) {
-                                output.writeTag(fieldDescriptor.getNumber(), WireFormat.WIRETYPE_LENGTH_DELIMITED);
-                                output.writeUInt32NoTag(message.getSerializedSize());
-                                message.writeTo(output);
+                            Object[] messages = (Object[]) msgObject;
+                            for (Object message : messages) {
+                                output.writeMessage(fieldDescriptor.getNumber(), (MessageLite) message);
                             }
                         } else {
-                            output.writeTag(fieldDescriptor.getNumber(), WireFormat.WIRETYPE_LENGTH_DELIMITED);
-                            output.writeUInt32NoTag(((Message) msgObject).getSerializedSize());
-                            ((Message) msgObject).writeTo(output);
+                            output.writeMessage(fieldDescriptor.getNumber(), (MessageLite) msgObject);
                         }
                         break;
                     }
@@ -433,6 +420,7 @@ public class Message {
                 
             }
         }
+        unknownFields.writeTo(output);
     }
 
     public int getSerializedSize() {
@@ -440,10 +428,11 @@ public class Message {
         if (size != -1) {
             return size;
         }
+        
         size = 0;
         Descriptors.Descriptor messageDescriptor = getDescriptor();
         if (messageDescriptor == null) {
-            throw Status.Code.INTERNAL.toStatus()
+            throw Status.INTERNAL
                     .withDescription("Error while processing the message, Couldn't find message descriptor.")
                     .asRuntimeException();
         }
@@ -473,9 +462,8 @@ public class Message {
                                         .getNumber(), message);
                             }
                         } else {
-                            size += com.google.protobuf.CodedOutputStream.computeFloatSize(
-                                    fieldDescriptor.getNumber(),
-                                    Float.parseFloat(fields.get(fieldDescriptor.getName()).toString()));
+                            size += com.google.protobuf.CodedOutputStream.computeFloatSize(fieldDescriptor.getNumber
+                                    (), Float.parseFloat(fields.get(fieldDescriptor.getName()).toString()));
                         }
                         break;
                     }
@@ -568,29 +556,26 @@ public class Message {
                         if (MessageUtils.isArray(msgObject)) {
                             String[] messages = (String[]) msgObject;
                             for (String message : messages) {
-                                    size += CodedOutputStream.computeStringSize(fieldDescriptor.getNumber(), message);
+                                size += com.google.protobuf.GeneratedMessageV3.computeStringSize(fieldDescriptor
+                                        .getNumber(), message);
                             }
                         } else {
-                            if (msgObject instanceof String) {
-                                size += CodedOutputStream.computeStringSize(fieldDescriptor.getNumber(), (String)
-                                        msgObject);
-                            } else {
-                                size += CodedOutputStream.computeBytesSize(fieldDescriptor.getNumber(), (ByteString)
-                                        msgObject);
-                            }
+                            size += com.google.protobuf.GeneratedMessageV3.computeStringSize(fieldDescriptor
+                                    .getNumber(), fields.get(fieldDescriptor.getName()));
                         }
                         break;
                     }
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE: {
                         Object msgObject = fields.get(fieldDescriptor.getName());
                         if (MessageUtils.isArray(msgObject)) {
-                            Message[] messages = (Message[]) msgObject;
-                            for (Message message : messages) {
-                                size += computeMessageSize(fieldDescriptor, message);
+                            Object[] messages = (Object[]) msgObject;
+                            for (Object message : messages) {
+                                size += com.google.protobuf.CodedOutputStream.computeMessageSize(fieldDescriptor
+                                        .getNumber(), (MessageLite) message);
                             }
                         } else {
-                            size += computeMessageSize(fieldDescriptor, (Message) fields.get(fieldDescriptor.getName
-                                    ()));
+                            size += com.google.protobuf.CodedOutputStream.computeMessageSize(fieldDescriptor
+                                    .getNumber(), (MessageLite) fields.get(fieldDescriptor.getName()));
                         }
                         break;
                     }
@@ -616,40 +601,106 @@ public class Message {
                 }
             }
         }
+        size += unknownFields.getSerializedSize();
         memoizedSize = size;
         return size;
     }
-
-    private int computeMessageSize(Descriptors.FieldDescriptor fieldDescriptor, Message message) {
-        return CodedOutputStream.computeTagSize(fieldDescriptor
-                .getNumber()) + CodedOutputStream.computeUInt32SizeNoTag
-                (message.getSerializedSize()) + message.getSerializedSize();
+    
+    public Builder newBuilderForType() {
+        throw new UnsupportedOperationException("This method is not supported.");
     }
-
-    public MessageParser getParserForType() {
-        return new MessageParser(messageName);
+    
+    public static Builder newBuilder(String messageName) {
+        return new Message.Builder(messageName);
     }
-
-    public byte[] toByteArray() {
-        try {
-            final byte[] result = new byte[getSerializedSize()];
-            final CodedOutputStream output = CodedOutputStream.newInstance(result);
-            writeTo(output);
-            output.checkNoSpaceLeft();
+    
+    public Builder toBuilder() {
+        throw new UnsupportedOperationException("This method is not supported.");
+    }
+    
+    @Override
+    protected Builder newBuilderForType(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        throw new UnsupportedOperationException("This method is not supported.");
+    }
+    
+    /**
+     * <pre>
+     * The request message containing the user's name.
+     * </pre>
+     * <p>
+     * Protobuf type {@code org.ballerinalang.net.grpc.Message}
+     */
+    public static final class Builder extends com.google.protobuf.GeneratedMessageV3.Builder<Builder> {
+        
+        private Map<String, Object> fields = new HashMap<>();
+        private final String messageName;
+        
+        protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
+            throw new UnsupportedOperationException("Operation is not supported");
+        }
+        
+        // Construct using org.ballerinalang.net.grpc.Message.newBuilder()
+        private Builder(String messageName) {
+            this.messageName = messageName;
+        }
+        
+        private Descriptors.Descriptor getDescriptor() {
+            return MessageRegistry.getInstance().getMessageDescriptor(messageName);
+        }
+        
+        public Builder clear() {
+            super.clear();
+            fields.clear();
+            
+            return this;
+        }
+        
+        public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
+            return getDescriptor();
+        }
+        
+        public Message getDefaultInstanceForType() {
+            return new Message(messageName);
+        }
+        
+        public Message build() {
+            Message result = buildPartial();
+            if (!result.isInitialized()) {
+                throw newUninitializedMessageException(result);
+            }
             return result;
-        } catch (IOException e) {
-            throw new RuntimeException("Serializing " + messageName + " to a byte array threw an IOException" +
-                    " (should never happen).", e);
+        }
+        
+        public Message buildPartial() {
+            Message result = new Message(this);
+            if (!fields.isEmpty()) {
+                result.setFieldValues(fields);
+            }
+            onBuilt();
+            return result;
+        }
+        
+        public Builder addField(String name, Object value) {
+            fields.put(name, value);
+            return this;
+        }
+        
+        @Override
+        public String toString() {
+            return "Builder{" +
+                    "fields=" + fields +
+                    ", messageName='" + messageName + '\'' +
+                    '}';
         }
     }
-
-
-    private Message readMessage(final Descriptors.FieldDescriptor fieldDescriptor, final CodedInputStream in)
-            throws IOException {
-        int length = in.readRawVarint32();
-        final int oldLimit = in.pushLimit(length);
-        Message result = new MessageParser(fieldDescriptor.getMessageType().getName()).parseFrom(in);
-        in.popLimit(oldLimit);
-        return result;
+    
+    @Override
+    public com.google.protobuf.Parser<Message> getParserForType() {
+        return new MessageParser(messageName);
     }
+    
+    public Message getDefaultInstanceForType() {
+        throw new UnsupportedOperationException("Default instance is not supported.");
+    }
+    
 }

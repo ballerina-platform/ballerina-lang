@@ -24,7 +24,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.internal.Constants;
+import org.ballerinalang.stdlib.internal.utils.Constants;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -37,11 +37,10 @@ import java.nio.file.Path;
  * @since 0.970.0
  */
 @BallerinaFunction(
-        orgName = Constants.ORG_NAME,
-        packageName = Constants.PACKAGE_NAME,
+        orgName = "ballerina", packageName = "internal",
         functionName = "compressToBlob",
-        args = {@Argument(name = "dirPath", type = TypeKind.OBJECT, structType = Constants.PATH_STRUCT,
-                          structPackage = Constants.PACKAGE_PATH)},
+        args = {@Argument(name = "dirPath", type = TypeKind.RECORD, structType = "Path",
+                structPackage = "ballerina/file")},
         returnType = {@ReturnType(type = TypeKind.BLOB)},
         isPublic = true
 )
@@ -69,7 +68,7 @@ public class CompressToBlob extends BlockingNativeCallableUnit {
         Path dirPath = (Path) dirPathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
         if (!dirPath.toFile().exists()) {
             context.setReturnValues(CompressionUtils.createCompressionError(context, "Path of the folder to be " +
-                    "compressed is not available: " + dirPath));
+                    "compressed is not available"));
         } else {
             try {
                 byte[] compressedBytes = compressToBlob(dirPath);

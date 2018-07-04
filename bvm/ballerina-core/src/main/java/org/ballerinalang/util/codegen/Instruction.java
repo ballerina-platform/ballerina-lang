@@ -20,6 +20,7 @@ package org.ballerinalang.util.codegen;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.codegen.cpentries.ForkJoinCPEntry;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.StringJoiner;
 
@@ -265,6 +266,62 @@ public class Instruction {
                 sj.add(String.valueOf(pkgRefs[i]));
                 sj.add(String.valueOf(varRegs[i]));
             }
+            return Mnemonics.getMnem(opcode) + " " + sj.toString();
+        }
+    }
+
+    /**
+     * {@code {@link InstructionCompensate}} represents the COMPENSATE instruction in Ballerina bytecode.
+     */
+    public static class InstructionCompensate extends Instruction {
+        public String scopeName;
+        public ArrayList<String> childScopes = new ArrayList<>();
+
+        InstructionCompensate(int opcode, String scopeName, ArrayList<String> childScopes) {
+            super(opcode);
+            this.scopeName = scopeName;
+            this.childScopes = childScopes;
+        }
+
+        @Override
+        public String toString() {
+            StringJoiner sj = new StringJoiner(" ");
+            sj.add(String.valueOf(scopeName));
+            for (String child : childScopes) {
+                sj.add(child);
+            }
+            return Mnemonics.getMnem(opcode) + " " + sj.toString();
+        }
+    }
+
+    /**
+     * {@code {@link InstructionScopeEnd}} represents end of a SCOPE block in Ballerina bytecode.
+     */
+    public static class InstructionScopeEnd extends Instruction {
+
+        public FunctionInfo function;
+        public ArrayList<String> childScopes;
+        public int[] argRegs;
+        public String scopeName;
+
+        InstructionScopeEnd(int opcode, FunctionInfo function, int[] argRegs, ArrayList<String> childScopes,
+                String scopeName) {
+            super(opcode);
+            this.function = function;
+            this.argRegs = argRegs;
+            this.childScopes = childScopes;
+            this.scopeName = scopeName;
+        }
+
+        @Override
+        public String toString() {
+            StringJoiner sj = new StringJoiner(" ");
+            sj.add(String.valueOf(scopeName));
+            for (String child : childScopes) {
+                sj.add(child);
+            }
+            sj.add(String.valueOf(argRegs.length));
+            Arrays.stream(argRegs).forEach(i -> sj.add(String.valueOf(i)));
             return Mnemonics.getMnem(opcode) + " " + sj.toString();
         }
     }

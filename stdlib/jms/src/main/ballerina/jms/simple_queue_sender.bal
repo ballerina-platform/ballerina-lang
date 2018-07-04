@@ -25,11 +25,15 @@ documentation { Simplified queue sender object
 }
 public type SimpleQueueSender object {
 
-    public SimpleQueueSenderEndpointConfiguration config;
+    public {
+        SimpleQueueSenderEndpointConfiguration config;
+    }
 
-    private Connection? connection;
-    private Session? session;
-    private QueueSender? sender;
+    private {
+        Connection? connection;
+        Session? session;
+        QueueSender? sender;
+    }
 
     documentation { Initialize the SimpleQueueSender endpoint
         P{{c}} Configurations related to the SimpleQueueSender endpoint

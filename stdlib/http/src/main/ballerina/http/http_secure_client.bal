@@ -39,9 +39,11 @@ documentation {
 public type HttpSecureClient object {
     //These properties are populated from the init call to the client connector as these were needed later stage
     //for retry and other few places.
-    public string serviceUri;
-    public ClientEndpointConfig config;
-    public CallerActions httpClient;
+    public {
+        string serviceUri;
+        ClientEndpointConfig config;
+        CallerActions httpClient;
+    }
 
     public new(serviceUri, config) {
         self.httpClient = createSimpleHttpClient(serviceUri, config);

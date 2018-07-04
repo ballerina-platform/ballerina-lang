@@ -31,26 +31,22 @@ public class BObjectTypeSymbolDTO {
     private String fields;
     
     private ObjectType type;
-
-    private boolean isPrivate;
     
     private CompletionItem completionItem;
 
-    public BObjectTypeSymbolDTO(int packageId, String name, String fields, ObjectType type, boolean isPrivate,
+    public BObjectTypeSymbolDTO(int packageId, String name, String fields, ObjectType type,
                                 CompletionItem completionItem) {
         this.packageId = packageId;
         this.name = name;
         this.fields = fields;
         this.type = type;
-        this.isPrivate = isPrivate;
         this.completionItem = completionItem;
     }
 
-    public BObjectTypeSymbolDTO(int packageId, String name, String fields, boolean isPrivate) {
+    public BObjectTypeSymbolDTO(int packageId, String name, String fields) {
         this.packageId = packageId;
         this.name = name;
         this.fields = fields;
-        this.isPrivate = isPrivate;
     }
 
     public int getPackageId() {
@@ -67,10 +63,6 @@ public class BObjectTypeSymbolDTO {
 
     public ObjectType getType() {
         return type;
-    }
-
-    public boolean isPrivate() {
-        return isPrivate;
     }
 
     public CompletionItem getCompletionItem() {

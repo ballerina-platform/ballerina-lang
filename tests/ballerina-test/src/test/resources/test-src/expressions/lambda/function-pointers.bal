@@ -102,7 +102,9 @@ function testAnyToFuncPointerConversion_1() returns (int) {
 }
 
 type Person object {
-    private int age;
+    private {
+        int age;
+    }
 
     new (age) {
     }
@@ -113,8 +115,10 @@ type Person object {
 };
 
 type Student object {
-    private int age;
-    private int marks;
+    private {
+        int age;
+        int marks;
+    }
 
     function getAge() returns (int) {
         return age;

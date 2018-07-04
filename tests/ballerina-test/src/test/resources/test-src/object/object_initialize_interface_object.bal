@@ -5,7 +5,9 @@ function test () returns int {
 }
 
 type Person object {
-    public int age,
+    public {
+        int age,
+    }
 
     function test(int a, string n) returns string;
 };

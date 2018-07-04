@@ -6,9 +6,9 @@ F{{a}} annotation `field a` documentation
 F{{b}} annotation `field b` documentation
 F{{c}} annotation `field c` documentation}
 type Tst object {
-    public string a;
-    public string b;
-    public string cd;
+    public {string a;
+    string b;
+    string cd;}
 };
 
 annotation Test Tst;
@@ -32,9 +32,9 @@ F{{a}} struct `field a` documentation
 F{{b}} struct `field b` documentation
 F{{c}} struct `field c` documentation}
 type Test object {
-    public int a;
-    public int b;
-    public int cdd;
+    public {int a;
+    int b;
+    int cdd;}
 };
 
 documentation {
@@ -45,7 +45,7 @@ P{{accessMode}} read or write mode
 P{{accessMode}} read or write mode
 R{{successfuls}} boolean `true` or `false`
 }
-function File::open (string accessMode) returns (boolean) {
+public function File::open (string accessMode) returns (boolean) {
     boolean successful;
     return successful;
 }
@@ -54,9 +54,9 @@ documentation { Documentation for File object
 F{{path}} file path. Example: ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
 }
 public type File object{
-
-    public string path;
-
+    public {
+        string path;
+    }
 
     public function open(string accessMode) returns boolean;
 };
@@ -72,17 +72,17 @@ public type File object{
 //}
 
 type Person object {
-    public string firstName;
-    public string lastName;
-    public int age;
-    public string city;
+    public {string firstName;
+    string lastName;
+    int age;
+    string city;}
 };
 
 type Employee object {
-    public string name;
-    public int age;
-    public string address;
-    public any ageAny;
+    public {string name;
+    int age;
+    string address;
+    any ageAny;}
 };
 
 documentation {
@@ -91,7 +91,7 @@ F{{url}} url for endpoint
 F{{url}} url for endpoint
 P{{urls}} urls for endpoint}
 type TestConnector object {
-  public string url;
+  public {string url;}
 };
 
 //documentation {Test Connector action testAction

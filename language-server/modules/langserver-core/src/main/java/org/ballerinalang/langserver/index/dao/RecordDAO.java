@@ -23,23 +23,19 @@ import org.eclipse.lsp4j.CompletionItem;
  * DAO for BRecordTypeSymbol.
  */
 public class RecordDAO {
-
     private String packageName;
 
     private String packageOrgName;
 
     private String recordName;
 
-    private boolean isPrivate;
-
     private CompletionItem completionItem;
 
-    public RecordDAO(String packageName, String packageOrgName, String recordName, boolean isPrivate,
+    public RecordDAO(String packageName, String packageOrgName, String recordName,
                               CompletionItem completionItem) {
         this.packageName = packageName;
         this.packageOrgName = packageOrgName;
         this.recordName = recordName;
-        this.isPrivate = isPrivate;
         this.completionItem = completionItem;
     }
 
@@ -53,10 +49,6 @@ public class RecordDAO {
 
     public String getRecordName() {
         return recordName;
-    }
-
-    public boolean isPrivate() {
-        return isPrivate;
     }
 
     public CompletionItem getCompletionItem() {

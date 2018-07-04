@@ -17,12 +17,11 @@
  */
 package org.ballerinalang.net.grpc;
 
+import io.grpc.stub.ServerCallStreamObserver;
+import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.grpc.listener.ServerCallHandler;
-
-import static org.ballerinalang.net.grpc.GrpcConstants.EMPTY_DATATYPE_NAME;
 
 /**
  * gRPC call back class registered in B7a executor.
@@ -31,15 +30,15 @@ import static org.ballerinalang.net.grpc.GrpcConstants.EMPTY_DATATYPE_NAME;
  */
 public class GrpcCallableUnitCallBack implements CallableUnitCallback {
 
-    private StreamObserver requestSender;
+    private StreamObserver<Message> requestSender;
     private boolean emptyResponse;
     
-    public GrpcCallableUnitCallBack(StreamObserver requestSender, boolean isEmptyResponse) {
+    public GrpcCallableUnitCallBack(StreamObserver<Message> requestSender, boolean isEmptyResponse) {
         this.requestSender = requestSender;
         this.emptyResponse = isEmptyResponse;
     }
 
-    public GrpcCallableUnitCallBack(StreamObserver requestSender) {
+    public GrpcCallableUnitCallBack(StreamObserver<Message> requestSender) {
         this.requestSender = requestSender;
         this.emptyResponse = false;
     }
@@ -51,9 +50,8 @@ public class GrpcCallableUnitCallBack implements CallableUnitCallback {
             return;
         }
         // check whether connection is closed.
-        if (requestSender instanceof ServerCallHandler.ServerCallStreamObserver) {
-            ServerCallHandler.ServerCallStreamObserver serverCallStreamObserver = (ServerCallHandler
-                    .ServerCallStreamObserver) requestSender;
+        if (requestSender instanceof ServerCallStreamObserver) {
+            ServerCallStreamObserver serverCallStreamObserver = (ServerCallStreamObserver) requestSender;
             if (!serverCallStreamObserver.isReady()) {
                 return;
             }
@@ -64,9 +62,9 @@ public class GrpcCallableUnitCallBack implements CallableUnitCallback {
         // notify success only if response message is empty. Service impl doesn't send empty message. Empty response
         // scenarios handles here.
         if (emptyResponse) {
-            requestSender.onNext(new Message(EMPTY_DATATYPE_NAME));
+            requestSender.onNext(Message.newBuilder("Empty").build());
         }
-        // Notify complete if service impl doesn't call complete;
+        // Notify complete if service impl doesn't call caller->complete();
         requestSender.onCompleted();
     }
     

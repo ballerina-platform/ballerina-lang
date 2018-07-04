@@ -55,22 +55,6 @@ service<http:Service> GlobalVar bind echoEP {
         _ = conn -> respond(res);
     }
 
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/arrays"
-    }
-    getGlobalArraysAtResourceLevel (endpoint conn, http:Request request) {
-        http:Response res = new;
-        json responseJson = {
-            "glbArrayElement":foo:glbArray[0],
-            "glbSealedArrayElement":foo:glbSealedArray[1],
-            "glbSealedArray2Element":foo:glbSealedArray2[2],
-            "glbSealed2DArrayElement":foo:glbSealed2DArray[0][0],
-            "glbSealed2DArray2Element":foo:glbSealed2DArray2[0][1]
-        };
-        res.setJsonPayload(responseJson);
-        _ = conn -> respond(res);
-    }
 }
 
 @http:ServiceConfig {basePath:"/globalvar-second"}

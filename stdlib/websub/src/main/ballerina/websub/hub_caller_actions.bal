@@ -28,10 +28,14 @@ documentation {
 }
 public type CallerActions object {
 
-    public string hubUrl;
+    public {
+        string hubUrl;
+    }
 
-    private http:Client httpClientEndpoint;
-    private http:FollowRedirects? followRedirects;
+    private {
+        http:Client httpClientEndpoint;
+        http:FollowRedirects? followRedirects;
+    }
 
     new (hubUrl, httpClientEndpoint, followRedirects) {}
 
@@ -99,7 +103,7 @@ public type CallerActions object {
     public function notifyUpdate(string topic, map<string>? headers = ()) returns error?;
 };
 
-function CallerActions::subscribe(SubscriptionChangeRequest subscriptionRequest)
+public function CallerActions::subscribe(SubscriptionChangeRequest subscriptionRequest)
     returns @tainted SubscriptionChangeResponse|error {
 
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
@@ -110,7 +114,7 @@ function CallerActions::subscribe(SubscriptionChangeRequest subscriptionRequest)
                               redirectCount);
 }
 
-function CallerActions::unsubscribe(SubscriptionChangeRequest unsubscriptionRequest)
+public function CallerActions::unsubscribe(SubscriptionChangeRequest unsubscriptionRequest)
     returns @tainted SubscriptionChangeResponse|error {
 
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
@@ -121,7 +125,7 @@ function CallerActions::unsubscribe(SubscriptionChangeRequest unsubscriptionRequ
                               redirectCount);
 }
 
-function CallerActions::registerTopic(string topic, string? secret = ()) returns error? {
+public function CallerActions::registerTopic(string topic, string? secret = ()) returns error? {
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_REGISTER, topic, secret = secret);
     var registrationResponse = httpClientEndpoint->post("", request);
@@ -142,7 +146,7 @@ function CallerActions::registerTopic(string topic, string? secret = ()) returns
     }
 }
 
-function CallerActions::unregisterTopic(string topic, string? secret = ()) returns error? {
+public function CallerActions::unregisterTopic(string topic, string? secret = ()) returns error? {
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_UNREGISTER, topic, secret = secret);
     var unregistrationResponse = httpClientEndpoint->post("", request);
@@ -163,7 +167,7 @@ function CallerActions::unregisterTopic(string topic, string? secret = ()) retur
     }
 }
 
-function CallerActions::publishUpdate(string topic, string|xml|json|byte[]|io:ByteChannel payload,
+public function CallerActions::publishUpdate(string topic, string|xml|json|byte[]|io:ByteChannel payload,
                                              string? contentType = (), string? secret = (),
                                              string signatureMethod = "sha256", map<string>? headers = ())
         returns error? {
@@ -222,7 +226,7 @@ function CallerActions::publishUpdate(string topic, string|xml|json|byte[]|io:By
     }
 }
 
-function CallerActions::notifyUpdate(string topic, map<string>? headers = ()) returns error? {
+public function CallerActions::notifyUpdate(string topic, map<string>? headers = ()) returns error? {
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = new;
     string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;

@@ -22,8 +22,10 @@ documentation { JMS topic publisher
     F{{config}} Topic publisher endpoint configuration
 }
 public type TopicPublisher object {
-    public TopicPublisherActions producerActions;
-    public TopicPublisherEndpointConfiguration config;
+    public {
+        TopicPublisherActions producerActions;
+        TopicPublisherEndpointConfiguration config;
+    }
 
     documentation { Topic publisher contructor }
     new() {

@@ -23,12 +23,16 @@ documentation { Simple Durable Topic Subscriber endpoint
 }
 public type SimpleDurableTopicSubscriber object {
 
-    public SimpleDurableTopicSubscriberEndpointConfiguration config;
+    public {
+        SimpleDurableTopicSubscriberEndpointConfiguration config;
+    }
 
-    private Connection? connection;
-    private Session? session;
-    private DurableTopicSubscriber? subscriber;
-    private SimpleDurableTopicSubscriberActions? consumerActions;
+    private {
+        Connection? connection;
+        Session? session;
+        DurableTopicSubscriber? subscriber;
+        SimpleDurableTopicSubscriberActions? consumerActions;
+    }
 
     documentation { Initializes the simple durable topic subscriber endpoint
         P{{c}} Configurations related to the endpoint
@@ -142,9 +146,11 @@ documentation { Caller actions related to durable topic subscriber endpoint
 }
 public type SimpleDurableTopicSubscriberActions object {
 
-    private DurableTopicSubscriberActions helper;
-    private Session session;
-    private string identifier;
+    private {
+        DurableTopicSubscriberActions helper;
+        Session session;
+        string identifier;
+    }
 
     new(helper, session, identifier) {
     }

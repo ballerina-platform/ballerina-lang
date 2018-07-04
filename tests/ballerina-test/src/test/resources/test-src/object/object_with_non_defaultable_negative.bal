@@ -10,12 +10,12 @@ public function testObjectWithInterface () returns (int, string) {
 }
 
 type Person object {
-
-    public int age = 10,
-
-
-    string month = "february";
-
+    public {
+        int age = 10,
+    }
+    private {
+        string month = "february";
+    }
 
     new (age) {
 
@@ -23,11 +23,11 @@ type Person object {
 };
 
 type Employee object {
-
-    public int age = 10,
-    public Person p;
-
-
-    private string month = "february";
-    
+    public {
+        int age = 10,
+        Person p;
+    }
+    private {
+        string month = "february";
+    }
 };

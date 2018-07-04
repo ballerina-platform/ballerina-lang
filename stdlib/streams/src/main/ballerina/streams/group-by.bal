@@ -15,9 +15,11 @@
 // under the License.
 
 public type GroupBy object {
-    public function (StreamEvent[]) nextProcessorPointer;
-    public string[] groupByFields;
-    public map groupedStreamEvents;
+    public {
+        function (StreamEvent[]) nextProcessorPointer;
+        string[] groupByFields;
+        map groupedStreamEvents;
+    }
 
     new (nextProcessorPointer, groupByFields) {
 

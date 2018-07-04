@@ -26,8 +26,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BByte;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
@@ -78,18 +76,6 @@ public class Equals extends BlockingNativeCallableUnit {
         
         if (null == lhsValue || null == rhsValue) {
             return false;
-        }
-
-        if (TypeTags.INT_TAG == lhsValue.getType().getTag() && TypeTags.BYTE_TAG == rhsValue.getType().getTag()) {
-            BInteger bInteger = (BInteger) lhsValue;
-            BByte bByte = (BByte) rhsValue;
-            return bInteger.intValue() == bByte.intValue();
-        }
-
-        if (TypeTags.BYTE_TAG == lhsValue.getType().getTag() && TypeTags.INT_TAG == rhsValue.getType().getTag()) {
-            BByte bByte = (BByte) lhsValue;
-            BInteger bInteger = (BInteger) rhsValue;
-            return bInteger.intValue() == bByte.intValue();
         }
         
         // Required for any == any.

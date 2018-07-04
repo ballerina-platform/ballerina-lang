@@ -159,20 +159,6 @@ public class GlobalVarFunctionInBaloTest {
         ByteArrayUtils.assertJBytesWithBBytes(bytes1, blob1);
     }
 
-    @Test(description = "Test access global arrays within functions")
-    public void testGlobalArraysWithinFunction() {
-        BValue[] returns = BRunUtil.invoke(result, "getGlobalArrays");
-
-        Assert.assertEquals(returns.length, 7);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), 4);
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), 2);
-        Assert.assertEquals(((BInteger) returns[4]).intValue(), 3);
-        Assert.assertEquals(((BInteger) returns[5]).intValue(), 3);
-        Assert.assertEquals(((BInteger) returns[6]).intValue(), 2);
-    }
-
     @AfterClass
     public void tearDown() {
         BaloCreator.cleaPackageFromRepository("testorg", "foo");

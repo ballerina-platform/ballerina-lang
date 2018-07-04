@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.headers;
 
-import io.netty.handler.codec.http.HttpHeaders;
+import io.grpc.Metadata;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
@@ -26,11 +26,12 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.grpc.MessageHeaders;
 
-import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageHeaders.METADATA_KEY;
 
 /**
  * Check whether the Header exists in the Message.
@@ -52,10 +53,17 @@ public class Exists extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         String headerName = context.getStringArgument(0);
         BMap<String, BValue> headerValues = (BMap<String, BValue>) context.getRefArgument(0);
-        HttpHeaders headers = headerValues != null ? (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS) : null;
+        MessageHeaders metadata = headerValues != null ? (MessageHeaders) headerValues.getNativeData(METADATA_KEY)
+                : null;
         boolean isExist = false;
-        if (headers != null) {
-            isExist = headers.contains(headerName);
+        if (metadata != null) {
+            if (headerName.endsWith(Metadata.BINARY_HEADER_SUFFIX)) {
+                Metadata.Key<byte[]> key = Metadata.Key.of(headerName, Metadata.BINARY_BYTE_MARSHALLER);
+                isExist = metadata.containsKey(key);
+            } else {
+                Metadata.Key<String> key = Metadata.Key.of(headerName, Metadata.ASCII_STRING_MARSHALLER);
+                isExist = metadata.containsKey(key);
+            }
         }
         context.setReturnValues(new BBoolean(isExist));
     }

@@ -24,9 +24,10 @@ documentation {
     F{{httpListener}} HTTP Listener instance
 }
 public type SecureListener object {
-
-    public SecureEndpointConfiguration config;
-    public Listener httpListener;
+    public {
+        SecureEndpointConfiguration config;
+        Listener httpListener;
+    }
 
     new() {
         httpListener = new;
@@ -130,7 +131,7 @@ public type AuthProvider record {
     boolean propagateToken,
 };
 
-function SecureListener::init(SecureEndpointConfiguration c) {
+public function SecureListener::init(SecureEndpointConfiguration c) {
     addAuthFiltersForSecureListener(c);
     self.httpListener.init(c);
 }
@@ -240,24 +241,24 @@ function createAuthHandler(AuthProvider authProvider) returns HttpAuthnHandler {
     }
 }
 
-function SecureListener::register(typedesc serviceType) {
+public function SecureListener::register(typedesc serviceType) {
     self.httpListener.register(serviceType);
 }
 
-function SecureListener::initEndpoint() returns (error) {
+public function SecureListener::initEndpoint() returns (error) {
     return self.httpListener.initEndpoint();
 }
 
-function SecureListener::start() {
+public function SecureListener::start() {
     self.httpListener.start();
 }
 
-function SecureListener::getCallerActions() returns (SecureListenerActions) {
+public function SecureListener::getCallerActions() returns (SecureListenerActions) {
     SecureListenerActions secureListenerActions = new (self.httpListener.getCallerActions());
     return secureListenerActions;
 }
 
-function SecureListener::stop() {
+public function SecureListener::stop() {
     self.httpListener.stop();
 }
 
@@ -285,7 +286,9 @@ documentation {
 }
 public type SecureListenerActions object {
 
-    public Connection httpCallerActions;
+    public {
+        Connection httpCallerActions;
+    }
 
     documentation {
         The secure listener caller actions initializer.

@@ -6,6 +6,14 @@
   "source": "function/source/actionInvocationSuggestion1.bal",
   "items": [
     {
+      "label":"new()",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"new()",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"post(string path, ballerina/http:Request|string|xml|json|byte[]|ballerina/io:ByteChannel|ballerina/mime:Entity[]? message)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",

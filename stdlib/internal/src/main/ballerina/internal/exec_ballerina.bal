@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2017 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,25 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Executes a ballerina doc command
-    P{{packageList}} - List of packages
-    P{{outputPath}} - Path to write api-docs
-    P{{templatesPath}} - Location of the templates
-    P{{exclude}} - Packages to exclude
-    P{{includeNatives}} - Generate docs for natives
-    P{{envVars}} - Environment variables to pass
-    P{{config}} - Path to configuration file
-    P{{verbose}} - Verbose mode
-    P{{sourceRoot}} - Root folder of the packages
+public type BallerinaCommand "run" | "docker" | "build" | "install" | "uninstall" | "pull" | "push" | "init" |
+"search" | "doc" | "grpc" | "swagger" | "test" | "version" | "encrypt";
+
+documentation{
+    Executes a ballerina command
+    P{{command}} - Ballerina command
+    P{{packagePath}} - Package path with necessary flags
     R{{}} - Data piped from the standard output and error output of the process
 }
-public native function execBallerinaDoc(string[] packageList,
-                                        string? sourceRoot = (),
-                                        string? outputPath = (),
-                                        string? templatesPath = (),
-                                        string[]? exclude = (),
-                                        boolean includeNatives = false,
-                                        map<string>? envVars = (),
-                                        string? config = (),
-                                        boolean verbose = false) returns (string|error);
+public native function execBallerina(@sensitive BallerinaCommand command, @sensitive string packagePath)
+    returns (string|error);

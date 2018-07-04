@@ -49,11 +49,11 @@ documentation {
     F{{attributes}} Attributes to share between filters
 }
 public type FilterContext object {
-
-    @readonly public typedesc serviceType;
-    @readonly public string serviceName;
-    @readonly public string resourceName;
-    @readonly public map attributes;
-
+    public {
+        @readonly typedesc serviceType;
+        @readonly string serviceName;
+        @readonly string resourceName;
+        @readonly map attributes;
+    }
     public new(serviceType, serviceName, resourceName) {}
 };

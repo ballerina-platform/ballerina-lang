@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
@@ -461,6 +462,19 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
 //        if (typeDefinition.valueSpace != null) {
 //            typeDefinition.valueSpace.forEach(this::acceptNode);
 //        }
+    }
+
+    @Override
+    public void visit(BLangScope scopeNode) {
+        if (scopeNode.scopeBody != null) {
+            this.acceptNode(scopeNode.scopeBody);
+        }
+
+        if (!scopeNode.varRefs.isEmpty()) {
+            scopeNode.varRefs.forEach(bLangVariableReference -> this.acceptNode(bLangVariableReference));
+        }
+
+        this.acceptNode(scopeNode.compensationFunction);
     }
 
     /**

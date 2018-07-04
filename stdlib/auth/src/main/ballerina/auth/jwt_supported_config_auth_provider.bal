@@ -23,8 +23,10 @@ import ballerina/internal;
 import ballerina/system;
 
 public type ConfigJwtAuthProvider object {
-    public ConfigJwtAuthProviderConfig configJwtAuthProviderConfig;
-    public ConfigAuthStoreProvider configAuthProvider;
+    public {
+        ConfigJwtAuthProviderConfig configJwtAuthProviderConfig;
+        ConfigAuthStoreProvider configAuthProvider;
+    }
 
     public new(configJwtAuthProviderConfig) {
     }

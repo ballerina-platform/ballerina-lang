@@ -20,7 +20,7 @@ package org.ballerinalang.net.grpc;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.ballerinalang.net.grpc.exception.ClientRuntimeException;
+import io.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 
 import java.io.ByteArrayInputStream;
@@ -32,13 +32,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static io.grpc.MethodDescriptor.generateFullMethodName;
 import static org.ballerinalang.net.grpc.MessageUtils.setNestedMessages;
-import static org.ballerinalang.net.grpc.MethodDescriptor.generateFullMethodName;
 
 /**
  * This class contains proto descriptors of the service.
  *
- * @since 0.980.0
+ * @since 1.0.0
  */
 public final class ServiceDefinition {
     
@@ -71,35 +71,35 @@ public final class ServiceDefinition {
                         .FileDescriptor[] {});
                 i++;
             } catch (InvalidProtocolBufferException | Descriptors.DescriptorValidationException e) {
-                throw new ClientRuntimeException("Error while gen extracting depend descriptors. ", e);
+                throw new RuntimeException("Error while gen extracting depend descriptors. ", e);
             }
         }
         
         try (InputStream targetStream = new ByteArrayInputStream(rootDescriptorData)) {
             DescriptorProtos.FileDescriptorProto descriptorProto = DescriptorProtos.FileDescriptorProto.parseFrom
                     (targetStream);
-            fileDescriptor = Descriptors.FileDescriptor.buildFrom(descriptorProto, depSet);
-            return fileDescriptor;
+            return fileDescriptor = Descriptors.FileDescriptor.buildFrom(descriptorProto, depSet);
         } catch (IOException | Descriptors.DescriptorValidationException e) {
-            throw new ClientRuntimeException("Error while generating service descriptor : ", e);
+            throw new RuntimeException("Error while generating service descriptor : ", e);
         }
     }
 
     private Descriptors.ServiceDescriptor getServiceDescriptor() throws GrpcClientException {
-        Descriptors.FileDescriptor descriptor = getDescriptor();
+        Descriptors.FileDescriptor fileDescriptor = getDescriptor();
 
-        if (descriptor.getFile().getServices().isEmpty()) {
+        if (fileDescriptor.getFile().getServices().isEmpty()) {
             throw new GrpcClientException("No service found in proto definition file");
         }
-        if (descriptor.getFile().getServices().size() > 1) {
+        if (fileDescriptor.getFile().getServices().size() > 1) {
             throw new GrpcClientException("Multiple service definitions in signal proto file is not supported. Number" +
-                    " of service found: " + descriptor.getFile().getServices().size());
+                    " of service found: " + fileDescriptor.getFile().getServices().size());
         }
-        return descriptor.getFile().getServices().get(0);
+        return fileDescriptor.getFile().getServices().get(0);
     }
 
-    public Map<String, MethodDescriptor> getMethodDescriptors() throws GrpcClientException {
-        Map<String, MethodDescriptor> descriptorMap = new HashMap<>();
+    public Map<String, MethodDescriptor<Message, Message>> getMethodDescriptors() throws GrpcClientException {
+
+        Map<String, MethodDescriptor<Message, Message>> descriptorMap = new HashMap<>();
         Descriptors.ServiceDescriptor serviceDescriptor = getServiceDescriptor();
 
         for (Descriptors.MethodDescriptor methodDescriptor:  serviceDescriptor.getMethods()) {
@@ -107,16 +107,22 @@ public final class ServiceDefinition {
             Descriptors.Descriptor reqMessage = methodDescriptor.getInputType();
             Descriptors.Descriptor resMessage = methodDescriptor.getOutputType();
             String fullMethodName = generateFullMethodName(serviceDescriptor.getFullName(), methodName);
-            MethodDescriptor descriptor =
+            MethodDescriptor<Message, Message> descriptor =
                     MethodDescriptor.<Message, Message>newBuilder()
                             .setType(MessageUtils.getMethodType(methodDescriptor.toProto()))
                             .setFullMethodName(fullMethodName)
-                            .setRequestMarshaller(ProtoUtils.marshaller(new Message(reqMessage.getName())))
-                            .setResponseMarshaller(ProtoUtils.marshaller(new Message(resMessage.getName())))
+                            .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                                    org.ballerinalang.net.grpc.Message
+                                            .newBuilder(reqMessage.getName()).build()))
+                            .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+                                    org.ballerinalang.net.grpc.Message
+                                            .newBuilder(resMessage.getName()).build()))
                             .setSchemaDescriptor(methodDescriptor)
                             .build();
             descriptorMap.put(fullMethodName, descriptor);
             MessageRegistry messageRegistry = MessageRegistry.getInstance();
+            // update method descriptor
+            messageRegistry.addMethodDescriptor(fullMethodName, methodDescriptor);
             // update request message descriptors.
             messageRegistry.addMessageDescriptor(reqMessage.getName(), reqMessage);
             setNestedMessages(reqMessage, messageRegistry);

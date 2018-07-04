@@ -76,14 +76,10 @@ public class MoveTo extends BlockingNativeCallableUnit {
         File source = new File(sourcePath.toString());
         File target = new File(targetPath.toString());
         try {
-            if (source.isDirectory()) {
-                FileUtils.moveDirectory(source, target);
-            } else {
-                FileUtils.moveFile(source, target);
-            }
+            FileUtils.moveDirectory(source, target);
         } catch (IOException ex) {
             String msg = "IO error occurred while moving file/directory from: \'" + sourcePath + "\' to: \'" +
-                         targetPath + "\'. " + ex.getMessage();
+                         targetPath + "\'";
             log.error(msg, ex);
             context.setReturnValues(BLangVMErrors.createError(context, msg));
         }

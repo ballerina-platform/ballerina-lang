@@ -3,8 +3,10 @@ F{{url}} url for endpoint
 F{{path}} path for endpoint
 }
 type TestConnector object {
-    public string url;
-    public string path;
+    public {
+        string url;
+        string path;
+    }
 
     documentation {Test Connector action testAction R{{value}} whether successful or not}
     public function testAction() returns boolean;
@@ -13,12 +15,12 @@ type TestConnector object {
     public function testSend(string ep) returns boolean;
 };
 
-function TestConnector::testAction() returns boolean {
+public function TestConnector::testAction() returns boolean {
     boolean value;
     return value;
 }
 
-function TestConnector::testSend(string ep) returns boolean {
+public function TestConnector::testSend(string ep) returns boolean {
     boolean value;
     return value;
 }

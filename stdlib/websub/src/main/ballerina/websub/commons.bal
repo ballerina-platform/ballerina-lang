@@ -137,11 +137,13 @@ documentation {
 }
 public type IntentVerificationRequest object {
 
-    public string mode;
-    public string topic;
-    public string challenge;
-    public int leaseSeconds;
-    public http:Request request;
+    public {
+        string mode;
+        string topic;
+        string challenge;
+        int leaseSeconds;
+        http:Request request;
+    }
 
     documentation {
         Builds the response for the request, verifying intention to subscribe, if the topic matches that expected.
@@ -161,13 +163,13 @@ public type IntentVerificationRequest object {
 
 };
 
-function IntentVerificationRequest::buildSubscriptionVerificationResponse(string t)
+public function IntentVerificationRequest::buildSubscriptionVerificationResponse(string t)
     returns http:Response {
 
     return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, t);
 }
 
-function IntentVerificationRequest::buildUnsubscriptionVerificationResponse(string t)
+public function IntentVerificationRequest::buildUnsubscriptionVerificationResponse(string t)
     returns http:Response {
 
     return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, t);
@@ -295,7 +297,9 @@ documentation {
 }
 public type Notification object {
 
-    private http:Request request;
+    private {
+        http:Request request;
+    }
 
     documentation {
         Retrieves the query parameters of the content delivery request, as a map.
@@ -519,22 +523,22 @@ public function startUpBallerinaHub(int? port = (), int? leaseSeconds = (), stri
 documentation {
     Object representing a Ballerina WebSub Hub.
 
-    F{{hubUrl}}             The URL of the started up Ballerina WebSub Hub
-    F{{hubServiceEndpoint}} The HTTP endpoint to which the Ballerina WebSub Hub is bound
+    F{{hubUrl}} The URL of the started up Ballerina WebSub Hub
 }
 public type WebSubHub object {
 
-    public string hubUrl;
-    private http:Listener hubServiceEndpoint;
+    public {
+        string hubUrl;
+    }
 
-    new (hubUrl, hubServiceEndpoint) {}
+    new (hubUrl) {}
 
     documentation {
         Stops the started up Ballerina WebSub Hub.
         
         R{{}} `boolean` indicating whether the internal Ballerina Hub was stopped
     }
-    public function stop() returns boolean;
+    public function stop() returns (boolean);
 
     documentation {
         Publishes an update against the topic in the initialized Ballerina Hub.
@@ -565,12 +569,11 @@ public type WebSubHub object {
 
 };
 
-function WebSubHub::stop() returns boolean {
-    self.hubServiceEndpoint.stop();
+public function WebSubHub::stop() returns (boolean) {
     return stopHubService(self.hubUrl);
 }
 
-function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:ByteChannel payload,
+public function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:ByteChannel payload,
                                          string? contentType = ()) returns error? {
 
     if (self.hubUrl == "") {
@@ -581,7 +584,7 @@ function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:ByteCh
     WebSubContent content = {};
 
     match(payload) {
-        io:ByteChannel byteChannel => content.payload = constructByteArray(byteChannel);
+        io:ByteChannel byteChannel => content.payload = constructBlob(byteChannel);
         string|xml|json|byte[] => content.payload = payload;
     }
 
@@ -600,11 +603,11 @@ function WebSubHub::publishUpdate(string topic, string|xml|json|byte[]|io:ByteCh
     return validateAndPublishToInternalHub(self.hubUrl, topic, content);
 }
 
-function WebSubHub::registerTopic(string topic) returns error? {
+public function WebSubHub::registerTopic(string topic) returns error? {
     return registerTopicAtHub(topic, "");
 }
 
-function WebSubHub::unregisterTopic(string topic) returns error? {
+public function WebSubHub::unregisterTopic(string topic) returns error? {
     return unregisterTopicAtHub(topic, "");
 }
 

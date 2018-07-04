@@ -132,6 +132,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
@@ -146,6 +147,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement.BLangStatementLink;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -933,6 +935,35 @@ public class Desugar extends BLangNodeVisitor {
         forkJoin.joinedBody = rewrite(forkJoin.joinedBody, env);
         forkJoin.timeoutBody = rewrite(forkJoin.timeoutBody, env);
         result = forkJoin;
+    }
+
+    @Override
+    public void visit(BLangCompensate compensateNode) {
+        result = compensateNode;
+    }
+
+    @Override
+    public void visit(BLangScope scopeNode) {
+        int i = 0;
+        for (BLangExpression expr : scopeNode.varRefs) {
+            String varName = GEN_VAR_PREFIX.value + i++;
+            BLangVariable exprVar = ASTBuilderUtil.createVariable(expr.pos, varName, expr.type, null,
+                    new BVarSymbol(0, names.fromString(varName), this.env.scope.owner.pkgID, expr.type,
+                            this.env.scope.owner));
+
+            scopeNode.compensationFunction.addParameter(exprVar);
+            scopeNode.compensationFunction.requiredParams.add(exprVar);
+        }
+
+        scopeNode.getCompensationFunction().body.scope = env.scope;
+        scopeNode.compensationFunction = rewrite(scopeNode.getCompensationFunction(), env);
+        env.enclPkg.functions.add(scopeNode.getCompensationFunction());
+        env.enclPkg.topLevelNodes.add(scopeNode.getCompensationFunction());
+
+        scopeNode.scopeBody = rewrite(scopeNode.scopeBody, env);
+        scopeNode.varRefs.forEach(bLangSimpleVarRef -> rewrite(bLangSimpleVarRef, env));
+
+        result = scopeNode;
     }
 
     // Expressions
@@ -2770,13 +2801,11 @@ public class Desugar extends BLangNodeVisitor {
         if (kind == NodeKind.FIELD_BASED_ACCESS_EXPR || kind == NodeKind.INDEX_BASED_ACCESS_EXPR ||
                 kind == NodeKind.INVOCATION) {
             BLangAccessExpression accessExpr = (BLangAccessExpression) expr;
+            this.accessExprStack.push(accessExpr);
             if (accessExpr.expr != null) {
-                this.accessExprStack.push(accessExpr);
                 // If the parent of current expr is the root, terminate
                 stmts.addAll(createLHSSafeNavigation((BLangVariableReference) accessExpr.expr, type, rhsExpr,
                         safeAssignment));
-
-                this.accessExprStack.pop();
             }
             accessExpr.type = accessExpr.childType;
 
@@ -2791,11 +2820,12 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
-        if (expr.type.isNullable()) {
-            BLangIf ifStmt = getSafeNaviDefaultInitStmt(expr);
-            stmts.add(ifStmt);
+        if (!expr.type.isNullable()) {
+            return stmts;
         }
 
+        BLangIf ifStmt = getSafeNaviDefaultInitStmt(expr);
+        stmts.add(ifStmt);
         return stmts;
     }
 
@@ -2897,18 +2927,17 @@ public class Desugar extends BLangNodeVisitor {
                         symTable.intType));
     }
 
-    private BLangExpression getDefaultValueExpr(BLangAccessExpression accessExpr) {
-        BType fieldType = accessExpr.type;
-        BType type = accessExpr.expr.type;
+    private BLangExpression getDefaultValueExpr(BLangAccessExpression expr) {
+        BType type = expr.type;
         switch (type.tag) {
             case TypeTags.JSON:
-                if (accessExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR &&
-                        ((BLangIndexBasedAccess) accessExpr).indexExpr.type.tag == TypeTags.INT) {
-                    return new BLangJSONArrayLiteral(new ArrayList<>(), fieldType);
+                if (expr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR &&
+                        ((BLangIndexBasedAccess) expr).indexExpr.type.tag == TypeTags.INT) {
+                    return new BLangJSONArrayLiteral(new ArrayList<>(), type);
                 }
-                return new BLangJSONLiteral(new ArrayList<>(), fieldType);
+                return new BLangJSONLiteral(new ArrayList<>(), type);
             case TypeTags.MAP:
-                return new BLangMapLiteral(new ArrayList<>(), fieldType);
+                return new BLangMapLiteral(new ArrayList<>(), type);
             default:
                 throw new IllegalStateException();
         }

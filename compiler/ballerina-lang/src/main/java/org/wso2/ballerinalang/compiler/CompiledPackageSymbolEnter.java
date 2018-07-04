@@ -58,7 +58,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -1132,15 +1131,14 @@ public class CompiledPackageSymbolEnter {
         }
 
         @Override
-        public BType getArrayType(BType elementType, int size) {
+        public BType getArrayType(BType elementType) {
             BTypeSymbol arrayTypeSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.asMask(EnumSet
                     .of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
-            return size == -1 ? new BArrayType(elementType, arrayTypeSymbol, size, BArrayState.UNSEALED) :
-                    new BArrayType(elementType, arrayTypeSymbol, size, BArrayState.CLOSED_SEALED);
+            return new BArrayType(elementType, arrayTypeSymbol);
         }
 
         @Override
-        public BType getCollectionType(char typeChar, List<BType> memberTypes) {
+        public BType getCollenctionType(char typeChar, List<BType> memberTypes) {
 
             switch (typeChar) {
                 case 'O':

@@ -30,16 +30,12 @@ public class BRecordTypeSymbolDTO {
     
     private String fields;
 
-    private boolean isPrivate;
-
     private CompletionItem completionItem;
 
-    public BRecordTypeSymbolDTO(int packageId, String name, String fields, boolean isPrivate,
-                                CompletionItem completionItem) {
+    public BRecordTypeSymbolDTO(int packageId, String name, String fields, CompletionItem completionItem) {
         this.packageId = packageId;
         this.name = name;
         this.fields = fields;
-        this.isPrivate = isPrivate;
         this.completionItem = completionItem;
     }
 
@@ -53,10 +49,6 @@ public class BRecordTypeSymbolDTO {
 
     public String getFields() {
         return fields;
-    }
-
-    public boolean isPrivate() {
-        return isPrivate;
     }
 
     public CompletionItem getCompletionItem() {

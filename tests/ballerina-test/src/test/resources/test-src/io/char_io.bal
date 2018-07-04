@@ -4,7 +4,7 @@ io:CharacterChannel? characterChannel;
 
 function initCharacterChannel(string filePath, io:Mode permission, string encoding) {
     io:ByteChannel channel = io:openFile(filePath, permission);
-    characterChannel = untaint new io:CharacterChannel(channel, encoding);
+    characterChannel = new io:CharacterChannel(channel, encoding);
 }
 
 function readCharacters(int numberOfCharacters) returns string|error {

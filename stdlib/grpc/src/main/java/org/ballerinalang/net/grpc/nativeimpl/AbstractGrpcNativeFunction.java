@@ -18,10 +18,11 @@
 package org.ballerinalang.net.grpc.nativeimpl;
 
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.net.grpc.GrpcConstants;
-import org.ballerinalang.net.grpc.ServicesRegistry;
-import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
+
+import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_SERVER;
+import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_BUILDER;
 
 /**
  * Abstract class of gRPC service endpoint native functions.
@@ -29,16 +30,12 @@ import org.wso2.transport.http.netty.contract.ServerConnector;
  * @since 1.0.0
  */
 public abstract class AbstractGrpcNativeFunction extends BlockingNativeCallableUnit {
-
-    protected ServicesRegistry.Builder getServiceRegistryBuilder(Struct serviceEndpoint) {
-        return (ServicesRegistry.Builder) serviceEndpoint.getNativeData(GrpcConstants.SERVICE_REGISTRY_BUILDER);
+    
+    protected io.grpc.ServerBuilder getServiceBuilder(BMap<String, BValue> serviceEndpoint) {
+        return (io.grpc.ServerBuilder) serviceEndpoint.getNativeData(SERVICE_BUILDER);
     }
-
-    protected ServerConnector getServerConnector(Struct serviceEndpoint) {
-        return (ServerConnector) serviceEndpoint.getNativeData(GrpcConstants.SERVER_CONNECTOR);
-    }
-
-    protected boolean isConnectorStarted(Struct serviceEndpoint) {
-        return serviceEndpoint.getNativeData(GrpcConstants.CONNECTOR_STARTED) != null;
+    
+    protected io.grpc.Server getServerInstance(BMap<String, BValue> serviceEndpoint) {
+        return (io.grpc.Server) serviceEndpoint.getNativeData(GRPC_SERVER);
     }
 }

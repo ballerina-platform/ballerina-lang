@@ -22,11 +22,15 @@ documentation { JMS simple topic publisher
 }
 public type SimpleTopicPublisher object {
 
-    public SimpleTopicPublisherEndpointConfiguration config;
+    public {
+        SimpleTopicPublisherEndpointConfiguration config;
+    }
 
-    private Connection? connection;
-    private Session? session;
-    private TopicPublisher? publisher;
+    private {
+        Connection? connection;
+        Session? session;
+        TopicPublisher? publisher;
+    }
 
     documentation { Initialize simple topic publisher endpoint
         P{{c}} Simple topic publisher enpoint configuration

@@ -275,47 +275,6 @@ public class BByteValueTest {
         BRunUtil.invoke(result, "testWorkerWithByteVariable", new BValue[0]);
     }
 
-    @Test(description = "Test byte to int safe conversion")
-    public void testByteOrIntMatch1() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testByteOrIntMatch1", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BByte.class);
-        BByte bByte = (BByte) returns[0];
-        Assert.assertEquals(bByte.byteValue(), 12, "Invalid byte value returned.");
-    }
-
-    @Test(description = "Test byte to int safe conversion")
-    public void testByteOrIntMatch2() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testByteOrIntMatch2", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        BInteger bInteger = (BInteger) returns[0];
-        Assert.assertEquals(bInteger.intValue(), 266, "Invalid integer value returned.");
-    }
-
-    @Test(description = "Test byte to int safe conversion")
-    public void testByteOrIntMatch3() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testByteOrIntMatch3", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        BInteger bInteger = (BInteger) returns[0];
-        Assert.assertEquals(bInteger.intValue(), 456, "Invalid byte value returned.");
-    }
-
-    @Test(description = "Test byte to int safe conversion")
-    public void testByteOrIntMatch4() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testByteOrIntMatch4", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        BInteger bInteger = (BInteger) returns[0];
-        Assert.assertEquals(bInteger.intValue(), -123, "Invalid integer value returned.");
-    }
-
-
     @Test(description = "Test bitwise and operator")
     public void testBitwiseAndOperator() {
         byte a = 12;

@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.headers;
 
-import io.netty.handler.codec.http.HttpHeaders;
+import io.grpc.Metadata;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
@@ -23,11 +23,12 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.grpc.MessageHeaders;
 
-import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.MessageHeaders.METADATA_KEY;
 
 /**
  * Set custom Header to the Message.
@@ -43,13 +44,21 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
         isPublic = true
 )
 public class RemoveAll extends BlockingNativeCallableUnit {
-
     @Override
     public void execute(Context context) {
         BMap<String, BValue> headerValues = (BMap<String, BValue>) context.getRefArgument(0);
-        HttpHeaders headers = headerValues != null ? (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS) : null;
-        if (headers != null) {
-            headers.clear();
+        MessageHeaders metadata = headerValues != null ? (MessageHeaders) headerValues.getNativeData(METADATA_KEY)
+                : null;
+        if (metadata != null) {
+            for (String headerName : metadata.keys()) {
+                if (headerName.endsWith(Metadata.BINARY_HEADER_SUFFIX)) {
+                    Metadata.Key<byte[]> key = Metadata.Key.of(headerName, Metadata.BINARY_BYTE_MARSHALLER);
+                    metadata.removeAll(key);
+                } else {
+                    Metadata.Key<String> key = Metadata.Key.of(headerName, Metadata.ASCII_STRING_MARSHALLER);
+                    metadata.removeAll(key);
+                }
+            }
         }
         context.setReturnValues();
     }

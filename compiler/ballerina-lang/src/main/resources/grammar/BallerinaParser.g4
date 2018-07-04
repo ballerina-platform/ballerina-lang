@@ -83,7 +83,15 @@ typeDefinition
     ;
 
 objectBody
-    :   objectFieldDefinition* objectInitializer? objectFunctions?
+    : publicObjectFields? privateObjectFields? objectInitializer? objectFunctions?
+    ;
+
+publicObjectFields
+    :   PUBLIC LEFT_BRACE fieldDefinition* RIGHT_BRACE
+    ;
+
+privateObjectFields
+    :   PRIVATE LEFT_BRACE fieldDefinition* RIGHT_BRACE
     ;
 
 objectInitializer
@@ -98,37 +106,44 @@ objectFunctions
     :   objectFunctionDefinition+
     ;
 
-objectFieldDefinition
-    :   annotationAttachment* documentationAttachment? deprecatedAttachment? (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
-    ;
-
+// TODO merge with fieldDefinition later
 fieldDefinition
     :   annotationAttachment* typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
     ;
 
+// TODO try to merge with formalParameterList later
 objectParameterList
     :   (objectParameter | objectDefaultableParameter) (COMMA (objectParameter | objectDefaultableParameter))* (COMMA restParameter)?
     |   restParameter
     ;
 
+// TODO try to merge with parameter later
 objectParameter
     :   annotationAttachment* typeName? Identifier
     ;
 
+// TODO try to merge with defaultableParameter later
 objectDefaultableParameter
     :   objectParameter ASSIGN expression
     ;
 
+// TODO merge with functionDefinition later
 objectFunctionDefinition
-    :   annotationAttachment* documentationAttachment? deprecatedAttachment? (PUBLIC | PRIVATE)? (NATIVE)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   annotationAttachment* documentationAttachment? deprecatedAttachment? (PUBLIC)? (NATIVE)? FUNCTION objectCallableUnitSignature (callableUnitBody | SEMICOLON)
     ;
+
+//TODO merge with callableUnitSignature later
+objectCallableUnitSignature
+    :   anyIdentifierName LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS returnParameter?
+    ;
+
 
 annotationDefinition
     : (PUBLIC)? ANNOTATION  (LT attachmentPoint (COMMA attachmentPoint)* GT)?  Identifier userDefineTypeName? SEMICOLON
     ;
 
 globalVariableDefinition
-    :   (PUBLIC)? (typeName | sealedType) Identifier (ASSIGN expression )? SEMICOLON
+    :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
     ;
 
 attachmentPoint
@@ -176,19 +191,15 @@ finiteTypeUnit
     |   typeName
     ;
 
-sealedType
-    :   SEALED typeName                                                             # sealedTypeName
-    ;
-
 typeName
     :   simpleTypeName                                                      # simpleTypeNameLabel
-    |   typeName (LEFT_BRACKET integerLiteral? RIGHT_BRACKET)+              # arrayTypeNameLabel
+    |   typeName (LEFT_BRACKET RIGHT_BRACKET)+                              # arrayTypeNameLabel
     |   typeName (PIPE typeName)+                                           # unionTypeNameLabel
     |   typeName QUESTION_MARK                                              # nullableTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeNameLabel
     |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                            # objectTypeNameLabel
-    |   RECORD LEFT_BRACE fieldDefinitionList RIGHT_BRACE                   # recordTypeNameLabel
+    |   RECORD LEFT_BRACE fieldDefinitionList RIGHT_BRACE                  # recordTypeNameLabel
     ;
 
 fieldDefinitionList
@@ -277,10 +288,12 @@ statement
     |   foreverStatement
     |   streamingQueryStatement
     |   doneStatement
+    |   scopeStatement
+    |   compensateStatement
     ;
 
 variableDefinitionStatement
-    :   (typeName | sealedType) Identifier (ASSIGN expression)? SEMICOLON
+    :   typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
 recordLiteral
@@ -406,6 +419,22 @@ continueStatement
 
 breakStatement
     :   BREAK SEMICOLON
+    ;
+
+scopeStatement
+    :   scopeClause compensationClause
+    ;
+
+scopeClause
+    : SCOPE Identifier LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
+compensationClause
+    : COMPENSATION LEFT_PARENTHESIS variableReferenceList? RIGHT_PARENTHESIS callableUnitBody
+    ;
+
+compensateStatement
+    :  COMPENSATE Identifier SEMICOLON
     ;
 
 // typeName is only message

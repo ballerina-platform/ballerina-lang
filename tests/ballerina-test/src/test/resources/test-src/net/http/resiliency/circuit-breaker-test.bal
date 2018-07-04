@@ -234,8 +234,10 @@ function testForceCloseScenario() returns (http:Response[], error[]) {
 int actualRequestNumber = 0;
 
 public type MockClient object {
-    public string serviceUri;
-    public http:ClientEndpointConfig config;
+    public {
+        string serviceUri;
+        http:ClientEndpointConfig config;
+    }
 
     public function post(string path, http:Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message) returns http:Response|error {

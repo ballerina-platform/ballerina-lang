@@ -4,12 +4,14 @@ import req;
 import req2;
 
 public type person1 object {
-    public int age;
-    public string name;
-    public string address;
-    public string zipcode = "95134";
-    public string ssn;
-    public int id;
+    public {
+        int age;
+        string name;
+        string address;
+        string zipcode = "95134";
+        string ssn;
+        int id;
+    }
 
     public new () {}
 
@@ -22,30 +24,32 @@ public type person1 object {
     public function setSSN (string s);
 };
 
-function person1::getName () returns (string) {
+public function person1::getName () returns (string) {
     return self.name;
 }
 
-function person1::getAge () returns (int) {
+public function person1::getAge () returns (int) {
     return self.age;
 }
 
-function person1::getSSN () returns (string) {
+public function person1::getSSN () returns (string) {
     return self.ssn;
 }
 
-function person1::setSSN (string s) {
+public function person1::setSSN (string s) {
     self.ssn = s;
 }
 
 public type employee1 object {
-    public int age;
-    public string name;
-    public string address;
-    public string zipcode = "95134";
-    public string ssn;
-    public int id;
-    public int employeeId = 123456;
+    public {
+        int age;
+        string name;
+        string address;
+        string zipcode = "95134";
+        string ssn;
+        int id;
+        int employeeId = 123456;
+    }
 
     public new (age, name){}
 
@@ -60,23 +64,23 @@ public type employee1 object {
     public function getEmployeeId () returns (int);
 };
 
-function employee1::getName () returns (string) {
+public function employee1::getName () returns (string) {
     return self.name;
 }
 
-function employee1::getAge () returns (int) {
+public function employee1::getAge () returns (int) {
     return self.age;
 }
 
-function employee1::getSSN () returns (string) {
+public function employee1::getSSN () returns (string) {
     return self.ssn + ":employee";
 }
 
-function employee1::setSSN (string s) {
+public function employee1::setSSN (string s) {
     self.ssn = s;
 }
 
-function employee1::getEmployeeId () returns (int) {
+public function employee1::getEmployeeId () returns (int) {
     return self.employeeId;
 }
 
@@ -91,12 +95,14 @@ function testEquivalenceOfPrivateStructsInSamePackage () returns (string) {
 }
 
 public type person2 object {
-    public int age;
-    public string name;
-    public string address;
-    public string zipcode = "95134";
-    public string ssn;
-    public int id;
+    public {
+        int age;
+        string name;
+        string address;
+        string zipcode = "95134";
+        string ssn;
+        int id;
+    }
 
     public function getName () returns (string);
 
@@ -107,30 +113,32 @@ public type person2 object {
     public function setSSN (string s);
 };
 
-function person2::getName () returns (string) {
+public function person2::getName () returns (string) {
     return self.name;
 }
 
-function person2::getAge () returns (int) {
+public function person2::getAge () returns (int) {
     return self.age;
 }
 
-function person2::getSSN () returns (string) {
+public function person2::getSSN () returns (string) {
     return self.ssn;
 }
 
-function person2::setSSN (string s) {
+public function person2::setSSN (string s) {
     self.ssn = s;
 }
 
 public type employee2 object {
-    public int age;
-    public string name;
-    public string address;
-    public string zipcode = "95134";
-    public string ssn;
-    public int id;
-    public int employeeId = 123456;
+    public {
+        int age;
+        string name;
+        string address;
+        string zipcode = "95134";
+        string ssn;
+        int id;
+        int employeeId = 123456;
+    }
 
     public function getName () returns (string);
 
@@ -143,23 +151,23 @@ public type employee2 object {
     public function getEmployeeId () returns (int);
 };
 
-function employee2::getName () returns (string) {
+public function employee2::getName () returns (string) {
     return self.name;
 }
 
-function employee2::getAge () returns (int) {
+public function employee2::getAge () returns (int) {
     return self.age;
 }
 
-function employee2::getSSN () returns (string) {
+public function employee2::getSSN () returns (string) {
     return self.ssn + ":employee";
 }
 
-function employee2::setSSN (string s) {
+public function employee2::setSSN (string s) {
     self.ssn = s;
 }
 
-function employee2::getEmployeeId () returns (int) {
+public function employee2::getEmployeeId () returns (int) {
     return self.employeeId;
 }
 
@@ -186,13 +194,15 @@ function testEqOfPublicStructs () returns (string) {
 
 
 public type employee3 object {
-    public int age;
-    public string name;
-    public string address;
-    public string zipcode = "95134";
-    public string ssn;
-    public int id;
-    public int employeeId = 123456;
+    public {
+        int age;
+        string name;
+        string address;
+        string zipcode = "95134";
+        string ssn;
+        int id;
+        int employeeId = 123456;
+    }
 
     public function getName () returns (string);
 
@@ -205,23 +215,23 @@ public type employee3 object {
     public function getEmployeeId () returns (int);
 };
 
-function employee3::getName () returns (string) {
+public function employee3::getName () returns (string) {
     return self.name;
 }
 
-function employee3::getAge () returns (int) {
+public function employee3::getAge () returns (int) {
     return self.age;
 }
 
-function employee3::getSSN () returns (string) {
+public function employee3::getSSN () returns (string) {
     return self.ssn + ":employee";
 }
 
-function employee3::setSSN (string s) {
+public function employee3::setSSN (string s) {
     self.ssn = s;
 }
 
-function employee3::getEmployeeId () returns (int) {
+public function employee3::getEmployeeId () returns (int) {
     return self.employeeId;
 }
 
@@ -251,8 +261,10 @@ function testEqOfPublicStructs2 () returns (string) {
 
 
 type userA object {
-    public int age;
-    public string name;
+    public {
+        int age;
+        string name;
+    }
 
     function getName () returns (string);
 
@@ -268,9 +280,11 @@ function userA::getAge () returns (int) {
 }
 
 type userB object {
-    public int age;
-    public string name;
-    public string address;
+    public {
+        int age;
+        string name;
+        string address;
+    }
 
     function getName () returns (string);
 
@@ -286,10 +300,12 @@ function userB::getAge () returns (int) {
 }
 
 type userFoo object {
-    public int age;
-    public string name;
-    public string address;
-    public string zipcode = "23468";
+    public {
+        int age;
+        string name;
+        string address;
+        string zipcode = "23468";
+    }
 
     function getName () returns (string);
 
@@ -321,56 +337,62 @@ function testRuntimeEqPrivateStructsInSamePackage () returns (string) {
 
 
 public type userPA object {
-    public int age;
-    public string name;
+    public {
+        int age;
+        string name;
+    }
 
     public function getName () returns (string);
 
     public function getAge () returns (int);
 };
 
-function userPA::getName () returns (string) {
+public function userPA::getName () returns (string) {
     return self.name;
 }
 
-function userPA::getAge () returns (int) {
+public function userPA::getAge () returns (int) {
     return self.age;
 }
 
 public type userPB object {
-    public int age;
-    public string name;
-    public string address;
+    public {
+        int age;
+        string name;
+        string address;
+    }
 
     public function getName () returns (string);
 
     public function getAge () returns (int);
 };
 
-function userPB::getName () returns (string) {
+public function userPB::getName () returns (string) {
     return self.name;
 }
 
-function userPB::getAge () returns (int) {
+public function userPB::getAge () returns (int) {
     return self.age;
 }
 
 public type userPFoo object {
-    public int age;
-    public string name;
-    public string address;
-    public string zipcode = "23468";
+    public {
+        int age;
+        string name;
+        string address;
+        string zipcode = "23468";
+    }
 
     public function getName () returns (string);
 
     public function getAge () returns (int);
 };
 
-function userPFoo::getName () returns (string) {
+public function userPFoo::getName () returns (string) {
     return self.name;
 }
 
-function userPFoo::getAge () returns (int) {
+public function userPFoo::getAge () returns (int) {
     return self.age;
 }
 
@@ -421,8 +443,10 @@ function testRuntimeEqPublicStructs1 () returns (string) {
 }
 
 type personC object {
-    public string name;
-    public addressStruct address;
+    public {
+        string name;
+        addressStruct address;
+    }
 
     function setContact(addressStruct ad);
 
@@ -438,8 +462,10 @@ function personC::getAddress() returns (string){
 }
 
 type addressStruct object {
-    public int no;
-    public string city;
+    public {
+        int no;
+        string city;
+    }
 
     function toString() returns (string);
 };
@@ -449,9 +475,11 @@ function addressStruct::toString() returns (string){
 }
 
 type officeAddressStruct object {
-    public int no;
-    public string city;
-    public string department;
+    public {
+        int no;
+        string city;
+        string department;
+    }
 
     function toString() returns (string);
 };
@@ -516,7 +544,9 @@ function AnyStruct::call () returns (AnotherAnyStruct) {
 }
 
 type SomeStruct object {
-    public string s;
+    public {
+        string s;
+    }
 
     function shout (SomeOtherStruct aa) returns (string);
 
@@ -535,7 +565,9 @@ function SomeStruct::call () returns (SomeOtherStruct) {
 }
 
 type SomeOtherStruct object {
-    public string s;
+    public {
+        string s;
+    }
 };
 
 type AnotherAnyStruct object {
@@ -544,8 +576,9 @@ type AnotherAnyStruct object {
 type Foo "a" | "b" | "c";
 
 type Person object {
-    private string name;
-
+    private {
+        string name;
+    }
     new(name){}
 
     function getPerson() returns Person {
@@ -555,8 +588,10 @@ type Person object {
 };
 
 type Employee object {
-    private string name;
-    private string id;
+    private {
+        string name;
+        string id;
+    }
 
     new(name,id){}
 

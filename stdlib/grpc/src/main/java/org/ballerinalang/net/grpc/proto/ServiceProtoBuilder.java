@@ -90,6 +90,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
 
     @Override
     public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
+
         try {
             if (ServiceDefinitionValidator.validate(serviceNode, dlog)) {
                 File fileDefinition = ServiceProtoUtils.generateProtoDefinition(serviceNode);
@@ -103,10 +104,12 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
 
     @Override
     public void codeGenerated(PackageID packageID, Path binaryPath) {
+
         Map<String, File> definitionMap = FileDefinitionHolder.getInstance().getDefinitionMap();
         if (definitionMap.size() == 0) {
             return;
         }
+
         if (binaryPath == null) {
             error.print("Error while generating service proto file. Binary file path is null");
             return;
@@ -131,9 +134,11 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
     private void addDescriptorAnnotation(ServiceNode serviceNode, File fileDefinition) {
         BLangService service = (BLangService) serviceNode;
         DiagnosticPos pos = service.pos;
+
         // Create Annotation Attachment.
         BLangAnnotationAttachment annoAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
         serviceNode.addAnnotationAttachment(annoAttachment);
+
         final SymbolEnv pkgEnv = symTable.pkgEnvMap.get(service.symbol.getEnclosingSymbol());
         BSymbol annSymbol = symResolver.lookupSymbolInPackage(service.pos, pkgEnv,
                 names.fromString("grpc"), names.fromString("ServiceDescriptor"), SymTag.ANNOTATION);
@@ -146,9 +151,11 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         }
         annoAttachment.annotationName.value = "ServiceDescriptor";
         annoAttachment.pos = pos;
+
         BLangRecordLiteral literalNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
         annoAttachment.expr = literalNode;
         literalNode.pos = pos;
+
         BStructureTypeSymbol bStructSymbol = null;
         BSymbol annTypeSymbol = symResolver.lookupSymbolInPackage(service.pos, pkgEnv,
                 names.fromString("grpc"), names.fromString("ServiceDescriptorData"), SymTag.STRUCT);
@@ -156,6 +163,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
             bStructSymbol = (BStructureTypeSymbol) annTypeSymbol;
             literalNode.type = bStructSymbol.type;
         }
+
         BLangRecordLiteral.BLangRecordKeyValue keyValue = (BLangRecordLiteral.BLangRecordKeyValue) TreeBuilder
                 .createRecordKeyValue();
         literalNode.keyValuePairs.add(keyValue);

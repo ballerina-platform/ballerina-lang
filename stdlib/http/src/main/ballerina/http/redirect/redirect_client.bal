@@ -31,12 +31,13 @@ documentation {
     F{{currentRedirectCount}}  Current redirect count of the HTTP client
 }
 public type RedirectClient object {
-
-    public string serviceUri;
-    public ClientEndpointConfig config;
-    public FollowRedirects redirectConfig;
-    public CallerActions httpClient;
-    public int currentRedirectCount = 0;
+    public {
+        string serviceUri;
+        ClientEndpointConfig config;
+        FollowRedirects redirectConfig;
+        CallerActions httpClient;
+        int currentRedirectCount = 0;
+    }
 
     documentation {
         Create a redirect client with the given configurations.
@@ -387,7 +388,7 @@ function getRedirectMethod(HttpOperation httpVerb, Response response) returns Ht
 
 function createRedirectRequest(int statusCode, Request request) returns Request {
     Request redirectRequest = new;
-    string[] headerNames = untaint request.getHeaderNames();
+    string[] headerNames = request.getHeaderNames();
     foreach headerName in headerNames {
         string[] headerValues = request.getHeaders(headerName);
         foreach (headerValue in headerValues) {

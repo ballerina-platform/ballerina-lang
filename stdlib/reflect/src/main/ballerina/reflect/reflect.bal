@@ -29,7 +29,6 @@ public type anyStruct record {};
 public type annotationData record {
     string name,
     string pkgName,
-    string pkgVersion,
     anyStruct value,
 };
 

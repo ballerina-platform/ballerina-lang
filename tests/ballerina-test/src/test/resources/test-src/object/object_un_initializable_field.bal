@@ -5,10 +5,10 @@ function test () returns int {
 }
 
 type Person object {
-
-    public int age,
-    public Employee emp,
-
+    public {
+        int age,
+        Employee emp,
+    }
 
     new (age, emp) {
 
@@ -16,20 +16,20 @@ type Person object {
 };
 
 type Employee object {
-
-    public int age,
-    public Foo foo,
-    public Bar bar,
-
+    public {
+        int age,
+        Foo foo,
+        Bar bar,
+    }
     new (age) {
 
     }
 };
 
 type Foo object {
-
-    public int calc,
-
+    public {
+        int calc,
+    }
 
     new (calc) {
 

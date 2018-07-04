@@ -28,9 +28,13 @@ documentation {
 }
 public type Client object {
 
-    public HubClientEndpointConfig config;
+    public {
+        HubClientEndpointConfig config;
+    }
 
-    private http:Client httpClientEndpoint;
+    private {
+        http:Client httpClientEndpoint;
+    }
 
     documentation {
         Called when the endpoint is being initialized during package initialization.

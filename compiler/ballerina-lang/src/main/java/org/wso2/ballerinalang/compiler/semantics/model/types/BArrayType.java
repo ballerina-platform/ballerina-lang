@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import org.ballerinalang.model.types.ArrayType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -29,13 +28,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
  */
 public class BArrayType extends BType implements ArrayType {
 
-    private static final String SEMI_COLON = ";";
-
     public BType eType;
-
-    public int size = -1;
-
-    public BArrayState state = BArrayState.UNSEALED;
 
     public BArrayType(BType elementType) {
         super(TypeTags.ARRAY, null);
@@ -47,24 +40,8 @@ public class BArrayType extends BType implements ArrayType {
         this.eType = elementType;
     }
 
-    public BArrayType(BType elementType, BTypeSymbol tsymbol, int size, BArrayState state) {
-        super(TypeTags.ARRAY, tsymbol);
-        this.eType = elementType;
-        this.size = size;
-        this.state = state;
-    }
-
     public String getDesc() {
-        if (state == BArrayState.UNSEALED) {
-            return TypeDescriptor.SIG_ARRAY + -1 + SEMI_COLON + eType.getDesc();
-        } else {
-            return TypeDescriptor.SIG_ARRAY + size + SEMI_COLON + eType.getDesc();
-        }
-    }
-
-    @Override
-    public int getSize() {
-        return size;
+        return TypeDescriptor.SIG_ARRAY + eType.getDesc();
     }
 
     @Override
@@ -84,15 +61,6 @@ public class BArrayType extends BType implements ArrayType {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder(eType.toString());
-        String tempSize = (state == BArrayState.OPEN_SEALED) ? "" : String.valueOf(size);
-        if (sb.indexOf("[") != -1) {
-            return (state != BArrayState.UNSEALED) ?
-                    sb.insert(sb.indexOf("["), "[" + tempSize + "]").toString() :
-                    sb.insert(sb.indexOf("["), "[]").toString();
-        } else {
-            return (state != BArrayState.UNSEALED) ?
-                    sb.append("[").append(tempSize).append("]").toString() : sb.append("[]").toString();
-        }
+        return eType.toString() + "[]";
     }
 }

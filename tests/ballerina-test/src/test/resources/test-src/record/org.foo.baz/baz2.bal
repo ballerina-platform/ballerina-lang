@@ -29,8 +29,10 @@ public type FooEmployee record {
         string zipcode;
     } address;
     object {
-        public string desc;
-        public string title;
+        public {
+            string desc;
+            string title;
+        }
     } job;
 };
 

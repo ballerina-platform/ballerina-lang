@@ -23,9 +23,10 @@ documentation {
     F{{secureListener}} Secure HTTP Listener instance
 }
 public type APIListener object {
-
-    public SecureEndpointConfiguration config;
-    public SecureListener secureListener;
+    public {
+        SecureEndpointConfiguration config;
+        SecureListener secureListener;
+    }
 
     new() {
         secureListener = new;
@@ -63,24 +64,24 @@ public type APIListener object {
     public function stop();
 };
 
-function APIListener::init(SecureEndpointConfiguration c) {
+public function APIListener::init(SecureEndpointConfiguration c) {
     self.secureListener.init(c);
 }
 
-function APIListener::register(typedesc serviceType) {
+public function APIListener::register(typedesc serviceType) {
     self.secureListener.register(serviceType);
 }
 
-function APIListener::start() {
+public function APIListener::start() {
     self.secureListener.start();
 }
 
-function APIListener::getCallerActions() returns (APIListenerActions) {
+public function APIListener::getCallerActions() returns (APIListenerActions) {
     APIListenerActions apiListenerActions = new (self.secureListener.getCallerActions());
     return apiListenerActions;
 }
 
-function APIListener::stop() {
+public function APIListener::stop() {
     self.secureListener.stop();
 }
 
@@ -89,7 +90,9 @@ documentation {
 }
 public type APIListenerActions object {
 
-    public Connection httpCallerActions;
+    public {
+        Connection httpCallerActions;
+    }
 
     documentation {
         The api listener caller actions initializer.

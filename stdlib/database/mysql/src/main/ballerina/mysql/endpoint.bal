@@ -44,8 +44,10 @@ documentation {
 }
 
 public type Client object {
-    private ClientEndpointConfiguration config;
-    private sql:CallerActions mysqlClient;
+    private {
+        ClientEndpointConfiguration config;
+        sql:CallerActions mysqlClient;
+    }
 
     documentation {
         Gets called when the endpoint is being initialized during the package initialization.

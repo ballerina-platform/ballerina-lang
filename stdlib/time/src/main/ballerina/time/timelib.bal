@@ -35,8 +35,10 @@ documentation {
 }
 public type Time object {
 
-    public int time;
-    public Timezone zone;
+    public {
+        int time;
+        Timezone zone;
+    }
 
     public new (time, zone) {}
 

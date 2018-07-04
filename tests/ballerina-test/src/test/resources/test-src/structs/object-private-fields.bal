@@ -1,44 +1,56 @@
 import org.foo;
 
 public type employee01 object {
-    public int age;
-    public string name;
-    public string address;
-    public string zipcode = "95134";
+    public {
+        int age;
+        string name;
+        string address;
+        string zipcode = "95134";
+    }
 
-    string ssn;
-    int id;
-    int employeeId = 123456;
+    private {
+        string ssn;
+        int id;
+        int employeeId = 123456;
+    }
 };
 
 public type person object {
-    public int age;
-    public string name;
-    public string address;
-    public string zipcode = "95134";
-    public string ssn;
-    public int id;
+    public {
+        int age;
+        string name;
+        string address;
+        string zipcode = "95134";
+        string ssn;
+        int id;
+    }
 };
 
 public type employee object {
-    public int age;
-    public string name;
-    public string address;
-    public string zipcode = "95134";
-    public string ssn;
-    public int id;
-    public int employeeId = 123456;
+    public {
+        int age;
+        string name;
+        string address;
+        string zipcode = "95134";
+        string ssn;
+        int id;
+        int employeeId = 123456;
+    }
 };
 
 public type userA object {
-    public int age;
-    public string name;
+    public {
+        int age;
+        string name;
+    }
 };
 
 public type userB object {
-    public int age;
-    public string name;
-    public string address;
+    public {
+        int age;
+        string name;
+        string address;
+    }
 };
 
 public function textPrivateFieldAccess1 () returns (string, string, string, int, int) {

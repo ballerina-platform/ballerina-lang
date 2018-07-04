@@ -24,7 +24,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.internal.Constants;
+import org.ballerinalang.stdlib.internal.utils.Constants;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.io.FileOutputStream;
@@ -43,14 +43,13 @@ import java.util.zip.ZipOutputStream;
  * @since 0.970.0
  */
 @BallerinaFunction(
-        orgName = Constants.ORG_NAME,
-        packageName = Constants.PACKAGE_NAME,
+        orgName = "ballerina", packageName = "internal",
         functionName = "compress",
         args = {
-                @Argument(name = "dirPath", type = TypeKind.OBJECT, structType = Constants.PATH_STRUCT,
-                          structPackage = Constants.PACKAGE_PATH),
-                @Argument(name = "destDir", type = TypeKind.OBJECT, structType = Constants.PATH_STRUCT,
-                          structPackage = Constants.PACKAGE_PATH)
+                @Argument(name = "dirPath", type = TypeKind.RECORD, structType = "Path",
+                        structPackage = "ballerina/file"),
+                @Argument(name = "destDir", type = TypeKind.RECORD, structType = "Path",
+                        structPackage = "ballerina/file")
         },
         returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true
@@ -136,14 +135,15 @@ public class Compress extends BlockingNativeCallableUnit {
         Path destPath = (Path) destPathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
         if (!srcPath.toFile().exists()) {
             context.setReturnValues(CompressionUtils.createCompressionError(context, "Path of the folder to be " +
-                    "compressed is not available: " + srcPath));
+                    "compressed is not available"));
         } else {
             try {
                 compress(srcPath, destPath);
                 context.setReturnValues();
             } catch (IOException | BLangRuntimeException e) {
                 context.setReturnValues(CompressionUtils.createCompressionError(context,
-                        "Error occurred when compressing " + e.getMessage()));
+                        "Error occurred when compressing "
+                                + e.getMessage()));
             }
         }
     }

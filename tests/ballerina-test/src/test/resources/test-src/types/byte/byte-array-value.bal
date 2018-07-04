@@ -16,9 +16,11 @@ type TestRec record {
 };
 
 type TestObj object {
-    public byte[] a = base16 `aa ab`;
-    public byte[] b = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;
-    public byte[] c;
+    public {
+        byte[] a = base16 `aa ab`;
+        byte[] b = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;
+        byte[] c;
+    }
 };
 
 function base16Test() {

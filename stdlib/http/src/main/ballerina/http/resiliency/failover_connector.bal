@@ -69,10 +69,11 @@ documentation {
 }
 public type FailoverActions object {
 
-    public string serviceUri;
-    public ClientEndpointConfig config;
-    public FailoverInferredConfig failoverInferredConfig;
-
+    public {
+        string serviceUri;
+        ClientEndpointConfig config;
+        FailoverInferredConfig failoverInferredConfig;
+    }
     documentation {
         Failover caller actions which provides failover capabilities to an HTTP client endpoint.
 
@@ -235,84 +236,84 @@ public type FailoverActions object {
     public function rejectPromise(PushPromise promise);
 };
 
-function FailoverActions::post(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+public function FailoverActions::post(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                     message) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_POST, self.failoverInferredConfig);
 }
 
-function FailoverActions::head(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+public function FailoverActions::head(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                     message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_HEAD, self.failoverInferredConfig);
 }
 
-function FailoverActions::patch(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+public function FailoverActions::patch(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_PATCH, self.failoverInferredConfig);
 }
 
-function FailoverActions::put(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+public function FailoverActions::put(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                     message) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_PUT, self.failoverInferredConfig);
 }
 
-function FailoverActions::options(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+public function FailoverActions::options(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                         message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_OPTIONS, self.failoverInferredConfig);
 }
 
-function FailoverActions::forward(string path, Request request) returns Response|error {
+public function FailoverActions::forward(string path, Request request) returns Response|error {
     return performFailoverAction(path, request, HTTP_FORWARD, self.failoverInferredConfig);
 }
 
-function FailoverActions::execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel
+public function FailoverActions::execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel
                                                                 |mime:Entity[]|() message) returns Response|error {
     Request req = buildRequest(message);
     return performExecuteAction(path, req, httpVerb, self.failoverInferredConfig);
 }
 
-function FailoverActions::delete(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+public function FailoverActions::delete(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_DELETE, self.failoverInferredConfig);
 }
 
-function FailoverActions::get(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
+public function FailoverActions::get(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                     message = ()) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_GET, self.failoverInferredConfig);
 }
 
-function FailoverActions::submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel
+public function FailoverActions::submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel
                                                             |mime:Entity[]|() message) returns HttpFuture|error {
     error err = {message:"Unsupported action for Failover client."};
     return err;
 }
 
-function FailoverActions::getResponse(HttpFuture httpFuture) returns (error) {
+public function FailoverActions::getResponse(HttpFuture httpFuture) returns (error) {
     error err = {message:"Unsupported action for Failover client."};
     return err;
 }
 
-function FailoverActions::hasPromise(HttpFuture httpFuture) returns (boolean) {
+public function FailoverActions::hasPromise(HttpFuture httpFuture) returns (boolean) {
     return false;
 }
 
-function FailoverActions::getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
+public function FailoverActions::getNextPromise(HttpFuture httpFuture) returns PushPromise|error {
     error err = {message:"Unsupported action for Failover client."};
     return err;
 }
 
-function FailoverActions::getPromisedResponse(PushPromise promise) returns Response|error {
+public function FailoverActions::getPromisedResponse(PushPromise promise) returns Response|error {
     error err = {message:"Unsupported action for Failover client."};
     return err;
 }
 
-function FailoverActions::rejectPromise(PushPromise promise) {
+public function FailoverActions::rejectPromise(PushPromise promise) {
 }
 
 // Performs execute action of the Failover connector. extract the corresponding http integer value representation

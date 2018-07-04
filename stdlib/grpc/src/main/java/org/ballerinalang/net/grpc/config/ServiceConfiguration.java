@@ -39,11 +39,23 @@ public class ServiceConfiguration {
         return rpcEndpoint;
     }
     
+    public void setRpcEndpoint(String rpcEndpoint) {
+        this.rpcEndpoint = rpcEndpoint;
+    }
+    
     public boolean isClientStreaming() {
         return clientStreaming;
     }
     
+    public void setClientStreaming(boolean clientStreaming) {
+        this.clientStreaming = clientStreaming;
+    }
+    
     public boolean isServerStreaming() {
         return serverStreaming;
+    }
+    
+    public void setServerStreaming(boolean serverStreaming) {
+        this.serverStreaming = serverStreaming;
     }
 }

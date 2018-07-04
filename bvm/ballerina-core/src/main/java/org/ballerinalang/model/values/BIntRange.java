@@ -17,9 +17,7 @@
  */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
 
 /**
  * {@code {@link BIntRange}} represents integer range in Ballerina.
@@ -80,7 +78,7 @@ public class BIntRange implements BRefType, BCollection {
 
     @Override
     public BType getType() {
-        return new BArrayType(BTypes.typeInt);
+        return BIntArray.arrayType;
     }
 
     @Override
