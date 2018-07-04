@@ -115,6 +115,24 @@ public interface Gauge extends Metric {
     }
 
     /**
+     * Registers the gauge instance to the metrics registry.
+     *
+     * @return The registered Gauge instance.
+     */
+    default Gauge register() {
+        return DefaultMetricRegistry.getInstance().register(this);
+    }
+
+
+    /**
+     * Unregisters the metric to the registry.
+     *
+     */
+    default void unregister() {
+        DefaultMetricRegistry.getInstance().unregister(this);
+    }
+
+    /**
      * Increment the gauge by one.
      */
     default void increment() {

@@ -21,21 +21,16 @@ package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
-import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
-import org.ballerinalang.util.codegen.TypeInfo;
 import org.ballerinalang.util.metrics.PercentileValue;
 import org.ballerinalang.util.metrics.Snapshot;
 import org.ballerinalang.util.metrics.StatisticConfig;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
-import sun.jvm.hotspot.debugger.cdbg.basic.BasicFloatType;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -103,6 +103,9 @@ public interface Counter extends Metric {
         return DefaultMetricRegistry.getInstance().register(this);
     }
 
+    /**
+     * Unregisters the metric to the registry.
+     */
     default void unregister() {
         DefaultMetricRegistry.getInstance().unregister(this);
     }

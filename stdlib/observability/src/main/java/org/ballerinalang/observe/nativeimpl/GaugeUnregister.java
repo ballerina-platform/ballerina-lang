@@ -23,7 +23,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.util.metrics.Counter;
 import org.ballerinalang.util.metrics.Gauge;
 
 /**
@@ -34,7 +33,7 @@ import org.ballerinalang.util.metrics.Gauge;
         orgName = "ballerina",
         packageName = "observe",
         functionName = "unregister",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.COUNTER,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.GAUGE,
                 structPackage = Constants.OBSERVE_PACKAGE_PATH),
         isPublic = true
 )

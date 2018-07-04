@@ -20,7 +20,6 @@ package org.ballerinalang.util.metrics;
 import org.ballerinalang.util.metrics.spi.MetricProvider;
 
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.StampedLock;

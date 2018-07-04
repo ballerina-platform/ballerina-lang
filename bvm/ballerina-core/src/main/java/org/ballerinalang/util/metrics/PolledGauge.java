@@ -108,7 +108,7 @@ public interface PolledGauge extends Metric {
     }
 
     /**
-     * Default implementation for register gauge.
+     * Default implementation for register polled gauge.
      *
      * @return The registered gauge instance.
      */
@@ -117,7 +117,7 @@ public interface PolledGauge extends Metric {
     }
 
     /**
-     * Default implementation for register gauge.
+     * Default implementation for register polled gauge.
      *
      */
     default void unregister() {

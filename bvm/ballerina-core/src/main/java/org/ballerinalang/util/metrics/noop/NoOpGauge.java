@@ -32,6 +32,7 @@ public class NoOpGauge extends AbstractMetric implements Gauge {
         super(id);
     }
 
+
     @Override
     public void increment(double amount) {
         // Do nothing
