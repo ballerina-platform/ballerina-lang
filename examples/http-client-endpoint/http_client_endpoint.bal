@@ -17,6 +17,9 @@ function main(string... args) {
             var msg = resp.getJsonPayload();
             match msg {
                 json jsonPayload => {
+                    // Remove headers since the user-agent will be
+                    // different from Ballerina version to version.
+                    jsonPayload.remove("headers");
                     log:printInfo(jsonPayload.toString());
                 }
                 error err => {
@@ -36,6 +39,9 @@ function main(string... args) {
             var msg = resp.getJsonPayload();
             match msg {
                 json jsonPayload => {
+                    // Remove headers since the user-agent will be
+                    // different from Ballerina version to version.
+                    jsonPayload.remove("headers");
                     log:printInfo(jsonPayload.toString());
                 }
                 error err => {
@@ -58,6 +64,9 @@ function main(string... args) {
             var msg = resp.getJsonPayload();
             match msg {
                 json jsonPayload => {
+                    // Remove headers since the user-agent will be
+                    // different from Ballerina version to version.
+                    jsonPayload.remove("headers");
                     log:printInfo(jsonPayload.toString());
                 }
                 error err => {
@@ -82,6 +91,9 @@ function main(string... args) {
             var msg = resp.getJsonPayload();
             match msg {
                 json jsonPayload => {
+                    // Remove headers since the user-agent will be
+                    // different from Ballerina version to version.
+                    jsonPayload.remove("headers");
                     log:printInfo(jsonPayload.toString());
                 }
                 error err => {
@@ -100,6 +112,9 @@ function main(string... args) {
             var msg = resp.getJsonPayload();
             match msg {
                 json jsonPayload => {
+                    // Remove headers since the user-agent will be
+                    // different from Ballerina version to version.
+                    jsonPayload.remove("headers");
                     log:printInfo(jsonPayload.toString());
                 }
                 error err => {

@@ -1,4 +1,5 @@
 import ballerina/io;
+import ballerina/log;
 
 type Employee record {
     int id,
@@ -30,8 +31,8 @@ function main(string... args) {
     foreach (emp in employees) {
         var ret = tb.add(emp);
         match ret {
-            () => io:println("Adding to table successful");
-            error e => io:println("Adding to table failed: " + e.message);
+            () => log:printInfo("Adding to table successful");
+            error e => log:printInfo("Adding to table failed: " + e.message);
         }
     }
 
@@ -40,13 +41,13 @@ function main(string... args) {
     io:println(tb);
 
     // This accesses rows using the `foreach` loop.
-    io:println("Using foreach: ");
+    log:printInfo("Using foreach: ");
     foreach x in tb {
-        io:println("Name: " + x.name);
+        log:printInfo("Name: " + x.name);
     }
 
     //This accesses rows using the `while` loop.
-    io:println("Using while loop: ");
+    log:printInfo("Using while loop: ");
     while (tb.hasNext()) {
         var ret = <Employee>tb.getNext();
         match ret {
