@@ -40,7 +40,6 @@ import java.nio.file.Paths;
 
 /**
  * Test class for invalid service methods.
- *
  */
 public class InvalidServiceMethodTestCase extends IntegrationTestCase {
 
@@ -54,7 +53,8 @@ public class InvalidServiceMethodTestCase extends IntegrationTestCase {
         TestUtils.prepareBalo(this);
     }
 
-    @Test
+    @Test(description = "Test invoking service method with invalid method name. Connector error is expected " +
+            "with missing method descriptor.")
     public void testInvalidRemoteMethod() {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "invalid_resource_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
@@ -67,7 +67,8 @@ public class InvalidServiceMethodTestCase extends IntegrationTestCase {
         Assert.assertEquals(responses[0].stringValue(), expectedMsg);
     }
 
-    @Test
+    @Test(description = "Test invoking service method with invalid input value type. Null value is expected at " +
+            "service level")
     public void testInvalidInputParameter() {
 
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "invalid_resource_client.bal");
@@ -81,7 +82,8 @@ public class InvalidServiceMethodTestCase extends IntegrationTestCase {
         Assert.assertEquals(Integer.parseInt(responses[0].stringValue()), serverMsg);
     }
 
-    @Test
+    @Test(description = "Test invoking service method and expecting response value with different type. Connector " +
+            "error is expected with Invalid protobuf byte sequence")
     public void testInvalidOutputResponse() {
 
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "invalid_resource_client.bal");
@@ -95,7 +97,8 @@ public class InvalidServiceMethodTestCase extends IntegrationTestCase {
         Assert.assertEquals(responses[0].stringValue(), expectedMsg);
     }
 
-    @Test
+    @Test(description = "Test invoking non existence remote method. Connector error is expected with method not found" +
+            " message")
     public void testNonExistenceRemoteMethod() {
 
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "invalid_resource_client.bal");
