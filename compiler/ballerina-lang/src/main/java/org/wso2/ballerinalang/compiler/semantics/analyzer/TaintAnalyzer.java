@@ -898,17 +898,17 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             taintedStatus = TaintedStatus.UNTAINTED;
         } else if (invocationExpr.iterableOperationInvocation) {
             invocationExpr.expr.accept(this);
-            if (this.taintedStatus == TaintedStatus.TAINTED) {
-                if (invocationExpr.argExprs != null) {
-                    invocationExpr.argExprs.forEach(argExpr -> {
-                        // If argument of iterable operation is a lambda expression, propagate the tainted status
-                        // to function parameters and validate function body.
-                        if (argExpr.getKind() == NodeKind.LAMBDA) {
-                            analyzeLambdaExpressions(invocationExpr, argExpr);
-                        }
-                    });
-                }
+            TaintedStatus exprTaintedStatus = this.taintedStatus;
+            if (invocationExpr.argExprs != null) {
+                invocationExpr.argExprs.forEach(argExpr -> {
+                    // If argument of iterable operation is a lambda expression, propagate the tainted status
+                    // to function parameters and validate function body.
+                    if (argExpr.getKind() == NodeKind.LAMBDA) {
+                        analyzeIterableLambdaInvocationExpression(invocationExpr, argExpr);
+                    }
+                });
             }
+            this.taintedStatus = exprTaintedStatus;
         } else {
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
             if (invokableSymbol.taintTable == null) {
@@ -1574,6 +1574,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             // function body to a sensitive parameter). Hence, instead of adding error to table, directly generate the
             // error and fail the compilation.
             if (paramIndex == ALL_UNTAINTED_TABLE_ENTRY_INDEX && (analyzerPhase == AnalyzerPhase.INITIAL_ANALYSIS
+                    || analyzerPhase == AnalyzerPhase.BLOCKED_NODE_ANALYSIS
                     || analyzerPhase == AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS)) {
                 taintErrorSet.forEach(error -> this.dlog.error(error.pos, error.diagnosticCode, error.paramName));
             } else {
@@ -1696,11 +1697,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         return isBlocked;
     }
 
-    private void analyzeLambdaExpressions(BLangInvocation invocationExpr, BLangExpression argExpr) {
+    private void analyzeIterableLambdaInvocationExpression(BLangInvocation invocationExpr, BLangExpression argExpr) {
         BLangFunction function = ((BLangLambdaFunction) argExpr).function;
         if (function.symbol.taintTable == null) {
-            addToBlockedList(invocationExpr);
-        } else {
+            this.blockedNode = new BlockedNode(this.currPkgEnv, null);
+            stopAnalysis = true;
+            this.taintedStatus = TaintedStatus.UNTAINTED;
+        } else if (this.taintedStatus == TaintedStatus.TAINTED) {
             int requiredParamCount = function.requiredParams.size();
             int defaultableParamCount = function.defaultableParams.size();
             int totalParamCount = requiredParamCount + defaultableParamCount + (function.restParam == null ? 0 : 1);

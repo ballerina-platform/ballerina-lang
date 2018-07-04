@@ -281,6 +281,22 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
+    public void testIterableWitinIterable() {
+        CompileResult result = BCompileUtil
+                .compile("test-src/taintchecking/propagation/iterable-within-iterable.bal");
+        Assert.assertTrue(result.getDiagnostics().length == 0);
+    }
+
+    @Test
+    public void testIterableWitinIterableNegative() {
+        CompileResult result = BCompileUtil
+                .compile("test-src/taintchecking/propagation/iterable-within-iterable-negative.bal");
+        Assert.assertTrue(result.getDiagnostics().length == 2);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 5, 105);
+        BAssertUtil.validateError(result, 1, "tainted value passed to global variable 'globalVar'", 6, 28);
+    }
+
+    @Test
     public void testForEach() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/foreach.bal");
