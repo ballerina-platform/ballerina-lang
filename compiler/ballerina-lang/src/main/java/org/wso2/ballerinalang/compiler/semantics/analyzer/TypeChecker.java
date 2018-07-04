@@ -46,12 +46,16 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -109,7 +113,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -128,7 +132,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -277,9 +280,30 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangTableLiteral tableLiteral) {
-        BType actualType = symTable.rootScope.lookup(new Name(TABLE_CONFIG)).symbol.type;
-        checkExpr(tableLiteral.configurationExpr, env, actualType);
+        if (expType.tag == symTable.errType.tag) {
+            return;
+        }
+        BType tableConstraint = ((BTableType) expType).getConstraint();
+        if (tableConstraint.tag == TypeTags.NONE) {
+            dlog.error(tableLiteral.pos, DiagnosticCode.TABLE_CANNOT_BE_CREATED_WITHOUT_CONSTRAINT);
+            return;
+        }
+        validateTableColumns(tableConstraint, tableLiteral);
+        checkExprs(tableLiteral.tableDataRows, this.env, tableConstraint);
         resultType = types.checkType(tableLiteral, expType, symTable.noType);
+    }
+
+    private void validateTableColumns(BType tableConstraint, BLangTableLiteral tableLiteral) {
+        List<String> columnNames = new ArrayList<>();
+        for (BField field : ((BRecordType) tableConstraint).fields) {
+            columnNames.add(field.getName().getValue());
+        }
+        for (BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
+            boolean contains = columnNames.contains(column.columnName);
+            if (!contains) {
+                dlog.error(tableLiteral.pos, DiagnosticCode.UNDEFINED_TABLE_COLUMN, column.columnName, tableConstraint);
+            }
+        }
     }
 
     public void visit(BLangArrayLiteral arrayLiteral) {
@@ -294,14 +318,23 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         int expTypeTag = expType.tag;
-        if (expTypeTag == TypeTags.JSON || expTypeTag == TypeTags.ANY) {
+        if (expTypeTag == TypeTags.JSON) {
             checkExprs(arrayLiteral.exprs, this.env, expType);
             actualType = expType;
 
         } else if (expTypeTag == TypeTags.ARRAY) {
             BArrayType arrayType = (BArrayType) expType;
+            if (arrayType.state == BArrayState.OPEN_SEALED) {
+                arrayType.size = arrayLiteral.exprs.size();
+                arrayType.state = BArrayState.CLOSED_SEALED;
+            } else if (arrayType.state != BArrayState.UNSEALED && arrayType.size != arrayLiteral.exprs.size()) {
+                dlog.error(arrayLiteral.pos,
+                        DiagnosticCode.MISMATCHING_ARRAY_LITERAL_VALUES, arrayType.size, arrayLiteral.exprs.size());
+                resultType = symTable.errType;
+                return;
+            }
             checkExprs(arrayLiteral.exprs, this.env, arrayType.eType);
-            actualType = new BArrayType(arrayType.eType);
+            actualType = arrayType;
 
         } else if (expTypeTag != TypeTags.ERROR) {
             List<BType> resTypes = checkExprs(arrayLiteral.exprs, this.env, symTable.noType);
@@ -323,7 +356,35 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 actualType = superType;
             }
-            actualType = new BArrayType(actualType);
+            actualType = new BArrayType(actualType, null, arrayLiteral.exprs.size(), BArrayState.UNSEALED);
+
+            if (expType.tag == TypeTags.UNION) {
+                BUnionType expType = (BUnionType) this.expType;
+                int count = 0;
+                // array literals can not be assigned to union types that include
+                // any[],
+                // union arrays eg:(int|boolean)[],
+                // two or more matching types eg: int[] | int[4]
+                for (BType memType : expType.memberTypes) {
+                    if (memType.tag == TypeTags.ARRAY) {
+                        if (((BArrayType) memType).eType.tag == TypeTags.ANY ||
+                                ((BArrayType) memType).eType.tag == TypeTags.UNION) {
+                            dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
+                            resultType = symTable.errType;
+                            return;
+                        }
+                        if (types.isAssignable(actualType, memType)) {
+                            checkExprs(arrayLiteral.exprs, this.env, ((BArrayType) memType).eType);
+                            count++;
+                        }
+                    }
+                }
+                if (count > 1) {
+                    dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
+                    resultType = symTable.errType;
+                    return;
+                }
+            }
         }
 
         resultType = types.checkType(arrayLiteral, actualType, expType);
@@ -437,6 +498,10 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Check type compatibility
+        if (expType.tag == TypeTags.ARRAY && ((BArrayType) expType).state == BArrayState.OPEN_SEALED) {
+            dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_USAGE_OF_SEALED_TYPE, "can not infer array size");
+            return;
+        }
         resultType = types.checkType(varRefExpr, actualType, expType);
     }
 
@@ -835,15 +900,15 @@ public class TypeChecker extends BLangNodeVisitor {
         conversionExpr.targetType = targetType;
         BType sourceType = checkExpr(conversionExpr.expr, env, symTable.noType);
 
-            // Lookup for built-in type conversion operator symbol
-            BSymbol symbol = symResolver.resolveConversionOperator(sourceType, targetType);
-            if (symbol == symTable.notFoundSymbol) {
-                dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, sourceType, targetType);
-            } else {
-                BConversionOperatorSymbol conversionSym = (BConversionOperatorSymbol) symbol;
-                conversionExpr.conversionSymbol = conversionSym;
-                actualType = conversionSym.type.getReturnType();
-            }
+        // Lookup for built-in type conversion operator symbol
+        BSymbol symbol = symResolver.resolveConversionOperator(sourceType, targetType);
+        if (symbol == symTable.notFoundSymbol) {
+            dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, sourceType, targetType);
+        } else {
+            BConversionOperatorSymbol conversionSym = (BConversionOperatorSymbol) symbol;
+            conversionExpr.conversionSymbol = conversionSym;
+            actualType = conversionSym.type.getReturnType();
+        }
 
         resultType = types.checkType(conversionExpr, actualType, expType);
     }
@@ -1100,10 +1165,6 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
         resultType = checkExpr(bLangNamedArgsExpression.expr, env, expType);
         bLangNamedArgsExpression.type = bLangNamedArgsExpression.expr.type;
-    }
-
-    public void visit(BLangForever foreverStatement) {
-        /* ignore */
     }
 
     @Override
@@ -1794,6 +1855,12 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.MAP:
                 actualType = ((BMapType) varRefType).getConstraint();
+                break;
+            case TypeTags.STREAM:
+                BType streamConstraintType = ((BStreamType) varRefType).constraint;
+                if (streamConstraintType.tag == TypeTags.RECORD) {
+                    actualType = checkStructFieldAccess(fieldAccessExpr, fieldName, streamConstraintType);
+                }
                 break;
             case TypeTags.JSON:
                 BType constraintType = ((BJSONType) varRefType).constraint;

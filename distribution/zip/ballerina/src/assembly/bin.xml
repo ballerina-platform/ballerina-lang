@@ -44,57 +44,7 @@
             <outputDirectory>bre/security</outputDirectory>
             <fileMode>644</fileMode>
         </fileSet>
-
-        <fileSet>
-            <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-builtin-jar/META-INF/ballerina
-            </directory>
-            <outputDirectory>src</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-http-jar/META-INF/ballerina
-            </directory>
-            <outputDirectory>src</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-mime-jar/META-INF/ballerina
-            </directory>
-            <outputDirectory>src</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-grpc-jar/META-INF/ballerina
-            </directory>
-            <outputDirectory>src</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-websub-jar/META-INF/ballerina
-            </directory>
-            <outputDirectory>src</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-jms-jar/META-INF/ballerina
-            </directory>
-            <outputDirectory>src</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-database-jar/META-INF/ballerina
-            </directory>
-            <outputDirectory>src</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-transactions-jar/META-INF/ballerina
-            </directory>
-            <outputDirectory>src</outputDirectory>
-        </fileSet>
     </fileSets>
-
     <files>
         <file>
             <source>bin/version.txt</source>
@@ -139,21 +89,36 @@
             <outputDirectory>bre/lib</outputDirectory>
             <scope>runtime</scope>
             <includes>
-                <include>org.ballerinalang:ballerina-config:jar</include>
+                <include>org.ballerinalang:ballerina-builtin:jar</include>
+                <include>org.ballerinalang:ballerina-config-api:jar</include>
+                <include>org.ballerinalang:ballerina-crypto:jar</include>
+                <include>org.ballerinalang:ballerina-h2:jar</include>
+                <include>org.ballerinalang:ballerina-jdbc:jar</include>
+                <include>org.ballerinalang:ballerina-mysql:jar</include>
+                <include>org.ballerinalang:ballerina-sql:jar</include>
+                <include>org.ballerinalang:ballerina-file:jar</include>
+                <include>org.ballerinalang:ballerina-grpc:jar</include>
+                <include>org.ballerinalang:ballerina-http:jar</include>
+                <include>org.ballerinalang:ballerina-internal:jar</include>
+                <include>org.ballerinalang:ballerina-io:jar</include>
+                <include>org.ballerinalang:ballerina-jms:jar</include>
+                <include>org.ballerinalang:ballerina-log-api:jar</include>
+                <include>org.ballerinalang:ballerina-math:jar</include>
+                <include>org.ballerinalang:ballerina-mime:jar</include>
+                <include>org.ballerinalang:ballerina-reflect:jar</include>
+                <include>org.ballerinalang:ballerina-runtime:jar</include>
+                <include>org.ballerinalang:ballerina-system:jar</include>
+                <include>org.ballerinalang:ballerina-task:jar</include>
+                <include>org.ballerinalang:ballerina-time:jar</include>
+                <include>org.ballerinalang:ballerina-transactions:jar</include>
+                <include>org.ballerinalang:ballerina-websub:jar</include>
                 <include>org.ballerinalang:ballerina-core:jar</include>
                 <include>org.ballerinalang:ballerina-lang:jar</include>
                 <include>org.ballerinalang:ballerina-launcher:jar</include>
-                <include>org.ballerinalang:ballerina-builtin:jar</include>
+                <include>org.ballerinalang:ballerina-config:jar</include>
                 <include>org.ballerinalang:ballerina-logging:jar</include>
-                <include>org.ballerinalang:ballerina-http:jar</include>
-                <include>org.ballerinalang:ballerina-transactions:jar</include>
-                <include>org.ballerinalang:ballerina-grpc:jar</include>
-                <include>org.ballerinalang:ballerina-mime:jar</include>
-                <include>org.ballerinalang:ballerina-websub:jar</include>
-                <include>org.ballerinalang:ballerina-jms:jar</include>
-                <include>org.ballerinalang:ballerina-database:jar</include>
+                <include>org.ballerinalang:ballerina-observability:jar</include>
                 <include>org.ballerinalang:strip-bouncycastle:jar</include>
-                <include>org.ballerinalang:ballerina-packerina:jar</include>
                 <include>org.ballerinalang:ballerina-cli-utils:jar</include>
                 <include>org.ballerinalang:toml-parser:jar</include>
                 <include>org.wso2.orbit.org.antlr:antlr4-runtime</include>
@@ -179,16 +144,8 @@
                 <include>io.netty:netty-codec-http2</include>
                 <include>io.netty:netty-handler-proxy</include>
                 <include>io.netty:netty-resolver</include>
-                <include>io.grpc:grpc-netty</include>
-                <include>io.grpc:grpc-protobuf</include>
-                <include>io.grpc:grpc-stub</include>
-                <include>io.grpc:grpc-context</include>
-                <include>io.grpc:grpc-core</include>
-                <include>io.grpc:grpc-protobuf-lite</include>
                 <include>com.google.protobuf:protobuf-java</include>
                 <include>com.google.guava:guava</include>
-                <include>io.opencensus:opencensus-api</include>
-                <include>io.opencensus:opencensus-contrib-grpc-metrics</include>
                 <include>com.github.jknack:handlebars</include>
                 <include>commons-pool.wso2:commons-pool</include>
                 <include>org.apache.commons:commons-pool2</include>

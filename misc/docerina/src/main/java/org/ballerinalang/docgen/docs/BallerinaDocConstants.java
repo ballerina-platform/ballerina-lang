@@ -22,6 +22,7 @@ package org.ballerinalang.docgen.docs;
  * Constants used in docerina.
  */
 public class BallerinaDocConstants {
+    public static final String BALLERINA_INSTALL_DIR_PROP = "ballerina.home";
     public static final String PACKAGE_TEMPLATE_NAME_KEY = "package.template.name";
     public static final String PACKAGE_TOC_TEMPLATE_NAME_KEY = "package.toc.template.name";
     public static final String PACKAGE_LIST_TEMPLATE_NAME_KEY = "package.list.template.name";
@@ -34,5 +35,5 @@ public class BallerinaDocConstants {
 
     // config registry environment variables -e flags
     public static final String ORG_NAME = "orgName";
-    public static final String GENERATE_TOC = "generateToc";
+    public static final String GENERATE_TOC = "generateTOC";
 }

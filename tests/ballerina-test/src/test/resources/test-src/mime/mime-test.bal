@@ -114,11 +114,11 @@ function testMimeBase64DecodeString(string contentToBeDecoded) returns (string|e
     return mime:base64DecodeString(contentToBeDecoded);
 }
 
-function testMimeBase64EncodeBlob(blob contentToBeEncoded) returns (blob|error) {
+function testMimeBase64EncodeBlob(byte[] contentToBeEncoded) returns (byte[]|error) {
     return mime:base64EncodeBlob(contentToBeEncoded);
 }
 
-function testMimeBase64DecodeBlob(blob contentToBeDecoded) returns (blob|error) {
+function testMimeBase64DecodeBlob(byte[] contentToBeDecoded) returns (byte[]|error) {
     return mime:base64DecodeBlob(contentToBeDecoded);
 }
 
@@ -238,54 +238,54 @@ function testGetTextMultipleTimes(string textContent) returns (string) {
     return returnContent;
 }
 
-function testSetAndGetBlob(blob blobContent) returns blob|error {
+function testSetAndGetByteArray(byte[] blobContent) returns byte[]|error {
     mime:Entity entity = new;
-    entity.setBlob(blobContent);
-    return entity.getBlob();
+    entity.setByteArray(blobContent);
+    return entity.getByteArray();
 }
 
-function testGetBlobMultipleTimes(blob blobContent) returns (string) {
+function testGetByteArrayMultipleTimes(byte[] blobContent) returns (string) {
     mime:Entity entity = new;
-    entity.setBlob(blobContent);
-    blob|error returnContent1 = entity.getBlob();
-    blob|error returnContent2 = entity.getBlob();
-    blob|error returnContent3 = entity.getBlob();
+    entity.setByteArray(blobContent);
+    byte[]|error returnContent1 = entity.getByteArray();
+    byte[]|error returnContent2 = entity.getByteArray();
+    byte[]|error returnContent3 = entity.getByteArray();
 
-    blob content1;
-    blob content2;
-    blob content3;
+    byte[] content1;
+    byte[] content2;
+    byte[] content3;
 
     match returnContent1 {
         error err => log:printInfo("error in returnContent1");
-        blob j => { content1 = j;}
+        byte[] j => { content1 = j;}
     }
 
     match returnContent2 {
         error err => log:printInfo("error in returnContent2");
-        blob j => { content2 = j;}
+        byte[] j => { content2 = j;}
     }
 
     match returnContent3 {
         error err => log:printInfo("error in returnContent3");
-        blob j => { content3 = j;}
+        byte[] j => { content3 = j;}
     }
 
 
-    string contentAsString = content1.toString("utf-8") + content2.toString("utf-8") +
-        content3.toString("utf-8");
+    string contentAsString = mime:byteArrayToString(content1, "utf-8") + mime:byteArrayToString(content2, "utf-8") +
+        mime:byteArrayToString(content3, "utf-8");
     return contentAsString;
 }
 
-function testSetFileAsEntityBody(string fileLocation) returns blob|error {
+function testSetFileAsEntityBody(string fileLocation) returns byte[]|error {
     mime:Entity entity = new;
     entity.setFileAsEntityBody(fileLocation);
-    return entity.getBlob();
+    return entity.getByteArray();
 }
 
-function testSetByteChannel(io:ByteChannel byteChannel) returns blob|error {
+function testSetByteChannel(io:ByteChannel byteChannel) returns byte[]|error {
     mime:Entity entity = new;
     entity.setByteChannel(byteChannel);
-    return entity.getBlob();
+    return entity.getByteArray();
 }
 
 function testGetByteChannel(io:ByteChannel byteChannel) returns io:ByteChannel|error {
@@ -376,31 +376,31 @@ function testGetTextWithNonCompatibleMediaType(string textContent) returns strin
     return entity.getText();
 }
 
-function testSetBodyAndGetText((string|xml|json|blob|io:ByteChannel) entityBody) returns string|error {
+function testSetBodyAndGetText((string|xml|json|byte[]|io:ByteChannel) entityBody) returns string|error {
     mime:Entity entity = new;
     entity.setBody(entityBody);
     return entity.getText();
 }
 
-function testSetBodyAndGetXml((string|xml|json|blob|io:ByteChannel) entityBody) returns xml|error {
+function testSetBodyAndGetXml((string|xml|json|byte[]|io:ByteChannel) entityBody) returns xml|error {
     mime:Entity entity = new;
     entity.setBody(entityBody);
     return entity.getXml();
 }
 
-function testSetBodyAndGetJson((string|xml|json|blob|io:ByteChannel) entityBody) returns json|error {
+function testSetBodyAndGetJson((string|xml|json|byte[]|io:ByteChannel) entityBody) returns json|error {
     mime:Entity entity = new;
     entity.setBody(entityBody);
     return entity.getJson();
 }
 
-function testSetBodyAndGetBlob((string|xml|json|blob|io:ByteChannel) entityBody) returns blob|error {
+function testSetBodyAndGetByteArray((string|xml|json|byte[]|io:ByteChannel) entityBody) returns byte[]|error {
     mime:Entity entity = new;
     entity.setBody(entityBody);
-    return entity.getBlob();
+    return entity.getByteArray();
 }
 
-function testSetBodyAndGetByteChannel((string|xml|json|blob|io:ByteChannel) entityBody) returns io:ByteChannel|error {
+function testSetBodyAndGetByteChannel((string|xml|json|byte[]|io:ByteChannel) entityBody) returns io:ByteChannel|error {
     mime:Entity entity = new;
     entity.setBody(entityBody);
     return entity.getByteChannel();

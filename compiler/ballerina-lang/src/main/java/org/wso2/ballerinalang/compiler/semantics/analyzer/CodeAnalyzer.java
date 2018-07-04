@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -131,6 +132,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -873,6 +875,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         analyzeExpr(indexAccessExpr.indexExpr);
         analyzeExpr(indexAccessExpr.expr);
+
+        if (indexAccessExpr.indexExpr.type == null || indexAccessExpr.indexExpr.type.tag == TypeTags.ERROR) {
+            return;
+        }
+
+        if (indexAccessExpr.expr.type.tag == TypeTags.ARRAY
+                && indexAccessExpr.indexExpr.getKind() == NodeKind.LITERAL) {
+            BArrayType bArrayType = (BArrayType) indexAccessExpr.expr.type;
+            BLangLiteral indexExpr = (BLangLiteral) indexAccessExpr.indexExpr;
+            Long indexVal = (Long) indexExpr.getValue();   // indexExpr.getBValue() will always be a long at this stage
+            if (bArrayType.state == BArrayState.CLOSED_SEALED && (bArrayType.size <= indexVal)) {
+                dlog.error(indexExpr.pos, DiagnosticCode.ARRAY_INDEX_OUT_OF_RANGE, indexVal, bArrayType.size);
+            }
+        }
     }
 
     public void visit(BLangInvocation invocationExpr) {
@@ -1182,7 +1198,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         if (env.enclPkg.symbol.pkgID != symbol.pkgID && Symbols.isPrivate(symbol)) {
-            dlog.error(position, DiagnosticCode.ATTEMPT_REFER_NON_PUBLIC_SYMBOL, symbol.name);
+            dlog.error(position, DiagnosticCode.ATTEMPT_REFER_NON_ACCESSIBLE_SYMBOL, symbol.name);
         }
     }
 

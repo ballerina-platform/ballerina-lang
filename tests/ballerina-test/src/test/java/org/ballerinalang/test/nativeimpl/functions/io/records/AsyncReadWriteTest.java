@@ -19,13 +19,13 @@
 package org.ballerinalang.test.nativeimpl.functions.io.records;
 
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
-import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
-import org.ballerinalang.nativeimpl.io.events.EventManager;
-import org.ballerinalang.nativeimpl.io.events.EventResult;
-import org.ballerinalang.nativeimpl.io.events.records.DelimitedRecordReadEvent;
-import org.ballerinalang.nativeimpl.io.events.records.DelimitedRecordWriteEvent;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
+import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
+import org.ballerinalang.stdlib.io.events.EventManager;
+import org.ballerinalang.stdlib.io.events.EventResult;
+import org.ballerinalang.stdlib.io.events.records.DelimitedRecordReadEvent;
+import org.ballerinalang.stdlib.io.events.records.DelimitedRecordWriteEvent;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.testng.Assert;

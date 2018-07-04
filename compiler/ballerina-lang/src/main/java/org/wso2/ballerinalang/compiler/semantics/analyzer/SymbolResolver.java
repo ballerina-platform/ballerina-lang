@@ -64,6 +64,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -531,7 +532,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (isMemberAccessAllowed(env, entry.symbol)) {
                 return entry.symbol;
             } else {
-                dlog.error(pos, DiagnosticCode.ATTEMPT_REFER_NON_PUBLIC_SYMBOL, entry.symbol.name);
+                dlog.error(pos, DiagnosticCode.ATTEMPT_REFER_NON_ACCESSIBLE_SYMBOL, entry.symbol.name);
                 return symTable.notFoundSymbol;
             }
         }
@@ -586,11 +587,23 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public void visit(BLangArrayType arrayTypeNode) {
         // The value of the dimensions field should always be >= 1
+        // If sizes is null array is unsealed
         resultType = resolveTypeNode(arrayTypeNode.elemtype, env, diagCode);
         for (int i = 0; i < arrayTypeNode.dimensions; i++) {
             BTypeSymbol arrayTypeSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.asMask(EnumSet
                     .of(Flag.PUBLIC)), Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
-            resultType = new BArrayType(resultType, arrayTypeSymbol);
+            if (arrayTypeNode.sizes.length == 0) {
+                resultType = new BArrayType(resultType, arrayTypeSymbol);
+            } else {
+                int size = arrayTypeNode.sizes[i];
+                if (arrayTypeNode.isOpenSealed && i == arrayTypeNode.dimensions - 1) {
+                    // Only first dimension is open sealed
+                    resultType = new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.OPEN_SEALED);
+                } else {
+                    resultType = size == -1 ? new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.UNSEALED) :
+                            new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.CLOSED_SEALED);
+                }
+            }
             arrayTypeSymbol.type = resultType;
         }
     }
@@ -674,6 +687,11 @@ public class SymbolResolver extends BLangNodeVisitor {
         BType type = resolveTypeNode(constrainedTypeNode.type, env);
         BType constraintType = resolveTypeNode(constrainedTypeNode.constraint, env);
         if (type.tag == TypeTags.TABLE) {
+            if (constraintType.tag == TypeTags.OBJECT) {
+                dlog.error(constrainedTypeNode.pos, DiagnosticCode.OBJECT_TYPE_NOT_ALLOWED);
+                resultType = symTable.errType;
+                return;
+            }
             resultType = new BTableType(TypeTags.TABLE, constraintType, type.tsymbol);
         } else if (type.tag == TypeTags.STREAM) {
             resultType = new BStreamType(TypeTags.STREAM, constraintType, type.tsymbol);
@@ -837,6 +855,22 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     private boolean isMemberAccessAllowed(SymbolEnv env, BSymbol symbol) {
-        return env.enclPkg.symbol.pkgID == symbol.pkgID || Symbols.isPublic(symbol);
+        if (Symbols.isPublic(symbol)) {
+            return true;
+        }
+        if (!Symbols.isFlagOn(symbol.flags, Flags.PRIVATE)) {
+            return env.enclPkg.symbol.pkgID == symbol.pkgID;
+        }
+        if (env.enclTypeDefinition != null) {
+            return env.enclTypeDefinition.symbol == symbol.owner;
+        }
+        return isMemberAllowed(env, symbol);
+    }
+
+    private boolean isMemberAllowed(SymbolEnv env, BSymbol symbol) {
+        return env != null && (env.enclInvokable != null
+                && env.enclInvokable.symbol.receiverSymbol != null
+                && env.enclInvokable.symbol.receiverSymbol.type.tsymbol == symbol.owner
+                || isMemberAllowed(env.enclEnv, symbol));
     }
 }

@@ -44,7 +44,7 @@ function testSetXmlPayload(xml value) returns http:Request {
     return req;
 }
 
-function testSetBinaryPayload(blob value) returns http:Request {
+function testSetBinaryPayload(byte[] value) returns http:Request {
     http:Request req = new;
     req.setBinaryPayload(value);
     return req;
@@ -56,7 +56,7 @@ function testSetEntityBody(string filePath, string contentType) returns http:Req
     return req;
 }
 
-function testSetPayloadAndGetText((string|xml|json|blob|io:ByteChannel) payload) returns string|error {
+function testSetPayloadAndGetText((string|xml|json|byte[]|io:ByteChannel) payload) returns string|error {
     http:Request req = new;
     req.setPayload(payload);
     return req.getTextPayload();
@@ -83,7 +83,7 @@ function testGetTextPayload(http:Request req) returns string|error {
     return req.getTextPayload();
 }
 
-function testGetBinaryPayload(http:Request req) returns blob|error {
+function testGetBinaryPayload(http:Request req) returns byte[]|error {
     return req.getBinaryPayload();
 }
 
@@ -222,8 +222,8 @@ service<http:Service> hello bind mockEP {
                 res.setTextPayload("Error occurred");
                 res.statusCode = 500;
             }
-            blob blobPayload => {
-                string name = blobPayload.toString("UTF-8");
+            byte[] blobPayload => {
+                string name = mime:byteArrayToString(blobPayload, "UTF-8");
                 res.setTextPayload(untaint name);
             }
         }
@@ -360,7 +360,7 @@ service<http:Service> hello bind mockEP {
     SetBinaryPayload(endpoint caller, http:Request inReq) {
         http:Request req = new;
         string text = "Ballerina";
-        blob payload = text.toBlob("UTF-8");
+        byte[] payload = text.toByteArray("UTF-8");
         req.setBinaryPayload(payload);
         http:Response res = new;
         match req.getBinaryPayload() {
@@ -368,8 +368,8 @@ service<http:Service> hello bind mockEP {
                 res.setTextPayload("Error occurred");
                 res.statusCode = 500;
             }
-            blob blobPayload => {
-                string name = untaint blobPayload.toString("UTF-8");
+            byte[] blobPayload => {
+                string name = untaint mime:byteArrayToString(blobPayload, "UTF-8");
                 res.setJsonPayload({ lang: name });
             }
         }

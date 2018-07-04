@@ -702,6 +702,7 @@ public class CommonUtil {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(label);
         completionItem.setInsertText(insertText);
+        completionItem.setDetail(ItemResolverConstants.NONE);
         completionItem.setSortText(Priority.PRIORITY110.toString());
 
         return completionItem;
@@ -717,9 +718,9 @@ public class CommonUtil {
         BType getClientFuncType = bEndpointVarSymbol.getClientFunction.type;
         BType boundType = ((BInvokableType) getClientFuncType).retType;
         boundType.tsymbol.scope.entries.forEach((name, scopeEntry) -> {
+            String[] nameComponents = name.toString().split("\\.");
             if (scopeEntry.symbol instanceof BInvokableSymbol
-                    && !scopeEntry.symbol.getName().getValue().equals(UtilSymbolKeys.NEW_KEYWORD_KEY)) {
-                String[] nameComponents = name.toString().split("\\.");
+                    && !nameComponents[nameComponents.length - 1].equals(UtilSymbolKeys.NEW_KEYWORD_KEY)) {
                 SymbolInfo actionFunctionSymbol =
                         new SymbolInfo(nameComponents[nameComponents.length - 1], scopeEntry);
                 endpointActions.add(actionFunctionSymbol);
@@ -727,6 +728,24 @@ public class CommonUtil {
         });
 
         return endpointActions;
+    }
+
+    /**
+     * Get the BType name as string.
+     * @param bType             BType to get the name
+     * @param ctx               LS Operation Context
+     * @return {@link String}   BType Name as String
+     */
+    public static String getBTypeName(BType bType, LSContext ctx) {
+        PackageID pkgId = bType.tsymbol.pkgID;
+        PackageID currentPkgId = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).packageID;
+        String[] nameComponents = bType.toString().split(":");
+        if (pkgId.toString().equals(currentPkgId.toString()) || pkgId.getName().getValue().equals("builtin")) {
+            return nameComponents[nameComponents.length - 1];
+        } else {
+            return pkgId.getName().getValue() + UtilSymbolKeys.PKG_DELIMITER_KEYWORD
+                    + nameComponents[nameComponents.length - 1];
+        }
     }
 
     // Private Methods

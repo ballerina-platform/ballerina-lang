@@ -287,7 +287,6 @@ public class PackageInfoReader {
 
     public void readPackageInfo() throws IOException {
         PackageInfo packageInfo = new PackageInfo();
-        packageInfo.pkgIndex = programFile.currentPkgIndex++;
 
         // Read constant pool in the package.
         readConstantPool(packageInfo);
@@ -313,10 +312,13 @@ public class PackageInfoReader {
                 getPackagePath(orgNameCPEntry.getValue(), pkgNameCPEntry.getValue(), pkgVersionCPEntry.getValue());
 
         packageInfo.setProgramFile(programFile);
-        programFile.addPackageInfo(packageInfo.pkgPath, packageInfo);
 
         // Read import package entries
-        readImportPackageInfoEntries();
+        readImportPackageInfoEntries(packageInfo);
+
+        packageInfo.pkgIndex = programFile.currentPkgIndex++;
+
+        programFile.addPackageInfo(packageInfo.pkgPath, packageInfo);
 
         // Read type def info entries
         readTypeDefInfoEntries(packageInfo);
@@ -354,12 +356,20 @@ public class PackageInfoReader {
         packageInfo.complete();
     }
 
-    private void readImportPackageInfoEntries() throws IOException {
+    private void readImportPackageInfoEntries(PackageInfo packageInfo) throws IOException {
         int impPkgCount = dataInStream.readShort();
         for (int i = 0; i < impPkgCount; i++) {
-            dataInStream.readInt();
-            dataInStream.readInt();
-            dataInStream.readInt();
+            int orgNameCPIndex = dataInStream.readInt();
+            UTF8CPEntry orgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(orgNameCPIndex);
+
+            int pkgNameCPIndex = dataInStream.readInt();
+            UTF8CPEntry pkgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgNameCPIndex);
+
+            int pkgVersionCPIndex = dataInStream.readInt();
+            UTF8CPEntry pkgVersionCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgVersionCPIndex);
+
+            this.getPackageInfo(getPackagePath(orgNameCPEntry.getValue(),
+                    pkgNameCPEntry.getValue(), pkgVersionCPEntry.getValue()));
         }
     }
 
@@ -1099,7 +1109,7 @@ public class PackageInfoReader {
         dataInStream.read(code);
         DataInputStream codeStream = new DataInputStream(new ByteArrayInputStream(code));
         while (codeStream.available() > 0) {
-            int i, j, k, h;
+            int i, j, k, h, l;
             int funcRefCPIndex;
             FunctionRefCPEntry funcRefCPEntry;
             int flags;
@@ -1161,14 +1171,6 @@ public class PackageInfoReader {
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.TR_END:
                 case InstructionCodes.ARRAYLEN:
-                case InstructionCodes.INEWARRAY:
-                case InstructionCodes.BINEWARRAY:
-                case InstructionCodes.FNEWARRAY:
-                case InstructionCodes.SNEWARRAY:
-                case InstructionCodes.BNEWARRAY:
-                case InstructionCodes.LNEWARRAY:
-                case InstructionCodes.RNEWARRAY:
-                case InstructionCodes.JSONNEWARRAY:
                 case InstructionCodes.NEWSTRUCT:
                 case InstructionCodes.ITR_NEW:
                 case InstructionCodes.ITR_HAS_NEXT:
@@ -1262,18 +1264,6 @@ public class PackageInfoReader {
                 case InstructionCodes.LASTORE:
                 case InstructionCodes.RASTORE:
                 case InstructionCodes.JSONASTORE:
-                case InstructionCodes.IFIELDLOAD:
-                case InstructionCodes.FFIELDLOAD:
-                case InstructionCodes.SFIELDLOAD:
-                case InstructionCodes.BFIELDLOAD:
-                case InstructionCodes.LFIELDLOAD:
-                case InstructionCodes.RFIELDLOAD:
-                case InstructionCodes.IFIELDSTORE:
-                case InstructionCodes.FFIELDSTORE:
-                case InstructionCodes.SFIELDSTORE:
-                case InstructionCodes.BFIELDSTORE:
-                case InstructionCodes.LFIELDSTORE:
-                case InstructionCodes.RFIELDSTORE:
                 case InstructionCodes.MAPSTORE:
                 case InstructionCodes.JSONLOAD:
                 case InstructionCodes.JSONSTORE:
@@ -1334,12 +1324,19 @@ public class PackageInfoReader {
                 case InstructionCodes.IS_ASSIGNABLE:
                 case InstructionCodes.TR_RETRY:
                 case InstructionCodes.XMLSEQLOAD:
-                case InstructionCodes.NEWTABLE:
                 case InstructionCodes.T2JSON:
                 case InstructionCodes.MAP2JSON:
                 case InstructionCodes.JSON2MAP:
                 case InstructionCodes.JSON2ARRAY:
                 case InstructionCodes.INT_RANGE:
+                case InstructionCodes.INEWARRAY:
+                case InstructionCodes.BINEWARRAY:
+                case InstructionCodes.FNEWARRAY:
+                case InstructionCodes.SNEWARRAY:
+                case InstructionCodes.BNEWARRAY:
+                case InstructionCodes.LNEWARRAY:
+                case InstructionCodes.RNEWARRAY:
+                case InstructionCodes.JSONNEWARRAY:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
@@ -1355,7 +1352,14 @@ public class PackageInfoReader {
                     h = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i, j, k, h));
                     break;
-
+                case InstructionCodes.NEWTABLE:
+                    i = codeStream.readInt();
+                    j = codeStream.readInt();
+                    k = codeStream.readInt();
+                    h = codeStream.readInt();
+                    l = codeStream.readInt();
+                    packageInfo.addInstruction(InstructionFactory.get(opcode, i, j, k, h, l));
+                    break;
                 case InstructionCodes.IGLOAD:
                 case InstructionCodes.FGLOAD:
                 case InstructionCodes.SGLOAD:
@@ -1513,25 +1517,25 @@ public class PackageInfoReader {
         return operands;
     }
 
-    private void resolveCPEntries(PackageInfo currentPackageInfo) {
+    void resolveCPEntries(PackageInfo currentPackageInfo) {
         for (ConstantPoolEntry cpEntry : unresolvedCPEntries) {
             PackageInfo packageInfo;
             StructureRefCPEntry structureRefCPEntry;
             switch (cpEntry.getEntryType()) {
                 case CP_ENTRY_PACKAGE:
                     PackageRefCPEntry pkgRefCPEntry = (PackageRefCPEntry) cpEntry;
-                    packageInfo = programFile.getPackageInfo(pkgRefCPEntry.getPackageName());
+                    packageInfo = this.getPackageInfo(pkgRefCPEntry.getPackageName());
                     pkgRefCPEntry.setPackageInfo(packageInfo);
                     break;
                 case CP_ENTRY_FUNCTION_REF:
                     FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) cpEntry;
-                    packageInfo = programFile.getPackageInfo(funcRefCPEntry.getPackagePath());
+                    packageInfo = this.getPackageInfo(funcRefCPEntry.getPackagePath());
                     FunctionInfo functionInfo = packageInfo.getFunctionInfo(funcRefCPEntry.getFunctionName());
                     funcRefCPEntry.setFunctionInfo(functionInfo);
                     break;
                 case CP_ENTRY_STRUCTURE_REF:
                     structureRefCPEntry = (StructureRefCPEntry) cpEntry;
-                    packageInfo = programFile.getPackageInfo(structureRefCPEntry.getPackagePath());
+                    packageInfo = this.getPackageInfo(structureRefCPEntry.getPackagePath());
                     CustomTypeInfo structureTypeInfo = packageInfo.getStructureTypeInfo(
                             structureRefCPEntry.getStructureName());
                     structureRefCPEntry.setStructureTypeInfo(structureTypeInfo);
@@ -1839,12 +1843,12 @@ public class PackageInfoReader {
         }
 
         @Override
-        public BType getArrayType(BType elementType) {
-            return new BArrayType(elementType);
+        public BType getArrayType(BType elementType, int size) {
+            return new BArrayType(elementType, size);
         }
 
         @Override
-        public BType getCollenctionType(char typeChar, List<BType> memberTypes) {
+        public BType getCollectionType(char typeChar, List<BType> memberTypes) {
             switch (typeChar) {
                 case 'O':
                     return new BUnionType(memberTypes);

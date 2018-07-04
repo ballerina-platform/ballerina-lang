@@ -434,6 +434,12 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangFunction funcNode) {
         boolean validAttachedFunc = validateFuncReceiver(funcNode);
         if (funcNode.attachedOuterFunction) {
+            if (Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PUBLIC)) { //no visibility modifiers allowed
+                dlog.error(funcNode.pos, DiagnosticCode.ATTACHED_FUNC_CANT_HAVE_VISIBILITY_MODIFIERS, funcNode.name);
+            }
+            if (funcNode.body == null) { //object outer attached function must have a body
+                dlog.error(funcNode.pos, DiagnosticCode.ATTACHED_FUNCTIONS_MUST_HAVE_BODY, funcNode.name);
+            }
             if (funcNode.receiver.type.tsymbol.kind == SymbolKind.RECORD) {
                 dlog.error(funcNode.pos, DiagnosticCode.CANNOT_ATTACH_FUNCTIONS_TO_RECORDS, funcNode.name,
                         funcNode.receiver.type.tsymbol.name);
@@ -518,12 +524,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         BInvokableType sourceType = (BInvokableType) funcNode.symbol.type;
-        int flags = Flags.asMask(funcNode.flagSet);
-        if (((flags & Flags.NATIVE) != (funcNode.symbol.flags & Flags.NATIVE))
-                || ((flags & Flags.PUBLIC) != (funcNode.symbol.flags & Flags.PUBLIC))) {
-            dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_INTERFACE, funcNode.name, objName);
-            return;
-        }
+        //this was used earlier to one to one match object declaration with definitions for attached functions
+        // keeping this commented as we may need uncomment this later.
+//        int flags = Flags.asMask(funcNode.flagSet);
+//        if (((flags & Flags.NATIVE) != (funcNode.symbol.flags & Flags.NATIVE))
+//                || ((flags & Flags.PUBLIC) != (funcNode.symbol.flags & Flags.PUBLIC))) {
+//            dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_INTERFACE, funcNode.name, objName);
+//            return;
+//        }
 
         if (typesMissMatch(paramTypes, sourceType.paramTypes)
                 || namesMissMatch(funcNode.requiredParams, funcNode.symbol.params)

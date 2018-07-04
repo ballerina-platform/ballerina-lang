@@ -44,11 +44,49 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-config</artifactId>
+            <artifactId>lib-creator</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>lib-creator</artifactId>
+            <artifactId>ballerina-builtin</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-log-api</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-io</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-time</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-cache</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-system</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-task</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -67,17 +105,16 @@
                 </excludes>
             </resource>
 
-            <!-- copy built-in ballerina sources to the jar -->
+            <!-- copy transactions ballerina balx to the jar -->
             <resource>
-                <directory>${ballerina.source.directory}</directory>
-                <targetPath>META-INF/ballerina</targetPath>
+                <directory>${project.build.directory}/../src/main/ballerina/target</directory>
+                <targetPath>META-INF/ballerina/target</targetPath>
             </resource>
         </resources>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
                 <executions>
                     <execution>
                         <id>gen-balo</id>
@@ -133,7 +170,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.5.2</version>
                 <executions>
                     <execution>
                         <id>distribution</id>
@@ -157,7 +193,7 @@
                         <processor>org.ballerinalang.codegen.BallerinaAnnotationProcessor</processor>
                     </processors>
                     <options>
-                        <nativeEntityProviderPackage>io.ballerina.transactions.generated.providers</nativeEntityProviderPackage>
+                        <nativeEntityProviderPackage>org.ballerinalang.stdlib.transactions.generated.providers</nativeEntityProviderPackage>
                         <nativeEntityProviderClass>StandardNativeElementProvider</nativeEntityProviderClass>
                     </options>
                 </configuration>
@@ -175,7 +211,6 @@
     </build>
 
     <properties>
-        <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
         <maven.checkstyleplugin.excludes>
             **/generated/**,
             **/generated-sources/**

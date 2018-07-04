@@ -39,13 +39,11 @@ public class TopLevelNodeScopeResolver extends CursorPositionResolver {
     public boolean isCursorBeforeNode(DiagnosticPos nodePosition, BLangNode node, TreeVisitor treeVisitor,
                                       LSServiceOperationContext completionContext) {
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
-        int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
         DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(nodePosition);
         int nodeSLine = zeroBasedPos.sLine;
-        int nodeSCol = zeroBasedPos.sCol;
 
-        if (line < nodeSLine || (line == nodeSLine && col <= nodeSCol)) {
-            treeVisitor.setTerminateVisitor(true);
+        if (line <= nodeSLine) {
+            treeVisitor.setTerminateVisitor(true);  
             treeVisitor.setNextNode(node);
             return true;
         }
