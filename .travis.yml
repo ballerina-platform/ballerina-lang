@@ -43,7 +43,7 @@ script:
 
 - ballerina init
 
-- ballerina test --exclude-packages --exclude-packages proto-to-ballerina,swagger-to-ballerina,taint-checking,websub-hub-client-sample,websub-remote-hub-sample,config-api,secured-service-with-basic-auth,secured-service-with-jwt
+- ballerina test --exclude-packages proto-to-ballerina,swagger-to-ballerina,taint-checking,websub-hub-client-sample,websub-remote-hub-sample,config-api,secured-service-with-basic-auth,secured-service-with-jwt
 
 - ballerina build config-api --skiptests
 
