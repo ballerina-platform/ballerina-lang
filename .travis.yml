@@ -43,4 +43,10 @@ script:
 
 - ballerina init
 
-- ballerina test --exclude-packages proto-to-ballerina,taint-checking,websub-hub-client-sample,websub-remote-hub-sample,jdbc-client,basic-https-listener-client,config-api,local-transactions,secured-service-with-jwt,mysql-client,mutual-ssl,secured-service-with-basic-auth,directory-listener
+- ballerina test --exclude-packages --exclude-packages proto-to-ballerina,swagger-to-ballerina,taint-checking,websub-hub-client-sample,websub-remote-hub-sample,config-api,secured-service-with-basic-auth,secured-service-with-jwt
+
+- ballerina build config-api --skiptests
+
+- ballerina test secured-service-with-basic-auth
+
+- ballerina test secured-service-with-jwt
