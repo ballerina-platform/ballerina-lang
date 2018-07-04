@@ -101,8 +101,8 @@ public class BasicTupleTest {
     @Test(description = "Test negatives of tuple type")
     public void testNegativesOfTupleType() {
         BAssertUtil.validateError(resultNegative, 0, "tuple and expression size does not match", 2, 30);
-        BAssertUtil.validateError(resultNegative, 1, "array index out of range: index: '-1', size: '3'", 7, 14);
-        BAssertUtil.validateError(resultNegative, 2, "array index out of range: index: '3', size: '3'", 8, 14);
+        BAssertUtil.validateError(resultNegative, 1, "tuple index out of range: index: '-1', size: '3'", 7, 14);
+        BAssertUtil.validateError(resultNegative, 2, "tuple index out of range: index: '3', size: '3'", 8, 14);
         BAssertUtil.validateError(resultNegative, 3, "invalid index expression: expected integer literal", 10, 18);
         BAssertUtil.validateError(resultNegative, 4, "incompatible types: expected 'int', found 'string'", 11, 16);
     }

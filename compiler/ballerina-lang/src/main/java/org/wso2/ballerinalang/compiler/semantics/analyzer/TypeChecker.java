@@ -1659,7 +1659,7 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BType> tupleTypes = ((BTupleType) varRefType.tsymbol.type).tupleTypes;
         if (indexValue < 0 || tupleTypes.size() <= indexValue) {
             dlog.error(indexBasedAccessExpr.pos,
-                    DiagnosticCode.ARRAY_INDEX_OUT_OF_RANGE, indexValue, tupleTypes.size());
+                    DiagnosticCode.TUPLE_INDEX_OUT_OF_RANGE, indexValue, tupleTypes.size());
             return symTable.errType;
         }
         return tupleTypes.get(indexValue);
