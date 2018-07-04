@@ -17,6 +17,9 @@
 @final StatisticConfig[] DEFAULT_GAUGE_STATS_CONFIG = [{ expiry: 600000, buckets: 5,
     percentiles: [0.33, 0.5, 0.66, 0.99] }];
 
+@final map<string> DEFAULT_TAGS;
+
+
 documentation {
     Start a span with no parent span.
 
@@ -92,13 +95,12 @@ public type Counter object {
          F{{tags}} The key/value pair of Tags. If no tags are provided, the default nil value will be used.
     }
     public new(name, string? desc = "", map<string>? tags=()) {
-        match desc {
-            string strDesc => description = strDesc;
-            () => description = "";
-        }
-        match tags {
-            map<string> tagsMap => metricTags = tagsMap;
-        }
+        description = desc but {
+            () => ""
+        };
+        metricTags = tags but {
+            () =>  DEFAULT_TAGS
+        };
         initialize();
     }
 
@@ -175,20 +177,15 @@ public type Gauge object {
     }
     public new(name, string? desc = "", map<string>? tags = (),
                StatisticConfig[]? statisticConfig = ()) {
-        match desc {
-            string strDesc => description = strDesc;
-        }
-        match tags {
-            map<string> tagMap => metricTags = tagMap;
-        }
-        match statisticConfig {
-            StatisticConfig[] configs => {
-                    statisticConfigs = configs;
-            }
-            () => {
-                statisticConfigs = DEFAULT_GAUGE_STATS_CONFIG;
-            }
-        }
+        description = desc but {
+            () => ""
+        };
+        metricTags = tags but {
+            () =>  DEFAULT_TAGS
+        };
+        statisticConfigs = statisticConfig but {
+            () => DEFAULT_GAUGE_STATS_CONFIG
+        };
         initialize();
     }
 
