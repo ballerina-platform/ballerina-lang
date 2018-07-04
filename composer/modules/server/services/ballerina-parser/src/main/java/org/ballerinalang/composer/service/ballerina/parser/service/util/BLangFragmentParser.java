@@ -99,8 +99,7 @@ public class BLangFragmentParser {
                         .getAsJsonArray(BLangJSONModelConstants.FIELDS).get(0).getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.ANON_RECORD:
-                fragmentNode = jsonArray.get(1).getAsJsonObject().getAsJsonObject(BLangJSONModelConstants.BODY)
-                        .getAsJsonArray(BLangJSONModelConstants.STATEMENTS).get(0).getAsJsonObject();
+                fragmentNode = jsonModel;
                 break;
             case BLangFragmentParserConstants.TRANSACTION_FAILED:
             case BLangFragmentParserConstants.EXPRESSION:

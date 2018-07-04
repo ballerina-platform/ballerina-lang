@@ -143,3 +143,72 @@ function testTryWithinWhile () returns (int) {
     }
     return i;
 }
+
+function testThrowInFinallyWithReturnInTry() returns int {
+    int catchExecs = 0;
+    int finallyExecs = 0;
+    try {
+        return 4;
+    } catch(error e) {
+        catchExecs += 1;
+        error catchErr = { message: "number of catch executions: " + catchExecs  };
+        throw catchErr;
+    } finally {
+        finallyExecs += 1;
+        error finErr = { message: "number of finally executions: " + finallyExecs  };
+        throw finErr;
+    }
+}
+
+function testThrowInFinallyWithReturnInCatch() returns int {
+    int finallyExecs = 0;
+    try {
+        error tryErr = { message: "error thrown in try" };
+        throw tryErr;
+    } catch(error e) {
+        return 8;
+    } finally {
+        finallyExecs += 1;
+        error finErr = { message: "number of finally executions: " + finallyExecs  };
+        throw finErr;
+    }
+}
+
+function testThrowInFinallyWithReturnInTryBranches(int i) returns int {
+    int catchAndfinallyExecs = 0;
+    try {
+        if (i > 0) {
+            return i;
+        }
+        int j = 5/0;
+        return j;
+    } catch(error e) {
+        catchAndfinallyExecs += 1;
+        return 4;
+    } finally {
+        catchAndfinallyExecs += 1;
+        error finErr = { message: "number of catch and finally executions: " + catchAndfinallyExecs };
+        throw finErr;
+    }
+}
+
+function testReturnInFinallyWithThrowInTryAndFinally() returns int {
+    int catchAndfinallyExecs = 0;
+    try {
+        error abc = {};
+        if (true) {
+            throw abc;
+        }
+        return 4;
+    } catch (error e) {
+        catchAndfinallyExecs += 1;
+        return 22;
+    } finally {
+        catchAndfinallyExecs += 1;
+        if (true) {
+            error finErr = { message: "number of catch and finally executions: " + catchAndfinallyExecs };
+            throw finErr;
+        }
+        return 40;
+    }
+}

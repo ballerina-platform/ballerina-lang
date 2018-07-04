@@ -41,7 +41,7 @@ public class InternalFileTest {
     
     @BeforeClass
     public void setup() throws IOException {
-        fileOperationProgramFile = BCompileUtil.compile("test-src/file.internal/file-test.bal");
+        fileOperationProgramFile = BCompileUtil.compile("test-src/internal/file-test.bal");
         workingDirPath = Files.createTempDirectory("internal-package-file-test-");
         File workingDir = new File(workingDirPath.toString());
         FileUtils.deleteQuietly(workingDir);

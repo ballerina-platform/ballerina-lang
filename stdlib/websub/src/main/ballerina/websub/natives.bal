@@ -113,4 +113,4 @@ documentation {
 }
 native function validateAndPublishToInternalHub(string hubUrl, string topic, WebSubContent content) returns error?;
 
-native function constructBlob(io:ByteChannel byteChannel) returns byte[];
+native function constructByteArray(io:ByteChannel byteChannel) returns byte[];

@@ -6,7 +6,9 @@
             "identify_trends.bal",
             "join_multiple_streams.bal",
             "table_queries.bal",
-            "temporal_aggregations_and_windows.bal"
+            "temporal_aggregations_and_windows.bal",
+            "table.bal",
+            "csv_io.bal"
         ]
     }
 }

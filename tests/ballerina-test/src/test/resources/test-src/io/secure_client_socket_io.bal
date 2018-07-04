@@ -6,7 +6,7 @@ function openSocketConnection(string host, int port, io:SocketProperties prop) {
     var result = io:openSecureSocket(host, port, prop);
     match result {
         io:Socket s => {
-            socket = s;
+            socket = untaint s;
         }
         error err => {
             throw err;

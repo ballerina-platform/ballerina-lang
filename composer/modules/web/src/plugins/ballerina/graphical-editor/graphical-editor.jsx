@@ -20,6 +20,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {
     getSizingUtil,
+    getConfig,
 } from 'plugins/ballerina/diagram/diagram-util';
 import ControllerOverlay from './controller-overlay';
 
@@ -33,6 +34,7 @@ class GraphicalEditor extends React.Component {
         return {
             mode: this.props.mode,
             designer: getSizingUtil(this.props.mode),
+            config: getConfig(this.props.mode),
         };
     }
     /**
@@ -52,6 +54,7 @@ class GraphicalEditor extends React.Component {
 GraphicalEditor.childContextTypes = {
     mode: PropTypes.string,
     designer: PropTypes.instanceOf(Object).isRequired,
+    config: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default GraphicalEditor;
