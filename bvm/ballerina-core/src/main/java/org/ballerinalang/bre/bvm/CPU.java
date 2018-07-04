@@ -569,11 +569,13 @@ public class CPU {
     
                     case InstructionCodes.INEWARRAY:
                         i = operands[0];
-                        sf.refRegs[i] = new BIntArray();
+                        j = operands[2];
+                        sf.refRegs[i] = new BIntArray((int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.BINEWARRAY:
                         i = operands[0];
-                        sf.refRegs[i] = new BByteArray();
+                        j = operands[2];
+                        sf.refRegs[i] = new BByteArray((int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.ARRAYLEN:
                         i = operands[0];
@@ -595,19 +597,23 @@ public class CPU {
                         break;
                     case InstructionCodes.FNEWARRAY:
                         i = operands[0];
-                        sf.refRegs[i] = new BFloatArray();
+                        j = operands[2];
+                        sf.refRegs[i] = new BFloatArray((int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.SNEWARRAY:
                         i = operands[0];
-                        sf.refRegs[i] = new BStringArray();
+                        j = operands[2];
+                        sf.refRegs[i] = new BStringArray((int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.BNEWARRAY:
                         i = operands[0];
-                        sf.refRegs[i] = new BBooleanArray();
+                        j = operands[2];
+                        sf.refRegs[i] = new BBooleanArray((int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.LNEWARRAY:
                         i = operands[0];
-                        sf.refRegs[i] = new BBlobArray();
+                        j = operands[2];
+                        sf.refRegs[i] = new BBlobArray((int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.RNEWARRAY:
                         i = operands[0];
@@ -618,12 +624,14 @@ public class CPU {
                     case InstructionCodes.JSONNEWARRAY:
                         i = operands[0];
                         j = operands[1];
+                        k = operands[2];
                         // This is a temporary solution to create n-valued JSON array
                         StringJoiner stringJoiner = new StringJoiner(",", "[", "]");
-                        for (int index = 0; index < sf.longRegs[j]; index++) {
+                        int size = (int) sf.longRegs[k] == -1 ? (int) sf.longRegs[j] : (int) sf.longRegs[k];
+                        for (int index = 0; index < size; index++) {
                             stringJoiner.add(null);
                         }
-                        sf.refRegs[i] = new BJSON(stringJoiner.toString());
+                        sf.refRegs[i] = new BJSON(stringJoiner.toString(), (int) sf.longRegs[k]);
                         break;
     
                     case InstructionCodes.NEWSTRUCT:
@@ -2190,7 +2198,7 @@ public class CPU {
             case InstructionCodes.I2BI:
                 i = operands[0];
                 j = operands[1];
-                if (isByteLiteral((int) sf.longRegs[i])) {
+                if (isByteLiteral(sf.longRegs[i])) {
                     sf.refRegs[j] = new BByte((byte) sf.longRegs[i]);
                 } else {
                     handleTypeConversionError(ctx, sf, j, TypeConstants.INT_TNAME, TypeConstants.BYTE_TNAME);
@@ -2402,7 +2410,7 @@ public class CPU {
         }
     }
 
-    private static boolean isByteLiteral(int longValue) {
+    private static boolean isByteLiteral(long longValue) {
         return (longValue >= BBYTE_MIN_VALUE && longValue <= BBYTE_MAX_VALUE);
     }
 
@@ -3041,11 +3049,15 @@ public class CPU {
         }
 
         BType rhsType = rhsValue.getType();
+
+        if (rhsType.getTag() == TypeTags.INT_TAG && lhsType.getTag() == TypeTags.BYTE_TAG) {
+            return isByteLiteral(((BInteger) rhsValue).intValue());
+        }
+
         if (rhsType.equals(lhsType)) {
             return true;
         } else if (rhsType.getTag() == TypeTags.INT_TAG &&
-                (lhsType.getTag() == TypeTags.JSON_TAG || lhsType.getTag() == TypeTags.FLOAT_TAG ||
-                        lhsType.getTag() == TypeTags.BYTE_TAG)) {
+                (lhsType.getTag() == TypeTags.JSON_TAG || lhsType.getTag() == TypeTags.FLOAT_TAG)) {
             return true;
         } else if (rhsType.getTag() == TypeTags.FLOAT_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
             return true;

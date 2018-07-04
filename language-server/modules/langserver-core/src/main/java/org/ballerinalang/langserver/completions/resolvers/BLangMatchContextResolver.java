@@ -34,7 +34,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -59,7 +58,7 @@ public class BLangMatchContextResolver extends AbstractItemResolver {
         BLangMatch bLangMatch = (BLangMatch) symbolEnvNode;
         
         if (bLangMatch.expr.type instanceof BUnionType) {
-            Set<BType> memberTypes = ((BUnionType) ((BLangSimpleVarRef) bLangMatch.expr).type).getMemberTypes();
+            Set<BType> memberTypes = ((BUnionType) bLangMatch.expr.type).getMemberTypes();
             memberTypes.forEach(bType -> {
                 completionItems.add(getMatchFieldSnippetCompletion(CommonUtil.getBTypeName(bType, ctx)));
             });
