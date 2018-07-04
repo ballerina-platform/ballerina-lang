@@ -20,7 +20,6 @@ endpoint HelloWorldBlockingClient helloWorldBlockingEp {
     url:"http://localhost:9090"
 };
 
-
 function testInvalidRemoteMethod(string name) returns (string) {
     (string, grpc:Headers)|error unionResp = helloWorldBlockingEp->hello(name);
     match unionResp {
@@ -96,7 +95,6 @@ public type HelloWorldBlockingStub object {
     public grpc:Client clientEndpoint;
     public grpc:Stub stub;
 
-
     function initStub(grpc:Client ep) {
         grpc:Stub navStub = new;
         navStub.initStub(ep, "blocking", DESCRIPTOR_KEY, descriptorMap);
@@ -169,7 +167,6 @@ public type HelloWorldStub object {
     public grpc:Client clientEndpoint;
     public grpc:Stub stub;
 
-
     function initStub(grpc:Client ep) {
         grpc:Stub navStub = new;
         navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
@@ -193,12 +190,10 @@ public type HelloWorldStub object {
     }
 };
 
-
 public type HelloWorldBlockingClient object {
 
     public grpc:Client client;
     public HelloWorldBlockingStub stub;
-
 
     public function init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
@@ -216,12 +211,10 @@ public type HelloWorldBlockingClient object {
     }
 };
 
-
 public type helloWorldClient object {
 
     public grpc:Client client;
     public HelloWorldStub stub;
-
 
     public function init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
