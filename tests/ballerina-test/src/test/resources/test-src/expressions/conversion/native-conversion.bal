@@ -1,4 +1,4 @@
-type Person record {
+type Person sealed record {
     string name;
     int age;
     Person | () parent;
@@ -11,18 +11,18 @@ type Person record {
     Person[]|() children;
 };
 
-type Person2 record {
+type Person2 sealed record {
     string name;
     int age;
 };
 
-type Person3 record {
+type Person3 sealed record {
     string name;
     int age;
     string gender;
 };
 
-type Student record {
+type Student sealed record {
     string name;
     int age;
 };
@@ -194,7 +194,7 @@ function testMapWithIncompatibleArrayToStruct () returns (Person) {
     return p;
 }
 
-type Employee record {
+type Employee sealed record {
     string name;
     int age;
     Person partner;
@@ -314,7 +314,7 @@ function testJsonArrayToStruct () returns (Person) {
     return p;
 }
 
-type Info record {
+type Info sealed record {
     map foo;
 };
 
@@ -368,12 +368,12 @@ function testIncompatibleJsonToBoolean () returns (boolean) {
     return value;
 }
 
-type Address record {
+type Address sealed record {
     string city;
     string country;
 };
 
-type AnyArray record {
+type AnyArray sealed record {
     any[] a;
 };
 
@@ -383,7 +383,7 @@ function testJsonToAnyArray () returns (AnyArray) {
     return value;
 }
 
-type IntArray record {
+type IntArray sealed record {
     int[] a;
 };
 
@@ -394,7 +394,7 @@ function testJsonToIntArray () returns (IntArray) {
 }
 
 
-type StringArray record {
+type StringArray sealed record {
     string[]? a;
 };
 
@@ -410,7 +410,7 @@ function testJsonIntArrayToStringArray () returns (StringArray) {
     return a;
 }
 
-type XmlArray record {
+type XmlArray sealed record {
     xml[] a;
 };
 
@@ -470,7 +470,7 @@ function testIncompatibleJsonToStructWithErrors () returns (Person | error) {
     return p;
 }
 
-type PersonA record {
+type PersonA sealed record {
     string name;
     int age;
 };
@@ -483,7 +483,7 @@ function JsonToStructWithErrors () returns (PersonA | error) {
     return pA;
 }
 
-type PhoneBook record {
+type PhoneBook sealed record {
     string[] names;
 };
 
@@ -493,13 +493,13 @@ function testStructWithStringArrayToJSON () returns (json) {
     return phonebookJson;
 }
 
-type person record {
+type person sealed record {
     string fname;
     string lname;
     int age;
 };
 
-type movie record {
+type movie sealed record {
     string title;
     int year;
     string released;
@@ -525,7 +525,7 @@ function testStructToMapWithRefTypeArray () returns (map, int) {
     return (m, writers[0].age);
 }
 
-type StructWithDefaults record {
+type StructWithDefaults sealed record {
     string s = "string value";
     int a = 45;
     float f = 5.3;
@@ -541,7 +541,7 @@ function testEmptyJSONtoStructWithDefaults () returns (StructWithDefaults | erro
     return testStruct;
 }
 
-type StructWithoutDefaults record {
+type StructWithoutDefaults sealed record {
     string s;
     int a;
     float f;
@@ -608,7 +608,7 @@ function structWithComplexMapToJson() returns (json | error) {
     return js;
 }
 
-type ComplexArrayStruct record {
+type ComplexArrayStruct sealed record {
     int[] a;
     float[] b;
     boolean[] c;
@@ -660,7 +660,7 @@ function testJsonToMapConstrained1() returns map {
     return check <map<string>> j;
 }
 
-type T1 record {
+type T1 sealed record {
     int x;
     int y;
 };
@@ -687,7 +687,7 @@ function testJsonToMapConstrainedFail() returns map {
     return m;
 }
 
-type T2 record {
+type T2 sealed record {
   int x;
   int y;
   int z;
@@ -716,7 +716,7 @@ function testStructArrayConversion2() returns T2 {
     return b[0];
 }
 
-public type T3 record {
+public type T3 sealed record {
   int x,
   int y,
 };
@@ -731,29 +731,6 @@ public type O2 object {
   public int y;
   public int z;
 };
-
-function testObjectRecordConversion1() returns T3 {
-    O1 a;
-    T3 b;
-    a = <O1> b;
-    b = <T3> a;
-    return b;
-}
-
-function testObjectRecordConversion2() returns T3 {
-    O2 a;
-    T3 b;
-    b = <T3> a;
-    return b;
-}
-
-function testObjectRecordConversion3() returns O2 {
-    O2 a;
-    T3 b;
-    b = <T3> a;
-    a = check <O2> b;
-    return a;
-}
 
 function testObjectRecordConversionFail() {
     O2 a;
@@ -807,7 +784,7 @@ function testArrayToJson2() returns json {
     return j;
 }
 
-public type TX record {
+public type TX sealed record {
   int x,
   int y,
   byte[] b,
@@ -854,7 +831,7 @@ function anyToFloat() returns float {
     return check <float> a;
 }
 
-type A record {
+type A sealed record {
     float f;
 };
 

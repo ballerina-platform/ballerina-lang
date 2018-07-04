@@ -359,8 +359,9 @@ public class Types {
     }
 
     public boolean checkStructEquivalency(BType rhsType, BType lhsType) {
-        if ((rhsType.tag != TypeTags.OBJECT && rhsType.tag != TypeTags.RECORD)
-                || (lhsType.tag != TypeTags.OBJECT && lhsType.tag != TypeTags.RECORD)) {
+        // For equivalency, both lhs and rhs types should be of the same type. Allowed types: objects and records.
+        if ((rhsType.tag != TypeTags.OBJECT || lhsType.tag != TypeTags.OBJECT)
+                && (rhsType.tag != TypeTags.RECORD || lhsType.tag != TypeTags.RECORD)) {
             return false;
         }
 
@@ -520,6 +521,10 @@ public class Types {
             }
         }
 
+        if (type.tag == TypeTags.RECORD && !((BRecordType) type).sealed) {
+            return checkStructFieldToJSONCompatibility(type, ((BRecordType) type).restFieldType);
+        }
+
         return true;
     }
 
@@ -644,6 +649,11 @@ public class Types {
                 return false;
             }
         }
+
+        if (type.tag == TypeTags.RECORD && !((BRecordType) type).sealed) {
+            return checkStructFieldToJSONConvertibility(type, ((BRecordType) type).restFieldType);
+        }
+
         return true;
     }
 

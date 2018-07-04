@@ -235,6 +235,8 @@ import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableInde
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.LOCAL;
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.PACKAGE;
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.REG;
+
+import static org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangTypeLoad;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BOOL_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BYTE_NEGATIVE_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.FLOAT_OFFSET;
@@ -746,7 +748,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
         Operand structCPIndex = getOperand(currentPkgInfo.addCPEntry(structureRefCPEntry));
 
-        //Emit an instruction to create a new struct.
+        // Emit an instruction to create a new record.
         RegIndex structRegIndex = calcAndGetExprRegIndex(structLiteral);
         emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
 
@@ -840,7 +842,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             storeStructField(fieldVarRef, varRegIndex, fieldNameRegIndex);
             return;
         }
-        
+
         loadStructField(fieldVarRef, varRegIndex, fieldNameRegIndex);
     }
 
@@ -872,7 +874,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangSimpleVarRef.BLangTypeLoad typeLoad) {
+    public void visit(BLangTypeLoad typeLoad) {
         Operand typeCPIndex = getTypeCPIndex(typeLoad.symbol.type);
         emit(InstructionCodes.TYPELOAD, typeCPIndex, calcAndGetExprRegIndex(typeLoad));
     }
@@ -1976,6 +1978,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add Struct name as an UTFCPEntry to the constant pool
         recordInfo.recordType = (BRecordType) recordSymbol.type;
 
+        if (!recordInfo.recordType.sealed) {
+            recordInfo.restFieldTypeSigCPIndex = addUTF8CPEntry(currentPkgInfo,
+                                                                recordInfo.recordType.restFieldType.getDesc());
+        }
+
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDefinition.typeNode;
 
         List<BLangVariable> recordFields = recordTypeNode.fields;
@@ -2017,7 +2024,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Remove the first type. The first type is always the type to which the function is attached to
         BType[] paramTypes = attachedFunc.type.paramTypes.toArray(new BType[0]);
         int sigCPIndex = addUTF8CPEntry(currentPkgInfo,
-                generateFunctionSig(paramTypes, attachedFunc.type.retType));
+                                        generateFunctionSig(paramTypes, attachedFunc.type.retType));
         int flags = attachedFunc.symbol.flags;
         recordInfo.attachedFuncInfoEntries.add(new AttachedFunctionInfo(funcNameCPIndex, sigCPIndex, flags));
         // ------------- end of temp block--------------
