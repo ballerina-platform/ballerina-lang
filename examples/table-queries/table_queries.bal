@@ -50,7 +50,8 @@ function main(string... args) {
 
     // This is the in-memory table that is constrained by the `Person` type.
     table<Person> personTable = table {
-        data: [p1, p2, p3, p4]
+        { id, age, salary, name, married },
+        [p1, p2, p3, p4]
     };
 
     // This prints the `Person` table content.
@@ -68,7 +69,8 @@ function main(string... args) {
 
     // This is the in-memory table that is constrained by the `Order` type.
     table<Order> orderTable = table {
-        data: [o1, o2, o3, o4]
+        { personId, orderId, items, amount },
+        [o1, o2, o3, o4]
     };
 
     // This prints the `Order` table content.
