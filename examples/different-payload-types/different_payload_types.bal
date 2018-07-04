@@ -40,7 +40,7 @@ service<http:Service> actionService bind { port: 9090 } {
 
         //POST action with blob as payload.
         string textVal = "Sample Text";
-        blob binaryValue = textVal.toBlob("UTF-8");
+        byte[] binaryValue = textVal.toByteArray("UTF-8");
         response = clientEP->post("/echo", binaryValue);
         handleResponse(response);
 
@@ -111,7 +111,7 @@ service<http:Service> backEndService bind { port: 9091 } {
                 };
 
             } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
-                blob blobValue = check req.getBinaryPayload();
+                byte[] blobValue = check req.getBinaryPayload();
                 client->respond(untaint blobValue) but {
                     error err => log:printError(err.message, err = err)
                 };
@@ -134,7 +134,7 @@ service<http:Service> backEndService bind { port: 9091 } {
         path: "/image"
     }
     sendByteChannel(endpoint client, http:Request req) {
-        blob bytes = check req.getBinaryPayload();
+        byte[] bytes = check req.getBinaryPayload();
         http:Response response = new;
         response.setBinaryPayload(untaint bytes, contentType = mime:IMAGE_PNG);
         client->respond(response) but {

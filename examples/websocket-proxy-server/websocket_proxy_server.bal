@@ -40,7 +40,7 @@ service<http:WebSocketService> SimpleProxyService bind { port: 9090 } {
     }
 
     //This resource is triggered when a new binary frame is received from a client.
-    onBinary(endpoint caller, blob data, boolean finalFrame) {
+    onBinary(endpoint caller, byte[] data, boolean finalFrame) {
 
         endpoint http:WebSocketClient clientEp =
                         getAssociatedClientEndpoint(caller);
@@ -88,7 +88,7 @@ service<http:WebSocketClientService> ClientService {
     }
 
     //This resource is triggered when a new binary frame is received from the remote backend.
-    onBinary(endpoint caller, blob data, boolean finalFrame) {
+    onBinary(endpoint caller, byte[] data, boolean finalFrame) {
 
         endpoint http:WebSocketListener serverEp =
                         getAssociatedServerEndpoint(caller);
