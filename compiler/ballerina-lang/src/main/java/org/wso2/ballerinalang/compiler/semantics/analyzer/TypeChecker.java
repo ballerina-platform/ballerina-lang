@@ -113,6 +113,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -245,9 +246,8 @@ public class TypeChecker extends BLangNodeVisitor {
             literalExpr.value = ((Long) literalValue).byteValue();
         }
 
-        // check whether this is blob literal as byte array
-        if (TypeTags.ARRAY == expType.tag && TypeTags.BYTE == ((BArrayType) expType).eType.tag &&
-                TypeTags.BYTE_ARRAY == literalExpr.typeTag) {
+        // check whether this is a byte array
+        if (TypeTags.BYTE_ARRAY == literalExpr.typeTag) {
             literalType = new BArrayType(symTable.byteType);
         }
 
@@ -317,14 +317,23 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         int expTypeTag = expType.tag;
-        if (expTypeTag == TypeTags.JSON || expTypeTag == TypeTags.ANY) {
+        if (expTypeTag == TypeTags.JSON) {
             checkExprs(arrayLiteral.exprs, this.env, expType);
             actualType = expType;
 
         } else if (expTypeTag == TypeTags.ARRAY) {
             BArrayType arrayType = (BArrayType) expType;
+            if (arrayType.state == BArrayState.OPEN_SEALED) {
+                arrayType.size = arrayLiteral.exprs.size();
+                arrayType.state = BArrayState.CLOSED_SEALED;
+            } else if (arrayType.state != BArrayState.UNSEALED && arrayType.size != arrayLiteral.exprs.size()) {
+                dlog.error(arrayLiteral.pos,
+                        DiagnosticCode.MISMATCHING_ARRAY_LITERAL_VALUES, arrayType.size, arrayLiteral.exprs.size());
+                resultType = symTable.errType;
+                return;
+            }
             checkExprs(arrayLiteral.exprs, this.env, arrayType.eType);
-            actualType = new BArrayType(arrayType.eType);
+            actualType = arrayType;
 
         } else if (expTypeTag != TypeTags.ERROR) {
             List<BType> resTypes = checkExprs(arrayLiteral.exprs, this.env, symTable.noType);
@@ -346,7 +355,35 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 actualType = superType;
             }
-            actualType = new BArrayType(actualType);
+            actualType = new BArrayType(actualType, null, arrayLiteral.exprs.size(), BArrayState.UNSEALED);
+
+            if (expType.tag == TypeTags.UNION) {
+                BUnionType expType = (BUnionType) this.expType;
+                int count = 0;
+                // array literals can not be assigned to union types that include
+                // any[],
+                // union arrays eg:(int|boolean)[],
+                // two or more matching types eg: int[] | int[4]
+                for (BType memType : expType.memberTypes) {
+                    if (memType.tag == TypeTags.ARRAY) {
+                        if (((BArrayType) memType).eType.tag == TypeTags.ANY ||
+                                ((BArrayType) memType).eType.tag == TypeTags.UNION) {
+                            dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
+                            resultType = symTable.errType;
+                            return;
+                        }
+                        if (types.isAssignable(actualType, memType)) {
+                            checkExprs(arrayLiteral.exprs, this.env, ((BArrayType) memType).eType);
+                            count++;
+                        }
+                    }
+                }
+                if (count > 1) {
+                    dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
+                    resultType = symTable.errType;
+                    return;
+                }
+            }
         }
 
         resultType = types.checkType(arrayLiteral, actualType, expType);
@@ -460,6 +497,10 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Check type compatibility
+        if (expType.tag == TypeTags.ARRAY && ((BArrayType) expType).state == BArrayState.OPEN_SEALED) {
+            dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_USAGE_OF_SEALED_TYPE, "can not infer array size");
+            return;
+        }
         resultType = types.checkType(varRefExpr, actualType, expType);
     }
 

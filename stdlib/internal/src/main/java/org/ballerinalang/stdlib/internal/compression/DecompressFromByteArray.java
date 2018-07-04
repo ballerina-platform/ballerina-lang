@@ -24,7 +24,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.internal.utils.Constants;
+import org.ballerinalang.stdlib.internal.Constants;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

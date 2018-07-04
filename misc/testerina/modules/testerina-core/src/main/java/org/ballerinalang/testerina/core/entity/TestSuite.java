@@ -33,6 +33,7 @@ import java.util.Map;
 public class TestSuite {
 
     private String suiteName;
+    private String sourceFileName;
     private TesterinaFunction initFunction;
     private List<Test> tests = new ArrayList<>();
     private ProgramFile programFile;
@@ -240,6 +241,14 @@ public class TestSuite {
 
     public void setProgramFile(ProgramFile programFile) {
         this.programFile = programFile;
+    }
+
+    public String getSourceFileName() {
+        return sourceFileName;
+    }
+
+    public void setSourceFileName(String sourceFileName) {
+        this.sourceFileName = sourceFileName;
     }
 
 }

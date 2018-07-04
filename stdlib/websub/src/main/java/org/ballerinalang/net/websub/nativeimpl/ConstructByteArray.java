@@ -28,7 +28,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.runtime.message.BlobDataSource;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 
 import java.io.IOException;
@@ -36,8 +35,8 @@ import java.io.IOException;
 import static org.ballerinalang.stdlib.io.utils.IOConstants.BYTE_CHANNEL_NAME;
 
 /**
- * Native function to create a byte array to use as the content when a ByteChannel is specified to indicate the content
- * to be sent as the WebSub notification.
+ * Native function to create a byte array to use as the content when a ByteChannel is specified to indicate the
+ * content to be sent as the WebSub notification.
  *
  * @since 0.973.0
  */
@@ -59,7 +58,7 @@ public class ConstructByteArray extends BlockingNativeCallableUnit {
             try {
                 byte[] byteData = MimeUtil.getByteArray(channel.getInputStream());
                 channel.close();
-                context.setReturnValues(new BByteArray((new BlobDataSource(byteData)).getValue()));
+                context.setReturnValues(new BByteArray(byteData));
             } catch (IOException e) {
                 context.setReturnValues(new BByteArray(new byte[0]));
             }

@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -194,7 +195,7 @@ public class LocksInMainTest {
         assertSame(returns[1].getClass(), BByteArray.class);
 
         assertEquals(((BBoolean) returns[0]).booleanValue(), true);
-        assertEquals(returns[1].stringValue(), "sample blob output");
+        ByteArrayUtils.assertJBytesWithBBytes(((BByteArray) returns[1]).getBytes(), "sample blob output".getBytes());
 
     }
 

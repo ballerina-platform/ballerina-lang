@@ -66,13 +66,19 @@ public class LSIndexQueryProcessor {
  
     private PreparedStatement updateActionHolderId;
 
-    private PreparedStatement getFunctionsFromPackage;
+    private PreparedStatement getAllFunctionsFromPackage;
+
+    private PreparedStatement getFilteredFunctionsFromPackage;
     
     private PreparedStatement getRecordsFromPackage;
+    
+    private PreparedStatement getRecordsOnAccessType;
     
     private PreparedStatement getOtherTypesFromPackage;
     
     private PreparedStatement getObjectsFromPackage;
+    
+    private PreparedStatement getObjectsOnAccessType;
 
     private Connection connection;
 
@@ -101,10 +107,20 @@ public class LSIndexQueryProcessor {
                     Statement.RETURN_GENERATED_KEYS);
 
             // Select Statements
-            getFunctionsFromPackage = connection.prepareStatement(Constants.GET_FUNCTIONS_FROM_PACKAGE);
-            getRecordsFromPackage = connection.prepareStatement(Constants.GET_RECORDS_FROM_PACKAGE);
-            getOtherTypesFromPackage = connection.prepareStatement(Constants.GET_OTHER_TYPES_FROM_PACKAGE);
-            getObjectsFromPackage = connection.prepareStatement(Constants.GET_OBJECT_FROM_PACKAGE);
+            getAllFunctionsFromPackage =
+                    connection.prepareStatement(Constants.GET_ALL_FUNCTIONS_FROM_PACKAGE);
+            getFilteredFunctionsFromPackage =
+                    connection.prepareStatement(Constants.GET_FILTERED_FUNCTIONS_FROM_PACKAGE);
+            getRecordsFromPackage =
+                    connection.prepareStatement(Constants.GET_ALL_RECORDS_FROM_PACKAGE);
+            getRecordsOnAccessType =
+                    connection.prepareStatement(Constants.GET_RECORDS_ON_ACCESS_TYPE_FROM_PACKAGE);
+            getOtherTypesFromPackage =
+                    connection.prepareStatement(Constants.GET_OTHER_TYPES_FROM_PACKAGE);
+            getObjectsFromPackage =
+                    connection.prepareStatement(Constants.GET_ALL_OBJECT_FROM_PACKAGE);
+            getObjectsOnAccessType =
+                    connection.prepareStatement(Constants.GET_OBJECTS_ON_ACCESS_TYPE_FROM_PACKAGE);
         } catch (SQLException e) {
             logger.error("Error in Creating Prepared Statement.");
         }
@@ -180,6 +196,8 @@ public class LSIndexQueryProcessor {
             insertBLangFunction.setInt(2, bFunctionDTO.getObjectId());
             insertBLangFunction.setString(3, bFunctionDTO.getName());
             insertBLangFunction.setString(4, DTOUtil.completionItemToJSON(bFunctionDTO.getCompletionItem()));
+            insertBLangFunction.setBoolean(5, bFunctionDTO.isPrivate());
+            insertBLangFunction.setBoolean(6, bFunctionDTO.isAttached());
             insertBLangFunction.addBatch();
         }
         insertBLangFunction.executeBatch();
@@ -201,7 +219,8 @@ public class LSIndexQueryProcessor {
             insertBLangRecord.setString(2, recordDTO.getName());
             // TODO: Currently null
             insertBLangRecord.setString(3, "");
-            insertBLangRecord.setString(4, DTOUtil.completionItemToJSON(recordDTO.getCompletionItem()));
+            insertBLangRecord.setBoolean(4, recordDTO.isPrivate());
+            insertBLangRecord.setString(5, DTOUtil.completionItemToJSON(recordDTO.getCompletionItem()));
             insertBLangRecord.addBatch();
         }
 
@@ -235,7 +254,7 @@ public class LSIndexQueryProcessor {
 
     /**
      * Batch Insert List of ObjectTypeSymbols.
-     * @param objectDTOs        List of BFunctionDTOs
+     * @param objectDTOs        List of BObjectDTOs
      * @return {@link List}     List of Generated Keys
      * @throws SQLException     Exception While Insert
      */
@@ -248,7 +267,8 @@ public class LSIndexQueryProcessor {
             // TODO: still null. handle properly
             insertBLangObject.setString(3, "");
             insertBLangObject.setInt(4, objectDTO.getType().getValue());
-            insertBLangObject.setString(5, DTOUtil.completionItemToJSON(objectDTO.getCompletionItem()));
+            insertBLangObject.setBoolean(5, objectDTO.isPrivate());
+            insertBLangObject.setString(6, DTOUtil.completionItemToJSON(objectDTO.getCompletionItem()));
             insertBLangObject.addBatch();
         }
 
@@ -286,13 +306,34 @@ public class LSIndexQueryProcessor {
      * @return {@link PackageFunctionDAO}   List of FunctionDAOs
      * @throws SQLException                 Exception While Insert
      */
-    public List<PackageFunctionDAO> getFunctionsFromPackage(String name, String orgName)
+    public List<PackageFunctionDAO> getAllFunctionsFromPackage(String name, String orgName)
             throws SQLException {
-        getFunctionsFromPackage.clearParameters();
-        getFunctionsFromPackage.setString(1, name);
-        getFunctionsFromPackage.setString(2, orgName);
+        getAllFunctionsFromPackage.clearParameters();
+        getAllFunctionsFromPackage.setString(1, name);
+        getAllFunctionsFromPackage.setString(2, orgName);
         
-        return DAOUtil.getPackageFunctionDAO(getFunctionsFromPackage.executeQuery());
+        return DAOUtil.getPackageFunctionDAO(getAllFunctionsFromPackage.executeQuery());
+    }
+
+    /**
+     * Get a List of PackageFunctionDAOs based on selection criteria over access type and attached or not.
+     * @param name                          Package Name
+     * @param orgName                       Org Name
+     * @param isPrivate                     Access Type
+     * @param isAttached                    Attached or not
+     * @return {@link PackageFunctionDAO}   List of FunctionDAOs
+     * @throws SQLException                 Exception While Insert
+     */
+    public List<PackageFunctionDAO> getFilteredFunctionsFromPackage(String name, String orgName,
+                                                                           boolean isPrivate, boolean isAttached)
+            throws SQLException {
+        getFilteredFunctionsFromPackage.clearParameters();
+        getFilteredFunctionsFromPackage.setString(1, name);
+        getFilteredFunctionsFromPackage.setString(2, orgName);
+        getFilteredFunctionsFromPackage.setBoolean(3, isPrivate);
+        getFilteredFunctionsFromPackage.setBoolean(4, isAttached);
+
+        return DAOUtil.getPackageFunctionDAO(getFilteredFunctionsFromPackage.executeQuery());
     }
 
     /**
@@ -308,6 +349,23 @@ public class LSIndexQueryProcessor {
         getRecordsFromPackage.setString(2, orgName);
         
         return DAOUtil.getRecordDAO(getRecordsFromPackage.executeQuery());
+    }
+
+    /**
+     * Get a List of RecordDAOs based on the access type either private or public.
+     * @param name                  Package Name
+     * @param orgName               Org Name
+     * @return {@link RecordDAO}    List of RecordDAOs
+     * @throws SQLException         Exception While Insert
+     */
+    public List<RecordDAO> getRecordsFromPackageOnAccessType(String name, String orgName,
+                                                             boolean isPrivate) throws SQLException {
+        getRecordsOnAccessType.clearParameters();
+        getRecordsOnAccessType.setString(1, name);
+        getRecordsOnAccessType.setString(2, orgName);
+        getRecordsOnAccessType.setBoolean(3, isPrivate);
+        
+        return DAOUtil.getRecordDAO(getRecordsOnAccessType.executeQuery());
     }
 
     /**
@@ -338,6 +396,23 @@ public class LSIndexQueryProcessor {
         getObjectsFromPackage.setString(2, orgName);
         
         return DAOUtil.getObjectDAO(getObjectsFromPackage.executeQuery());
+    }
+
+    /**
+     * Get a List of ObjectDAOs based on the access type either private or public.
+     * @param name                  Package Name
+     * @param orgName               Org Name
+     * @return {@link ObjectDAO}    List of FunctionDAOs
+     * @throws SQLException         Exception While Insert
+     */
+    public List<ObjectDAO> getObjectsFromPackageOnAccessType(String name, String orgName,
+                                                             boolean isPrivate) throws SQLException {
+        getObjectsOnAccessType.clearParameters();
+        getObjectsOnAccessType.setString(1, name);
+        getObjectsOnAccessType.setString(2, orgName);
+        getObjectsOnAccessType.setBoolean(3, isPrivate);
+        
+        return DAOUtil.getObjectDAO(getObjectsOnAccessType.executeQuery());
     }
 
     /**
@@ -387,7 +462,8 @@ public class LSIndexQueryProcessor {
                 packages.add(new BObjectTypeSymbolDTO(
                         Integer.parseInt(resultSet.getString(2)),
                         resultSet.getString(3),
-                        resultSet.getString(4)
+                        resultSet.getString(4),
+                        resultSet.getBoolean(7)
                 ));
             }
         } finally {

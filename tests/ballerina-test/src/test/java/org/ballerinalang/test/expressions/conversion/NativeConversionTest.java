@@ -23,6 +23,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
@@ -509,7 +510,7 @@ public class NativeConversionTest {
         Assert.assertEquals(((BFloat) bValue.get("f")).floatValue(), 0.0);
         Assert.assertEquals(((BBoolean) bValue.get("b")).booleanValue(), false);
         Assert.assertEquals(bValue.get("j"), null);
-        Assert.assertEquals(bValue.get("blb"), null);
+        Assert.assertEquals(((BByteArray) bValue.get("blb")).size(), 0);
     }
 
     @Test

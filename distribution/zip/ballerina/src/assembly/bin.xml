@@ -89,9 +89,7 @@
             <outputDirectory>bre/lib</outputDirectory>
             <scope>runtime</scope>
             <includes>
-                <include>org.ballerinalang:ballerina-auth:jar</include>
                 <include>org.ballerinalang:ballerina-builtin:jar</include>
-                <include>org.ballerinalang:ballerina-cache:jar</include>
                 <include>org.ballerinalang:ballerina-config-api:jar</include>
                 <include>org.ballerinalang:ballerina-crypto:jar</include>
                 <include>org.ballerinalang:ballerina-h2:jar</include>
@@ -104,7 +102,6 @@
                 <include>org.ballerinalang:ballerina-internal:jar</include>
                 <include>org.ballerinalang:ballerina-io:jar</include>
                 <include>org.ballerinalang:ballerina-jms:jar</include>
-                <include>org.ballerinalang:ballerina-mb:jar</include>
                 <include>org.ballerinalang:ballerina-log-api:jar</include>
                 <include>org.ballerinalang:ballerina-math:jar</include>
                 <include>org.ballerinalang:ballerina-mime:jar</include>

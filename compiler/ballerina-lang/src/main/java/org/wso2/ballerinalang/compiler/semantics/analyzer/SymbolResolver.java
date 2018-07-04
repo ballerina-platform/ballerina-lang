@@ -64,6 +64,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -581,11 +582,23 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public void visit(BLangArrayType arrayTypeNode) {
         // The value of the dimensions field should always be >= 1
+        // If sizes is null array is unsealed
         resultType = resolveTypeNode(arrayTypeNode.elemtype, env, diagCode);
         for (int i = 0; i < arrayTypeNode.dimensions; i++) {
             BTypeSymbol arrayTypeSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.asMask(EnumSet
                     .of(Flag.PUBLIC)), Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
-            resultType = new BArrayType(resultType, arrayTypeSymbol);
+            if (arrayTypeNode.sizes.length == 0) {
+                resultType = new BArrayType(resultType, arrayTypeSymbol);
+            } else {
+                int size = arrayTypeNode.sizes[i];
+                if (arrayTypeNode.isOpenSealed && i == arrayTypeNode.dimensions - 1) {
+                    // Only first dimension is open sealed
+                    resultType = new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.OPEN_SEALED);
+                } else {
+                    resultType = size == -1 ? new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.UNSEALED) :
+                            new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.CLOSED_SEALED);
+                }
+            }
             arrayTypeSymbol.type = resultType;
         }
     }

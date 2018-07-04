@@ -560,11 +560,13 @@ public class CPU {
     
                     case InstructionCodes.INEWARRAY:
                         i = operands[0];
-                        sf.refRegs[i] = new BIntArray();
+                        j = operands[2];
+                        sf.refRegs[i] = new BIntArray((int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.BINEWARRAY:
                         i = operands[0];
-                        sf.refRegs[i] = new BByteArray();
+                        j = operands[2];
+                        sf.refRegs[i] = new BByteArray((int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.ARRAYLEN:
                         i = operands[0];
@@ -586,15 +588,18 @@ public class CPU {
                         break;
                     case InstructionCodes.FNEWARRAY:
                         i = operands[0];
-                        sf.refRegs[i] = new BFloatArray();
+                        j = operands[2];
+                        sf.refRegs[i] = new BFloatArray((int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.SNEWARRAY:
                         i = operands[0];
-                        sf.refRegs[i] = new BStringArray();
+                        j = operands[2];
+                        sf.refRegs[i] = new BStringArray((int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.BNEWARRAY:
                         i = operands[0];
-                        sf.refRegs[i] = new BBooleanArray();
+                        j = operands[2];
+                        sf.refRegs[i] = new BBooleanArray((int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.RNEWARRAY:
                         i = operands[0];
@@ -605,12 +610,14 @@ public class CPU {
                     case InstructionCodes.JSONNEWARRAY:
                         i = operands[0];
                         j = operands[1];
+                        k = operands[2];
                         // This is a temporary solution to create n-valued JSON array
                         StringJoiner stringJoiner = new StringJoiner(",", "[", "]");
-                        for (int index = 0; index < sf.longRegs[j]; index++) {
+                        int size = (int) sf.longRegs[k] == -1 ? (int) sf.longRegs[j] : (int) sf.longRegs[k];
+                        for (int index = 0; index < size; index++) {
                             stringJoiner.add(null);
                         }
-                        sf.refRegs[i] = new BJSON(stringJoiner.toString());
+                        sf.refRegs[i] = new BJSON(stringJoiner.toString(), (int) sf.longRegs[k]);
                         break;
     
                     case InstructionCodes.NEWSTRUCT:

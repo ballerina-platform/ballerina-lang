@@ -24,7 +24,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.internal.utils.Constants;
+import org.ballerinalang.stdlib.internal.Constants;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -68,7 +68,7 @@ public class CompressToByteArray extends BlockingNativeCallableUnit {
         Path dirPath = (Path) dirPathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
         if (!dirPath.toFile().exists()) {
             context.setReturnValues(CompressionUtils.createCompressionError(context, "Path of the folder to be " +
-                    "compressed is not available"));
+                    "compressed is not available: " + dirPath));
         } else {
             try {
                 byte[] compressedBytes = compressToBlob(dirPath);
