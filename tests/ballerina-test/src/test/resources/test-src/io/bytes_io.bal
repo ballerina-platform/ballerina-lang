@@ -3,7 +3,7 @@ import ballerina/io;
 io:ByteChannel channel;
 
 function initFileChannel (string filePath, io:Mode permission) {
-    channel = io:openFile(filePath, permission);
+    channel = untaint io:openFile(filePath, permission);
 }
 
 function readBytes (int numberOfBytes) returns byte[]|error {
