@@ -14,6 +14,13 @@ public type user record {
     string zipcode = "23468";
 };
 
+public type userObject object {
+    public int age;
+    public string name;
+    public string address;
+    public string zipcode = "23468";
+};
+
 public type person record {
     int age;
     string name;
@@ -39,6 +46,14 @@ public function newPerson() returns (person) {
 
 public function newUser() returns (user) {
     user u = {};
+    u.age = 56;
+    u.name = "mal";
+    u.zipcode = "23126";
+    return u;
+}
+
+public function newUserObject() returns userObject {
+    userObject u = new;
     u.age = 56;
     u.name = "mal";
     u.zipcode = "23126";
