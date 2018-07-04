@@ -245,11 +245,14 @@ public class TreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
         BSymbol recordSymbol = recordTypeNode.symbol;
+        // TODO: Since the position of the record type node is invalid, we pass the position of the type definition
         if (!recordSymbol.getName().getValue().contains("$")
                 && !ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
-                .isCursorBeforeNode(recordTypeNode.getPosition(), recordTypeNode, this, this.documentServiceContext)) {
+                .isCursorBeforeNode(recordTypeNode.parent.getPosition(), recordTypeNode,
+                        this, this.documentServiceContext)) {
             SymbolEnv recordEnv = SymbolEnv.createPkgLevelSymbolEnv(recordTypeNode, recordSymbol.scope, symbolEnv);
-            if (recordTypeNode.fields.isEmpty() && isCursorWithinBlock(recordTypeNode.getPosition(), recordEnv)) {
+            if (recordTypeNode.fields.isEmpty()
+                    && isCursorWithinBlock(recordTypeNode.parent.getPosition(), recordEnv)) {
                 symbolEnv = recordEnv;
                 Map<Name, Scope.ScopeEntry> visibleSymbolEntries = this.resolveAllVisibleSymbols(symbolEnv);
                 this.populateSymbols(visibleSymbolEntries, null);
