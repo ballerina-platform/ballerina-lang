@@ -56,7 +56,8 @@ service SamplegRPCService bind ep {
    }
 }
 ```
-A proto file is automatically generated after this service is run. It is generated in the same folder as the service.
+A proto file is generated automatically when this service is built. It is generated in a directory called 'grpc' 
+inside the project target directory.
 
 The sample given below calls the above service in a blocking manner using an auto-generated Ballerina client stub.
 
