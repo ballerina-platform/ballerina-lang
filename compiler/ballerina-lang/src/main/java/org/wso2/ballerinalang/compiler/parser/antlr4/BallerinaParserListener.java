@@ -238,6 +238,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitRecordRestFieldDefinition(BallerinaParser.RecordRestFieldDefinitionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#restDescriptorPredicate}.
+	 * @param ctx the parse tree
+	 */
+	void enterRestDescriptorPredicate(BallerinaParser.RestDescriptorPredicateContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#restDescriptorPredicate}.
+	 * @param ctx the parse tree
+	 */
+	void exitRestDescriptorPredicate(BallerinaParser.RestDescriptorPredicateContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#objectParameterList}.
 	 * @param ctx the parse tree
 	 */

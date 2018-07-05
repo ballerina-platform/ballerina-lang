@@ -808,7 +808,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean hasRestField = ctx.recordRestFieldDefinition() != null;
 
-        boolean sealed = "sealed".equals(ctx.parent.getChild(0).getText());
+        boolean sealed = hasRestField ? ctx.recordRestFieldDefinition().NOT() != null : false;
 
         this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous, sealed,
                                       hasRestField);
