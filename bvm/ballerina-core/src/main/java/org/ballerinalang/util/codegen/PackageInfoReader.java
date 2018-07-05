@@ -1299,6 +1299,7 @@ public class PackageInfoReader {
                 case InstructionCodes.BIXOR:
                 case InstructionCodes.BISHL:
                 case InstructionCodes.BISHR:
+                case InstructionCodes.BIUSHR:
                 case InstructionCodes.XMLATTRLOAD:
                 case InstructionCodes.XMLATTRSTORE:
                 case InstructionCodes.S2QNAME:
