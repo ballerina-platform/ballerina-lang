@@ -236,7 +236,7 @@ DecimalNumeral
 
 fragment
 Digits
-    :   Digit Digit*
+    :   Digit+
     ;
 
 fragment
@@ -257,7 +257,7 @@ HexNumeral
 
 fragment
 HexDigits
-    :   HexDigit HexDigit*
+    :   HexDigit+
     ;
 
 fragment
@@ -272,7 +272,7 @@ OctalNumeral
 
 fragment
 OctalDigits
-    :   OctalDigit OctalDigit*
+    :   OctalDigit+
     ;
 
 fragment
@@ -287,7 +287,7 @@ BinaryNumeral
 
 fragment
 BinaryDigits
-    :   BinaryDigit BinaryDigit*
+    :   BinaryDigit+
     ;
 
 fragment
