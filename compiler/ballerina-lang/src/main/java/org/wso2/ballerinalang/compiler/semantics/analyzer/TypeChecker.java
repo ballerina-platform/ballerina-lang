@@ -1299,7 +1299,7 @@ public class TypeChecker extends BLangNodeVisitor {
             funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(iExpr.name),
                     structType.tsymbol);
             if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
-                dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_STRUCT, iExpr.name.value, structType);
+                dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_OBJECT, iExpr.name.value, structType);
                 resultType = symTable.errType;
                 return;
             }
@@ -1312,7 +1312,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (structType.tag == TypeTags.RECORD) {
                 BAttachedFunction initializerFunc = ((BRecordTypeSymbol) structType.tsymbol).initializerFunc;
                 if (initializerFunc != null && initializerFunc.funcName.value.equals(iExpr.name.value)) {
-                    dlog.error(iExpr.pos, DiagnosticCode.STRUCT_INITIALIZER_INVOKED, structType.tsymbol.toString());
+                    dlog.error(iExpr.pos, DiagnosticCode.RECORD_INITIALIZER_INVOKED, structType.tsymbol.toString());
                 }
             }
         }
@@ -1562,7 +1562,7 @@ public class TypeChecker extends BLangNodeVisitor {
             fieldName = names.fromIdNode(varRef.variableName);
         } else {
             // keys of the struct literal can only be a varRef (identifier)
-            dlog.error(keyExpr.pos, DiagnosticCode.INVALID_STRUCT_LITERAL_KEY);
+            dlog.error(keyExpr.pos, DiagnosticCode.INVALID_RECORD_LITERAL_KEY);
             return symTable.errType;
         }
 
@@ -1571,7 +1571,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 fieldName, recordType.tsymbol);
         if (fieldSymbol == symTable.notFoundSymbol) {
             if (((BRecordType) recordType).sealed) {
-                dlog.error(keyExpr.pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, recordType.tsymbol);
+                dlog.error(keyExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, fieldName,
+                        recordType.tsymbol.type.getKind(), recordType.tsymbol);
                 return symTable.errType;
             }
 
@@ -1641,7 +1642,8 @@ public class TypeChecker extends BLangNodeVisitor {
             fieldSymbol = symResolver.resolveObjectField(varReferExpr.pos, env, objFuncName, structType.tsymbol);
 
             if (fieldSymbol == symTable.notFoundSymbol) {
-                dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, structType.tsymbol);
+                dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, fieldName,
+                        structType.tsymbol.type.getKind(), structType.tsymbol);
                 return symTable.errType;
             }
 
@@ -1652,7 +1654,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // Assuming this method is only used for objects and records
         if (((BRecordType) structType).sealed) {
-            dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, structType.tsymbol);
+            dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, fieldName,
+                    structType.tsymbol.type.getKind(), structType.tsymbol);
             return symTable.errType;
         }
 

@@ -1998,8 +1998,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         } else if (!(functionParameters.get(0).type.tag == TypeTags.ARRAY &&
                 (((BArrayType) functionParameters.get(0).type).eType.tag == TypeTags.OBJECT)
                 || ((BArrayType) functionParameters.get(0).type).eType.tag == TypeTags.RECORD)) {
-            dlog.error((streamAction).pos,
-                    DiagnosticCode.INVALID_STREAM_ACTION_ARGUMENT_TYPE);
+            dlog.error((streamAction).pos, DiagnosticCode.INVALID_STREAM_ACTION_ARGUMENT_TYPE,
+                    ((BArrayType) functionParameters.get(0).type).eType.getKind());
         }
     }
 
