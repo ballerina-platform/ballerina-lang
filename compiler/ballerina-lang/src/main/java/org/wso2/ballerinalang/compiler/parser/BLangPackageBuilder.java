@@ -3250,8 +3250,7 @@ public class BLangPackageBuilder {
         BLangCompensate compensateNode = (BLangCompensate) TreeBuilder.createCompensateNode();
         compensateNode.pos = pos;
         compensateNode.addWS(ws);
-        compensateNode.scopeName = name;
-
+        compensateNode.scopeName = createIdentifier(name);
         compensateNode.invocation.name = (BLangIdentifier) createIdentifier(name);
         compensateNode.invocation.pkgAlias = (BLangIdentifier) createIdentifier(null);
 

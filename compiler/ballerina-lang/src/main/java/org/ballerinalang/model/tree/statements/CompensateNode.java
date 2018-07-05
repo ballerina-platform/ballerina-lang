@@ -16,12 +16,14 @@
  */
 package org.ballerinalang.model.tree.statements;
 
+import org.ballerinalang.model.tree.IdentifierNode;
+
 /**
  * Interface for compensate node.
  * @since 0.980.0
  */
 public interface CompensateNode extends StatementNode {
-    public String getScopeName();
+    public IdentifierNode getScopeName();
 
-    public void setScopeName(String scopeName);
+    public void setScopeName(IdentifierNode scopeName);
 }

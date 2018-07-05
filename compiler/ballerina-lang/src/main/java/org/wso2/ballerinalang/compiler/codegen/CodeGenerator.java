@@ -1361,7 +1361,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangCompensate compensate) {
         Operand jumpAddr = getOperand(nextIP());
         //Add child function refs
-        Stack children = childScopesMap.get(compensate.scopeName);
+        Stack children = childScopesMap.get(compensate.scopeName.getValue());
 
         int i = 0;
         //scopeName, child count, children

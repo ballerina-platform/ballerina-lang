@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.model.tree.statements;
 
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 
 /**
@@ -25,7 +26,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 public interface ScopeNode extends StatementNode {
     BlockNode getScopeBody();
 
-    BLangIdentifier getScopeName();
+    IdentifierNode getScopeName();
 
     void setScopeName(BLangIdentifier name);
 

@@ -17,6 +17,7 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.CompensateNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -28,7 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
  */
 public class BLangCompensate extends BLangStatement implements CompensateNode {
 
-    public String scopeName;
+    public IdentifierNode scopeName;
 
     public BLangInvocation invocation;
 
@@ -36,16 +37,16 @@ public class BLangCompensate extends BLangStatement implements CompensateNode {
         invocation = (BLangInvocation) TreeBuilder.createInvocationNode();
     }
 
-    public BLangCompensate(String scopeName) {
+    public BLangCompensate(IdentifierNode scopeName) {
         invocation = (BLangInvocation) TreeBuilder.createInvocationNode();
         this.scopeName = scopeName;
     }
 
-    public String getScopeName() {
+    public IdentifierNode getScopeName() {
         return scopeName;
     }
 
-    public void setScopeName(String scopeName) {
+    public void setScopeName(IdentifierNode scopeName) {
         this.scopeName = scopeName;
     }
 
