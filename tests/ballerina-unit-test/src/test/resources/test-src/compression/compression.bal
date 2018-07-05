@@ -20,20 +20,20 @@ function compressFile(string src, string destDir) returns error? {
     }
 }
 
-function decompressBlob(blob content, string destDir) returns error? {
+function decompressBlob(byte[] content, string destDir) returns error? {
     internal:Path dstPath = new(destDir);
-    var result = internal:decompressFromBlob(content, dstPath);
+    var result = internal:decompressFromByteArray(content, dstPath);
     match result {
         internal:CompressionError err => return err;
         ()=> return;
     }
 }
 
-function compressDirToBlob(string src) returns blob|error {
+function compressDirToBlob(string src) returns byte[]|error {
     internal:Path srcPath = new(src);
-    var result = internal:compressToBlob(srcPath);
+    var result = internal:compressToByteArray(srcPath);
     match result {
         internal:CompressionError err => return err;
-        blob b => return b;
+        byte[] b => return b;
     }
 }

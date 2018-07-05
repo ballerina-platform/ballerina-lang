@@ -236,7 +236,6 @@ import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableInde
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.PACKAGE;
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.REG;
 import static org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangTypeLoad;
-import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BLOB_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BOOL_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BYTE_NEGATIVE_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.FLOAT_OFFSET;
@@ -553,8 +552,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 return InstructionCodes.SRET;
             case TypeTags.BOOLEAN:
                 return InstructionCodes.BRET;
-            case TypeTags.BLOB:
-                return InstructionCodes.LRET;
             default:
                 return InstructionCodes.RRET;
         }
@@ -1365,9 +1362,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.BOOLEAN:
                 index = ++indexes.tBoolean;
                 break;
-            case TypeTags.BLOB:
-                index = ++indexes.tBlob;
-                break;
             default:
                 index = ++indexes.tRef;
                 break;
@@ -1391,9 +1385,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.BYTE:
             case TypeTags.BOOLEAN:
                 opcode = baseOpcode + BOOL_OFFSET;
-                break;
-            case TypeTags.BLOB:
-                opcode = baseOpcode + BLOB_OFFSET;
                 break;
             default:
                 opcode = baseOpcode + REF_OFFSET;
@@ -1425,9 +1416,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             case TypeTags.BOOLEAN:
                 opcode = baseOpcode + BOOL_OFFSET;
-                break;
-            case TypeTags.BLOB:
-                opcode = baseOpcode + BLOB_OFFSET;
                 break;
             default:
                 opcode = baseOpcode + REF_OFFSET;
@@ -1627,7 +1615,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         vIndexes.tFloat = that.tFloat;
         vIndexes.tString = that.tString;
         vIndexes.tBoolean = that.tBoolean;
-        vIndexes.tBlob = that.tBlob;
         vIndexes.tRef = that.tRef;
         return vIndexes;
     }
@@ -1641,14 +1628,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         codeAttributeInfo.maxDoubleLocalVars = lvIndexes.tFloat + 1;
         codeAttributeInfo.maxStringLocalVars = lvIndexes.tString + 1;
         codeAttributeInfo.maxIntLocalVars = lvIndexes.tBoolean + 1;
-        codeAttributeInfo.maxByteLocalVars = lvIndexes.tBlob + 1;
         codeAttributeInfo.maxRefLocalVars = lvIndexes.tRef + 1;
 
         codeAttributeInfo.maxLongRegs = codeAttributeInfo.maxLongLocalVars + maxRegIndexes.tInt + 1;
         codeAttributeInfo.maxDoubleRegs = codeAttributeInfo.maxDoubleLocalVars + maxRegIndexes.tFloat + 1;
         codeAttributeInfo.maxStringRegs = codeAttributeInfo.maxStringLocalVars + maxRegIndexes.tString + 1;
         codeAttributeInfo.maxIntRegs = codeAttributeInfo.maxIntLocalVars + maxRegIndexes.tBoolean + 1;
-        codeAttributeInfo.maxByteRegs = codeAttributeInfo.maxByteLocalVars + maxRegIndexes.tBlob + 1;
         codeAttributeInfo.maxRefRegs = codeAttributeInfo.maxRefLocalVars + maxRegIndexes.tRef + 1;
 
         // Update register indexes.
@@ -1669,9 +1654,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 case TypeTags.BOOLEAN:
                     regIndex.value = regIndex.value + codeAttributeInfo.maxIntLocalVars;
                     break;
-                case TypeTags.BLOB:
-                    regIndex.value = regIndex.value + codeAttributeInfo.maxByteLocalVars;
-                    break;
                 default:
                     regIndex.value = regIndex.value + codeAttributeInfo.maxRefLocalVars;
                     break;
@@ -1689,7 +1671,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         max.tFloat = (max.tFloat > current.tFloat) ? max.tFloat : current.tFloat;
         max.tString = (max.tString > current.tString) ? max.tString : current.tString;
         max.tBoolean = (max.tBoolean > current.tBoolean) ? max.tBoolean : current.tBoolean;
-        max.tBlob = (max.tBlob > current.tBlob) ? max.tBlob : current.tBlob;
         max.tRef = (max.tRef > current.tRef) ? max.tRef : current.tRef;
     }
 
@@ -1698,7 +1679,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         indexes.tFloat++;
         indexes.tString++;
         indexes.tBoolean++;
-        indexes.tBlob++;
         indexes.tRef++;
     }
 
@@ -1727,7 +1707,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         varCountAttribInfo.setMaxDoubleVars(fieldCount.tFloat);
         varCountAttribInfo.setMaxStringVars(fieldCount.tString);
         varCountAttribInfo.setMaxIntVars(fieldCount.tBoolean);
-        varCountAttribInfo.setMaxByteVars(fieldCount.tBlob);
         varCountAttribInfo.setMaxRefVars(fieldCount.tRef);
         attributeInfoPool.addAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE, varCountAttribInfo);
     }
@@ -1808,7 +1787,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         varCountAttribInfo.setMaxDoubleVars(fieldCount[FLOAT_OFFSET]);
         varCountAttribInfo.setMaxStringVars(fieldCount[STRING_OFFSET]);
         varCountAttribInfo.setMaxIntVars(fieldCount[BOOL_OFFSET]);
-        varCountAttribInfo.setMaxByteVars(fieldCount[BLOB_OFFSET]);
         varCountAttribInfo.setMaxRefVars(fieldCount[REF_OFFSET]);
         attributeInfoPool.addAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE, varCountAttribInfo);
     }
@@ -1838,10 +1816,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             case TypeTags.BOOLEAN:
                 defaultValue.booleanValue = (Boolean) literalExpr.value;
-                break;
-            case TypeTags.BLOB:
-                defaultValue.blobValue = (byte[]) literalExpr.value;
-                defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new BlobCPEntry(defaultValue.blobValue));
                 break;
             case TypeTags.NIL:
                 break;
@@ -1975,7 +1949,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Create variable count attribute info
         prepareIndexes(fieldIndexes);
         int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
-                fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tBlob, fieldIndexes.tRef};
+                fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tRef};
         addVariableCountAttributeInfo(currentPkgInfo, objInfo, fieldCount);
         fieldIndexes = new VariableIndex(FIELD);
 
@@ -2038,7 +2012,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Create variable count attribute info
         prepareIndexes(fieldIndexes);
         int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
-                fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tBlob, fieldIndexes.tRef};
+                fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tRef};
         addVariableCountAttributeInfo(currentPkgInfo, recordInfo, fieldCount);
         fieldIndexes = new VariableIndex(FIELD);
 
@@ -2296,7 +2270,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         int tFloat = -1;
         int tString = -1;
         int tBoolean = -1;
-        int tBlob = -1;
         int tRef = -1;
         Kind kind;
 
@@ -2310,8 +2283,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             result[1] = this.tFloat;
             result[2] = this.tString;
             result[3] = this.tBoolean;
-            result[4] = this.tBlob;
-            result[5] = this.tRef;
+            result[4] = this.tRef;
             return result;
         }
 
@@ -3531,9 +3503,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.BOOLEAN:
                 opcode = InstructionCodes.B2ANY;
                 break;
-            case TypeTags.BLOB:
-                opcode = InstructionCodes.L2ANY;
-                break;
             default:
                 opcode = InstructionCodes.NOP;
                 break;
@@ -3558,9 +3527,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             case TypeTags.BOOLEAN:
                 opcode = InstructionCodes.ANY2B;
-                break;
-            case TypeTags.BLOB:
-                opcode = InstructionCodes.ANY2L;
                 break;
             default:
                 opcode = InstructionCodes.NOP;

@@ -209,7 +209,7 @@ public type Request object {
     documentation {
         Gets the request payload as a `byte[]`.
 
-        R{{}} The blob representation of the message payload or `error` in case of errors
+        R{{}} The byte[] representation of the message payload or `error` in case of errors
     }
     public function getBinaryPayload() returns byte[]|error;
 

@@ -89,10 +89,6 @@ function split(string j, string k) returns (string[]) {
     return j.split(k);
 }
 
-function toBlob(string l, string m) returns (blob) {
-    return l.toBlob(m);
-}
-
 function toByteArray(string l, string m) returns (byte[]) {
     return l.toByteArray(m);
 }
@@ -111,15 +107,6 @@ function testBase64EncodeString(string contentToBeEncoded) returns (string|error
 function testBase64DecodeString(string contentToBeDecoded) returns (string|error) {
     return contentToBeDecoded.base64Decode();
 }
-
-function testBase64EncodeBlob(blob contentToBeEncoded) returns blob {
-    return contentToBeEncoded.base64Encode();
-}
-
-function testBase64DecodeBlob(blob contentToBeDecoded) returns blob {
-    return contentToBeDecoded.base64Decode();
-}
-
 
 function testBase16ToBase64Encoding(string s) returns string {
     return s.base16ToBase64Encode();

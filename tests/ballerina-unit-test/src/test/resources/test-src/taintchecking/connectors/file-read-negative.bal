@@ -10,7 +10,7 @@ function main (string... args) {
     var readOutput = bchannel.read(intArg);
     match readOutput {
         (blob,int) data => {
-            blob readData;
+            byte[] readData;
             int readLen;
             (readData, readLen) = data;
             testFunction(readData, readData);
