@@ -30,6 +30,8 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.FieldContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTemplateContentContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
@@ -3060,6 +3062,68 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.createElvisExpr(getCurrentPos(ctx), getWS(ctx));
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void enterScopeStatement(BallerinaParser.ScopeStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.startScopeStmt();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitScopeStatement(BallerinaParser.ScopeStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        String name = null;
+        if (ctx.scopeClause().Identifier() != null) {
+            name = ctx.scopeClause().Identifier().getText();
+        }
+        BLangIdentifier identifier = new BLangIdentifier();
+        identifier.setValue(name);
+
+        this.pkgBuilder.endScopeStmt(getCurrentPos(ctx), getWS(ctx), identifier, getFunctionDefinition(ctx));
+    }
+
+    @Override
+    public void exitScopeClause(BallerinaParser.ScopeClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.addScopeBlock(getCurrentPos(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void enterCompensationClause(BallerinaParser.CompensationClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.startOnCompensationBlock();
+    }
+
+    @Override
+    public void exitCompensateStatement(BallerinaParser.CompensateStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        String scope = null;
+        if (ctx.Identifier() != null) {
+            scope = ctx.Identifier().getText();
+        }
+
+        this.pkgBuilder.addCompensateStatement(getCurrentPos(ctx), getWS(ctx), scope);
+    }
+
     private DiagnosticPos getCurrentPos(ParserRuleContext ctx) {
         int startLine = ctx.getStart().getLine();
         int startCol = ctx.getStart().getCharPositionInLine() + 1;
@@ -3128,6 +3192,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                     DiagnosticCode.BINARY_TOO_SMALL, DiagnosticCode.BINARY_TOO_LARGE);
         }
         return null;
+    }
+
+    private BLangLambdaFunction getFunctionDefinition(BallerinaParser.ScopeStatementContext ctx) {
+        boolean bodyExists = ctx.compensationClause().callableUnitBody() != null;
+
+        return this.pkgBuilder.getScopesFunctionDef(getCurrentPos(ctx), getWS(ctx), bodyExists,
+                ctx.scopeClause().Identifier().getText());
     }
 
     private Object parseLong(ParserRuleContext context, String originalNodeValue, String processedNodeValue, int radix,

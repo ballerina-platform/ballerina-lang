@@ -90,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
@@ -672,23 +673,33 @@ public class SymbolEnter extends BLangNodeVisitor {
         // this is a field variable defined for object init function
         if (varNode.isField) {
             Name varName = names.fromIdNode(varNode.name);
-            BSymbol symbol = symResolver.resolveObjectField(varNode.pos, env, varName,
-                    env.enclTypeDefinition.symbol.type.tsymbol);
+            BSymbol symbol;
+            if (env.enclTypeDefinition != null) {
+                symbol = symResolver.resolveObjectField(varNode.pos, env, varName,
+                        env.enclTypeDefinition.symbol.type.tsymbol);
+            } else {
+                symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
+            }
 
             if (symbol == symTable.notFoundSymbol) {
                 dlog.error(varNode.pos, DiagnosticCode.UNDEFINED_OBJECT_FIELD, varName, env.enclTypeDefinition.name);
             }
             varNode.type = symbol.type;
-            Name updatedVarName = getFieldSymbolName(((BLangFunction) env.enclInvokable).receiver, varNode);
+            Name updatedVarName = varName;
+            if (((BLangFunction) env.enclInvokable).receiver != null) {
+               updatedVarName = getFieldSymbolName(((BLangFunction) env.enclInvokable).receiver, varNode);
+            }
             BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, updatedVarName, env);
 
             // Reset the name of the symbol to the original var name
             varSymbol.name = varName;
 
             // This means enclosing type definition is a object type defintion
-            BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) env.enclTypeDefinition.typeNode;
-            objectTypeNode.initFunction.initFunctionStmts.put(symbol,
-                    (BLangStatement) createAssignmentStmt(varNode, varSymbol, symbol));
+            if (env.enclTypeDefinition != null) {
+                BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) env.enclTypeDefinition.typeNode;
+                objectTypeNode.initFunction.initFunctionStmts
+                        .put(symbol, (BLangStatement) createAssignmentStmt(varNode, varSymbol, symbol));
+            }
             varSymbol.docTag = varNode.docTag;
             varNode.symbol = varSymbol;
             return;
@@ -772,6 +783,15 @@ public class SymbolEnter extends BLangNodeVisitor {
             env.scope.define(xmlnsSymbol.name, xmlnsSymbol);
             bLangXMLAttribute.symbol = xmlnsSymbol;
         }
+    }
+
+    @Override
+    public void visit(BLangScope scopeNode) {
+        BTypeSymbol symbol = Symbols
+                .createScopeSymbol(names.fromString(scopeNode.name.getValue()), env.enclPkg.symbol.pkgID,
+                        scopeNode.type, env.scope.owner);
+        scopeNode.type = symbol.type;
+        env.scope.define(names.fromString(scopeNode.name.getValue()), symbol);
     }
 
 

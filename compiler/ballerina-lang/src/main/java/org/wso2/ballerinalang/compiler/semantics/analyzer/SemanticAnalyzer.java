@@ -122,6 +122,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
@@ -136,6 +137,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -1481,6 +1483,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
+        /* ignore */
+    }
+
+    @Override
+    public void visit(BLangScope scopeNode) {
+        visit(scopeNode.scopeBody);
+
+        symbolEnter.defineNode(scopeNode.compensationFunction.function, env);
+        typeChecker.checkExpr(scopeNode.compensationFunction, env);
+        symbolEnter.defineNode(scopeNode, env);
+    }
+
+    @Override
+    public void visit(BLangCompensate node) {
         /* ignore */
     }
 
