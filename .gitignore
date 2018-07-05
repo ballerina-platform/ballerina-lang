@@ -24,6 +24,7 @@ results
 /gen
 /compiler/ballerina-lang/src/main/resources/grammar/BallerinaLexer.tokens
 /tool-plugins/intellij/src/main/antlr/org/ballerinalang/plugins/idea/grammar/BallerinaLexer.tokens
+/composer/modules/web/dist-electron/
 velocity.log
 
 # mac
