@@ -96,6 +96,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
@@ -110,6 +111,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -1157,6 +1159,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         node.accept(this);
         parent = myParent;
         checkAccess(node);
+    }
+
+    @Override
+    public void visit(BLangScope scopeNode) {
+        this.checkStatementExecutionValidity(scopeNode);
+        scopeNode.getScopeBody().accept(this);
+        this.resetLastStatement();
+        visit(scopeNode.compensationFunction);
+    }
+
+    @Override
+    public void visit(BLangCompensate compensateNode) {
+        this.checkStatementExecutionValidity(compensateNode);
     }
 
     /**

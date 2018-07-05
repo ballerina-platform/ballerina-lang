@@ -280,6 +280,8 @@ statement
     |   foreverStatement
     |   streamingQueryStatement
     |   doneStatement
+    |   scopeStatement
+    |   compensateStatement
     ;
 
 variableDefinitionStatement
@@ -409,6 +411,22 @@ continueStatement
 
 breakStatement
     :   BREAK SEMICOLON
+    ;
+
+scopeStatement
+    :   scopeClause compensationClause
+    ;
+
+scopeClause
+    : SCOPE Identifier LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
+compensationClause
+    : COMPENSATION callableUnitBody
+    ;
+
+compensateStatement
+    :  COMPENSATE Identifier SEMICOLON
     ;
 
 // typeName is only message
