@@ -90,7 +90,9 @@ public class HTTPCarbonMessage {
             }
             contentObservable.notifyGetListener(httpContent);
             blockingEntityCollector.addHttpContent(httpContent);
-            messageFuture.notifyMessageListener(blockingEntityCollector.getHttpContent());
+            if (messageFuture.isMessageListenerSet()) {
+                messageFuture.notifyMessageListener(blockingEntityCollector.getHttpContent());
+            }
             // We remove the feature as the message has reached it life time. If there is a need
             // for using the same message again, we need to set the future again and restart
             // the life-cycle.

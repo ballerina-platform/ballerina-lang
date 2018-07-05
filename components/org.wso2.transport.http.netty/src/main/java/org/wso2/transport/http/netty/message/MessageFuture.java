@@ -20,21 +20,20 @@ package org.wso2.transport.http.netty.message;
 
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.LastHttpContent;
-
-import java.util.concurrent.ConcurrentLinkedQueue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents future contents of the message.
  */
 public class MessageFuture {
 
+    private static final Logger log = LoggerFactory.getLogger(MessageFuture.class);
     private MessageListener messageListener;
-    private ConcurrentLinkedQueue<HttpContent> pendingPayload;
     private final HTTPCarbonMessage httpCarbonMessage;
 
-     public MessageFuture(HTTPCarbonMessage httpCarbonMessage) {
+    public MessageFuture(HTTPCarbonMessage httpCarbonMessage) {
         this.httpCarbonMessage = httpCarbonMessage;
-        this.pendingPayload = new ConcurrentLinkedQueue<>();
     }
 
     public void setMessageListener(MessageListener messageListener) {
@@ -48,14 +47,6 @@ public class MessageFuture {
                     return;
                 }
             }
-            while (!pendingPayload.isEmpty()) {
-                HttpContent httpContent = pendingPayload.poll();
-                notifyMessageListener(httpContent);
-                if (httpContent instanceof LastHttpContent) {
-                    this.httpCarbonMessage.removeMessageFuture();
-                    return;
-                }
-            }
         }
     }
 
@@ -63,8 +54,12 @@ public class MessageFuture {
         if (this.messageListener != null) {
             this.messageListener.onMessage(httpContent);
         } else {
-            pendingPayload.add(httpContent);
+            log.error("The message chunk will be lost because the MessageListener is not set.");
         }
+    }
+
+    public boolean isMessageListenerSet() {
+        return messageListener != null;
     }
 
     public synchronized HttpContent sync() {
