@@ -130,7 +130,7 @@ public class RecordAccessWithIndexTest {
 
     @Test(description = "Test accessing an undeclared field of a record")
     public void testUndeclaredFieldAccess() {
-        BAssertUtil.validateError(negativeResult, 1, "undefined field 'id' in struct 'Department'", 9, 5);
+        BAssertUtil.validateError(negativeResult, 1, "undefined field 'id' in record 'Department'", 9, 5);
     }
 
     @Test(description = "Test accesing a record with a dynamic index")

@@ -43,7 +43,7 @@ public class ObjectWithPrivateFieldsNegativeTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-private-fields-02-negative.bal");
 
         BAssertUtil.validateError(compileResult, 0, "attempt to refer to non-accessible symbol 'ssn'", 7, 18);
-        BAssertUtil.validateError(compileResult, 1, "undefined field 'ssn' in struct 'org.foo:person'", 7, 18);
+        BAssertUtil.validateError(compileResult, 1, "undefined field 'ssn' in object 'org.foo:person'", 7, 18);
     }
 
     @Test(description = "Test private object access in public functions")
@@ -83,7 +83,7 @@ public class ObjectWithPrivateFieldsNegativeTest {
         BAssertUtil.validateError(compileResult, 5, expectedErrMsg1 + "'FooFamily'", 5, 13);
         BAssertUtil.validateError(compileResult, 7, expectedErrMsg1 + "'FooFamily'", 10, 13);
         BAssertUtil.validateError(compileResult, 8, expectedErrMsg1 + "'address'", 15, 13);
-        BAssertUtil.validateError(compileResult, 9, "undefined field 'address' in struct 'org.foo.baz:FooEmployee'",
+        BAssertUtil.validateError(compileResult, 9, "undefined field 'address' in object 'org.foo.baz:FooEmployee'",
                 15, 13);
     }
 }

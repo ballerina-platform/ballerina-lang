@@ -68,7 +68,7 @@ public class FunctionPointersNegativeTest {
     public void testFPInStruct() {
         CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/negative/fp-struct-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "undefined function 'getFullName' in struct 'Person'", 17, 16);
+        BAssertUtil.validateError(result, 0, "undefined function 'getFullName' in object 'Person'", 17, 16);
 
     }
 

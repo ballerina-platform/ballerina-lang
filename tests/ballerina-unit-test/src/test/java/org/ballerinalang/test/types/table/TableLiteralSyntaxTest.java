@@ -106,9 +106,9 @@ public class TableLiteralSyntaxTest {
         Assert.assertEquals(resultNegative.getErrorCount(), 9);
         BAssertUtil.validateError(resultNegative, 0, "object type not allowed as the constraint", 20, 11);
         BAssertUtil.validateError(resultNegative, 1, "undefined column 'married2' for table of type 'Person'", 26, 24);
-        BAssertUtil.validateError(resultNegative, 2, "undefined field 'married2' in struct 'Person'", 28, 10);
-        BAssertUtil.validateError(resultNegative, 3, "undefined field 'married2' in struct 'Person'", 29, 9);
-        BAssertUtil.validateError(resultNegative, 4, "undefined field 'married2' in struct 'Person'", 30, 9);
+        BAssertUtil.validateError(resultNegative, 2, "undefined field 'married2' in record 'Person'", 28, 10);
+        BAssertUtil.validateError(resultNegative, 3, "undefined field 'married2' in record 'Person'", 29, 9);
+        BAssertUtil.validateError(resultNegative, 4, "undefined field 'married2' in record 'Person'", 30, 9);
         BAssertUtil.validateError(resultNegative, 5, "incompatible types: expected 'Person', found 'int'", 44, 10);
         BAssertUtil.validateError(resultNegative, 6, "incompatible types: expected 'Person', found 'int'", 44, 13);
         BAssertUtil.validateError(resultNegative, 7, "object type not allowed as the constraint", 56, 5);
