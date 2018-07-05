@@ -22,6 +22,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -174,7 +175,7 @@ public class BlockingStub extends AbstractStub {
             } else if (protoType.equalsIgnoreCase(WRAPPER_STRING_MESSAGE)) {
                 return BTypes.typeString;
             } else if (protoType.equalsIgnoreCase(WRAPPER_BYTES_MESSAGE)) {
-                return BTypes.typeByteArray;
+                return new BArrayType(BTypes.typeByte);
             } else {
                 return context.getProgramFile().getEntryPackage().getStructInfo(protoType).getType();
             }

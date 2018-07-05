@@ -28,7 +28,7 @@ public class ProgramFileConstants {
     public static final short MAX_SUPPORTED_VERSION = 18;
 
     // int, float, string, boolean, reference type
-    public static final int NO_OF_VAR_TYPE_CATEGORIES = 6;
+    public static final int NO_OF_VAR_TYPE_CATEGORIES = 5;
     public static final int INT_OFFSET = 0;
     public static final int FLOAT_OFFSET = 1;
     public static final int STRING_OFFSET = 2;

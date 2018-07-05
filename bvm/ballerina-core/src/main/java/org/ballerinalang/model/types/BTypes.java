@@ -39,7 +39,6 @@ public class BTypes {
     public static BType typeNull = new BNullType(TypeConstants.NULL_TNAME, null);
     public static BType typeXMLAttributes = new BXMLAttributesType(TypeConstants.XML_ATTRIBUTES_TNAME, null);
     public static BType typeIterator = new BIteratorType(TypeConstants.ITERATOR_TNAME, null);
-    public static BType typeByteArray = new BArrayType(typeByte);
 
     private BTypes() {
     }
