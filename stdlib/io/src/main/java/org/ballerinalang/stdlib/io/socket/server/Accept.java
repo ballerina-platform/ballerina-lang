@@ -28,12 +28,9 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.socket.SocketConstants;
-import org.ballerinalang.stdlib.io.utils.IOUtils;
-import org.ballerinalang.util.codegen.PackageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
@@ -62,21 +59,12 @@ public class Accept implements NativeCallableUnit {
         ServerSocketChannel serverSocketChannel = (ServerSocketChannel) serverSocketStruct
                 .getNativeData(SocketConstants.SERVER_SOCKET_KEY);
         int serverSocketHash = serverSocketChannel.hashCode();
-        SocketChannel socketChannel = SocketQueue.getSocket(serverSocketHash);
+        SocketChannel socketChannel = SocketQueue.getInstance().getSocket(serverSocketHash);
         if (socketChannel != null) {
-            try {
-                PackageInfo ioPackageInfo = context.getProgramFile().getPackageInfo(SocketConstants.SOCKET_PACKAGE);
-                BMap<String, BValue> socketStruct = ServerSocketUtils.getSocketStruct(socketChannel, ioPackageInfo);
-                context.setReturnValues(socketStruct);
-                callback.notifySuccess();
-            } catch (IOException e) {
-                String msg = "Failed to open a client connection: " + e.getMessage();
-                log.error(msg, e);
-                context.setReturnValues(IOUtils.createError(context, msg));
-            }
+            ServerSocketUtils.createSocket(context, callback, socketChannel);
         } else {
-            SocketAcceptCallbackQueue
-                    .registerSocketAcceptCallback(serverSocketHash, new SocketAcceptCallback(context, callback));
+            SocketAcceptCallbackQueue queue = SocketAcceptCallbackQueue.getInstance();
+            queue.registerSocketAcceptCallback(serverSocketHash, new SocketAcceptCallback(context, callback));
         }
     }
 

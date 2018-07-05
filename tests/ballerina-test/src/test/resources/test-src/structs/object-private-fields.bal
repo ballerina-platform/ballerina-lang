@@ -77,7 +77,7 @@ public function testCompileTimeStructEqWithPrivateFieldsTwoPackages () returns (
     e.id = 458;
 
     // This is a safe cast
-    foo:user u = <foo:user>e;
+    foo:userObject u = <foo:userObject>e;
     return (u.age, u.name, u.zipcode);
 }
 
@@ -107,7 +107,7 @@ public function testRuntimeStructEqWithPrivateFieldsTwoPackages1 () returns (str
     e.id = 458;
 
     // This is a safe cast
-    foo:user u = <foo:user>e;
+    foo:userObject u = <foo:userObject>e;
 
     // Now I want cat u back to be an employee instance.
     var p = check < person > u;
@@ -117,7 +117,7 @@ public function testRuntimeStructEqWithPrivateFieldsTwoPackages1 () returns (str
 }
 
 public function testRuntimeStructEqWithPrivateFieldsTwoPackages2 () returns (string, int) {
-    foo:user u = foo:newUser();
+    foo:userObject u = foo:newUserObject();
 
     // This is a safe cast
     var uA = <userA>u;

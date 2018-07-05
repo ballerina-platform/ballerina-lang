@@ -46,7 +46,7 @@ public type Socket object {
 
         R{{}} An error if could not bind to the port
     }
-    public native function bindAddress(int port, string? interface = ()) returns error?;
+    public native function bindAddress(@sensitive int port, @sensitive string? interface = ()) returns error?;
 
     documentation {
         Open a connection with remote server.
@@ -96,14 +96,14 @@ public type ServerSocket object {
 
         R{{}} An error if could not bind to the port
     }
-    public native function bindAddress(int port, string? interface = ()) returns error?;
+    public native function bindAddress(@sensitive int port, @sensitive string? interface = ()) returns error?;
 
     documentation {
         This blocking function will wait until new client socket connect.
 
         R{{}} An error if could not create new socket.
     }
-    public native function accept() returns @tainted Socket|error;
+    public native function accept() returns Socket|error;
 
     documentation {
         Closes a socket connection.

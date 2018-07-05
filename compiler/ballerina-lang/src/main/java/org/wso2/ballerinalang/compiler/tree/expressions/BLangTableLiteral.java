@@ -20,6 +20,7 @@ import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.TableColumnNode;
 import org.ballerinalang.model.tree.expressions.TableLiteralNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -84,7 +85,7 @@ public class BLangTableLiteral extends BLangExpression implements TableLiteralNo
      *
      * @since 0.980.0
      */
-    public static class BLangTableColumn extends BLangNode {
+    public static class BLangTableColumn extends BLangNode implements TableColumnNode {
 
         public String columnName;
         public Set<TableColumnFlag> flagSet;
@@ -96,7 +97,17 @@ public class BLangTableLiteral extends BLangExpression implements TableLiteralNo
 
         @Override
         public NodeKind getKind() {
-            return null;
+            return NodeKind.TABLE_COLUMN;
+        }
+
+        @Override
+        public String getName() {
+            return this.columnName;
+        }
+
+        @Override
+        public Set<TableColumnFlag> getFlagSet() {
+            return this.flagSet;
         }
 
         @Override

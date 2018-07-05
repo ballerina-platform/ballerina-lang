@@ -60,7 +60,7 @@ public enum Snippet {
 
     NAMESPACE_DECLARATION("xmlns \"${1}\" as ${2:ns};"),
 
-    NEW_OBJECT_CONSTRUCTOR("new (${1:args}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR
+    NEW_OBJECT_CONSTRUCTOR("public new (${1:args}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR
             + "}"),
 
     CONTINUE("continue;"),

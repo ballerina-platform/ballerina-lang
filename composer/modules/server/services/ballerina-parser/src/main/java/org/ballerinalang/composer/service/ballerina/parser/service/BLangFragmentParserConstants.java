@@ -52,5 +52,5 @@ public class BLangFragmentParserConstants {
             "function testFunction(){\ntransaction{\n}failed{\n$FRAGMENT\n}aborted{\n}committed{\n}\n}";
     public static final String VAR_REFERENCE_LIST_WRAPPER =
             "function testFunction(){\n$FRAGMENT=testFunction();\n}";
-    public static final String RECORD_BODY_WRAPPER = "type record1 {\n$FRAGMENT\n};";
+    public static final String RECORD_BODY_WRAPPER = "type record1 record {\n$FRAGMENT\n};";
 }

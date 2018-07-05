@@ -43,6 +43,7 @@ public enum NodeKind {
     SERVICE,
     TYPE_DEFINITION,
     TABLE,
+    TABLE_COLUMN,
     VARIABLE,
     WORKER,
     XMLNS,
