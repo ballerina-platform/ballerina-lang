@@ -63,7 +63,7 @@ public class PrometheusReporter implements MetricReporter {
         String hostname = ConfigRegistry.getInstance().
                 getConfigOrDefault(PROMETHEUS_HOST_CONFIG, DEFAULT_PROMETHEUS_HOST);
         String port = ConfigRegistry.getInstance().getConfigOrDefault(PROMETHEUS_PORT_CONFIG,
-                DEFAULT_PROMETHEUS_PORT);
+                DEFAULT_PROMEOTHEUS_PORT);
         console.println("ballerina: started Prometheus HTTP endpoint " + hostname + ":" + port);
     }
 

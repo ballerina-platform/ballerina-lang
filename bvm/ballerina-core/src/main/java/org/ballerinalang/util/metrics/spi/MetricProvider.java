@@ -44,10 +44,28 @@ public interface MetricProvider {
      */
     void init();
 
+    /**
+     * This returns the new instance of the Counter metric.
+     *
+     * @param metricId ID of the metric that needs to be returned.
+     * @return Counter Instance created.
+     */
     Counter newCounter(MetricId metricId);
 
+    /**
+     * This returns the new instance of the Gauge metric.
+     *
+     * @param metricId ID of the metric that needs to be returned.
+     * @return Gauge Instance created.
+     */
     Gauge newGauge(MetricId metricId, StatisticConfig... statisticConfigs);
 
+    /**
+     * This returns the new instance of the Polled Gauge metric.
+     *
+     * @param metricId ID of the metric that needs to be returned.
+     * @return PolledGauge Instance created.
+     */
     <T> PolledGauge newPolledGauge(MetricId metricId, T obj, ToDoubleFunction<T> toDoubleFunction);
 
 }

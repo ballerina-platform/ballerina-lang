@@ -46,6 +46,8 @@ public class Snapshot {
     }
 
     /**
+     * Returns the timewindow configuration for this snapshot.
+     *
      * @return The timeWindow used to calculate statistics in this {@link Snapshot}.
      */
     public Duration getTimeWindow() {
@@ -53,6 +55,8 @@ public class Snapshot {
     }
 
     /**
+     * Returns the minimum value encountered within the time window in this snapshot.
+     *
      * @return The minimum value of a single event.
      */
     public double getMin() {
@@ -60,6 +64,8 @@ public class Snapshot {
     }
 
     /**
+     * Returns the mean value for the time window in this snapshot.
+     *
      * @return The distribution average for recorded events.
      */
     public double getMean() {

@@ -85,7 +85,7 @@ public interface Gauge extends Metric {
         }
 
         /**
-         * Summarize gauge values using given {@link StatisticConfig statistic configuration}
+         * Summarize gauge values using given {@link StatisticConfig statistic configuration}.
          *
          * @param statisticConfig The {@link StatisticConfig} used for summarization.
          * @return The builder with added statistic configuration for summarization.
