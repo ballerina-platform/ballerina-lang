@@ -32,7 +32,7 @@ import ballerina/jms;
 import ballerina/log;
 
 // Create a simple queue receiver.
-endpoint jms:SimpleQueueReceiver consumer {
+endpoint jms:SimpleQueueReceiver consumerEP {
     initialContextFactory: "bmbInitialContextFactory",
     providerUrl: "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'",
     acknowledgementMode: "AUTO_ACKNOWLEDGE",
@@ -40,7 +40,7 @@ endpoint jms:SimpleQueueReceiver consumer {
 };
 
 // Bind the created consumer to the listener service.
-service<jms:Consumer> jmsListener bind consumer {
+service<jms:Consumer> jmsListener bind consumerEP {
 
     // The `OnMessage` resource gets invoked when a message is received.
     onMessage(endpoint consumer, jms:Message message) {
@@ -105,13 +105,13 @@ jms:Session jmsSession = new(conn, {
     });
 
 // Initialize a queue receiver using the created session.
-endpoint jms:QueueReceiver consumer {
+endpoint jms:QueueReceiver consumerEP {
     session: jmsSession,
     queueName: "MyQueue"
 };
 
 // Bind the created consumer to the listener service.
-service<jms:Consumer> jmsListener bind consumer {
+service<jms:Consumer> jmsListener bind consumerEP {
 
     // The `OnMessage` resource gets invoked when a message is received.
     onMessage(endpoint consumer, jms:Message message) {
