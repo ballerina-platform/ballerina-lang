@@ -302,6 +302,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.analyzeDef(funcNode.restParam, funcEnv);
         }
 
+        if (funcNode.attachedOuterFunction && funcNode.body == null) { //object outer attached function must have a body
+            dlog.error(funcNode.pos, DiagnosticCode.ATTACHED_FUNCTIONS_MUST_HAVE_BODY, funcNode.name);
+            return;
+        }
+
         // Check for native functions
         if (Symbols.isNative(funcNode.symbol) || funcNode.interfaceFunction) {
             return;

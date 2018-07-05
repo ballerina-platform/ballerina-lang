@@ -1295,20 +1295,16 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol funcSymbol = symResolver.resolveStructField(iExpr.pos, env, objFuncName, structType.tsymbol);
 
         if (funcSymbol == symTable.notFoundSymbol) {
-            // Check functions defined within the struct.
-            funcSymbol = symResolver.resolveStructField(iExpr.pos, env, objFuncName, structType.tsymbol);
-            if (funcSymbol == symTable.notFoundSymbol) {
-                // Check, any function pointer in struct field with given name.
-                funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(iExpr.name),
-                        structType.tsymbol);
-                if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
-                    dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_STRUCT, iExpr.name.value, structType);
-                    resultType = symTable.errType;
-                    return;
-                }
-                if ((funcSymbol.flags & Flags.ATTACHED) != Flags.ATTACHED) {
-                    iExpr.functionPointerInvocation = true;
-                }
+            // Check, any function pointer in struct field with given name.
+            funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(iExpr.name),
+                    structType.tsymbol);
+            if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
+                dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_STRUCT, iExpr.name.value, structType);
+                resultType = symTable.errType;
+                return;
+            }
+            if ((funcSymbol.flags & Flags.ATTACHED) != Flags.ATTACHED) {
+                iExpr.functionPointerInvocation = true;
             }
         } else {
             // Attached function found
