@@ -176,7 +176,7 @@ class LifeLine extends React.Component {
                 fontWeight='400'
                 className={`${lineClass} life-line-title`}
             >{identifier}</text>
-            <HoverGroup model={this.props.model} region='main'>
+            <HoverGroup model={this.props.model} region='actionBox'>
                 <rect
                     x={bBox.x}
                     y={bBox.y}

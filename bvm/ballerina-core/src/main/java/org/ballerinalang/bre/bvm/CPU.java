@@ -38,8 +38,6 @@ import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
-import org.ballerinalang.model.values.BBlob;
-import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BByte;
@@ -283,21 +281,18 @@ public class CPU {
                     case InstructionCodes.FMOVE:
                     case InstructionCodes.SMOVE:
                     case InstructionCodes.BMOVE:
-                    case InstructionCodes.LMOVE:
                     case InstructionCodes.RMOVE:
                     case InstructionCodes.IALOAD:
                     case InstructionCodes.BIALOAD:
                     case InstructionCodes.FALOAD:
                     case InstructionCodes.SALOAD:
                     case InstructionCodes.BALOAD:
-                    case InstructionCodes.LALOAD:
                     case InstructionCodes.RALOAD:
                     case InstructionCodes.JSONALOAD:
                     case InstructionCodes.IGLOAD:
                     case InstructionCodes.FGLOAD:
                     case InstructionCodes.SGLOAD:
                     case InstructionCodes.BGLOAD:
-                    case InstructionCodes.LGLOAD:
                     case InstructionCodes.RGLOAD:
                     case InstructionCodes.MAPLOAD:
                     case InstructionCodes.JSONLOAD:
@@ -309,14 +304,12 @@ public class CPU {
                     case InstructionCodes.FASTORE:
                     case InstructionCodes.SASTORE:
                     case InstructionCodes.BASTORE:
-                    case InstructionCodes.LASTORE:
                     case InstructionCodes.RASTORE:
                     case InstructionCodes.JSONASTORE:
                     case InstructionCodes.IGSTORE:
                     case InstructionCodes.FGSTORE:
                     case InstructionCodes.SGSTORE:
                     case InstructionCodes.BGSTORE:
-                    case InstructionCodes.LGSTORE:
                     case InstructionCodes.RGSTORE:
                     case InstructionCodes.MAPSTORE:
                     case InstructionCodes.JSONSTORE:
@@ -508,13 +501,11 @@ public class CPU {
                     case InstructionCodes.F2ANY:
                     case InstructionCodes.S2ANY:
                     case InstructionCodes.B2ANY:
-                    case InstructionCodes.L2ANY:
                     case InstructionCodes.ANY2I:
                     case InstructionCodes.ANY2BI:
                     case InstructionCodes.ANY2F:
                     case InstructionCodes.ANY2S:
                     case InstructionCodes.ANY2B:
-                    case InstructionCodes.ANY2L:
                     case InstructionCodes.ARRAY2JSON:
                     case InstructionCodes.JSON2ARRAY:
                     case InstructionCodes.ANY2JSON:
@@ -614,11 +605,6 @@ public class CPU {
                         j = operands[2];
                         sf.refRegs[i] = new BBooleanArray((int) sf.longRegs[j]);
                         break;
-                    case InstructionCodes.LNEWARRAY:
-                        i = operands[0];
-                        j = operands[2];
-                        sf.refRegs[i] = new BBlobArray((int) sf.longRegs[j]);
-                        break;
                     case InstructionCodes.RNEWARRAY:
                         i = operands[0];
                         cpIndex = operands[1];
@@ -708,14 +694,6 @@ public class CPU {
                         callersSF = ctx.workerResult;
                         callersRetRegIndex = ctx.retRegIndexes[i];
                         callersSF.intRegs[callersRetRegIndex] = currentSF.intRegs[j];
-                        break;
-                    case InstructionCodes.LRET:
-                        i = operands[0];
-                        j = operands[1];
-                        currentSF = ctx.workerLocal;
-                        callersSF = ctx.workerResult;
-                        callersRetRegIndex = ctx.retRegIndexes[i];
-                        callersSF.byteRegs[callersRetRegIndex] = currentSF.byteRegs[j];
                         break;
                     case InstructionCodes.RRET:
                         i = operands[0];
@@ -832,7 +810,6 @@ public class CPU {
         int doubleIndex = expandDoubleRegs(sf, fp);
         int intIndex = expandIntRegs(sf, fp);
         int stringIndex = expandStringRegs(sf, fp);
-        int byteIndex = expandByteRegs(sf, fp);
         int refIndex = expandRefRegs(sf, fp);
 
         for (BClosure closure : closureVars) {
@@ -862,11 +839,6 @@ public class CPU {
                     newArgRegs[argRegIndex++] = stringIndex++;
                     break;
                 }
-                case TypeTags.BLOB_TAG: {
-                    sf.byteRegs[byteIndex] = ((BBlob) closure.value()).blobValue();
-                    newArgRegs[argRegIndex++] = byteIndex++;
-                    break;
-                }
                 default:
                     sf.refRegs[refIndex] = ((BRefType) closure.value());
                     newArgRegs[argRegIndex++] = refIndex++;
@@ -891,7 +863,6 @@ public class CPU {
         int doubleIndex = expandDoubleRegs(sf, fp);
         int intIndex = expandIntRegs(sf, fp);
         int stringIndex = expandStringRegs(sf, fp);
-        int byteIndex = expandByteRegs(sf, fp);
         int refIndex = expandRefRegs(sf, fp);
 
         for (BClosure closure : closureVars) {
@@ -919,11 +890,6 @@ public class CPU {
             case TypeTags.STRING_TAG: {
                 sf.stringRegs[stringIndex] = (closure.value()).stringValue();
                 newArgRegs[argRegIndex++] = stringIndex++;
-                break;
-            }
-            case TypeTags.BLOB_TAG: {
-                sf.byteRegs[byteIndex] = ((BBlob) closure.value()).blobValue();
-                newArgRegs[argRegIndex++] = byteIndex++;
                 break;
             }
             default:
@@ -995,21 +961,6 @@ public class CPU {
         return stringIndex;
     }
 
-    private static int expandByteRegs(WorkerData sf, BFunctionPointer fp) {
-        int byteIndex = 0;
-        if (fp.getAdditionalIndexCount(BTypes.typeBlob.getTag()) > 0) {
-            if (sf.byteRegs == null) {
-                sf.byteRegs = new byte[0][];
-            }
-            byte[][] newByteRegs = new byte[sf.byteRegs.length +
-                    fp.getAdditionalIndexCount(BTypes.typeBlob.getTag())][];
-            System.arraycopy(sf.byteRegs, 0, newByteRegs, 0, sf.byteRegs.length);
-            byteIndex = sf.byteRegs.length;
-            sf.byteRegs = newByteRegs;
-        }
-        return byteIndex;
-    }
-
     private static int expandRefRegs(WorkerData sf, BFunctionPointer fp) {
         int refIndex = 0;
         if (fp.getAdditionalIndexCount(BTypes.typeAny.getTag()) > 0) {
@@ -1062,9 +1013,6 @@ public class CPU {
                     fp.addClosureVar(new BClosure(new BString(ctx.workerLocal.stringRegs[index])), TypeTags.STRING_TAG);
                     break;
                 }
-                case TypeTags.BLOB_TAG:
-                    fp.addClosureVar(new BClosure(new BBlob(ctx.workerLocal.byteRegs[index])), TypeTags.BLOB_TAG);
-                    break;
                 default:
                     fp.addClosureVar(new BClosure(ctx.workerLocal.refRegs[index]), TypeTags.ANY_TAG);
             }
@@ -1209,7 +1157,6 @@ public class CPU {
         BFloatArray bFloatArray;
         BStringArray bStringArray;
         BBooleanArray bBooleanArray;
-        BBlobArray bBlobArray;
         BRefValueArray bArray;
         BMap<String, BValue> structureType;
         BMap<String, BRefType> bMap;
@@ -1234,11 +1181,6 @@ public class CPU {
                 lvIndex = operands[0];
                 i = operands[1];
                 sf.intRegs[i] = sf.intRegs[lvIndex];
-                break;
-            case InstructionCodes.LMOVE:
-                lvIndex = operands[0];
-                i = operands[1];
-                sf.byteRegs[i] = sf.byteRegs[lvIndex];
                 break;
             case InstructionCodes.RMOVE:
                 lvIndex = operands[0];
@@ -1330,23 +1272,6 @@ public class CPU {
                     handleError(ctx);
                 }
                 break;
-            case InstructionCodes.LALOAD:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                bBlobArray = (BBlobArray) sf.refRegs[i];
-                if (bBlobArray == null) {
-                    handleNullRefError(ctx);
-                    break;
-                }
-
-                try {
-                    sf.byteRegs[k] = bBlobArray.get(sf.longRegs[j]);
-                } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-                    handleError(ctx);
-                }
-                break;
             case InstructionCodes.RALOAD:
                 i = operands[0];
                 j = operands[1];
@@ -1408,12 +1333,6 @@ public class CPU {
                 j = operands[2];
                 sf.intRegs[j] = ctx.programFile.globalMemArea.getBooleanField(pkgIndex, i);
                 break;
-            case InstructionCodes.LGLOAD:
-                pkgIndex = operands[0];
-                i = operands[1];
-                j = operands[2];
-                sf.byteRegs[j] = ctx.programFile.globalMemArea.getBlobField(pkgIndex, i);
-                break;
             case InstructionCodes.RGLOAD:
                 pkgIndex = operands[0];
                 i = operands[1];
@@ -1466,7 +1385,6 @@ public class CPU {
         BFloatArray bFloatArray;
         BStringArray bStringArray;
         BBooleanArray bBooleanArray;
-        BBlobArray bBlobArray;
         BRefValueArray bArray;
         BMap<String, BValue> structureType;
         BMap<String, BRefType> bMap;
@@ -1557,23 +1475,6 @@ public class CPU {
                     handleError(ctx);
                 }
                 break;
-            case InstructionCodes.LASTORE:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                bBlobArray = (BBlobArray) sf.refRegs[i];
-                if (bBlobArray == null) {
-                    handleNullRefError(ctx);
-                    break;
-                }
-
-                try {
-                    bBlobArray.add(sf.longRegs[j], sf.byteRegs[k]);
-                } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
-                    handleError(ctx);
-                }
-                break;
             case InstructionCodes.RASTORE:
                 i = operands[0];
                 j = operands[1];
@@ -1633,12 +1534,6 @@ public class CPU {
                 i = operands[1];
                 j = operands[2];
                 ctx.programFile.globalMemArea.setBooleanField(pkgIndex, j, sf.intRegs[i]);
-                break;
-            case InstructionCodes.LGSTORE:
-                pkgIndex = operands[0];
-                i = operands[1];
-                j = operands[2];
-                ctx.programFile.globalMemArea.setBlobField(pkgIndex, j, sf.byteRegs[i]);
                 break;
             case InstructionCodes.RGSTORE:
                 pkgIndex = operands[0];
@@ -2133,11 +2028,6 @@ public class CPU {
                 j = operands[1];
                 sf.refRegs[j] = new BBoolean(sf.intRegs[i] == 1);
                 break;
-            case InstructionCodes.L2ANY:
-                i = operands[0];
-                j = operands[1];
-                sf.refRegs[j] = new BBlob(sf.byteRegs[i]);
-                break;
             case InstructionCodes.ANY2I:
                 i = operands[0];
                 j = operands[1];
@@ -2162,11 +2052,6 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 sf.intRegs[j] = ((BBoolean) sf.refRegs[i]).booleanValue() ? 1 : 0;
-                break;
-            case InstructionCodes.ANY2L:
-                i = operands[0];
-                j = operands[1];
-                sf.byteRegs[j] = ((BBlob) sf.refRegs[i]).blobValue();
                 break;
             case InstructionCodes.ANY2JSON:
                 handleAnyToRefTypeCast(ctx, sf, operands, BTypes.typeJSON);
@@ -2568,9 +2453,6 @@ public class CPU {
                 case TypeTags.BOOLEAN_TAG:
                     sf.intRegs[target] = ((BBoolean) source).booleanValue() ? 1 : 0;
                     break;
-                case TypeTags.BLOB_TAG:
-                    sf.byteRegs[target] = ((BBlob) source).blobValue();
-                    break;
                 default:
                     sf.refRegs[target] = (BRefType) source;
             }
@@ -2674,9 +2556,6 @@ public class CPU {
                 case TypeTags.BOOLEAN_TAG:
                     lockAcquired = ctx.programFile.globalMemArea.lockBooleanField(ctx, pkgIndex, regIndex);
                     break;
-                case TypeTags.BLOB_TAG:
-                    lockAcquired = ctx.programFile.globalMemArea.lockBlobField(ctx, pkgIndex, regIndex);
-                    break;
                 default:
                     lockAcquired = ctx.programFile.globalMemArea.lockRefField(ctx, pkgIndex, regIndex);
             }
@@ -2705,9 +2584,6 @@ public class CPU {
                     break;
                 case TypeTags.BOOLEAN_TAG:
                     ctx.programFile.globalMemArea.unlockBooleanField(pkgIndex, regIndex);
-                    break;
-                case TypeTags.BLOB_TAG:
-                    ctx.programFile.globalMemArea.unlockBlobField(pkgIndex, regIndex);
                     break;
                 default:
                     ctx.programFile.globalMemArea.unlockRefField(pkgIndex, regIndex);
@@ -3029,9 +2905,6 @@ public class CPU {
             case TypeTags.BOOLEAN_TAG:
                 result = new BBoolean(data.intRegs[reg] > 0);
                 break;
-            case TypeTags.BLOB_TAG:
-                result = new BBlob(data.byteRegs[reg]);
-                break;
             default:
                 result = data.refRegs[reg];
         }
@@ -3077,9 +2950,6 @@ public class CPU {
             case TypeTags.BOOLEAN_TAG:
                 currentSF.intRegs[regIndex] = (((BBoolean) passedInValue).booleanValue()) ? 1 : 0;
                 break;
-            case TypeTags.BLOB_TAG:
-                currentSF.byteRegs[regIndex] = ((BBlob) passedInValue).blobValue();
-                break;
             default:
                 currentSF.refRegs[regIndex] = (BRefType) passedInValue;
         }
@@ -3091,7 +2961,6 @@ public class CPU {
         System.arraycopy(parent.doubleRegs, 0, workerSF.doubleRegs, 0, codeInfo.getMaxDoubleLocalVars());
         System.arraycopy(parent.intRegs, 0, workerSF.intRegs, 0, codeInfo.getMaxIntLocalVars());
         System.arraycopy(parent.stringRegs, 0, workerSF.stringRegs, 0, codeInfo.getMaxStringLocalVars());
-        System.arraycopy(parent.byteRegs, 0, workerSF.byteRegs, 0, codeInfo.getMaxByteLocalVars());
         System.arraycopy(parent.refRegs, 0, workerSF.refRegs, 0, codeInfo.getMaxRefLocalVars());
     }
 
@@ -3102,7 +2971,6 @@ public class CPU {
         int stringRegIndex = -1;
         int booleanRegIndex = -1;
         int refRegIndex = -1;
-        int blobRegIndex = -1;
 
         for (int i = 0; i < argRegs.length; i++) {
             BType paramType = paramTypes[i];
@@ -3119,9 +2987,6 @@ public class CPU {
                     break;
                 case TypeTags.BOOLEAN_TAG:
                     calleeSF.intRegs[++booleanRegIndex] = callerSF.intRegs[argReg];
-                    break;
-                case TypeTags.BLOB_TAG:
-                    calleeSF.byteRegs[++blobRegIndex] = callerSF.byteRegs[argReg];
                     break;
                 default:
                     calleeSF.refRegs[++refRegIndex] = callerSF.refRegs[argReg];
@@ -3877,13 +3742,6 @@ public class CPU {
                             bStruct.put(key, new BBoolean(defaultValAttrInfo.getDefaultValue().getBooleanValue()));
                         }
                         break;
-                    case TypeTags.BLOB_TAG:
-                        if (containsField && mapVal != null) {
-                            bStruct.put(key, mapVal);
-                        } else if (defaultValAttrInfo != null) {
-                            bStruct.put(key, new BBlob(defaultValAttrInfo.getDefaultValue().getBlobValue()));
-                        }
-                        break;
                     default:
                         bStruct.put(key, mapVal);
                 }
@@ -3963,10 +3821,6 @@ public class CPU {
             } else {
                 sf.longRegs[j] = value.length();
             }
-            return;
-        } else if (typeTag == TypeTags.BLOB_TAG) {
-            // Here it is assumed null is not supported for blob type
-            sf.longRegs[j] = sf.byteRegs[i].length;
             return;
         }
 
