@@ -65,6 +65,7 @@ class HttpClient extends React.Component {
             httpMethods: this.getHttpMethods(),
             baseUrls: [],
             baseUrl: '',
+            pathUrls: [],
             appendUrl: selectedServiceObj.appendUrl,
             contentType: selectedServiceObj.contentType,
             responseBody: '',
@@ -99,6 +100,7 @@ class HttpClient extends React.Component {
         this.onResourceSelected = this.onResourceSelected.bind(this);
         this.onChangeUrl = this.onChangeUrl.bind(this);
         this.headerKey = undefined;
+        this.handlePathAdditions = this.handlePathAdditions.bind(this);
     }
 
     /**
@@ -115,6 +117,7 @@ class HttpClient extends React.Component {
             }).catch(() => {
             });
         this.onAddNewHeader(false);
+        this.renderPathsDropdown();
     }
 
     /**
@@ -483,18 +486,15 @@ class HttpClient extends React.Component {
             });
         });
 
-        return (
-            <Select
-                search
-                allowAdditions
-                selection
-                placeholder='Select path'
-                options={urlItems}
-                value={this.state.appendUrl}
-                onChange={this.onAppendUrlChange}
-                className='paths-dropdown'
-            />
-        );
+        this.setState({
+            pathUrls: urlItems,
+        });
+    }
+
+    handlePathAdditions(e, { value }) {
+        this.setState({
+            pathUrls: [{ text: value, value }, ...this.state.pathUrls],
+        });
     }
 
     /**
@@ -536,8 +536,6 @@ class HttpClient extends React.Component {
             const httpBaseUrl = `http://${this.state.baseUrl}`;
             const sendOrCancelButton = this.renderSendOrCancelButton();
 
-            // Getting service name views
-            const pathsDropdown = this.renderPathsDropdown();
             return (
                 <div
                     className='http-client-main-wrapper inverted'
@@ -570,7 +568,17 @@ class HttpClient extends React.Component {
                                         onChange={this.onChangeUrl}
                                         value={this.state.baseUrl}
                                     />
-                                    {pathsDropdown}
+                                    <Select
+                                        search
+                                        allowAdditions
+                                        selection
+                                        placeholder='Select path'
+                                        options={this.state.pathUrls}
+                                        value={this.state.appendUrl}
+                                        onChange={this.onAppendUrlChange}
+                                        onAddItem={this.handlePathAdditions}
+                                        className='paths-dropdown'
+                                    />
                                     {sendOrCancelButton}
                                     <Button
                                         title='Copy URL'
