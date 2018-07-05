@@ -82,7 +82,7 @@ public class EndpointTest {
     public void testAnonymousEndpointNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/test_anonymous_endpoint_negative.bal");
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
-        BAssertUtil.validateError(compileResult, 0, "undefined field 'confX' in record 'DummyEndpointConfig'", 62, 39);
+        BAssertUtil.validateError(compileResult, 0, "undefined field 'confX' in record 'DummyEndpointConfig'", 63, 39);
     }
 
     @Test(description = "Test action positive")

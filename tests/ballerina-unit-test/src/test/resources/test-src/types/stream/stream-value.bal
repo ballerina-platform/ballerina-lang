@@ -206,7 +206,9 @@ function testStreamPublishingAndSubscriptionForTupleTypeStream() returns (any[],
     arrayIndex = 0;
     stream<(string, int)> tupleStream;
     tupleStream.subscribe(addToGlobalAnyArrayForTupleType);
-    any[] publishedEvents = [("tuple1", 1234), ("tuple2", 9876)];
+    (string, int) tuple = ("tuple1", 1234);
+    (string, int) tuple2 = ("tuple2", 9876);
+    any[] publishedEvents = [tuple, tuple2];
     foreach event in publishedEvents {
         tupleStream.publish(event);
     }
@@ -223,7 +225,7 @@ any[] {
     arrayIndex = 0;
     stream<(string, int)> tupleStream;
     tupleStream.subscribe(addToGlobalAnyArrayForAssignableTupleType);
-    any[] publishedEvents = [(s1, i1), (s2, i2)];
+    (string, int)[] publishedEvents = [(s1, i1), (s2, i2)];
     foreach event in publishedEvents {
         tupleStream.publish(event);
     }
@@ -239,7 +241,8 @@ function testStreamPublishingAndSubscriptionForAnyTypeStream() returns (any[], a
     arrayIndex = 0;
     stream<any> anyStream;
     anyStream.subscribe(addToGlobalAnyArrayForAnyType);
-    any[] publishedEvents = [("anyStream", 1234), "any", false, 0.5];
+    (string, int) tuple = ("anyStream", 1234);
+    any[] publishedEvents = [tuple, "any", false, 0.5];
     foreach event in publishedEvents {
         anyStream.publish(event);
     }
@@ -255,7 +258,8 @@ function testStreamPublishingAndSubscriptionForUnconstrainedStream() returns (an
     arrayIndex = 0;
     stream unconstrainedStream;
     unconstrainedStream.subscribe(addToGlobalAnyArrayForAnyType);
-    any[] publishedEvents = [("unconstrainedStream", 9876), "unconstrained", true, 10.5];
+    (string, int) tuple = ("unconstrainedStream", 9876);
+    any[] publishedEvents = [tuple, "unconstrained", true, 10.5];
     foreach event in publishedEvents {
         unconstrainedStream.publish(event);
     }

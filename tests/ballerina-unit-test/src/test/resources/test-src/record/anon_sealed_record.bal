@@ -3,19 +3,19 @@ function testAnonStructAsFuncParam() returns (int) {
     return testAnonStructFunc(10, {k:14, s:"sameera"});
 }
 
-function testAnonStructFunc(int i, sealed record {int k = 10; string s;} anonSt) returns (int) {
+function testAnonStructFunc(int i, record {int k = 10; string s;} anonSt) returns (int) {
     return anonSt.k + i;
 }
 
 
 function testAnonStructAsLocalVar() returns (int) {
-    sealed record {int k = 11; string s;} anonSt = {};
+    record {int k = 11; string s; !...} anonSt = {};
 
     return anonSt.k;
 }
 
 
-sealed record {string fname; string lname; int age;} person;
+record {string fname; string lname; int age; !...} person;
 
 function testAnonStructAsPkgVar() returns (string) {
 
@@ -29,17 +29,19 @@ type employee record {
     string fname;
     string lname;
     int age;
-    sealed record { string line01;
+    record { string line01;
              string line02;
              string city;
              string state;
              string zipcode;
+             !...
     } address;
 
-    sealed record {
+    record {
         string month = "JAN";
         string day = "01";
         string year = "1970";
+        !...
     } dateOfBirth;
 };
 
