@@ -56,12 +56,12 @@ import java.net.SocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.wso2.transport.http.netty.common.Constants.CONTINUE;
+import static org.wso2.transport.http.netty.common.Constants.HEADER_VAL_100_CONTINUE;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.CONNECTED;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_RECEIVED;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_SENT;
-import static org.wso2.transport.http.netty.common.SourceInteractiveState.EXPECT_CONTINUE_HEADER_RECEIVED;
+import static org.wso2.transport.http.netty.common.SourceInteractiveState.EXPECT_100_CONTINUE_HEADER_RECEIVED;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.RECEIVING_ENTITY_BODY;
 
 /**
@@ -148,7 +148,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             HttpRequest httpRequest = (HttpRequest) msg;
             inboundRequestMsg = setupCarbonMessage(httpRequest, ctx);
             if (is100ContinueRequest(inboundRequestMsg)) {
-                sourceErrorHandler.setState(EXPECT_CONTINUE_HEADER_RECEIVED);
+                sourceErrorHandler.setState(EXPECT_100_CONTINUE_HEADER_RECEIVED);
             }
             notifyRequestListener(inboundRequestMsg, ctx);
 
@@ -184,8 +184,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     }
 
     private boolean is100ContinueRequest(HTTPCarbonMessage inboundRequestMsg) {
-        String expectHeader = inboundRequestMsg.getHeader(HttpHeaderNames.EXPECT.toString());
-        continueRequest = expectHeader != null && expectHeader.equalsIgnoreCase(CONTINUE);
+        continueRequest = HEADER_VAL_100_CONTINUE.equalsIgnoreCase(
+                inboundRequestMsg.getHeader(HttpHeaderNames.EXPECT.toString()));
         return continueRequest;
     }
 

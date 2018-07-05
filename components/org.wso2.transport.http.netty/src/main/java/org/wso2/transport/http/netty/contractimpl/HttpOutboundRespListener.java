@@ -48,7 +48,7 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.wso2.transport.http.netty.common.Constants.CHUNKING_CONFIG;
-import static org.wso2.transport.http.netty.common.SourceInteractiveState.HEADER_100_CONTINUE_SENT;
+import static org.wso2.transport.http.netty.common.SourceInteractiveState.RESPONSE_100_CONTINUE_SENT;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.SENDING_ENTITY_BODY;
 import static org.wso2.transport.http.netty.common.Util.createFullHttpResponse;
 import static org.wso2.transport.http.netty.common.Util.createHttpResponse;
@@ -139,7 +139,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
             this.setChunkConfig(responseChunkConfig);
         }
         if (continueRequest) {
-            sourceErrorHandler.setState(HEADER_100_CONTINUE_SENT);
+            sourceErrorHandler.setState(RESPONSE_100_CONTINUE_SENT);
             continueRequest = false;
         } else {
             if (sourceErrorHandler.getState().equals(SourceInteractiveState.RECEIVING_ENTITY_BODY)) {

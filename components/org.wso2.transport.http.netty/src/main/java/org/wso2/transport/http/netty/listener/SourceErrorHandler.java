@@ -93,11 +93,11 @@ public class SourceErrorHandler {
                     // Error is notified to server connector. Debug log is to make transport layer aware
                     log.debug(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST);
                     break;
-                case EXPECT_CONTINUE_HEADER_RECEIVED:
+                case EXPECT_100_CONTINUE_HEADER_RECEIVED:
                     serverConnectorFuture.notifyErrorListener(
                             new ServerConnectorException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE));
                     break;
-                case HEADER_100_CONTINUE_SENT:
+                case RESPONSE_100_CONTINUE_SENT:
                     // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
                     log.error(REMOTE_CLIENT_CLOSED_WHILE_WRITING_100_CONTINUE_RESPONSE);
                     break;
@@ -133,7 +133,7 @@ public class SourceErrorHandler {
                     // Error is notified to server connector. Debug log is to make transport layer aware
                     log.debug(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST);
                     break;
-                case HEADER_100_CONTINUE_SENT:
+                case RESPONSE_100_CONTINUE_SENT:
                     // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
                     log.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_100_CONTINUE_RESPONSE);
                     break;
@@ -141,7 +141,7 @@ public class SourceErrorHandler {
                     //408 Request Timeout is sent if the idle timeout triggered when reading request
                     return sendRequestTimeoutResponse(ctx, HttpResponseStatus.REQUEST_TIMEOUT, Unpooled.EMPTY_BUFFER,
                                                       0);
-                case EXPECT_CONTINUE_HEADER_RECEIVED:
+                case EXPECT_100_CONTINUE_HEADER_RECEIVED:
                 case ENTITY_BODY_RECEIVED:
                     // This means we have received the complete inbound request. But nothing happened after that.
                     if (evt.state() != IdleState.READER_IDLE) {
