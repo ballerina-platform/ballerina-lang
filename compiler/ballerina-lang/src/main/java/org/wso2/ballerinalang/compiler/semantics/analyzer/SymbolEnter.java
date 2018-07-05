@@ -436,9 +436,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (Symbols.isFlagOn(Flags.asMask(funcNode.flagSet), Flags.PUBLIC)) { //no visibility modifiers allowed
                 dlog.error(funcNode.pos, DiagnosticCode.ATTACHED_FUNC_CANT_HAVE_VISIBILITY_MODIFIERS, funcNode.name);
             }
-            if (funcNode.body == null) { //object outer attached function must have a body
-                dlog.error(funcNode.pos, DiagnosticCode.ATTACHED_FUNCTIONS_MUST_HAVE_BODY, funcNode.name);
-            }
             if (funcNode.receiver.type.tsymbol.kind == SymbolKind.RECORD) {
                 dlog.error(funcNode.pos, DiagnosticCode.CANNOT_ATTACH_FUNCTIONS_TO_RECORDS, funcNode.name,
                         funcNode.receiver.type.tsymbol.name);
