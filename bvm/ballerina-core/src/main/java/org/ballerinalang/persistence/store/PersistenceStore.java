@@ -39,11 +39,7 @@ import java.util.List;
  */
 public class PersistenceStore {
 
-    private static StorageProvider storageProvider;
-
-    public static void init() {
-        storageProvider = new FileBasedProvider();
-    }
+    private static StorageProvider storageProvider = new FileBasedProvider();
 
     public static void persistState(State state) {
         SerializableState sState = new SerializableState(state.getContext());
@@ -59,6 +55,7 @@ public class PersistenceStore {
 
     public static List<State> getStates(ProgramFile programFile) {
         List<State> states = new LinkedList<>();
+
         List<String> serializedStates = storageProvider.getAllSerializedStates();
         for (String serializedState : serializedStates) {
             SerializableState sState = SerializableState.deserialize(serializedState);

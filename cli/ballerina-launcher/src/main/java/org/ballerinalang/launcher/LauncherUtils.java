@@ -23,7 +23,6 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.logging.BLogManager;
-import org.ballerinalang.persistence.PersistenceUtils;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.LaunchListener;
@@ -80,8 +79,6 @@ public class LauncherUtils {
         Path fullPath = sourceRootPath.resolve(sourcePath);
         loadConfigurations(sourceRootPath, runtimeParams, configFilePath, observeFlag);
 
-        PersistenceUtils.init();
-
         if (srcPathStr.endsWith(BLangConstants.BLANG_EXEC_FILE_SUFFIX)) {
             programFile = BLangProgramLoader.read(sourcePath);
         } else if (Files.isRegularFile(fullPath) &&
@@ -117,7 +114,6 @@ public class LauncherUtils {
         } else {
             runMain(programFile, args);
         }
-
         BLangProgramRunner.runSavedStates(programFile);
         listeners.forEach(listener -> listener.afterRunProgram(runServicesOrNoMainEP));
     }

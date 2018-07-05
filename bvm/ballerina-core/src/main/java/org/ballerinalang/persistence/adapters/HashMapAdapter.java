@@ -42,7 +42,6 @@ public class HashMapAdapter implements JsonSerializer<HashMap<String, Object>>,
 
     public JsonElement serialize(HashMap<String, Object> map, Type type, JsonSerializationContext context) {
         JsonObject result = new JsonObject();
-
         for (String key : map.keySet()) {
             Object v = map.get(key);
             JsonObject wrapper = new JsonObject();

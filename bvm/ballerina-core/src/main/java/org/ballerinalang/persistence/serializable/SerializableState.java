@@ -20,9 +20,14 @@ package org.ballerinalang.persistence.serializable;
 import com.google.gson.Gson;
 import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.PersistenceUtils;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
+import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBJSON;
+import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 
@@ -39,7 +44,6 @@ import java.util.Map;
 public class SerializableState {
 
     private String instanceId;
-    private String serializationId;
     private String currentContextKey;
     private Map<String, SerializableContext> sContexts = new HashMap<>();
     private Map<String, SerializableRespContext> sRespContexts = new HashMap<>();
@@ -53,10 +57,6 @@ public class SerializableState {
         this.instanceId = instanceId;
     }
 
-    public String getSerializationId() {
-        return serializationId;
-    }
-
     public static SerializableState deserialize(String json) {
         Gson gson = PersistenceUtils.getGson();
         return gson.fromJson(json, SerializableState.class);
@@ -66,8 +66,7 @@ public class SerializableState {
         if (executionContext == null) {
             return;
         }
-        serializationId = "s_";
-        currentContextKey = serializationId + executionContext.hashCode();
+        currentContextKey = String.valueOf(executionContext.hashCode());
         SerializableContext serializableContext = new SerializableContext(currentContextKey, executionContext, this);
         sContexts.put(currentContextKey, serializableContext);
     }
@@ -86,7 +85,7 @@ public class SerializableState {
         if (context == null) {
             return null;
         }
-        String contextKey = serializationId + context.hashCode();
+        String contextKey = String.valueOf(context.hashCode());
         if (!sContexts.containsKey(contextKey)) {
             SerializableContext serializableContext = new SerializableContext(contextKey, context, this);
             sContexts.put(contextKey, serializableContext);
@@ -103,7 +102,7 @@ public class SerializableState {
         if (responseContext == null) {
             return null;
         }
-        String key = serializationId + responseContext.hashCode();
+        String key = String.valueOf(responseContext.hashCode());
         if (!sRespContexts.containsKey(key)) {
             SerializableRespContext serializableRespContext = new SerializableRespContext(key, responseContext, this);
             sRespContexts.put(key, serializableRespContext);
@@ -162,27 +161,37 @@ public class SerializableState {
             return o;
         } else {
             SerializedKey key = (SerializedKey) o;
-            if (PersistenceUtils.getTempRefType(serializationId, key.key) != null) {
-                return PersistenceUtils.getTempRefType(serializationId, key.key);
+            if (PersistenceUtils.getTempRefType(key.key) != null) {
+                return PersistenceUtils.getTempRefType(key.key);
             } else {
                 SerializableRefType sRefType = sRefTypes.get(key.key);
                 BRefType refType = sRefType.getBRefType(programFile, this);
-                PersistenceUtils.addTempRefType(serializationId, key.key, refType);
+                PersistenceUtils.addTempRefType(key.key, refType);
                 return refType;
             }
         }
     }
 
     public SerializedKey addRefType(BRefType refType) {
-        String refKey = serializationId + refType.hashCode();
+        String refKey = String.valueOf(refType.hashCode());
         if (sRefTypes.containsKey(refKey)) {
             return new SerializedKey(refKey);
         }
-        SerializableRefType sRefType = PersistenceUtils.serializeRefType(refType, this);
+        SerializableRefType sRefType = serializeRefType(refType, this);
         if (sRefType != null) {
             sRefTypes.put(refKey, sRefType);
             return new SerializedKey(refKey);
         }
         return null;
+    }
+
+    private SerializableRefType serializeRefType(BRefType refType, SerializableState state) {
+        if (refType instanceof BMap) {
+            return new SerializableBMap<>((BMap<?, ? extends BValue>) refType, state);
+        } else if (refType instanceof BJSON) {
+            return new SerializableBJSON((BJSON) refType);
+        } else {
+            return null;
+        }
     }
 }

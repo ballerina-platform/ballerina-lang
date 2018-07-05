@@ -18,8 +18,8 @@
 package org.ballerinalang.model;
 
 /**
- * Class represents Interruptible @{@link NativeCallableUnit} which is used to decide the persistence of
- * @{@link NativeCallableUnit}
+ * Interface represents Interruptible @{@link NativeCallableUnit}. This is used to determine the persistence of
+ * @{@link NativeCallableUnit}.
  *
  * @since 0.976.0
  *
