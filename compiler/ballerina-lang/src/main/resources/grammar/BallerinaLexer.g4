@@ -136,6 +136,9 @@ AWAIT       : 'await' ;
 BUT         : 'but' ;
 CHECK       : 'check' ;
 DONE        : 'done' ;
+SCOPE       : 'scope';
+COMPENSATION : 'compensation';
+COMPENSATE  : 'compensate' ;
 PRIMARYKEY  : 'primarykey' ;
 SEALED      : 'sealed' ;
 

@@ -141,7 +141,7 @@ public class SealedRecordTest {
 
     @Test
     public void testStructLiteral() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/record/record_literals.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/record/sealed_record_literals.bal");
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructLiteral1");
         Assert.assertEquals(returns[0].stringValue(), "{dptName:\"\", employees:[], manager:" +
                 "{name:\"default first name\", lname:\"\", adrs:{}, age:999, child:null}}");
@@ -153,7 +153,7 @@ public class SealedRecordTest {
 
     @Test
     public void testStructLiteralInitFunc() {
-        CompileResult result = BCompileUtil.compile("test-src/record/nested_record_inline_init.bal");
+        CompileResult result = BCompileUtil.compile("test-src/record/nested_sealed_record_inline_init.bal");
         BValue[] returns = BRunUtil.invoke(result, "testCreateStruct");
         Assert.assertEquals(returns[0].stringValue(),
                 "{name:\"default first name\", fname:\"\", lname:\"Doe\", adrs:{}, age:999, " +
@@ -162,10 +162,11 @@ public class SealedRecordTest {
 
     @Test (description = "Negative test to test attaching functions to record literal")
     public void testStructLiteralAttachedFunc() {
-        CompileResult result = BCompileUtil.compile("test-src/record/record_literal_with_attached_functions.bal");
+        CompileResult result = BCompileUtil.compile(
+                "test-src/record/sealed_record_literal_with_attached_functions.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
-        BAssertUtil.validateError(result, 0, "cannot attach function 'getName' to record type 'Person'", 7, 1);
-        BAssertUtil.validateError(result, 1, "undefined symbol 'self'", 8, 12);
+        BAssertUtil.validateError(result, 0, "cannot attach function 'getName' to record type 'Person'", 8, 1);
+        BAssertUtil.validateError(result, 1, "undefined symbol 'self'", 9, 12);
     }
 
     @Test(description = "Test for records defined using the 'record' keyword")
@@ -181,5 +182,14 @@ public class SealedRecordTest {
     public void testFuncPtrAsAField() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testFuncPtrAsRecordField");
         Assert.assertEquals(returns[0].stringValue(), "Doe, John");
+    }
+
+    @Test(description = "Test white space between the type name and ellipsis in rest descriptor")
+    public void testRestDescriptorSyntax() {
+        CompileResult result = BCompileUtil.compile("test-src/record/sealed_record_negative.bal");
+
+        BAssertUtil.validateError(result, 0, "invalid record rest descriptor", 5, 7);
+        BAssertUtil.validateError(result, 1, "invalid record rest descriptor", 12, 9);
+        BAssertUtil.validateError(result, 2, "invalid record rest descriptor", 20, 5);
     }
 }

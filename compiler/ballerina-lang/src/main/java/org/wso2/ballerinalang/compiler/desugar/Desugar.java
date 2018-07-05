@@ -132,6 +132,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
@@ -146,6 +147,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement.BLangStatementLink;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -935,6 +937,21 @@ public class Desugar extends BLangNodeVisitor {
         result = forkJoin;
     }
 
+    @Override
+    public void visit(BLangCompensate compensateNode) {
+        result = compensateNode;
+    }
+
+    @Override
+    public void visit(BLangScope scopeNode) {
+        scopeNode.scopeBody = rewrite(scopeNode.scopeBody, env);
+        scopeNode.compensationFunction = rewrite(scopeNode.getCompensationFunction(), env);
+        visit(scopeNode.compensationFunction.function);
+        env.enclPkg.functions.add(scopeNode.getCompensationFunction().function);
+        env.enclPkg.topLevelNodes.add(scopeNode.compensationFunction.function);
+        result = scopeNode;
+    }
+
     // Expressions
 
     @Override
@@ -1349,7 +1366,8 @@ public class Desugar extends BLangNodeVisitor {
      */
     private boolean isBitwiseShiftOperation(BLangBinaryExpr binaryExpr) {
         return binaryExpr.opKind == OperatorKind.BITWISE_LEFT_SHIFT ||
-                binaryExpr.opKind == OperatorKind.BITWISE_RIGHT_SHIFT;
+                binaryExpr.opKind == OperatorKind.BITWISE_RIGHT_SHIFT ||
+                binaryExpr.opKind == OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT;
     }
 
     public void visit(BLangElvisExpr elvisExpr) {

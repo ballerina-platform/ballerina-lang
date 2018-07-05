@@ -122,6 +122,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
@@ -136,6 +137,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -298,6 +300,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         funcNode.defaultableParams.forEach(p -> this.analyzeDef(p, funcEnv));
         if (funcNode.restParam != null) {
             this.analyzeDef(funcNode.restParam, funcEnv);
+        }
+
+        if (funcNode.attachedOuterFunction && funcNode.body == null) { //object outer attached function must have a body
+            dlog.error(funcNode.pos, DiagnosticCode.ATTACHED_FUNCTIONS_MUST_HAVE_BODY, funcNode.name);
+            return;
         }
 
         // Check for native functions
@@ -1484,6 +1491,24 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
+    @Override
+    public void visit(BLangScope scopeNode) {
+        visit(scopeNode.scopeBody);
+
+        symbolEnter.defineNode(scopeNode.compensationFunction.function, env);
+        typeChecker.checkExpr(scopeNode.compensationFunction, env);
+        symbolEnter.defineNode(scopeNode, env);
+    }
+
+    @Override
+    public void visit(BLangCompensate node) {
+        if (symTable.notFoundSymbol.equals(symResolver.lookupSymbol(env, names.fromString(node
+                .getScopeName()
+                .getValue()), SymTag.SCOPE))) {
+            dlog.error(node.pos, DiagnosticCode.UNDEFINED_SYMBOL, node.getScopeName().getValue());
+        }
+    }
+
     // Private methods
 
     private void handleForeachVariables(BLangForeach foreachStmt, List<BType> varTypes, SymbolEnv env) {
@@ -1523,10 +1548,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             varRefExpr.type = this.symTable.errType;
             return;
         }
-        validateVariableDefinition(rhsExpr);
         BType rhsType = typeChecker.checkExpr(rhsExpr, this.env, expType);
         if (safeAssignment) {
             rhsType = handleSafeAssignmentWithVarDeclaration(varRefExpr.pos, rhsType);
+        }
+        if (!validateVariableDefinition(rhsExpr)) {
+            rhsType = symTable.errType;
         }
 
         // Check variable symbol if exists.
@@ -1682,16 +1709,23 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return binaryExpressionNode;
     }
 
-    private void validateVariableDefinition(BLangExpression expr) {
+    private boolean validateVariableDefinition(BLangExpression expr) {
         // following cases are invalid.
         // var a = [ x, y, ... ];
         // var a = { x : y };
         // var a = new ;
+        // var a = ( 1, 2, .. );
         final NodeKind kind = expr.getKind();
         if (kind == NodeKind.RECORD_LITERAL_EXPR || kind == NodeKind.ARRAY_LITERAL_EXPR
                 || (kind == NodeKind.Type_INIT_EXPR && ((BLangTypeInit) expr).userDefinedType == null)) {
             dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
+            return false;
         }
+        if (kind == NodeKind.BRACED_TUPLE_EXPR && ((BLangBracedOrTupleExpr) expr).expressions.size() > 1) {
+            dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
+            return false;
+        }
+        return true;
     }
 
     private void handleSafeAssignment(DiagnosticPos lhsPos, BType lhsType, BLangExpression rhsExpr, SymbolEnv env) {

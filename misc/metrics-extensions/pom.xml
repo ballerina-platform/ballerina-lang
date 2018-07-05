@@ -35,7 +35,7 @@
     </properties>
 
     <modules>
-        <module>modules/ballerina-micrometer-extension</module>
+        <module>modules/ballerina-metrics-extension</module>
         <module>modules/ballerina-prometheus-extension</module>
     </modules>
 

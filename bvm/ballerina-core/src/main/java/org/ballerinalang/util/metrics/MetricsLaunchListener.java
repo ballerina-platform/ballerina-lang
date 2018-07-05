@@ -22,9 +22,13 @@ import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.util.LaunchListener;
 import org.ballerinalang.util.metrics.noop.NoOpMetricProvider;
+import org.ballerinalang.util.metrics.noop.NoOpMetricReporter;
 import org.ballerinalang.util.metrics.spi.MetricProvider;
+import org.ballerinalang.util.metrics.spi.MetricReporter;
 import org.ballerinalang.util.observability.ObservabilityUtils;
+import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
 
+import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.util.Iterator;
@@ -39,61 +43,83 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG
 @JavaSPIService("org.ballerinalang.util.LaunchListener")
 public class MetricsLaunchListener implements LaunchListener {
 
+    private static final PrintStream consoleError = System.err;
     private static final String METRIC_PROVIDER_NAME = CONFIG_TABLE_METRICS + ".provider";
+    private static final String METRIC_REPORTER_NAME = CONFIG_TABLE_METRICS + ".reporter";
+    private static final String DEFAULT_METRIC_PROVIDER_NAME = "default";
+    private static final String DEFAULT_METRIC_REPORTER_NAME = "prometheus";
 
     @Override
     public void beforeRunProgram(boolean service) {
-        ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-        if (!configRegistry.getAsBoolean(CONFIG_METRICS_ENABLED)) {
-            // Create default MetricRegistry with NoOpMetricProvider
-            DefaultMetricRegistry.setInstance(new MetricRegistry(new NoOpMetricProvider()));
-            return;
+        if (DefaultMetricRegistry.getInstance() == null) {
+            ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+            if (!configRegistry.getAsBoolean(CONFIG_METRICS_ENABLED)) {
+                // Create default MetricRegistry with NoOpMetricProvider
+                DefaultMetricRegistry.setInstance(new MetricRegistry(new NoOpMetricProvider()));
+                return;
+            }
+            //load metric provider configured
+            MetricProvider metricProvider = loadMetricProvider(configRegistry);
+            // Initialize Metric Provider
+            metricProvider.init();
+            // Create default MetricRegistry
+            DefaultMetricRegistry.setInstance(new MetricRegistry(metricProvider));
+            // Register Ballerina specific metrics
+            registerBallerinaMetrics();
+            //load metric reporter configured
+            MetricReporter reporter = loadMetricReporter(configRegistry);
+            //initialize metric reporter
+            try {
+                reporter.init();
+            } catch (InvalidConfigurationException e) {
+                consoleError.println("Invalid configuration error when initializing metrics reporter. "
+                        + e.getMessage());
+            }
+            // Add Metrics Observer
+            ObservabilityUtils.addObserver(new BallerinaMetricsObserver());
         }
-        String providerName = configRegistry.getAsString(METRIC_PROVIDER_NAME);
+    }
+
+    private MetricProvider loadMetricProvider(ConfigRegistry configRegistry) {
+        String providerName = configRegistry.getConfigOrDefault(METRIC_PROVIDER_NAME, DEFAULT_METRIC_PROVIDER_NAME);
         // Look for MetricProvider implementations
         Iterator<MetricProvider> metricProviders = ServiceLoader.load(MetricProvider.class).iterator();
-        MetricProvider metricProvider = null;
         while (metricProviders.hasNext()) {
             MetricProvider temp = metricProviders.next();
             if (providerName != null && providerName.equalsIgnoreCase(temp.getName())) {
-                metricProvider = temp;
-                break;
-            } else {
-                if (!NoOpMetricProvider.class.isInstance(temp)) {
-                    metricProvider = temp;
-                    break;
-                }
+                return temp;
             }
         }
-        if (metricProvider == null) {
-            metricProvider = new NoOpMetricProvider();
+        return new NoOpMetricProvider();
+    }
+
+    private MetricReporter loadMetricReporter(ConfigRegistry configRegistry) {
+        String reporterName = configRegistry.getConfigOrDefault(METRIC_REPORTER_NAME, DEFAULT_METRIC_REPORTER_NAME);
+        // Look for MetricProvider implementations
+        Iterator<MetricReporter> metricReporters = ServiceLoader.load(MetricReporter.class).iterator();
+        while (metricReporters.hasNext()) {
+            MetricReporter temp = metricReporters.next();
+            if (reporterName != null && reporterName.equalsIgnoreCase(temp.getName())) {
+                return temp;
+            }
         }
-
-        // Initialize Metric Provider
-        metricProvider.initialize();
-        // Create default MetricRegistry
-        DefaultMetricRegistry.setInstance(new MetricRegistry(metricProvider));
-        // Register Ballerina specific metrics
-        registerBallerinaMetrics();
-
-        // Add Metrics Observer
-        ObservabilityUtils.addObserver(new BallerinaMetricsObserver());
+        return new NoOpMetricReporter();
     }
 
     private void registerBallerinaMetrics() {
         final BLangScheduler.SchedulerStats schedulerStats = BLangScheduler.getStats();
         final String prefix = "ballerina_scheduler_";
-        CallbackGauge.builder(prefix + "ready_worker_count", schedulerStats,
+        PolledGauge.builder(prefix + "ready_worker_count", schedulerStats,
                 BLangScheduler.SchedulerStats::getReadyWorkerCount).register();
-        CallbackGauge.builder(prefix + "running_worker_count", schedulerStats,
+        PolledGauge.builder(prefix + "running_worker_count", schedulerStats,
                 BLangScheduler.SchedulerStats::getRunningWorkerCount).register();
-        CallbackGauge.builder(prefix + "excepted_worker_count", schedulerStats,
+        PolledGauge.builder(prefix + "excepted_worker_count", schedulerStats,
                 BLangScheduler.SchedulerStats::getExceptedWorkerCount).register();
-        CallbackGauge.builder(prefix + "paused_worker_count", schedulerStats,
+        PolledGauge.builder(prefix + "paused_worker_count", schedulerStats,
                 BLangScheduler.SchedulerStats::getPausedWorkerCount).register();
-        CallbackGauge.builder(prefix + "waiting_for_response_worker_count", schedulerStats,
+        PolledGauge.builder(prefix + "waiting_for_response_worker_count", schedulerStats,
                 BLangScheduler.SchedulerStats::getWaitingForResponseWorkerCount).register();
-        CallbackGauge.builder(prefix + "waiting_for_lock_worker_count", schedulerStats,
+        PolledGauge.builder(prefix + "waiting_for_lock_worker_count", schedulerStats,
                 BLangScheduler.SchedulerStats::getWaitingForLockWorkerCount).register();
     }
 
@@ -103,7 +129,7 @@ public class MetricsLaunchListener implements LaunchListener {
             Gauge gauge = Gauge.builder("startup_time_milliseconds")
                     .description("Startup time in milliseconds").register();
             RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
-            gauge.set(System.currentTimeMillis() - runtimeMXBean.getStartTime());
+            gauge.setValue(System.currentTimeMillis() - runtimeMXBean.getStartTime());
         }
     }
 }

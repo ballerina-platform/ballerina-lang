@@ -17,13 +17,12 @@
  */
 package org.ballerinalang.util.metrics.spi;
 
-import org.ballerinalang.util.metrics.CallbackGauge;
 import org.ballerinalang.util.metrics.Counter;
 import org.ballerinalang.util.metrics.Gauge;
 import org.ballerinalang.util.metrics.MetricId;
 import org.ballerinalang.util.metrics.MetricRegistry;
-import org.ballerinalang.util.metrics.Summary;
-import org.ballerinalang.util.metrics.Timer;
+import org.ballerinalang.util.metrics.PolledGauge;
+import org.ballerinalang.util.metrics.StatisticConfig;
 
 import java.util.function.ToDoubleFunction;
 
@@ -43,16 +42,12 @@ public interface MetricProvider {
     /**
      * This will be called when initializing the default {@link MetricRegistry}.
      */
-    void initialize();
+    void init();
 
     Counter newCounter(MetricId metricId);
 
-    Gauge newGauge(MetricId metricId);
+    Gauge newGauge(MetricId metricId, StatisticConfig... statisticConfigs);
 
-    <T> CallbackGauge newCallbackGauge(MetricId metricId, T obj, ToDoubleFunction<T> toDoubleFunction);
-
-    Summary newSummary(MetricId metricId);
-
-    Timer newTimer(MetricId metricId);
+    <T> PolledGauge newPolledGauge(MetricId metricId, T obj, ToDoubleFunction<T> toDoubleFunction);
 
 }
