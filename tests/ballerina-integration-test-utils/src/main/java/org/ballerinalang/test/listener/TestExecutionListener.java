@@ -95,9 +95,7 @@ public class TestExecutionListener implements IExecutionListener {
                 @Override
                 protected void configServer() {
                     //path of the sample bal file directory
-                    String relativePath = new File("src" + File.separator + "test" + File.separator
-                                                           + "resources" + File.separator + "httpService" +
-                                                           File.separator + "common_backend.bal").getAbsolutePath();
+                    String relativePath = System.getProperty("integration.test.utils.service.file");
                     //list of sample bal files to be deploy
                     String[] serviceFilesArr = {relativePath};
                     setArguments(serviceFilesArr);

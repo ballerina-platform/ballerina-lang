@@ -38,6 +38,9 @@
                         <server.zip>
                             ${basedir}/../../distribution/zip/ballerina-tools/target/ballerina-tools-${project.version}.zip
                         </server.zip>
+                        <integration.test.utils.service.file>
+                            ${basedir}/../../tests/ballerina-integration-test-utils/src/main/ballerina/httpService/common_backend.bal
+                        </integration.test.utils.service.file>
                         <project.build.directory>${project.build.directory}</project.build.directory>
                         <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties</java.util.logging.config.file>
                         <javax.net.ssl.trustStore>${basedir}/../../distribution/zip/ballerina/resources/security/ballerinaTruststore.p12</javax.net.ssl.trustStore>

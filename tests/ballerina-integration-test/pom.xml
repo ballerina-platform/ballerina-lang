@@ -265,6 +265,9 @@
                         <server.zip>
                             ${basedir}/../../distribution/zip/ballerina/target/ballerina-${project.version}.zip
                         </server.zip>
+                        <integration.test.utils.service.file>
+                            ${basedir}/../../tests/ballerina-integration-test-utils/src/main/ballerina/httpService/common_backend.bal
+                        </integration.test.utils.service.file>
                         <observability-test-natives.jar>
                             ${basedir}/../../tests/observability-test-utils/target/observability-test-utils-${project.version}.jar
                         </observability-test-natives.jar>
