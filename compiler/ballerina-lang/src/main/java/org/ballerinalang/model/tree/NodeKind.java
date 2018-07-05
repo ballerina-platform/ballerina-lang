@@ -123,6 +123,8 @@ public enum NodeKind {
     WORKER_RECEIVE,
     WORKER_SEND,
     STREAM,
+    SCOPE,
+    COMPENSATE,
 
     /* Types */
     ARRAY_TYPE,

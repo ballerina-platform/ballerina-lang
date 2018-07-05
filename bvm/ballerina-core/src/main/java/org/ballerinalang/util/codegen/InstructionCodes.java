@@ -67,6 +67,8 @@ public interface InstructionCodes {
     int MAPLOAD = 47;
     int JSONLOAD = 48;
 
+    int COMPENSATE = 49;
+
     int BIASTORE = 50;
     int IASTORE = 51;
     int FASTORE = 52;
@@ -92,6 +94,10 @@ public interface InstructionCodes {
     int IADD = 76;
     int FADD = 77;
     int SADD = 78;
+
+    int SCOPE_END = 79;
+    int LOOP_COMPENSATE = 80;
+
     int XMLADD = 81;
     int ISUB = 82;
     int FSUB = 83;

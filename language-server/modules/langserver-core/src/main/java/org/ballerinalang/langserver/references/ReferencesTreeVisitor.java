@@ -65,6 +65,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
@@ -737,6 +738,15 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
         if (unaryExpr.expr != null) {
             this.acceptNode(unaryExpr.expr);
         }
+    }
+
+    @Override
+    public void visit(BLangScope scopeNode) {
+        if (scopeNode.scopeBody != null) {
+            this.acceptNode(scopeNode.scopeBody);
+        }
+
+        visit(scopeNode.compensationFunction);
     }
 
     /**
