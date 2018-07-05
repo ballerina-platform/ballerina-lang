@@ -16,3 +16,7 @@ type PersonA record {
 function emptyRecordForAnyRestField() {
     PersonA p = {name:"John", misc:{}};
 }
+
+type Pet record {
+    Animal lion;
+};

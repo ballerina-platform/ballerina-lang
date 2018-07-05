@@ -550,6 +550,13 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 9, "cannot infer type of the object from 'Person?'", 29, 14);
     }
 
+    @Test (description = "Negative test to test unknown object field type")
+    public void testUnknownObjectFieldType() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_undefined_field_type_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "unknown type 'Employee'", 3, 5);
+    }
+
     @Test
     public void testAttachFunctionsWithIdenticalRestParams() {
         CompileResult compileResult =
