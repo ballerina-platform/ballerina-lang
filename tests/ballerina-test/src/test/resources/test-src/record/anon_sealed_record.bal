@@ -3,19 +3,19 @@ function testAnonStructAsFuncParam() returns (int) {
     return testAnonStructFunc(10, {k:14, s:"sameera"});
 }
 
-function testAnonStructFunc(int i, record {int k = 10; string s;} anonSt) returns (int) {
+function testAnonStructFunc(int i, sealed record {int k = 10; string s;} anonSt) returns (int) {
     return anonSt.k + i;
 }
 
 
 function testAnonStructAsLocalVar() returns (int) {
-    record {int k = 11; string s;} anonSt = {};
+    sealed record {int k = 11; string s;} anonSt = {};
 
     return anonSt.k;
 }
 
 
-record {string fname; string lname; int age;} person;
+sealed record {string fname; string lname; int age;} person;
 
 function testAnonStructAsPkgVar() returns (string) {
 
@@ -29,14 +29,14 @@ type employee record {
     string fname;
     string lname;
     int age;
-    record { string line01;
+    sealed record { string line01;
              string line02;
              string city;
              string state;
              string zipcode;
     } address;
 
-    record {
+    sealed record {
         string month = "JAN";
         string day = "01";
         string year = "1970";
@@ -49,19 +49,4 @@ function testAnonStructAsStructField() returns (string) {
                      address:{line01:"12 Gemba St APT 134", city:"Los Altos", state:"CA", zipcode:"95123"},
                     dateOfBirth:{}};
     return e.dateOfBirth.month + ":" + e.address.line01 + ":" + e.address["state"] + ":" + e.fname;
-}
-
-function testRestField() returns person {
-    person p = {fname:"John", lname:"Doe", age:20};
-    p.location = "Colombo";
-    p.height = 5.5;
-    return p;
-}
-
-record {string kind, string name, int...} animal;
-
-function testAnonRecWithExplicitRestField() returns animal {
-    animal a = {kind:"Cat", name:"Miaw"};
-    a.legs = 4;
-    return a;
 }
