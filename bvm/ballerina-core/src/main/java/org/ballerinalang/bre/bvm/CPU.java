@@ -349,12 +349,12 @@ public class CPU {
                     case InstructionCodes.BIOR:
                     case InstructionCodes.IXOR:
                     case InstructionCodes.BIXOR:
-                    case InstructionCodes.BISHL:
-                    case InstructionCodes.BISHR:
-                    case InstructionCodes.ISHR:
-                    case InstructionCodes.ISHL:
-                    case InstructionCodes.BIUSHR:
-                    case InstructionCodes.IUSHR:
+                    case InstructionCodes.BILSHIFT:
+                    case InstructionCodes.BIRSHIFT:
+                    case InstructionCodes.IRSHIFT:
+                    case InstructionCodes.ILSHIFT:
+                    case InstructionCodes.BIUNRSHIFT:
+                    case InstructionCodes.IUNRSHIFT:
                         execBinaryOpCodes(ctx, sf, opcode, operands);
                         break;
     
@@ -1831,37 +1831,37 @@ public class CPU {
                 k = operands[2];
                 sf.longRegs[k] = sf.longRegs[i] ^ sf.longRegs[j];
                 break;
-            case InstructionCodes.BISHL:
+            case InstructionCodes.BILSHIFT:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
                 sf.intRegs[k] = sf.intRegs[i] << sf.longRegs[j];
                 break;
-            case InstructionCodes.BISHR:
+            case InstructionCodes.BIRSHIFT:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
                 sf.intRegs[k] = sf.intRegs[i] >> sf.longRegs[j];
                 break;
-            case InstructionCodes.ISHR:
+            case InstructionCodes.IRSHIFT:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
                 sf.longRegs[k] = sf.longRegs[i] >> sf.longRegs[j];
                 break;
-            case InstructionCodes.ISHL:
+            case InstructionCodes.ILSHIFT:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
                 sf.longRegs[k] = sf.longRegs[i] << sf.longRegs[j];
                 break;
-            case InstructionCodes.BIUSHR:
+            case InstructionCodes.BIUNRSHIFT:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
                 sf.intRegs[k] = sf.intRegs[i] >>> sf.longRegs[j];
                 break;
-            case InstructionCodes.IUSHR:
+            case InstructionCodes.IUNRSHIFT:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];

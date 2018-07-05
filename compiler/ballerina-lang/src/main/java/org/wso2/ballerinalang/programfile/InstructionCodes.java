@@ -185,10 +185,10 @@ public interface InstructionCodes {
     int S2XML = 156;
     int XML2S = 157;
 
-    int BISHL = 158;
-    int BISHR = 159;
-    int ISHL = 160;
-    int ISHR = 161;
+    int BILSHIFT = 158;
+    int BIRSHIFT = 159;
+    int ILSHIFT = 160;
+    int IRSHIFT = 161;
 
     // Type cast
     int I2ANY = 162;
@@ -249,7 +249,7 @@ public interface InstructionCodes {
     int ARRAYLEN = 207;
     int LENGTHOF = 208;
 
-    int BIUSHR = 209;
+    int BIUNRSHIFT = 209;
 
     int NEWSTRUCT = 210;
     int NEWMAP = 212;
@@ -269,7 +269,7 @@ public interface InstructionCodes {
     int IXOR = 227;
     int BACONST = 228;
 
-    int IUSHR = 229;
+    int IUNRSHIFT = 229;
 
     int IRET = 230;
     int FRET = 231;
