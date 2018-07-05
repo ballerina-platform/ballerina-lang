@@ -6,10 +6,3 @@ type Person object {
 function test() {
 
 }
-
-
-
-
-
-
-
