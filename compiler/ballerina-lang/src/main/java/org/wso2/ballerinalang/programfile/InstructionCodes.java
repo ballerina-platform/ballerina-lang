@@ -182,11 +182,12 @@ public interface InstructionCodes {
     int MAP2T = 154;
     int JSON2T = 155;
 
-    int BISHL = 156;
-    int BISHR = 157;
+    int S2XML = 156;
+    int XML2S = 157;
 
-    int S2XML = 158;
-    int XML2S = 159;
+    int BISHL = 158;
+    int BISHR = 159;
+    int BIUSHR = 160;
 
     // Type cast
     int I2ANY = 162;

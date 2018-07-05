@@ -252,6 +252,14 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, byteType, byteType, intType, InstructionCodes.BISHR);
         defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, intType, byteType, intType, InstructionCodes.BISHR);
         defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, byteType, intType, intType, InstructionCodes.BISHR);
+        defineBinaryOperator(OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT, intType, intType, intType,
+                InstructionCodes.BIUSHR);
+        defineBinaryOperator(OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT, byteType, byteType, intType,
+                InstructionCodes.BIUSHR);
+        defineBinaryOperator(OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT, intType, byteType, intType,
+                InstructionCodes.BIUSHR);
+        defineBinaryOperator(OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT, byteType, intType, intType,
+                InstructionCodes.BIUSHR);
 
         // Binary equality operators ==, !=
         defineBinaryOperator(OperatorKind.EQUAL, intType, intType, booleanType, InstructionCodes.IEQ);

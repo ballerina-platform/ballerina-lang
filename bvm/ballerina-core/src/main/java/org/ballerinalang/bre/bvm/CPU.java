@@ -351,6 +351,7 @@ public class CPU {
                     case InstructionCodes.BIXOR:
                     case InstructionCodes.BISHL:
                     case InstructionCodes.BISHR:
+                    case InstructionCodes.BIUSHR:
                         execBinaryOpCodes(ctx, sf, opcode, operands);
                         break;
     
@@ -1838,6 +1839,12 @@ public class CPU {
                 j = operands[1];
                 k = operands[2];
                 sf.longRegs[k] = sf.longRegs[i] >> sf.longRegs[j];
+                break;
+            case InstructionCodes.BIUSHR:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.longRegs[k] = sf.longRegs[i] >>> sf.longRegs[j];
                 break;
             default:
                 throw new UnsupportedOperationException();
