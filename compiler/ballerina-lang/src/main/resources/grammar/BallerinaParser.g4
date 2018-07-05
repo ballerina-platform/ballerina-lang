@@ -107,7 +107,8 @@ fieldDefinition
     ;
 
 recordRestFieldDefinition
-    : typeName ELLIPSIS
+    :   typeName ELLIPSIS
+    |   NOT ELLIPSIS
     ;
 
 objectParameterList
@@ -192,7 +193,7 @@ typeName
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeNameLabel
     |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                            # objectTypeNameLabel
-    |   SEALED? RECORD LEFT_BRACE recordFieldDefinitionList RIGHT_BRACE     # recordTypeNameLabel
+    |   RECORD LEFT_BRACE recordFieldDefinitionList RIGHT_BRACE             # recordTypeNameLabel
     ;
 
 recordFieldDefinitionList
