@@ -20,9 +20,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {
     getSizingUtil,
+    getConfig,
 } from 'plugins/ballerina/diagram/diagram-util';
 import ControllerOverlay from './controller-overlay';
-
+import GraphicalEditorErrorBoundary from './graphical-editor-error-boundary';
 
 class GraphicalEditor extends React.Component {
     /**
@@ -33,17 +34,23 @@ class GraphicalEditor extends React.Component {
         return {
             mode: this.props.mode,
             designer: getSizingUtil(this.props.mode),
+            config: getConfig(this.props.mode),
         };
     }
     /**
      * @inheritDoc
      */
     render() {
+        if (this.props.fitToWidth) {
+            return null;
+        }
         return (
-            <ControllerOverlay
-                model={this.props.model}
-                mode={this.props.mode}
-            />
+            <GraphicalEditorErrorBoundary>
+                <ControllerOverlay
+                    model={this.props.model}
+                    mode={this.props.mode}
+                />
+            </GraphicalEditorErrorBoundary>
         );
     }
 }
@@ -52,6 +59,7 @@ class GraphicalEditor extends React.Component {
 GraphicalEditor.childContextTypes = {
     mode: PropTypes.string,
     designer: PropTypes.instanceOf(Object).isRequired,
+    config: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default GraphicalEditor;

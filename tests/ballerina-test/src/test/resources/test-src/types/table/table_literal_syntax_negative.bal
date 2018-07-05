@@ -1,4 +1,4 @@
-type Person record {
+type Person sealed record {
     int id,
     int age,
     float salary,

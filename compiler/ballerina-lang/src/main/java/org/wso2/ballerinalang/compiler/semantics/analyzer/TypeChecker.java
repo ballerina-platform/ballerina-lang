@@ -37,7 +37,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -399,11 +398,6 @@ public class TypeChecker extends BLangNodeVisitor {
             recordLiteral.keyValuePairs
                     .forEach(keyValuePair -> checkRecLiteralKeyValue(keyValuePair, matchedTypeList.get(0)));
             actualType = matchedTypeList.get(0);
-
-            // TODO Following check can be moved the code analyzer.
-            if (expTypeTag == TypeTags.RECORD) {
-                validateStructInitalizer(recordLiteral.pos);
-            }
         }
 
         resultType = types.checkType(recordLiteral, actualType, expType);
@@ -1552,7 +1546,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangExpression valueExpr = keyValuePair.valueExpr;
         switch (recType.tag) {
             case TypeTags.RECORD:
-                fieldType = checkStructLiteralKeyExpr(keyValuePair.key, recType, RecordKind.STRUCT);
+                fieldType = checkStructLiteralKeyExpr(keyValuePair.key, recType);
                 break;
             case TypeTags.MAP:
                 fieldType = checkMapLiteralKeyExpr(keyValuePair.key.expr, recType, RecordKind.MAP);
@@ -1583,7 +1577,7 @@ public class TypeChecker extends BLangNodeVisitor {
         checkExpr(valueExpr, this.env, fieldType);
     }
 
-    private BType checkStructLiteralKeyExpr(BLangRecordKey key, BType recordType, RecordKind recKind) {
+    private BType checkStructLiteralKeyExpr(BLangRecordKey key, BType recordType) {
         Name fieldName;
         BLangExpression keyExpr = key.expr;
 
@@ -1596,16 +1590,18 @@ public class TypeChecker extends BLangNodeVisitor {
             return symTable.errType;
         }
 
-        // Check weather the struct field exists
+        // Check whether the struct field exists
         BSymbol fieldSymbol = symResolver.resolveStructField(keyExpr.pos, this.env,
                 fieldName, recordType.tsymbol);
         if (fieldSymbol == symTable.notFoundSymbol) {
-            dlog.error(keyExpr.pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, recordType.tsymbol);
-            return symTable.errType;
+            if (((BRecordType) recordType).sealed) {
+                dlog.error(keyExpr.pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, recordType.tsymbol);
+                return symTable.errType;
+            }
+
+            return ((BRecordType) recordType).restFieldType;
         }
 
-        // Setting the struct field symbol for future use in Desugar and code generator.
-        key.fieldSymbol = (BVarSymbol) fieldSymbol;
         return fieldSymbol.type;
     }
 
@@ -1614,7 +1610,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // If the JSON is constrained with a struct, get the field type from the struct
         if (type.constraint.tag != TypeTags.NONE && type.constraint.tag != TypeTags.ERROR) {
-            return checkStructLiteralKeyExpr(key, type.constraint, recKind);
+            return checkStructLiteralKeyExpr(key, type.constraint);
         }
 
         if (checkRecLiteralKeyExpr(key.expr, recKind).tag != TypeTags.STRING) {
@@ -1654,23 +1650,37 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkStructFieldAccess(BLangVariableReference varReferExpr, Name fieldName, BType structType) {
-        BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, this.env,
-                fieldName, structType.tsymbol);
-        if (fieldSymbol == symTable.notFoundSymbol) {
+        BSymbol fieldSymbol = symResolver.resolveStructField(varReferExpr.pos, this.env, fieldName, structType.tsymbol);
+
+        if (fieldSymbol != symTable.notFoundSymbol) {
+            // Setting the field symbol. This is used during the code generation phase
+            varReferExpr.symbol = fieldSymbol;
+            return fieldSymbol.type;
+        }
+
+        if (structType.tag == TypeTags.OBJECT) {
             // check if it is an attached function pointer call
             Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(structType.tsymbol.name.value,
-                    fieldName.value));
+                                                                                  fieldName.value));
             fieldSymbol = symResolver.resolveObjectField(varReferExpr.pos, env, objFuncName, structType.tsymbol);
 
             if (fieldSymbol == symTable.notFoundSymbol) {
                 dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, structType.tsymbol);
                 return symTable.errType;
             }
+
+            // Setting the field symbol. This is used during the code generation phase
+            varReferExpr.symbol = fieldSymbol;
+            return fieldSymbol.type;
         }
 
-        // Setting the field symbol. This is used during the code generation phase
-        varReferExpr.symbol = fieldSymbol;
-        return fieldSymbol.type;
+        // Assuming this method is only used for objects and records
+        if (((BRecordType) structType).sealed) {
+            dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, structType.tsymbol);
+            return symTable.errType;
+        }
+
+        return ((BRecordType) structType).restFieldType;
     }
 
     private void validateTags(BLangXMLElementLiteral bLangXMLElementLiteral, SymbolEnv xmlElementEnv) {
@@ -1798,19 +1808,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
         checkExpr(expr, this.env, symTable.noType);
         return expr.type;
-    }
-
-    private void validateStructInitalizer(DiagnosticPos pos) {
-        BStructureType bStructType = (BStructureType) expType;
-        BStructureTypeSymbol bStructSymbol = (BStructureTypeSymbol) bStructType.tsymbol;
-        if (bStructSymbol.initializerFunc == null) {
-            return;
-        }
-
-        boolean samePkg = this.env.enclPkg.symbol.pkgID == bStructSymbol.pkgID;
-        if (!samePkg && Symbols.isPrivate(bStructSymbol.initializerFunc.symbol)) {
-            dlog.error(pos, DiagnosticCode.ATTEMPT_CREATE_NON_PUBLIC_INITIALIZER);
-        }
     }
 
     private BType getAccessExprFinalType(BLangAccessExpression accessExpr, BType actualType) {

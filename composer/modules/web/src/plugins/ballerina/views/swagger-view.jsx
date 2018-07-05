@@ -22,12 +22,13 @@ import * as YAML from 'js-yaml';
 import PropTypes from 'prop-types';
 import log from 'log';
 import cn from 'classnames';
+import { Button } from 'semantic-ui-react';
 import SwaggerEditorBundle from 'swagger-editor-dist/swagger-editor-bundle';
 import SwaggerParser from 'plugins/ballerina/swagger-parser/swagger-parser';
 import NodeFactory from 'plugins/ballerina/model/node-factory';
 import ServiceNode from 'plugins/ballerina/model/tree/service-node';
 import { getSwaggerDefinition } from 'api-client/api-client';
-import { DESIGN_VIEW, SOURCE_VIEW } from './constants';
+import { SPLIT_VIEW } from './constants';
 
 
 const ace = global.ace;
@@ -132,6 +133,23 @@ class SwaggerView extends React.Component {
             // No need to throw.
             log.error(error);
         }
+    }
+
+    handleCloseSwaggerView(){
+        if (this.props.hideSwaggerAceEditor ||
+            this.swaggerAce.getSession().getUndoManager().isClean()) {
+            this.context.editor.setActiveView(SPLIT_VIEW);
+        } else if (!this.hasSwaggerErrors()) {
+            this.updateService();
+            this.context.editor.setActiveView(SPLIT_VIEW);
+        }
+        this.props.resetSwaggerViewFun();
+        this.context.astRoot.trigger('tree-modified', {
+            origin: this.context.astRoot,
+            type: 'swagger',
+            title: 'Modify Swagger Definition',
+            context: this.context.astRoot,
+        });
     }
 
     /**
@@ -304,72 +322,17 @@ class SwaggerView extends React.Component {
                     height: this.props.height,
                 }}
             >
+                <div className="close-swagger">
+                    <Button onClick={()=>{
+                        this.handleCloseSwaggerView();
+                    }} size='small'>Back</Button>
+                </div>
                 <div
                     className='swaggerEditor'
                     // keep the ref to this element as the container ref
                     ref={(ref) => { this.container = ref; }}
                     data-editor-url='lib/swagger-editor/#/'
                 />
-                <div className='bottom-right-controls-container'>
-                    <div
-                        className='view-design-btn btn-icon'
-                        onClick={
-                            () => {
-                                if (this.props.hideSwaggerAceEditor ||
-                                    this.swaggerAce.getSession().getUndoManager().isClean()) {
-                                    this.context.editor.setActiveView(DESIGN_VIEW);
-                                } else if (!this.hasSwaggerErrors()) {
-                                    this.updateService();
-                                    this.context.editor.setActiveView(DESIGN_VIEW);
-                                }
-                                this.props.resetSwaggerViewFun();
-                                this.context.astRoot.trigger('tree-modified', {
-                                    origin: this.context.astRoot,
-                                    type: 'swagger',
-                                    title: 'Modify Swagger Definition',
-                                    context: this.context.astRoot,
-                                });
-                            }
-                        }
-                    >
-                        <div className='bottom-label-icon-wrapper'>
-                            <i className='fw fw-design-view fw-inverse' />
-                        </div>
-                        <div className='bottom-view-label'>
-                                Design View
-                        </div>
-                    </div>
-                    <div
-                        className={cn('view-source-btn btn-icon', { hide: this.context.isPreviewViewEnabled })}
-                        onClick={
-                            () => {
-                                if (this.props.hideSwaggerAceEditor ||
-                                    this.swaggerAce.getSession().getUndoManager().isClean()) {
-                                    this.context.editor.setActiveView(SOURCE_VIEW);
-                                } else if (!this.hasSwaggerErrors()) {
-                                    this.updateService();
-                                    this.context.editor.setActiveView(SOURCE_VIEW);
-                                }
-                                this.props.resetSwaggerViewFun();
-                                this.context.astRoot.trigger('tree-modified', {
-                                    origin: this.context.astRoot,
-                                    type: 'swagger',
-                                    title: 'Modify Swagger Definition',
-                                    context: this.context.astRoot,
-                                });
-                            }
-                        }
-                    >
-                        <div
-                            className='bottom-label-icon-wrapper'
-                        >
-                            <i className='fw fw-code-view fw-inverse' />
-                        </div>
-                        <div className='bottom-view-label'>
-                                Source View
-                        </div>
-                    </div>
-                </div>
             </div>
         );
     }
