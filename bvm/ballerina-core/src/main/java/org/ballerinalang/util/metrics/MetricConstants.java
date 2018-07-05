@@ -20,11 +20,10 @@ package org.ballerinalang.util.metrics;
 /**
  * Defines the types of the metrics supported.
  */
-public class Constants {
-    private Constants(){}
+public class MetricConstants {
+    private MetricConstants(){}
 
     public static final String COUNTER = "counter";
     public static final String GAUGE = "gauge";
-    public static final String STATISTICS = "statistics";
 
 }

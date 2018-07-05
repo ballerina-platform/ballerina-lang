@@ -34,11 +34,11 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
-import org.ballerinalang.util.metrics.Constants;
 import org.ballerinalang.util.metrics.Counter;
 import org.ballerinalang.util.metrics.DefaultMetricRegistry;
 import org.ballerinalang.util.metrics.Gauge;
 import org.ballerinalang.util.metrics.Metric;
+import org.ballerinalang.util.metrics.MetricConstants;
 import org.ballerinalang.util.metrics.MetricId;
 import org.ballerinalang.util.metrics.PolledGauge;
 import org.ballerinalang.util.metrics.Tag;
@@ -76,16 +76,16 @@ public class GetAllMetrics extends BlockingNativeCallableUnit {
             BRefValueArray summary = null;
             if (metric instanceof Counter) {
                 metricValue = new BInteger(((Counter) metric).getValue());
-                metricType = Constants.COUNTER;
+                metricType = MetricConstants.COUNTER;
             } else if (metric instanceof Gauge) {
                 Gauge gauge = (Gauge) metric;
                 metricValue = new BFloat(gauge.getValue());
-                metricType = Constants.GAUGE;
+                metricType = MetricConstants.GAUGE;
                 summary = Utils.createBSnapshots(gauge.getSnapshots(), context);
             } else if (metric instanceof PolledGauge) {
                 PolledGauge gauge = (PolledGauge) metric;
                 metricValue = new BFloat(gauge.getValue());
-                metricType = Constants.GAUGE;
+                metricType = MetricConstants.GAUGE;
             }
             if (metricValue != null) {
                 BMap metricStruct = BLangVMStructs.createBStruct(metricStructInfo,
