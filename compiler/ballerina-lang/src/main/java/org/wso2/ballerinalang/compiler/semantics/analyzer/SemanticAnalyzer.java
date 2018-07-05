@@ -1687,10 +1687,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // var a = [ x, y, ... ];
         // var a = { x : y };
         // var a = new ;
+        // var a = ( 1, 2, .. );
         final NodeKind kind = expr.getKind();
         if (kind == NodeKind.RECORD_LITERAL_EXPR || kind == NodeKind.ARRAY_LITERAL_EXPR
                 || (kind == NodeKind.Type_INIT_EXPR && ((BLangTypeInit) expr).userDefinedType == null)) {
             dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
+        }
+        if (kind == NodeKind.BRACED_TUPLE_EXPR) {
+            BLangBracedOrTupleExpr bracedOrTupleExpr = (BLangBracedOrTupleExpr) expr;
+            if (bracedOrTupleExpr.expressions.size() > 1 &&
+                    bracedOrTupleExpr.expressions.stream().anyMatch(literal -> literal.getKind() == NodeKind.LITERAL)) {
+                dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
+            }
         }
     }
 

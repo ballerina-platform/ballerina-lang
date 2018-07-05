@@ -358,7 +358,9 @@ public class TypeChecker extends BLangNodeVisitor {
             actualType = new BArrayType(actualType, null, arrayLiteral.exprs.size(), BArrayState.UNSEALED);
 
             List<BType> arrayCompatibleType = getArrayCompatibleTypes(expType, actualType);
-            if (arrayCompatibleType.isEmpty()) {
+            if (arrayCompatibleType.stream().anyMatch(t -> t.tag == TypeTags.ANY)) {
+                dlog.error(arrayLiteral.pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);
+            } else if (arrayCompatibleType.isEmpty()) {
                 dlog.error(arrayLiteral.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, actualType);
             } else if (arrayCompatibleType.size() > 1) {
                 dlog.error(arrayLiteral.pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);
@@ -800,17 +802,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
-
-        if (expType.tag == TypeTags.ANY || expType.tag == TypeTags.NONE) {
-            List<BLangExpression> expressions = bracedOrTupleExpr.expressions;
-            if (expressions.size() > 1
-                    && expressions.stream().anyMatch(literal -> literal.getKind() == NodeKind.LITERAL)) {
-                dlog.error(bracedOrTupleExpr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
-                resultType = symTable.errType;
-                return;
-            }
-        }
-
         // Handle Tuple Expression.
         if (expType.tag == TypeTags.TUPLE) {
             BTupleType tupleType = (BTupleType) this.expType;
@@ -855,9 +846,21 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (bracedOrTupleExpr.expressions.size() > 1) {
             // This is a tuple.
             BType actualType = new BTupleType(results);
-            List<BType> tupleCompatibleType = getArrayCompatibleTypes(expType, actualType);
 
-            if (tupleCompatibleType.isEmpty()) {
+            if (expType.tag == TypeTags.ANY) {
+                if (bracedOrTupleExpr.expressions.stream().anyMatch(literal -> literal.getKind() == NodeKind.LITERAL)) {
+                    dlog.error(bracedOrTupleExpr.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
+                    resultType = symTable.errType;
+                } else {
+                    resultType = types.checkType(bracedOrTupleExpr, actualType, expType);
+                }
+                return;
+            }
+
+            List<BType> tupleCompatibleType = getArrayCompatibleTypes(expType, actualType);
+            if (tupleCompatibleType.stream().anyMatch(t -> t.tag == TypeTags.ANY)) {
+                dlog.error(bracedOrTupleExpr.pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);
+            } else if (tupleCompatibleType.isEmpty()) {
                 dlog.error(bracedOrTupleExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, actualType);
             } else if (tupleCompatibleType.size() > 1) {
                 dlog.error(bracedOrTupleExpr.pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);

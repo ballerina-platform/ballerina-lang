@@ -26,7 +26,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Basic Test cases for tubles.
+ * Basic Test cases for tuples.
  *
  * @since 0.966.0
  */
@@ -98,5 +98,9 @@ public class BasicTupleTest {
                 resultNegative, 2, "ambiguous type '(int,boolean,string)|(any,boolean,string)?'", 34, 63);
         BAssertUtil.validateError(
                 resultNegative, 3, "ambiguous type '(Person,int)|(Employee,int)?'", 38, 47);
+        BAssertUtil.validateError(
+                resultNegative, 4, "invalid variable definition; can not infer the assignment type.", 44, 14);
+        BAssertUtil.validateError(
+                resultNegative, 5, "invalid usage of array literal with type 'any'", 45, 14);
     }
 }
