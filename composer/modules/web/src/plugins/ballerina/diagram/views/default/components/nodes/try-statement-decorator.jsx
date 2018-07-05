@@ -23,7 +23,6 @@ import HoverGroup from 'plugins/ballerina/graphical-editor/controller-utils/hove
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
 import './compound-statement-decorator.css';
-import ActionBox from '../decorators/action-box';
 import ActiveArbiter from '../decorators/active-arbiter';
 import Breakpoint from '../decorators/breakpoint';
 import { getComponentForNodeArray } from './../../../../diagram-util';
