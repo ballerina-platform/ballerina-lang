@@ -97,7 +97,7 @@ public class RollingHistogram {
         }
         this.currentBucket = 0;
         this.lastRotateTimestampMillis = clock.getCurrentTime();
-        this.durationBetweenRotatesMillis = statisticConfig.getExpiry().toMillis() / ageBuckets;
+        this.durationBetweenRotatesMillis = statisticConfig.getTimeWindow().toMillis() / ageBuckets;
         intervalHistogram = new DoubleHistogram(statisticConfig.getPercentilePrecision());
         accumulatedHistogram = new DoubleHistogram(statisticConfig.getPercentilePrecision());
     }
@@ -170,7 +170,7 @@ public class RollingHistogram {
                     percentileValues[i] = new PercentileValue(p, accumulatedHistogram.getValueAtPercentile(p * 100));
                 }
             }
-            return new Snapshot(statisticConfig.getExpiry(),
+            return new Snapshot(statisticConfig.getTimeWindow(),
                     accumulatedHistogram.getMinValue(),
                     accumulatedHistogram.getMean(),
                     accumulatedHistogram.getStdDeviation(),

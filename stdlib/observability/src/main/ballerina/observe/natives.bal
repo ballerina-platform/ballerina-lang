@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-@final StatisticConfig[] DEFAULT_GAUGE_STATS_CONFIG = [{ expiry: 600000, buckets: 5,
+@final StatisticConfig[] DEFAULT_GAUGE_STATS_CONFIG = [{ timeWindow: 600000, buckets: 5,
     percentiles: [0.33, 0.5, 0.66, 0.99] }];
 
 @final map<string> DEFAULT_TAGS;
@@ -238,20 +238,6 @@ public type Gauge object {
     public native function getValue() returns float;
 
     documentation{
-        Retrieves the times that gauge value has been modified.
-
-        R{{value}} The current count of the gauge.
-    }
-    public native function getCount() returns int;
-
-    documentation{
-         Retrieves the total sum of the gauge's values.
-
-         R{{value}} The current sum of the gauge.
-    }
-    public native function getSum() returns float;
-
-    documentation{
         Retrieves statistics snapshots based on the statistics configs of the gauge.
 
         R{{snapshots}} Array of the statistics snapshots.
@@ -272,24 +258,24 @@ documentation {
     F{{summary}} If the metric is configured with statistics config, then the calculated statistics of the metric.
 }
 public type Metric record {
-    string name;
-    string desc;
-    map<string> tags;
-    string metricType;
-    int|float value;
-    Snapshot[]? summary;
+    @readonly string name;
+    @readonly string desc;
+    @readonly map<string> tags;
+    @readonly string metricType;
+    @readonly int|float value;
+    @readonly Snapshot[]? summary;
 };
 
 documentation {
     This represents the statistic configuration that can be used to instatiate gauge metric.
 
     F{{percentiles}} The percentiles that needs to be calculated.
-    F{{expiry}} The time window (in milli seconds) in which variation of the values are considered.
+    F{{timeWindow}} The time window (in milli seconds) in which variation of the values are considered.
     F{{buckets}} The number of buckets used in the sliding time window.
 }
 public type StatisticConfig record {
     float[] percentiles;
-    int expiry;
+    int timeWindow;
     int buckets;
 };
 
@@ -300,14 +286,14 @@ documentation {
     F{{value}} The value of the percentile.
 }
 public type PercentileValue record {
-    float percentile;
-    float value;
+    @readonly float percentile;
+    @readonly float value;
 };
 
 documentation {
     This represents the snapshot of the statistics calculation of the gauge.
 
-    F{{expiry}} The time window in which variation of the values are considered.
+    F{{timeWindow}} The time window in which variation of the values are considered.
     F{{mean}} The average value within the time window.
     F{{max}} The max value within the time window.
     F{{min}} The min value within the time window.
@@ -315,10 +301,10 @@ documentation {
     F{{percentileValues}} The percentiles values calculated wihtin the time window.
 }
 public type Snapshot record {
-    int expiry;
-    float mean;
-    float max;
-    float min;
-    float stdDev;
-    PercentileValue[] percentileValues;
+    @readonly int timeWindow;
+    @readonly float mean;
+    @readonly float max;
+    @readonly float min;
+    @readonly float stdDev;
+    @readonly PercentileValue[] percentileValues;
 };

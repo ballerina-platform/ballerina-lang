@@ -26,16 +26,16 @@ import java.util.Arrays;
 public class Snapshot {
     private static final PercentileValue[] EMPTY_PERCENTILE_VALUES = new PercentileValue[0];
 
-    private final Duration expiry;
+    private final Duration timeWindow;
     private final double min;
     private final double mean;
     private final double stdDev;
     private final double max;
     private final PercentileValue[] percentileValues;
 
-    public Snapshot(Duration expiry, double min, double mean, double stdDev, double max,
+    public Snapshot(Duration timeWindow, double min, double mean, double stdDev, double max,
                     PercentileValue[] percentileValues) {
-        this.expiry = expiry;
+        this.timeWindow = timeWindow;
         this.min = min;
         this.mean = mean;
         this.stdDev = stdDev;
@@ -44,10 +44,10 @@ public class Snapshot {
     }
 
     /**
-     * @return The expiry used to calculate statistics in this {@link Snapshot}.
+     * @return The timeWindow used to calculate statistics in this {@link Snapshot}.
      */
-    public Duration getExpiry() {
-        return expiry;
+    public Duration getTimeWindow() {
+        return timeWindow;
     }
 
     /**

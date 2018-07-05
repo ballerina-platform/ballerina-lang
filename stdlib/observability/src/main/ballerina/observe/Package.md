@@ -167,7 +167,7 @@ will simply create an instance based on the params passed.
                                         tags = gaugeTags, statisticConfig = statsConfigs);
                                         
     //Create gauge with statistics config. 
-    observe:StatisticConfig config = {expiry:30000, percentiles:[0.33, 0.5, 0.9, 0.99], buckets:3};
+    observe:StatisticConfig config = {timeWindow:30000, percentiles:[0.33, 0.5, 0.9, 0.99], buckets:3};
     statsConfigs[0]=config; 
         
     observe:Gauge gaugeWithStats = new ("GaugeWithTags", desc = "Some description", 
@@ -248,26 +248,6 @@ The current value can be retrieved by this operation.
     map<string> gaugeTags = { "method": "GET" };
     observe:Gauge gaugeWithTags = new ("GaugeWithTags", desc = "Some description", tags = gaugeTags);
     float currentValue = gaugeWithTags.getValue(); 
-    
-```
-
-#### Get Count.
-This method retrieves the times that gauge value has been modified through out. 
-
-```ballerina
-    map<string> gaugeTags = { "method": "GET" };
-    observe:Gauge gaugeWithTags = new ("GaugeWithTags", desc = "Some description", tags = gaugeTags);
-    int count = gaugeWithTags.getCount(); 
-    
-```
-
-#### Get Sum.
-This method retrieves the total sum of the values of the gauge. 
-
-```ballerina
-    map<string> gaugeTags = { "method": "GET" };
-    observe:Gauge gaugeWithTags = new ("GaugeWithTags", desc = "Some description", tags = gaugeTags);
-    float sum = gaugeWithTags.getSum(); 
     
 ```
 

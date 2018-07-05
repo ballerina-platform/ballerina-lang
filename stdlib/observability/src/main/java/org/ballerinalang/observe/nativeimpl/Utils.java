@@ -81,7 +81,7 @@ public class Utils {
                     percentileIndex++;
                 }
                 BMap<String, BValue> aSnapshot = BLangVMStructs.createBStruct(snapshotStructInfo,
-                        snapshot.getExpiry().toMillis(), snapshot.getMean(), snapshot.getMax(),
+                        snapshot.getTimeWindow().toMillis(), snapshot.getMean(), snapshot.getMax(),
                         snapshot.getMin(), snapshot.getStdDev(), bPercentiles);
                 bSnapshots.add(index, aSnapshot);
                 index++;
@@ -106,7 +106,7 @@ public class Utils {
                     percentileIndex++;
                 }
                 BMap<String, BValue> aSnapshot = BLangVMStructs.createBStruct(statisticConfigInfo,
-                        bPercentiles, config.getExpiry(), config.getBuckets());
+                        bPercentiles, config.getTimeWindow(), config.getBuckets());
                 bStatsConfig.add(index, aSnapshot);
                 index++;
             }

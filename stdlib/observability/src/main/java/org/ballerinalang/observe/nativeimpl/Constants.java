@@ -38,7 +38,7 @@ public final class Constants {
     public static final String DESCRIPTION_FIELD = "description";
     public static final String TAGS_FIELD = "metricTags";
     public static final String STATISTICS_CONFIG_FIELD = "statisticConfigs";
-    public static final String EXPIRY_FIELD = "expiry";
+    public static final String EXPIRY_FIELD = "timeWindow";
     public static final String BUCKETS_FIELD = "buckets";
     public static final String PERCENTILES_FIELD = "percentiles";
 }

@@ -46,7 +46,7 @@ public class StatisticConfig {
     /**
      * Expire statistics after ten minutes.
      */
-    private Duration expiry = Duration.ofMinutes(10);
+    private Duration timeWindow = Duration.ofMinutes(10);
 
     /**
      * The number of buckets used to implement the sliding time window.
@@ -74,13 +74,13 @@ public class StatisticConfig {
     }
 
     /**
-     * Get the expiry duration.
+     * Get the timeWindow duration.
      *
      * @return Duration to expire statistics.
      * @see Builder#expiry(Duration)
      */
-    public Duration getExpiry() {
-        return expiry;
+    public Duration getTimeWindow() {
+        return timeWindow;
     }
 
     /**
@@ -152,9 +152,9 @@ public class StatisticConfig {
          */
         public Builder expiry(Duration expiry) {
             if (expiry.getSeconds() <= 0) {
-                throw new IllegalArgumentException("expiry cannot be " + expiry + ". It must be greater than zero.");
+                throw new IllegalArgumentException("timeWindow cannot be " + expiry + ". It must be greater than zero.");
             }
-            config.expiry = expiry;
+            config.timeWindow = expiry;
             return this;
         }
 

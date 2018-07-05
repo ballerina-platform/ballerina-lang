@@ -27,7 +27,7 @@ import ballerina/config;
 @final int REPORTER_PORT = config:getAsInt(PROMETHEUS_PORT_CONFIG, default = 9797);
 @final string REPORTER_HOST = config:getAsString(PROMETHEUS_HOST_CONFIG, default = "0.0.0.0");
 
-@final string EXPIRY_TAG = "expiry";
+@final string EXPIRY_TAG = "timeWindow";
 @final string PERCENTILE_TAG = "quantile";
 
 endpoint http:Listener prometheusListener {
@@ -67,9 +67,9 @@ service<http:Service> PrometheusReporter bind prometheusListener {
                 match summaries {
                     observe:Snapshot[] snapshots => {
                         foreach aSnapshot in snapshots{
-                            tags[EXPIRY_TAG] = <string>aSnapshot.expiry;
+                            tags[EXPIRY_TAG] = <string>aSnapshot.timeWindow;
                             payload += generateMetricHelp(metric.name, "A Summary of " + metric.name + " for window of "
-                                    + aSnapshot.expiry);
+                                    + aSnapshot.timeWindow);
                             payload += generateMetricInfo(metric.name, METRIC_TYPE_SUMMARY);
                             payload += generateMetric(getMetricName(metric.name, "mean"), tags, aSnapshot.mean);
                             payload += generateMetric(getMetricName(metric.name, "max"), tags, aSnapshot.max);
