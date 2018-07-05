@@ -19,14 +19,23 @@
 
 package org.ballerinalang.stdlib.io.events;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.socket.server.SelectorManager;
+import org.ballerinalang.stdlib.io.socket.server.SocketIOExecutorQueue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
 import java.util.function.Function;
 
 /**
  * Handles registration of selectable events.
  */
 public class SelectableEventRegister extends Register {
+
+    private static final Logger log = LoggerFactory.getLogger(SelectorManager.class);
 
     SelectableEventRegister(Event event, Function<EventResult, EventResult> function) {
         super(event, function);
@@ -37,7 +46,17 @@ public class SelectableEventRegister extends Register {
      */
     @Override
     public void submit() {
-        throw new NotImplementedException();
+        switch (exec.getType()) {
+            case READ:
+                SocketIOExecutorQueue.getInstance().registerRead(exec.getId(), exec);
+                break;
+            case WRITE:
+                exec.execute();
+                break;
+            case CLOSE:
+                discard();
+                break;
+        }
     }
 
     /**
@@ -51,6 +70,13 @@ public class SelectableEventRegister extends Register {
      */
     @Override
     public void discard() {
-        throw new NotImplementedException();
+        Channel channel = exec.getChannel();
+        SocketChannel socketChannel = (SocketChannel) channel.getByteChannel();
+        try {
+            final SelectionKey selectionKey = socketChannel.keyFor(SelectorManager.getInstance());
+            selectionKey.cancel();
+        } catch (IOException e) {
+            log.error("Unable to deregister selection key for channel[" + channel + "]: " + e.getMessage(), e);
+        }
     }
 }

@@ -37,10 +37,17 @@ import java.nio.channels.WritableByteChannel;
 public class SocketIOChannel extends Channel {
 
     private ByteChannel channel;
+    private boolean selectable;
 
     public SocketIOChannel(ByteChannel channel, int size) throws IOException {
         super(channel, new BlockingReader(), new BlockingWriter(), size);
         this.channel = channel;
+    }
+
+    public SocketIOChannel(ByteChannel channel, int size, boolean selectable) throws IOException {
+        super(channel, new BlockingReader(), new BlockingWriter(), size);
+        this.channel = channel;
+        this.selectable = selectable;
     }
 
     /**
@@ -53,7 +60,7 @@ public class SocketIOChannel extends Channel {
 
     @Override
     public boolean isSelectable() {
-        return false;
+        return selectable;
     }
 
     /**

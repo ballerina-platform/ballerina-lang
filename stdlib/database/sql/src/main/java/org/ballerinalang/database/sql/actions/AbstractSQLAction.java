@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.database.sql.actions;
 
-import com.sun.rowset.CachedRowSetImpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.database.sql.Constants;
@@ -83,6 +82,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.TimeZone;
 import javax.sql.rowset.CachedRowSet;
+import javax.sql.rowset.RowSetProvider;
 
 import static org.ballerinalang.database.sql.Constants.PARAMETER_DIRECTION_FIELD;
 import static org.ballerinalang.database.sql.Constants.PARAMETER_RECORD_TYPE_FIELD;
@@ -125,7 +125,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             TableResourceManager rm = new TableResourceManager(conn, stmt);
             List<ColumnDefinition> columnDefinitions = SQLDatasourceUtils.getColumnDefinitions(rs);
             if (loadSQLTableToMemory) {
-                CachedRowSet cachedRowSet = new CachedRowSetImpl();
+                CachedRowSet cachedRowSet = RowSetProvider.newFactory().createCachedRowSet();
                 cachedRowSet.populate(rs);
                 rs = cachedRowSet;
                 rm.gracefullyReleaseResources(isInTransaction);

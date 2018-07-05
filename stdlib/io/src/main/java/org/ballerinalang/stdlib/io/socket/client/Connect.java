@@ -88,7 +88,7 @@ public class Connect extends BlockingNativeCallableUnit {
             PackageInfo ioPackageInfo = context.getProgramFile().getPackageInfo(SocketConstants.SOCKET_PACKAGE);
             // Create ByteChannel Struct
             StructureTypeInfo channelStructInfo = ioPackageInfo.getStructInfo(BYTE_CHANNEL_STRUCT_TYPE);
-            Channel ballerinaSocketChannel = new SocketIOChannel(socketChannel, 0);
+            Channel ballerinaSocketChannel = new SocketIOChannel(socketChannel, 0, true);
             BMap<String, BValue> channelStruct = BLangVMStructs.createBStruct(channelStructInfo);
             channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, ballerinaSocketChannel);
 

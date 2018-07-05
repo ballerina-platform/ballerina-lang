@@ -32,6 +32,9 @@ import java.util.ArrayList;
  */
 public class BRecordType extends BStructureType implements RecordType {
 
+    public boolean sealed;
+    public BType restFieldType;
+
     public BRecordType(BTypeSymbol tSymbol) {
         super(TypeTags.RECORD, tSymbol);
         this.fields = new ArrayList<>();
