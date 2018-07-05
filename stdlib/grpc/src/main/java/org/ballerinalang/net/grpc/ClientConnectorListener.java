@@ -120,7 +120,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
             // Already received a transport error so just augment it.
             transportError = transportError.augmentDescription(throwable.getMessage());
         } else {
-            transportError = Status.fromThrowable(throwable);
+            transportError = Status.Code.UNAVAILABLE.toStatus().withCause(throwable);
         }
         stateListener.transportReportStatus(transportError, false, transportErrorMetadata);
     }
