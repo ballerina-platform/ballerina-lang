@@ -77,9 +77,9 @@ public class CreateDataChannel extends BlockingNativeCallableUnit {
      */
     private ByteOrder getByteOrder(String byteOrder) {
         switch (byteOrder) {
-            case "BI":
+            case "BE":
                 return ByteOrder.BIG_ENDIAN;
-            case "LI":
+            case "LE":
                 return ByteOrder.LITTLE_ENDIAN;
             default:
                 return ByteOrder.nativeOrder();

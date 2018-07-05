@@ -495,11 +495,18 @@ public class CompiledPackageSymbolEnter {
 
     private BRecordTypeSymbol readRecordTypeSymbol(DataInputStream dataInStream,
                                       String name, int flags) throws IOException {
-        BRecordTypeSymbol symbol = (BRecordTypeSymbol) Symbols.createRecordSymbol(flags, names.fromString(name),
-                    this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
+        BRecordTypeSymbol symbol = Symbols.createRecordSymbol(flags, names.fromString(name),
+                                                              this.env.pkgSymbol.pkgID, null,
+                                                              this.env.pkgSymbol);
         symbol.scope = new Scope(symbol);
         BRecordType type = new BRecordType(symbol);
         symbol.type = type;
+
+        type.sealed = dataInStream.readBoolean();
+        if (!type.sealed) {
+            String restFieldTypeDesc = getUTF8CPEntryValue(dataInStream);
+            type.restFieldType = getBTypeFromDescriptor(restFieldTypeDesc);
+        }
 
         // Define Object Fields
         defineSymbols(dataInStream, rethrow(dataInputStream ->
