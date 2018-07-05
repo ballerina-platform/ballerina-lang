@@ -149,16 +149,14 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-auth</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
+            <!-- Begin STD lib dependencies -->
+            <!-- ballerina-auth -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-auth</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
+                <classifier>ballerina-sources</classifier>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -167,21 +165,35 @@
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
+
+            <!-- ballerina-builtin -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-config</artifactId>
+                <artifactId>ballerina-builtin</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-cache</artifactId>
+                <artifactId>ballerina-builtin</artifactId>
                 <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
             </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-builtin</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina-cache -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-cache</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
+                <classifier>ballerina-sources</classifier>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -190,6 +202,8 @@
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
+
+            <!-- ballerina-config-api -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-config-api</artifactId>
@@ -200,6 +214,7 @@
                 <artifactId>ballerina-config-api</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
+                <classifier>ballerina-sources</classifier>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -208,6 +223,8 @@
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
+
+            <!-- ballerina-crypto -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-crypto</artifactId>
@@ -218,6 +235,7 @@
                 <artifactId>ballerina-crypto</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
+                <classifier>ballerina-sources</classifier>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -226,6 +244,92 @@
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
+
+            <!-- ballerina-h2 -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-h2</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-h2</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-h2</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina-jdbc -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jdbc</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jdbc</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jdbc</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina-mysql -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-mysql</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-mysql</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-mysql</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina-sql -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-sql</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-sql</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-sql</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina-file -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-file</artifactId>
@@ -236,6 +340,7 @@
                 <artifactId>ballerina-file</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
+                <classifier>ballerina-sources</classifier>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -244,196 +349,29 @@
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
+
+            <!-- ballerina-grpc -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-io</artifactId>
+                <artifactId>ballerina-grpc</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-io</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-io</artifactId>
+                <artifactId>ballerina-grpc</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
+                <classifier>ballerina-sources</classifier>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-internal</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-internal</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-internal</artifactId>
+                <artifactId>ballerina-grpc</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-log-api</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-log-api</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-log-api</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-math</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-math</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-math</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-reflect</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-reflect</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-reflect</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-runtime</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-runtime</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-runtime</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-system</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-system</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-system</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-task</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-task</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-task</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-time</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-time</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-time</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-core</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-lang</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-mime</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-mime</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-mime</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
-            </dependency>
+
+            <!-- ballerina-http -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-http</artifactId>
@@ -453,6 +391,318 @@
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
+
+            <!-- ballerina-internal -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-internal</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-internal</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-internal</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina-io -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-io</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-io</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-io</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina-jms -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jms</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jms</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jms</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina-log-api -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-log-api</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-log-api</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-log-api</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina-math -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-math</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-math</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-math</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina-mb -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-mb</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-mb</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina-mime -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-mime</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-mime</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-mime</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina-observability -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-observability</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-observability</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-observability</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina-reflect -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-reflect</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-reflect</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-reflect</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina-runtime -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-runtime</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-runtime</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-runtime</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina-streams -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-streams</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-streams</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-streams</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina-swagger -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-swagger</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-swagger</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-swagger</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina-system -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-system</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-system</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-system</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina-task -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-task</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-task</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-task</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina-time -->
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-time</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-time</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-time</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+
+            <!-- ballerina-transactions -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-transactions</artifactId>
@@ -463,6 +713,7 @@
                 <artifactId>ballerina-transactions</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
+                <classifier>ballerina-sources</classifier>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -471,17 +722,43 @@
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
+
+            <!-- ballerina-websub -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-builtin</artifactId>
+                <artifactId>ballerina-websub</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-builtin</artifactId>
+                <artifactId>ballerina-websub</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-websub</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+            <!-- End STD lib dependencies -->
+
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-config</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-core</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-lang</artifactId>
+                <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -507,120 +784,6 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-jaeger-extension</artifactId>
                 <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-websub</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-websub</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-websub</artifactId>
-                <version>${ballerina.version}</version>
-                <classifier>ballerina-binary-repo</classifier>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-jms</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-jms</artifactId>
-                <version>${ballerina.version}</version>
-                <classifier>ballerina-binary-repo</classifier>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-jms</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-mb</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-mb</artifactId>
-                <version>${ballerina.version}</version>
-                <classifier>ballerina-binary-repo</classifier>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-h2</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-jdbc</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-mysql</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-sql</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-h2</artifactId>
-                <version>${ballerina.version}</version>
-                <classifier>ballerina-binary-repo</classifier>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-jdbc</artifactId>
-                <version>${ballerina.version}</version>
-                <classifier>ballerina-binary-repo</classifier>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-mysql</artifactId>
-                <version>${ballerina.version}</version>
-                <classifier>ballerina-binary-repo</classifier>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-sql</artifactId>
-                <version>${ballerina.version}</version>
-                <classifier>ballerina-binary-repo</classifier>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-observability</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-observability</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-observability</artifactId>
-                <version>${ballerina.version}</version>
-                <classifier>ballerina-binary-repo</classifier>
-                <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -663,8 +826,15 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>testerina-core</artifactId>
                 <version>${ballerina.version}</version>
-                <classifier>ballerina-binary-repo</classifier>
                 <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>testerina-core</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -1116,24 +1286,6 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-grpc</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-grpc</artifactId>
-                <version>${ballerina.version}</version>
-                <classifier>ballerina-binary-repo</classifier>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-grpc</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
                 <artifactId>observability-test-utils</artifactId>
                 <version>${ballerina.version}</version>
                 <scope>test</scope>
@@ -1144,18 +1296,6 @@
                 <version>${ballerina.version}</version>
                 <classifier>ballerina-binary-repo</classifier>
                 <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-streams</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-streams</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-                <classifier>ballerina-binary-repo</classifier>
             </dependency>
 
             <!-- Siddhi Stream Dependencies -->
@@ -1470,6 +1610,7 @@
                 <module>stdlib/crypto</module>
                 <module>stdlib/file</module>
                 <module>stdlib/http</module>
+                <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
@@ -1503,7 +1644,7 @@
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
 
-                <module>tests/ballerina-test</module>
+                <module>tests/ballerina-unit-test</module>
 
                 <module>cli/ballerina-cli-utils</module>
 
@@ -1522,8 +1663,10 @@
                 <module>distribution/zip/ballerina-tools</module>
 
                 <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-test-integration</module>
-                <module>tests/ballerina-test-compiler-plugins</module>
+                <module>tests/ballerina-integration-test-utils</module>
+                <module>tests/ballerina-integration-test</module>
+                <module>tests/ballerina-tools-integration-test</module>
+                <module>tests/ballerina-compiler-plugin-test</module>
                 <module>tool-plugins/intellij</module>
                 <module>tool-plugins/vscode</module>
 
@@ -1546,6 +1689,7 @@
                 <module>stdlib/crypto</module>
                 <module>stdlib/file</module>
                 <module>stdlib/http</module>
+                <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
@@ -1578,8 +1722,8 @@
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
-                <module>tests/ballerina-test</module>
-                <module>tests/ballerina-test-compiler-plugins</module>
+                <module>tests/ballerina-unit-test</module>
+                <module>tests/ballerina-compiler-plugin-test</module>
                 <module>cli/ballerina-cli-utils</module>
 
                 <module>language-server</module>
@@ -1595,7 +1739,8 @@
                 <module>distribution/zip/ballerina</module>
 
                 <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-test-integration</module>
+                <module>tests/ballerina-integration-test-utils</module>
+                <module>tests/ballerina-integration-test</module>
             </modules>
         </profile>
         <profile>
@@ -1620,6 +1765,7 @@
                 <module>stdlib/crypto</module>
                 <module>stdlib/file</module>
                 <module>stdlib/http</module>
+                <module>stdlib/swagger</module>
                 <module>stdlib/io</module>
                 <module>stdlib/internal</module>
                 <module>stdlib/log-api</module>
@@ -1653,8 +1799,8 @@
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
 
-                <module>tests/ballerina-test</module>
-                <module>tests/ballerina-test-compiler-plugins</module>
+                <module>tests/ballerina-unit-test</module>
+                <module>tests/ballerina-compiler-plugin-test</module>
 
                 <module>cli/ballerina-cli-utils</module>
 
@@ -1674,7 +1820,9 @@
                 <module>distribution/zip/ballerina-tools</module>
 
                 <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-test-integration</module>
+                <module>tests/ballerina-integration-test-utils</module>
+                <module>tests/ballerina-integration-test</module>
+                <module>tests/ballerina-tools-integration-test</module>
 
                 <!-- Intellij build disabled in default build -->
                 <!--<module>tool-plugins/intellij</module>-->
@@ -2007,7 +2155,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.206</transport.http.version>
+        <transport.http.version>6.0.209</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>

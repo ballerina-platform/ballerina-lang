@@ -202,8 +202,12 @@ class DefaultNodeFactory {
         return getStaticDefaultNode('createJMSResource');
     }
 
-    createStruct(keepWhiteSpace) {
-        return getStaticDefaultNode('createStruct', keepWhiteSpace);
+    createRecord(keepWhiteSpace) {
+        return getStaticDefaultNode('createRecord', keepWhiteSpace);
+    }
+
+    createAnonRecord(){
+        return getStaticDefaultNode('createAnonRecord');
     }
 
     createTransformer() {

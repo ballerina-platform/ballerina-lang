@@ -17,14 +17,15 @@
 */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 /**
  * {@code BArrayType} represents a type of an arrays in Ballerina.
@@ -39,6 +40,8 @@ import org.ballerinalang.model.values.BValue;
 public class BArrayType extends BType implements BIndexedType {
     private BType elementType;
     private int dimensions = 1;
+    private int size = -1;
+    private BArrayState state = BArrayState.UNSEALED;
 
     public BArrayType(BType elementType) {
         super(null, null, BNewArray.class);
@@ -48,13 +51,50 @@ public class BArrayType extends BType implements BIndexedType {
         }
     }
 
+    public BArrayType(BType elemType, int size) {
+        super(null, null, BNewArray.class);
+        this.elementType = elemType;
+        if (elementType instanceof BArrayType) {
+            dimensions = ((BArrayType) elementType).getDimensions() + 1;
+        }
+        if (size != -1) {
+            state = BArrayState.CLOSED_SEALED;
+            this.size = size;
+        }
+    }
+
     public BType getElementType() {
         return elementType;
     }
 
     @Override
     public <V extends BValue> V getZeroValue() {
-        return null;
+        if (size != -1) {
+            int tag = elementType.getTag();
+            switch (tag) {
+                case TypeTags.INT_TAG:
+                    return (V) new BIntArray(size);
+                case TypeTags.FLOAT_TAG:
+                    return (V) new BFloatArray(size);
+                case TypeTags.BOOLEAN_TAG:
+                    return (V) new BBooleanArray(size);
+                case TypeTags.STRING_TAG:
+                    return (V) new BStringArray(size);
+                case TypeTags.BYTE_TAG:
+                    return (V) new BByteArray(size);
+                case TypeTags.ARRAY_TAG:
+                    BType bType = ((BArrayType) elementType).getElementType();
+                    if (bType.getTag() == TypeTags.ARRAY_TAG) {
+                        return (V) new BRefValueArray(elementType);
+                    } else {
+                        return (V) elementType.getZeroValue();
+                    }
+                default:
+                    return (V) new BRefValueArray();
+            }
+        } else {
+            return getEmptyValue();
+        }
     }
 
     @Override
@@ -69,8 +109,8 @@ public class BArrayType extends BType implements BIndexedType {
                 return (V) new BBooleanArray();
             case TypeTags.STRING_TAG:
                 return (V) new BStringArray();
-            case TypeTags.BLOB_TAG:
-                return (V) new BBlobArray();
+            case TypeTags.BYTE_TAG:
+                return (V) new BByteArray();
             default:
                 return (V) new BRefValueArray();
         }
@@ -95,6 +135,9 @@ public class BArrayType extends BType implements BIndexedType {
     public boolean equals(Object obj) {
         if (obj instanceof BArrayType) {
             BArrayType other = (BArrayType) obj;
+            if (other.state == BArrayState.CLOSED_SEALED && this.size != other.size) {
+                return false;
+            }
             return this.elementType.equals(other.elementType);
         }
 
@@ -103,10 +146,25 @@ public class BArrayType extends BType implements BIndexedType {
 
     @Override
     public String toString() {
-        return elementType + "[]";
+        StringBuilder sb = new StringBuilder(elementType.toString());
+        if (sb.indexOf("[") != -1) {
+            return size != -1 ?
+                    sb.insert(sb.indexOf("["), "[" + size + "]").toString() :
+                    sb.insert(sb.indexOf("["), "[]").toString();
+        } else {
+            return size != -1 ? sb.append("[").append(size).append("]").toString() : sb.append("[]").toString();
+        }
     }
 
     public int getDimensions() {
         return this.dimensions;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public BArrayState getState() {
+        return state;
     }
 }

@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -131,7 +132,7 @@ public abstract class AbstractItemResolver {
      * @param symbolInfo - symbol information
      * @return completion item
      */
-    private CompletionItem populateVariableDefCompletionItem(SymbolInfo symbolInfo) {
+    protected CompletionItem populateVariableDefCompletionItem(SymbolInfo symbolInfo) {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(symbolInfo.getSymbolName());
         String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
@@ -228,7 +229,7 @@ public abstract class AbstractItemResolver {
         symbolInfoList.removeIf(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
             String symbolName = bSymbol.getName().getValue();
-            return (bSymbol instanceof BInvokableSymbol && (((BInvokableSymbol) bSymbol).receiverSymbol) != null
+            return (bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED)
                     && !bSymbol.kind.equals(SymbolKind.RESOURCE))
                     || (bSymbol instanceof BPackageSymbol && invalidPkgs.contains(symbolName))
                     || (symbolName.startsWith("$anonStruct"));
@@ -260,19 +261,6 @@ public abstract class AbstractItemResolver {
             });
             this.populateCompletionItemList(filteredList, completionItems);
         } else {
-            // Add the check keyword
-            CompletionItem createKeyword = new CompletionItem();
-            createKeyword.setInsertText(Snippet.CHECK_KEYWORD_SNIPPET.toString());
-            createKeyword.setLabel(ItemResolverConstants.CHECK_KEYWORD);
-            createKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
-
-            // Add But keyword item
-            CompletionItem butKeyword = new CompletionItem();
-            butKeyword.setInsertText(Snippet.BUT.toString());
-            butKeyword.setLabel(ItemResolverConstants.BUT);
-            butKeyword.setInsertTextFormat(InsertTextFormat.Snippet);
-            butKeyword.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-
             filteredList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
                     .stream()
                     .filter(symbolInfo -> {
@@ -280,8 +268,10 @@ public abstract class AbstractItemResolver {
                         SymbolKind symbolKind = bSymbol.kind;
 
                         // Here we return false if the BType is not either a package symbol or ENUM
-                        return !((bSymbol instanceof BTypeSymbol) && !(bSymbol instanceof BPackageSymbol
-                                || SymbolKind.ENUM.equals(symbolKind)));
+                        return !(((bSymbol instanceof BTypeSymbol) && !(bSymbol instanceof BPackageSymbol
+                                || SymbolKind.ENUM.equals(symbolKind)))
+                                || (bSymbol instanceof BInvokableSymbol
+                                && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED)));
                     })
                     .collect(Collectors.toList());
 
@@ -291,10 +281,35 @@ public abstract class AbstractItemResolver {
                 return bSymbol instanceof BInvokableSymbol && ((BInvokableSymbol) bSymbol).receiverSymbol != null;
             });
             populateCompletionItemList(filteredList, completionItems);
-            completionItems.add(createKeyword);
-            completionItems.add(butKeyword);
+            addKeywords(completionItems);
         }
         
         return completionItems;
+    }
+    
+    private void addKeywords(List<CompletionItem> completionItems) {
+
+        // Add the check keyword
+        CompletionItem checkKeyword = new CompletionItem();
+        checkKeyword.setInsertText(Snippet.CHECK_KEYWORD_SNIPPET.toString());
+        checkKeyword.setLabel(ItemResolverConstants.CHECK_KEYWORD);
+        checkKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
+
+        // Add But keyword item
+        CompletionItem butKeyword = new CompletionItem();
+        butKeyword.setInsertText(Snippet.BUT.toString());
+        butKeyword.setLabel(ItemResolverConstants.BUT);
+        butKeyword.setInsertTextFormat(InsertTextFormat.Snippet);
+        butKeyword.setDetail(ItemResolverConstants.STATEMENT_TYPE);
+
+        // Add lengthof keyword item
+        CompletionItem lengthofKeyword = new CompletionItem();
+        lengthofKeyword.setInsertText(Snippet.LENGTHOF.toString());
+        lengthofKeyword.setLabel(ItemResolverConstants.LENGTHOF);
+        lengthofKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
+
+        completionItems.add(checkKeyword);
+        completionItems.add(butKeyword);
+        completionItems.add(lengthofKeyword);
     }
 }

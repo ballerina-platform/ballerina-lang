@@ -32,17 +32,25 @@ import java.util.StringJoiner;
  */
 public class BByteArray extends BNewArray {
 
-    private static BType arrayType = new BArrayType(BTypes.typeByte);
-
     private byte[] values;
 
     public BByteArray(byte[] values) {
         this.values = values;
         this.size = values.length;
+        super.arrayType = new BArrayType(BTypes.typeByte, size);
     }
 
     public BByteArray() {
         values = (byte[]) newArrayInstance(Byte.TYPE);
+        super.arrayType = new BArrayType(BTypes.typeByte, size);
+    }
+
+    public BByteArray(int size) {
+        if (size != -1) {
+            this.size = maxArraySize = size;
+        }
+        values = (byte[]) newArrayInstance(Byte.TYPE);
+        super.arrayType = new BArrayType(BTypes.typeByte, size);
     }
 
     public void add(long index, byte value) {
@@ -80,7 +88,7 @@ public class BByteArray extends BNewArray {
     public String stringValue() {
         StringJoiner sj = new StringJoiner(", ", "[", "]");
         for (int i = 0; i < size; i++) {
-            sj.add("\'" + Byte.toUnsignedInt(values[i]) + "\'");
+            sj.add(Integer.toString(Byte.toUnsignedInt(values[i])));
         }
         return sj.toString();
     }

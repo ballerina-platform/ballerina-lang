@@ -27,14 +27,13 @@ public class ProgramFileConstants {
     public static final short MIN_SUPPORTED_VERSION = 18;
     public static final short MAX_SUPPORTED_VERSION = 18;
 
-    // int, float, string, boolean, blob, reference type
-    public static final int NO_OF_VAR_TYPE_CATEGORIES = 6;
+    // int, float, string, boolean, reference type
+    public static final int NO_OF_VAR_TYPE_CATEGORIES = 5;
     public static final int INT_OFFSET = 0;
     public static final int FLOAT_OFFSET = 1;
     public static final int STRING_OFFSET = 2;
     public static final int BOOL_OFFSET = 3;
-    public static final int BLOB_OFFSET = 4;
-    public static final int REF_OFFSET = 5;
+    public static final int REF_OFFSET = 4;
 
     // byte has been given negative offset value in order to properly find the correct opCodes at
     // {@link CodeGenerator#getOpcodeForArrayOperations(int, int)} method.

@@ -20,9 +20,7 @@ package org.ballerinalang.net.grpc;
 import org.ballerinalang.net.grpc.exception.StatusException;
 import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 
-import java.io.PrintWriter;
 import java.io.Serializable;
-import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -368,13 +366,7 @@ public final class Status implements Serializable {
     public String toString() {
         return ("Status{ code " + code.name() + ", ") +
                 "description " + description + ", " +
-                "cause " + (cause != null ? getStackTraceAsString(cause) : null) + "}";
-    }
-
-    private static String getStackTraceAsString(Throwable throwable) {
-        StringWriter stringWriter = new StringWriter();
-        throwable.printStackTrace(new PrintWriter(stringWriter));
-        return stringWriter.toString();
+                "cause " + (cause != null ? cause.getMessage() : null) + "}";
     }
 
     /**

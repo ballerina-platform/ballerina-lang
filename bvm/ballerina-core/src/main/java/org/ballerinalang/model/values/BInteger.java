@@ -54,11 +54,6 @@ public final class BInteger extends BValueType implements BRefType<Long> {
     }
 
     @Override
-    public byte[] blobValue() {
-        return null;
-    }
-
-    @Override
     public String stringValue() {
         return Long.toString(value);
     }

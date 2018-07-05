@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -72,7 +73,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         }
         
         ArrayList<SymbolInfo> returnSymbolsInfoList = new ArrayList<>();
-        String tokenBeforeDelimiter = poppedTokens.get(poppedTokens.indexOf(delimiter) - 1);
+        String tokenBeforeDelimiter = poppedTokens.get(poppedTokens.lastIndexOf(delimiter) - 1);
 
         if (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(delimiter)
                 || UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(delimiter)) {
@@ -116,13 +117,16 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
 
             try {
                 List<PackageFunctionDAO> packageFunctionDAOs = LSIndexImpl.getInstance().getQueryProcessor()
-                        .getFunctionsFromPackage(packageID.getName().getValue(), packageID.getOrgName().getValue());
+                        .getFilteredFunctionsFromPackage(packageID.getName().getValue(),
+                                packageID.getOrgName().getValue(), false, false);
                 List<RecordDAO> recordDAOs = LSIndexImpl.getInstance().getQueryProcessor()
-                        .getRecordsFromPackage(packageID.getName().getValue(), packageID.getOrgName().getValue());
+                        .getRecordsFromPackageOnAccessType(packageID.getName().getValue(),
+                                packageID.getOrgName().getValue(), false);
                 List<OtherTypeDAO> otherTypeDAOs = LSIndexImpl.getInstance().getQueryProcessor()
                         .getOtherTypesFromPackage(packageID.getName().getValue(), packageID.getOrgName().getValue());
                 List<ObjectDAO> objectDAOs = LSIndexImpl.getInstance().getQueryProcessor()
-                        .getObjectsFromPackage(packageID.getName().getValue(), packageID.getOrgName().getValue());
+                        .getObjectsFromPackageOnAccessType(packageID.getName().getValue(),
+                                packageID.getOrgName().getValue(), false);
                 if (packageFunctionDAOs.isEmpty() && recordDAOs.isEmpty() && objectDAOs.isEmpty()) {
                     return Either.forRight(this.loadActionsFunctionsAndTypesFromScope(scopeEntryMap));
                 }
@@ -158,14 +162,14 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         List<SymbolInfo> actionFunctionList = new ArrayList<>();
         entryMap.forEach((name, value) -> {
             BSymbol symbol = value.symbol;
-            if ((symbol instanceof BInvokableSymbol && ((BInvokableSymbol) symbol).receiverSymbol == null)
+            if (((symbol instanceof BInvokableSymbol && ((BInvokableSymbol) symbol).receiverSymbol == null)
                     || (symbol instanceof BTypeSymbol && !(symbol instanceof BPackageSymbol))
-                    || symbol instanceof BVarSymbol) {
+                    || symbol instanceof BVarSymbol) && (symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
                 SymbolInfo entry = new SymbolInfo(name.toString(), value);
                 actionFunctionList.add(entry);
             }
         });
-        
+
         return actionFunctionList;
     }
 }

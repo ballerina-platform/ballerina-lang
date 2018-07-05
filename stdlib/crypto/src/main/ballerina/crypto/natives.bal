@@ -46,7 +46,7 @@ documentation {
 public native function hmac(string baseString, string keyString, Algorithm algorithm) returns (string);
 
 documentation {
-    Returns the CRC32 hash for the provided element. This accepts `string`, `blob`, `json` and `xml` content.
+    Returns the CRC32 hash for the provided element. This accepts `string`, `byte[]`, `json` and `xml` content.
 
     P{{content}} The content to be hashed
     R{{}} The generated hash

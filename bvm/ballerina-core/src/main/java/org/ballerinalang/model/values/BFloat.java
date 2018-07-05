@@ -54,11 +54,6 @@ public final class BFloat extends BValueType implements BRefType<Double> {
     }
 
     @Override
-    public byte[] blobValue() {
-        return null;
-    }
-
-    @Override
     public String stringValue() {
         return Double.toString(value);
     }

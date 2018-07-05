@@ -64,7 +64,7 @@ const tools = [
         name: 'Object',
         icon: 'struct',
         title: 'Object',
-        nodeFactoryMethod: DefaultNodeFactory.createStruct,
+        nodeFactoryMethod: DefaultNodeFactory.createRecord,
         description: 'User-defined record type',
     },
     /* Disable transformer for now

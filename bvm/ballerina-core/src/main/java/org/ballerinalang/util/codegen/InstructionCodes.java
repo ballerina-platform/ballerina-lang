@@ -49,47 +49,44 @@ public interface InstructionCodes {
     int FMOVE = 22;
     int SMOVE = 23;
     int BMOVE = 24;
-    int LMOVE = 25;
-    int RMOVE = 26;
-    int BIALOAD = 27;
-    int IALOAD = 28;
-    int FALOAD = 29;
-    int SALOAD = 30;
-    int BALOAD = 31;
-    int LALOAD = 32;
-    int RALOAD = 33;
-    int JSONALOAD = 34;
+    int RMOVE = 25;
+    int BIALOAD = 26;
+    int IALOAD = 27;
+    int FALOAD = 28;
+    int SALOAD = 29;
+    int BALOAD = 30;
+    int RALOAD = 31;
+    int JSONALOAD = 32;
 
-    int IGLOAD = 35;
-    int FGLOAD = 36;
-    int SGLOAD = 37;
-    int BGLOAD = 38;
-    int LGLOAD = 39;
-    int RGLOAD = 40;
+    int IGLOAD = 33;
+    int FGLOAD = 34;
+    int SGLOAD = 35;
+    int BGLOAD = 36;
+    int RGLOAD = 37;
 
     int MAPLOAD = 47;
     int JSONLOAD = 48;
+
+    int COMPENSATE = 49;
 
     int BIASTORE = 50;
     int IASTORE = 51;
     int FASTORE = 52;
     int SASTORE = 53;
     int BASTORE = 54;
-    int LASTORE = 55;
-    int RASTORE = 56;
-    int JSONASTORE = 57;
+    int RASTORE = 55;
+    int JSONASTORE = 56;
 
-    int BIAND = 58;
-    int IAND = 59;
-    int BIOR = 60;
-    int IOR = 61;
+    int BIAND = 57;
+    int IAND = 58;
+    int BIOR = 59;
+    int IOR = 60;
 
-    int IGSTORE = 62;
-    int FGSTORE = 63;
-    int SGSTORE = 64;
-    int BGSTORE = 65;
-    int LGSTORE = 66;
-    int RGSTORE = 67;
+    int IGSTORE = 61;
+    int FGSTORE = 62;
+    int SGSTORE = 63;
+    int BGSTORE = 64;
+    int RGSTORE = 65;
 
     int MAPSTORE = 74;
     int JSONSTORE = 75;
@@ -97,6 +94,10 @@ public interface InstructionCodes {
     int IADD = 76;
     int FADD = 77;
     int SADD = 78;
+
+    int SCOPE_END = 79;
+    int LOOP_COMPENSATE = 80;
+
     int XMLADD = 81;
     int ISUB = 82;
     int FSUB = 83;
@@ -188,16 +189,14 @@ public interface InstructionCodes {
     int XML2S = 159;
 
     // Type cast
-    int I2ANY = 160;
-    int F2ANY = 161;
-    int S2ANY = 162;
-    int B2ANY = 163;
-    int L2ANY = 164;
-    int ANY2I = 165;
-    int ANY2F = 166;
-    int ANY2S = 167;
-    int ANY2B = 168;
-    int ANY2L = 169;
+    int I2ANY = 162;
+    int F2ANY = 163;
+    int S2ANY = 164;
+    int B2ANY = 165;
+    int ANY2I = 166;
+    int ANY2F = 167;
+    int ANY2S = 168;
+    int ANY2B = 169;
     int ANY2JSON = 170;
     int ANY2XML = 171;
     int ANY2MAP = 172;
@@ -243,11 +242,10 @@ public interface InstructionCodes {
     int FNEWARRAY = 202;
     int SNEWARRAY = 203;
     int BNEWARRAY = 204;
-    int LNEWARRAY = 205;
-    int RNEWARRAY = 206;
-    int JSONNEWARRAY = 207;
-    int ARRAYLEN = 208;
-    int LENGTHOF = 209;
+    int RNEWARRAY = 205;
+    int JSONNEWARRAY = 206;
+    int ARRAYLEN = 207;
+    int LENGTHOF = 208;
 
     int NEWSTRUCT = 210;
     int NEWMAP = 212;
@@ -267,11 +265,10 @@ public interface InstructionCodes {
     int IXOR = 227;
     int BACONST = 228;
 
-    int IRET = 229;
-    int FRET = 230;
-    int SRET = 231;
-    int BRET = 232;
-    int LRET = 233;
+    int IRET = 230;
+    int FRET = 231;
+    int SRET = 232;
+    int BRET = 233;
     int RRET = 234;
     int RET = 235;
 

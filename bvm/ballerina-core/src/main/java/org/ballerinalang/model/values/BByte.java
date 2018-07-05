@@ -41,7 +41,7 @@ public final class BByte extends BValueType implements BRefType<Byte> {
 
     @Override
     public long intValue() {
-        return this.value;
+        return Byte.toUnsignedInt(value);
     }
 
     @Override
@@ -52,11 +52,6 @@ public final class BByte extends BValueType implements BRefType<Byte> {
     @Override
     public boolean booleanValue() {
         return false;
-    }
-
-    @Override
-    public byte[] blobValue() {
-        return null;
     }
 
     @Override

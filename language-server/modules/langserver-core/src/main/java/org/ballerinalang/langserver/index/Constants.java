@@ -38,36 +38,52 @@ public class Constants {
             "INSERT INTO bLangResource (serviceId, name) values (?, ?)";
 
     static final String INSERT_BLANG_FUNCTION =
-            "INSERT INTO bLangFunction (packageId, objectId, name, completionItem) values (?, ?, ?, ?)";
+            "INSERT INTO bLangFunction (packageId, objectId, name, completionItem, private, attached)" +
+                    " values (?, ?, ?, ?, ?, ?)";
 
     static final String INSERT_BLANG_RECORD =
-            "INSERT INTO bLangRecord (packageId, name, fields, completionItem) values (?, ?, ?, ?)";
+            "INSERT INTO bLangRecord (packageId, name, fields, private, completionItem) values (?, ?, ?, ?, ?)";
 
     static final String INSERT_OTHER_TYPE =
             "INSERT INTO bLangType (packageId, name, fields, completionItem) values (?, ?, ?, ?)";
 
     static final String INSERT_BLANG_OBJECT = 
-            "INSERT INTO bLangObject (packageId, name, fields, type, completionItem) values (?, ?, ?, ?, ?)";
+            "INSERT INTO bLangObject (packageId, name, fields, type, private, completionItem)" +
+                    "values (?, ?, ?, ?, ?, ?)";
     
     // UPDATE Statements
     static final String UPDATE_ENDPOINT_ACTION_HOLDER_ID = 
             "UPDATE bLangObject SET actionHolderId = ? WHERE id = ?";
     
     // GET Statements
-    static final String GET_FUNCTIONS_FROM_PACKAGE = "SELECT p.name, p.orgName, f.completionItem, f.name " +
-            "FROM (SELECT id, name, orgName FROM bLangPackage WHERE name = ? AND orgName = ?) AS p " +
-            "INNER JOIN bLangFunction AS f WHERE p.id=f.packageId AND f.objectId=-1 AND f.name NOT LIKE '%<init>%' " +
-            "AND " + "f.name NOT LIKE '%<start>%' AND f.name NOT LIKE '%<stop>%'";
+    static final String GET_ALL_FUNCTIONS_FROM_PACKAGE = "SELECT p.name, p.orgName, f.completionItem, f.name, " +
+            "f.private, f.attached FROM (SELECT id, name, orgName FROM bLangPackage WHERE name = ? AND orgName = ?)" +
+            "AS p INNER JOIN bLangFunction AS f WHERE p.id=f.packageId AND f.objectId=-1 AND f.name " +
+            "NOT LIKE '%<init>%' AND " + "f.name NOT LIKE '%<start>%' AND f.name NOT LIKE '%<stop>%'";
+
+    static final String GET_FILTERED_FUNCTIONS_FROM_PACKAGE = "SELECT p.name, p.orgName, f.completionItem, f.name, " +
+            "f.private, f.attached FROM (SELECT id, name, orgName FROM bLangPackage WHERE name = ? AND orgName = ?)" +
+            "AS p INNER JOIN bLangFunction AS f WHERE p.id=f.packageId AND f.objectId=-1 AND f.private=? " +
+            "AND f.attached=? AND f.name NOT LIKE '%<init>%' AND " + "f.name NOT LIKE '%<start>%' " +
+            "AND f.name NOT LIKE '%<stop>%'";
     
-    static final String GET_RECORDS_FROM_PACKAGE = "SELECT p.name, p.orgName, r.completionItem, r.name " +
-            "FROM (SELECT id, name, orgName FROM bLangPackage WHERE name = ? AND orgName = ?) AS p " +
+    static final String GET_ALL_RECORDS_FROM_PACKAGE = "SELECT p.name, p.orgName, r.completionItem, r.name, " +
+            "r.private FROM (SELECT id, name, orgName FROM bLangPackage WHERE name = ? AND orgName = ?) AS p " +
             "INNER JOIN bLangRecord AS r WHERE p.id = r.packageId";
+    
+    static final String GET_RECORDS_ON_ACCESS_TYPE_FROM_PACKAGE = "SELECT p.name, p.orgName, r.completionItem, " +
+            "r.name, r.private FROM (SELECT id, name, orgName FROM bLangPackage WHERE name = ? AND orgName = ?) AS p " +
+            "INNER JOIN bLangRecord AS r WHERE p.id = r.packageId AND r.private=?";
     
     static final String GET_OTHER_TYPES_FROM_PACKAGE = "SELECT p.name, p.orgName, t.completionItem, t.name " +
             "FROM (SELECT id, name, orgName FROM bLangPackage WHERE name = ? AND orgName = ?) AS p " +
             "INNER JOIN bLangType AS t WHERE p.id = t.packageId";
     
-    static final String GET_OBJECT_FROM_PACKAGE = "SELECT p.name, p.orgName, o.completionItem, o.name " +
+    static final String GET_OBJECTS_ON_ACCESS_TYPE_FROM_PACKAGE = "SELECT p.name, p.orgName, o.completionItem," +
+            " o.name, o.private FROM (select id, name, orgName FROM bLangPackage WHERE name = ? AND orgName = ?) " +
+            "AS p INNER JOIN bLangObject AS o WHERE p.id = o.packageId AND o.type = 3 AND o.private=?";
+    
+    static final String GET_ALL_OBJECT_FROM_PACKAGE = "SELECT p.name, p.orgName, o.completionItem, o.name, o.private " +
             "FROM (select id, name, orgName FROM bLangPackage WHERE name = ? AND orgName = ?) AS p " +
             "INNER JOIN bLangObject AS o WHERE p.id = o.packageId AND o.type = 3";
 
