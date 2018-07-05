@@ -22,8 +22,6 @@ import com.google.gson.GsonBuilder;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.PersistenceUtils;
-import org.ballerinalang.persistence.serializable.NativeDataKey;
 import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -38,7 +36,6 @@ import java.util.HashMap;
  *
  * @param <K> Key
  * @param <V> Value
- *
  * @since 0.976.0
  */
 public class SerializableBMap<K, V extends BValue> implements SerializableRefType {
@@ -52,34 +49,11 @@ public class SerializableBMap<K, V extends BValue> implements SerializableRefTyp
     public SerializableBMap(BMap<K, V> bMap, SerializableState state) {
         structName = bMap.getType().getName();
         pkgPath = bMap.getType().getPackagePath();
-        for (String key : bMap.getNativeDataKeySet()) {
-            Object o = bMap.getNativeData(key);
-            if (o == null) {
-                nativeData.put(key, null);
-                continue;
-            }
-            Object s = state.serialize(o);
-            if (s != null) {
-                nativeData.put(key, s);
-            } else {
-                NativeDataKey nativeDataKey =
-                        new NativeDataKey(pkgPath, structName, key, o.getClass().getName());
-                nativeData.put(key, nativeDataKey);
-            }
-        }
+        bMap.getNativeData().forEach((k, o) -> {
+            nativeData.put(k, state.serialize(o));
+        });
         bMap.getMap().forEach((k, v) -> {
-            if (v == null) {
-                map.put(k, null);
-            } else {
-                Object s = state.serialize(v);
-                if (s != null) {
-                    map.put(k, s);
-                } else {
-                    NativeDataKey nativeDataKey =
-                            new NativeDataKey(pkgPath, structName, k.toString(), v.getClass().getName());
-                    map.put(k, nativeDataKey);
-                }
-            }
+            map.put(k, state.serialize(v));
         });
     }
 
@@ -97,37 +71,11 @@ public class SerializableBMap<K, V extends BValue> implements SerializableRefTyp
         } else {
             bMap = new BMap<>();
         }
-
-        for (String key : nativeData.keySet()) {
-            Object o = nativeData.get(key);
-            if (o == null) {
-                bMap.addNativeData(key, null);
-                continue;
-            }
-            Object v = state.deserialize(o, programFile);
-            if (v instanceof NativeDataKey) {
-                PersistenceUtils.getDataMapper().mapNativeData(state.getSerializationId(),
-                                                               (NativeDataKey) o, bMap);
-                bMap.addNativeData(key, null);
-            } else {
-                bMap.addNativeData(key, v);
-            }
-        }
+        nativeData.forEach((s, o) -> {
+            bMap.addNativeData(s, state.deserialize(o, programFile));
+        });
         map.forEach((k, v) -> {
-            Object o = map.get(k);
-            if (o == null) {
-                bMap.put(k, null);
-
-            } else {
-                Object val = state.deserialize(o, programFile);
-                if (val instanceof NativeDataKey) {
-                    PersistenceUtils.getDataMapper().mapNativeData(state.getSerializationId(),
-                                                                   (NativeDataKey) o, bMap);
-                    bMap.put(k, null);
-                } else {
-                    bMap.put(k, (V) val);
-                }
-            }
+            bMap.put(k, (V) state.deserialize(v, programFile));
         });
         return bMap;
     }

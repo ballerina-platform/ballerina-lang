@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License, 
- * Version 2.0 (the "License"); you may not use this file except 
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -77,87 +77,14 @@ public class SerializableContext {
         return gson.fromJson(jsonString, SerializableContext.class);
     }
 
-    private void populateGlobalProps(Map<String, Object> props, SerializableState state) {
-        if (props == null) {
-            return;
-        }
-        for (String key : props.keySet()) {
-            Object v = props.get(key);
-            if (v == null) {
-                globalProps.put(key, null);
-            }
-            Object s = state.serialize(v);
-            globalProps.put(key, s);
-        }
-    }
-
-    private void populateLocalProps(Map<String, Object> props, SerializableState state) {
-        if (props == null) {
-            return;
-        }
-        for (String key : props.keySet()) {
-            Object v = props.get(key);
-            if (v == null) {
-                globalProps.put(key, null);
-            } else {
-                Object s = state.serialize(v);
-                if (s != null) {
-                    globalProps.put(key, s);
-                } else {
-                    LocalPropKey localPropKey = new LocalPropKey(key, v.getClass().getName());
-                    localProps.put(key, localPropKey);
-                }
-            }
-        }
-    }
-
-    private Map<String, Object> prepareLocalProps(
-            SerializableState state, WorkerExecutionContext context, ProgramFile programFile) {
-        Map<String, Object> props = new HashMap<>();
-        if (localProps != null) {
-            for (String key : localProps.keySet()) {
-                Object v = localProps.get(key);
-                if (v == null) {
-                    props.put(key, null);
-                    continue;
-                }
-                if (v instanceof LocalPropKey) {
-                    PersistenceUtils.getDataMapper().mapLocalProp(state.getSerializationId(),
-                                                                       (LocalPropKey) v, context);
-                } else {
-                    state.deserialize(v, programFile);
-                    props.put(key, v);
-                }
-            }
-        }
-        return props;
-    }
-
-    private Map<String, Object> prepareGlobalProps(SerializableState state, ProgramFile programFile) {
-        Map<String, Object> props = new HashMap<>();
-        if (globalProps != null) {
-            for (String key : globalProps.keySet()) {
-                Object v = globalProps.get(key);
-                if (v == null) {
-                    props.put(key, null);
-                    continue;
-                }
-                state.deserialize(v, programFile);
-                props.put(key, v);
-            }
-        }
-        return props;
-    }
-
     public SerializableContext(String contextKey, WorkerExecutionContext ctx, SerializableState state) {
         this.contextKey = contextKey;
         ip = ctx.ip;
-        populateGlobalProps(ctx.globalProps, state);
-        populateLocalProps(ctx.localProps, state);
+        populateProps(globalProps, ctx.globalProps, state);
+        populateProps(localProps, ctx.localProps, state);
         retRegIndexes = ctx.retRegIndexes;
         runInCaller = ctx.runInCaller;
         interruptible = ctx.interruptible;
-
         if (ctx.callableUnitInfo != null) {
             if (ctx.callableUnitInfo instanceof ResourceInfo) {
                 enclosingServiceName = ((ResourceInfo) ctx.callableUnitInfo).getServiceInfo().getName();
@@ -175,7 +102,6 @@ public class SerializableContext {
                 respContextKey = state.addRespContext(callableRespCtx);
             }
         }
-
         if (ctx.workerLocal != null) {
             workerLocal = new SerializableWorkerData(ctx.workerLocal, state);
         }
@@ -192,7 +118,6 @@ public class SerializableContext {
         if (PersistenceUtils.getTempContexts().containsKey(contextKey)) {
             return PersistenceUtils.getTempContexts().get(contextKey);
         }
-
         CallableUnitInfo callableUnitInfo = null;
         WorkerInfo workerInfo = null;
         WorkerData workerLocalData = null;
@@ -239,14 +164,31 @@ public class SerializableContext {
                     parentCtx, respCtx, callableUnitInfo, workerInfo, workerLocalData, workerResultData, retRegIndexes,
                     runInCaller);
         }
-        workerExecutionContext.globalProps = prepareGlobalProps(state, programFile);
-        workerExecutionContext.localProps = prepareLocalProps(state, workerExecutionContext, programFile);
+        workerExecutionContext.globalProps = prepareProps(globalProps, state, programFile);
+        workerExecutionContext.localProps = prepareProps(localProps, state, programFile);
         workerExecutionContext.ip = ip;
         workerExecutionContext.interruptible = interruptible;
-
         PersistenceUtils.getTempContexts().put(contextKey, workerExecutionContext);
-
         return workerExecutionContext;
+    }
+
+    private Map<String, Object> prepareProps(HashMap<String, Object> properties, SerializableState state,
+                                             ProgramFile programFile) {
+        Map<String, Object> props = new HashMap<>();
+        if (properties != null) {
+            properties.forEach((s, o) -> {
+                Object deserialize = state.deserialize(o, programFile);
+                props.put(s, deserialize);
+            });
+        }
+        return props;
+    }
+
+    private void populateProps(HashMap<String, Object> properties, Map<String, Object> props,
+                               SerializableState state) {
+        if (props != null) {
+            props.forEach((s, o) -> properties.put(s, state.serialize(o)));
+        }
     }
 
     public String serialize() {

@@ -23,7 +23,6 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.logging.BLogManager;
-import org.ballerinalang.persistence.PersistenceUtils;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.LaunchListener;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -118,7 +117,6 @@ public class LauncherUtils {
         } else {
             runMain(programFile, args);
         }
-
         BLangProgramRunner.runSavedStates(programFile);
         listeners.forEach(listener -> listener.afterRunProgram(runServicesOrNoMainEP));
     }

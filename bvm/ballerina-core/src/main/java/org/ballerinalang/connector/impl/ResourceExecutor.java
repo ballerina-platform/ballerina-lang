@@ -30,7 +30,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.states.ActiveStates;
 import org.ballerinalang.persistence.states.FailedStates;
 import org.ballerinalang.persistence.states.State;
-import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.observability.ObserverContext;
@@ -113,9 +112,8 @@ public class ResourceExecutor {
                 if (respCtx instanceof CallableWorkerResponseContext) {
                     ((CallableWorkerResponseContext) respCtx).setNotFulfilled();
                 }
-                BLangScheduler.schedule(failedContext);
-                PersistenceStore.removeStates(instanceId);
                 FailedStates.remove(instanceId);
+                BLangScheduler.schedule(failedContext);
                 return true;
             }
         }
@@ -142,14 +140,14 @@ public class ResourceExecutor {
             for (BRefType refType : refRegs) {
                 if (refType instanceof BMap) {
                     BMap bMap = (BMap) refType;
-                    if (bMap.getNativeDataKeySet().contains(TRANSPORT_MESSAGE)) {
+                    if (bMap.getNativeData().containsKey(TRANSPORT_MESSAGE)) {
                         bMap.addNativeData(TRANSPORT_MESSAGE, transportMessage);
                         bMap.addNativeData(MESSAGE_CORRELATED, "true");
                         correlated = true;
                     }
                     if (SERVICE_ENDPOINT.equals(bMap.getType().getName())) {
                         BMap connection = (BMap) bMap.get(Constants.CONNECTION);
-                        if (connection.getNativeDataKeySet().contains(TRANSPORT_MESSAGE)) {
+                        if (connection.getNativeData().containsKey(TRANSPORT_MESSAGE)) {
                             connection.addNativeData(TRANSPORT_MESSAGE, transportMessage);
                             connection.addNativeData(MESSAGE_CORRELATED, "true");
                             if (connection.getNativeData(IS_METHOD_ACCESSED) != null) {
