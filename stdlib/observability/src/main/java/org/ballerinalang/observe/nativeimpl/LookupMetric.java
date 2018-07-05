@@ -43,13 +43,15 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.ballerinalang.observe.nativeimpl.Constants.COUNTER;
-import static org.ballerinalang.observe.nativeimpl.Constants.GAUGE;
-import static org.ballerinalang.observe.nativeimpl.Constants.METRIC_NATIVE_INSTANCE_KEY;
-import static org.ballerinalang.observe.nativeimpl.Constants.OBSERVE_PACKAGE_PATH;
+import static org.ballerinalang.observe.nativeimpl.ObserveNativeImplConstants.COUNTER;
+import static org.ballerinalang.observe.nativeimpl.ObserveNativeImplConstants.GAUGE;
+import static org.ballerinalang.observe.nativeimpl.ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY;
+import static org.ballerinalang.observe.nativeimpl.ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH;
 
 /**
  * This is the lookupMetric function native implementation for the registered metrics.
+ *
+ * @since 0.980.0
  */
 @BallerinaFunction(
         orgName = "ballerina",

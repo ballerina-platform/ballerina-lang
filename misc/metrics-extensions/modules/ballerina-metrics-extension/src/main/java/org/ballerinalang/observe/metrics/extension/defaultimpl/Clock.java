@@ -19,6 +19,8 @@ package org.ballerinalang.observe.metrics.extension.defaultimpl;
 
 /**
  * Clock to measure absolute and relative time.
+ *
+ * @since 0.980.0
  */
 public interface Clock {
 

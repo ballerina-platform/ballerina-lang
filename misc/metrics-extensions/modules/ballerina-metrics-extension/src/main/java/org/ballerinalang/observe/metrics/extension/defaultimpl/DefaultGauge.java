@@ -28,6 +28,8 @@ import java.util.concurrent.atomic.LongAdder;
 
 /**
  * An implementation of {@link Gauge}.
+ *
+ * @since 0.980.0
  */
 public class DefaultGauge extends AbstractMetric implements Gauge {
 
@@ -39,7 +41,7 @@ public class DefaultGauge extends AbstractMetric implements Gauge {
     private final DoubleAdder value = new DoubleAdder();
     private final RollingHistogram[] rollingHistograms;
 
-    public DefaultGauge(MetricId id, Clock clock, StatisticConfig... statisticConfigs) {
+    private DefaultGauge(MetricId id, Clock clock, StatisticConfig... statisticConfigs) {
         super(id);
         if (statisticConfigs != null) {
             rollingHistograms = new RollingHistogram[statisticConfigs.length];
@@ -51,7 +53,7 @@ public class DefaultGauge extends AbstractMetric implements Gauge {
         }
     }
 
-    public DefaultGauge(MetricId id, StatisticConfig... statisticConfigs) {
+    DefaultGauge(MetricId id, StatisticConfig... statisticConfigs) {
         this(id, Clock.DEFAULT, statisticConfigs);
     }
 
@@ -59,8 +61,8 @@ public class DefaultGauge extends AbstractMetric implements Gauge {
     private void updateHistogram(double value) {
         count.increment();
         sum.add(value);
-        for (int i = 0; i < rollingHistograms.length; i++) {
-            rollingHistograms[i].record(value);
+        for (RollingHistogram rollingHistogram : rollingHistograms) {
+            rollingHistogram.record(value);
         }
     }
 

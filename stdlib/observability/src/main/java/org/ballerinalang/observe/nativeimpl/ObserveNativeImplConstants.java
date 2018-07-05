@@ -19,10 +19,12 @@ package org.ballerinalang.observe.nativeimpl;
 
 /**
  * Constants used in Ballerina Observe package.
+ *
+ * @since 0.980.0
  */
-public final class Constants {
+public final class ObserveNativeImplConstants {
 
-    private Constants() {
+    private ObserveNativeImplConstants() {
     }
 
     public static final String OBSERVE_PACKAGE_PATH = "ballerina/observe";

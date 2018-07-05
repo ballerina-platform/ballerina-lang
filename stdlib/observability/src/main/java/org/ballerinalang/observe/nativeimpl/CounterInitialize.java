@@ -28,22 +28,24 @@ import org.ballerinalang.util.metrics.Counter;
 
 /**
  * This is the native initialize function that's getting called when instantiating the Counter object.
+ *
+ * @since 0.980.0
  */
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
         functionName = "initialize",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.COUNTER,
-                structPackage = Constants.OBSERVE_PACKAGE_PATH)
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = ObserveNativeImplConstants.COUNTER,
+                structPackage = ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH)
 )
 public class CounterInitialize extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BMap<String, BValue> bStruct = (BMap<String, BValue>) context.getRefArgument(0);
-        Counter counter = Counter.builder(bStruct.get(Constants.NAME_FIELD).stringValue())
-                .description(bStruct.get(Constants.DESCRIPTION_FIELD).stringValue())
-                .tags(Utils.toStringMap((BMap) bStruct.get(Constants.TAGS_FIELD)))
+        Counter counter = Counter.builder(bStruct.get(ObserveNativeImplConstants.NAME_FIELD).stringValue())
+                .description(bStruct.get(ObserveNativeImplConstants.DESCRIPTION_FIELD).stringValue())
+                .tags(Utils.toStringMap((BMap) bStruct.get(ObserveNativeImplConstants.TAGS_FIELD)))
                 .build();
-        bStruct.addNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY, counter);
+        bStruct.addNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY, counter);
     }
 }

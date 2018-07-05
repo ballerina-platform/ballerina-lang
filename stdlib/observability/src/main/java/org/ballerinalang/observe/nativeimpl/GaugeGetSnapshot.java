@@ -30,14 +30,16 @@ import org.ballerinalang.util.metrics.Snapshot;
 
 /**
  * This is the getSnapshot native function implementation of the Gauge object.
+ *
+ * @since 0.980.0
  */
 
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
         functionName = "getSnapshot",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.GAUGE,
-                structPackage = Constants.OBSERVE_PACKAGE_PATH),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = ObserveNativeImplConstants.GAUGE,
+                structPackage = ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH),
         isPublic = true,
         returnType = @ReturnType(type = TypeKind.ARRAY)
 )
@@ -46,7 +48,7 @@ public class GaugeGetSnapshot extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BMap bStruct = (BMap) context.getRefArgument(0);
-        Gauge gauge = (Gauge) bStruct.getNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY);
+        Gauge gauge = (Gauge) bStruct.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
         Snapshot[] snapshots = gauge.getSnapshots();
         BRefValueArray bSnapshots = Utils.createBSnapshots(snapshots, context);
         context.setReturnValues(bSnapshots);

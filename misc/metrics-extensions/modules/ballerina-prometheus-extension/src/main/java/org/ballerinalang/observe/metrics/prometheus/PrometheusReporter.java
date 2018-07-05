@@ -34,6 +34,8 @@ import java.util.Map;
 
 /**
  * This is the reporter extension for the Prometheus.
+ *
+ * @since 0.980.0
  */
 @JavaSPIService("org.ballerinalang.util.metrics.spi.MetricReporter")
 public class PrometheusReporter implements MetricReporter {

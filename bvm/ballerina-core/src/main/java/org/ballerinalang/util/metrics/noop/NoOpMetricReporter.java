@@ -24,6 +24,8 @@ import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
 
 /**
  * No operation metrics reporter extension implementation.
+ *
+ * @since 0.980.0
  */
 @JavaSPIService("org.ballerinalang.util.metrics.spi.MetricReporter")
 public class NoOpMetricReporter implements MetricReporter {

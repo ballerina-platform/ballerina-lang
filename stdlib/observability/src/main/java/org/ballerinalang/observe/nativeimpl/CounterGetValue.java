@@ -29,13 +29,15 @@ import org.ballerinalang.util.metrics.Counter;
 
 /**
  * This is the getValue function native implementation of the Counter object.
+ *
+ * @since 0.980.0
  */
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
         functionName = "getValue",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.COUNTER,
-                structPackage = Constants.OBSERVE_PACKAGE_PATH),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = ObserveNativeImplConstants.COUNTER,
+                structPackage = ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH),
         returnType = @ReturnType(type = TypeKind.INT),
         isPublic = true
 )
@@ -44,7 +46,7 @@ public class CounterGetValue extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BMap bStruct = (BMap) context.getRefArgument(0);
-        Counter counter = (Counter) bStruct.getNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY);
+        Counter counter = (Counter) bStruct.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
         context.setReturnValues(new BInteger(counter.getValue()));
     }
 }

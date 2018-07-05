@@ -28,14 +28,16 @@ import org.ballerinalang.util.metrics.Gauge;
 
 /**
  * This is the native decrement function implementation of the Gauge object.
+ *
+ * @since 0.980.0
  */
 
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
         functionName = "decrement",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.GAUGE,
-                structPackage = Constants.OBSERVE_PACKAGE_PATH),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = ObserveNativeImplConstants.GAUGE,
+                structPackage = ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH),
         args = {
                 @Argument(name = "amount", type = TypeKind.FLOAT)
         },
@@ -47,7 +49,7 @@ public class GaugeDecrement extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BMap bStruct = (BMap) context.getRefArgument(0);
         float amount = (float) context.getFloatArgument(0);
-        Gauge gauge = (Gauge) bStruct.getNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY);
+        Gauge gauge = (Gauge) bStruct.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
         gauge.decrement(amount);
     }
 }

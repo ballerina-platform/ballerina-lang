@@ -27,14 +27,16 @@ import org.ballerinalang.util.metrics.Gauge;
 
 /**
  * This is the native register function implementation of the Counter object.
+ *
+ * @since 0.980.0
  */
 
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
         functionName = "unregister",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.GAUGE,
-                structPackage = Constants.OBSERVE_PACKAGE_PATH),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = ObserveNativeImplConstants.GAUGE,
+                structPackage = ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH),
         isPublic = true
 )
 public class GaugeUnregister extends BlockingNativeCallableUnit {
@@ -42,7 +44,7 @@ public class GaugeUnregister extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BMap bStruct = (BMap) context.getRefArgument(0);
-        Gauge gauge = (Gauge) bStruct.getNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY);
+        Gauge gauge = (Gauge) bStruct.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
         gauge.unregister();
     }
 }

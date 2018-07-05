@@ -45,12 +45,14 @@ import org.ballerinalang.util.metrics.Tag;
 
 import java.util.Set;
 
-import static org.ballerinalang.observe.nativeimpl.Constants.METRIC;
-import static org.ballerinalang.observe.nativeimpl.Constants.OBSERVE_PACKAGE_PATH;
+import static org.ballerinalang.observe.nativeimpl.ObserveNativeImplConstants.METRIC;
+import static org.ballerinalang.observe.nativeimpl.ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH;
 
 /**
  * This is the getAllMetrics function native implementation for the registered metrics.
  * This can be used by the metric reporters to report the metrics.
+ *
+ * @since 0.980.0
  */
 @BallerinaFunction(
         orgName = "ballerina",

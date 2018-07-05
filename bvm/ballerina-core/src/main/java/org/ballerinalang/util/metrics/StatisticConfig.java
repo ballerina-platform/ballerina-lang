@@ -23,6 +23,8 @@ import java.util.Objects;
 
 /**
  * Configures the distribution statistics.
+ *
+ * @since 0.980.0
  */
 public class StatisticConfig {
 

@@ -29,7 +29,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Tests for BCounter metric.
+ * Tests for Counter metric.
+ *
+ * @since 0.980.0
  */
 public class CounterTest extends MetricTest {
     private CompileResult compileResult;

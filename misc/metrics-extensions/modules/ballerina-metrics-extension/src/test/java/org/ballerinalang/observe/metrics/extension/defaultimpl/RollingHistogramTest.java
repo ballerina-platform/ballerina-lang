@@ -31,6 +31,8 @@ import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link RollingHistogram}.
+ *
+ * @since 0.980.0
  */
 public class RollingHistogramTest {
 

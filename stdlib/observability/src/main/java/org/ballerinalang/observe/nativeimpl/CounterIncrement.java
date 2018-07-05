@@ -28,14 +28,16 @@ import org.ballerinalang.util.metrics.Counter;
 
 /**
  * This is the native increment function implementation of the Counter object.
+ *
+ * @since 0.980.0
  */
 
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
         functionName = "increment",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.COUNTER,
-                structPackage = Constants.OBSERVE_PACKAGE_PATH),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = ObserveNativeImplConstants.COUNTER,
+                structPackage = ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH),
         args = {
                 @Argument(name = "amount", type = TypeKind.INT)
         },
@@ -47,7 +49,7 @@ public class CounterIncrement extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BMap bStruct = (BMap) context.getRefArgument(0);
         long amount = context.getIntArgument(0);
-        Counter counter = (Counter) bStruct.getNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY);
+        Counter counter = (Counter) bStruct.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
         counter.increment(amount);
     }
 }

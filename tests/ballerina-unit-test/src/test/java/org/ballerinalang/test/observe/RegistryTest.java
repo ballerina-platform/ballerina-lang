@@ -29,6 +29,8 @@ import org.testng.annotations.Test;
 
 /**
  * Test to verify the operations for global metrics registry.
+ *
+ * @since 0.980.0
  */
 public class RegistryTest extends MetricTest {
     private CompileResult compileResult;

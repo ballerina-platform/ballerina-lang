@@ -34,7 +34,7 @@ public class DefaultPolledGauge<T> extends AbstractMetric implements PolledGauge
     private final WeakReference<T> ref;
     private final ToDoubleFunction<T> toDoubleFunction;
 
-    public DefaultPolledGauge(MetricId id, T obj, ToDoubleFunction<T> toDoubleFunction) {
+    DefaultPolledGauge(MetricId id, T obj, ToDoubleFunction<T> toDoubleFunction) {
         super(id);
         this.ref = new WeakReference<>(obj);
         this.toDoubleFunction = toDoubleFunction;

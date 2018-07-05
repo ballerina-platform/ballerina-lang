@@ -29,14 +29,16 @@ import org.ballerinalang.util.metrics.Gauge;
 
 /**
  * This is the native getValue function implementation of the Gauge object.
+ *
+ * @since 0.980.0
  */
 
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
         functionName = "getValue",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.GAUGE,
-                structPackage = Constants.OBSERVE_PACKAGE_PATH),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = ObserveNativeImplConstants.GAUGE,
+                structPackage = ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH),
         returnType = @ReturnType(type = TypeKind.FLOAT),
         isPublic = true
 )
@@ -45,7 +47,7 @@ public class GaugeGetValue extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BMap bStruct = (BMap) context.getRefArgument(0);
-        Gauge gauge = (Gauge) bStruct.getNativeData(Constants.METRIC_NATIVE_INSTANCE_KEY);
+        Gauge gauge = (Gauge) bStruct.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
         context.setReturnValues(new BFloat(gauge.getValue()));
     }
 }

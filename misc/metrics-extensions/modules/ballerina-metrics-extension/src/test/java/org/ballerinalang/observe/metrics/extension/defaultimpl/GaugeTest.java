@@ -30,6 +30,8 @@ import java.util.stream.IntStream;
 
 /**
  * Tests for {@link Gauge}.
+ *
+ * @since 0.980.0
  */
 public class GaugeTest {
 

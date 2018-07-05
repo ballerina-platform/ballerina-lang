@@ -30,6 +30,8 @@ import org.testng.annotations.Test;
 
 /**
  * Tests for summarization in {@link Gauge}.
+ *
+ * @since 0.980.0
  */
 public class GaugeSummaryTest {
 

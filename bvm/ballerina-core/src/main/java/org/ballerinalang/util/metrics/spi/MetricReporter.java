@@ -22,6 +22,8 @@ import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
 
 /**
  * Metrics Reporter interface that needs to be implemented by external metric reporters from Ballerina.
+ *
+ * @since 0.980.0
  */
 public interface MetricReporter {
 

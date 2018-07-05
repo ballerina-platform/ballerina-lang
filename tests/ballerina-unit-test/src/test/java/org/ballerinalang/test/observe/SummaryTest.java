@@ -30,6 +30,8 @@ import java.text.DecimalFormat;
 
 /**
  * Tests for summary metric.
+ *
+ * @since 0.980.0
  */
 public class SummaryTest extends MetricTest {
     private CompileResult compileResult;

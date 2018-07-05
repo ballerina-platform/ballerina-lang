@@ -29,6 +29,8 @@ import java.util.function.ToDoubleFunction;
 
 /**
  * {@link MetricProvider} implementation to provide default Ballerina implementations.
+ *
+ * @since 0.980.0
  */
 @JavaSPIService("org.ballerinalang.util.metrics.spi.MetricProvider")
 public class DefaultMetricProvider implements MetricProvider {

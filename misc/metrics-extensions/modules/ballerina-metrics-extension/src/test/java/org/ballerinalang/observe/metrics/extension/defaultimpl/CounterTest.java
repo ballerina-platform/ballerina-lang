@@ -22,6 +22,11 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Test to validate the counter's operations.
+ *
+ * @since 0.980.0
+ */
 public class CounterTest {
 
     private Counter counter;

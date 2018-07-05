@@ -25,6 +25,11 @@ import org.testng.annotations.BeforeSuite;
 
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 
+/**
+ * This is the bases test class which enables the metrics reporting.
+ *
+ * @since 0.980.0
+ */
 public class MetricTest {
 
     @BeforeSuite

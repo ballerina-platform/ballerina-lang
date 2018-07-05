@@ -22,6 +22,8 @@ import java.util.Arrays;
 
 /**
  * Snapshot of all distribution statistics at a point in time.
+ *
+ * @since 0.980.0
  */
 public class Snapshot {
     private static final PercentileValue[] EMPTY_PERCENTILE_VALUES = new PercentileValue[0];
