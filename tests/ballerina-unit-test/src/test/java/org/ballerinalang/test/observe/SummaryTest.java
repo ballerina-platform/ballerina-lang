@@ -43,18 +43,6 @@ public class SummaryTest extends MetricTest {
     }
 
     @Test
-    public void testCountSummary() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCountSummary");
-        Assert.assertEquals(returns[0], new BInteger(6));
-    }
-
-    @Test
-    public void testSumSummary() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSumSummary");
-        Assert.assertEquals(round(((BFloat) returns[0]).floatValue()), 5050.0);
-    }
-
-    @Test
     public void testMaxSummary() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMaxSummary");
         Assert.assertEquals(round(((BFloat) returns[0]).floatValue()), 3.0);
@@ -84,7 +72,7 @@ public class SummaryTest extends MetricTest {
         for (int i = 0; i < 3; i++) {
             returns = BRunUtil.invoke(compileResult, "registerAndIncrement");
         }
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
+        Assert.assertEquals(round(((BFloat) returns[0]).floatValue()), 3.0);
     }
 
     private double round(double value) {
