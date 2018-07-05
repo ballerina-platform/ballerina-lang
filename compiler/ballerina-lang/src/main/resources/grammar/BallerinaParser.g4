@@ -107,9 +107,11 @@ fieldDefinition
     ;
 
 recordRestFieldDefinition
-    :   typeName ELLIPSIS
-    |   NOT ELLIPSIS
+    :   typeName restDescriptorPredicate ELLIPSIS
+    |   NOT restDescriptorPredicate ELLIPSIS
     ;
+
+restDescriptorPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
 objectParameterList
     :   (objectParameter | objectDefaultableParameter) (COMMA (objectParameter | objectDefaultableParameter))* (COMMA restParameter)?

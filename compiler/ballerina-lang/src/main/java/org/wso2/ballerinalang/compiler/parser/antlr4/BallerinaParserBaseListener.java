@@ -292,6 +292,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterRestDescriptorPredicate(BallerinaParser.RestDescriptorPredicateContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitRestDescriptorPredicate(BallerinaParser.RestDescriptorPredicateContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterObjectParameterList(BallerinaParser.ObjectParameterListContext ctx) { }
 	/**
 	 * {@inheritDoc}
