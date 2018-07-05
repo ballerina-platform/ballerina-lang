@@ -34,6 +34,14 @@ CREATE TABLE IF NOT EXISTS DateTimeTypes(
   TIMESTAMP_TYPE TIMESTAMPTZ
 );
 /
+CREATE TABLE IF NOT EXISTS CustomersNoKey(
+  FIRSTNAME  VARCHAR(300),
+  LASTNAME  VARCHAR(300),
+  REGISTRATIONID INTEGER,
+  CREDITLIMIT  double precision,
+  COUNTRY  VARCHAR(300)
+);
+/
 insert into DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type) values
   (1, '2017-02-03', '11:35:45', '2017-02-03 11:53:00', '2017-02-03 11:53:00');
 /
