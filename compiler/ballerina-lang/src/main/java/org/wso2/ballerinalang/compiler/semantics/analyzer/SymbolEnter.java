@@ -680,7 +680,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             if (symbol == symTable.notFoundSymbol) {
                 dlog.error(varNode.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, varName,
-                        env.enclTypeDefinition.symbol.type.getKind(), env.enclTypeDefinition.name);
+                        env.enclTypeDefinition.symbol.type.getKind().typeName(), env.enclTypeDefinition.name);
             }
             varNode.type = symbol.type;
             Name updatedVarName = varName;

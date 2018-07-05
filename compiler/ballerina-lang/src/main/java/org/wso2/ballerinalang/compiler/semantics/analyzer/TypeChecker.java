@@ -1572,7 +1572,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (fieldSymbol == symTable.notFoundSymbol) {
             if (((BRecordType) recordType).sealed) {
                 dlog.error(keyExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, fieldName,
-                        recordType.tsymbol.type.getKind(), recordType.tsymbol);
+                        recordType.tsymbol.type.getKind().typeName(), recordType.tsymbol);
                 return symTable.errType;
             }
 
@@ -1643,7 +1643,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             if (fieldSymbol == symTable.notFoundSymbol) {
                 dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, fieldName,
-                        structType.tsymbol.type.getKind(), structType.tsymbol);
+                        structType.tsymbol.type.getKind().typeName(), structType.tsymbol);
                 return symTable.errType;
             }
 
@@ -1655,7 +1655,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // Assuming this method is only used for objects and records
         if (((BRecordType) structType).sealed) {
             dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, fieldName,
-                    structType.tsymbol.type.getKind(), structType.tsymbol);
+                    structType.tsymbol.type.getKind().typeName(), structType.tsymbol);
             return symTable.errType;
         }
 
