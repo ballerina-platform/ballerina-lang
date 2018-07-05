@@ -113,13 +113,13 @@ public enum Snippet {
 
 
     // Constants for the Iterable operators
-    ITR_FOREACH("foreach(function (%params%) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+    ITR_FOREACH("foreach((%params%) => {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
             + CommonUtil.LINE_SEPARATOR + "});"),
 
-    ITR_MAP("map(function (%params%) (any){" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+    ITR_MAP("map((%params%) => (any) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
             + CommonUtil.LINE_SEPARATOR + "});"),
 
-    ITR_FILTER("filter(function (%params%) (boolean){" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+    ITR_FILTER("filter((%params%) => (boolean) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
             + CommonUtil.LINE_SEPARATOR + "});"),
 
     ITR_COUNT("count();"),
