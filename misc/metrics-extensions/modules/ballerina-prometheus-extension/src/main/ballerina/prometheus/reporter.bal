@@ -56,8 +56,8 @@ service<http:Service> PrometheusReporter bind prometheusListener {
         observe:Metric[] metrics = observe:getAllMetrics();
         string payload = EMPTY_STRING;
         foreach metric in metrics {
-            metric.name = metric.name.replaceAll("/", "_");
-            string metricReportName = getMetricName(metric.name, "value");
+            string  qualifiedMetricName = metric.name.replaceAll("/", "_");
+            string metricReportName = getMetricName(qualifiedMetricName, "value");
             payload += generateMetricHelp(metricReportName, metric.desc);
             payload += generateMetricInfo(metricReportName, metric.metricType);
             payload += generateMetric(metricReportName, metric.tags, metric.value);
@@ -68,16 +68,17 @@ service<http:Service> PrometheusReporter bind prometheusListener {
                     observe:Snapshot[] snapshots => {
                         foreach aSnapshot in snapshots{
                             tags[EXPIRY_TAG] = <string>aSnapshot.timeWindow;
-                            payload += generateMetricHelp(metric.name, "A Summary of " + metric.name + " for window of "
-                                    + aSnapshot.timeWindow);
-                            payload += generateMetricInfo(metric.name, METRIC_TYPE_SUMMARY);
-                            payload += generateMetric(getMetricName(metric.name, "mean"), tags, aSnapshot.mean);
-                            payload += generateMetric(getMetricName(metric.name, "max"), tags, aSnapshot.max);
-                            payload += generateMetric(getMetricName(metric.name, "min"), tags, aSnapshot.min);
-                            payload += generateMetric(getMetricName(metric.name, "stdDev"), tags, aSnapshot.stdDev);
+                            payload += generateMetricHelp(qualifiedMetricName, "A Summary of " +  qualifiedMetricName
+                                    + " for window of " + aSnapshot.timeWindow);
+                            payload += generateMetricInfo(qualifiedMetricName, METRIC_TYPE_SUMMARY);
+                            payload += generateMetric(getMetricName(qualifiedMetricName, "mean"), tags, aSnapshot.mean);
+                            payload += generateMetric(getMetricName(qualifiedMetricName, "max"), tags, aSnapshot.max);
+                            payload += generateMetric(getMetricName(qualifiedMetricName, "min"), tags, aSnapshot.min);
+                            payload += generateMetric(getMetricName(qualifiedMetricName, "stdDev"), tags,
+                                       aSnapshot.stdDev);
                             foreach percentileValue in aSnapshot.percentileValues  {
                                 tags[PERCENTILE_TAG] = <string>percentileValue.percentile;
-                                payload += generateMetric(metric.name, tags, percentileValue.value);
+                                payload += generateMetric(qualifiedMetricName, tags, percentileValue.value);
                             }
                             _ = tags.remove(EXPIRY_TAG);
                             _ = tags.remove(PERCENTILE_TAG);
