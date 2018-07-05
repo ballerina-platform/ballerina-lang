@@ -152,7 +152,8 @@ public class StatisticConfig {
          */
         public Builder expiry(Duration expiry) {
             if (expiry.getSeconds() <= 0) {
-                throw new IllegalArgumentException("timeWindow cannot be " + expiry + ". It must be greater than zero.");
+                throw new IllegalArgumentException("timeWindow cannot be " + expiry
+                        + ". It must be greater than zero.");
             }
             config.timeWindow = expiry;
             return this;
