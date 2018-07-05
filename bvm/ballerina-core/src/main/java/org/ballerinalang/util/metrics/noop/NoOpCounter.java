@@ -31,12 +31,17 @@ public class NoOpCounter extends AbstractMetric implements Counter {
     }
 
     @Override
-    public void increment(double amount) {
+    public void reset() {
+        //no nothing.
+    }
+
+    @Override
+    public void increment(long amount) {
         // Do nothing
     }
 
     @Override
-    public double count() {
+    public long getValue() {
         return 0;
     }
 }

@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.util.observability.ObservabilityUtils;
 
 /**
  * Native function ballerina.log:printError.
@@ -41,11 +42,12 @@ public class LogError extends AbstractLogFunction {
 
     public void execute(Context ctx) {
         String pkg = getPackagePath(ctx);
+        String logMessage = getLogMessage(ctx, 0);
         if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.ERROR.value()) {
-            String msg = getLogMessage(ctx, 0);
             BMap<String, BValue> err = (BMap<String, BValue>) ctx.getNullableRefArgument(0);
-            getLogger(pkg).error(msg + (err == null ? "" : " : " + err.stringValue()));
+            getLogger(pkg).error(logMessage + (err == null ? "" : " : " + err.stringValue()));
         }
+        ObservabilityUtils.logMessageToActiveSpan(ctx, BLogLevel.ERROR.name(), logMessage, true);
         ctx.setReturnValues();
     }
 }
