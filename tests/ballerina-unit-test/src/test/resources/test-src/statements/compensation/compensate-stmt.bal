@@ -31,9 +31,11 @@ function testLoopScopes() returns (int) {
 
         }
         k = k +2;
+
+        compensate scopeA;
     }
     a = 3;
-    compensate scopeA;
+
     return a;
 }
 
