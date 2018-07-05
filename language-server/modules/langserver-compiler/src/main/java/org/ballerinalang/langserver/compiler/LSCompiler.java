@@ -20,6 +20,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.compiler.common.CustomErrorStrategyFactory;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
+import org.ballerinalang.langserver.compiler.workspace.ExtendedWorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProgramDirectory;
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProjectDirectory;
@@ -120,8 +121,18 @@ public class LSCompiler {
             } else {
                 documentManager.openFile(filePath, content);
             }
-
+            if (documentManager instanceof  ExtendedWorkspaceDocumentManagerImpl) {
+                ExtendedWorkspaceDocumentManagerImpl exDocManager =
+                        (ExtendedWorkspaceDocumentManagerImpl) documentManager;
+                exDocManager.enableExplicitMode(filePath);
+            }
             BallerinaFile ballerinaFile = LSCompiler.compile(filePath, phase, documentManager, preserveWhitespace);
+
+            if (documentManager instanceof  ExtendedWorkspaceDocumentManagerImpl) {
+                ExtendedWorkspaceDocumentManagerImpl exDocManager =
+                        (ExtendedWorkspaceDocumentManagerImpl) documentManager;
+                exDocManager.enableExplicitMode(filePath);
+            }
 
             documentManager.closeFile(filePath);
             return ballerinaFile;

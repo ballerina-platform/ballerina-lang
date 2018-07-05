@@ -21,13 +21,10 @@ import $ from 'jquery';
 import * as YAML from 'js-yaml';
 import PropTypes from 'prop-types';
 import log from 'log';
-import cn from 'classnames';
 import { Button } from 'semantic-ui-react';
 import SwaggerEditorBundle from 'swagger-editor-dist/swagger-editor-bundle';
-import SwaggerParser from 'plugins/ballerina/swagger-parser/swagger-parser';
-import NodeFactory from 'plugins/ballerina/model/node-factory';
 import ServiceNode from 'plugins/ballerina/model/tree/service-node';
-import { getSwaggerDefinition } from 'api-client/api-client';
+import { getSwaggerDefinition, getServiceDefinition } from 'api-client/api-client';
 import { SPLIT_VIEW } from './constants';
 
 
@@ -87,9 +84,9 @@ class SwaggerView extends React.Component {
         this.resourceMappings = new Map();
         this.onEditorChange = this.onEditorChange.bind(this);
 
-        props.commandProxy.on('save', () => {
+        /*props.commandProxy.on('save', () => {
             this.updateService();
-        }, this);
+        }, this);*/
     }
 
     /**
@@ -107,9 +104,11 @@ class SwaggerView extends React.Component {
      * @memberof SwaggerView
      */
     componentWillReceiveProps(newProps) {
-        if (!_.isNil(newProps.targetService)) {
+        if (!_.isNil(newProps.targetService) && newProps.visible) {
             this.props = newProps;
-            this.genSwaggerAndID();
+            this.swagger = newProps.swagger;
+            this.swaggerEditorID = newProps.swaggerEditorID;
+            this.renderSwaggerEditor();
         }
     }
 
@@ -144,12 +143,12 @@ class SwaggerView extends React.Component {
             this.context.editor.setActiveView(SPLIT_VIEW);
         }
         this.props.resetSwaggerViewFun();
-        this.context.astRoot.trigger('tree-modified', {
+        /*this.context.astRoot.trigger('tree-modified', {
             origin: this.context.astRoot,
             type: 'swagger',
             title: 'Modify Swagger Definition',
             context: this.context.astRoot,
-        });
+        });*/
     }
 
     /**
@@ -187,53 +186,12 @@ class SwaggerView extends React.Component {
     updateService() {
         // we do not update the dom if swagger is not edited.
         if (this.swaggerAce && !this.swaggerAce.getSession().getUndoManager().isClean()) {
-            // Add swagger import
-            const swaggerImport = NodeFactory.createImport({
-                alias: NodeFactory.createLiteral({
-                    value: 'swagger',
-                }),
-                packageName: [
-                    NodeFactory.createLiteral({
-                        value: 'ballerina',
-                    }),
-                    NodeFactory.createLiteral({
-                        value: 'net',
-                    }),
-                    NodeFactory.createLiteral({
-                        value: 'http',
-                    }),
-                    NodeFactory.createLiteral({
-                        value: 'swagger',
-                    }),
-                ],
-            });
-            this.context.astRoot.addImport(swaggerImport);
-
-            // Merge to service.
-            const swaggerParser = new SwaggerParser(this.swagger, false);
-            swaggerParser.mergeToService(this.props.targetService);
-        }
-    }
-
-    /**
-     * Generate the swagger spec for current service & the unique ID for the editor
-     */
-    genSwaggerAndID() {
-        if (!_.isNil(this.props.targetService)) {
-            getSwaggerDefinition(this.context.astRoot.getSource(), this.props.targetService.getName().getValue())
-                .then((swaggerDefinition) => {
-                    if (swaggerDefinition) {
-                        this.swagger = swaggerDefinition;
-                        this.swaggerEditorID = `z-${this.props.targetService.id}-swagger-editor`;
-                        this.renderSwaggerEditor();
-                    } else {
-                        log.error('Error building swagger definition.');
-                    }
+            // Merge to service. this.swagger
+            getServiceDefinition(this.swagger, this.props.targetService.getName().getValue())
+                .then((serviceDefinition) => {
+                    
                 })
                 .catch(error => log.error(error));
-        } else {
-            this.swagger = undefined;
-            this.swaggerEditorID = undefined;
         }
     }
 

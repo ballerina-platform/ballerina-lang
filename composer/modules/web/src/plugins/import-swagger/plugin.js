@@ -20,7 +20,6 @@ import Plugin from 'core/plugin/plugin';
 import { CONTRIBUTIONS } from 'core/plugin/constants';
 import { read } from 'core/workspace/fs-util';
 import { COMMANDS as WORKSPACE_COMMANDS } from 'core/workspace/constants';
-import SwaggerParser from 'plugins/ballerina/swagger-parser/swagger-parser';
 import DefaultNodeFactory from 'plugins/ballerina/model/default-node-factory';
 import NodeFactory from 'plugins/ballerina/model/node-factory';
 import { getCommandDefinitions } from './commands';
@@ -54,7 +53,7 @@ class ImportSwaggerPlugin extends Plugin {
             // if not already opened
             read(filePath)
                 .then((swaggerFile) => {
-                    const { serviceNode, rootNode } = this.getNewAstSkeleton();
+                    /*const { serviceNode, rootNode } = this.getNewAstSkeleton();
                     let swaggerParser;
                     if (swaggerFile.extension.toLowerCase() === 'json') {
                         swaggerParser = new SwaggerParser(JSON.parse(swaggerFile.content));
@@ -69,73 +68,13 @@ class ImportSwaggerPlugin extends Plugin {
 
                     const balFile = editor.getActiveEditor().file;
                     balFile.setContent(rootNode.getSource(), true);
-                    resolve(balFile);
+                    resolve(balFile);*/
                 })
                 .catch((err) => {
-                    console.log(err.message);
                     reject('Error occurred while importing Swagger definition. Make sure the swagger definition is ' +
                             'valid.');
                 });
         });
-    }
-
-    /**
-     * Gets an premade AST with a service and has no resouces.
-     * @returns {Object} An object with service node and root node.
-     */
-    getNewAstSkeleton() {
-        // TODO: Implement
-        // Create a new ast root with the following service node.
-        const rootNode = NodeFactory.createCompilationUnit();
-
-        // Adding imports.
-        const httpImport = NodeFactory.createImport({
-            alias: NodeFactory.createLiteral({
-                value: 'http',
-            }),
-            packageName: [
-                NodeFactory.createLiteral({
-                    value: 'ballerina',
-                }),
-                NodeFactory.createLiteral({
-                    value: 'net',
-                }),
-                NodeFactory.createLiteral({
-                    value: 'http',
-                }),
-            ],
-        });
-
-        const swaggerImport = NodeFactory.createImport({
-            alias: NodeFactory.createLiteral({
-                value: 'swagger',
-            }),
-            packageName: [
-                NodeFactory.createLiteral({
-                    value: 'ballerina',
-                }),
-                NodeFactory.createLiteral({
-                    value: 'net',
-                }),
-                NodeFactory.createLiteral({
-                    value: 'http',
-                }),
-                NodeFactory.createLiteral({
-                    value: 'swagger',
-                }),
-            ],
-        });
-
-        rootNode.addImport(httpImport);
-        rootNode.addImport(swaggerImport);
-
-        const serviceNode = DefaultNodeFactory.createHTTPServiceDef();
-        // Remove default resource.
-        serviceNode.removeResourcesByIndex(0);
-
-        rootNode.addTopLevelNodes(serviceNode);
-
-        return { serviceNode, rootNode };
     }
 
     /**

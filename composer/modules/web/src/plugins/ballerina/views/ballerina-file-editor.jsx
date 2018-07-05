@@ -25,7 +25,7 @@ import { Loader, Dimmer } from 'semantic-ui-react';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import DebugManager from 'plugins/debugger/DebugManager/DebugManager'; // FIXME: Importing from debugger plugin
 import TreeUtil from 'plugins/ballerina/model/tree-util.js';
-import { parseFile } from 'api-client/api-client';
+import { parseFile, getSwaggerDefinition } from 'api-client/api-client';
 import { CONTENT_MODIFIED, UNDO_EVENT, REDO_EVENT } from 'plugins/ballerina/constants/events';
 import { GO_TO_POSITION, FORMAT } from 'plugins/ballerina/constants/commands';
 import File from 'core/workspace/model/file';
@@ -100,6 +100,8 @@ class BallerinaFileEditor extends React.Component {
         this.props.editorModel.setProperty('balEnvironment', this.environment);
 
         this.hideSwaggerAceEditor = false;
+        this.swagger  = '';
+        this.swaggerEditorID = '';
 
         // Resize the canvas
         props.commandProxy.on('resize', () => {
@@ -382,12 +384,27 @@ class BallerinaFileEditor extends React.Component {
      *
      * @param {ServiceDefinition} serviceDef Service def node to display
      */
-    showSwaggerViewForService(serviceDef) {
-        // not using setState to avoid multiple re-renders
-        // this.update() will finally trigger re-render
-        this.state.swaggerViewTargetService = serviceDef;
-        this.state.activeView = SWAGGER_VIEW;
-        this.update();
+    showSwaggerViewForService(service) {
+        if (!_.isNil(service)) {
+            getSwaggerDefinition(this.state.model.getSource(), service.getName().getValue())
+                .then((swaggerDefinition) => {
+                    if (swaggerDefinition) {
+                        this.swagger = swaggerDefinition;
+                        this.swaggerEditorID = `z-${service.id}-swagger-editor`;
+                        // not using setState to avoid multiple re-renders
+                        // this.update() will finally trigger re-render
+                        this.state.swaggerViewTargetService = service;
+                        this.state.activeView = SWAGGER_VIEW;
+                        this.forceUpdate();
+                    } else {
+                        log.error('Error building swagger definition.');
+                    }
+                })
+                .catch(error => log.error(error));
+        } else {
+            this.swagger = undefined;
+            this.swaggerEditorID = undefined;
+        }
     }
 
     /**
@@ -708,6 +725,9 @@ class BallerinaFileEditor extends React.Component {
                         resetSwaggerViewFun={this.resetSwaggerView}
                         height={this.props.height}
                         width={this.props.width}
+                        visible={showSwaggerView}
+                        swagger={this.swagger}
+                        swaggerEditorID={this.swaggerEditorID}
                     />
                 </div>
                 { !showSwaggerView &&
