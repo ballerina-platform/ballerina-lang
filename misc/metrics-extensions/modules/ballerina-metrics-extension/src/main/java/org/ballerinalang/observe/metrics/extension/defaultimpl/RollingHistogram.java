@@ -28,8 +28,6 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 /**
  * Using {@link DoubleHistogram} to maintain samples in a ring buffer to decay older samples and give greater weight
  * to recent samples. This implementation allows to get summary statistics for a rolling window over the last X minutes.
- *
- * @since 0.980.0
  */
 public class RollingHistogram {
 
@@ -80,6 +78,11 @@ public class RollingHistogram {
             AtomicIntegerFieldUpdater.newUpdater(RollingHistogram.class, "rotating");
 
     /**
+     * A flag to check whether {@link RollingHistogram} is being rotated.
+     */
+    private volatile int rotating; // 0 - not rotating, 1 - rotating
+
+    /**
      * A flag to check whether accumulatedHistogram is stale or not.
      */
     private volatile boolean accumulatedHistogramStale;
@@ -120,28 +123,33 @@ public class RollingHistogram {
             // Being rotated by other thread already.
             return;
         }
-        int iterations = 0;
-        synchronized (this) {
-            do {
-                currentHistogram().reset();
-                if (++currentBucket >= ringBuffer.length) {
-                    currentBucket = 0;
+
+        try {
+            int iterations = 0;
+            synchronized (this) {
+                do {
+                    currentHistogram().reset();
+                    if (++currentBucket >= ringBuffer.length) {
+                        currentBucket = 0;
+                    }
+                    timeSinceLastRotateMillis -= durationBetweenRotatesMillis;
+                    lastRotateTimestampMillis += durationBetweenRotatesMillis;
+                } while (timeSinceLastRotateMillis >= durationBetweenRotatesMillis && ++iterations < ringBuffer.length);
+
+                if (iterations >= ringBuffer.length) {
+                    // All buckets have been reset, therefore update lastRotateTimestampMillis
+                    // to the most recent time window
+                    lastRotateTimestampMillis += durationBetweenRotatesMillis *
+                            (timeSinceLastRotateMillis / durationBetweenRotatesMillis);
                 }
-                timeSinceLastRotateMillis -= durationBetweenRotatesMillis;
-                lastRotateTimestampMillis += durationBetweenRotatesMillis;
-            } while (timeSinceLastRotateMillis >= durationBetweenRotatesMillis && ++iterations < ringBuffer.length);
 
-            if (iterations >= ringBuffer.length) {
-                // All buckets have been reset, therefore update lastRotateTimestampMillis
-                // to the most recent time window
-                lastRotateTimestampMillis += durationBetweenRotatesMillis *
-                        (timeSinceLastRotateMillis / durationBetweenRotatesMillis);
+                accumulatedHistogram = new DoubleHistogram(statisticConfig.getPercentilePrecision());
+                //TODO: Use accumulatedHistogram.reset(); and make accumulatedHistogram as final
+                //Refer: https://github.com/HdrHistogram/HdrHistogram/issues/143
+                accumulatedHistogramStale = true;
             }
-
-            accumulatedHistogram = new DoubleHistogram(statisticConfig.getPercentilePrecision());
-            //TODO: Use accumulatedHistogram.reset(); and make accumulatedHistogram as final
-            //Refer: https://github.com/HdrHistogram/HdrHistogram/issues/143
-            accumulatedHistogramStale = true;
+        } finally {
+            rotating = 0;
         }
     }
 
