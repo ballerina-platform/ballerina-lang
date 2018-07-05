@@ -787,12 +787,11 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangScope scopeNode) {
-        BTypeSymbol symbol = Symbols.createScopeSymbol(names.fromIdNode(scopeNode.name), env.enclPkg.symbol.pkgID,
-                scopeNode.type, env
-                .scope
-                .owner);
+        BTypeSymbol symbol = Symbols
+                .createScopeSymbol(names.fromString(scopeNode.name.getValue()), env.enclPkg.symbol.pkgID,
+                        scopeNode.type, env.scope.owner);
         scopeNode.type = symbol.type;
-        env.scope.define(names.fromIdNode(scopeNode.name), symbol);
+        env.scope.define(names.fromString(scopeNode.name.getValue()), symbol);
     }
 
 

@@ -16,6 +16,7 @@
  */
 package org.wso2.ballerinalang.compiler.tree.statements;
 
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.ScopeNode;
@@ -33,7 +34,7 @@ public class BLangScope extends BLangStatement implements ScopeNode {
 
     public BLangBlockStmt scopeBody;
     public BLangLambdaFunction compensationFunction;
-    public BLangIdentifier name;
+    public IdentifierNode name;
     public Stack<String> childScopes = new Stack<>();
 
     public BLangScope() {}
@@ -54,12 +55,12 @@ public class BLangScope extends BLangStatement implements ScopeNode {
     }
 
     @Override
-    public BLangIdentifier getScopeName() {
+    public IdentifierNode getScopeName() {
         return name;
     }
 
     @Override
-    public void setScopeName(BLangIdentifier name) {
+    public void setScopeName(IdentifierNode name) {
         this.name = name;
     }
 
