@@ -213,7 +213,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         boolean constrained = ctx.nameReference() != null;
-        this.pkgBuilder.endServiceDef(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), constrained);
+        this.pkgBuilder.endServiceDef(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
+                getCurrentPosFromIdentifier(ctx.Identifier()), constrained);
     }
 
     @Override
@@ -395,8 +396,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.endCallableUnitSignature(getCurrentPos(ctx), getWS(ctx), ctx.anyIdentifierName().getText(),
-                ctx.formalParameterList() != null, ctx.returnParameter() != null,
-                ctx.formalParameterList() != null && ctx.formalParameterList().restParameter() != null);
+                getCurrentPos(ctx.anyIdentifierName()), ctx.formalParameterList() != null,
+                ctx.returnParameter() != null, ctx.formalParameterList() != null
+                        && ctx.formalParameterList().restParameter() != null);
     }
 
     /**
@@ -411,7 +413,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean publicObject = ctx.PUBLIC() != null;
-        this.pkgBuilder.endTypeDefinition(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), publicObject);
+        this.pkgBuilder.endTypeDefinition(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
+                getCurrentPosFromIdentifier(ctx.Identifier()), publicObject);
     }
 
     /**
@@ -646,7 +649,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean publicAnnotation = KEYWORD_PUBLIC.equals(ctx.getChild(0).getText());
         boolean isTypeAttached = ctx.userDefineTypeName() != null;
-        this.pkgBuilder.endAnnotationDef(getWS(ctx), ctx.Identifier().getText(), publicAnnotation, isTypeAttached);
+        this.pkgBuilder.endAnnotationDef(getWS(ctx), ctx.Identifier().getText(),
+                getCurrentPosFromIdentifier(ctx.Identifier()), publicAnnotation, isTypeAttached);
     }
 
     /**
@@ -809,7 +813,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean sealed = "sealed".equals(ctx.parent.getChild(0).getText());
 
         this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous, sealed,
-                                      hasRestField);
+                hasRestField);
     }
 
     @Override
@@ -3072,6 +3076,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             endCol = stop.getCharPositionInLine() + 1;
         }
 
+        return new DiagnosticPos(diagnosticSrc, startLine, endLine, startCol, endCol);
+    }
+
+    private DiagnosticPos getCurrentPosFromIdentifier(TerminalNode node) {
+        Token symbol = node.getSymbol();
+        int startLine = symbol.getLine();
+        int startCol = symbol.getCharPositionInLine() + 1;
+
+        int endLine = startLine;
+        int endCol = startCol + symbol.getText().length();
         return new DiagnosticPos(diagnosticSrc, startLine, endLine, startCol, endCol);
     }
 

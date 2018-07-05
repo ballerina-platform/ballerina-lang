@@ -40,7 +40,7 @@ public class StructNegativeTest {
     @Test
     public void testStructNegative() {
         // test duplicate struct definitions
-        BAssertUtil.validateError(result, 0, "redeclared symbol 'Department'", 6, 1);
+        BAssertUtil.validateError(result, 0, "redeclared symbol 'Department'", 6, 6);
 
         // test struct with duplicate fields
         BAssertUtil.validateError(result, 1, "redeclared symbol 'id'", 14, 5);

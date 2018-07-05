@@ -668,8 +668,8 @@ public class BLangPackageBuilder {
     }
 
     void addReturnParam(DiagnosticPos pos,
-                                 Set<Whitespace> ws,
-                                 int annotCount) {
+                        Set<Whitespace> ws,
+                        int annotCount) {
         BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, null, false);
         attachAnnotations(var, annotCount);
         var.pos = pos;
@@ -679,11 +679,16 @@ public class BLangPackageBuilder {
     void endCallableUnitSignature(DiagnosticPos pos,
                                   Set<Whitespace> ws,
                                   String identifier,
+                                  DiagnosticPos identifierPos,
                                   boolean paramsAvail,
                                   boolean retParamsAvail,
                                   boolean restParamAvail) {
         InvokableNode invNode = this.invokableNodeStack.peek();
-        invNode.setName(this.createIdentifier(identifier));
+        BLangIdentifier identifierNode = (BLangIdentifier) this.createIdentifier(identifier);
+        if (identifierPos != null) {
+            identifierNode.pos = identifierPos;
+        }
+        invNode.setName(identifierNode);
         invNode.addWS(ws);
         BLangType returnTypeNode;
         if (retParamsAvail) {
@@ -735,7 +740,8 @@ public class BLangPackageBuilder {
                               boolean restParamAvail) {
         BLangFunction lambdaFunction = (BLangFunction) this.invokableNodeStack.peek();
         lambdaFunction.pos = pos;
-        endCallableUnitSignature(pos, ws, lambdaFunction.getName().value, paramsAvail, retParamsAvail, restParamAvail);
+        endCallableUnitSignature(pos, ws, lambdaFunction.getName().value, null, paramsAvail, retParamsAvail,
+                restParamAvail);
         BLangLambdaFunction lambdaExpr = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaExpr.function = lambdaFunction;
         lambdaExpr.pos = pos;
@@ -1468,9 +1474,12 @@ public class BLangPackageBuilder {
         }
     }
 
-    void endTypeDefinition(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicType) {
+    void endTypeDefinition(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
+                           boolean publicType) {
         BLangTypeDefinition typeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
-        typeDefinition.setName(this.createIdentifier(identifier));
+        BLangIdentifier identifierNode = (BLangIdentifier) this.createIdentifier(identifier);
+        identifierNode.pos = identifierPos;
+        typeDefinition.setName(identifierNode);
 
         if (publicType) {
             typeDefinition.flagSet.add(Flag.PUBLIC);
@@ -1722,11 +1731,13 @@ public class BLangPackageBuilder {
         this.annotationStack.add(annotNode);
     }
 
-    void endAnnotationDef(Set<Whitespace> ws, String identifier, boolean publicAnnotation,
+    void endAnnotationDef(Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos, boolean publicAnnotation,
                           boolean isTypeAttached) {
         BLangAnnotation annotationNode = (BLangAnnotation) this.annotationStack.pop();
         annotationNode.addWS(ws);
-        annotationNode.setName(this.createIdentifier(identifier));
+        BLangIdentifier identifierNode = (BLangIdentifier) this.createIdentifier(identifier);
+        identifierNode.pos = identifierPos;
+        annotationNode.setName(identifierNode);
 
         if (publicAnnotation) {
             annotationNode.flagSet.add(Flag.PUBLIC);
@@ -2229,9 +2240,12 @@ public class BLangPackageBuilder {
         }
     }
 
-    void endServiceDef(DiagnosticPos pos, Set<Whitespace> ws, String serviceName, boolean constrained) {
+    void endServiceDef(DiagnosticPos pos, Set<Whitespace> ws, String serviceName, DiagnosticPos identifierPos,
+                       boolean constrained) {
         BLangService serviceNode = (BLangService) serviceNodeStack.pop();
-        serviceNode.setName(createIdentifier(serviceName));
+        BLangIdentifier identifier = (BLangIdentifier) createIdentifier(serviceName);
+        identifier.pos = identifierPos;
+        serviceNode.setName(identifier);
         if (constrained) {
             final BLangNameReference epName = nameReferenceStack.pop();
             serviceNode.setServiceTypeStruct(createUserDefinedType(pos, epName.ws, (BLangIdentifier) epName.pkgAlias,
@@ -2961,10 +2975,10 @@ public class BLangPackageBuilder {
     }
 
     void endPatternStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isFollowedBy,
-                                             boolean enclosedInParenthesis, boolean andWithNotAvailable,
-                                             boolean forWithNotAvailable, boolean onlyAndAvailable,
-                                             boolean onlyOrAvailable, boolean commaSeparated,
-                                             String timeDurationValue, String timeScale) {
+                                      boolean enclosedInParenthesis, boolean andWithNotAvailable,
+                                      boolean forWithNotAvailable, boolean onlyAndAvailable,
+                                      boolean onlyOrAvailable, boolean commaSeparated,
+                                      String timeDurationValue, String timeScale) {
         if (!this.patternStreamingInputStack.empty()) {
             PatternStreamingInputNode patternStreamingInputNode = this.patternStreamingInputStack.pop();
 
@@ -3106,8 +3120,8 @@ public class BLangPackageBuilder {
     }
 
     void endOutputRateLimitNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isSnapshotOutputRateLimit,
-                                       boolean isFirst, boolean isLast, boolean isAll, String timeScale,
-                                       String rateLimitValue) {
+                                boolean isFirst, boolean isLast, boolean isAll, String timeScale,
+                                String rateLimitValue) {
         OutputRateLimitNode outputRateLimit = this.outputRateLimitStack.peek();
         ((BLangOutputRateLimit) outputRateLimit).pos = pos;
         outputRateLimit.addWS(ws);
