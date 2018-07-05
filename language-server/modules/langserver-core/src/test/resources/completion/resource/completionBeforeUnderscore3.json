@@ -6,96 +6,6 @@
   "source": "resource/source/completionBeforeUnderscore3.bal",
   "items": [
     {
-      "label":"foreach",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"foreach ${1:varRefList} in ${2:listReference} {\n\t${3}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"fork",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"fork {\n\t${1}\n} join (${2:all}) (map ${3:results}) {\n\t${4}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"if",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"if (${1:true}) {\n\t${2}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"lock",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"lock {\n\t${1}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"match",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"match ",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"return",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"return;",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"transaction",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"transaction with retries \u003d ${1:1}, oncommit \u003d ${2:onCommitFunction}, onabort \u003d ${3:onAbortFunction} {\n\t${4}\n} onretry {\n\t${5}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"try",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"try {\n\t${1}\n} catch (${2:error} ${3:err}) {\n\t${4}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"while",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"while (${1:true}) {\n\t${2}\n}",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"wrply   Worker Reply Statement",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"${1} \u003c- ${2};",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"wtrg   Worker Trigger Statement",
-      "detail":"Statement",
-      "sortText":"200",
-      "insertText":"${1} -\u003e ${2};",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"xmlns",
-      "detail":"Snippet",
-      "sortText":"190",
-      "insertText":"xmlns \"${1}\" as ${2:ns};",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"var",
-      "detail":"Keyword",
-      "sortText":"210",
-      "insertText":"var "
-    },
-    {
       "label":"xml",
       "detail":"BType",
       "sortText":"170",
@@ -114,6 +24,12 @@
       "detail":"BType",
       "sortText":"170",
       "insertText":"TableConfig"
+    },
+    {
+      "label":"byte",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"byte"
     },
     {
       "label":"queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table)",
@@ -247,6 +163,103 @@
       "detail":"BType",
       "sortText":"170",
       "insertText":"boolean"
+    },
+    {
+      "label":"xmlns",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"xmlns \"${1}\" as ${2:ns};",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"var",
+      "detail":"Keyword",
+      "sortText":"210",
+      "insertText":"var "
+    },
+    {
+      "label":"foreach",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"foreach ${1:item} in ${2:itemList} {\n\t${3}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"fork",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"fork {\n\t${1}\n} join (${2:all}) (map ${3:results}) {\n\t${4}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"if",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"if (${1:true}) {\n\t${2}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"lock",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"lock {\n\t${1}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"match",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"match ",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"return",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"return;",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"throw",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"throw ",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"transaction",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"transaction with retries \u003d ${1:1}, oncommit \u003d ${2:onCommitFunction}, onabort \u003d ${3:onAbortFunction} {\n\t${4}\n} onretry {\n\t${5}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"try",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"try {\n\t${1}\n} catch (${2:error} ${3:err}) {\n\t${4}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"while",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"while (${1:true}) {\n\t${2}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"wrply   Worker Reply Statement",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"${1} \u003c- ${2};",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"wtrg   Worker Trigger Statement",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"${1} -\u003e ${2};",
+      "insertTextFormat":"Snippet"
     },
     {
       "label":"worker",

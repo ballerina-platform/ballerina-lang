@@ -6,10 +6,175 @@
   "source": "resource/source/emptyLinePrimitiveDataTypes.bal",
   "items": [
     {
+      "label":"xml",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"xml"
+    },
+    {
+      "label":"queryTableWithJoinClause(string sqlQuery, table fromTable, table joinTable, any parameters, any retType)(table)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"queryTableWithJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:joinTable}, ${4:parameters}, ${5:retType})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"TableConfig",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"TableConfig"
+    },
+    {
+      "label":"byte",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"byte"
+    },
+    {
+      "label":"queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"queryTableWithoutJoinClause(${1:sqlQuery}, ${2:fromTable}, ${3:parameters}, ${4:retType})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"startForever(string streamQuery, any inStreamRefs, any inTableRefs, any outStreamRefs, any outTableRefs, any funcPointers)",
+      "kind":"Function",
+      "detail":"Function",
+      "sortText":"120",
+      "insertText":"startForever(${1:streamQuery}, ${2:inStreamRefs}, ${3:inTableRefs}, ${4:outStreamRefs}, ${5:outTableRefs}, ${6:funcPointers})",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"stream",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"stream"
+    },
+    {
+      "label":"map",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"map"
+    },
+    {
+      "label":"table",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"table"
+    },
+    {
+      "label":"future",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"future"
+    },
+    {
+      "label":"typedesc",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"typedesc"
+    },
+    {
+      "label":"float",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"float"
+    },
+    {
+      "label":"blob",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"blob"
+    },
+    {
+      "label":"null",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"null"
+    },
+    {
+      "label":"http",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"http"
+    },
+    {
+      "label":"request",
+      "kind":"Unit",
+      "detail":"ballerina/http:Request",
+      "sortText":"110",
+      "insertText":"request"
+    },
+    {
+      "label":"string",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"string"
+    },
+    {
+      "label":"error",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"error"
+    },
+    {
+      "label":"client",
+      "kind":"Unit",
+      "detail":"ballerina/http:Listener",
+      "sortText":"110",
+      "insertText":"client"
+    },
+    {
+      "label":"json",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"json"
+    },
+    {
+      "label":"any",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"any"
+    },
+    {
+      "label":"int",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"int"
+    },
+    {
+      "label":"docData",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"docData"
+    },
+    {
+      "label":"boolean",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"boolean"
+    },
+    {
+      "label":"xmlns",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"xmlns \"${1}\" as ${2:ns};",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"var",
+      "detail":"Keyword",
+      "sortText":"210",
+      "insertText":"var "
+    },
+    {
       "label":"foreach",
       "detail":"Statement",
       "sortText":"200",
-      "insertText":"foreach ${1:varRefList} in ${2:listReference} {\n\t${3}\n}",
+      "insertText":"foreach ${1:item} in ${2:itemList} {\n\t${3}\n}",
       "insertTextFormat":"Snippet"
     },
     {
@@ -34,10 +199,24 @@
       "insertTextFormat":"Snippet"
     },
     {
+      "label":"match",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"match ",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"return",
       "detail":"Statement",
       "sortText":"200",
       "insertText":"return;",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"throw",
+      "detail":"Statement",
+      "sortText":"200",
+      "insertText":"throw ",
       "insertTextFormat":"Snippet"
     },
     {

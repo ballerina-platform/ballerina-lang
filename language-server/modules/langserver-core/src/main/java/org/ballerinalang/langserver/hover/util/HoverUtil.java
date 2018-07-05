@@ -188,13 +188,13 @@ public class HoverUtil {
         StringBuilder value = new StringBuilder();
         for (DocAttachment.DocAttribute attribute : attributes) {
             value.append("- ")
-                    .append(attribute.name.replace("\n", ""))
+                    .append(attribute.name.trim())
                     .append(":")
-                    .append(attribute.description.replaceAll("\n", "")).append("\r\n");
+                    .append(attribute.description.trim()).append("\r\n");
         }
 
         return value.toString();
-    }
+    }   
 
     /**
      * get the formatted string with markdowns.
@@ -218,31 +218,32 @@ public class HoverUtil {
         Map<String, List<DocAttachment.DocAttribute>> filterAttributes = filterDocumentationAttributes(docAttachment);
 
         if (!docAttachment.description.isEmpty()) {
-            content.append(getFormattedHoverDocContent(ContextConstants.DESCRIPTION, docAttachment.description));
+            String description = "\r\n" + docAttachment.description.trim() + "\r\n";
+            content.append(getFormattedHoverDocContent(ContextConstants.DESCRIPTION, description));
         }
 
         if (filterAttributes.get(ContextConstants.DOC_RECEIVER) != null) {
-            content.append(getFormattedHoverDocContent(ContextConstants.DOC_RECEIVER,
+            content.append(getFormattedHoverDocContent(ContextConstants.RECEIVER_TITLE,
                     getDocAttributes(filterAttributes.get(ContextConstants.DOC_RECEIVER))));
         }
 
         if (filterAttributes.get(ContextConstants.DOC_PARAM) != null) {
-            content.append(getFormattedHoverDocContent(ContextConstants.DOC_PARAM,
+            content.append(getFormattedHoverDocContent(ContextConstants.PARAM_TITLE,
                     getDocAttributes(filterAttributes.get(ContextConstants.DOC_PARAM))));
         }
 
         if (filterAttributes.get(ContextConstants.DOC_FIELD) != null) {
-            content.append(getFormattedHoverDocContent(ContextConstants.DOC_FIELD,
+            content.append(getFormattedHoverDocContent(ContextConstants.FIELD_TITLE,
                     getDocAttributes(filterAttributes.get(ContextConstants.DOC_FIELD))));
         }
 
         if (filterAttributes.get(ContextConstants.DOC_RETURN) != null) {
-            content.append(getFormattedHoverDocContent(ContextConstants.DOC_RETURN,
+            content.append(getFormattedHoverDocContent(ContextConstants.RETURN_TITLE,
                     getDocAttributes(filterAttributes.get(ContextConstants.DOC_RETURN))));
         }
 
         if (filterAttributes.get(ContextConstants.DOC_VARIABLE) != null) {
-            content.append(getFormattedHoverDocContent(ContextConstants.DOC_VARIABLE,
+            content.append(getFormattedHoverDocContent(ContextConstants.VARIABLE_TITLE,
                     getDocAttributes(filterAttributes.get(ContextConstants.DOC_VARIABLE))));
         }
 

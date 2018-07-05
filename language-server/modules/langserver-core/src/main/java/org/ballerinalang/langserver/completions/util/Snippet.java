@@ -40,7 +40,7 @@ public enum Snippet {
     ENDPOINT("endpoint ${1:http:Listener} ${2:listener} {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
             + CommonUtil.LINE_SEPARATOR + "};"),
 
-    FOREACH("foreach ${1:varRefList} in ${2:listReference} {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
+    FOREACH("foreach ${1:item} in ${2:itemList} {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
             + CommonUtil.LINE_SEPARATOR + "}"),
 
     FORK("fork {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR
@@ -81,6 +81,8 @@ public enum Snippet {
 
     RESOURCE("${1:newResource} (endpoint ${2:caller}, ${3:http:Request request}) {" + CommonUtil.LINE_SEPARATOR
             + "\t${4}" + CommonUtil.LINE_SEPARATOR + "}"),
+
+    RETRY("retry;"),
 
     RETURN("return;"),
 
