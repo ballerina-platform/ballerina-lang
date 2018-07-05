@@ -2,7 +2,11 @@ json globalVar;
 
 function main (string... args) {
     taintedJsonReturn().address_components
-    .filter((json comp) => boolean {return comp.types.filter((json compType) => boolean {secureFunction(taintedReturn(), taintedReturn()); return compType.toString() == "street_number";}).count() > 0; })
+    .filter((json comp) => boolean {
+            return comp.types.filter((json compType) => boolean {
+                        secureFunction(taintedReturn(), taintedReturn());
+                        return compType.toString() == "street_number";
+                    }).count() > 0; })
     .foreach((json k) => { globalVar = k;});
 }
 

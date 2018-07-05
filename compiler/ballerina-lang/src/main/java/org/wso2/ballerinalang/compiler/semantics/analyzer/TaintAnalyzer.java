@@ -904,7 +904,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     // If argument of iterable operation is a lambda expression, propagate the tainted status
                     // to function parameters and validate function body.
                     if (argExpr.getKind() == NodeKind.LAMBDA) {
-                        analyzeIterableLambdaInvocationExpression(invocationExpr, argExpr);
+                        analyzeIterableLambdaInvocationArgExpression(argExpr);
                     }
                 });
             }
@@ -1697,7 +1697,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         return isBlocked;
     }
 
-    private void analyzeIterableLambdaInvocationExpression(BLangInvocation invocationExpr, BLangExpression argExpr) {
+    private void analyzeIterableLambdaInvocationArgExpression(BLangExpression argExpr) {
         BLangFunction function = ((BLangLambdaFunction) argExpr).function;
         if (function.symbol.taintTable == null) {
             this.blockedNode = new BlockedNode(this.currPkgEnv, null);
