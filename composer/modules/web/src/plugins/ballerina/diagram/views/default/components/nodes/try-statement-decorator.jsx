@@ -19,6 +19,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
 import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
+import HoverGroup from 'plugins/ballerina/graphical-editor/controller-utils/hover-group';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
 import './compound-statement-decorator.css';
@@ -285,15 +286,24 @@ class TryStatementDecorator extends React.Component {
                 { isBreakpoint && this.renderBreakpointIndicator() }
                 {this.props.children}
                 {body}
-                <ActionBox
-                    bBox={actionBoxBbox}
-                    show={this.state.active}
-                    isBreakpoint={isBreakpoint}
-                    onDelete={() => this.onDelete()}
-                    onJumptoCodeLine={() => this.onJumpToCodeLine()}
-                    onBreakpointClick={() => this.props.onBreakpointClick()}
-                    disableButtons={this.props.disableButtons}
-                />
+                <HoverGroup model={this.props.model} region='actionBox'>
+                    <rect
+                        x={p8X}
+                        y={p8Y}
+                        width={50}
+                        height={25}
+                        className='invisible-rect'
+                    />
+                </HoverGroup>
+                <HoverGroup model={this.props.model} region='main'>
+                    <rect
+                        x={p8X}
+                        y={p8Y + 25}
+                        width={50}
+                        height={50}
+                        className='invisible-rect'
+                    />
+                </HoverGroup>
                 {(() => {
                     if (model.catchBlocks.length > 0) {
                         let connectorEdgeTopX = p4X;
