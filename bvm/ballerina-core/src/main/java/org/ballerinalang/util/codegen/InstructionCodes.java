@@ -187,7 +187,8 @@ public interface InstructionCodes {
 
     int BISHL = 158;
     int BISHR = 159;
-    int BIUSHR = 160;
+    int ISHL = 160;
+    int ISHR = 161;
 
     // Type cast
     int I2ANY = 162;
@@ -248,6 +249,8 @@ public interface InstructionCodes {
     int ARRAYLEN = 207;
     int LENGTHOF = 208;
 
+    int BIUSHR = 209;
+
     int NEWSTRUCT = 210;
     int NEWMAP = 212;
     int NEWJSON = 213;
@@ -265,6 +268,8 @@ public interface InstructionCodes {
     int BIXOR = 226;
     int IXOR = 227;
     int BACONST = 228;
+
+    int IUSHR = 229;
 
     int IRET = 230;
     int FRET = 231;

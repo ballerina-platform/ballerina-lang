@@ -351,7 +351,10 @@ public class CPU {
                     case InstructionCodes.BIXOR:
                     case InstructionCodes.BISHL:
                     case InstructionCodes.BISHR:
+                    case InstructionCodes.ISHR:
+                    case InstructionCodes.ISHL:
                     case InstructionCodes.BIUSHR:
+                    case InstructionCodes.IUSHR:
                         execBinaryOpCodes(ctx, sf, opcode, operands);
                         break;
     
@@ -1832,15 +1835,33 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.longRegs[k] = sf.longRegs[i] << sf.longRegs[j];
+                sf.intRegs[k] = sf.intRegs[i] << sf.longRegs[j];
                 break;
             case InstructionCodes.BISHR:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
+                sf.intRegs[k] = sf.intRegs[i] >> sf.longRegs[j];
+                break;
+            case InstructionCodes.ISHR:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
                 sf.longRegs[k] = sf.longRegs[i] >> sf.longRegs[j];
                 break;
+            case InstructionCodes.ISHL:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.longRegs[k] = sf.longRegs[i] << sf.longRegs[j];
+                break;
             case InstructionCodes.BIUSHR:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.intRegs[i] >>> sf.longRegs[j];
+                break;
+            case InstructionCodes.IUSHR:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
@@ -2199,7 +2220,7 @@ public class CPU {
             case InstructionCodes.BI2I:
                 i = operands[0];
                 j = operands[1];
-                sf.longRegs[j] = (long) sf.intRegs[i];
+                sf.longRegs[j] = Byte.toUnsignedInt((byte) sf.intRegs[i]);
                 break;
             case InstructionCodes.F2I:
                 i = operands[0];

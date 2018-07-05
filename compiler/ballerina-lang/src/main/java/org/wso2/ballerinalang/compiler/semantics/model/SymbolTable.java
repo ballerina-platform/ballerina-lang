@@ -244,21 +244,21 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.BITWISE_OR, intType, intType, intType, InstructionCodes.IOR);
         defineBinaryOperator(OperatorKind.BITWISE_XOR, byteType, byteType, byteType, InstructionCodes.BIXOR);
         defineBinaryOperator(OperatorKind.BITWISE_XOR, intType, intType, intType, InstructionCodes.IXOR);
-        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, intType, intType, intType, InstructionCodes.BISHL);
-        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, byteType, byteType, intType, InstructionCodes.BISHL);
-        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, intType, byteType, intType, InstructionCodes.BISHL);
-        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, byteType, intType, intType, InstructionCodes.BISHL);
-        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, intType, intType, intType, InstructionCodes.BISHR);
-        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, byteType, byteType, intType, InstructionCodes.BISHR);
-        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, intType, byteType, intType, InstructionCodes.BISHR);
-        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, byteType, intType, intType, InstructionCodes.BISHR);
+        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, intType, intType, intType, InstructionCodes.ISHL);
+        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, intType, byteType, intType, InstructionCodes.ISHL);
+        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, byteType, byteType, byteType, InstructionCodes.BISHL);
+        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, byteType, intType, byteType, InstructionCodes.BISHL);
+        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, intType, intType, intType, InstructionCodes.ISHR);
+        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, intType, byteType, intType, InstructionCodes.ISHR);
+        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, byteType, byteType, byteType, InstructionCodes.BISHR);
+        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, byteType, intType, byteType, InstructionCodes.BISHR);
         defineBinaryOperator(OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT, intType, intType, intType,
-                InstructionCodes.BIUSHR);
-        defineBinaryOperator(OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT, byteType, byteType, intType,
-                InstructionCodes.BIUSHR);
+                InstructionCodes.IUSHR);
         defineBinaryOperator(OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT, intType, byteType, intType,
+                InstructionCodes.IUSHR);
+        defineBinaryOperator(OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT, byteType, byteType, byteType,
                 InstructionCodes.BIUSHR);
-        defineBinaryOperator(OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT, byteType, intType, intType,
+        defineBinaryOperator(OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT, byteType, intType, byteType,
                 InstructionCodes.BIUSHR);
 
         // Binary equality operators ==, !=
