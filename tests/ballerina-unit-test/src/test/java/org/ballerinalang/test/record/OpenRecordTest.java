@@ -382,8 +382,8 @@ public class OpenRecordTest {
     public void testRestDescriptorSyntax() {
         CompileResult result = BCompileUtil.compile("test-src/record/open_record_negative.bal");
 
-        BAssertUtil.validateError(result, 0, "invalid record rest descriptor", 24, 12);
-        BAssertUtil.validateError(result, 1, "invalid record rest descriptor", 31, 14);
-        BAssertUtil.validateError(result, 2, "invalid record rest descriptor", 39, 5);
+        BAssertUtil.validateError(result, 0, "invalid record rest descriptor", 28, 12);
+        BAssertUtil.validateError(result, 1, "invalid record rest descriptor", 35, 14);
+        BAssertUtil.validateError(result, 2, "invalid record rest descriptor", 43, 5);
     }
 }
