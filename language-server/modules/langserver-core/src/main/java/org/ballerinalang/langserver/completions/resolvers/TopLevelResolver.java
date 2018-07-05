@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
-import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleAnnotationAttachmentResolver;
@@ -55,7 +54,7 @@ public class TopLevelResolver extends AbstractItemResolver {
             if (errorContextResolver == null
                     || errorContextResolver == this
                     || (errorContextResolver instanceof ParserRuleGlobalVariableDefinitionContextResolver
-                    && !poppedTokens.peek().getText().equals(UtilSymbolKeys.EQUAL_SYMBOL_KEY))) {
+                    && poppedTokens.size() < 2)) {
                 addTopLevelItems(completionItems);
                 this.populateBasicTypes(completionItems, ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
             } else {
