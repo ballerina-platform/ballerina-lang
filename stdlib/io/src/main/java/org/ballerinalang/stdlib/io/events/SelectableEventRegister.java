@@ -70,11 +70,14 @@ public class SelectableEventRegister extends Register {
      */
     @Override
     public void discard() {
+        exec.execute();
         Channel channel = exec.getChannel();
         SocketChannel socketChannel = (SocketChannel) channel.getByteChannel();
         try {
             final SelectionKey selectionKey = socketChannel.keyFor(SelectorManager.getInstance());
-            selectionKey.cancel();
+            if (selectionKey != null) {
+                selectionKey.cancel();
+            }
         } catch (IOException e) {
             log.error("Unable to deregister selection key for channel[" + channel + "]: " + e.getMessage(), e);
         }
