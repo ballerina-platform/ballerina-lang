@@ -73,11 +73,6 @@ public final class BString extends BValueType implements BRefType<String> {
     }
 
     @Override
-    public byte[] blobValue() {
-        return null;
-    }
-
-    @Override
     public String stringValue() {
         return this.value;
     }

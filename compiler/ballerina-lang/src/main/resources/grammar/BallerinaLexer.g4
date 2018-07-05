@@ -22,7 +22,7 @@ SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
 OBJECT      : 'object' ;
-RECORD      : 'record';
+RECORD      : 'record' ;
 ANNOTATION  : 'annotation' ;
 PARAMETER   : 'parameter' ;
 TRANSFORMER : 'transformer' ;
@@ -34,7 +34,6 @@ RETURNS     : 'returns';
 VERSION     : 'version';
 DOCUMENTATION  : 'documentation';
 DEPRECATED  :  'deprecated';
-SEALED      : 'sealed';
 
 FROM        : 'from' { inSiddhi = true; inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; } ;
 ON          : 'on' ;
@@ -91,7 +90,6 @@ TYPE_BYTE       : 'byte' ;
 TYPE_FLOAT      : 'float' ;
 TYPE_BOOL       : 'boolean' ;
 TYPE_STRING     : 'string' ;
-TYPE_BLOB       : 'blob' ;
 TYPE_MAP        : 'map' ;
 TYPE_JSON       : 'json' ;
 TYPE_XML        : 'xml' ;
@@ -139,6 +137,7 @@ BUT         : 'but' ;
 CHECK       : 'check' ;
 DONE        : 'done' ;
 PRIMARYKEY  : 'primarykey' ;
+SEALED      : 'sealed' ;
 
 // Separators
 

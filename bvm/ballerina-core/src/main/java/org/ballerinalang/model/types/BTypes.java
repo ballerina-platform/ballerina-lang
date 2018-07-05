@@ -28,7 +28,6 @@ public class BTypes {
     public static BType typeFloat = new BFloatType(TypeConstants.FLOAT_TNAME, null);
     public static BType typeString = new BStringType(TypeConstants.STRING_TNAME, null);
     public static BType typeBoolean = new BBooleanType(TypeConstants.BOOLEAN_TNAME, null);
-    public static BType typeBlob = new BBlobType(TypeConstants.BLOB_TNAME, null);
     public static BType typeXML = new BXMLType(TypeConstants.XML_TNAME, null);
     public static BType typeJSON = new BJSONType(TypeConstants.JSON_TNAME, null);
     public static BType typeTable = new BTableType(TypeConstants.TABLE_TNAME, null);
@@ -49,8 +48,7 @@ public class BTypes {
                 type == BTypes.typeByte ||
                 type == BTypes.typeFloat ||
                 type == BTypes.typeString ||
-                type == BTypes.typeBoolean ||
-                type == BTypes.typeBlob;
+                type == BTypes.typeBoolean;
 
     }
 

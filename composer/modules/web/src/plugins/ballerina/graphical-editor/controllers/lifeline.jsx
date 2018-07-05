@@ -31,15 +31,23 @@ import FragmentUtils from 'plugins/ballerina/utils/fragment-utils';
 import HoverButton from '../controller-utils/hover-button';
 import Item from '../controller-utils/item';
 import Search from '../controller-utils/search';
+import Toolbox from 'plugins/ballerina/diagram/views/default/components/decorators/action-box';
 
 class DefaultCtrl extends React.Component {
     render() {
         const { model } = this.props;
         const { viewState: { bBox } } = model.getBody();
+
         const items = ControllerUtil.convertToAddItems(WorkerTools, model.getBody());
         const top = bBox.y + bBox.h + 15;
         const left = bBox.x;
-        if (TreeUtil.isInitFunction(model)) {
+        if (TreeUtil.isInitFunction(model) || model.workers.length > 0) {
+            return null;
+        }
+
+        if (model.viewState.collapsed
+            || (!model.viewState.collapsed && TreeUtil.isResource(model) && model.parent.viewState.collapsed)
+            || (TreeUtil.isFunction(model) && model.getName().getValue() === 'new')) {
             return null;
         }
         return (
@@ -62,6 +70,34 @@ DefaultCtrl.contextTypes = {
     config: PropTypes.instanceOf(Object),
 };
 
+function calculateLifelineX(node, config) {
+    let x = node.viewState.components.defaultWorker.x + node.viewState.components.defaultWorker.w +
+        config.lifeLine.gutter.h;
+
+    if (node.workers.length > 0) {
+        x = node.workers[node.workers.length - 1].viewState.bBox.x +
+            node.workers[node.workers.length - 1].viewState.bBox.w +
+            config.lifeLine.gutter.h;
+    }
+
+    if (node.endpointNodes.length > 0) {
+        node.endpointNodes.forEach((endpointNode) => {
+            x += endpointNode.viewState.bBox.w + config.lifeLine.gutter.h;
+        });
+    }
+
+
+    // Set the size of the connector declarations
+    const statements = node.body.statements;
+    if (statements instanceof Array) {
+        statements.forEach((statement) => {
+            if (TreeUtil.isEndpointTypeVariableDef(statement)) {
+                x = statement.viewState.bBox.w + statement.viewState.bBox.x + config.lifeLine.gutter.h;
+            }
+        });
+    }
+    return x;
+}
 
 class RightCtrl extends React.Component {
     constructor() {
@@ -196,11 +232,9 @@ class RightCtrl extends React.Component {
     hideEndpoints() {
         this.setState({ listEndpoints: false });
     }
-    
-
 
     render() {
-        
+
         const { model } = this.props;
         const { viewState: { bBox } } = model.getBody();
         const items = ControllerUtil.convertToAddItems(LifelineTools, model);
@@ -208,38 +242,16 @@ class RightCtrl extends React.Component {
         // const left = bBox.x + bBox.w;
         const node = this.props.model;
         const y = node.viewState.components.defaultWorker.y - 20;
-        let x = node.viewState.components.defaultWorker.x + node.viewState.components.defaultWorker.w +
-            this.context.config.lifeLine.gutter.h;
+        const x = calculateLifelineX(node, this.context.config);
 
         if (node.lambda) {
             return null;
-        }
-
-        if (node.workers.length > 0) {
-            x = node.workers[node.workers.length - 1].viewState.bBox.x +
-                node.workers[node.workers.length - 1].viewState.bBox.w +
-                this.context.config.lifeLine.gutter.h;
-        }
-
-        if (node.endpointNodes.length > 0) {
-            node.endpointNodes.forEach((endpointNode) => {
-                x += endpointNode.viewState.bBox.w + this.context.config.lifeLine.gutter.h;
-            });
         }
 
         if (node.viewState.collapsed
             || (!node.viewState.collapsed && TreeUtil.isResource(node) && node.parent.viewState.collapsed)
             || (TreeUtil.isFunction(node) && node.getName().getValue() === 'new')) {
             return null;
-        }
-        // Set the size of the connector declarations
-        const statements = node.body.statements;
-        if (statements instanceof Array) {
-            statements.forEach((statement) => {
-                if (TreeUtil.isEndpointTypeVariableDef(statement)) {
-                    x = statement.viewState.bBox.w + statement.viewState.bBox.x + this.context.config.lifeLine.gutter.h;
-                }
-            });
         }
 
         if (TreeUtil.isObject(node.parent)) {
@@ -317,7 +329,50 @@ RightCtrl.contextTypes = {
     astRoot: PropTypes.instanceOf(Object).isRequired,
 };
 
+class ActionBox extends React.Component {
+    render() {
+        const { model } = this.props;
+        const { viewState: { bBox } } = model.getBody();
+
+        const top = model.viewState.components.defaultWorker.y + 20;
+        const left = bBox.x;
+
+        const onDelete = () => { model.remove(); };
+        const onJumptoCodeLine = () => {
+            const { editor } = this.context;
+            editor.goToSource(model);
+        };
+
+        return (
+            <Toolbox
+                onDelete={onDelete}
+                onJumptoCodeLine={onJumptoCodeLine}
+                show
+                style={{
+                    top,
+                    left,
+                }}
+            />
+        );
+    }
+}
+
+ActionBox.contextTypes = {
+    config: PropTypes.instanceOf(Object),
+    editor: PropTypes.shape({
+        isFileOpenedInEditor: PropTypes.func,
+        getEditorByID: PropTypes.func,
+        setActiveEditor: PropTypes.func,
+        getActiveEditor: PropTypes.func,
+        getDefaultContent: PropTypes.func,
+    }).isRequired,
+    designer: PropTypes.instanceOf(Object),
+};
+
 export default {
+    regions: {
+        actionBox: ActionBox,
+    },
     defaults: [
         DefaultCtrl,
         RightCtrl,

@@ -33,6 +33,7 @@ import java.util.Map;
  */
 public class RecordTypeInfo implements TypeInfo {
 
+    public int restFieldTypeSigCPIndex;
     public BRecordType recordType;
     public List<StructFieldInfo> fieldInfoEntries = new ArrayList<>();
     //TODO remove below when init function is removed

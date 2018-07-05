@@ -106,6 +106,10 @@ fieldDefinition
     :   annotationAttachment* typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
     ;
 
+recordRestFieldDefinition
+    : typeName ELLIPSIS
+    ;
+
 objectParameterList
     :   (objectParameter | objectDefaultableParameter) (COMMA (objectParameter | objectDefaultableParameter))* (COMMA restParameter)?
     |   restParameter
@@ -188,11 +192,11 @@ typeName
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeNameLabel
     |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                            # objectTypeNameLabel
-    |   RECORD LEFT_BRACE fieldDefinitionList RIGHT_BRACE                   # recordTypeNameLabel
+    |   SEALED? RECORD LEFT_BRACE recordFieldDefinitionList RIGHT_BRACE     # recordTypeNameLabel
     ;
 
-fieldDefinitionList
-    :   fieldDefinition*
+recordFieldDefinitionList
+    :   fieldDefinition* recordRestFieldDefinition?
     ;
 
 // Temporary production rule name
@@ -219,7 +223,6 @@ valueTypeName
     |   TYPE_BYTE
     |   TYPE_FLOAT
     |   TYPE_STRING
-    |   TYPE_BLOB
     ;
 
 builtInReferenceTypeName
