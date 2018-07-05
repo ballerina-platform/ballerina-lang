@@ -28,6 +28,9 @@ import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * This is the reporter extension for the Prometheus.
@@ -54,12 +57,22 @@ public class PrometheusReporter implements MetricReporter {
         Path repoterBalxPath = Paths.get(ballerinaHome, BALX_LIB_DIRECTORY, BLangConstants.BLANG_EXEC_FILE_EXT,
                 PROMETHEUS_PACKAGE, REPORTER_BALX_FILE_NAME);
         LauncherUtils.runProgram(reporterSourcePath, repoterBalxPath, true,
-                null, null, new String[0], true, false);
+                loadCurrentConfigs(), null, new String[0], true, false);
         String hostname = ConfigRegistry.getInstance().
                 getConfigOrDefault(PROMETHEUS_HOST_CONFIG, DEFAULT_PROMETHEUS_HOST);
         String port = ConfigRegistry.getInstance().getConfigOrDefault(PROMETHEUS_PORT_CONFIG,
                 DEFAULT_PROMETHEUS_PORT);
         console.println("ballerina: started Prometheus HTTP endpoint " + hostname + ":" + port);
+    }
+
+    private Map<String, String> loadCurrentConfigs() {
+        Map<String, String> config = new HashMap<>();
+        Iterator<String> configKeys = ConfigRegistry.getInstance().keySetIterator();
+        while (configKeys.hasNext()) {
+            String key = configKeys.next();
+            config.put(key, ConfigRegistry.getInstance().getAsString(key));
+        }
+        return config;
     }
 
     @Override
