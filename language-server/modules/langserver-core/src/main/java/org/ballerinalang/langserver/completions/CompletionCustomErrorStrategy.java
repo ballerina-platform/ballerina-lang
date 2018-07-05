@@ -106,8 +106,8 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
     private void removePendingTokensAfterThisToken(Parser recognizer, Token token,
                                                    TokenRemovalStrategy currentStrategy) {
         int currentTokenIndex = recognizer.getCurrentToken().getTokenIndex();
-        if (token != null &&
-                (TokenRemovalStrategy.SYNC.equals(currentStrategy) && currentTokenIndex < token.getTokenIndex()
+        if (token != null && (isInLastTermination(recognizer) ||
+                TokenRemovalStrategy.SYNC.equals(currentStrategy) && currentTokenIndex < token.getTokenIndex()
                 || TokenRemovalStrategy.MATCH.equals(currentStrategy) && currentTokenIndex <= token.getTokenIndex())) {
             return;
         }
