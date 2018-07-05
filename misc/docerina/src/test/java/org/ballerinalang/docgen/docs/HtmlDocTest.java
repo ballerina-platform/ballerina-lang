@@ -93,7 +93,7 @@ public class HtmlDocTest {
     @Test(description = "Param links should be generated correctly")
     public void testComplexReturn() throws Exception {
         BLangPackage bLangPackage = createPackage("public function hello(string name) returns ((string[],int) | error)"
-                + "{return (\"a\", 2);}");
+                + "{return ([\"a\"], 2);}");
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertEquals(page.constructs.get(0).name, "hello");

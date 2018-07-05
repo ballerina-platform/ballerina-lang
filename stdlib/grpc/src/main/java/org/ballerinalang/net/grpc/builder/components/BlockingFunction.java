@@ -19,6 +19,7 @@ package org.ballerinalang.net.grpc.builder.components;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.BRACKET_CLOSE;
 import static org.ballerinalang.net.grpc.GrpcConstants.BRACKET_OPEN;
+import static org.ballerinalang.net.grpc.GrpcConstants.CHECK;
 import static org.ballerinalang.net.grpc.GrpcConstants.COMMA;
 import static org.ballerinalang.net.grpc.GrpcConstants.DIAMOND_CAST_CLOSE;
 import static org.ballerinalang.net.grpc.GrpcConstants.DIAMOND_CAST_OPEN;
@@ -39,6 +40,7 @@ public class BlockingFunction {
     private String outputDataType;
     private String initEmptyStub;
     private String methodId;
+    private String checkOp = CHECK;
     private String inputComma = COMMA;
     private String inputAttributeName = INPUT_TYPE_NAME;
     private String outputComma = COMMA;
@@ -107,11 +109,19 @@ public class BlockingFunction {
     public void setConnectorId(String connectorId) {
         this.connectorId = connectorId;
     }
-    
+
+    public String getCheckOp() {
+        return checkOp;
+    }
+
+    public void setCheckOp(String checkOp) {
+        this.checkOp = checkOp;
+    }
+
     public String getInputComma() {
         return inputComma;
     }
-    
+
     public void setInputComma(String inputComma) {
         this.inputComma = inputComma;
         if (inputComma == null) {

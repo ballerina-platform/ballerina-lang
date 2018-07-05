@@ -296,9 +296,9 @@ public class SealedArrayTest {
         BAssertUtil.validateError(
                 resultNegative, 9, "incompatible types: expected 'string[2]', found 'string[]'", 52, 34);
         BAssertUtil.validateError(
-                resultNegative, 10, "invalid usage of array literal with type 'int|int[]|int[4]'", 63, 30);
+                resultNegative, 10, "ambiguous type 'int|int[]|int[4]'", 63, 30);
         BAssertUtil.validateError(
-                resultNegative, 11, "invalid usage of array literal with type 'int|int[]|int[4]|int[5]'", 65, 40);
+                resultNegative, 11, "ambiguous type 'int|int[]|int[4]|int[5]'", 65, 40);
         BAssertUtil.validateError(
                 resultNegative, 12, "unreachable pattern: preceding patterns are too" +
                         " general or the pattern ordering is not correct", 73, 9);

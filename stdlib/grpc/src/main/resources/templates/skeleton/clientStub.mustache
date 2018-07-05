@@ -23,7 +23,7 @@ public type {{connectorId}}{{stubTypeName}}{{stubType}}Stub object {
                 any result;
                 grpc:Headers resHeaders;
                 ({{resultCast}}, resHeaders) = payload;
-                return {{&openBracket}}{{&castSymbolOpen}}{{outputDataType}}{{&castSymbolClose}}{{resultOut}}{{outputComma}}{{&space}}resHeaders{{&closeBracket}};
+                return {{&openBracket}}{{&checkOp}}{{&castSymbolOpen}}{{outputDataType}}{{&castSymbolClose}}{{resultOut}}{{outputComma}}{{&space}}resHeaders{{&closeBracket}};
             }
         }
     }

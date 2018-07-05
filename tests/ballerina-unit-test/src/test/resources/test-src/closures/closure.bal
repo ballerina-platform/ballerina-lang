@@ -259,7 +259,7 @@ function testClosureWithTupleTypesOrder((string, float, string) g) returns (func
     string i = "HelloInner";
     float j = 44.8;
     string k = "World Inner!!!";
-    var r = (i, j, k);
+    (string, float, string) r = (i, j, k);
 
     return ((string, float, string) y, string x) => (string) {
        var (a, b, c) = g;
