@@ -45,11 +45,11 @@ public class ServiceUnavailableTestCase extends IntegrationTestCase {
     @Test(description = "Test invoking unavailable service. Connector error is expected with connection refused.")
     public void testUnavailableServiceInvoke() {
 
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary1_blocking_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unavailable_service_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BString request = new BString("WSO2");
         final String expectedMsg = "Error from Connector: Status{ code UNAVAILABLE, description null, cause " +
-                "Connection refused: localhost/127.0.0.1:9090}";
+                "Connection refused: localhost/127.0.0.1:9096}";
 
         BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);
