@@ -48,5 +48,12 @@ public class OpenRecordNegativeTest {
         BAssertUtil.validateError(result, 3, "unknown type 'Animal'", 21, 5);
     }
 
+    @Test(description = "Test white space between the type name and ellipsis in rest descriptor")
+    public void testRestDescriptorSyntax() {
+        CompileResult result = BCompileUtil.compile("test-src/record/open_record_invalid_rest_desc.bal");
 
+        BAssertUtil.validateError(result, 0, "invalid record rest descriptor", 5, 12);
+        BAssertUtil.validateError(result, 1, "invalid record rest descriptor", 12, 14);
+        BAssertUtil.validateError(result, 2, "invalid record rest descriptor", 20, 5);
+    }
 }
