@@ -197,6 +197,48 @@ public class CircuitBreakerTest {
         }
     }
 
+    /**
+     * Test case scenario:
+     * - Circuit Breaker configured with requestVolumeThreshold.
+     * - Circuit Breaker shouldn't interact with circuit state until the configured threshold exceeded.
+     */
+    @Test(description = "Verify the functionality of circuit breaker request volume threshold implementation")
+    public void testCBRequestVolumeThresholdSuccessResponseScenario() {
+        // Expected HTTP status codes from circuit breaker responses.
+        int[] expectedStatusCodes = new int[]{200, 200, 200, 200, 200, 200};
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testRequestVolumeThresholdSuccessResponseScenario");
+
+        Assert.assertEquals(returnVals.length, 2);
+
+        BRefValueArray responses = (BRefValueArray) returnVals[0];
+        for (int i = 0; i < responses.size(); i++) {
+            BMap<String, BValue> res = (BMap<String, BValue>) responses.get(i);
+            long statusCode = ((BInteger) res.get(STATUS_CODE_FIELD)).intValue();
+            Assert.assertEquals(statusCode, expectedStatusCodes[i], "Status code does not match.");
+        }
+    }
+
+    /**
+     * Test case scenario:
+     * - Circuit Breaker configured with requestVolumeThreshold.
+     * - Circuit Breaker shouldn't interact with circuit state until the configured threshold exceeded.
+     */
+    @Test(description = "Verify the functionality of circuit breaker request volume threshold implementation")
+    public void testCBRequestVolumeThresholdFailureResponseScenario() {
+        // Expected HTTP status codes from circuit breaker responses.
+        int[] expectedStatusCodes = new int[]{500, 500, 500, 500, 500, 500};
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testRequestVolumeThresholdFailureResponseScenario");
+
+        Assert.assertEquals(returnVals.length, 2);
+
+        BRefValueArray responses = (BRefValueArray) returnVals[0];
+        for (int i = 0; i < responses.size(); i++) {
+            BMap<String, BValue> res = (BMap<String, BValue>) responses.get(i);
+            long statusCode = ((BInteger) res.get(STATUS_CODE_FIELD)).intValue();
+            Assert.assertEquals(statusCode, expectedStatusCodes[i], "Status code does not match.");
+        }
+    }
+
     @Test(description = "Test the getCurrentState function of circuit breaker")
     public void testCBGetCurrentStatausScenario() {
         String value = "Circuit Breaker is in CLOSED state";
