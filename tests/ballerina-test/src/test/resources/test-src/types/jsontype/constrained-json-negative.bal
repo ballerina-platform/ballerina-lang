@@ -1,14 +1,16 @@
-type Person sealed record {
+type Person record {
     string name;
     int age;
-    string address;
+    string address,
+    !...
 };
 
-type Student sealed record {
+type Student record {
     string name;
     int age;
     string address;
-    string class;
+    string class,
+    !...
 };
 
 function testJsonInitializationWithStructConstraintInvalid() returns (json, json, json){
@@ -34,23 +36,26 @@ function testConstraintJSONIndexing() returns (json){
     return j["bus"];
 }
 
-type Employee sealed record {
+type Employee record {
     string first_name;
     string last_name;
     int age;
-    Address address;
+    Address address,
+    !...
 };
 
-type Address sealed record {
+type Address record {
     string number;
     string street;
     string city;
-    PhoneNumber phoneNumber;
+    PhoneNumber phoneNumber,
+    !...
 };
 
-type PhoneNumber sealed record {
+type PhoneNumber record {
     string areaCode;
-    string number;
+    string number,
+    !...
 };
 
 function tesInvalidNestedStructFieldAccess() {

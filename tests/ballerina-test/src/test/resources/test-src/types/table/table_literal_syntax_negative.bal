@@ -1,9 +1,10 @@
-type Person sealed record {
+type Person record {
     int id,
     int age,
     float salary,
     string name,
     boolean married,
+    !...
 };
 
 type Employee object {

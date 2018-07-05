@@ -9,7 +9,8 @@ function testUndeclaredAttributeAccess() {
     dpt["id"] = "HR";       
 }     
       
-type Department sealed record {
+type Department record {
     string dptName;     
-    int count;      
+    int count;
+    !...
 };

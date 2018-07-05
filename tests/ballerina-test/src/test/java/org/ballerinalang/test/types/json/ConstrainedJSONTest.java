@@ -51,32 +51,32 @@ public class ConstrainedJSONTest {
         Assert.assertEquals(negativeResult.getErrorCount(), 9);
         
         // testStructConstraintInInitializationInvalid
-        BAssertUtil.validateError(negativeResult, 0, "undefined field 'firstName' in struct 'Person'", 15, 23);
+        BAssertUtil.validateError(negativeResult, 0, "undefined field 'firstName' in struct 'Person'", 17, 23);
         
         // testInvalidStructFieldConstraintLhs
-        BAssertUtil.validateError(negativeResult, 1, "undefined field 'firstName' in struct 'Person'", 21, 5);
+        BAssertUtil.validateError(negativeResult, 1, "undefined field 'firstName' in struct 'Person'", 23, 5);
         
         // tesInvalidStructFieldConstraintRhs
-        BAssertUtil.validateError(negativeResult, 2, "undefined field 'firstName' in struct 'Person'", 28, 17);
+        BAssertUtil.validateError(negativeResult, 2, "undefined field 'firstName' in struct 'Person'", 30, 17);
         
         // TODO: testInvalidStructConstraintInPkg
         
         // testConstraintJSONIndexing
-        BAssertUtil.validateError(negativeResult, 3, "undefined field 'bus' in struct 'Student'", 34, 12);
+        BAssertUtil.validateError(negativeResult, 3, "undefined field 'bus' in struct 'Student'", 36, 12);
         
         // tesInvalidNestedStructFieldAccess
-        BAssertUtil.validateError(negativeResult, 4, "undefined field 'foo' in struct 'PhoneNumber'", 58, 14);
+        BAssertUtil.validateError(negativeResult, 4, "undefined field 'foo' in struct 'PhoneNumber'", 63, 14);
         
         // tesInvalidNestedStructFieldIndexAccess
-        BAssertUtil.validateError(negativeResult, 5, "undefined field 'bar' in struct 'PhoneNumber'", 63, 14);
+        BAssertUtil.validateError(negativeResult, 5, "undefined field 'bar' in struct 'PhoneNumber'", 68, 14);
         
         // tesInitializationWithInvalidNestedStruct
-        BAssertUtil.validateError(negativeResult, 6, "undefined field 'foo' in struct 'PhoneNumber'", 67, 107);
+        BAssertUtil.validateError(negativeResult, 6, "undefined field 'foo' in struct 'PhoneNumber'", 72, 107);
         
         BAssertUtil.validateError(negativeResult, 7,
-                "incompatible types: 'json<Person>[]' cannot be converted to 'json<Student>[]'", 72, 14);
+                "incompatible types: 'json<Person>[]' cannot be converted to 'json<Student>[]'", 77, 14);
 
-        BAssertUtil.validateError(negativeResult, 8, "incompatible types: expected 'json', found 'blob[]'", 78, 14);
+        BAssertUtil.validateError(negativeResult, 8, "incompatible types: expected 'json', found 'blob[]'", 83, 14);
     }
 
     // disabled due to json to string conversion fails

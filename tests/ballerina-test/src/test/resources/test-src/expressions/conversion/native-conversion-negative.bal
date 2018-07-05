@@ -1,4 +1,4 @@
-type Person sealed record {
+type Person record {
     string name;
     int age;
     Person? parent;
@@ -8,11 +8,13 @@ type Person sealed record {
     any a;
     float score;
     boolean alive;
+    !...
 };
 
-type Student sealed record {
+type Student record {
     string name;
     int age;
+    !...
 };
 
 function testStructToStruct () returns (Student) {
@@ -27,8 +29,9 @@ function testStructToStruct () returns (Student) {
     return s;
 }
 
-type Info sealed record {
+type Info record {
     blob infoBlob;
+    !...
 };
 
 function testStructWithIncompatibleTypeToJson () returns (json) {
