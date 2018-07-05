@@ -358,7 +358,7 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             actualType = new BArrayType(actualType, null, arrayLiteral.exprs.size(), BArrayState.UNSEALED);
 
-            List<BType> arrayCompatibleType = getCompatibleTypes(expType, actualType);
+            List<BType> arrayCompatibleType = getArrayCompatibleTypes(expType, actualType);
             if (arrayCompatibleType.isEmpty()) {
                 dlog.error(arrayLiteral.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, actualType);
             } else if (arrayCompatibleType.size() > 1) {
@@ -425,12 +425,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 .collect(Collectors.toList());
     }
 
-    private List<BType> getCompatibleTypes(BType bType, BType actualType) {
-        Set<BType> expTypes = bType.tag == TypeTags.UNION ? ((BUnionType) bType).memberTypes : new HashSet<BType>() {
-            {
-                add(bType);
-            }
-        };
+    private List<BType> getArrayCompatibleTypes(BType expType, BType actualType) {
+        Set<BType> expTypes =
+                expType.tag == TypeTags.UNION ? ((BUnionType) expType).memberTypes : new HashSet<BType>() {
+                    {
+                        add(expType);
+                    }
+                };
 
         return expTypes.stream()
                 .filter(type -> types.isAssignable(actualType, type) ||
@@ -805,6 +806,17 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
+
+        if (expType.tag == TypeTags.ANY || expType.tag == TypeTags.NONE) {
+            List<BLangExpression> expressions = bracedOrTupleExpr.expressions;
+            if (expressions.size() > 1
+                    && expressions.stream().anyMatch(literal -> literal.getKind() == NodeKind.LITERAL)) {
+                dlog.error(bracedOrTupleExpr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
+                resultType = symTable.errType;
+                return;
+            }
+        }
+
         // Handle Tuple Expression.
         if (expType.tag == TypeTags.TUPLE) {
             BTupleType tupleType = (BTupleType) this.expType;
@@ -849,7 +861,7 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (bracedOrTupleExpr.expressions.size() > 1) {
             // This is a tuple.
             BType actualType = new BTupleType(results);
-            List<BType> tupleCompatibleType = getCompatibleTypes(expType, actualType);
+            List<BType> tupleCompatibleType = getArrayCompatibleTypes(expType, actualType);
 
             if (tupleCompatibleType.isEmpty()) {
                 dlog.error(bracedOrTupleExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, actualType);

@@ -279,22 +279,23 @@ public class Types {
     }
 
     private boolean isTupleTypeAssignable(BType source, BType target) {
-        if (source.tag == TypeTags.TUPLE && target.tag == TypeTags.TUPLE) {
-            BTupleType lhsTupleType = (BTupleType) target;
-            BTupleType rhsTupleType = (BTupleType) source;
+        if (source.tag != TypeTags.TUPLE || target.tag != TypeTags.TUPLE) {
+            return false;
+        }
 
-            if (lhsTupleType.tupleTypes.size() != rhsTupleType.tupleTypes.size()) {
+        BTupleType lhsTupleType = (BTupleType) target;
+        BTupleType rhsTupleType = (BTupleType) source;
+
+        if (lhsTupleType.tupleTypes.size() != rhsTupleType.tupleTypes.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < lhsTupleType.tupleTypes.size(); i++) {
+            if (!isAssignable(rhsTupleType.tupleTypes.get(i), lhsTupleType.tupleTypes.get(i))) {
                 return false;
             }
-
-            for (int i = 0; i < lhsTupleType.tupleTypes.size(); i++) {
-                if (!isAssignable(rhsTupleType.tupleTypes.get(i), lhsTupleType.tupleTypes.get(i))) {
-                    return false;
-                }
-            }
-            return true;
         }
-        return false;
+        return true;
     }
 
     public boolean isArrayTypesAssignable(BType source, BType target) {

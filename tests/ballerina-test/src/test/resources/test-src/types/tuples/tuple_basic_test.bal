@@ -34,7 +34,7 @@ function basicTupleTest () returns (string) {
 
     // Test 6
     FooStruct foo6 = {x:"foo test6"};
-    var i = ("test6",foo6);
+    (string, FooStruct) i = ("test6",foo6);
     var (j, k) = i;
     addValue(j);
     addValue(k.x);
@@ -56,7 +56,7 @@ function endTest(){
 }
 
 function testFunctionInvocation() returns (string) {
-    var i = ("y",5.0, "z");
+    (string, float, string) i = ("y", 5.0, "z");
     string x = testTuples("x", i);
     return x;
 }
@@ -73,7 +73,7 @@ function testFunctionReturnValue() returns (string) {
 }
 
 function testReturnTuples (string a) returns ((string, float, string)) {
-    var x = (a,5.0, "z");
+    (string, float, string) x = (a, 5.0, "z");
     return x;
 }
 
