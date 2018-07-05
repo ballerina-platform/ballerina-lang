@@ -94,12 +94,6 @@ function booleanToAny(boolean value) returns (any) {
     return result;
 }
 
-function blobToAny(blob value) returns (any) {
-    any result;
-    result = <any>value;
-    return result;
-}
-
 function anyToInt () returns (int) {
     int i = 5;
     any a = i;
@@ -129,14 +123,6 @@ function anyToBoolean () returns (boolean) {
     any a = b;
     boolean value;
     value = check <boolean>a;
-    return value;
-}
-
-function anyToBlob (blob data) returns (blob) {
-    blob b = data;
-    any a = b;
-    blob value;
-    value = check <blob>a;
     return value;
 }
 

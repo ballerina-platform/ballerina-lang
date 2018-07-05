@@ -104,22 +104,6 @@ public class GlobalMemoryArea {
         globalMemBlock[pkgIndex].unlockBooleanField(varIndex);
     }
 
-    public byte[] getBlobField(int pkgIndex, int varIndex) {
-        return globalMemBlock[pkgIndex].getBlobField(varIndex);
-    }
-
-    public void setBlobField(int pkgIndex, int varIndex, byte[] value) {
-        globalMemBlock[pkgIndex].setBlobField(varIndex, value);
-    }
-
-    public boolean lockBlobField(WorkerExecutionContext ctx, int pkgIndex, int varIndex) {
-        return globalMemBlock[pkgIndex].lockBlobField(ctx, varIndex);
-    }
-
-    public void unlockBlobField(int pkgIndex, int varIndex) {
-        globalMemBlock[pkgIndex].unlockBlobField(varIndex);
-    }
-
     public BRefType getRefField(int pkgIndex, int varIndex) {
         return globalMemBlock[pkgIndex].getRefField(varIndex);
     }

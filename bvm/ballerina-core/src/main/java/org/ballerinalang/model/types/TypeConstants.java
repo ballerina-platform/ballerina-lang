@@ -29,7 +29,6 @@ public class TypeConstants {
     public static final String FLOAT_TNAME = "float";
     public static final String STRING_TNAME = "string";
     public static final String BOOLEAN_TNAME = "boolean";
-    public static final String BLOB_TNAME = "blob";
     public static final String ARRAY_TNAME = "[]";
     public static final String MAP_TNAME = "map";
     public static final String FUTURE_TNAME = "future";
@@ -52,7 +51,6 @@ public class TypeConstants {
     public static final String FLOAT_TSIG = "F";
     public static final String STRING_TSIG = "S";
     public static final String BOOLEAN_TSIG = "B";
-    public static final String BLOB_TSIG = "L";
     public static final String REFTYPE_TSIG = "R";
     public static final String CONNECTOR_TSIG = "C";
     public static final String STRUCT_TSIG = "T";

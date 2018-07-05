@@ -28,7 +28,7 @@ function testStructToStruct () returns (Student) {
 }
 
 type Info sealed record {
-    blob infoBlob;
+    byte[] infoBlob;
 };
 
 function testStructWithIncompatibleTypeToJson () returns (json) {

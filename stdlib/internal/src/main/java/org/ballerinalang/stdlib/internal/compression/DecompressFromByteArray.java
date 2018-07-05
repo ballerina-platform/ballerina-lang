@@ -18,6 +18,7 @@ package org.ballerinalang.stdlib.internal.compression;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -35,21 +36,20 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
- * Native function ballerina.compression:decompressFromBlob.
+ * Native function ballerina.compression:decompressFromByteArray.
  *
  * @since 0.970.0
  */
 @BallerinaFunction(
-        orgName = Constants.ORG_NAME,
-        packageName = Constants.PACKAGE_NAME,
-        functionName = "decompressFromBlob",
-        args = {@Argument(name = "content", type = TypeKind.BLOB),
-                @Argument(name = "destDir", type = TypeKind.OBJECT, structType = Constants.PATH_STRUCT,
-                          structPackage = Constants.PACKAGE_PATH)},
+        orgName = "ballerina", packageName = "internal",
+        functionName = "decompressFromByteArray",
+        args = {@Argument(name = "content", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
+                @Argument(name = "destDir", type = TypeKind.RECORD, structType = "Path",
+                        structPackage = "ballerina/file")},
         returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
-public class DecompressFromBlob extends BlockingNativeCallableUnit {
+public class DecompressFromByteArray extends BlockingNativeCallableUnit {
     /**
      * File content as byte array defined.
      */
@@ -57,7 +57,7 @@ public class DecompressFromBlob extends BlockingNativeCallableUnit {
     /**
      * File path of the destination directory.
      */
-    private static final int DEST_PATH_FIELD_INDEX = 0;
+    private static final int DEST_PATH_FIELD_INDEX = 1;
 
     /**
      * Decompresses a blob.
@@ -145,7 +145,7 @@ public class DecompressFromBlob extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        byte[] content = context.getBlobArgument(SRC_AS_BYTEARRAY_FIELD_INDEX);
+        byte[] content = ((BByteArray) context.getRefArgument(SRC_AS_BYTEARRAY_FIELD_INDEX)).getBytes();
         if (content.length == 0) {
             context.setReturnValues(CompressionUtils.createCompressionError(context, "Length of the byte " +
                     "array is empty"));

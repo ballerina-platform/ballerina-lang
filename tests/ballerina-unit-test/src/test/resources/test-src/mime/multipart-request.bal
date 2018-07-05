@@ -219,7 +219,7 @@ function handleContent (mime:Entity bodyPart) returns (string) {
     } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
         var payload = bodyPart.getByteArray();
         match payload {
-            error err => return "Error in getting blob payload";
+            error err => return "Error in getting byte[] payload";
             byte[] blobContent => return mime:byteArrayToString(blobContent, mime:DEFAULT_CHARSET);
       }
     }

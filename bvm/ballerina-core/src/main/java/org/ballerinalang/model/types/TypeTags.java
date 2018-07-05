@@ -28,7 +28,6 @@ public class TypeTags {
     public static final int FLOAT_TAG = 3;
     public static final int STRING_TAG = 4;
     public static final int BOOLEAN_TAG = 5;
-    public static final int BLOB_TAG = 6;
     public static final int ANY_TAG = 7;
     public static final int MAP_TAG = 8;
     public static final int XML_TAG = 9;
@@ -50,7 +49,7 @@ public class TypeTags {
     public static final int FUTURE_TAG = 26;
     public static final int UNION_TAG = 27;
     public static final int TUPLE_TAG = 28;
-    public static final int FINITE_TYPE_TAG = 32;
-    public static final int OBJECT_TYPE_TAG = 33;
-    public static final int RECORD_TYPE_TAG = 34;
+    public static final int FINITE_TYPE_TAG = 31;
+    public static final int OBJECT_TYPE_TAG = 32;
+    public static final int RECORD_TYPE_TAG = 33;
 }

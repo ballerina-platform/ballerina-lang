@@ -182,7 +182,7 @@ public class SealedArrayTest {
         returnValues = BRunUtil.invoke(compileResult, "createByteDefaultSealedArray");
         Assert.assertFalse(
                 returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(returnValues[0].stringValue(), "['0', '0', '0', '0', '0']", "Length didn't match");
+        Assert.assertEquals(returnValues[0].stringValue(), "[0, 0, 0, 0, 0]", "Length didn't match");
         Assert.assertEquals(((BInteger) returnValues[1]).intValue(), 5, "Length didn't match");
     }
 

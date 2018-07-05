@@ -199,15 +199,15 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
 
+        // Enabled logging errors after type def visit.
+        // TODO: Do this in a cleaner way
+        pkgEnv.logErrors = true;
+
         // Define type def fields (if any)
         defineFields(pkgNode.typeDefinitions, pkgEnv);
 
         // Define type def members (if any)
         defineMembers(pkgNode.typeDefinitions, pkgEnv);
-
-        // Enabled logging errors after type def visit.
-        // TODO: Do this in a cleaner way
-        pkgEnv.logErrors = true;
 
         // Define service and resource nodes.
         pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
@@ -1292,7 +1292,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 && funcNode.receiver.type.tag != TypeTags.STRING
                 && funcNode.receiver.type.tag != TypeTags.INT
                 && funcNode.receiver.type.tag != TypeTags.FLOAT
-                && funcNode.receiver.type.tag != TypeTags.BLOB
                 && funcNode.receiver.type.tag != TypeTags.JSON
                 && funcNode.receiver.type.tag != TypeTags.XML
                 && funcNode.receiver.type.tag != TypeTags.MAP

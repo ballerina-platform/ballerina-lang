@@ -35,6 +35,7 @@ import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.Base64ByteChannel;
 import org.ballerinalang.stdlib.io.utils.Base64Wrapper;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
+import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -169,7 +170,7 @@ public class MimeUtilityFunctionTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testMimeBase64EncodeBlob", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                 "Invalid return value");
-        Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
+        ByteArrayUtils.assertJBytesWithBBytes(((BByteArray) returnValues[0]).getBytes(), expectedValue.getBytes());
     }
 
     @Test
@@ -208,7 +209,7 @@ public class MimeUtilityFunctionTest {
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testMimeBase64DecodeBlob", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                 "Invalid return value");
-        Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
+        ByteArrayUtils.assertJBytesWithBBytes(((BByteArray) returnValues[0]).getBytes(), expectedValue.getBytes());
     }
 
     @Test
