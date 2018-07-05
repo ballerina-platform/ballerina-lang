@@ -137,8 +137,9 @@
 }
 
 .suggest-list{
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
+    max-width: 211px;
     max-height: 400px;
 }
 
@@ -234,7 +235,7 @@
 }
 
 .connector-select input{
-    width:214px;
+    width:200px;
     margin: 5px;
     background-color: #fff;
     border: 1px solid #ddd;

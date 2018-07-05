@@ -1644,7 +1644,7 @@
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
 
-                <module>tests/ballerina-test</module>
+                <module>tests/ballerina-unit-test</module>
 
                 <module>cli/ballerina-cli-utils</module>
 
@@ -1663,8 +1663,10 @@
                 <module>distribution/zip/ballerina-tools</module>
 
                 <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-test-integration</module>
-                <module>tests/ballerina-test-compiler-plugins</module>
+                <module>tests/ballerina-integration-test-utils</module>
+                <module>tests/ballerina-integration-test</module>
+                <module>tests/ballerina-tools-integration-test</module>
+                <module>tests/ballerina-compiler-plugin-test</module>
                 <module>tool-plugins/intellij</module>
                 <module>tool-plugins/vscode</module>
 
@@ -1720,8 +1722,8 @@
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
-                <module>tests/ballerina-test</module>
-                <module>tests/ballerina-test-compiler-plugins</module>
+                <module>tests/ballerina-unit-test</module>
+                <module>tests/ballerina-compiler-plugin-test</module>
                 <module>cli/ballerina-cli-utils</module>
 
                 <module>language-server</module>
@@ -1737,7 +1739,8 @@
                 <module>distribution/zip/ballerina</module>
 
                 <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-test-integration</module>
+                <module>tests/ballerina-integration-test-utils</module>
+                <module>tests/ballerina-integration-test</module>
             </modules>
         </profile>
         <profile>
@@ -1796,8 +1799,8 @@
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
 
-                <module>tests/ballerina-test</module>
-                <module>tests/ballerina-test-compiler-plugins</module>
+                <module>tests/ballerina-unit-test</module>
+                <module>tests/ballerina-compiler-plugin-test</module>
 
                 <module>cli/ballerina-cli-utils</module>
 
@@ -1817,7 +1820,9 @@
                 <module>distribution/zip/ballerina-tools</module>
 
                 <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-test-integration</module>
+                <module>tests/ballerina-integration-test-utils</module>
+                <module>tests/ballerina-integration-test</module>
+                <module>tests/ballerina-tools-integration-test</module>
 
                 <!-- Intellij build disabled in default build -->
                 <!--<module>tool-plugins/intellij</module>-->
@@ -2150,7 +2155,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.206</transport.http.version>
+        <transport.http.version>6.0.209</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>

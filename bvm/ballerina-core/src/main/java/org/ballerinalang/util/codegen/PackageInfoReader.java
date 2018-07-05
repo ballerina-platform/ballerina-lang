@@ -496,6 +496,14 @@ public class PackageInfoReader {
                 packageInfo.getPkgPath(), typeDefInfo.flags);
         recordInfo.setType(recordType);
 
+        recordType.sealed = dataInStream.readBoolean();
+        if (!recordType.sealed) {
+            int restFieldCPIndex = dataInStream.readInt();
+            UTF8CPEntry restFieldTypeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(restFieldCPIndex);
+            recordInfo.setRestFieldSignatureCPIndex(restFieldCPIndex);
+            recordInfo.setRestFieldTypeSignature(restFieldTypeSigUTF8Entry.getValue());
+        }
+
         // Read struct field info entries
         int fieldCount = dataInStream.readShort();
         for (int j = 0; j < fieldCount; j++) {
