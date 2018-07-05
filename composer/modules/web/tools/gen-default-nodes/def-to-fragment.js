@@ -200,6 +200,13 @@ onClose (endpoint conn, int statusCode, string reason) {}}`);
             }
         `);
     },
+    createForeach: () => {
+        return FragmentUtils.createStatementFragment(`
+            foreach varRefList in listReference {
+            
+            }
+        `);
+    },
     createTry: () => {
         return FragmentUtils.createStatementFragment(`
             try {
