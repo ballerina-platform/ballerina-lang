@@ -52,9 +52,6 @@ public abstract class BValueType implements BValue {
     public abstract double floatValue();
 
     public abstract boolean booleanValue();
-
-    public abstract byte[] blobValue();
-
     /**
      * Default BValueType toString implementation.
      * @return The string representation of this object

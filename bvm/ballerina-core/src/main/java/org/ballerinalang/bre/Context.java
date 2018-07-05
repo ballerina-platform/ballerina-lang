@@ -76,8 +76,6 @@ public interface Context {
 
     boolean getBooleanArgument(int index);
 
-    byte[] getBlobArgument(int index);
-
     BValue getRefArgument(int index);
 
     BValue getNullableRefArgument(int index);

@@ -28,7 +28,7 @@ function testHashWithCRC32ForText (string text) returns (string) {
     return crypto:crc32(text);
 }
 
-function testHashWithCRC32ForBinary (blob payload) returns (string) {
+function testHashWithCRC32ForBinary (byte[] payload) returns (string) {
     return crypto:crc32(payload);
 }
 

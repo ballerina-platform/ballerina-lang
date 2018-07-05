@@ -42,7 +42,7 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
  * @since 1.0.0
  */
 abstract class AbstractExecute implements NativeCallableUnit {
-    
+
     MethodDescriptor.MethodType getMethodType(Descriptors.MethodDescriptor
                                                       methodDescriptor) throws GrpcClientException {
         if (methodDescriptor == null) {
@@ -51,7 +51,7 @@ abstract class AbstractExecute implements NativeCallableUnit {
         DescriptorProtos.MethodDescriptorProto methodDescriptorProto = methodDescriptor.toProto();
         return MessageUtils.getMethodType(methodDescriptorProto);
     }
-    
+
     BMap<String, BValue> createStruct(Context context, String structName) {
         PackageInfo httpPackageInfo = context.getProgramFile()
                 .getPackageInfo(PROTOCOL_STRUCT_PACKAGE_GRPC);

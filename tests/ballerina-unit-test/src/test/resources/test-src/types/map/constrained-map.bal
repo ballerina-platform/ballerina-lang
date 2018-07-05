@@ -136,34 +136,30 @@ function testConstrainedMapBooleanTypeNegative () returns ((boolean, boolean)) {
     return (item_1, item_2);
 }
 
-function testConstrainedMapBlobTypePositive () returns ((string, string)) {
-    map<blob> testMap;
+function testConstrainedMapBlobTypePositive () returns (byte[], byte[]) {
+    map<byte[]> testMap;
     string sitem_1 = "hi";
-    blob bitem_1 = sitem_1.toBlob("UTF-8");
+    byte[] bitem_1 = sitem_1.toByteArray("UTF-8");
     string sitem_2 = "ballerina";
-    blob bitem_2 = sitem_2.toBlob("UTF-8");
+    byte[] bitem_2 = sitem_2.toByteArray("UTF-8");
     testMap["item_1"] = bitem_1;
     testMap["item_2"] = bitem_2;
-    blob item_1 = testMap["item_1"];
-    blob item_2 = testMap["item_2"];
-    string rsitem_1 = item_1.toString("UTF-8");
-    string rsitem_2 = item_2.toString("UTF-8");
-    return (rsitem_1, rsitem_2);
+    byte[] item_1 = testMap["item_1"];
+    byte[] item_2 = testMap["item_2"];
+    return (item_1, item_2);
 }
 
-function testConstrainedMapBlobTypeNegative () returns ((string, string)) {
-    map<blob> testMap;
+function testConstrainedMapBlobTypeNegative () returns (byte[], byte[]) {
+    map<byte[]> testMap;
     string sitem_1 = "hi";
-    blob bitem_1 = sitem_1.toBlob("UTF-8");
+    byte[] bitem_1 = sitem_1.toByteArray("UTF-8");
     string sitem_2 = "ballerina";
-    blob bitem_2 = sitem_2.toBlob("UTF-8");
+    byte[] bitem_2 = sitem_2.toByteArray("UTF-8");
     testMap["item_1"] = bitem_1;
     testMap["item_2"] = bitem_2;
-    blob item_1 = testMap["item_1"];
-    blob item_2 = testMap["item_2"];
-    string rsitem_1 = item_1.toString("UTF-8");
-    string rsitem_2 = item_2.toString("UTF-8");
-    return (rsitem_1, rsitem_2);
+    byte[] item_1 = testMap["item_1"];
+    byte[] item_2 = testMap["item_2"];
+    return (item_1, item_2);
 }
 
 function testConstrainedMapValueTypeCast () returns (string) {

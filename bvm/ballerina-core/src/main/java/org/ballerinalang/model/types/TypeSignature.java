@@ -28,7 +28,6 @@ public class TypeSignature {
     public static final String SIG_FLOAT = "F";
     public static final String SIG_STRING = "S";
     public static final String SIG_BOOLEAN = "B";
-    public static final String SIG_BLOB = "L";
     public static final String SIG_REFTYPE = "R";
     public static final String SIG_JSON = "J";
     public static final String SIG_TABLE = "D";

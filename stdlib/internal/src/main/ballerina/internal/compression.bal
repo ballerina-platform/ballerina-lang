@@ -28,13 +28,13 @@ public type CompressionError record {
 };
 
 documentation {
-    Decompresses a blob into a directory.
+    Decompresses a byte array into a directory.
 
-    P{{content}} Blob of the compressed file
+    P{{content}} Byte array of the compressed file
     P{{destDir}} Path of the directory to decompress the file
     R{{}} An error if an error occurs during the decompression process
 }
-public native function decompressFromBlob(blob content, Path destDir) returns error?;
+public native function decompressFromByteArray(byte[] content, Path destDir) returns error?;
 
 documentation {
     Decompresses a compressed file.
@@ -55,10 +55,10 @@ documentation {
 public native function compress(Path dirPath, Path destDir) returns error?;
 
 documentation {
-    Compresses a directory into a blob.
+    Compresses a directory into a byte array.
 
     P{{dirPath}} Path of the directory to be compressed
-    R{{}} Compressed blob of the file
+    R{{}} Compressed byte array of the file
     R{{}} An error if an error occurs during the compression process
 }
-public native function compressToBlob(Path dirPath) returns blob|error;
+public native function compressToByteArray(Path dirPath) returns byte[]|error;

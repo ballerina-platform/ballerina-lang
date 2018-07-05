@@ -325,7 +325,7 @@ type Info record {
 };
 
 function testStructWithIncompatibleTypeMapToJson () returns (json) {
-    blob b;
+    byte[] b;
     map m = {bar:b};
     Info info = {foo:m};
 
@@ -546,7 +546,7 @@ type StructWithDefaults record {
     float f = 5.3;
     boolean b = true;
     json j;
-    blob blb;
+    byte[] blb;
     !...
 };
 
@@ -563,7 +563,7 @@ type StructWithoutDefaults record {
     float f;
     boolean b;
     json j;
-    blob blb;
+    byte[] blb;
     !...
 };
 
@@ -807,7 +807,7 @@ function testArrayToJson2() returns json {
 public type TX record {
   int x,
   int y,
-  blob b,
+  byte[] b,
 };
 
 function testArrayToJsonFail() {

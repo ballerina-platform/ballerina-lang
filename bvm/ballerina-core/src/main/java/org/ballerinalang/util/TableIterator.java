@@ -431,9 +431,6 @@ public class TableIterator implements DataIterator {
             case TypeTags.XML_TAG:
                 typeKind = TypeKind.XML;
                 break;
-            case TypeTags.BLOB_TAG:
-                typeKind = TypeKind.BLOB;
-                break;
             case TypeTags.ARRAY_TAG:
                 BType elementType = ((BArrayType) type).getElementType();
                 if (elementType.getTag() == TypeTags.BYTE_TAG) {

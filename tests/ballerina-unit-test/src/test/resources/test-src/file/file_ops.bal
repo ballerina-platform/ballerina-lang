@@ -68,7 +68,7 @@ function testGetModifiedTime(string pathValue) returns (string){
     return modifiedTime.toString();
 }
 
-function testWriteFile(string pathValue,string accessMode,blob content) returns (blob|io:IOError){
+function testWriteFile(string pathValue,string accessMode,byte[] content) returns (byte[]|io:IOError){
    file:Path filePath = new(pathValue);
    string absolutePath = filePath.toAbsolutePath().getPathValue();
    io:ByteChannel channel =io:openFile(absolutePath,accessMode);

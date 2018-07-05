@@ -20,7 +20,6 @@ package org.ballerinalang.test.types.string;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
@@ -496,15 +495,6 @@ public class StringTest {
     }
 
     @Test
-    public void testToBlob() throws UnsupportedEncodingException {
-        String content = "Sample Content";
-        BValue[] args = {new BString(content), new BString("UTF-8")};
-        BValue[] returns = BRunUtil.invoke(result, "toBlob", args);
-        Assert.assertEquals(((BBlob) returns[0]).blobValue(), content.getBytes("UTF-8"),
-                "Produced Blob value is wrong");
-    }
-
-    @Test
     public void testToByteArray() throws UnsupportedEncodingException {
         String content = "Sample Ballerina Byte Array Content";
         byte[] bytes = content.getBytes("UTF-8");
@@ -541,16 +531,6 @@ public class StringTest {
     }
 
     @Test
-    public void testBase64EncodeBlob() {
-        String expectedValue = "SGVsbG8gQmFsbGVyaW5h";
-        BValue[] args = new BValue[]{new BBlob("Hello Ballerina".getBytes())};
-        BValue[] returnValues = BRunUtil.invoke(result, "testBase64EncodeBlob", args);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
-                "Invalid return value");
-        Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
-    }
-
-    @Test
     public void testBase64DecodeString() {
         String expectedValue = "Hello Ballerina";
         BValue[] args = new BValue[]{new BString("SGVsbG8gQmFsbGVyaW5h")};
@@ -559,16 +539,6 @@ public class StringTest {
                 "Invalid return value");
         Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
         Assert.assertFalse(returnValues[0] == null, "Invalid return value");
-        Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
-    }
-
-    @Test
-    public void testBase64DecodeBlob() {
-        String expectedValue = "Hello Ballerina";
-        BValue[] args = new BValue[]{new BBlob("SGVsbG8gQmFsbGVyaW5h".getBytes())};
-        BValue[] returnValues = BRunUtil.invoke(result, "testBase64DecodeBlob", args);
-        Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
-                "Invalid return value");
         Assert.assertEquals(returnValues[0].stringValue(), expectedValue);
     }
 

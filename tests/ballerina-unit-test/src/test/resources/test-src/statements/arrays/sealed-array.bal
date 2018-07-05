@@ -114,13 +114,13 @@ function createRecordSealedArrayWithLabel() returns int {
 // Byte Arrays
 
 function createByteSealedArray() returns int {
-    byte a = base16 `aaabcfccadafcd341a4bdfabcd8912df`;
+    byte a = 5;
     byte[5] sealedArray = [a, a, a, a, a];
     return lengthof sealedArray;
 }
 
 function createByteSealedArrayWithLabel() returns int {
-    byte a = base16 `aaabcfccadafcd341a4bdfabcd8912df`;
+    byte a = 7;
     sealed byte[] sealedArray = [a, a, a, a, a];
     return lengthof sealedArray;
 }

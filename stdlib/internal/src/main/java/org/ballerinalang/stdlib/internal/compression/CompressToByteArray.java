@@ -18,7 +18,7 @@ package org.ballerinalang.stdlib.internal.compression;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -32,20 +32,19 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 
 /**
- * Native function ballerina.compression:compressToBlob.
+ * Native function ballerina.compression:compressToByteArray.
  *
  * @since 0.970.0
  */
 @BallerinaFunction(
-        orgName = Constants.ORG_NAME,
-        packageName = Constants.PACKAGE_NAME,
-        functionName = "compressToBlob",
-        args = {@Argument(name = "dirPath", type = TypeKind.OBJECT, structType = Constants.PATH_STRUCT,
-                          structPackage = Constants.PACKAGE_PATH)},
-        returnType = {@ReturnType(type = TypeKind.BLOB)},
+        orgName = "ballerina", packageName = "internal",
+        functionName = "compressToByteArray",
+        args = {@Argument(name = "dirPath", type = TypeKind.RECORD, structType = "Path",
+                structPackage = "ballerina/file")},
+        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE)},
         isPublic = true
 )
-public class CompressToBlob extends BlockingNativeCallableUnit {
+public class CompressToByteArray extends BlockingNativeCallableUnit {
     /**
      * File path defined in ballerina.compression.
      */
@@ -64,7 +63,7 @@ public class CompressToBlob extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BBlob readByteBlob;
+        BByteArray readBytes;
         BMap<String, BValue> dirPathStruct = (BMap) context.getRefArgument(SRC_PATH_FIELD_INDEX);
         Path dirPath = (Path) dirPathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
         if (!dirPath.toFile().exists()) {
@@ -73,8 +72,8 @@ public class CompressToBlob extends BlockingNativeCallableUnit {
         } else {
             try {
                 byte[] compressedBytes = compressToBlob(dirPath);
-                readByteBlob = new BBlob(compressedBytes);
-                context.setReturnValues(readByteBlob);
+                readBytes = new BByteArray(compressedBytes);
+                context.setReturnValues(readBytes);
             } catch (IOException e) {
                 context.setReturnValues(CompressionUtils.createCompressionError(context,
                         "Error occurred when compressing "

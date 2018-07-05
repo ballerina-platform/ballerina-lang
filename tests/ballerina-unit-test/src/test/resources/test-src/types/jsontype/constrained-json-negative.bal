@@ -79,7 +79,7 @@ function testConstrainedJSONArrayToConstraintJsonArrayCast() returns (json<Stude
 }
 
 function testBooleanArrayToJsonAssignment() returns (json) {
-    blob[] b = [];
+    byte[] b = [];
     json j = b;
     return j;
 }

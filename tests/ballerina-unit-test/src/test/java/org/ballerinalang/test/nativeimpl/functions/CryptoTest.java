@@ -18,7 +18,7 @@ package org.ballerinalang.test.nativeimpl.functions;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -115,7 +115,7 @@ public class CryptoTest {
         String expectedCRC32Hash = "f3638b7f";
 
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHashWithCRC32ForBinary",
-                                                new BValue[]{new BBlob(payload.getBytes(StandardCharsets.UTF_8))});
+                                                new BValue[]{new BByteArray(payload.getBytes(StandardCharsets.UTF_8))});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(returnValues[0].stringValue(), expectedCRC32Hash);
     }
