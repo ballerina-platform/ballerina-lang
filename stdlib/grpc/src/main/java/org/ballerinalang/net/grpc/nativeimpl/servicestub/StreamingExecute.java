@@ -90,6 +90,7 @@ public class StreamingExecute extends AbstractExecute {
         if (serviceStub == null) {
             notifyErrorReply(context, "Error while getting connector. gRPC Client connector " +
                     "is not initialized properly");
+            callback.notifySuccess();
             return;
         }
         
@@ -97,6 +98,7 @@ public class StreamingExecute extends AbstractExecute {
         if (connectionStub == null) {
             notifyErrorReply(context, "Error while getting connection stub. gRPC Client connector " +
                     "is not initialized properly");
+            callback.notifySuccess();
             return;
         }
 
@@ -104,6 +106,7 @@ public class StreamingExecute extends AbstractExecute {
         if (methodName == null) {
             notifyErrorReply(context, "Error while processing the request. RPC endpoint doesn't " +
                     "set properly");
+            callback.notifySuccess();
             return;
         }
 
@@ -112,6 +115,7 @@ public class StreamingExecute extends AbstractExecute {
         if (methodDescriptors == null) {
             notifyErrorReply(context, "Error while processing the request. method descriptors " +
                     "doesn't set properly");
+            callback.notifySuccess();
             return;
         }
 
@@ -119,6 +123,7 @@ public class StreamingExecute extends AbstractExecute {
                 ? methodDescriptors.get(methodName).getSchemaDescriptor() : null;
         if (methodDescriptor == null) {
             notifyErrorReply(context, "No registered method descriptor for '" + methodName + "'");
+            callback.notifySuccess();
             return;
         }
 

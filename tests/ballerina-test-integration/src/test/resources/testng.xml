@@ -65,6 +65,8 @@
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingNestedStructTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingEmptyValueTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingArrayValueTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.ServiceUnavailableTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.InvalidServiceMethodTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.tool.ClientStubGeneratorTestCase" />
             <class name="org.ballerinalang.test.service.grpc.tool.InvalidServiceContractTestCase" />
         </classes>
