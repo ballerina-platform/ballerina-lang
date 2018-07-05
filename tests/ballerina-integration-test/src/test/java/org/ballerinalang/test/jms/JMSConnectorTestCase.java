@@ -169,7 +169,7 @@ public class JMSConnectorTestCase extends IntegrationTestCase {
     @Test(description = "Test MB Connector simple topic subscriber and publisher")
     public void testJMSMapMessagePublisherAndSubscriber() throws Exception {
         BallerinaServiceHandler serviceHandler = new BallerinaServiceHandler("jms_map_message_subscriber.bal",
-                "1abctrue1.2abcde");
+                "1abctrue1.2");
         serviceHandler.start();
 
         BallerinaClientHandler clientHandler

@@ -319,7 +319,7 @@ type Info sealed record {
 };
 
 function testStructWithIncompatibleTypeMapToJson () returns (json) {
-    blob b;
+    byte[] b;
     map m = {bar:b};
     Info info = {foo:m};
 
@@ -531,7 +531,7 @@ type StructWithDefaults sealed record {
     float f = 5.3;
     boolean b = true;
     json j;
-    blob blb;
+    byte[] blb;
 };
 
 function testEmptyJSONtoStructWithDefaults () returns (StructWithDefaults | error) {
@@ -547,7 +547,7 @@ type StructWithoutDefaults sealed record {
     float f;
     boolean b;
     json j;
-    blob blb;
+    byte[] blb;
 };
 
 function testEmptyJSONtoStructWithoutDefaults () returns (StructWithoutDefaults | error) {
@@ -787,7 +787,7 @@ function testArrayToJson2() returns json {
 public type TX sealed record {
   int x,
   int y,
-  blob b,
+  byte[] b,
 };
 
 function testArrayToJsonFail() {

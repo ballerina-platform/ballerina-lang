@@ -38,7 +38,6 @@ import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeSignature;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
@@ -943,14 +942,12 @@ public class PackageInfoReader {
                 codeAttributeInfo.setMaxDoubleLocalVars(dataInStream.readShort());
                 codeAttributeInfo.setMaxStringLocalVars(dataInStream.readShort());
                 codeAttributeInfo.setMaxIntLocalVars(dataInStream.readShort());
-                codeAttributeInfo.setMaxByteLocalVars(dataInStream.readShort());
                 codeAttributeInfo.setMaxRefLocalVars(dataInStream.readShort());
 
                 codeAttributeInfo.setMaxLongRegs(dataInStream.readShort());
                 codeAttributeInfo.setMaxDoubleRegs(dataInStream.readShort());
                 codeAttributeInfo.setMaxStringRegs(dataInStream.readShort());
                 codeAttributeInfo.setMaxIntRegs(dataInStream.readShort());
-                codeAttributeInfo.setMaxByteRegs(dataInStream.readShort());
                 codeAttributeInfo.setMaxRefRegs(dataInStream.readShort());
                 return codeAttributeInfo;
 
@@ -961,7 +958,6 @@ public class PackageInfoReader {
                 varCountAttributeInfo.setMaxDoubleVars(dataInStream.readShort());
                 varCountAttributeInfo.setMaxStringVars(dataInStream.readShort());
                 varCountAttributeInfo.setMaxIntVars(dataInStream.readShort());
-                varCountAttributeInfo.setMaxByteVars(dataInStream.readShort());
                 varCountAttributeInfo.setMaxRefVars(dataInStream.readShort());
                 return varCountAttributeInfo;
 
@@ -1164,7 +1160,6 @@ public class PackageInfoReader {
                 case InstructionCodes.FMOVE:
                 case InstructionCodes.SMOVE:
                 case InstructionCodes.BMOVE:
-                case InstructionCodes.LMOVE:
                 case InstructionCodes.RMOVE:
                 case InstructionCodes.INEG:
                 case InstructionCodes.FNEG:
@@ -1182,7 +1177,6 @@ public class PackageInfoReader {
                 case InstructionCodes.FRET:
                 case InstructionCodes.SRET:
                 case InstructionCodes.BRET:
-                case InstructionCodes.LRET:
                 case InstructionCodes.RRET:
                 case InstructionCodes.XML2XMLATTRS:
                 case InstructionCodes.NEWXMLCOMMENT:
@@ -1199,13 +1193,11 @@ public class PackageInfoReader {
                 case InstructionCodes.F2ANY:
                 case InstructionCodes.S2ANY:
                 case InstructionCodes.B2ANY:
-                case InstructionCodes.L2ANY:
                 case InstructionCodes.ANY2I:
                 case InstructionCodes.ANY2BI:
                 case InstructionCodes.ANY2F:
                 case InstructionCodes.ANY2S:
                 case InstructionCodes.ANY2B:
-                case InstructionCodes.ANY2L:
                 case InstructionCodes.ANY2JSON:
                 case InstructionCodes.ANY2XML:
                 case InstructionCodes.ANY2MAP:
@@ -1257,7 +1249,6 @@ public class PackageInfoReader {
                 case InstructionCodes.FALOAD:
                 case InstructionCodes.SALOAD:
                 case InstructionCodes.BALOAD:
-                case InstructionCodes.LALOAD:
                 case InstructionCodes.RALOAD:
                 case InstructionCodes.JSONALOAD:
                 case InstructionCodes.IASTORE:
@@ -1265,7 +1256,6 @@ public class PackageInfoReader {
                 case InstructionCodes.FASTORE:
                 case InstructionCodes.SASTORE:
                 case InstructionCodes.BASTORE:
-                case InstructionCodes.LASTORE:
                 case InstructionCodes.RASTORE:
                 case InstructionCodes.JSONASTORE:
                 case InstructionCodes.MAPSTORE:
@@ -1338,7 +1328,6 @@ public class PackageInfoReader {
                 case InstructionCodes.FNEWARRAY:
                 case InstructionCodes.SNEWARRAY:
                 case InstructionCodes.BNEWARRAY:
-                case InstructionCodes.LNEWARRAY:
                 case InstructionCodes.RNEWARRAY:
                 case InstructionCodes.JSONNEWARRAY:
                     i = codeStream.readInt();
@@ -1368,13 +1357,11 @@ public class PackageInfoReader {
                 case InstructionCodes.FGLOAD:
                 case InstructionCodes.SGLOAD:
                 case InstructionCodes.BGLOAD:
-                case InstructionCodes.LGLOAD:
                 case InstructionCodes.RGLOAD:
                 case InstructionCodes.IGSTORE:
                 case InstructionCodes.FGSTORE:
                 case InstructionCodes.SGSTORE:
                 case InstructionCodes.BGSTORE:
-                case InstructionCodes.LGSTORE:
                 case InstructionCodes.RGSTORE:
                     int pkgRefCPIndex = codeStream.readInt();
                     i = codeStream.readInt();
@@ -1628,11 +1615,6 @@ public class PackageInfoReader {
                 UTF8CPEntry stringCPEntry = (UTF8CPEntry) constantPool.getCPEntry(valueCPIndex);
                 defaultValue.setStringValue(stringCPEntry.getValue());
                 break;
-            case TypeSignature.SIG_BLOB:
-                valueCPIndex = dataInStream.readInt();
-                BlobCPEntry blobCPEntry = (BlobCPEntry) constantPool.getCPEntry(valueCPIndex);
-                defaultValue.setBlobValue(blobCPEntry.getValue());
-                break;
             case TypeSignature.SIG_NULL:
                 break;
             default:
@@ -1666,10 +1648,6 @@ public class PackageInfoReader {
             case TypeSignature.SIG_STRING:
                 String stringValue = defaultValue.getStringValue();
                 value = new BString(stringValue);
-                break;
-            case TypeSignature.SIG_BLOB:
-                byte[] blobValue = defaultValue.getBlobValue();
-                value = new BBlob(blobValue);
                 break;
             case TypeSignature.SIG_NULL:
                 value = null;
@@ -1756,8 +1734,6 @@ public class PackageInfoReader {
                     return BTypes.typeString;
                 case 'B':
                     return BTypes.typeBoolean;
-                case 'L':
-                    return BTypes.typeBlob;
                 case 'Y':
                     return BTypes.typeDesc;
                 case 'A':
