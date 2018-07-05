@@ -1523,10 +1523,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             varRefExpr.type = this.symTable.errType;
             return;
         }
-        validateVariableDefinition(rhsExpr);
         BType rhsType = typeChecker.checkExpr(rhsExpr, this.env, expType);
         if (safeAssignment) {
             rhsType = handleSafeAssignmentWithVarDeclaration(varRefExpr.pos, rhsType);
+        }
+        if (!validateVariableDefinition(rhsExpr)) {
+            rhsType = symTable.errType;
         }
 
         // Check variable symbol if exists.
@@ -1682,7 +1684,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return binaryExpressionNode;
     }
 
-    private void validateVariableDefinition(BLangExpression expr) {
+    private boolean validateVariableDefinition(BLangExpression expr) {
         // following cases are invalid.
         // var a = [ x, y, ... ];
         // var a = { x : y };
@@ -1692,14 +1694,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (kind == NodeKind.RECORD_LITERAL_EXPR || kind == NodeKind.ARRAY_LITERAL_EXPR
                 || (kind == NodeKind.Type_INIT_EXPR && ((BLangTypeInit) expr).userDefinedType == null)) {
             dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
+            return false;
         }
-        if (kind == NodeKind.BRACED_TUPLE_EXPR) {
-            BLangBracedOrTupleExpr bracedOrTupleExpr = (BLangBracedOrTupleExpr) expr;
-            if (bracedOrTupleExpr.expressions.size() > 1 &&
-                    bracedOrTupleExpr.expressions.stream().anyMatch(literal -> literal.getKind() == NodeKind.LITERAL)) {
-                dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
-            }
+        if (kind == NodeKind.BRACED_TUPLE_EXPR && ((BLangBracedOrTupleExpr) expr).expressions.size() > 1) {
+            dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
+            return false;
         }
+        return true;
     }
 
     private void handleSafeAssignment(DiagnosticPos lhsPos, BType lhsType, BLangExpression rhsExpr, SymbolEnv env) {

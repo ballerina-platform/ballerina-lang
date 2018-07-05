@@ -101,6 +101,6 @@ public class BasicTupleTest {
         BAssertUtil.validateError(
                 resultNegative, 4, "invalid variable definition; can not infer the assignment type.", 44, 14);
         BAssertUtil.validateError(
-                resultNegative, 5, "invalid usage of array literal with type 'any'", 45, 14);
+                resultNegative, 5, "invalid usage of tuple literal with type 'any'", 45, 14);
     }
 }

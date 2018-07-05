@@ -225,7 +225,7 @@ any[] {
     arrayIndex = 0;
     stream<(string, int)> tupleStream;
     tupleStream.subscribe(addToGlobalAnyArrayForAssignableTupleType);
-    any[] publishedEvents = [(s1, i1), (s2, i2)];
+    (string, int)[] publishedEvents = [(s1, i1), (s2, i2)];
     foreach event in publishedEvents {
         tupleStream.publish(event);
     }
