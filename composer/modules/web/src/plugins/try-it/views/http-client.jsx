@@ -57,13 +57,16 @@ class HttpClient extends React.Component {
      */
     constructor(props) {
         super(props);
+
+        const selectedServiceObj = this.getSelectedService(props);
+
         this.state = {
             httpMethod: 'GET',
             httpMethods: this.getHttpMethods(),
             baseUrls: [],
             baseUrl: '',
-            appendUrl: '',
-            contentType: '',
+            appendUrl: selectedServiceObj.appendUrl,
+            contentType: selectedServiceObj.contentType,
             responseBody: '',
             responseCode: '',
             responseHeaders: '',
@@ -107,6 +110,7 @@ class HttpClient extends React.Component {
             .then((baseUrls) => {
                 this.setState({
                     baseUrls: baseUrls || [],
+                    baseUrl: baseUrls[0] || '',
                 });
             }).catch(() => {
             });
@@ -119,12 +123,22 @@ class HttpClient extends React.Component {
      * @memberof HttpClient
      */
     componentWillReceiveProps(nextProps) {
-        if (nextProps.serviceNodes.length > 0) {
+        const selectedServiceObj = this.getSelectedService(nextProps);
+        this.setState({
+            selectedService: selectedServiceObj.selectedService,
+            selectedResource: selectedServiceObj.selectedResource,
+            appendUrl: selectedServiceObj.appendUrl,
+            contentType: selectedServiceObj.contentType,
+        });
+    }
+
+    getSelectedService(props) {
+        if (props.serviceNodes.length > 0) {
             let selectedService;
             let selectedResource;
             let selectedContentType = '';
-            if (nextProps.serviceNodes.length === 1) {
-                selectedService = nextProps.serviceNodes[0];
+            if (props.serviceNodes.length === 1) {
+                selectedService = props.serviceNodes[0];
                 if (selectedService.getResources().length === 1) {
                     selectedResource = selectedService.getResources()[0];
                     if (selectedResource.getConsumeTypes().length === 1) {
@@ -132,12 +146,12 @@ class HttpClient extends React.Component {
                     }
                 }
             }
-            this.setState({
+            return { 
                 selectedService,
                 selectedResource,
                 appendUrl: this.compileURL(selectedResource),
                 contentType: selectedContentType,
-            });
+            };
         }
     }
 
@@ -477,7 +491,6 @@ class HttpClient extends React.Component {
                 placeholder='Select path'
                 options={urlItems}
                 value={this.state.appendUrl}
-                defaultValue={this.state.appendUrl}
                 onChange={this.onAppendUrlChange}
                 className='paths-dropdown'
             />
@@ -556,7 +569,6 @@ class HttpClient extends React.Component {
                                         }
                                         onChange={this.onChangeUrl}
                                         value={this.state.baseUrl}
-                                        defaultValue={this.state.baseUrl}
                                     />
                                     {pathsDropdown}
                                     {sendOrCancelButton}
