@@ -23,16 +23,26 @@ import WorkerTools from 'plugins/ballerina/tool-palette/item-provider/worker-too
 import ControllerUtil from 'plugins/ballerina/diagram/views/default/components/controllers/controller-util';
 import HoverButton from '../controller-utils/hover-button';
 import Toolbox from 'plugins/ballerina/diagram/views/default/components/decorators/action-box';
+import TreeUtil from 'plugins/ballerina/model/tree-util';
 
 class MainRegion extends React.Component {
     render() {
         const { model } = this.props;
-        const { viewState, viewState: { bBox } } = model;
+        const { viewState: { bBox } } = model;
         const items = ControllerUtil.convertToAddItems(WorkerTools, model);
 
-        const top = model.parent.viewState.bBox.y + model.parent.viewState.bBox.h - 20;
-        const left = model.parent.viewState.components['statement-box'].x + model.parent.viewState.components['statement-box'].w;
-        
+        let top = 0;
+        let left = 0;
+
+        if (TreeUtil.isTransaction(model.parent)) {
+            top = bBox.y - 10;
+            left = bBox.x;
+        } else if (TreeUtil.isIf(model.parent)) {
+            top = model.parent.viewState.bBox.y + model.parent.viewState.bBox.h - 20;
+            left = model.parent.viewState.components['statement-box'].x + model.parent.viewState.components['statement-box'].w;
+        } else {
+            return null;
+        }
         return (
             <HoverButton
                 style={{
@@ -48,6 +58,49 @@ class MainRegion extends React.Component {
     }
 }
 
+class ActionBox extends React.Component {
+    render() {
+        const { model } = this.props;
+        const { viewState: { bBox } } = model;
+        let top = 0;
+        let left = 0;
+
+        if (TreeUtil.isTransaction(model.parent)) {
+            top = bBox.y - 25;
+            left = bBox.x;
+        } else {
+            return null;
+        }
+        const onDelete = () => { model.remove(); };
+        const onJumptoCodeLine = () => {
+            const { editor } = this.context;
+            editor.goToSource(model);
+        };
+        return (
+            <Toolbox
+                onDelete={onDelete}
+                onJumptoCodeLine={onJumptoCodeLine}
+                show
+                style={{
+                    top,
+                    left,
+                }}
+            />
+        );
+    }
+}
+
+ActionBox.contextTypes = {
+    editor: PropTypes.shape({
+        isFileOpenedInEditor: PropTypes.func,
+        getEditorByID: PropTypes.func,
+        setActiveEditor: PropTypes.func,
+        getActiveEditor: PropTypes.func,
+        getDefaultContent: PropTypes.func,
+    }).isRequired,
+    designer: PropTypes.instanceOf(Object),
+};
+
 MainRegion.contextTypes = {
     designer: PropTypes.instanceOf(Object),
 };
@@ -55,6 +108,7 @@ MainRegion.contextTypes = {
 export default {
     regions: {
         main: MainRegion,
+        actionBox: ActionBox,
     },
     name: 'Block',
 };
