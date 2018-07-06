@@ -94,8 +94,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.BIRSHIFT] = "birshift";
         mnemonics[InstructionCodes.IRSHIFT] = "irshift";
         mnemonics[InstructionCodes.ILSHIFT] = "ilshift";
-        mnemonics[InstructionCodes.BIUNRSHIFT] = "biunrshift";
-        mnemonics[InstructionCodes.IUNRSHIFT] = "iunrshift";
         mnemonics[InstructionCodes.BACONST] = "baconst";
 
         mnemonics[InstructionCodes.ISUB] = "isub";

@@ -353,8 +353,6 @@ public class CPU {
                     case InstructionCodes.BIRSHIFT:
                     case InstructionCodes.IRSHIFT:
                     case InstructionCodes.ILSHIFT:
-                    case InstructionCodes.BIUNRSHIFT:
-                    case InstructionCodes.IUNRSHIFT:
                         execBinaryOpCodes(ctx, sf, opcode, operands);
                         break;
     

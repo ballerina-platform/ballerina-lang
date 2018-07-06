@@ -249,8 +249,6 @@ public interface InstructionCodes {
     int ARRAYLEN = 207;
     int LENGTHOF = 208;
 
-    int BIUNRSHIFT = 209;
-
     int NEWSTRUCT = 210;
     int NEWMAP = 212;
     int NEWJSON = 213;
@@ -268,8 +266,6 @@ public interface InstructionCodes {
     int BIXOR = 226;
     int IXOR = 227;
     int BACONST = 228;
-
-    int IUNRSHIFT = 229;
 
     int IRET = 230;
     int FRET = 231;

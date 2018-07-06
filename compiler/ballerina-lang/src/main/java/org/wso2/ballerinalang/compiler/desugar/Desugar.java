@@ -1310,6 +1310,7 @@ public class Desugar extends BLangNodeVisitor {
         if (isBitwiseShiftOperation(binaryExpr) && TypeTags.BYTE == binaryExpr.rhsExpr.type.tag) {
             binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
                     symTable.intType);
+            return;
         }
 
         // Check lhs and rhs type compatibility
