@@ -708,14 +708,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitSealedTypeName(BallerinaParser.SealedTypeNameContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        this.pkgBuilder.markSealedNode(getCurrentPos(ctx), ctx);
-    }
-
-    @Override
     public void exitArrayTypeNameLabel(BallerinaParser.ArrayTypeNameLabelContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -730,6 +722,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                 if (children.get(index + 1).getText().equals("]")) {
                     sizes.add(-1);
                     index += 2;
+                } else if (children.get(index + 1) instanceof BallerinaParser.SealedLiteralContext) {
+                    sizes.add(-2);
+                    index += 3;
                 } else {
                     sizes.add(Integer.parseInt(children.get(index + 1).getText()));
                     index += 3;
@@ -808,7 +803,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean hasRestField = ctx.recordRestFieldDefinition() != null;
 
-        boolean sealed = hasRestField ? ctx.recordRestFieldDefinition().NOT() != null : false;
+        boolean sealed = hasRestField ? ctx.recordRestFieldDefinition().sealedLiteral() != null : false;
 
         this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous, sealed,
                                       hasRestField);

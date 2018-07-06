@@ -488,9 +488,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Analyze the init expression
         BLangExpression rhsExpr = varNode.expr;
         if (rhsExpr == null) {
-            if (lhsType.tag == TypeTags.ARRAY && ((BArrayType) lhsType).state == BArrayState.OPEN_SEALED) {
-                dlog.error(varNode.pos, DiagnosticCode.INVALID_USAGE_OF_SEALED_TYPE,
-                        "right hand side array literal expected");
+            if (lhsType.tag == TypeTags.ARRAY) {
+                BType type = lhsType;
+                do {
+                    if (((BArrayType) type).state == BArrayState.OPEN_SEALED) {
+                        dlog.error(varNode.pos, DiagnosticCode.INVALID_USAGE_OF_SEALED_TYPE, "array not initialized");
+                        return;
+                    }
+                    type = ((BArrayType) type).eType;
+                } while (type.tag == TypeTags.ARRAY);
             }
             if (varNode.symbol.owner.tag == SymTag.PACKAGE && !types.defaultValueExists(varNode.pos, varNode.type)) {
                 dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);

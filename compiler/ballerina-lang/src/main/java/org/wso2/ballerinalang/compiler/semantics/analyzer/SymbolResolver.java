@@ -597,13 +597,11 @@ public class SymbolResolver extends BLangNodeVisitor {
                 resultType = new BArrayType(resultType, arrayTypeSymbol);
             } else {
                 int size = arrayTypeNode.sizes[i];
-                if (arrayTypeNode.isOpenSealed && i == arrayTypeNode.dimensions - 1) {
-                    // Only first dimension is open sealed
-                    resultType = new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.OPEN_SEALED);
-                } else {
-                    resultType = size == -1 ? new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.UNSEALED) :
-                            new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.CLOSED_SEALED);
-                }
+                resultType = (size == -1) ?
+                        new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.UNSEALED) :
+                        (size == -2) ?
+                                new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.OPEN_SEALED) :
+                                new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.CLOSED_SEALED);
             }
             arrayTypeSymbol.type = resultType;
         }

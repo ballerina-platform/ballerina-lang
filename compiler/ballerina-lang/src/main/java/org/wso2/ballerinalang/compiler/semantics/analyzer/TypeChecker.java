@@ -489,9 +489,15 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Check type compatibility
-        if (expType.tag == TypeTags.ARRAY && ((BArrayType) expType).state == BArrayState.OPEN_SEALED) {
-            dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_USAGE_OF_SEALED_TYPE, "can not infer array size");
-            return;
+        if (expType.tag == TypeTags.ARRAY) {
+            BType type = expType;
+            do {
+                if (((BArrayType) type).state == BArrayState.OPEN_SEALED) {
+                    dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_USAGE_OF_SEALED_TYPE, "can not infer array size");
+                    return;
+                }
+                type = ((BArrayType) type).eType;
+            } while (type.tag == TypeTags.ARRAY);
         }
         resultType = types.checkType(varRefExpr, actualType, expType);
     }
