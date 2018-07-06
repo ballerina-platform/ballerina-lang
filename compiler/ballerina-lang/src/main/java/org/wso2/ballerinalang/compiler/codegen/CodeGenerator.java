@@ -3083,23 +3083,30 @@ public class CodeGenerator extends BLangNodeVisitor {
         List<int[]> unhandledErrorRangeList = new ArrayList<>();
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
 
+        if (!tryCatchErrorRangeToIPStack.empty() && tryCatchErrorRangeToIPStack.peek() == -2) { //if try in finally
+            tryCatchErrorRangeToIPStack.pop();
+        }
         int fromIP = nextIP();
+        tryCatchErrorRangeFromIPStack.push(fromIP);
         tryCatchErrorRangeToIPStack.push(toIPPlaceHolder);
         // Handle try block.
         genNode(tryNode.tryBody, env);
 
-        // Pop out the final additional IP pushed on to the stack, if pushed when generating finally instrructions due
+        // Pop out the final additional IP pushed on to the stack, if pushed when generating finally instructions due
         // to a return statement being present in the try block
-        if (!tryCatchErrorRangeFromIPStack.empty()) {
+        if (tryCatchErrorRangeFromIPStack.size() > 1 && tryCatchErrorRangeFromIPStack.peek() != fromIP) {
             tryCatchErrorRangeFromIPStack.pop();
         }
 
-        while (!tryCatchErrorRangeFromIPStack.empty() && !tryCatchErrorRangeToIPStack.empty()
-                && tryCatchErrorRangeToIPStack.peek() != toIPPlaceHolder) {
-            unhandledErrorRangeList.add(new int[]{tryCatchErrorRangeFromIPStack.pop(),
-                                                    tryCatchErrorRangeToIPStack.pop()});
+        while (!tryCatchErrorRangeFromIPStack.empty() && tryCatchErrorRangeFromIPStack.peek() != fromIP) {
+            int poppedFromIP = tryCatchErrorRangeFromIPStack.pop();
+            int poppedToIP = tryCatchErrorRangeToIPStack.pop();
+            if (poppedFromIP < poppedToIP) {
+                unhandledErrorRangeList.add(new int[]{poppedFromIP, poppedToIP});
+            }
         }
 
+        tryCatchErrorRangeFromIPStack.pop();
         int toIP = tryCatchErrorRangeToIPStack.pop();
         toIP = (toIP == toIPPlaceHolder) ? (nextIP() - 1) : toIP;
 
@@ -3117,19 +3124,26 @@ public class CodeGenerator extends BLangNodeVisitor {
         int order = 0;
         for (BLangCatch bLangCatch : tryNode.getCatchBlocks()) {
             addLineNumberInfo(bLangCatch.pos);
+            if (!tryCatchErrorRangeToIPStack.empty() && tryCatchErrorRangeToIPStack.peek() == -2) {
+                tryCatchErrorRangeToIPStack.pop(); //if catch in finally
+            }
             int targetIP = nextIP();
+            tryCatchErrorRangeFromIPStack.push(targetIP);
             tryCatchErrorRangeToIPStack.push(toIPPlaceHolder);
             genNode(bLangCatch, env);
 
-            if (!tryCatchErrorRangeFromIPStack.empty()) {
+            if (tryCatchErrorRangeFromIPStack.size() > 1 && tryCatchErrorRangeFromIPStack.peek() != targetIP) {
                 tryCatchErrorRangeFromIPStack.pop();
             }
 
-            while (tryCatchErrorRangeFromIPStack.size() > 1 && !tryCatchErrorRangeToIPStack.empty()
-                    && tryCatchErrorRangeToIPStack.peek() != toIPPlaceHolder) {
-                unhandledCatchErrorRangeList.add(new int[]{tryCatchErrorRangeFromIPStack.pop(),
-                        tryCatchErrorRangeToIPStack.pop()});
+            while (!tryCatchErrorRangeFromIPStack.empty() && tryCatchErrorRangeFromIPStack.peek() != targetIP) {
+                int poppedFromIP = tryCatchErrorRangeFromIPStack.pop();
+                int poppedToIP = tryCatchErrorRangeToIPStack.pop();
+                if (poppedFromIP < poppedToIP) {
+                    unhandledCatchErrorRangeList.add(new int[]{poppedFromIP, poppedToIP});
+                }
             }
+            tryCatchErrorRangeFromIPStack.pop();
             int catchToIP = tryCatchErrorRangeToIPStack.pop();
             catchToIP = (catchToIP == toIPPlaceHolder) ? (nextIP() - 1) : catchToIP;
             unhandledCatchErrorRangeList.add(new int[]{targetIP, catchToIP});
@@ -3328,6 +3342,9 @@ public class CodeGenerator extends BLangNodeVisitor {
                     // to use as the toIP of the error table entry
                     if (!tryCatchErrorRangeToIPStack.isEmpty()) {
                         if (tryCatchErrorRangeToIPStack.peek() != returnInFinallyToIPPlaceHolder) {
+                            if (tryCatchErrorRangeToIPStack.peek() == -1) {
+                                tryCatchErrorRangeToIPStack.pop();
+                            }
                             tryCatchErrorRangeToIPStack.push(nextIP() - 1);
                         } else {
                             returnInFinally = true;
@@ -3341,7 +3358,10 @@ public class CodeGenerator extends BLangNodeVisitor {
                 if (tryCatchFinally.finallyBody != null && current != tryCatchFinally.finallyBody) {
                     tryCatchErrorRangeToIPStack.push(returnInFinallyToIPPlaceHolder);
                     genNode(tryCatchFinally.finallyBody, env);
-                    tryCatchErrorRangeToIPStack.pop();
+                    if (!tryCatchErrorRangeToIPStack.empty()
+                            && tryCatchErrorRangeToIPStack.peek() == returnInFinallyToIPPlaceHolder) {
+                        tryCatchErrorRangeToIPStack.pop();
+                    }
                 }
 
                 if (!returnInFinally) {
