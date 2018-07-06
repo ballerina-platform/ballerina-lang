@@ -92,9 +92,11 @@ under the License.
             <package name="org.ballerinalang.test.auth.*"/>
         </packages>
     </test>
-    <test name="ballerina-observe-test-suite" parallel="false">
-        <packages>
-            <package name="org.ballerinalang.test.observe.*"/>
-        </packages>
+    <test name="ballerina-observe-test-suite" preserve-order="true" parallel="false">
+        <classes >
+            <class name="org.ballerinalang.test.observe.SummaryTest"/>
+            <class name="org.ballerinalang.test.observe.RegistryTest"/>
+            <class name="org.ballerinalang.test.observe.CounterTest"/>
+        </classes>
     </test>
 </suite>
