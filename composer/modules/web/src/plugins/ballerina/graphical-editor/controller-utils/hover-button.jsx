@@ -49,7 +49,7 @@ class HoverButton extends React.Component {
 
     render() {
         const { children, size } = this.props;
-        const buttonSize = 30;
+        const buttonSize = 20;
         const style = {
             position: 'absolute',
             ...this.props.style,
@@ -60,10 +60,11 @@ class HoverButton extends React.Component {
                 <Button
                     size={size}
                     compact
+                    className='lifeline icon primary circle'
                     onClick={() => {
                         this.setMenuVisibility(true);
                     }}
-                    
+
                 ><i className='fw'>{ImageUtils.getCodePoint('add')}</i>
                 </Button>
                 <Transition visible={this.state.isMenuActive} animation='scale' duration={200}>

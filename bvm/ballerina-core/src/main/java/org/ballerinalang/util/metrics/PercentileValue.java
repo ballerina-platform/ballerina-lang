@@ -33,7 +33,7 @@ public class PercentileValue {
     /**
      * Get the percentile in domain [0, 1]. For example, 0.5 represents the 50th percentile of the distribution.
      *
-     * @return The percentile
+     * @return The percentile.
      */
     public double getPercentile() {
         return percentile;

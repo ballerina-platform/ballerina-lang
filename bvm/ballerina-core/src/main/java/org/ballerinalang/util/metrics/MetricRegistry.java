@@ -54,7 +54,7 @@ public class MetricRegistry {
     /**
      * Registers the counter metrics instance.
      *
-     * @param counter The {@link Counter} instacne.
+     * @param counter The {@link Counter} instance.
      */
     public Counter register(Counter counter) {
         return register(counter, Counter.class);
@@ -63,7 +63,7 @@ public class MetricRegistry {
     /**
      * Unregister the counter metrics instance.
      *
-     * @param counter The {@link Counter} instacne.
+     * @param counter The {@link Counter} instance.
      */
     public void unregister(Counter counter) {
         unregister(counter, Counter.class);
@@ -92,7 +92,7 @@ public class MetricRegistry {
     /**
      * Unregister the gauge metrics instance.
      *
-     * @param gauge The {@link Gauge} instacne.
+     * @param gauge The {@link Gauge} instance.
      */
     public void unregister(Gauge gauge) {
         unregister(gauge, Gauge.class);
@@ -114,7 +114,7 @@ public class MetricRegistry {
     /**
      * Registers the polled gauge metrics instance.
      *
-     * @param gauge The {@link PolledGauge} instacne.
+     * @param gauge The {@link PolledGauge} instance.
      */
     public PolledGauge register(PolledGauge gauge) {
         return register(gauge, PolledGauge.class);
