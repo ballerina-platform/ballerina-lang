@@ -21,7 +21,7 @@ function testFunc() {
     string response1 = "Hello World!\n";
 
     // Send a GET request to the specified endpoint
-    var response = httpEndpoint->get("/hello");
+    var response = httpEndpoint->post("/hello", "Hello from client");
     match response {
         http:Response resp => {
             var res = check resp.getTextPayload();
