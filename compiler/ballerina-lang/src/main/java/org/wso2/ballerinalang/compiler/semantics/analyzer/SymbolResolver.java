@@ -95,6 +95,8 @@ import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_EN
 public class SymbolResolver extends BLangNodeVisitor {
     private static final CompilerContext.Key<SymbolResolver> SYMBOL_RESOLVER_KEY =
             new CompilerContext.Key<>();
+    private static final int OPEN_SEALED_INDICATOR = -2;
+    private static final int UNSEALED_INDICATOR = -1;
 
     private SymbolTable symTable;
     private Names names;
@@ -597,9 +599,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                 resultType = new BArrayType(resultType, arrayTypeSymbol);
             } else {
                 int size = arrayTypeNode.sizes[i];
-                resultType = (size == -1) ?
+                resultType = (size == UNSEALED_INDICATOR) ?
                         new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.UNSEALED) :
-                        (size == -2) ?
+                        (size == OPEN_SEALED_INDICATOR) ?
                                 new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.OPEN_SEALED) :
                                 new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.CLOSED_SEALED);
             }
