@@ -43,12 +43,12 @@
 ---------------------------*/
 
 .ui.lifeline.icons.buttons .ui.button {
-    height: 25px;
-    width: 25px;
-    font-size: 12px;
-    line-height: 0;
-    padding: 0 !important;
-    cursor: pointer;
+  height: 25px;
+  width: 25px;
+  font-size: 12px;
+  line-height: 0;
+  padding: 0 !important;
+  cursor: pointer;
 }
 
 .ui.icon.lifeline.button {
@@ -456,58 +456,39 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 
 .top-menu {
   position: fixed;
-  padding: 3px 34px 6px 26px !important;
+  padding: 3px 35px 6px 30px !important;
   height: 40px;
-  &.hidden{
-    display: none !important;
-  }
+
+  &.hidden { display: none !important; }
+
   .top-bar {
-    height: 30px;
-    margin-top: 5px;
-    width: auto;
-    margin-right: 10px !important;
-    .row {
-      padding: 0 !important;
-      height: 30px !important;
-      .column {
-        min-width: 130px;
-        width: 50%;
-        padding: 0 !important;
-        background: $white;
-        box-shadow: none !important;
-        .top-bar-row {
-          background: $white !important;
-          margin-top: 0px !important;
-          border-bottom: 1px solid #ececec;
-          width: 140px;
-          display: flex;
-          .ui.label {
-            background-color: $white !important;
-            flex-grow: 1 !important;
-          }
-          .top-bar-icon{
-            padding-right: 0px;
-          }
-        }
+    > .ui.label {
+      & > span { vertical-align: text-top; }
+      & > .detail { margin-left: 0.5em; }
+    }
+
+    &.mobile-top-bar {
+      & > .ui.label {
+        & > .icon { margin: 0; }
+        & > span { display: none; }
       }
     }
   }
+
+  &.mobile-top-bar {
+    & .menu .item {
+      & .icon.menu-icon-right { padding-right: 0 !important; }
+      & > .text { display: none; }
+    }
+  }
+
+  .definitions-menu { margin-top: 6px !important; }
 }
 
-.mobile-top-bar{
-  .column{
-    min-width: 60px !important;
-  }
-  .top-bar-row {
-    width: 30px !important;
-  }
-  .ui.label:nth-child(2){
-    display: none !important;
-  }
-}
-
-.ui.bottom.right.popup{
+.ui.bottom.right.popup {
   margin-right: -1em !important;
+
+  &.definitions-popup-window { margin-right: 0 !important; }
 }
 
 .ui.bottom.center.popup {
@@ -561,21 +542,29 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
   white-space: nowrap;
 }
 
-a.item.menu-button.ui.button.primary {
-  background: $brand-primary;
-  color: $white;
+a.item.menu-button.ui.button {
   padding: 7px 10px !important;
-  margin: 5px 10px 4px 4px !important;
+  margin: 5px 0 3px 0 !important;
   font-weight: 400;
   height: 28px;
 
-  &:hover {
-    background: $brand-primary-hover !important;
-    font-weight: 300 !important;
+  &.primary {
+    background: $brand-primary;
+    color: $white;
+
+    &:hover { background: $brand-primary-hover !important; }
   }
 
-  .icon {
-    padding-right: 25px !important;
+  &.secondary {
+    background: $secondary-color;
+    color: $white;
+
+    &:hover { background: $secondary-color-hover !important; }
+  }
+
+  .icon.menu-icon-right {
+    color: $white;
+    padding-right: 25px;
   }
 }
 .composer-logo{
