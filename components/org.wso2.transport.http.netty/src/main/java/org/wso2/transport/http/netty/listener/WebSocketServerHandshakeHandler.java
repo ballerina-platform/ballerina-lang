@@ -77,6 +77,7 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
                                           "channel : " + ctx.channel());
                     }
                     ChannelPipeline pipeline = ctx.pipeline();
+                    pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
                     ChannelHandlerContext decoderCtx = pipeline.context(HttpRequestDecoder.class);
                     pipeline.addAfter(decoderCtx.name(), HTTP_OBJECT_AGGREGATOR,
                             new HttpObjectAggregator(maxContentLength));
@@ -113,6 +114,11 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
             }
         }
         ctx.fireChannelRead(msg);
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        ctx.close();
     }
 
     /**

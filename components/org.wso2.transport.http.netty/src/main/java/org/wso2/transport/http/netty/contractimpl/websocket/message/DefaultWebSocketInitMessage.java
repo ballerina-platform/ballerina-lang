@@ -189,7 +189,6 @@ public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage impleme
         }
         pipeline.addLast(Constants.MESSAGE_QUEUE_HANDLER, messageQueueHandler);
         pipeline.addLast(Constants.WEBSOCKET_FRAME_HANDLER, frameHandler);
-        pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
         pipeline.fireChannelActive();
     }
 
