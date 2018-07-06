@@ -31,6 +31,7 @@ import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.common.SourceInteractiveState;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -48,6 +49,7 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.wso2.transport.http.netty.common.Constants.CHUNKING_CONFIG;
+import static org.wso2.transport.http.netty.common.SourceInteractiveState.RESPONSE_100_CONTINUE_SENT;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.SENDING_ENTITY_BODY;
 import static org.wso2.transport.http.netty.common.Util.createFullHttpResponse;
 import static org.wso2.transport.http.netty.common.Util.createHttpResponse;
@@ -64,6 +66,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
     private static final Logger log = LoggerFactory.getLogger(HttpOutboundRespListener.class);
     private final SourceErrorHandler sourceErrorHandler;
+    private final boolean headRequest;
 
     private ChannelHandlerContext sourceContext;
     private RequestDataHolder requestDataHolder;
@@ -72,15 +75,15 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     private ChunkConfig chunkConfig;
     private KeepAliveConfig keepAliveConfig;
     private boolean headerWritten = false;
-    private final boolean headRequest;
+    private boolean continueRequest;
     private long contentLength = 0;
     private String serverName;
     private List<HttpContent> contentList = new ArrayList<>();
     private AtomicInteger writeCounter = new AtomicInteger(0);
 
     public HttpOutboundRespListener(ChannelHandlerContext channelHandlerContext, HTTPCarbonMessage requestMsg,
-                                    ChunkConfig chunkConfig, KeepAliveConfig keepAliveConfig,
-                                    String serverName, SourceErrorHandler sourceErrorHandler) {
+                                    ChunkConfig chunkConfig, KeepAliveConfig keepAliveConfig, String serverName,
+                                    SourceErrorHandler sourceErrorHandler, boolean continueRequest) {
         this.sourceContext = channelHandlerContext;
         this.requestDataHolder = new RequestDataHolder(requestMsg);
         this.inboundRequestMsg = requestMsg;
@@ -90,6 +93,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         this.serverName = serverName;
         this.sourceErrorHandler = sourceErrorHandler;
         this.headRequest = requestDataHolder.getHttpMethod().equalsIgnoreCase(Constants.HTTP_HEAD_METHOD);
+        this.continueRequest = continueRequest;
     }
 
     @Override
@@ -137,7 +141,17 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         if (responseChunkConfig != null) {
             this.setChunkConfig(responseChunkConfig);
         }
-        sourceErrorHandler.setState(SENDING_ENTITY_BODY);
+        if (continueRequest) {
+            sourceErrorHandler.setState(RESPONSE_100_CONTINUE_SENT);
+            continueRequest = false;
+        } else {
+            if (sourceErrorHandler.getState().equals(SourceInteractiveState.RECEIVING_ENTITY_BODY)) {
+                // Response is being sent before finish reading the inbound request,
+                // hence close the connection once the response is sent.
+                keepAlive = false;
+            }
+            sourceErrorHandler.setState(SENDING_ENTITY_BODY);
+        }
 
         ChannelFuture outboundChannelFuture;
         HttpResponseFuture outboundRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();

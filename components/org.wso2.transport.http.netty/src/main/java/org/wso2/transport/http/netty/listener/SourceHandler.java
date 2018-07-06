@@ -28,6 +28,7 @@ import io.netty.channel.EventLoop;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.socket.ChannelInputShutdownReadComplete;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpServerUpgradeHandler;
@@ -55,10 +56,12 @@ import java.net.SocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.wso2.transport.http.netty.common.Constants.HEADER_VAL_100_CONTINUE;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.CONNECTED;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_RECEIVED;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_SENT;
+import static org.wso2.transport.http.netty.common.SourceInteractiveState.EXPECT_100_CONTINUE_HEADER_RECEIVED;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.RECEIVING_ENTITY_BODY;
 
 /**
@@ -82,6 +85,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     protected ChannelHandlerContext ctx;
     private SocketAddress remoteAddress;
     private SourceErrorHandler sourceErrorHandler;
+    private boolean continueRequest = false;
 
     public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId, ChunkConfig chunkConfig,
                          KeepAliveConfig keepAliveConfig, String serverName, ChannelGroup allChannels) {
@@ -143,6 +147,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             sourceErrorHandler.setState(CONNECTED);
             HttpRequest httpRequest = (HttpRequest) msg;
             inboundRequestMsg = setupCarbonMessage(httpRequest, ctx);
+            if (is100ContinueRequest(inboundRequestMsg)) {
+                sourceErrorHandler.setState(EXPECT_100_CONTINUE_HEADER_RECEIVED);
+            }
             notifyRequestListener(inboundRequestMsg, ctx);
 
             if (httpRequest.decoderResult().isFailure()) {
@@ -176,6 +183,12 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
+    private boolean is100ContinueRequest(HTTPCarbonMessage inboundRequestMsg) {
+        continueRequest = HEADER_VAL_100_CONTINUE.equalsIgnoreCase(
+                inboundRequestMsg.getHeader(HttpHeaderNames.EXPECT.toString()));
+        return continueRequest;
+    }
+
     private boolean isDiffered(HTTPCarbonMessage sourceReqCmsg) {
         //Http resource stored in the HTTPCarbonMessage means execution waits till payload.
         return sourceReqCmsg.getProperty(Constants.HTTP_RESOURCE) != null;
@@ -192,7 +205,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
                 outboundRespFuture.setHttpConnectorListener(
                         new HttpOutboundRespListener(ctx, httpRequestMsg, chunkConfig, keepAliveConfig, serverName,
-                                                     sourceErrorHandler));
+                                                     sourceErrorHandler, continueRequest));
                 this.serverConnectorFuture.notifyHttpListener(httpRequestMsg);
             } catch (Exception e) {
                 log.error("Error while notifying listeners", e);

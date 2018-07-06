@@ -120,6 +120,8 @@ public final class Constants {
     public static final String X_FORWARDED_HOST = "x-forwarded-host";
     public static final String X_FORWARDED_PROTO = "x-forwarded-proto";
 
+    public static final String HEADER_VAL_100_CONTINUE = "100-continue";
+
     public static final String HTTP_GET_METHOD = "GET";
     public static final String HTTP_POST_METHOD = "POST";
     public static final String HTTP_HEAD_METHOD = "HEAD";
@@ -282,6 +284,10 @@ public final class Constants {
             = "Idle timeout triggered before initiating outbound response";
     public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE
                 = "Idle timeout triggered while writing outbound response";
+    public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_100_CONTINUE_RESPONSE
+            = "Idle timeout triggered before initiating 100 continue response";
+    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_100_CONTINUE_RESPONSE
+            = "Idle timeout triggered while writing 100 continue response";
 
     public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_REQUEST
             = "Idle timeout triggered before initiating outbound request";
@@ -306,6 +312,10 @@ public final class Constants {
             = "Remote client closed the connection before initiating outbound response";
     public static final String REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE
             = "Remote client closed the connection while writing outbound response";
+    public static final String REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE
+            = "Remote client closed the connection before initiating 100 continue response";
+    public static final String REMOTE_CLIENT_CLOSED_WHILE_WRITING_100_CONTINUE_RESPONSE
+            = "Remote client closed the connection while writing 100 continue response";
 
     // Server connection closure error scenarios
     public static final String REMOTE_SERVER_CLOSED_BEFORE_INITIATING_OUTBOUND_REQUEST
