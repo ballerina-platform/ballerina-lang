@@ -190,6 +190,20 @@ public class PackagingPushTestCase extends IntegrationTestCase {
 
     }
 
+    @Test(description = "Test pushing a package to the home repository (installing a package)")
+    public void testInstall() throws Exception {
+        ballerinaClient = new ServerInstance(serverZipPath);
+        String sourceRootPath = projectPath.toString();
+
+        String[] clientArgs = {"--sourceroot", sourceRootPath, packageName};
+        ballerinaClient.runMain(clientArgs, getEnvVariables(), "install");
+
+        Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, "integrationtests",
+                                 packageName, "1.0.0");
+        Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(dirPath)));
+        Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(dirPath).resolve(packageName + ".zip")));
+    }
+
     /**
      * Get environment variables and add ballerina_home as a env variable the tmp directory.
      *
