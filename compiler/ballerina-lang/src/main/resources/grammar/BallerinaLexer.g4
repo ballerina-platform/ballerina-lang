@@ -140,7 +140,6 @@ SCOPE       : 'scope';
 COMPENSATION : 'compensation';
 COMPENSATE  : 'compensate' ;
 PRIMARYKEY  : 'primarykey' ;
-SEALED      : 'sealed' ;
 
 // Separators
 

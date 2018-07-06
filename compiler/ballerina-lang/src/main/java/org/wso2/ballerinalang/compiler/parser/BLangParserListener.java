@@ -47,6 +47,9 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
+import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
+
 /**
  * @since 0.94
  */
@@ -712,14 +715,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitSealedTypeName(BallerinaParser.SealedTypeNameContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        this.pkgBuilder.markSealedNode(getCurrentPos(ctx), ctx);
-    }
-
-    @Override
     public void exitArrayTypeNameLabel(BallerinaParser.ArrayTypeNameLabelContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -732,8 +727,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         while (index < children.size()) {
             if (children.get(index).getText().equals("[")) {
                 if (children.get(index + 1).getText().equals("]")) {
-                    sizes.add(-1);
+                    sizes.add(UNSEALED_ARRAY_INDICATOR);
                     index += 2;
+                } else if (children.get(index + 1) instanceof BallerinaParser.SealedLiteralContext) {
+                    sizes.add(OPEN_SEALED_ARRAY_INDICATOR);
+                    index += 3;
                 } else {
                     sizes.add(Integer.parseInt(children.get(index + 1).getText()));
                     index += 3;
@@ -812,7 +810,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean hasRestField = ctx.recordRestFieldDefinition() != null;
 
-        boolean sealed = hasRestField ? ctx.recordRestFieldDefinition().NOT() != null : false;
+        boolean sealed = hasRestField ? ctx.recordRestFieldDefinition().sealedLiteral() != null : false;
 
         this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous, sealed,
                 hasRestField);
