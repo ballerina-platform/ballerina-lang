@@ -92,9 +92,6 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
             case TypeTags.BOOLEAN_TAG:
                 index.retRegs[i] = index.intRegCount++;
                 break;
-            case TypeTags.BLOB_TAG:
-                index.retRegs[i] = index.byteRegCount++;
-                break;
             default:
                 index.retRegs[i] = index.refRegCount++;
                 break;

@@ -43,6 +43,7 @@ public enum NodeKind {
     SERVICE,
     TYPE_DEFINITION,
     TABLE,
+    TABLE_COLUMN,
     VARIABLE,
     WORKER,
     XMLNS,
@@ -122,6 +123,8 @@ public enum NodeKind {
     WORKER_RECEIVE,
     WORKER_SEND,
     STREAM,
+    SCOPE,
+    COMPENSATE,
 
     /* Types */
     ARRAY_TYPE,

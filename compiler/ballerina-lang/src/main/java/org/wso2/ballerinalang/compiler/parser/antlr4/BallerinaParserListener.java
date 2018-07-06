@@ -228,6 +228,26 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitFieldDefinition(BallerinaParser.FieldDefinitionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#recordRestFieldDefinition}.
+	 * @param ctx the parse tree
+	 */
+	void enterRecordRestFieldDefinition(BallerinaParser.RecordRestFieldDefinitionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#recordRestFieldDefinition}.
+	 * @param ctx the parse tree
+	 */
+	void exitRecordRestFieldDefinition(BallerinaParser.RecordRestFieldDefinitionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#restDescriptorPredicate}.
+	 * @param ctx the parse tree
+	 */
+	void enterRestDescriptorPredicate(BallerinaParser.RestDescriptorPredicateContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#restDescriptorPredicate}.
+	 * @param ctx the parse tree
+	 */
+	void exitRestDescriptorPredicate(BallerinaParser.RestDescriptorPredicateContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#objectParameterList}.
 	 * @param ctx the parse tree
 	 */
@@ -486,15 +506,15 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitGroupTypeNameLabel(BallerinaParser.GroupTypeNameLabelContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#fieldDefinitionList}.
+	 * Enter a parse tree produced by {@link BallerinaParser#recordFieldDefinitionList}.
 	 * @param ctx the parse tree
 	 */
-	void enterFieldDefinitionList(BallerinaParser.FieldDefinitionListContext ctx);
+	void enterRecordFieldDefinitionList(BallerinaParser.RecordFieldDefinitionListContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#fieldDefinitionList}.
+	 * Exit a parse tree produced by {@link BallerinaParser#recordFieldDefinitionList}.
 	 * @param ctx the parse tree
 	 */
-	void exitFieldDefinitionList(BallerinaParser.FieldDefinitionListContext ctx);
+	void exitRecordFieldDefinitionList(BallerinaParser.RecordFieldDefinitionListContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#simpleTypeName}.
 	 * @param ctx the parse tree
@@ -895,6 +915,46 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitBreakStatement(BallerinaParser.BreakStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#scopeStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterScopeStatement(BallerinaParser.ScopeStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#scopeStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitScopeStatement(BallerinaParser.ScopeStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#scopeClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterScopeClause(BallerinaParser.ScopeClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#scopeClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitScopeClause(BallerinaParser.ScopeClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#compensationClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterCompensationClause(BallerinaParser.CompensationClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#compensationClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitCompensationClause(BallerinaParser.CompensationClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#compensateStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterCompensateStatement(BallerinaParser.CompensateStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#compensateStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitCompensateStatement(BallerinaParser.CompensateStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#forkJoinStatement}.
 	 * @param ctx the parse tree

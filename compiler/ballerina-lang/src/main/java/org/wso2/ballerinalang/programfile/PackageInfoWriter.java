@@ -343,6 +343,12 @@ public class PackageInfoWriter {
 
     private static void writeRecordTypeDefInfo(DataOutputStream dataOutStream,
                                                RecordTypeInfo recordInfo) throws IOException {
+        if (recordInfo.recordType.sealed) {
+            dataOutStream.writeBoolean(true);
+        } else {
+            dataOutStream.writeBoolean(false);
+            dataOutStream.writeInt(recordInfo.restFieldTypeSigCPIndex);
+        }
         // Write struct field info entries
         dataOutStream.writeShort(recordInfo.fieldInfoEntries.size());
         for (StructFieldInfo structFieldInfoEntry : recordInfo.fieldInfoEntries) {
@@ -491,14 +497,12 @@ public class PackageInfoWriter {
                 attrDataOutStream.writeShort(codeAttributeInfo.maxDoubleLocalVars);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxStringLocalVars);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxIntLocalVars);
-                attrDataOutStream.writeShort(codeAttributeInfo.maxByteLocalVars);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxRefLocalVars);
 
                 attrDataOutStream.writeShort(codeAttributeInfo.maxLongRegs);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxDoubleRegs);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxStringRegs);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxIntRegs);
-                attrDataOutStream.writeShort(codeAttributeInfo.maxByteRegs);
                 attrDataOutStream.writeShort(codeAttributeInfo.maxRefRegs);
                 break;
 
@@ -508,7 +512,6 @@ public class PackageInfoWriter {
                 attrDataOutStream.writeShort(varCountAttributeInfo.getMaxDoubleVars());
                 attrDataOutStream.writeShort(varCountAttributeInfo.getMaxStringVars());
                 attrDataOutStream.writeShort(varCountAttributeInfo.getMaxIntVars());
-                attrDataOutStream.writeShort(varCountAttributeInfo.getMaxByteVars());
                 attrDataOutStream.writeShort(varCountAttributeInfo.getMaxRefVars());
                 break;
 

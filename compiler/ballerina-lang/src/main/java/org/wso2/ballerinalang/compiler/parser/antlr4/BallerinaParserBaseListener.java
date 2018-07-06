@@ -280,6 +280,30 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterRecordRestFieldDefinition(BallerinaParser.RecordRestFieldDefinitionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitRecordRestFieldDefinition(BallerinaParser.RecordRestFieldDefinitionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterRestDescriptorPredicate(BallerinaParser.RestDescriptorPredicateContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitRestDescriptorPredicate(BallerinaParser.RestDescriptorPredicateContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterObjectParameterList(BallerinaParser.ObjectParameterListContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -568,13 +592,13 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFieldDefinitionList(BallerinaParser.FieldDefinitionListContext ctx) { }
+	@Override public void enterRecordFieldDefinitionList(BallerinaParser.RecordFieldDefinitionListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFieldDefinitionList(BallerinaParser.FieldDefinitionListContext ctx) { }
+	@Override public void exitRecordFieldDefinitionList(BallerinaParser.RecordFieldDefinitionListContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1055,6 +1079,54 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitBreakStatement(BallerinaParser.BreakStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterScopeStatement(BallerinaParser.ScopeStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitScopeStatement(BallerinaParser.ScopeStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterScopeClause(BallerinaParser.ScopeClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitScopeClause(BallerinaParser.ScopeClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCompensationClause(BallerinaParser.CompensationClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCompensationClause(BallerinaParser.CompensationClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCompensateStatement(BallerinaParser.CompensateStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCompensateStatement(BallerinaParser.CompensateStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

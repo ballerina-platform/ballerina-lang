@@ -35,6 +35,8 @@ public enum Snippet {
 
     CHECK_KEYWORD_SNIPPET("check "),
 
+    CONTINUE("continue;"),
+
     ENDPOINT("endpoint ${1:http:Listener} ${2:listener} {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
             + CommonUtil.LINE_SEPARATOR + "};"),
 
@@ -50,6 +52,8 @@ public enum Snippet {
     FUNCTION_SIGNATURE("function ${1:name} (${2});"),
 
     IF("if (${1:true}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR + "}"),
+    
+    LENGTHOF("lengthof "),
 
     LOCK("lock {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}"),
 
@@ -60,10 +64,8 @@ public enum Snippet {
 
     NAMESPACE_DECLARATION("xmlns \"${1}\" as ${2:ns};"),
 
-    NEW_OBJECT_CONSTRUCTOR("new (${1:args}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR
+    NEW_OBJECT_CONSTRUCTOR("public new (${1:args}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR
             + "}"),
-
-    CONTINUE("continue;"),
 
     OBJECT_SNIPPET("type ${1:ObjectName} object {" + CommonUtil.LINE_SEPARATOR + "\t${2}"
             + CommonUtil.LINE_SEPARATOR + "};"),
@@ -71,6 +73,8 @@ public enum Snippet {
     PRIVATE_BLOCK("private {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}"),
 
     PUBLIC_BLOCK("public {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}"),
+
+    PUBLIC_KEYWORD_SNIPPET("public "),
 
     RECORD_SNIPPET("type ${1:RecordName} record {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR
             + "};"),
@@ -98,8 +102,6 @@ public enum Snippet {
             + CommonUtil.LINE_SEPARATOR + "}"),
 
     VAR_KEYWORD_SNIPPET("var "),
-
-    PUBLIC_KEYWORD_SNIPPET("public "),
 
     WHILE("while (${1:true}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR + "}"),
 

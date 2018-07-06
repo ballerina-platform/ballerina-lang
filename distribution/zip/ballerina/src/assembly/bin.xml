@@ -177,15 +177,9 @@
                 <include>org.apache.thrift:libthrift</include>
                 <include>com.squareup.okhttp3:okhttp</include>
                 <include>com.squareup.okio:okio</include>
-                <include>io.micrometer:micrometer-core</include>
-                <include>org.ballerinalang:ballerina-micrometer-extension</include>
-                <include>org.ballerinalang:ballerina-prometheus-extension</include>
-                <include>io.micrometer:micrometer-registry-prometheus</include>
+                <include>org.ballerinalang:ballerina-metrics-extension</include>
                 <include>org.hdrhistogram:HdrHistogram</include>
-                <include>org.latencyutils:LatencyUtils</include>
-                <include>io.prometheus:simpleclient</include>
-                <include>io.prometheus:simpleclient_common</include>
-                <include>io.prometheus:simpleclient_httpserver</include>
+                <include>org.ballerinalang:ballerina-prometheus-extension:jar</include>
 
                 <!-- Siddhi Dependencies -->
                 <include>org.ballerinalang:siddhi-core:jar</include>

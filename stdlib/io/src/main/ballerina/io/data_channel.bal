@@ -21,16 +21,15 @@ documentation {
 
     LITTLE_ENDIAN - specifies the byte order to be the least significant byte first
 }
-public type ByteOrder "BI"|"LI";
-@final public ByteOrder BIG_ENDIAN = "BI";
-@final public ByteOrder LITTLE_ENDIAN = "LI";
+public type ByteOrder "BE";
+@final public ByteOrder BIG_ENDIAN = "BE";
 
 documentation {
     Represents a data channel for reading/writing data.
 }
 public type DataChannel object {
 
-    public new(ByteChannel byteChannel, ByteOrder bOrder = "BI") {
+    public new(ByteChannel byteChannel, ByteOrder bOrder = "BE") {
         init(byteChannel, bOrder);
     }
 

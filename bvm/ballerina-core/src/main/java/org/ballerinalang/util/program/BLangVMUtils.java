@@ -23,7 +23,6 @@ import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
@@ -59,7 +58,6 @@ public class BLangVMUtils {
         int stringRegIndex = -1;
         int booleanRegIndex = -1;
         int refRegIndex = -1;
-        int blobRegIndex = -1;
         for (int i = 0; i < argRegs.length; i++) {
             BType paramType = paramTypes[i];
             int argReg = argRegs[i];
@@ -79,9 +77,6 @@ public class BLangVMUtils {
             case TypeTags.BOOLEAN_TAG:
                 callee.intRegs[++booleanRegIndex] = caller.intRegs[argReg];
                 break;
-            case TypeTags.BLOB_TAG:
-                callee.byteRegs[++blobRegIndex] = caller.byteRegs[argReg];
-                break;
             default:
                 callee.refRegs[++refRegIndex] = caller.refRegs[argReg];
             }
@@ -93,8 +88,7 @@ public class BLangVMUtils {
         int doubleLocalVals = argRegs[1];
         int stringLocalVals = argRegs[2];
         int booleanLocalVals = argRegs[3];
-        int blobLocalVals = argRegs[4];
-        int refLocalVals = argRegs[5];
+        int refLocalVals = argRegs[4];
 
         for (int i = 0; i <= longLocalVals; i++) {
             callee.longRegs[i] = caller.longRegs[i];
@@ -114,10 +108,6 @@ public class BLangVMUtils {
 
         for (int i = 0; i <= refLocalVals; i++) {
             callee.refRegs[i] = caller.refRegs[i];
-        }
-
-        for (int i = 0; i <= blobLocalVals; i++) {
-            callee.byteRegs[i] = caller.byteRegs[i];
         }
     }
 
@@ -183,13 +173,6 @@ public class BLangVMUtils {
                 }
                 data.intRegs[callersRetRegIndex] = ((BBoolean) vals[i]).booleanValue() ? 1 : 0;
                 break;
-            case TypeTags.BLOB_TAG:
-                if (vals[i] == null) {
-                    data.byteRegs[callersRetRegIndex] = BLangConstants.BLOB_EMPTY_VALUE;
-                    break;
-                }
-                data.byteRegs[callersRetRegIndex] = ((BBlob) vals[i]).blobValue();
-                break;
             default:
                 data.refRegs[callersRetRegIndex] = (BRefType) vals[i];
             }
@@ -245,13 +228,6 @@ public class BLangVMUtils {
                 }
                 result.intRegs[intRegCount++] = ((BBoolean) vals[i]).booleanValue() ? 1 : 0;
                 break;
-            case TypeTags.BLOB_TAG:
-                if (vals[i] == null) {
-                    result.byteRegs[byteRegCount++] = BLangConstants.BLOB_EMPTY_VALUE;
-                    break;
-                }
-                result.byteRegs[byteRegCount++] = ((BBlob) vals[i]).blobValue();
-                break;
             default:
                 result.refRegs[refRegCount++] = (BRefType) vals[i];
             }
@@ -282,9 +258,6 @@ public class BLangVMUtils {
                 boolean boolValue = data.intRegs[retRegs[i]] == 1;
                 returnValues[i] = new BBoolean(boolValue);
                 break;
-            case TypeTags.BLOB_TAG:
-                returnValues[i] = new BBlob(data.byteRegs[retRegs[i]]);
-                break;
             default:
                 returnValues[i] = data.refRegs[retRegs[i]];
                 break;
@@ -314,9 +287,6 @@ public class BLangVMUtils {
             case TypeTags.BOOLEAN_TAG:
                 result[i] += paramWDI.intRegCount;
                 break;
-            case TypeTags.BLOB_TAG:
-                result[i] += paramWDI.byteRegCount;
-                break;
             default:
                 result[i] += paramWDI.refRegCount;
                 break;
@@ -332,8 +302,7 @@ public class BLangVMUtils {
         WorkerDataIndex wdi2 = callableUnitInfo.retWorkerIndex;
         WorkerData local = createWorkerData(wdi1, wdi2);
         BType[] types = callableUnitInfo.getParamTypes();
-        int longParamCount = 0, doubleParamCount = 0, stringParamCount = 0, intParamCount = 0, 
-                byteParamCount = 0, refParamCount = 0;
+        int longParamCount = 0, doubleParamCount = 0, stringParamCount = 0, intParamCount = 0, refParamCount = 0;
         for (int i = 0; i < types.length; i++) {
             switch (types[i].getTag()) {
                 case TypeTags.INT_TAG:
@@ -355,9 +324,6 @@ public class BLangVMUtils {
                     } else {
                         local.intRegs[intParamCount++] = ((BValueType) args[i]).booleanValue() ? 1 : 0;
                     }
-                    break;
-                case TypeTags.BLOB_TAG:
-                    local.byteRegs[byteParamCount++] = ((BValueType) args[i]).blobValue();
                     break;
                 default:
                     local.refRegs[refParamCount++] = (BRefType) args[i];
@@ -405,9 +371,6 @@ public class BLangVMUtils {
             case TypeTags.BOOLEAN_TAG:
                 targetData.intRegs[callersRetRegIndex] = sourceData.intRegs[intRegCount++];
                 break;
-            case TypeTags.BLOB_TAG:
-                targetData.byteRegs[callersRetRegIndex] = sourceData.byteRegs[byteRegCount++];
-                break;
             default:
                 targetData.refRegs[callersRetRegIndex] = sourceData.refRegs[refRegCount++];
                 break;
@@ -417,9 +380,6 @@ public class BLangVMUtils {
     
     public static void mergeInitWorkertData(WorkerData sourceData, WorkerData targetData, 
             CodeAttributeInfo initWorkerCAI) {
-        for (int i = 0; i < initWorkerCAI.getMaxByteLocalVars(); i++) {
-            targetData.byteRegs[i] = sourceData.byteRegs[i];
-        }
         for (int i = 0; i < initWorkerCAI.getMaxDoubleLocalVars(); i++) {
             targetData.doubleRegs[i] = sourceData.doubleRegs[i];
         }

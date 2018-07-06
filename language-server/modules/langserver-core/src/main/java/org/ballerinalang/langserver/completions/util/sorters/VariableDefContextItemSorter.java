@@ -70,6 +70,10 @@ public class VariableDefContextItemSorter extends CompletionItemSorter {
      * @return      {@link String} type of the variable
      */
     String getVariableType(LSServiceOperationContext ctx) {
-        return ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).start.getText();
+        List<String> poppedTokens = ctx.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY)
+                .stream()
+                .map(Token::getText)
+                .collect(Collectors.toList());
+        return poppedTokens.get(0);
     }
 }

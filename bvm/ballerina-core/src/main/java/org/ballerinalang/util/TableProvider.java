@@ -175,9 +175,6 @@ public class TableProvider {
                 case TypeTags.XML_TAG:
                     sb.append(TableConstants.SQL_TYPE_CLOB);
                     break;
-                case TypeTags.BLOB_TAG:
-                    sb.append(TableConstants.SQL_TYPE_BLOB);
-                    break;
                 case TypeTags.ARRAY_TAG:
                     BType elementType = ((BArrayType) sf.getFieldType()).getElementType();
                     if (elementType.getTag() == TypeTags.BYTE_TAG) {

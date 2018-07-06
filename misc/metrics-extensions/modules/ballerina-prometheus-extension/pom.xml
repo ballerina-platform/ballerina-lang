@@ -7,17 +7,18 @@
   ~ in compliance with the License.
   ~ You may obtain a copy of the License at
   ~
-  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~    http://www.apache.org/licenses/LICENSE-2.0
   ~
   ~ Unless required by applicable law or agreed to in writing,
   ~ software distributed under the License is distributed on an
   ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  ~ KIND, either express or implied. See the License for the
+  ~ KIND, either express or implied.  See the License for the
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>metrics-extensions</artifactId>
         <groupId>org.ballerinalang</groupId>
@@ -41,105 +42,146 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-micrometer-extension</artifactId>
+            <artifactId>ballerina-launcher</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-prometheus</artifactId>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-cli-utils</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.prometheus</groupId>
-            <artifactId>simpleclient_httpserver</artifactId>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-builtin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-builtin</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>lib-creator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-http</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-observability</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
         </dependency>
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>ballerina/**</exclude>
+                </excludes>
+            </resource>
+
+            <!-- copy built-in ballerina sources to the jar -->
+            <resource>
+                <directory>${ballerina.source.directory}</directory>
+                <targetPath>META-INF/ballerina</targetPath>
+            </resource>
+        </resources>
+
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <id>ballerina.pull</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <systemProperties>
+                                <systemProperty>
+                                    <key>ballerina.home</key>
+                                    <value>${project.build.directory}</value>
+                                </systemProperty>
+                            </systemProperties>
+                            <arguments>
+                                <argument>${ballerina.source.directory}/prometheus</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>org.ballerinalang.cli.utils.GenerateBalx</mainClass>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>${maven.dependency.plugin.version}</version>
-                <inherited>false</inherited>
                 <executions>
                     <execution>
-                        <id>copy-dependencies</id>
-                        <phase>install</phase>
+                        <id>unpack-dependencies</id>
+                        <phase>generate-resources</phase>
                         <goals>
-                            <goal>copy</goal>
+                            <goal>unpack-dependencies</goal>
                         </goals>
                         <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>${project.artifactId}</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>${project.packaging}</type>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>io.micrometer</groupId>
-                                    <artifactId>micrometer-registry-prometheus</artifactId>
-                                    <version>${micrometer.version}</version>
-                                    <type>${project.packaging}</type>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>io.prometheus</groupId>
-                                    <artifactId>simpleclient</artifactId>
-                                    <version>${prometheus.simple.client.version}</version>
-                                    <type>${project.packaging}</type>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>io.prometheus</groupId>
-                                    <artifactId>simpleclient_common</artifactId>
-                                    <version>${prometheus.simple.client.version}</version>
-                                    <type>${project.packaging}</type>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>io.prometheus</groupId>
-                                    <artifactId>simpleclient_httpserver</artifactId>
-                                    <version>${prometheus.simple.client.version}</version>
-                                    <type>${project.packaging}</type>
-                                </artifactItem>
-                            </artifactItems>
-                            <outputDirectory>${project.build.directory}/prometheus-extension</outputDirectory>
-                            <overWriteReleases>false</overWriteReleases>
-                            <overWriteSnapshots>true</overWriteSnapshots>
-                            <overWriteIfNewer>true</overWriteIfNewer>
-                            <useBaseVersion>true</useBaseVersion>
+                            <includeClassifiers>ballerina-binary-repo</includeClassifiers>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>${maven.antrun.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <mkdir dir="${project.build.directory}/generated-balx/prometheus"/>
+                                <copy file="${ballerina.source.directory}/prometheus/reporter.balx"
+                                      tofile="${project.build.directory}/generated-balx/prometheus/reporter.balx"/>
+                                <delete file="${ballerina.source.directory}/prometheus/reporter.balx"/>
+                            </tasks>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
             <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <descriptors>
-                        <descriptor>src/main/assembly/dist.xml</descriptor>
-                    </descriptors>
-                    <finalName>prometheus-extension</finalName>
-                    <appendAssemblyId>false</appendAssemblyId>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-remote-resources-plugin</artifactId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.5.2</version>
                 <executions>
                     <execution>
+                        <id>distribution</id>
+                        <phase>package</phase>
                         <goals>
-                            <goal>process</goal>
+                            <goal>attached</goal>
                         </goals>
                         <configuration>
-                            <resourceBundles>
-                                <resourceBundle>org.apache:apache-jar-resource-bundle:1.4</resourceBundle>
-                            </resourceBundles>
+                            <descriptorSourceDirectory>assembly</descriptorSourceDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -153,6 +195,11 @@
                     <processors>
                         <processor>org.ballerinalang.codegen.BallerinaAnnotationProcessor</processor>
                     </processors>
+                    <options>
+                        <nativeEntityProviderPackage>io.ballerina.obeserve.metrics.prometheus.generated.providers
+                        </nativeEntityProviderPackage>
+                        <nativeEntityProviderClass>StandardNativeElementProvider</nativeEntityProviderClass>
+                    </options>
                 </configuration>
                 <executions>
                     <execution>
@@ -166,5 +213,13 @@
             </plugin>
         </plugins>
     </build>
+
+    <properties>
+        <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
+        <maven.checkstyleplugin.excludes>
+            **/generated/**,
+            **/generated-sources/**
+        </maven.checkstyleplugin.excludes>
+    </properties>
 
 </project>
