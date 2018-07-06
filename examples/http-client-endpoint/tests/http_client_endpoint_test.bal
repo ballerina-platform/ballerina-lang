@@ -6,11 +6,11 @@ int counter = 0;
 
 // This is the mock function which will replace the real function
 @test:Mock {
-    packageName: "ballerina/log",
-    functionName: "printInfo"
+    packageName: "ballerina/io",
+    functionName: "println"
 }
-public function mockPrint(string msg) {
-    outputs[counter] = msg;
+public function mockPrint(any... a) {
+    outputs[counter] = a[0];
     counter++;
 }
 
@@ -62,14 +62,36 @@ function testFunc() {
 
     // Invoking the main function
     main();
-    test:assertEquals("GET request:", outputs[0]);
-    test:assertEquals(jsonRes1.toString(), outputs[1]);
-    test:assertEquals("\nPOST request:", outputs[2]);
-    test:assertEquals(jsonRes2.toString(), outputs[3]);
-    test:assertEquals("\nPUT request:", outputs[4]);
-    test:assertEquals(jsonRes3.toString(), outputs[5]);
-    test:assertEquals("\nPATCH request:", outputs[6]);
-    test:assertEquals(jsonRes4.toString(), outputs[7]);
-    test:assertEquals("\nDELETE request:", outputs[8]);
-    test:assertEquals(jsonRes5.toString(), outputs[9]);
+
+    test:assertEquals(outputs[0], "GET request:");
+
+    // Remove the headers since the user-agent will be different
+    // from ballerina version to version.
+    json res = check <json>outputs[1];
+    res.remove("headers");
+    test:assertEquals(res, jsonRes1);
+
+    test:assertEquals(outputs[2], "\nPOST request:");
+
+    res = check <json>outputs[3];
+    res.remove("headers");
+    test:assertEquals(res, jsonRes2);
+
+    test:assertEquals(outputs[4], "\nPUT request:");
+
+    res = check <json>outputs[5];
+    res.remove("headers");
+    test:assertEquals(res, jsonRes3);
+
+    test:assertEquals(outputs[6], "\nPATCH request:");
+
+    res = check <json>outputs[7];
+    res.remove("headers");
+    test:assertEquals(res, jsonRes4);
+
+    test:assertEquals(outputs[8], "\nDELETE request:");
+
+    res = check <json>outputs[9];
+    res.remove("headers");
+    test:assertEquals(res, jsonRes5);
 }

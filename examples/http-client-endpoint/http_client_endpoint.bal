@@ -1,4 +1,5 @@
 import ballerina/http;
+import ballerina/io;
 import ballerina/log;
 
 endpoint http:Client clientEndpoint {
@@ -13,14 +14,11 @@ function main(string... args) {
 
     match response {
         http:Response resp => {
-            log:printInfo("GET request:");
+            io:println("GET request:");
             var msg = resp.getJsonPayload();
             match msg {
                 json jsonPayload => {
-                    // Remove headers since the user-agent will be
-                    // different from Ballerina version to version.
-                    jsonPayload.remove("headers");
-                    log:printInfo(jsonPayload.toString());
+                    io:println(jsonPayload);
                 }
                 error err => {
                     log:printError(err.message, err = err);
@@ -35,14 +33,11 @@ function main(string... args) {
     response = clientEndpoint->post("/post", req);
     match response {
         http:Response resp => {
-            log:printInfo("\nPOST request:");
+            io:println("\nPOST request:");
             var msg = resp.getJsonPayload();
             match msg {
                 json jsonPayload => {
-                    // Remove headers since the user-agent will be
-                    // different from Ballerina version to version.
-                    jsonPayload.remove("headers");
-                    log:printInfo(jsonPayload.toString());
+                    io:println(jsonPayload);
                 }
                 error err => {
                     log:printError(err.message, err = err);
@@ -60,14 +55,11 @@ function main(string... args) {
     response = clientEndpoint->put("/put", req);
     match response {
         http:Response resp => {
-            log:printInfo("\nPUT request:");
+            io:println("\nPUT request:");
             var msg = resp.getJsonPayload();
             match msg {
                 json jsonPayload => {
-                    // Remove headers since the user-agent will be
-                    // different from Ballerina version to version.
-                    jsonPayload.remove("headers");
-                    log:printInfo(jsonPayload.toString());
+                    io:println(jsonPayload);
                 }
                 error err => {
                     log:printError(err.message, err = err);
@@ -87,14 +79,11 @@ function main(string... args) {
     response = clientEndpoint->patch("/patch", req);
     match response {
         http:Response resp => {
-            log:printInfo("\nPATCH request:");
+            io:println("\nPATCH request:");
             var msg = resp.getJsonPayload();
             match msg {
                 json jsonPayload => {
-                    // Remove headers since the user-agent will be
-                    // different from Ballerina version to version.
-                    jsonPayload.remove("headers");
-                    log:printInfo(jsonPayload.toString());
+                    io:println(jsonPayload);
                 }
                 error err => {
                     log:printError(err.message, err = err);
@@ -108,14 +97,11 @@ function main(string... args) {
     response = clientEndpoint->delete("/delete", req);
     match response {
         http:Response resp => {
-            log:printInfo("\nDELETE request:");
+            io:println("\nDELETE request:");
             var msg = resp.getJsonPayload();
             match msg {
                 json jsonPayload => {
-                    // Remove headers since the user-agent will be
-                    // different from Ballerina version to version.
-                    jsonPayload.remove("headers");
-                    log:printInfo(jsonPayload.toString());
+                    io:println(jsonPayload);
                 }
                 error err => {
                     log:printError(err.message, err = err);
