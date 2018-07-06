@@ -147,11 +147,11 @@ public class SealedArraysOfArraysTest {
         BAssertUtil.validateError(
                 resultNegative, 20, "size mismatch in sealed array. expected '3', but found '4'", 73, 69);
         BAssertUtil.validateError(
-                resultNegative, 21, "invalid usage of sealed type: 'can not infer array size'", 75, 25);
+                resultNegative, 21, "invalid usage of sealed type: can not infer array size", 75, 25);
         BAssertUtil.validateError(
-                resultNegative, 22, "invalid usage of sealed type: 'can not infer array size'", 75, 29);
+                resultNegative, 22, "invalid usage of sealed type: can not infer array size", 75, 29);
         BAssertUtil.validateError(
-                resultNegative, 23, "invalid usage of sealed type: 'array not initialized'", 76, 5);
+                resultNegative, 23, "invalid usage of sealed type: array not initialized", 76, 5);
         BAssertUtil.validateError(
                 resultNegative, 24, "array index out of range: index: '4', size: '3'", 83, 11);
     }

@@ -152,7 +152,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
-import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -488,15 +487,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Analyze the init expression
         BLangExpression rhsExpr = varNode.expr;
         if (rhsExpr == null) {
-            if (lhsType.tag == TypeTags.ARRAY) {
-                BType type = lhsType;
-                do {
-                    if (((BArrayType) type).state == BArrayState.OPEN_SEALED) {
-                        dlog.error(varNode.pos, DiagnosticCode.INVALID_USAGE_OF_SEALED_TYPE, "array not initialized");
-                        return;
-                    }
-                    type = ((BArrayType) type).eType;
-                } while (type.tag == TypeTags.ARRAY);
+            if (lhsType.tag == TypeTags.ARRAY && typeChecker.isArrayOpenSealedType((BArrayType) lhsType)) {
+                dlog.error(varNode.pos, DiagnosticCode.SEALED_ARRAY_TYPE_NOT_INITIALIZED);
+                return;
             }
             if (varNode.symbol.owner.tag == SymTag.PACKAGE && !types.defaultValueExists(varNode.pos, varNode.type)) {
                 dlog.error(varNode.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, varNode.name);
@@ -517,7 +510,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         handleSafeAssignment(varNode.pos, lhsType, rhsExpr, varInitEnv);
     }
-
 
     // Statements
 
