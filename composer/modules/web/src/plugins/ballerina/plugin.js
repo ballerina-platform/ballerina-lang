@@ -164,18 +164,7 @@ class BallerinaPlugin extends Plugin {
                         };
                     },
                     newFileContentProvider: (fileFullPath) => {
-                        if (!fileFullPath) {
-                            return '';
-                        }
-                        const { workspace } = this.appContext;
-                        const pathSep = getPathSeperator();
-                        const pathParts = fileFullPath.split(pathSep);
-                        pathParts.splice(-1, 1);
-                        const filePath = pathParts.join(pathSep);
-                        const workspaceDir = workspace.getExplorerFolderForPath(filePath);
-                        const programDir = workspaceDir ? workspaceDir.fullPath : undefined;
-                        const pkg = getCorrectPackageForPath(programDir, filePath);
-                        return pkg ? `package ${pkg};` : '';
+                        return '';
                     },
                 },
             ],
