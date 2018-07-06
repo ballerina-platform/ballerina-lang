@@ -47,9 +47,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Testing pushing a package to central.
+ * Testing pushing and pulling a package to central.
  */
-public class PackagingPushTestCase extends IntegrationTestCase {
+public class PackagingPushPullTestCase extends IntegrationTestCase {
     private ServerInstance ballerinaClient;
     private String serverZipPath;
     private Path tempHomeDirectory;
@@ -187,7 +187,23 @@ public class PackagingPushTestCase extends IntegrationTestCase {
         HttpResponse response = HttpClientRequest.doGet(stagingURL + "integrationtests/" + packageName
                                                                 + "/1.0.0");
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        ballerinaClient.stopServer();
+    }
 
+    @Test(description = "Test pulling a package from central", dependsOnMethods = "testPush")
+    public void testPull() throws Exception {
+        ballerinaClient = new ServerInstance(serverZipPath);
+        String[] clientArgs = {"integrationtests/" + packageName + ":1.0.0"};
+
+        Thread.sleep(10000);
+        ballerinaClient.runMain(clientArgs, getEnvVariables(), "pull");
+
+        Path dirPath = Paths.get(ProjectDirConstants.CACHES_DIR_NAME, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME,
+                                 "integrationtests", packageName, "1.0.0");
+
+        Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(dirPath)));
+        Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(dirPath).resolve(packageName + ".zip")));
+        ballerinaClient.stopServer();
     }
 
     /**
@@ -226,7 +242,6 @@ public class PackagingPushTestCase extends IntegrationTestCase {
 
     @AfterClass
     private void cleanup() throws Exception {
-        ballerinaClient.stopServer();
         deleteFiles(tempHomeDirectory);
         deleteFiles(tempProjectDirectory);
     }
