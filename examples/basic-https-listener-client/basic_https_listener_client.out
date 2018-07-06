@@ -1,3 +1,4 @@
 $ ballerina run basic_https_listener_client.bal
+# This command will first start the service and then run the main function.
 ballerina: started HTTPS/WSS endpoint 0.0.0.0:9095
 INFO  [] - Hello World!
