@@ -28,6 +28,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.socket.SocketConstants;
+import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,8 +62,22 @@ public class Accept implements NativeCallableUnit {
         int serverSocketHash = serverSocketChannel.hashCode();
         SocketChannel socketChannel = SocketQueue.getInstance().getSocket(serverSocketHash);
         if (socketChannel != null) {
-            ServerSocketUtils.createSocket(context, callback, socketChannel);
+            if (log.isDebugEnabled()) {
+                log.debug("Socket already connected. Return immediately.");
+            }
+            try {
+                final BMap<String, BValue> socket = ServerSocketUtils.createSocket(context, socketChannel);
+                context.setReturnValues(socket);
+                callback.notifySuccess();
+            } catch (Throwable e) {
+                String msg = "Failed to open a client connection: " + e.getMessage();
+                log.error(msg, e);
+                context.setReturnValues(IOUtils.createError(context, msg));
+            }
         } else {
+            if (log.isDebugEnabled()) {
+                log.debug("No new socket available. Adding to SocketAcceptCallbackQueue.");
+            }
             SocketAcceptCallbackQueue queue = SocketAcceptCallbackQueue.getInstance();
             queue.registerSocketAcceptCallback(serverSocketHash, new SocketAcceptCallback(context, callback));
         }
