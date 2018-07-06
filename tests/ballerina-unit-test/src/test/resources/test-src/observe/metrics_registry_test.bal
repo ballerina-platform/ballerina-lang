@@ -8,14 +8,14 @@ function getAllMetricsSize() returns (int) {
 
 function registerAngGetMetrics() returns (int) {
     map<string> tags = { "method": "PUT" };
-    observe:Counter counter1 = new("requests_total", desc = "Total requests.", tags = tags);
+    observe:Counter counter1 = new("service_requests_total", desc = "Total requests.", tags = tags);
     _ = counter1.register();
     counter1.increment(amount = 5);
     return getAllMetricsSize();
 }
 
 function lookupRegisteredMetrics() returns (boolean) {
-    string name = "requests_total";
+    string name = "service_requests_total";
     map<string> tags = { "method": "PUT" };
     observe:Counter|observe:Gauge|() metric = observe:lookupMetric(name, tags = tags);
     match metric {
@@ -29,7 +29,7 @@ function lookupRegisteredMetrics() returns (boolean) {
 }
 
 function lookupRegisteredNameOnlyMetrics() returns (boolean) {
-    string name = "requests_total";
+    string name = "service_requests_total";
     observe:Counter|observe:Gauge|() metric = observe:lookupMetric(name);
     match metric {
         observe:Counter counter => return true;
@@ -39,7 +39,7 @@ function lookupRegisteredNameOnlyMetrics() returns (boolean) {
 }
 
 function lookupRegisterAndIncrement() returns (boolean) {
-    string name = "requests_total";
+    string name = "service_requests_total";
     map<string> tags = { "method": "PUT" };
     observe:Counter|observe:Gauge|() metric = observe:lookupMetric(name, tags = tags);
     match metric {
