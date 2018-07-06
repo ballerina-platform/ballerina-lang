@@ -33,7 +33,6 @@ public class MutualSSLTestCase extends IntegrationTestCase {
 
     private ServerInstance ballerinaServer;
     private ServerInstance ballerinaClient;
-    private String serverZipPath;
 
     @Test
     public void setUp() throws BallerinaTestException {
@@ -46,7 +45,7 @@ public class MutualSSLTestCase extends IntegrationTestCase {
 
     @Test (description = "Test mutual ssl")
     public void testMutualSSL() throws Exception {
-        serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
+        String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
         String serverMessage = "successful";
         String serverResponse = "hello world";
 
@@ -64,7 +63,7 @@ public class MutualSSLTestCase extends IntegrationTestCase {
         clientLeecher.waitForText(20000);
     }
 
-    @AfterClass ()
+    @AfterClass
     private void cleanup() throws Exception {
         ballerinaServer.stopServer();
         ballerinaClient.stopServer();
