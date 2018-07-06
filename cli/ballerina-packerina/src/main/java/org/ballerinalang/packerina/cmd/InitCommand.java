@@ -86,10 +86,11 @@ public class InitCommand implements BLauncherCmd {
             if (interactiveFlag) {
 
                 // Check if Ballerina.toml file needs to be created.
-                out.print("Create Ballerina.toml [yes/y, no/n]: (n) ");
+                out.print("Create Ballerina.toml [yes/y, no/n]: (y) ");
                 String createToml = scanner.nextLine().trim();
 
-                if (createToml.equalsIgnoreCase("yes") || createToml.equalsIgnoreCase("y")) {
+                if (createToml.equalsIgnoreCase("yes") || createToml.equalsIgnoreCase("y") ||
+                        createToml.isEmpty()) {
                     manifest = new Manifest();
 
                     String defaultOrg = guessOrgName();
@@ -113,11 +114,7 @@ public class InitCommand implements BLauncherCmd {
                 boolean validInput = false;
                 boolean first = true;
                 do {
-                    if (first) {
-                        out.print("Ballerina source [service/s, main/m]: (s) ");
-                    } else {
-                        out.print("Ballerina source [service/s, main/m, finish/f]: (f) ");
-                    }
+                    out.print("Ballerina source [service/s, main/m, finish/f]: (f) ");
                     srcInput = scanner.nextLine().trim();
 
                     if (srcInput.equalsIgnoreCase("service") || srcInput.equalsIgnoreCase("s") ||
@@ -150,6 +147,9 @@ public class InitCommand implements BLauncherCmd {
 
                 out.print("\n");
             } else {
+                manifest = new Manifest();
+                manifest.setName(guessOrgName());
+                manifest.setVersion(DEFAULT_VERSION);
                 if (isDirEmpty(projectPath)) {
                     SrcFile srcFile = new SrcFile("", FileType.SERVICE);
                     sourceFiles.add(srcFile);
