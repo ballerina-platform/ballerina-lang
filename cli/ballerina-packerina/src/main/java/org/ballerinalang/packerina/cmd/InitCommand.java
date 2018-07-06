@@ -89,8 +89,7 @@ public class InitCommand implements BLauncherCmd {
                 out.print("Create Ballerina.toml [yes/y, no/n]: (y) ");
                 String createToml = scanner.nextLine().trim();
 
-                if (createToml.equalsIgnoreCase("yes") || createToml.equalsIgnoreCase("y") ||
-                        createToml.isEmpty()) {
+                if (createToml.equalsIgnoreCase("yes") || createToml.equalsIgnoreCase("y") || createToml.isEmpty()) {
                     manifest = new Manifest();
 
                     String defaultOrg = guessOrgName();
@@ -116,8 +115,7 @@ public class InitCommand implements BLauncherCmd {
                     out.print("Ballerina source [service/s, main/m, finish/f]: (f) ");
                     srcInput = scanner.nextLine().trim();
 
-                    if (srcInput.equalsIgnoreCase("service") || srcInput.equalsIgnoreCase("s") ||
-                            srcInput.isEmpty()) {
+                    if (srcInput.equalsIgnoreCase("service") || srcInput.equalsIgnoreCase("s") || srcInput.isEmpty()) {
                         out.print("Package for the service : (no package) ");
                         String packageName = scanner.nextLine().trim();
                         SrcFile srcFile = new SrcFile(packageName, FileType.SERVICE);
