@@ -498,7 +498,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     /**
-     * This method will recursively check if a multidimensional array has at least one open sealed dimension
+     * This method will recursively check if a multidimensional array has at least one open sealed dimension.
      *
      * @param arrayType array to check if open sealed
      * @return true if at least one dimension is open sealed
