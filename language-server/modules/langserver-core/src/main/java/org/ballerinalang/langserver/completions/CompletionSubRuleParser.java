@@ -84,11 +84,11 @@ public class CompletionSubRuleParser {
         if (poppedTokens.contains(UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY)) {
             // In the ideal scenario, next node key should be populated at the symbol visitor.
             // If not (Parser unable to build the next node and not available in the bLangPackage) get it from tokens
-            if (context.get(CompletionKeys.NEXT_NODE_KEY) == null) {
-                String nextNodeType = getNextNodeTypeString(context.get(CompletionKeys.TOKEN_STREAM_KEY),
-                        CommonUtil.getCurrentTokenFromTokenStream(context));
-                context.put(CompletionKeys.NEXT_NODE_KEY, nextNodeType);
-            }
+            // Sometimes the node key can be null and for a special case of resource, node type can be invalid (need a
+            // fix in the custom error strategy)
+            String nextNodeType = getNextNodeTypeString(context.get(CompletionKeys.TOKEN_STREAM_KEY),
+                        CommonUtil.getCurrentTokenFromTokenStream(context), context);
+            context.put(CompletionKeys.NEXT_NODE_KEY, nextNodeType);
             return;
         }
         BLangNode symbolEnvNode = context.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
@@ -124,7 +124,7 @@ public class CompletionSubRuleParser {
         // If the popped token list contains the import declaration,
         // then make the parser rule context import declaration without parsing.
         // Note: "import ba" can be identified as global variable definition by parser
-        if (poppedTokens.contains("import")) {
+        if (poppedTokens.contains(UtilSymbolKeys.IMPORT_KEYWORD_KEY)) {
             context.put(CompletionKeys.PARSER_RULE_CONTEXT_KEY, new BallerinaParser.ImportDeclarationContext(null, 0));
         } else if (!isCursorWithinAnnotationContext(context)) {
             // If for any completion error strategy issue popped tokens are empty, we recalculate
@@ -139,7 +139,7 @@ public class CompletionSubRuleParser {
             getParser(context, rule).compilationUnit();
             // This is to alter the parser rule context found in the parser, when it is service definition
             // and incorrectly identified as globalVariableDefCtx
-            if (!poppedTokens.isEmpty() && poppedTokens.get(0).equals("service")
+            if (!poppedTokens.isEmpty() && poppedTokens.get(0).equals(UtilSymbolKeys.SERVICE_KEYWORD_KEY)
                     && context.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY)
                     instanceof BallerinaParser.GlobalVariableDefinitionContext) {
                 context.put(CompletionKeys.PARSER_RULE_CONTEXT_KEY,
@@ -152,7 +152,6 @@ public class CompletionSubRuleParser {
         String tokenString = getCombinedTokenString(context);
         String functionRule = "function testFunction () {" + CommonUtil.LINE_SEPARATOR + "\t" + tokenString +
                 CommonUtil.LINE_SEPARATOR + "}";
-        
         getParser(context, functionRule).functionDefinition();
     }
 
@@ -171,7 +170,7 @@ public class CompletionSubRuleParser {
      * Therefore we grab the most recent/suitable expression/ statement.
      * 
      * Note: If within a statement or expression resolver we need more fine grain parsing based on the parser rule
-     * context, we can use the children rules for coutaions.
+     * context, we can use the children rules for computations.
      * 
      * @param context   Language Server Completion Context
      */
@@ -211,7 +210,12 @@ public class CompletionSubRuleParser {
         TokenStream tokenStream = ctx.get(CompletionKeys.TOKEN_STREAM_KEY);
         Position cursorPosition = ctx.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         Queue<String> fieldsQueue = new LinkedList<>();
-        ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList("function", "service", "endpoint", "("));
+        ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(
+                UtilSymbolKeys.FUNCTION_KEYWORD_KEY,
+                UtilSymbolKeys.SERVICE_KEYWORD_KEY,
+                UtilSymbolKeys.ENDPOINT_KEYWORD_KEY,
+                UtilSymbolKeys.OPEN_BRACKET_KEY)
+        );
         int currentTokenIndex = CommonUtil.getCurrentTokenFromTokenStream(ctx);
         int startIndex = currentTokenIndex;
         int line = cursorPosition.getLine();
@@ -268,28 +272,32 @@ public class CompletionSubRuleParser {
         annotationName = fieldsQueue.poll();
         ctx.put(CompletionKeys.ANNOTATION_ATTACHMENT_META_KEY,
                 new AnnotationAttachmentMetaInfo(annotationName, fieldsQueue, pkgAlias,
-                        getNextNodeTypeString(tokenStream, currentTokenIndex)));
+                        getNextNodeTypeString(tokenStream, currentTokenIndex, ctx)));
         ctx.put(CompletionKeys.SYMBOL_ENV_NODE_KEY, new BLangAnnotationAttachment());
         
         return true;
     }
     
-    private static String getNextNodeTypeString(TokenStream tokenStream, int index) {
-        String nodeType = "";
-        List<String> nodeTypes = new ArrayList<>(Arrays.asList("service", "function", "endpoint"));
+    private static String getNextNodeTypeString(TokenStream tokenStream, int index, LSContext context) {
+        String nodeType = context.get(CompletionKeys.NEXT_NODE_KEY);
+        List<String> nodeTypes = new ArrayList<>(Arrays.asList(
+                UtilSymbolKeys.SERVICE_KEYWORD_KEY,
+                UtilSymbolKeys.FUNCTION_KEYWORD_KEY,
+                UtilSymbolKeys.ENDPOINT_KEYWORD_KEY)
+        );
         
         while (true) {
-            if (index >= tokenStream.size()) {
+            if (tokenStream == null || index >= tokenStream.size()) {
                 break;
             }
             Token token = CommonUtil.getNextDefaultToken(tokenStream, index);
-            if (token.getText().equals(";")) {
+            if (token.getText().equals(UtilSymbolKeys.SEMI_COLON_SYMBOL_KEY)) {
                 break;
             } else if (nodeTypes.contains(token.getText())) {
-                if (token.getText().equals("endpoint")
+                if (token.getText().equals(UtilSymbolKeys.ENDPOINT_KEYWORD_KEY)
                         && CommonUtil.getPreviousDefaultToken(tokenStream, token.getTokenIndex()).getText()
                         .equals(UtilSymbolKeys.OPEN_BRACKET_KEY)) {
-                    nodeType = "resource";
+                    nodeType = UtilSymbolKeys.RESOURCE_KEYWORD_KEY;
                 } else {
                     nodeType = token.getText();
                 }
@@ -316,7 +324,7 @@ public class CompletionSubRuleParser {
                 Stack<Token> poppedTokenStack = new Stack<>();
                 poppedTokenStack.addAll(poppedTokens);
                 ctx.put(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY, poppedTokenStack);
-                ctx.put(CompletionKeys.NEXT_NODE_KEY, getNextNodeTypeString(tokenStream, currentTokenIndex));
+                ctx.put(CompletionKeys.NEXT_NODE_KEY, getNextNodeTypeString(tokenStream, currentTokenIndex, ctx));
                 withinAnnotationContext = true;
             } else {
                 withinAnnotationContext = fillAnnotationAttachmentMetaInfo(ctx);

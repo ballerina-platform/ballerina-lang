@@ -292,6 +292,10 @@ public class CommonUtil {
         int tokenCol;
         int index = 0;
         
+        if (tokenStream == null) {
+            return -1;
+        }
+        
         while (true) {
             Token token = tokenStream.get(index);
             tokenLine = token.getLine() - 1;
