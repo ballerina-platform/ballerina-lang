@@ -22,6 +22,7 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerInstance;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -39,6 +40,7 @@ import java.util.Map;
  */
 public class PackagingSearchTestCase extends IntegrationTestCase {
     private String serverZipPath;
+    private ServerInstance ballerinaClient;
 
     @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
@@ -47,7 +49,7 @@ public class PackagingSearchTestCase extends IntegrationTestCase {
 
     @Test(description = "Test pulling a package from central")
     public void testPull() throws Exception {
-        ServerInstance ballerinaClient = new ServerInstance(serverZipPath);
+        ballerinaClient = new ServerInstance(serverZipPath);
         String[] clientArgs = {"searchTestPackage"};
 
         Path outputFilePath = Paths.get(new File("src" + File.separator + "test" + File.separator + "resources"
@@ -73,5 +75,10 @@ public class PackagingSearchTestCase extends IntegrationTestCase {
         envVarMap.forEach((key, value) -> variables.add(key + "=" + value));
         variables.add("BALLERINA_DEV_STAGE_CENTRAL" + "=" + "true");
         return variables.toArray(new String[variables.size()]);
+    }
+
+    @AfterClass
+    private void cleanup() throws Exception {
+        ballerinaClient.stopServer();
     }
 }
