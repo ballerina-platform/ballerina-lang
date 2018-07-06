@@ -29,7 +29,7 @@ import java.util.Map;
 public class FormattingVisitor {
 
     private static final String TAB = "\t";
-    private static final String SPACE_TAB = "   ";
+    private static final String SPACE_TAB = "    ";
     private static final String BETWEEN_BLOCK_SPACE = "\r\n\r\n";
     private static final String SINGLE_SPACE = " ";
     private static final String NEW_LINE = "\r\n";
