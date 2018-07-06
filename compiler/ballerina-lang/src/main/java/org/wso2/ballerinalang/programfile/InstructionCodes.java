@@ -185,9 +185,10 @@ public interface InstructionCodes {
     int S2XML = 156;
     int XML2S = 157;
 
-    int BISHL = 158;
-    int BISHR = 159;
-    int BIUSHR = 160;
+    int BILSHIFT = 158;
+    int BIRSHIFT = 159;
+    int ILSHIFT = 160;
+    int IRSHIFT = 161;
 
     // Type cast
     int I2ANY = 162;

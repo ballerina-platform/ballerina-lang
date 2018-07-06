@@ -1301,9 +1301,10 @@ public class PackageInfoReader {
                 case InstructionCodes.BIOR:
                 case InstructionCodes.IXOR:
                 case InstructionCodes.BIXOR:
-                case InstructionCodes.BISHL:
-                case InstructionCodes.BISHR:
-                case InstructionCodes.BIUSHR:
+                case InstructionCodes.BILSHIFT:
+                case InstructionCodes.BIRSHIFT:
+                case InstructionCodes.IRSHIFT:
+                case InstructionCodes.ILSHIFT:
                 case InstructionCodes.XMLATTRLOAD:
                 case InstructionCodes.XMLATTRSTORE:
                 case InstructionCodes.S2QNAME:

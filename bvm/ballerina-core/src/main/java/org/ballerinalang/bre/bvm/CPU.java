@@ -349,9 +349,10 @@ public class CPU {
                     case InstructionCodes.BIOR:
                     case InstructionCodes.IXOR:
                     case InstructionCodes.BIXOR:
-                    case InstructionCodes.BISHL:
-                    case InstructionCodes.BISHR:
-                    case InstructionCodes.BIUSHR:
+                    case InstructionCodes.BILSHIFT:
+                    case InstructionCodes.BIRSHIFT:
+                    case InstructionCodes.IRSHIFT:
+                    case InstructionCodes.ILSHIFT:
                         execBinaryOpCodes(ctx, sf, opcode, operands);
                         break;
     
@@ -1828,23 +1829,29 @@ public class CPU {
                 k = operands[2];
                 sf.longRegs[k] = sf.longRegs[i] ^ sf.longRegs[j];
                 break;
-            case InstructionCodes.BISHL:
+            case InstructionCodes.BILSHIFT:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.longRegs[k] = sf.longRegs[i] << sf.longRegs[j];
+                sf.intRegs[k] = (byte) (sf.intRegs[i] << sf.longRegs[j]);
                 break;
-            case InstructionCodes.BISHR:
+            case InstructionCodes.BIRSHIFT:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.longRegs[k] = sf.longRegs[i] >> sf.longRegs[j];
+                sf.intRegs[k] = (byte) (sf.intRegs[i] >>> sf.longRegs[j]);
                 break;
-            case InstructionCodes.BIUSHR:
+            case InstructionCodes.IRSHIFT:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
                 sf.longRegs[k] = sf.longRegs[i] >>> sf.longRegs[j];
+                break;
+            case InstructionCodes.ILSHIFT:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.longRegs[k] = sf.longRegs[i] << sf.longRegs[j];
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -2199,7 +2206,7 @@ public class CPU {
             case InstructionCodes.BI2I:
                 i = operands[0];
                 j = operands[1];
-                sf.longRegs[j] = (long) sf.intRegs[i];
+                sf.longRegs[j] = Byte.toUnsignedInt((byte) sf.intRegs[i]);
                 break;
             case InstructionCodes.F2I:
                 i = operands[0];
