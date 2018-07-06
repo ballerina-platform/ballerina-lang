@@ -112,13 +112,12 @@ public class InitCommand implements BLauncherCmd {
 
                 String srcInput;
                 boolean validInput = false;
-                boolean first = true;
                 do {
                     out.print("Ballerina source [service/s, main/m, finish/f]: (f) ");
                     srcInput = scanner.nextLine().trim();
 
                     if (srcInput.equalsIgnoreCase("service") || srcInput.equalsIgnoreCase("s") ||
-                            (first && srcInput.isEmpty())) {
+                            srcInput.isEmpty()) {
                         out.print("Package for the service : (no package) ");
                         String packageName = scanner.nextLine().trim();
                         SrcFile srcFile = new SrcFile(packageName, FileType.SERVICE);
@@ -141,8 +140,6 @@ public class InitCommand implements BLauncherCmd {
                     } else {
                         out.println("Invalid input");
                     }
-
-                    first = false;
                 } while (!validInput);
 
                 out.print("\n");
