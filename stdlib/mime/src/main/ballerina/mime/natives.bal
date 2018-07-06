@@ -134,7 +134,7 @@ function MediaType::toString() returns (string) {
     }
     int index = 0;
     while (index < size) {
-        string value = self.parameters[arrKeys[index]];
+        string value = self.parameters[arrKeys[index]] but { () => "" };
         if (index == size - 1) {
             contentType = contentType + arrKeys[index] + "=" + value;
             break;

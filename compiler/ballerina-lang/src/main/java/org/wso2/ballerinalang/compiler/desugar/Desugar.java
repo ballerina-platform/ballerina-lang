@@ -1194,8 +1194,8 @@ public class Desugar extends BLangNodeVisitor {
                                                           indexAccessExpr.indexExpr,
                                                           (BVarSymbol) indexAccessExpr.symbol);
         } else if (varRefType.tag == TypeTags.MAP) {
-            targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos,
-                    indexAccessExpr.expr, indexAccessExpr.indexExpr, !indexAccessExpr.type.isNullable());
+            targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr, indexAccessExpr.indexExpr,
+                    !indexAccessExpr.type.isNullable());
         } else if (varRefType.tag == TypeTags.JSON || getElementType(varRefType).tag == TypeTags.JSON) {
             targetVarRef = new BLangJSONAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
@@ -2749,16 +2749,16 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private boolean safeNavigateLHS(BLangExpression expr) {
-        if (expr.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR && expr.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR) {
+        if (expr.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR && expr.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR) {
             return false;
         }
 
-        BLangAccessExpression accessExpr = (BLangAccessExpression) expr;
-        if (accessExpr.expr.type.tag == TypeTags.JSON) {
-            return accessExpr.expr.type.isNullable();
+        BLangVariableReference varRef = ((BLangAccessExpression) expr).expr;
+        if (varRef.type.tag == TypeTags.JSON) {
+            return varRef.type.isNullable();
         }
 
-        return safeNavigateLHS(accessExpr.expr);
+        return safeNavigateLHS(varRef);
     }
 
     private BLangStatement rewriteSafeNavigationAssignment(BLangAccessExpression accessExpr, BLangExpression rhsExpr,

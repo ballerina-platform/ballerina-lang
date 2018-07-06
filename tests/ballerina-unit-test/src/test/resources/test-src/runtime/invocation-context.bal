@@ -20,7 +20,7 @@ function testUserClaims () returns (boolean) {
     map claims = {email:"tom@ballerina.com", org:"wso2"};
     runtime:getInvocationContext().userPrincipal.claims = claims;
     if (runtime:getInvocationContext().userPrincipal.claims.hasKey("email")) {
-        string emailInContext = <string>runtime:getInvocationContext().userPrincipal.claims["email"];
+        string emailInContext = runtime:getInvocationContext().userPrincipal.claims["email"] but { () => "", any a => <string> a};
         return "tom@ballerina.com" == emailInContext;
     }
     return false;

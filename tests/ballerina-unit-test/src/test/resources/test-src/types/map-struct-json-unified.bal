@@ -63,7 +63,7 @@ function testAccessMapInStruct () returns (any, any, any, string) {
 
     match p1["parent"] {
         Person p2 =>{
-                city = <string>p2.address[cityKey];
+                city = p2.address[cityKey] but { () => "", any a => <string> a};
                 return (p2.address.city, p2["address"]["city"], p2.address["city"], city);
          }
         any | () => {

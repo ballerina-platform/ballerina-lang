@@ -245,11 +245,11 @@ function testSealedArrayConstrainedMap (int[3] x1, int[] x2) returns int {
     map<int[]> x;
     x["v1"] = x1;
     x["v2"] = x2;
-    return x["v1"][2];
+    return x.v1[2];
 }
 
 function testSealedArrayConstrainedMapInvalidIndex (int[3] x1, int index) {
     map<int[]> x;
     x["v1"] = x1;
-    x["v1"][index] = 4;
+    x.v1[index] = 4;
 }
