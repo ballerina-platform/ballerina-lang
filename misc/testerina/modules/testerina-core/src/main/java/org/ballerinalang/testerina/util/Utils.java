@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.testerina.util;
 
+import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
@@ -41,6 +42,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -171,6 +173,8 @@ public class Utils {
             outStream.println();
             return;
         }
+
+        LauncherUtils.loadConfigurations(sourceRootPath, new HashMap<>(), null, false);
 
         Path[] paths = sourceFileList.stream().map(Paths::get).toArray(Path[]::new);
         Utils.setManifestConfigs();
