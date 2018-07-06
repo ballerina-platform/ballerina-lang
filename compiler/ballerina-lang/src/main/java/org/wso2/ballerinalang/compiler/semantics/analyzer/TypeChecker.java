@@ -540,15 +540,15 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_GET_ALL_FIELDS, varRefType);
         }
 
-        Name fieldName = names.fromIdNode(fieldAccessExpr.field);
-
         // error lifting on lhs is not supported
         if (fieldAccessExpr.lhsVar && fieldAccessExpr.safeNavigate) {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.INVALID_ERROR_LIFTING_ON_LHS);
-            varRefType = symTable.errType;
-        } else {
-            varRefType = getSafeType(varRefType, fieldAccessExpr);
+            resultType = symTable.errType;
+            return;
         }
+
+        varRefType = getSafeType(varRefType, fieldAccessExpr);
+        Name fieldName = names.fromIdNode(fieldAccessExpr.field);
 
         // Get the effective types of the expression. If there are errors/nill propagating from parent
         // expressions, then the effective type will include those as well.
