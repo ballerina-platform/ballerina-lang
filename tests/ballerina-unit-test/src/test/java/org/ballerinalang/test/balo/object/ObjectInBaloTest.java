@@ -395,7 +395,7 @@ public class ObjectInBaloTest {
         Assert.assertEquals(result.getErrorCount(), 3);
         BAssertUtil.validateError(result, 0, "variable 'pp' is not initialized", 3, 1);
         BAssertUtil.validateError(result, 1, "variable 'p' is not initialized", 6, 5);
-        BAssertUtil.validateError(result, 2, "undefined function 'attachInterface' in struct " +
+        BAssertUtil.validateError(result, 2, "undefined function 'attachInterface' in object " +
                 "'testorg/foo:v1:Architect'", 7, 13);
     }
 

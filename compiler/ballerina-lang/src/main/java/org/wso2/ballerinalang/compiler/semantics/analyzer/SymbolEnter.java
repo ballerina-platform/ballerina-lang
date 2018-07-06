@@ -680,7 +680,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             if (symbol == symTable.notFoundSymbol) {
-                dlog.error(varNode.pos, DiagnosticCode.UNDEFINED_OBJECT_FIELD, varName, env.enclTypeDefinition.name);
+                dlog.error(varNode.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, varName,
+                        env.enclTypeDefinition.symbol.type.getKind().typeName(), env.enclTypeDefinition.name);
             }
             varNode.type = symbol.type;
             Name updatedVarName = varName;
@@ -1131,30 +1132,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                     SymbolEnv invokableEnv) {
         BInvokableType funcType = (BInvokableType) funcSymbol.type;
         BRecordTypeSymbol recordSymbol = (BRecordTypeSymbol) funcNode.receiver.type.tsymbol;
-        BSymbol symbol = symResolver.lookupMemberSymbol(
-                funcNode.receiver.pos, recordSymbol.scope, invokableEnv,
-                names.fromIdNode(funcNode.name), SymTag.VARIABLE);
-        if (symbol != symTable.notFoundSymbol) {
-            dlog.error(funcNode.pos, DiagnosticCode.STRUCT_FIELD_AND_FUNC_WITH_SAME_NAME,
-                    funcNode.name.value, funcNode.receiver.type.toString());
-            return;
-        }
 
-        BAttachedFunction attachedFunc = new BAttachedFunction(
+        recordSymbol.initializerFunc = new BAttachedFunction(
                 names.fromIdNode(funcNode.name), funcSymbol, funcType);
-
-        // Check whether this attached function is a struct initializer.
-        if (!Names.INIT_FUNCTION_SUFFIX.value.equals(funcNode.name.value)) {
-            dlog.error(funcNode.pos, DiagnosticCode.INVALID_STRUCT_INITIALIZER_FUNCTION,
-                    funcNode.name.value, funcNode.receiver.type.toString());
-            return;
-        }
-
-        if (!funcNode.requiredParams.isEmpty() || funcNode.returnTypeNode.type != symTable.nilType) {
-            dlog.error(funcNode.pos, DiagnosticCode.INVALID_STRUCT_INITIALIZER_FUNCTION,
-                    funcNode.name.value, funcNode.receiver.type.toString());
-        }
-        recordSymbol.initializerFunc = attachedFunc;
     }
 
     private void validateFunctionsAttachedToObject(BLangFunction funcNode, BInvokableSymbol funcSymbol,
@@ -1165,7 +1145,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BSymbol symbol = symResolver.lookupMemberSymbol(funcNode.receiver.pos, objectSymbol.scope, invokableEnv,
                 names.fromIdNode(funcNode.name), SymTag.VARIABLE);
         if (symbol != symTable.notFoundSymbol) {
-            dlog.error(funcNode.pos, DiagnosticCode.STRUCT_FIELD_AND_FUNC_WITH_SAME_NAME,
+            dlog.error(funcNode.pos, DiagnosticCode.OBJECT_FIELD_AND_FUNC_WITH_SAME_NAME,
                     funcNode.name.value, funcNode.receiver.type.toString());
             return;
         }
@@ -1181,8 +1161,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         if (funcNode.returnTypeNode.type != symTable.nilType) {
-            //TODO change message
-            dlog.error(funcNode.pos, DiagnosticCode.INVALID_STRUCT_INITIALIZER_FUNCTION,
+            dlog.error(funcNode.pos, DiagnosticCode.INVALID_OBJECT_CONSTRUCTOR,
                     funcNode.name.value, funcNode.receiver.type.toString());
         }
         objectSymbol.initializerFunc = attachedFunc;
