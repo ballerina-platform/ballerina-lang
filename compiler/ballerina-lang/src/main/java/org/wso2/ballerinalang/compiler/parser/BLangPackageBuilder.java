@@ -690,9 +690,7 @@ public class BLangPackageBuilder {
                                   boolean restParamAvail) {
         InvokableNode invNode = this.invokableNodeStack.peek();
         BLangIdentifier identifierNode = (BLangIdentifier) this.createIdentifier(identifier);
-        if (identifierPos != null) {
-            identifierNode.pos = identifierPos;
-        }
+        identifierNode.pos = identifierPos;
         invNode.setName(identifierNode);
         invNode.addWS(ws);
         BLangType returnTypeNode;
@@ -3272,7 +3270,7 @@ public class BLangPackageBuilder {
     }
 
     void endScopeStmt(DiagnosticPos pos, Set<Whitespace> ws, BLangIdentifier scopeName,
-            BLangLambdaFunction compensationFunction) {
+                      BLangLambdaFunction compensationFunction) {
         BLangScope scope = (BLangScope) scopeNodeStack.pop();
         scope.pos = pos;
         scope.addWS(ws);
