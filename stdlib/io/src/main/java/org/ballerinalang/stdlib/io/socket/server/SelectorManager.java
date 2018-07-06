@@ -45,8 +45,8 @@ public class SelectorManager {
 
     private static Selector selector;
     private static boolean running = false;
-    private static ThreadFactory blangThreadFactory = new BLangThreadFactory("socket-select");
-    private static ExecutorService executor = Executors.newSingleThreadExecutor(blangThreadFactory);
+    private static ThreadFactory threadFactory = new BLangThreadFactory("socket-selector");
+    private static ExecutorService executor = Executors.newSingleThreadExecutor(threadFactory);
     private static boolean execution = true;
 
     /**
@@ -74,24 +74,33 @@ public class SelectorManager {
                 while (execution) {
                     try {
                         selector.select(2000);
-                        Iterator<SelectionKey> iter = selector.selectedKeys().iterator();
-                        while (iter.hasNext()) {
-                            SelectionKey key = iter.next();
+                        Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
+                        while (keyIterator.hasNext()) {
+                            SelectionKey key = keyIterator.next();
                             if (!key.isValid()) {
                                 key.cancel();
-                                iter.remove();
+                                keyIterator.remove();
                             } else if (key.isAcceptable()) {
+                                if (log.isDebugEnabled()) {
+                                    log.debug("Selector triggered for client accept.");
+                                }
                                 handleAccept(key, acceptCallbackQueue, socketQueue);
-                                iter.remove();
+                                keyIterator.remove();
                             } else if (key.isReadable()) {
+                                if (log.isDebugEnabled()) {
+                                    log.debug("Selector triggered for client read read.");
+                                }
                                 final boolean readDispatchSuccess = readData(key, ioQueue);
                                 if (readDispatchSuccess) {
-                                    iter.remove();
+                                    if (log.isDebugEnabled()) {
+                                        log.debug("Read ready selection key removed.");
+                                    }
+                                    keyIterator.remove();
                                 }
                             }
                         }
                     } catch (Throwable e) {
-                        log.error("An error occurred: " + e.getMessage(), e);
+                        log.error("An error occurred selector loop: " + e.getMessage(), e);
                     }
                 }
             });
@@ -107,6 +116,9 @@ public class SelectorManager {
             if (client == null) {
                 return;
             }
+            if (log.isDebugEnabled()) {
+                log.debug("[" + serverSocketChannel + "] <= A new client accepted [" + client + "].");
+            }
             client.configureBlocking(false);
             client.register(selector, SelectionKey.OP_READ);
             int serverSocketHash = serverSocketChannel.hashCode();
@@ -116,6 +128,9 @@ public class SelectorManager {
                 final SocketAcceptCallback callback = callbackQueue.poll();
                 if (callback != null) {
                     callback.notifyAccept();
+                    if (log.isDebugEnabled()) {
+                        log.debug("[" + serverSocketChannel + "][" + client + "] Notify to the callback.");
+                    }
                 }
             }
         } catch (Throwable e) {
@@ -127,9 +142,12 @@ public class SelectorManager {
         SocketChannel clientSocketChannel = (SocketChannel) key.channel();
         final Queue<EventExecutor> readQueue = ioQueue.getReadQueue(clientSocketChannel.hashCode());
         if (readQueue != null) {
-            final EventExecutor poll = readQueue.poll();
-            if (poll != null) {
-                poll.execute();
+            final EventExecutor eventExecutor = readQueue.poll();
+            if (eventExecutor != null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Read request available from b7a code. Invoke EventExecutor.");
+                }
+                eventExecutor.execute();
                 return true;
             }
         }
@@ -138,12 +156,15 @@ public class SelectorManager {
 
     public static void stop() {
         try {
+            if (log.isDebugEnabled()) {
+                log.debug("Stopping the selector loop.");
+            }
             execution = false;
             running = false;
             selector.close();
             executor.shutdownNow();
         } catch (Throwable e) {
-            log.error("Error occurred while stopping selector loop: " + e.getMessage(), e);
+            log.error("Error occurred while stopping the selector loop: " + e.getMessage(), e);
         }
     }
 }

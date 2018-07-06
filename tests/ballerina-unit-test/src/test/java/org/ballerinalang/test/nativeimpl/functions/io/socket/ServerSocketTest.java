@@ -68,7 +68,7 @@ public class ServerSocketTest {
         });
         try {
             Thread.sleep(2500);
-            final int numberOfRetryAttempts = 10;
+            final int numberOfRetryAttempts = 20;
             final int retryInterval = 1000;
             final String clientMsg = "This is the first type of message.";
             boolean connected = false;

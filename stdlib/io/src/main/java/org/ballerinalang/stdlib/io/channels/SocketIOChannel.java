@@ -39,13 +39,13 @@ public class SocketIOChannel extends Channel {
     private ByteChannel channel;
     private boolean selectable;
 
-    public SocketIOChannel(ByteChannel channel, int size) throws IOException {
-        super(channel, new AsyncReader(), new AsyncWriter(), size);
+    public SocketIOChannel(ByteChannel channel) {
+        super(channel, new AsyncReader(), new AsyncWriter());
         this.channel = channel;
     }
 
-    public SocketIOChannel(ByteChannel channel, int size, boolean selectable) throws IOException {
-        super(channel, new AsyncReader(), new AsyncWriter(), size);
+    public SocketIOChannel(ByteChannel channel, boolean selectable) {
+        super(channel, new AsyncReader(), new AsyncWriter());
         this.channel = channel;
         this.selectable = selectable;
     }
@@ -54,7 +54,7 @@ public class SocketIOChannel extends Channel {
      * {@inheritDoc}
      */
     @Override
-    public void transfer(int position, int count, WritableByteChannel dstChannel) throws IOException {
+    public void transfer(int position, int count, WritableByteChannel dstChannel) {
         throw new BallerinaIOException("Unsupported method");
     }
 

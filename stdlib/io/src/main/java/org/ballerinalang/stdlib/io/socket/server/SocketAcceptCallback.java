@@ -23,6 +23,7 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.io.socket.SocketConstants;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +42,7 @@ public class SocketAcceptCallback {
     private Context context;
     private CallableUnitCallback callback;
 
-    public SocketAcceptCallback(Context context, CallableUnitCallback callback) {
+    SocketAcceptCallback(Context context, CallableUnitCallback callback) {
         this.context = context;
         this.callback = callback;
     }
@@ -52,7 +53,13 @@ public class SocketAcceptCallback {
                 .getNativeData(SocketConstants.SERVER_SOCKET_KEY);
         SocketChannel socketChannel = SocketQueue.getInstance().getSocket(serverSocketChannel.hashCode());
         if (socketChannel != null) {
-            ServerSocketUtils.createSocket(context, callback, socketChannel);
+            final BMap<String, BValue> socket = ServerSocketUtils.createSocket(context, socketChannel);
+            context.setReturnValues(socket);
+            callback.notifySuccess();
+            if (log.isDebugEnabled()) {
+                log.debug("[" + socketChannel + "][" + socket.getNativeData(IOConstants.CLIENT_SOCKET_NAME)
+                        + "] Callback invoked.");
+            }
         }
     }
 }
