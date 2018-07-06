@@ -88,6 +88,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
+import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
+import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
 
 /**
  * @since 0.94
@@ -95,8 +97,6 @@ import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_EN
 public class SymbolResolver extends BLangNodeVisitor {
     private static final CompilerContext.Key<SymbolResolver> SYMBOL_RESOLVER_KEY =
             new CompilerContext.Key<>();
-    private static final int OPEN_SEALED_INDICATOR = -2;
-    private static final int UNSEALED_INDICATOR = -1;
 
     private SymbolTable symTable;
     private Names names;
@@ -599,9 +599,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                 resultType = new BArrayType(resultType, arrayTypeSymbol);
             } else {
                 int size = arrayTypeNode.sizes[i];
-                resultType = (size == UNSEALED_INDICATOR) ?
+                resultType = (size == UNSEALED_ARRAY_INDICATOR) ?
                         new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.UNSEALED) :
-                        (size == OPEN_SEALED_INDICATOR) ?
+                        (size == OPEN_SEALED_ARRAY_INDICATOR) ?
                                 new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.OPEN_SEALED) :
                                 new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.CLOSED_SEALED);
             }

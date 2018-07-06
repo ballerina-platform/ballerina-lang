@@ -47,6 +47,9 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
+import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
+
 /**
  * @since 0.94
  */
@@ -720,10 +723,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         while (index < children.size()) {
             if (children.get(index).getText().equals("[")) {
                 if (children.get(index + 1).getText().equals("]")) {
-                    sizes.add(-1);
+                    sizes.add(UNSEALED_ARRAY_INDICATOR);
                     index += 2;
                 } else if (children.get(index + 1) instanceof BallerinaParser.SealedLiteralContext) {
-                    sizes.add(-2);
+                    sizes.add(OPEN_SEALED_ARRAY_INDICATOR);
                     index += 3;
                 } else {
                     sizes.add(Integer.parseInt(children.get(index + 1).getText()));
