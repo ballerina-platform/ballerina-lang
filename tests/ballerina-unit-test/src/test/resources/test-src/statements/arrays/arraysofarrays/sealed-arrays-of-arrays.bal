@@ -16,27 +16,27 @@
 
 function initTwoDimensionalSealedArray() returns (int, int, int, int) {
     string[3][4] x1;
-    sealed float[][] x2 = [[1.0, 2.1, 3.2], [4.3, 5.4, 6.5]];
+    float[!...][!...] x2 = [[1.0, 2.1, 3.2], [4.3, 5.4, 6.5]];
 
     return (lengthof x1, lengthof x1[0], lengthof x2, lengthof x2[0]);
 }
 
 function initThreeDimensionalSealedArray() returns (int, int, int, int, int, int) {
     boolean[3][4][5] x1;
-    sealed int[][][] x2 = [[[1, 2, 3], [4, 5, 6], [7, 8, 9]], [[1, 2, 3], [4, 5, 6], [7, 8, 9]]];
+    int[!...][!...][!...] x2 = [[[1, 2, 3], [4, 5, 6], [7, 8, 9]], [[1, 2, 3], [4, 5, 6], [7, 8, 9]]];
 
     return (lengthof x1, lengthof x1[0], lengthof x1[0][0], lengthof x2, lengthof x2[0], lengthof x2[0][0]);
 }
 
 function twoDArrayIntAssignment(int[2] x2) returns (int, int, int) {
-    sealed int[] x1 = [3, 2];
+    int[!...] x1 = [3, 2];
     int[3][2] xx1 = [x1, x2, x1];
 
     return (xx1[0][0], xx1[1][0], xx1[2][0]);
 }
 
 function twoDArrayStringAssignment(string[2] x2) returns (string, string, string) {
-    sealed string[] x1 = ["val1", "val2"];
+    string[!...] x1 = ["val1", "val2"];
     string[3][2] xx1 = [x1, x2, x1];
 
     return (xx1[0][0], xx1[1][0], xx1[2][0]);

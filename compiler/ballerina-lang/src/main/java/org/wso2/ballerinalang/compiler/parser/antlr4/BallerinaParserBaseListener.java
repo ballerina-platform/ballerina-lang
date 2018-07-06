@@ -292,6 +292,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterSealedLiteral(BallerinaParser.SealedLiteralContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSealedLiteral(BallerinaParser.SealedLiteralContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterRestDescriptorPredicate(BallerinaParser.RestDescriptorPredicateContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -479,18 +491,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitFiniteTypeUnit(BallerinaParser.FiniteTypeUnitContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSealedTypeName(BallerinaParser.SealedTypeNameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSealedTypeName(BallerinaParser.SealedTypeNameContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

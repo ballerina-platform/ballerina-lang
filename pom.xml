@@ -1487,7 +1487,7 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-examples</artifactId>
-                <version>${ballerina.version}</version>
+                <version>${ballerina.examples.version}</version>
                 <type>zip</type>
             </dependency>
         </dependencies>
@@ -2109,6 +2109,7 @@
 
     <properties>
         <ballerina.version>0.976.1-SNAPSHOT</ballerina.version>
+        <ballerina.examples.version>0.976.1-SNAPSHOT</ballerina.examples.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <commons-net.version>3.6</commons-net.version>

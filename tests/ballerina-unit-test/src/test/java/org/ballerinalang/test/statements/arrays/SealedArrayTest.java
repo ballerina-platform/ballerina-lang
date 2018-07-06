@@ -288,7 +288,7 @@ public class SealedArrayTest {
         BAssertUtil.validateError(
                 resultNegative, 5, "array index out of range: index: '5', size: '5'", 38, 18);
         BAssertUtil.validateError(
-                resultNegative, 6, "invalid usage of sealed keyword: 'right hand side array literal expected'", 39, 5);
+                resultNegative, 6, "invalid usage of sealed type: array not initialized", 39, 5);
         BAssertUtil.validateError(
                 resultNegative, 7, "incompatible types: expected 'int[3]', found 'int[]'", 46, 17);
         BAssertUtil.validateError(
@@ -309,7 +309,7 @@ public class SealedArrayTest {
         BAssertUtil.validateError(
                 resultNegative, 15, "array index out of range: index: '4', size: '4'", 82, 8);
         BAssertUtil.validateError(
-                resultNegative, 16, "invalid usage of sealed keyword: 'can not infer array size'", 84, 24);
+                resultNegative, 16, "invalid usage of sealed type: can not infer array size", 84, 21);
         BAssertUtil.validateError(
                 resultNegative, 17, "incompatible types: expected 'json[3]', found 'json[]'", 86, 18);
     }

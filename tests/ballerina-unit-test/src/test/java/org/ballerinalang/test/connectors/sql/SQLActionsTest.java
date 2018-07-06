@@ -133,6 +133,13 @@ public class SQLActionsTest {
     }
 
     @Test(groups = CONNECTOR_TEST)
+    public void testGeneratedKeyOnInsertEmptyResults() {
+        BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyOnInsertEmptyResults", connectionArgs);
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 0);
+    }
+
+    @Test(groups = CONNECTOR_TEST)
     public void testGeneratedKeyWithColumn() {
         BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyWithColumn", connectionArgs);
         BString retValue = (BString) returns[0];

@@ -489,11 +489,28 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Check type compatibility
-        if (expType.tag == TypeTags.ARRAY && ((BArrayType) expType).state == BArrayState.OPEN_SEALED) {
-            dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_USAGE_OF_SEALED_TYPE, "can not infer array size");
+        if (expType.tag == TypeTags.ARRAY && isArrayOpenSealedType((BArrayType) expType)) {
+            dlog.error(varRefExpr.pos, DiagnosticCode.SEALED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
             return;
+
         }
         resultType = types.checkType(varRefExpr, actualType, expType);
+    }
+
+    /**
+     * This method will recursively check if a multidimensional array has at least one open sealed dimension.
+     *
+     * @param arrayType array to check if open sealed
+     * @return true if at least one dimension is open sealed
+     */
+    public boolean isArrayOpenSealedType(BArrayType arrayType) {
+        if (arrayType.state == BArrayState.OPEN_SEALED) {
+            return true;
+        }
+        if (arrayType.eType.tag == TypeTags.ARRAY) {
+            return isArrayOpenSealedType((BArrayType) arrayType.eType);
+        }
+        return false;
     }
 
     /**
