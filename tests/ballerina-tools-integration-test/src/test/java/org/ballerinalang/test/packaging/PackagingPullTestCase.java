@@ -78,6 +78,7 @@ public class PackagingPullTestCase extends IntegrationTestCase {
         Map<String, String> envVarMap = System.getenv();
         envVarMap.forEach((key, value) -> variables.add(key + "=" + value));
         variables.add(ProjectDirConstants.HOME_REPO_ENV_KEY + "=" + tempDirectory.toString());
+        variables.add("BALLERINA_DEV_STAGE_CENTRAL" + "=" + "true");
 
         return variables.toArray(new String[0]);
     }
