@@ -34,7 +34,7 @@ class MainRegion extends React.Component {
         let top = 0;
         let left = 0;
 
-        if (TreeUtil.isTransaction(model.parent)) {
+        if (TreeUtil.isTransaction(model.parent) || TreeUtil.isTry(model.parent)) {
             top = bBox.y - 10;
             left = bBox.x;
         } else if (TreeUtil.isIf(model.parent)) {
@@ -65,7 +65,7 @@ class ActionBox extends React.Component {
         let top = 0;
         let left = 0;
 
-        if (TreeUtil.isTransaction(model.parent)) {
+        if (TreeUtil.isTransaction(model.parent) || TreeUtil.isTry(model.parent)) {
             top = bBox.y - 25;
             left = bBox.x;
         } else {

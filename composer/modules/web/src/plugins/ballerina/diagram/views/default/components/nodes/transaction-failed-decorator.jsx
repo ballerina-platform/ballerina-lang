@@ -287,7 +287,6 @@ class TransactionFailedDecorator extends React.Component {
                         className='invisible-rect'
                     />
                 </HoverGroup>
-                />
             </g>);
     }
 }
