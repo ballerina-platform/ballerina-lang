@@ -41,7 +41,7 @@ public class RegistryTest extends MetricTest {
                 compileAndSetup("test-src/observe/metrics_registry_test.bal");
     }
 
-    @Test
+    @Test(dependsOnGroups = "SummaryTest.testRegisteredGauge")
     public void testGetAllMetrics() {
         BValue[] returns = BRunUtil.invoke(compileResult, "getAllMetricsSize");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1,

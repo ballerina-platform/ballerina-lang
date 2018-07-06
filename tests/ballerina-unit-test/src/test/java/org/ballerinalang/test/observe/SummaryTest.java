@@ -67,7 +67,7 @@ public class SummaryTest extends MetricTest {
         Assert.assertEquals(round(((BFloat) returns[0]).floatValue()), 2.0);
     }
 
-    @Test
+    @Test(groups = "SummaryTest.testRegisteredGauge")
     public void testRegisteredGauge() {
         BValue[] returns = null;
         for (int i = 0; i < 3; i++) {
