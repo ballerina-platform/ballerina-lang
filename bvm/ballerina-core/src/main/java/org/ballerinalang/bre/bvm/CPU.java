@@ -1799,19 +1799,19 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = sf.intRegs[i] & sf.intRegs[j];
+                sf.intRegs[k] = (byte) (sf.intRegs[i] & sf.intRegs[j]);
                 break;
             case InstructionCodes.BIOR:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = sf.intRegs[i] | sf.intRegs[j];
+                sf.intRegs[k] = (byte) (sf.intRegs[i] | sf.intRegs[j]);
                 break;
             case InstructionCodes.BIXOR:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = sf.intRegs[i] ^ sf.intRegs[j];
+                sf.intRegs[k] = (byte) (sf.intRegs[i] ^ sf.intRegs[j]);
                 break;
             case InstructionCodes.IAND:
                 i = operands[0];
@@ -1835,37 +1835,25 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = sf.intRegs[i] << sf.longRegs[j];
+                sf.intRegs[k] = (byte) (sf.intRegs[i] << sf.longRegs[j]);
                 break;
             case InstructionCodes.BIRSHIFT:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = sf.intRegs[i] >> sf.longRegs[j];
+                sf.intRegs[k] = (byte) (sf.intRegs[i] >>> sf.longRegs[j]);
                 break;
             case InstructionCodes.IRSHIFT:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.longRegs[k] = sf.longRegs[i] >> sf.longRegs[j];
+                sf.longRegs[k] = sf.longRegs[i] >>> sf.longRegs[j];
                 break;
             case InstructionCodes.ILSHIFT:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
                 sf.longRegs[k] = sf.longRegs[i] << sf.longRegs[j];
-                break;
-            case InstructionCodes.BIUNRSHIFT:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                sf.intRegs[k] = sf.intRegs[i] >>> sf.longRegs[j];
-                break;
-            case InstructionCodes.IUNRSHIFT:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                sf.longRegs[k] = sf.longRegs[i] >>> sf.longRegs[j];
                 break;
             default:
                 throw new UnsupportedOperationException();

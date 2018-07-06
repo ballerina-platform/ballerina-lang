@@ -258,16 +258,9 @@ function testBitwiseLeftShiftOperator2(byte a, byte b, int i, int j) returns (in
     return (r1, r2, r3);
 }
 
-function testBitwiseUnsignedRightShiftOperator1(byte a, byte b, int i, int j) returns (byte, int, byte){
-    byte r1 = a >>> b;
-    int r2 = i >>> j;
-    byte r3 = a >>> j;
-    return (r1, r2, r3);
-}
-
-function testBitwiseUnsignedRightShiftOperator2(byte a, byte b, int i, int j) returns (int, int, int){
-    int r1 = <int> (a >>> b);
-    int r2 = i >>> j;
-    int r3 = <int> (a >>> j);
-    return (r1, r2, r3);
+function testByteShift() returns byte {
+    byte a = 129;
+    byte c = a << 1;
+    byte d = c >> 1;
+    return d;
 }
