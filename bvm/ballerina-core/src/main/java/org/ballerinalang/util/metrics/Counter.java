@@ -80,6 +80,11 @@ public interface Counter extends Metric {
             return this;
         }
 
+        public Counter build() {
+            return DefaultMetricRegistry.getInstance().getMetricProvider().
+                    newCounter(new MetricId(name, description, tags));
+        }
+
         @Override
         public Counter register() {
             return register(DefaultMetricRegistry.getInstance());
@@ -92,22 +97,43 @@ public interface Counter extends Metric {
     }
 
     /**
+     * Register the Metric to the registry.
+     */
+    default Counter register() {
+        return DefaultMetricRegistry.getInstance().register(this);
+    }
+
+    /**
+     * Unregisters the metric to the registry.
+     */
+    default void unregister() {
+        DefaultMetricRegistry.getInstance().unregister(this);
+    }
+    /**
      * Increment the counter by one.
      */
     default void increment() {
-        increment(1D);
+        increment(1L);
     }
+
+    /**
+     * Reset to the counter's current value to zero.
+     *
+     */
+    void reset();
 
     /**
      * Increment the counter by {@code amount}.
      *
      * @param amount Amount to add to the counter.
      */
-    void increment(double amount);
+    void increment(long amount);
 
     /**
-     * @return The cumulative count since this counter was created.
+     * Returns the counter's current value.
+     *
+     * @return the counter's current value.
      */
-    double count();
+    long getValue();
 
 }

@@ -23,6 +23,7 @@ import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.util.observability.ObservabilityUtils;
 
 /**
  * Native function ballerina.log:printInfo.
@@ -39,10 +40,12 @@ public class LogInfo extends AbstractLogFunction {
 
     public void execute(Context ctx) {
         String pkg = getPackagePath(ctx);
-
+        String logMessage = getLogMessage(ctx, 0);
         if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.INFO.value()) {
-            getLogger(pkg).info(getLogMessage(ctx, 0));
+            getLogger(pkg).info(logMessage);
         }
+        ObservabilityUtils.logMessageToActiveSpan(ctx, BLogLevel.INFO.name(), logMessage, false);
+
         ctx.setReturnValues();
     }
 }

@@ -142,14 +142,6 @@ documentation {
 public native function string::split(string regex) returns string[];
 
 documentation {
-    Converts string to a blob.
-
-    P{{encoding}} Encoding to used in the conversion
-    R{{}} The blob representation of the given String
-}
-public native function string::toBlob(string encoding) returns blob;
-
-documentation {
     Finds all the strings matching the regular expression.
 
     P{{regex}} Regular expression

@@ -129,7 +129,7 @@ service helloWorld bind helloWorldEP {
    sayHello (endpoint caller, http:Request req, string name, string message) {
        http:Response res = new;
        // A util method that can be used to set string payload.
-       res.setPayload("Hello, World! I’m " + name + ". " + message);
+       res.setPayload("Hello, World! I’m " + untaint name + ". " + untaint message);
        // Sends the response back to the client.
        caller->respond(res) but { error e => 
                             log:printError("Error sending response", err = e) };

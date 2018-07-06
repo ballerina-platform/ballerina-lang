@@ -95,6 +95,12 @@
       "insertText":"TableConfig"
     },
     {
+      "label":"byte",
+      "detail":"BType",
+      "sortText":"170",
+      "insertText":"byte"
+    },
+    {
       "label":"stream",
       "detail":"BType",
       "sortText":"170",
@@ -129,12 +135,6 @@
       "detail":"BType",
       "sortText":"170",
       "insertText":"float"
-    },
-    {
-      "label":"blob",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"blob"
     },
     {
       "label":"null",

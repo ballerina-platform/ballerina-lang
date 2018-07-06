@@ -132,6 +132,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
@@ -146,6 +147,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement.BLangStatementLink;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -935,6 +937,21 @@ public class Desugar extends BLangNodeVisitor {
         result = forkJoin;
     }
 
+    @Override
+    public void visit(BLangCompensate compensateNode) {
+        result = compensateNode;
+    }
+
+    @Override
+    public void visit(BLangScope scopeNode) {
+        scopeNode.scopeBody = rewrite(scopeNode.scopeBody, env);
+        scopeNode.compensationFunction = rewrite(scopeNode.getCompensationFunction(), env);
+        visit(scopeNode.compensationFunction.function);
+        env.enclPkg.functions.add(scopeNode.getCompensationFunction().function);
+        env.enclPkg.topLevelNodes.add(scopeNode.compensationFunction.function);
+        result = scopeNode;
+    }
+
     // Expressions
 
     @Override
@@ -1235,7 +1252,6 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.STRING:
             case TypeTags.INT:
             case TypeTags.FLOAT:
-            case TypeTags.BLOB:
             case TypeTags.JSON:
             case TypeTags.XML:
             case TypeTags.MAP:
@@ -1350,7 +1366,8 @@ public class Desugar extends BLangNodeVisitor {
      */
     private boolean isBitwiseShiftOperation(BLangBinaryExpr binaryExpr) {
         return binaryExpr.opKind == OperatorKind.BITWISE_LEFT_SHIFT ||
-                binaryExpr.opKind == OperatorKind.BITWISE_RIGHT_SHIFT;
+                binaryExpr.opKind == OperatorKind.BITWISE_RIGHT_SHIFT ||
+                binaryExpr.opKind == OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT;
     }
 
     public void visit(BLangElvisExpr elvisExpr) {
@@ -1799,8 +1816,6 @@ public class Desugar extends BLangNodeVisitor {
                 type = TypeTags.FLOAT;
             } else if (value instanceof Boolean) {
                 type = TypeTags.BOOLEAN;
-            } else if (value instanceof Byte[]) {
-                type = TypeTags.BLOB;
             } else if (value instanceof Object[]) {
                 type = TypeTags.ARRAY;
             }
@@ -2361,11 +2376,6 @@ public class Desugar extends BLangNodeVisitor {
                 return getBooleanLiteral(false);
             case TypeTags.STRING:
                 return getStringLiteral("");
-            case TypeTags.BLOB:
-                BLangLiteral blobDefault = (BLangLiteral) TreeBuilder.createLiteralExpression();
-                blobDefault.value = new byte[0];
-                blobDefault.type = symTable.blobType;
-                return blobDefault;
             case TypeTags.XML:
                 return new BLangXMLSequenceLiteral(type);
             case TypeTags.MAP:

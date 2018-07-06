@@ -21,4 +21,9 @@
 @iconMargin             : 0;
 @rightIconMargin        : 0;
 
+/*-------------------
+      Labeled Icon
+--------------------*/
 
+@labeledIconWidth: 1em + (@relative8px * 2);
+@labeledIconPadding: (0.9em + @labeledIconWidth);

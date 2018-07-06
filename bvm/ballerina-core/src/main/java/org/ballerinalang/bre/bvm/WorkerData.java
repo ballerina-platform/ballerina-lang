@@ -53,9 +53,6 @@ public class WorkerData {
         if (ci.maxIntRegs > 0) {
             this.intRegs = new int[ci.maxIntRegs];
         }
-        if (ci.maxByteRegs > 0) {
-            this.byteRegs = new byte[ci.maxByteRegs][];
-        }
         if (ci.maxBValueRegs > 0) {
             this.refRegs = new BRefType[ci.maxBValueRegs];
         }
@@ -73,9 +70,6 @@ public class WorkerData {
         }
         if (wdi.intRegCount > 0) {
             this.intRegs = new int[wdi.intRegCount];
-        }
-        if (wdi.byteRegCount > 0) {
-            this.byteRegs = new byte[wdi.byteRegCount][];
         }
         if (wdi.refRegCount > 0) {
             this.refRegs = new BRefType[wdi.refRegCount];
@@ -98,10 +92,6 @@ public class WorkerData {
         count = wdi1.intRegCount + wdi2.intRegCount;
         if (count > 0) {
             this.intRegs = new int[count];
-        }
-        count = wdi1.byteRegCount + wdi2.byteRegCount;
-        if (count > 0) {
-            this.byteRegs = new byte[count][];
         }
         count = wdi1.refRegCount + wdi2.refRegCount;
         if (count > 0) {

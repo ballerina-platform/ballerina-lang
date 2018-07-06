@@ -204,6 +204,10 @@ public class SymbolResolver extends BLangNodeVisitor {
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
             return false;
         }
+        // ignore if this is added through compensations
+        if ((symbol.flags & Flags.COMPENSATE) == Flags.COMPENSATE) {
+            return true;
+        }
         // We allow variable shadowing for xml namespaces. For all other types, we do not allow variable shadowing.
         if ((foundSym.getKind() == SymbolKind.XMLNS && symbol.getKind() != SymbolKind.XMLNS)
                 || foundSym.getKind() != SymbolKind.XMLNS
@@ -463,7 +467,8 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         if (env.enclEnv != null && env.enclInvokable != null) {
             BSymbol bSymbol = lookupClosureVarSymbol(env.enclEnv, name, expSymTag);
-            if (bSymbol != symTable.notFoundSymbol && !env.enclInvokable.flagSet.contains(Flag.ATTACHED)) {
+            if (bSymbol != symTable.notFoundSymbol && !env.enclInvokable.flagSet.contains(Flag.ATTACHED)
+                    && env.enclInvokable.flagSet.contains(Flag.LAMBDA)) {
                 ((BLangFunction) env.enclInvokable).closureVarSymbols.add((BVarSymbol) bSymbol);
             }
             return bSymbol;

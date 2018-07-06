@@ -128,8 +128,8 @@ documentation {
 documentation {
     Object representing an intent verification request received.
 
-    F{{mode}} The mode specified whether intent is being verified for subscription or unsubscription
-    F{{topic}} The for which intent is being verified for subscription or unsubscription
+    F{{mode}} The mode specified in the intent verification request, subscription or unsubscription
+    F{{topic}} The topic for which intent is verified to subscribe/unsubscribe
     F{{challenge}} The challenge to be echoed to verify intent to subscribe/unsubscribe
     F{{leaseSeconds}} The lease seconds period for which a subscription will be active if intent verification
     is being done for subscription
@@ -146,31 +146,31 @@ public type IntentVerificationRequest object {
     documentation {
         Builds the response for the request, verifying intention to subscribe, if the topic matches that expected.
 
-        P{{t}} The topic for which subscription should be accepted
+        P{{expectedTopic}} The topic for which subscription should be accepted
         R{{}} `http:Response` The response to the hub verifying/denying intent to subscribe
     }
-    public function buildSubscriptionVerificationResponse(string t) returns http:Response;
+    public function buildSubscriptionVerificationResponse(string expectedTopic) returns http:Response;
 
     documentation {
         Builds the response for the request, verifying intention to unsubscribe, if the topic matches that expected.
 
-        P{{t}} The topic for which unsubscription should be accepted
+        P{{expectedTopic}} The topic for which unsubscription should be accepted
         R{{}} `http:Response` The response to the hub verifying/denying intent to unsubscribe
     }
-    public function buildUnsubscriptionVerificationResponse(string t) returns http:Response;
+    public function buildUnsubscriptionVerificationResponse(string expectedTopic) returns http:Response;
 
 };
 
-function IntentVerificationRequest::buildSubscriptionVerificationResponse(string t)
+function IntentVerificationRequest::buildSubscriptionVerificationResponse(string expectedTopic)
     returns http:Response {
 
-    return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, t);
+    return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, expectedTopic);
 }
 
-function IntentVerificationRequest::buildUnsubscriptionVerificationResponse(string t)
+function IntentVerificationRequest::buildUnsubscriptionVerificationResponse(string expectedTopic)
     returns http:Response {
 
-    return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, t);
+    return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, expectedTopic);
 }
 
 documentation {
@@ -437,8 +437,7 @@ documentation {
     Record representing a WebSub subscription change request.
 
     F{{topic}} The topic for which the subscription/unsubscription request is sent
-    F{{callback}} The callback which should be registered/unregistered for the subscription/unsubscription request is
-                    sent
+    F{{callback}} The callback which should be registered/unregistered for the subscription/unsubscription request sent
     F{{leaseSeconds}} The lease period for which the subscription is expected to be active
     F{{secret}} The secret to be used for authenticated content distribution with this subscription
 }
@@ -454,7 +453,7 @@ documentation {
 
     F{{hub}} The hub at which the subscription/unsubscription was successful
     F{{topic}} The topic for which the subscription/unsubscription was successful
-    F{{response}} The response from the hub to the subscription/unsubscription requests
+    F{{response}} The response from the hub to the subscription/unsubscription request
 }
 public type SubscriptionChangeResponse record {
     string hub,
