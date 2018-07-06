@@ -91,12 +91,6 @@
       "insertText":"res"
     },
     {
-      "label":"blob",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"blob"
-    },
-    {
       "label":"null",
       "detail":"BType",
       "sortText":"170",
