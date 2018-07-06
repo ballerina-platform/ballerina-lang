@@ -1,3 +1,4 @@
+
 /**
  * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -17,11 +18,11 @@
  */
 
 import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
+import GenerateSchema from 'generate-schema';
 import { COMMANDS, DIALOG } from './constants';
 import TreeBuilder from './../ballerina/model/tree-builder';
 import FragmentUtils from './../ballerina/utils/fragment-utils';
 import DefaultNodeFactory from './../ballerina/model/default-node-factory';
-import TreeUtils from './../ballerina/model/tree-util';
 
 /**
  * Check given value is an Integer
@@ -41,70 +42,93 @@ function isFloat(val) {
     return !isNaN(val) && !this.isInt(Number(val)) && val.toString().length > 0;
 }
 
-/**
- * process JSON and generate struct fields
- * @param  {object} parent      parent struct object
- * @param  {object} literalExpr JSON expression
- * @param  {object} topLevelNodes top level nodes
- * @param  {object} removeDefaults remove defaults
- * @return {boolean}             status
- */
-function processJSONStruct(parent, literalExpr, topLevelNodes, removeDefaults) {
-    let currentValue;
-    let success = true;
-    parent.typeNode.fields = [];
-    literalExpr.keyValuePairs.every((keyValPair) => {
-        let currentName;
-        let key = keyValPair.key;
-        let val = keyValPair.value;
-        if (TreeUtils.isLiteral(key)) {
-            currentName = key.getValue().replace(/"/g, '');
-        } else {
-            currentName = key.getVariableName().getValue();
-        }
-        if (TreeUtils.isRecordLiteralExpr(val)) {
-            let struct = DefaultNodeFactory.createStruct(true);
-            if (currentName && currentName !== '') {
-                struct.getName().setValue(currentName, true);
-                struct.setName(struct.getName(), false);
+function jsonPathToValue(jsonData, path) {
+    path = path.replace('/','').split('/');
+    for (var i = 0, n = path.length; i < n; ++i) {
+        var key = path[i];
+        if (key in jsonData) {
+            if (jsonData[key] !== null) {
+                jsonData = jsonData[key];
+            } else {
+                return null;
             }
+        } else if (Array.isArray(jsonData)) {
+            jsonData.forEach((arrKey) => {
+                if (key in arrKey) {
+                    jsonData = arrKey[key];
+                }
+            })
+        } else {
+            return key;
+        }
+    }
+    return jsonData;
+}  
 
-            success = processJSONStruct(struct, val, topLevelNodes, removeDefaults);
-            if (success) {
-                topLevelNodes.addTopLevelNodes(struct);
+function processJSONSchema(schema, topLevelNodes, rootRecord, schemaPath = '', rootExpr, useDefaults = false) {
+    let success = true;
+    if (typeof schema === 'object' && !Array.isArray(schema)) {
+        for (const key in schema) {
+            const schemaObj = schema[key];
+            if (key === 'properties' && typeof schemaObj === 'object') {
+                for (const objProp in schemaObj) {
+                    const curObj = schemaObj[objProp];
+                    if (curObj.type === 'object' || curObj.type === 'array') {
+                        const anonExpr = TreeBuilder.build(FragmentUtils.parseFragment(FragmentUtils.createAnonRecordFragment(`record { } ${objProp};`)));
+                        const anonExprObj = anonExpr.topLevelNodes[anonExpr.topLevelNodes.length - 1].body.statements[0];
+                        if (!anonExpr.error) {
+                            anonExpr.topLevelNodes[anonExpr.topLevelNodes.length - 1].body.statements[0].parent = rootRecord.typeNode;
+                            if (rootRecord.kind === 'RecordType') {
+                                rootRecord.fields.push(anonExprObj);
+                            } else {
+                                rootRecord.typeNode.fields.push(anonExprObj);
+                            }
+                        }
+                        success = processJSONSchema(schemaObj[objProp], topLevelNodes, 
+                            anonExprObj.variable.typeNode.anonType, schemaPath + '/' + objProp, rootExpr, useDefaults);
+                    } else {
+                        let refExpr;
+                        const value = jsonPathToValue(rootExpr, schemaPath + '/' + objProp);
+                        let currentType = 'string';
+                        if (isInt(value)) {
+                            currentType = 'int';
+                        } else if (isFloat(value)) {
+                            currentType = 'float';
+                        } else if (value === 'true' || value === 'false') {
+                            currentType = 'boolean';
+                        }
+                        if (useDefaults) {
+                            refExpr = TreeBuilder.build(FragmentUtils.parseFragment(FragmentUtils
+                                .createFieldDefinitionListFragment(`${currentType} ${objProp};`)));
+                        } else {
+                            if (currentType === 'string') {
+                                refExpr = TreeBuilder.build(FragmentUtils.parseFragment(FragmentUtils
+                                    .createFieldDefinitionListFragment(`${currentType} ${objProp} = "${value}";`)));
+                            } else {
+                                refExpr = TreeBuilder.build(FragmentUtils.parseFragment(FragmentUtils
+                                    .createFieldDefinitionListFragment(`${currentType} ${objProp} = ${value};`)));
+                            }
+                        }
+                        if (!refExpr.error) {
+                            // Add ; white space for the field in to record.
+                            if (rootRecord.kind === 'RecordType') {
+                                refExpr.parent = rootRecord;
+                                rootRecord.fields.push(refExpr);
+                            } else {
+                                rootRecord.ws.splice(rootRecord.ws.length - 2, 0, { ws: '', text: ';' });
+                                refExpr.parent = rootRecord.typeNode;
+                                rootRecord.typeNode.fields.push(refExpr);
+                            }
+                        } else {
+                            success = false;
+                        }
+                    }
+                }
+            } else if (key === 'items') {
+                processJSONSchema(schemaObj, topLevelNodes, rootRecord, schemaPath, rootExpr, useDefaults);
             }
-            return success;
-        } else if (TreeUtils.isLiteral(val)) {
-            currentValue = val.getValue();
-            let currentType = 'string';
-            let refExpr;
-            if (isInt(currentValue)) {
-                currentType = 'int';
-            } else if (isFloat(currentValue)) {
-                currentType = 'float';
-            } else if (currentValue === 'true' || currentValue === 'false') {
-                currentType = 'boolean';
-            }
-            if (removeDefaults) {
-                refExpr = TreeBuilder.build(FragmentUtils.parseFragment(
-                    FragmentUtils.createFieldDefinitionListFragment(`${currentType} ${currentName};`)));
-            } else {
-                refExpr = TreeBuilder.build(FragmentUtils.parseFragment(
-                    FragmentUtils
-                        .createFieldDefinitionListFragment(`${currentType} ${currentName} = ${currentValue};`)));
-            }
-            if (!refExpr.error) {
-                // Add ; white space for the field in to record.
-                parent.ws.splice(parent.ws.length - 2, 0, {ws: "", text: ";"})
-                parent.typeNode.fields.push(refExpr);
-            } else {
-                success = false;
-            }
-            return success;
-        } else {
-            success = false;
         }
-    });
+    }
     return success;
 }
 
@@ -121,30 +145,27 @@ export function getHandlerDefinitions(plugin) {
             handler: () => {
                 const topLevelNodes = plugin.appContext.editor.getActiveEditor().getProperty('ast');
                 // Create record with available white spaces in default node.
-                const structNode = DefaultNodeFactory.createStruct(true);
+                const RecordNode = DefaultNodeFactory.createRecord(true);
 
                 const onImport = (json, structName, removeDefaults) => {
                     let success = true;
 
                     if (structName && structName !== '') {
-                        structNode.name.setValue(structName);
+                        RecordNode.name.setValue(structName);
                     }
+
                     if (json === '') {
-                        topLevelNodes.addTopLevelNodes(structNode);
+                        topLevelNodes.addTopLevelNodes(RecordNode);
                         return success;
                     }
 
-                    const refExpr = TreeBuilder.build(
-                        FragmentUtils.parseFragment(FragmentUtils.createExpressionFragment(json))
-                    );
-                    if (!refExpr.error) {
-                        success = processJSONStruct(structNode, refExpr.variable.initialExpression, topLevelNodes, removeDefaults);
-                        if (success) {
-                            topLevelNodes.addTopLevelNodes(structNode);
-                        }
-                    } else {
-                        success = false;
+                    const schema = GenerateSchema.json('json', JSON.parse(json));
+                    success = processJSONSchema(schema, topLevelNodes,  RecordNode, '', JSON.parse(json), removeDefaults);
+
+                    if (success) {
+                        topLevelNodes.addTopLevelNodes(RecordNode);
                     }
+
                     return success;
                 };
 

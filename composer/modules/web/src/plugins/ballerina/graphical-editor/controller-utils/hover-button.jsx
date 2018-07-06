@@ -19,6 +19,7 @@
 import React from 'react';
 import { Button, Menu, Popup, Transition } from 'semantic-ui-react';
 import ImageUtils from 'plugins/ballerina/diagram/image-util';
+import PropTypes from 'prop-types';
 
 class HoverButton extends React.Component {
     constructor(props) {
@@ -36,9 +37,19 @@ class HoverButton extends React.Component {
     handleRef(ref) {
         this.triggerRef = ref;
     }
+
+    /**
+     * Include menu close call back to the context
+     * @return {object} context object
+     */
+    getChildContext() {
+        return ({ menuCloseCallback:
+            () => { this.setState({ isMenuActive: false }); } });
+    }
+
     render() {
         const { children, size } = this.props;
-        const buttonSize = 30;
+        const buttonSize = 20;
         const style = {
             position: 'absolute',
             ...this.props.style,
@@ -49,10 +60,11 @@ class HoverButton extends React.Component {
                 <Button
                     size={size}
                     compact
+                    className='lifeline icon primary circle'
                     onClick={() => {
                         this.setMenuVisibility(true);
                     }}
-                    
+
                 ><i className='fw'>{ImageUtils.getCodePoint('add')}</i>
                 </Button>
                 <Transition visible={this.state.isMenuActive} animation='scale' duration={200}>
@@ -63,9 +75,10 @@ class HoverButton extends React.Component {
                         hoverable
                         basic
                         hideOnScroll
-                        position='top left'
+                        position={this.props.menuPosition ? this.props.menuPosition : 'top left'}
                         horizontalOffset={-15}
                         verticalOffset={-25}
+                        keepInViewPort={false}
                         onClose={() => {
                             this.setMenuVisibility(false);
                         }}
@@ -82,6 +95,11 @@ class HoverButton extends React.Component {
         );
     }
 }
+
+
+HoverButton.childContextTypes = {
+    menuCloseCallback: PropTypes.func,
+};
 
 HoverButton.defaultProps = {
     style: {},

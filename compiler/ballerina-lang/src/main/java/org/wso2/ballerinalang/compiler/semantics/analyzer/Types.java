@@ -270,8 +270,32 @@ public class Types {
             return checkStructEquivalency(source, target);
         }
 
+        if (source.tag == TypeTags.TUPLE || target.tag == TypeTags.TUPLE) {
+            return isTupleTypeAssignable(source, target);
+        }
+
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target);
+    }
+
+    private boolean isTupleTypeAssignable(BType source, BType target) {
+        if (source.tag != TypeTags.TUPLE || target.tag != TypeTags.TUPLE) {
+            return false;
+        }
+
+        BTupleType lhsTupleType = (BTupleType) target;
+        BTupleType rhsTupleType = (BTupleType) source;
+
+        if (lhsTupleType.tupleTypes.size() != rhsTupleType.tupleTypes.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < lhsTupleType.tupleTypes.size(); i++) {
+            if (!isAssignable(rhsTupleType.tupleTypes.get(i), lhsTupleType.tupleTypes.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public boolean isArrayTypesAssignable(BType source, BType target) {
@@ -359,8 +383,9 @@ public class Types {
     }
 
     public boolean checkStructEquivalency(BType rhsType, BType lhsType) {
-        if ((rhsType.tag != TypeTags.OBJECT && rhsType.tag != TypeTags.RECORD)
-                || (lhsType.tag != TypeTags.OBJECT && lhsType.tag != TypeTags.RECORD)) {
+        // For equivalency, both lhs and rhs types should be of the same type. Allowed types: objects and records.
+        if ((rhsType.tag != TypeTags.OBJECT || lhsType.tag != TypeTags.OBJECT)
+                && (rhsType.tag != TypeTags.RECORD || lhsType.tag != TypeTags.RECORD)) {
             return false;
         }
 
@@ -520,6 +545,10 @@ public class Types {
             }
         }
 
+        if (type.tag == TypeTags.RECORD && !((BRecordType) type).sealed) {
+            return checkStructFieldToJSONCompatibility(type, ((BRecordType) type).restFieldType);
+        }
+
         return true;
     }
 
@@ -644,6 +673,11 @@ public class Types {
                 return false;
             }
         }
+
+        if (type.tag == TypeTags.RECORD && !((BRecordType) type).sealed) {
+            return checkStructFieldToJSONConvertibility(type, ((BRecordType) type).restFieldType);
+        }
+
         return true;
     }
 

@@ -32,4 +32,5 @@ public class Constants {
     // Transaction constants
     public static final String GLOBAL_TRANSACTION_ID = "globalTransactionId";
     public static final String TRANSACTION_URL = "transactionUrl";
+    public static final String COMPENSATION_TABLE = "COMPENSATION_TABLE";
 }

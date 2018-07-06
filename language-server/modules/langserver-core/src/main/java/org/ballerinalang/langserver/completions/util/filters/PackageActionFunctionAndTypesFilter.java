@@ -73,7 +73,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         }
         
         ArrayList<SymbolInfo> returnSymbolsInfoList = new ArrayList<>();
-        String tokenBeforeDelimiter = poppedTokens.get(poppedTokens.indexOf(delimiter) - 1);
+        String tokenBeforeDelimiter = poppedTokens.get(poppedTokens.lastIndexOf(delimiter) - 1);
 
         if (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(delimiter)
                 || UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(delimiter)) {

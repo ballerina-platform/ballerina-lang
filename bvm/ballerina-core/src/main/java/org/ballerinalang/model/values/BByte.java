@@ -55,11 +55,6 @@ public final class BByte extends BValueType implements BRefType<Byte> {
     }
 
     @Override
-    public byte[] blobValue() {
-        return null;
-    }
-
-    @Override
     public String stringValue() {
         return String.valueOf(Byte.toUnsignedInt(value));
     }

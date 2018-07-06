@@ -554,6 +554,18 @@
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-prometheus-extension</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-prometheus-extension</artifactId>
+                <version>${ballerina.version}</version>
+                <classifier>ballerina-balx-repo</classifier>
+                <type>zip</type>
+            </dependency>
 
             <!-- ballerina-reflect -->
             <dependency>
@@ -1407,50 +1419,14 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-micrometer-extension</artifactId>
+                <artifactId>ballerina-metrics-extension</artifactId>
                 <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-prometheus-extension</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.micrometer</groupId>
-                <artifactId>micrometer-core</artifactId>
-                <version>${micrometer.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.micrometer</groupId>
-                <artifactId>micrometer-registry-prometheus</artifactId>
-                <version>${micrometer.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.hdrhistogram</groupId>
                 <artifactId>HdrHistogram</artifactId>
                 <version>${hdrhistogram.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.latencyutils</groupId>
-                <artifactId>LatencyUtils</artifactId>
-                <version>${latencyutils.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.prometheus</groupId>
-                <artifactId>simpleclient</artifactId>
-                <version>${prometheus.simple.client.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.prometheus</groupId>
-                <artifactId>simpleclient_common</artifactId>
-                <version>${prometheus.simple.client.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.prometheus</groupId>
-                <artifactId>simpleclient_httpserver</artifactId>
-                <version>${prometheus.simple.client.version}</version>
-            </dependency>
-
             <!-- JMS connector dependencies -->
             <dependency>
                 <groupId>org.wso2.transport.jms</groupId>
@@ -1644,7 +1620,7 @@
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
 
-                <module>tests/ballerina-test</module>
+                <module>tests/ballerina-unit-test</module>
 
                 <module>cli/ballerina-cli-utils</module>
 
@@ -1663,8 +1639,10 @@
                 <module>distribution/zip/ballerina-tools</module>
 
                 <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-test-integration</module>
-                <module>tests/ballerina-test-compiler-plugins</module>
+                <module>tests/ballerina-integration-test-utils</module>
+                <module>tests/ballerina-integration-test</module>
+                <module>tests/ballerina-tools-integration-test</module>
+                <module>tests/ballerina-compiler-plugin-test</module>
                 <module>tool-plugins/intellij</module>
                 <module>tool-plugins/vscode</module>
 
@@ -1720,8 +1698,8 @@
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
-                <module>tests/ballerina-test</module>
-                <module>tests/ballerina-test-compiler-plugins</module>
+                <module>tests/ballerina-unit-test</module>
+                <module>tests/ballerina-compiler-plugin-test</module>
                 <module>cli/ballerina-cli-utils</module>
 
                 <module>language-server</module>
@@ -1737,7 +1715,8 @@
                 <module>distribution/zip/ballerina</module>
 
                 <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-test-integration</module>
+                <module>tests/ballerina-integration-test-utils</module>
+                <module>tests/ballerina-integration-test</module>
             </modules>
         </profile>
         <profile>
@@ -1796,8 +1775,8 @@
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
 
-                <module>tests/ballerina-test</module>
-                <module>tests/ballerina-test-compiler-plugins</module>
+                <module>tests/ballerina-unit-test</module>
+                <module>tests/ballerina-compiler-plugin-test</module>
 
                 <module>cli/ballerina-cli-utils</module>
 
@@ -1817,7 +1796,9 @@
                 <module>distribution/zip/ballerina-tools</module>
 
                 <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-test-integration</module>
+                <module>tests/ballerina-integration-test-utils</module>
+                <module>tests/ballerina-integration-test</module>
+                <module>tests/ballerina-tools-integration-test</module>
 
                 <!-- Intellij build disabled in default build -->
                 <!--<module>tool-plugins/intellij</module>-->
@@ -2150,7 +2131,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.206</transport.http.version>
+        <transport.http.version>6.0.209</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -2267,10 +2248,7 @@
         <libthrift.version>0.10.0</libthrift.version>
         <okhttp.version>3.9.1</okhttp.version>
         <okio.version>1.13.0</okio.version>
-        <micrometer.version>1.0.3</micrometer.version>
         <hdrhistogram.version>2.1.10</hdrhistogram.version>
-        <latencyutils.version>2.0.3</latencyutils.version>
-        <prometheus.simple.client.version>0.3.0</prometheus.simple.client.version>
 
         <!-- JMS Connector -->
         <wso2.transport.jms.version>6.0.50</wso2.transport.jms.version>

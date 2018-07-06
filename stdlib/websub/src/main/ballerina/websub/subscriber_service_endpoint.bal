@@ -193,8 +193,8 @@ function Listener::sendSubscriptionRequests() {
 documentation {
     Object representing the configuration for the WebSub Subscriber Service Endpoint.
 
-    F{{host}} The configuration for the endpoint
-    F{{port}} The underlying HTTP service endpoint
+    F{{host}} The host name/IP of the endpoint
+    F{{port}} The port to which the endpoint should bind to
     F{{httpServiceSecureSocket}} The SSL configurations for the service endpoint
     F{{topicIdentifier}} The identifier based on which dispatching should happen for custom subscriber services
     F{{topicHeader}} The header to consider if required with dispatching for custom services

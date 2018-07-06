@@ -28,12 +28,19 @@ class HoverGroup extends React.Component {
         this.renderMenu = this.renderMenu.bind(this);
     }
     componentDidMount() {
-        this.props.model.on('render-menu', this.renderMenu);
+        if (typeof this.props.model.on === 'function') {
+            this.props.model.on('render-menu', this.renderMenu);
+        }
     }
     componentWillReceiveProps(nextProps) {
         if (this.props.model !== nextProps.model) {
-            this.props.model.off('render-menu', this.renderMenu);
-            nextProps.model.on('render-menu', this.renderMenu);
+            if (typeof this.props.model.off === 'function') {
+                this.props.model.off('render-menu', this.renderMenu);
+            }
+
+            if (typeof nextProps.model.on === 'function') {
+                nextProps.model.on('render-menu', this.renderMenu);
+            }
         }
     }
     componentWillUnmount() {
@@ -52,6 +59,9 @@ class HoverGroup extends React.Component {
             <g
                 className='hover-group'
                 onMouseEnter={() => {
+                    if (typeof this.props.model.trigger !== 'function') {
+                        return;
+                    }
                     this.props.model.viewState.hovered = true;
                     this.props.model.viewState.hoveredRegion = this.props.region;
                     this.props.model.trigger('mouse-enter', {
@@ -60,6 +70,9 @@ class HoverGroup extends React.Component {
                     });
                 }}
                 onMouseLeave={(e) => {
+                    if (typeof this.props.model.trigger !== 'function') {
+                        return;
+                    }
                     const tagName = e.relatedTarget.tagName;
                     // ignore mouse leave event if it its moving to a html node
                     if (tagName !== 'DIV' && tagName !== 'A' && tagName !== 'SPAN') {
