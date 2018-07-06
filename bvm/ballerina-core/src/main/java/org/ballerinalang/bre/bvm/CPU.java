@@ -1799,19 +1799,19 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = (byte) (sf.intRegs[i] & sf.intRegs[j]);
+                sf.intRegs[k] = sf.intRegs[i] & sf.intRegs[j];
                 break;
             case InstructionCodes.BIOR:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = (byte) (sf.intRegs[i] | sf.intRegs[j]);
+                sf.intRegs[k] = sf.intRegs[i] | sf.intRegs[j];
                 break;
             case InstructionCodes.BIXOR:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.intRegs[k] = (byte) (sf.intRegs[i] ^ sf.intRegs[j]);
+                sf.intRegs[k] = sf.intRegs[i] ^ sf.intRegs[j];
                 break;
             case InstructionCodes.IAND:
                 i = operands[0];
