@@ -30,6 +30,18 @@ public interface Metric {
     MetricId getId();
 
     /**
+     * Registers the metric with Metric registry.
+     *
+     * @return The registered metric instance.
+     */
+    Metric register();
+
+    /**
+     * Unregisters the metric with Metric registry.
+     */
+    void unregister();
+
+    /**
      * Builder for metrics.
      *
      * @param <B> Builder for a given metric class.
@@ -92,6 +104,13 @@ public interface Metric {
          * @return Registered metric
          */
         M register(MetricRegistry registry);
+
+        /**
+         * Build the metric without registering.
+         *
+         * @return Metric instance.
+         */
+        M build();
     }
 
 }

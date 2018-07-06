@@ -3,16 +3,17 @@ import eq2;
 import req;
 import req2;
 
-public type person1 sealed record {
+public type person1 record {
     int age;
     string name;
     string address;
     string zipcode = "95134";
     string ssn;
     int id;
+    !...
 };
 
-public type employee1 sealed record {
+public type employee1 record {
     int age;
     string name;
     string address;
@@ -20,6 +21,7 @@ public type employee1 sealed record {
     string ssn;
     int id;
     int employeeId = 123456;
+    !...
 };
 
 function testEquivalenceOfPrivateStructsInSamePackage () returns (string) {
@@ -31,16 +33,17 @@ function testEquivalenceOfPrivateStructsInSamePackage () returns (string) {
     return p.ssn;
 }
 
-public type person2 sealed record {
+public type person2 record {
     int age;
     string name;
     string address;
     string zipcode = "95134";
     string ssn;
     int id;
+    !...
 };
 
-public type employee2 sealed record {
+public type employee2 record {
     int age;
     string name;
     string address;
@@ -48,6 +51,7 @@ public type employee2 sealed record {
     string ssn;
     int id;
     int employeeId = 123456;
+    !...
 };
 
 function testEquivalenceOfPublicStructsInSamePackage () returns (string) {
@@ -70,7 +74,7 @@ function testEqOfPublicStructs () returns (string) {
 }
 
 
-public type employee3 sealed record {
+public type employee3 record {
     int age;
     string name;
     string address;
@@ -78,6 +82,7 @@ public type employee3 sealed record {
     string ssn;
     int id;
     int employeeId = 123456;
+    !...
 };
 
 function testEqOfPublicStructs1 () returns (string) {
@@ -101,22 +106,25 @@ function testEqOfPublicStructs2 () returns (string) {
 
 
 
-type userA sealed record {
+type userA record {
     int age;
     string name;
+    !...
 };
 
-type userB sealed record {
+type userB record {
     int age;
     string name;
     string address;
+    !...
 };
 
-type userFoo sealed record {
+type userFoo record {
     int age;
     string name;
     string address;
     string zipcode = "23468";
+    !...
 };
 
 
@@ -132,23 +140,26 @@ function testRuntimeEqPrivateStructsInSamePackage () returns (string) {
 }
 
 
-public type userPA sealed record {
+public type userPA record {
     int age;
     string name;
+    !...
 };
 
-public type userPB sealed record {
+public type userPB record {
     int age;
     string name;
     string address;
+    !...
 };
 
 
-public type userPFoo sealed record {
+public type userPFoo record {
     int age;
     string name;
     string address;
     string zipcode = "23468";
+    !...
 };
 
 function testRuntimeEqPublicStructsInSamePackage () returns (string) {

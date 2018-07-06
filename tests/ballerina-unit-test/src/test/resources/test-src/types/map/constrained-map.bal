@@ -257,15 +257,17 @@ function updateGenericMapWithNullValue (map m) returns (map) {
     return m;
 }
 
-type Person sealed record {
+type Person record {
     string name,
     int age,
-    string address;
+    string address,
+    !...
 };
 
-type Employee sealed record {
+type Employee record {
     string name,
-    int age;
+    int age,
+    !...
 };
 
 function testStructConstrainedMapRuntimeCast () returns ((string, int)) {
@@ -377,9 +379,10 @@ function testAnyMapToRefTypeRuntimeCast () returns (map<Employee>|error) {
     }
 }
 
-type Student sealed record {
-     int index,
-    int age;
+type Student record {
+    int index,
+    int age,
+    !...
 };
 
 function testMapToStructConversion () returns ((int, int)) {
@@ -446,7 +449,7 @@ function testMapOfElementTypeRefArray () returns ((string, int)) {
     return (jackR.name, jackR.age);
 }
 
-type PersonComplex sealed record {
+type PersonComplex record {
      string name,
     int age,
     PersonComplex? parent,
@@ -455,7 +458,8 @@ type PersonComplex sealed record {
     int[] marks,
     any a,
     float score,
-    boolean alive;
+    boolean alive,
+        !...
 };
 
 function testJsonToStructConversionStructWithConstrainedMap () returns (string, string) {
@@ -484,7 +488,7 @@ function testJsonToStructConversionStructWithConstrainedMap () returns (string, 
     return (ms["city"], ms["country"]);
 }
 
-type PersonComplexTwo sealed record {
+type PersonComplexTwo record {
     string name,
     int age,
     PersonComplexTwo? parent,
@@ -493,7 +497,8 @@ type PersonComplexTwo sealed record {
     int[] marks,
     any a,
     float score,
-    boolean alive;
+    boolean alive,
+        !...
 };
 
 function testJsonToStructConversionStructWithConstrainedMapNegative () returns (PersonComplexTwo|error) {
@@ -579,33 +584,37 @@ function testMapConstrainedEquivalentMapInsert () returns (string, int) {
     return (emp["jack"].name, emp["jack"].age);
 }
 
-type Transaction sealed record {
+type Transaction record {
     string transactionId,
     string coordinationType,
     map<Participant> participants,
-    Protocol[] coordinatorProtocols;
+    Protocol[] coordinatorProtocols,
+    !...
 };
 
-type Participant sealed record {
+type Participant record {
     string participantId,
-    Protocol[] participantProtocols;
+    Protocol[] participantProtocols,
+    !...
 };
 
-type Protocol sealed record {
+type Protocol record {
     string name,
     string url,
     int transactionBlockId,
     (function (string transactionId,
                int transactionBlockId,
-               string protocolAction) returns boolean)|() protocolFn;
+               string protocolAction) returns boolean)|() protocolFn,
+    !...
 };
 
-type TwoPhaseCommitTransaction sealed record {
+type TwoPhaseCommitTransaction record {
     string transactionId,
     string coordinationType,
     map<Participant> participants,
     Protocol[] coordinatorProtocols,
-    boolean possibleMixedOutcome;
+    boolean possibleMixedOutcome,
+    !...
 };
 
 function testRuntimeStructEquivalencyWithNestedConstrainedMaps () returns (string) {

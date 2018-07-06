@@ -44,7 +44,7 @@ public class BIntegerValueNegativeTest {
         expectedError = "Integer '9999999999999999999' too large";
         BAssertUtil.validateError(compileResult, index++, expectedError, 6, 13);
 
-        expectedError = "Octal '0_7777777777777777777777' too large";
+        expectedError = "Octal '07777777777777777777777' too large";
         BAssertUtil.validateError(compileResult, index++, expectedError, 7, 13);
 
         expectedError = "Binary '0b1111111111111111111111111111111111111111111111111111111111111111' too large";
@@ -56,7 +56,7 @@ public class BIntegerValueNegativeTest {
         expectedError = "Integer '-9999999999999999999' too small";
         BAssertUtil.validateError(compileResult, index++, expectedError, 11, 13);
 
-        expectedError = "Octal '-0_7777777777777777777777' too small";
+        expectedError = "Octal '-07777777777777777777777' too small";
         BAssertUtil.validateError(compileResult, index++, expectedError, 12, 13);
 
         expectedError = "Binary '-0b1111111111111111111111111111111111111111111111111111111111111111' too small";

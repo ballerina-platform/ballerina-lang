@@ -24,13 +24,13 @@ function testNegativeHaxValue () returns (int) {
 
 function testOctalValue () returns (int) {
     int b;
-    b = 0_12;
+    b = 012;
     return b;
 }
 
 function testNegativeOctalValue () returns (int) {
     int b;
-    b = -0_12;
+    b = -012;
     return b;
 }
 
@@ -63,7 +63,7 @@ function testIntegerAddition () returns (int) {
 function testIntegerTypesAddition () returns (int) {
     int b = 10;
     int a = 0xa;
-    int c = 0_12;
+    int c = 012;
     int d = 0b1010;
     return a + b + c + d;
 }
@@ -80,7 +80,7 @@ function testIntegerMultiplication () returns (int) {
 function testIntegerTypesMultiplication () returns (int) {
     int b = 1;
     int a = 0x1;
-    int c = 0_1;
+    int c = 01;
     int d = 0b1;
     return a * b * c * d;
 }
@@ -96,7 +96,7 @@ function testIntegerSubtraction () returns (int) {
 function testIntegerTypesSubtraction () returns (int) {
     int b = 10;
     int a = 0xa;
-    int c = 0_12;
+    int c = 012;
     int d = 0b1010;
     return (a - b) - (c - d);
 }
@@ -112,7 +112,7 @@ function testIntegerDivision () returns (int) {
 function testIntegerTypesDivision () returns (int) {
     int b = 10;
     int a = 0xa;
-    int c = 0_12;
+    int c = 012;
     int d = 0b1010;
     return (a / b) / (c / d);
 }

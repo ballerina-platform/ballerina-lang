@@ -436,9 +436,9 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 0, "too many arguments in call to 'new()'", 23, 12);
         BAssertUtil.validateError(result, 1, "cannot infer type of the object from 'Person?'", 27, 12);
         BAssertUtil.validateError(result, 2, "cannot infer type of the object from 'Person?'", 31, 26);
-        BAssertUtil.validateError(result, 3, "invalid variable definition; can not infer the assignment type.",
+        BAssertUtil.validateError(result, 3, "cannot infer type of the object from 'other'", 32, 19);
+        BAssertUtil.validateError(result, 4, "invalid variable definition; can not infer the assignment type.",
                 32, 19);
-        BAssertUtil.validateError(result, 4, "cannot infer type of the object from 'other'", 32, 19);
         BAssertUtil.validateError(result, 5, "invalid usage of 'new' with type 'error'", 33, 21);
     }
 
@@ -548,6 +548,28 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 7, "cannot infer type of the object from 'Person?'", 23, 25);
         BAssertUtil.validateError(result, 8, "cannot infer type of the object from 'Person?'", 28, 14);
         BAssertUtil.validateError(result, 9, "cannot infer type of the object from 'Person?'", 29, 14);
+    }
+
+    @Test (description = "Negative test to test object visibility modifiers")
+    public void testObjectVisibilityModifiers() {
+        CompileResult result = BCompileUtil.compile(this, "test-src/object", "mod");
+        Assert.assertEquals(result.getErrorCount(), 14);
+        BAssertUtil.validateError(result, 0, "visibility modifiers not allowed in object " +
+                "attached function definition 'func1'", 11, 1);
+        BAssertUtil.validateError(result, 1, "object attached function definition must have a body 'func2'", 15, 1);
+        BAssertUtil.validateError(result, 2, "attempt to refer to non-accessible symbol 'name'", 47, 17);
+        BAssertUtil.validateError(result, 3, "undefined field 'name' in struct 'mod:0.0.0:Employee'", 47, 17);
+        BAssertUtil.validateError(result, 4, "attempt to refer to non-accessible symbol 'Employee.getAge'", 51, 14);
+        BAssertUtil.validateError(result, 5, "undefined function 'getAge' in struct 'mod:0.0.0:Employee'", 51, 14);
+        BAssertUtil.validateError(result, 6, "attempt to refer to non-accessible symbol 'name'", 58, 17);
+        BAssertUtil.validateError(result, 7, "undefined field 'name' in struct 'pkg1:Employee'", 58, 17);
+        BAssertUtil.validateError(result, 8, "attempt to refer to non-accessible symbol 'email'", 59, 17);
+        BAssertUtil.validateError(result, 9, "undefined field 'email' in struct 'pkg1:Employee'", 59, 17);
+        BAssertUtil.validateError(result, 10, "attempt to refer to non-accessible symbol 'Employee.getAge'", 62, 14);
+        BAssertUtil.validateError(result, 11, "undefined function 'getAge' in struct 'pkg1:Employee'", 62, 14);
+        BAssertUtil.validateError(result, 12, "attempt to refer to non-accessible symbol " +
+                "'Employee.getEmail'", 63, 17);
+        BAssertUtil.validateError(result, 13, "undefined function 'getEmail' in struct 'pkg1:Employee'", 63, 17);
     }
 
     @Test (description = "Negative test to test unknown object field type")

@@ -136,6 +136,7 @@ public enum DiagnosticCode {
     INVALID_FIELD_NAME_RECORD_LITERAL("invalid.field.name.record.lit"),
     REST_FIELD_NOT_ALLOWED_IN_SEALED_RECORDS("rest.field.not.allowed"),
     OPEN_RECORD_CONSTRAINT_NOT_ALLOWED("open.record.constraint.not.allowed"),
+    INVALID_RECORD_REST_DESCRIPTOR("invalid.record.rest.descriptor"),
     AMBIGUOUS_TYPES("ambiguous.type"),
 
     NOT_ENOUGH_ARGS_FUNC_CALL("not.enough.args.call"),
@@ -182,6 +183,7 @@ public enum DiagnosticCode {
     INVALID_ANY_VAR_DEF("invalid.any.var.def"),
     INVALID_RECORD_LITERAL("invalid.record.literal"),
     INVALID_ARRAY_LITERAL("invalid.array.literal"),
+    INVALID_TUPLE_LITERAL("invalid.tuple.literal"),
     MISMATCHING_ARRAY_LITERAL_VALUES("mismatching.array.literal.values"),
     INVALID_USAGE_OF_SEALED_TYPE("invalid.usage.of.sealed.type"),
     ARRAY_INDEX_OUT_OF_RANGE("array.index.out.of.range"),

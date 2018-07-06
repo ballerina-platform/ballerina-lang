@@ -48,12 +48,14 @@ public class ObservabilityUtils {
     private static final List<BallerinaObserver> observers = new CopyOnWriteArrayList<>();
 
     private static final boolean enabled;
+    private static final boolean tracingEnabled;
     private static final String PACKAGE_SEPARATOR = ".";
 
     static {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+        tracingEnabled = configRegistry.getAsBoolean(CONFIG_TRACING_ENABLED);
         enabled = configRegistry.getAsBoolean(CONFIG_METRICS_ENABLED) ||
-                configRegistry.getAsBoolean(CONFIG_TRACING_ENABLED);
+                tracingEnabled;
     }
 
     /**
@@ -263,5 +265,21 @@ public class ObservabilityUtils {
         return serviceInfoType.getPackagePath().equals(PACKAGE_SEPARATOR)
                 ? serviceInfoType.getName()
                 : serviceInfoType.getPackagePath() + PACKAGE_SEPARATOR + serviceInfoType.getName();
+    }
+
+    public static void logMessageToActiveSpan(Context context, String logLevel, String logMessage, boolean isError) {
+        if (tracingEnabled) {
+            Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
+            if (observerContext.isPresent()) {
+                BSpan span = (BSpan) observerContext.get().getProperty(KEY_SPAN);
+                HashMap<String, Object> logs = new HashMap<>(1);
+                logs.put(logLevel, logMessage);
+                if (!isError) {
+                    span.log(logs);
+                } else {
+                    span.logError(logs);
+                }
+            }
+        }
     }
 }

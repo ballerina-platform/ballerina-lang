@@ -356,32 +356,15 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             actualType = new BArrayType(actualType, null, arrayLiteral.exprs.size(), BArrayState.UNSEALED);
 
-            if (expType.tag == TypeTags.UNION) {
-                BUnionType expType = (BUnionType) this.expType;
-                int count = 0;
-                // array literals can not be assigned to union types that include
-                // any[],
-                // union arrays eg:(int|boolean)[],
-                // two or more matching types eg: int[] | int[4]
-                for (BType memType : expType.memberTypes) {
-                    if (memType.tag == TypeTags.ARRAY) {
-                        if (((BArrayType) memType).eType.tag == TypeTags.ANY ||
-                                ((BArrayType) memType).eType.tag == TypeTags.UNION) {
-                            dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
-                            resultType = symTable.errType;
-                            return;
-                        }
-                        if (types.isAssignable(actualType, memType)) {
-                            checkExprs(arrayLiteral.exprs, this.env, ((BArrayType) memType).eType);
-                            count++;
-                        }
-                    }
-                }
-                if (count > 1) {
-                    dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
-                    resultType = symTable.errType;
-                    return;
-                }
+            List<BType> arrayCompatibleType = getArrayCompatibleTypes(expType, actualType);
+            if (arrayCompatibleType.isEmpty()) {
+                dlog.error(arrayLiteral.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, actualType);
+            } else if (arrayCompatibleType.size() > 1) {
+                dlog.error(arrayLiteral.pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);
+            } else if (arrayCompatibleType.get(0).tag == TypeTags.ANY) {
+                dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
+            } else if (arrayCompatibleType.get(0).tag == TypeTags.ARRAY) {
+                checkExprs(arrayLiteral.exprs, this.env, ((BArrayType) arrayCompatibleType.get(0)).eType);
             }
         }
 
@@ -430,6 +413,21 @@ public class TypeChecker extends BLangNodeVisitor {
                 .filter(type -> type.tag == TypeTags.JSON ||
                         type.tag == TypeTags.MAP ||
                         type.tag == TypeTags.RECORD ||
+                        type.tag == TypeTags.NONE ||
+                        type.tag == TypeTags.ANY)
+                .collect(Collectors.toList());
+    }
+
+    private List<BType> getArrayCompatibleTypes(BType expType, BType actualType) {
+        Set<BType> expTypes =
+                expType.tag == TypeTags.UNION ? ((BUnionType) expType).memberTypes : new HashSet<BType>() {
+                    {
+                        add(expType);
+                    }
+                };
+
+        return expTypes.stream()
+                .filter(type -> types.isAssignable(actualType, type) ||
                         type.tag == TypeTags.NONE ||
                         type.tag == TypeTags.ANY)
                 .collect(Collectors.toList());
@@ -843,7 +841,24 @@ public class TypeChecker extends BLangNodeVisitor {
             resultType = symTable.typeDesc;
         } else if (bracedOrTupleExpr.expressions.size() > 1) {
             // This is a tuple.
-            resultType = new BTupleType(results);
+            BType actualType = new BTupleType(results);
+
+            if (expType.tag == TypeTags.ANY) {
+                dlog.error(bracedOrTupleExpr.pos, DiagnosticCode.INVALID_TUPLE_LITERAL, expType);
+                resultType = symTable.errType;
+                return;
+            }
+
+            List<BType> tupleCompatibleType = getArrayCompatibleTypes(expType, actualType);
+            if (tupleCompatibleType.isEmpty()) {
+                dlog.error(bracedOrTupleExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, actualType);
+            } else if (tupleCompatibleType.size() > 1) {
+                dlog.error(bracedOrTupleExpr.pos, DiagnosticCode.AMBIGUOUS_TYPES, expType);
+            } else if (tupleCompatibleType.get(0).tag == TypeTags.ANY) {
+                dlog.error(bracedOrTupleExpr.pos, DiagnosticCode.INVALID_TUPLE_LITERAL, expType);
+            } else {
+                resultType = types.checkType(bracedOrTupleExpr, actualType, expType);
+            }
         } else {
             // This is a braced expression.
             bracedOrTupleExpr.isBracedExpr = true;
@@ -1295,20 +1310,16 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol funcSymbol = symResolver.resolveStructField(iExpr.pos, env, objFuncName, structType.tsymbol);
 
         if (funcSymbol == symTable.notFoundSymbol) {
-            // Check functions defined within the struct.
-            funcSymbol = symResolver.resolveStructField(iExpr.pos, env, objFuncName, structType.tsymbol);
-            if (funcSymbol == symTable.notFoundSymbol) {
-                // Check, any function pointer in struct field with given name.
-                funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(iExpr.name),
-                        structType.tsymbol);
-                if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
-                    dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_STRUCT, iExpr.name.value, structType);
-                    resultType = symTable.errType;
-                    return;
-                }
-                if ((funcSymbol.flags & Flags.ATTACHED) != Flags.ATTACHED) {
-                    iExpr.functionPointerInvocation = true;
-                }
+            // Check, any function pointer in struct field with given name.
+            funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(iExpr.name),
+                    structType.tsymbol);
+            if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
+                dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_STRUCT, iExpr.name.value, structType);
+                resultType = symTable.errType;
+                return;
+            }
+            if ((funcSymbol.flags & Flags.ATTACHED) != Flags.ATTACHED) {
+                iExpr.functionPointerInvocation = true;
             }
         } else {
             // Attached function found

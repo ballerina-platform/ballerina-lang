@@ -112,7 +112,7 @@ public type HelloWorldBlockingStub object {
                 any result;
                 grpc:Headers resHeaders;
                 (result, resHeaders) = payload;
-                return (<int>result, resHeaders);
+                return (check <int>result, resHeaders);
             }
         }
     }
@@ -127,7 +127,7 @@ public type HelloWorldBlockingStub object {
                 any result;
                 grpc:Headers resHeaders;
                 (result, resHeaders) = payload;
-                return (<float>result, resHeaders);
+                return (check <float>result, resHeaders);
             }
         }
     }
@@ -142,7 +142,7 @@ public type HelloWorldBlockingStub object {
                 any result;
                 grpc:Headers resHeaders;
                 (result, resHeaders) = payload;
-                return (<boolean>result, resHeaders);
+                return (check <boolean>result, resHeaders);
             }
         }
     }
@@ -157,7 +157,7 @@ public type HelloWorldBlockingStub object {
                 any result;
                 grpc:Headers resHeaders;
                 (result, resHeaders) = payload;
-                return (<Response>result, resHeaders);
+                return (check <Response>result, resHeaders);
             }
         }
     }
