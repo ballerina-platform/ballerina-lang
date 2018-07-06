@@ -69,7 +69,7 @@ public class RegistryTest extends MetricTest {
                 "No metric should be returned for only name without tags");
     }
 
-    @Test(groups = "RegistryTest.lookupMetricAndIncrement", dependsOnMethods = "lookupWithOnlyNameMetric")
+    @Test(dependsOnMethods = "lookupWithOnlyNameMetric")
     public void lookupMetricAndIncrement() {
         BValue[] returns = BRunUtil.invoke(compileResult, "lookupRegisterAndIncrement");
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true,

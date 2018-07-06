@@ -53,7 +53,7 @@ public class CounterTest extends MetricTest {
         Assert.assertEquals(returns[0], new BInteger(5));
     }
 
-    @Test(dependsOnGroups = "RegistryTest.lookupMetricAndIncrement")
+    @Test
     public void testCounterError() {
         try {
             BRunUtil.invoke(compileResult, "testCounterError");
@@ -70,7 +70,7 @@ public class CounterTest extends MetricTest {
         Assert.assertEquals(returns[0], new BInteger(3));
     }
 
-    @Test(dependsOnGroups = "RegistryTest.lookupMetricAndIncrement")
+    @Test
     public void testReset() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReset");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
