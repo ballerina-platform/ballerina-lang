@@ -23,6 +23,7 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
+import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
@@ -214,9 +215,13 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         int tCol = beforeCursorToken.getCharPositionInLine();
 
         while (type != BallerinaParser.EOF && ((tLine < cursorLine) || (tLine == cursorLine && tCol < cursorCol))) {
-            if (beforeCursorToken.getTokenIndex() == 1 || type == BallerinaParser.SEMICOLON ||
-                    type == BallerinaParser.LEFT_BRACE || type == BallerinaParser.RIGHT_BRACE ||
-                    type == BallerinaParser.COMMA) {
+            // Checking for terminating tokens with the type number is inconsistent. Thus, uses string comparisons
+            String tokenText = beforeCursorToken.getText();
+            if (beforeCursorToken.getTokenIndex() == 1 ||
+                    UtilSymbolKeys.SEMI_COLON_SYMBOL_KEY.equals(tokenText) ||
+                    UtilSymbolKeys.OPEN_BRACE_KEY.equals(tokenText) ||
+                    UtilSymbolKeys.CLOSE_BRACE_KEY.equals(tokenText) ||
+                    UtilSymbolKeys.COMMA_SYMBOL_KEY.equals(tokenText)) {
                 lastTerminationToken = beforeCursorToken;
             }
             index++;
