@@ -1,1 +1,1 @@
-{"id":"324","result":{"contents":[{"left":"**Description**\r\n```\r\nStruct for represent person\u0027s details\r\n\r\n```\r\n**Field**\r\n```\r\nname: string value name of the person\r\nid: int value id of the person\r\nage: int value age of the person\r\n\r\n```\r\n"}]},"jsonrpc":"2.0"}
+{"id":"324","result":{"contents":[{"left":"**Description**\r\n\r\nStruct for represent person\u0027s details\r\n\r\n**Field**\r\n- name:string value name of the person\r\n- id:int value id of the person\r\n- age:int value age of the person\r\n\r\n"}]},"jsonrpc":"2.0"}

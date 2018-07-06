@@ -358,34 +358,32 @@ public class LSCompiler {
         if (parentDir == null) {
             return null;
         }
-        String tmpParentDir = parentDir;
-
         Path pathWithDotBal = null;
         boolean pathWithDotBalExists = false;
 
         // Go to top till you find a project directory or ballerina home
-        while (!pathWithDotBalExists && tmpParentDir != null) {
-            pathWithDotBal = Paths.get(tmpParentDir, ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
+        while (!pathWithDotBalExists && parentDir != null) {
+            pathWithDotBal = Paths.get(parentDir, ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
             pathWithDotBalExists = Files.exists(pathWithDotBal, LinkOption.NOFOLLOW_LINKS);
             if (!pathWithDotBalExists) {
-                Path parentsParent = Paths.get(tmpParentDir).getParent();
-                tmpParentDir = (parentsParent != null) ? parentsParent.toString() : null;
+                Path parentsParent = Paths.get(parentDir).getParent();
+                parentDir = (parentsParent != null) ? parentsParent.toString() : null;
             }
         }
 
         boolean balHomeExists = Files.exists(balHomePath, LinkOption.NOFOLLOW_LINKS);
 
-        // Check if you find ballerina home if so return parent.
+        // Check if you find ballerina home if so return null.
         if (pathWithDotBalExists && balHomeExists && isSameFile(pathWithDotBal, balHomePath)) {
-            return parentDir;
+            return null;
         }
 
         // Else return the project directory.
         if (pathWithDotBalExists) {
-            return tmpParentDir;
-        } else {
-            // If no directory found return parent.
             return parentDir;
+        } else {
+            // If no directory found return null.
+            return null;
         }
     }
 
