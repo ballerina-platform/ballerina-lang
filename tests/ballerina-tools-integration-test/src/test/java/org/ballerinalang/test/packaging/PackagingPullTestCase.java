@@ -52,7 +52,7 @@ public class PackagingPullTestCase extends IntegrationTestCase {
 
     @Test(description = "Test pulling a package from central")
     public void testPull() throws Exception {
-        String[] clientArgs = {"wso2/twitter:0.9.0"};
+        String[] clientArgs = {"wso2/twitter:0.9.14"};
         ballerinaClient = new ServerInstance(serverZipPath);
 
         ballerinaClient.runMain(clientArgs, getEnvVariables(), "pull");
@@ -61,7 +61,7 @@ public class PackagingPullTestCase extends IntegrationTestCase {
                                  ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME,
                                  "wso2",
                                  "twitter",
-                                 "0.9.0");
+                                 "0.9.14");
 
         Assert.assertTrue(Files.exists(tempDirectory.resolve(dirPath)));
         Assert.assertTrue(Files.exists(tempDirectory.resolve(dirPath).resolve("twitter.zip")));
