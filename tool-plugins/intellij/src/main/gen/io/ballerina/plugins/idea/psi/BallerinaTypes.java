@@ -63,6 +63,8 @@ public interface BallerinaTypes {
   IElementType CHECKED_EXPRESSION = new BallerinaCompositeElementType("CHECKED_EXPRESSION");
   IElementType CLOSE_TAG = new BallerinaCompositeElementType("CLOSE_TAG");
   IElementType COMMENT = new BallerinaCompositeElementType("COMMENT");
+  IElementType COMPENSATE_STATEMENT = new BallerinaCompositeElementType("COMPENSATE_STATEMENT");
+  IElementType COMPENSATION_CLAUSE = new BallerinaCompositeElementType("COMPENSATION_CLAUSE");
   IElementType COMPLETE_PACKAGE_NAME = new BallerinaCompositeElementType("COMPLETE_PACKAGE_NAME");
   IElementType COMPOUND_ASSIGNMENT_STATEMENT = new BallerinaCompositeElementType("COMPOUND_ASSIGNMENT_STATEMENT");
   IElementType COMPOUND_OPERATOR = new BallerinaCompositeElementType("COMPOUND_OPERATOR");
@@ -205,6 +207,8 @@ public interface BallerinaTypes {
   IElementType RETURN_PARAMETER = new BallerinaCompositeElementType("RETURN_PARAMETER");
   IElementType RETURN_STATEMENT = new BallerinaCompositeElementType("RETURN_STATEMENT");
   IElementType RETURN_TYPE = new BallerinaCompositeElementType("RETURN_TYPE");
+  IElementType SCOPE_CLAUSE = new BallerinaCompositeElementType("SCOPE_CLAUSE");
+  IElementType SCOPE_STATEMENT = new BallerinaCompositeElementType("SCOPE_STATEMENT");
   IElementType SEALED_LITERAL = new BallerinaCompositeElementType("SEALED_LITERAL");
   IElementType SELECT_CLAUSE = new BallerinaCompositeElementType("SELECT_CLAUSE");
   IElementType SELECT_EXPRESSION = new BallerinaCompositeElementType("SELECT_EXPRESSION");
@@ -321,6 +325,8 @@ public interface BallerinaTypes {
   IElementType CHECK = new BallerinaTokenType("check");
   IElementType COLON = new BallerinaTokenType(":");
   IElementType COMMA = new BallerinaTokenType(",");
+  IElementType COMPENSATE = new BallerinaTokenType("compensate");
+  IElementType COMPENSATION = new BallerinaTokenType("compensation");
   IElementType COMPOUND_ADD = new BallerinaTokenType("+=");
   IElementType COMPOUND_DIV = new BallerinaTokenType("/=");
   IElementType COMPOUND_MUL = new BallerinaTokenType("*=");
@@ -450,6 +456,7 @@ public interface BallerinaTypes {
   IElementType SAFE_ASSIGNMENT = new BallerinaTokenType("=?");
   IElementType SB_DEPRECATED_INLINE_CODE_START = new BallerinaTokenType("SB_DEPRECATED_INLINE_CODE_START");
   IElementType SB_DOC_INLINE_CODE_START = new BallerinaTokenType("SB_DOC_INLINE_CODE_START");
+  IElementType SCOPE = new BallerinaTokenType("scope");
   IElementType SECOND = new BallerinaTokenType("second");
   IElementType SECONDS = new BallerinaTokenType("seconds");
   IElementType SELECT = new BallerinaTokenType("select");
@@ -633,6 +640,12 @@ public interface BallerinaTypes {
       }
       else if (type == COMMENT) {
         return new BallerinaCommentImpl(node);
+      }
+      else if (type == COMPENSATE_STATEMENT) {
+        return new BallerinaCompensateStatementImpl(node);
+      }
+      else if (type == COMPENSATION_CLAUSE) {
+        return new BallerinaCompensationClauseImpl(node);
       }
       else if (type == COMPLETE_PACKAGE_NAME) {
         return new BallerinaCompletePackageNameImpl(node);
@@ -1059,6 +1072,12 @@ public interface BallerinaTypes {
       }
       else if (type == RETURN_TYPE) {
         return new BallerinaReturnTypeImpl(node);
+      }
+      else if (type == SCOPE_CLAUSE) {
+        return new BallerinaScopeClauseImpl(node);
+      }
+      else if (type == SCOPE_STATEMENT) {
+        return new BallerinaScopeStatementImpl(node);
       }
       else if (type == SEALED_LITERAL) {
         return new BallerinaSealedLiteralImpl(node);

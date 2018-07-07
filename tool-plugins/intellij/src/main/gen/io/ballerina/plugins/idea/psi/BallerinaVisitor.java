@@ -180,6 +180,14 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitCompositeElement(o);
   }
 
+  public void visitCompensateStatement(@NotNull BallerinaCompensateStatement o) {
+    visitCompositeElement(o);
+  }
+
+  public void visitCompensationClause(@NotNull BallerinaCompensationClause o) {
+    visitCompositeElement(o);
+  }
+
   public void visitCompletePackageName(@NotNull BallerinaCompletePackageName o) {
     visitCompositeElement(o);
   }
@@ -670,6 +678,14 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitReturnType(@NotNull BallerinaReturnType o) {
+    visitCompositeElement(o);
+  }
+
+  public void visitScopeClause(@NotNull BallerinaScopeClause o) {
+    visitCompositeElement(o);
+  }
+
+  public void visitScopeStatement(@NotNull BallerinaScopeStatement o) {
     visitCompositeElement(o);
   }
 

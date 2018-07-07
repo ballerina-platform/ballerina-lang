@@ -276,4 +276,14 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
         }
         return false;
     }
+
+    public static boolean restDescriptorPredicate(PsiBuilder builder, int level) {
+        IElementType next1Element = builder.lookAhead(-1);
+        return next1Element != TokenType.WHITE_SPACE;
+    }
+
+    public static boolean shiftExprPredicate(PsiBuilder builder, int level) {
+        IElementType next1Element = builder.lookAhead(-1);
+        return next1Element != TokenType.WHITE_SPACE;
+    }
 }

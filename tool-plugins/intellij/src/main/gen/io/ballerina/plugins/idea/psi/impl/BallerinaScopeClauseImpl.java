@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaCheckedExpressionImpl extends BallerinaExpressionImpl implements BallerinaCheckedExpression {
+public class BallerinaScopeClauseImpl extends BallerinaCompositeElementImpl implements BallerinaScopeClause {
 
-  public BallerinaCheckedExpressionImpl(ASTNode node) {
+  public BallerinaScopeClauseImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitCheckedExpression(this);
+    visitor.visitScopeClause(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,14 +43,32 @@ public class BallerinaCheckedExpressionImpl extends BallerinaExpressionImpl impl
 
   @Override
   @NotNull
-  public BallerinaExpression getExpression() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpression.class));
+  public List<BallerinaStatement> getStatementList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaStatement.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getLeftBrace() {
+    return findChildByType(LEFT_BRACE);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getRightBrace() {
+    return findChildByType(RIGHT_BRACE);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getIdentifier() {
+    return findChildByType(IDENTIFIER);
   }
 
   @Override
   @NotNull
-  public PsiElement getCheck() {
-    return notNullChild(findChildByType(CHECK));
+  public PsiElement getScope() {
+    return notNullChild(findChildByType(SCOPE));
   }
 
 }

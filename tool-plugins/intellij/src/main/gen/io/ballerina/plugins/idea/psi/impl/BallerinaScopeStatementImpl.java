@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaCheckedExpressionImpl extends BallerinaExpressionImpl implements BallerinaCheckedExpression {
+public class BallerinaScopeStatementImpl extends BallerinaCompositeElementImpl implements BallerinaScopeStatement {
 
-  public BallerinaCheckedExpressionImpl(ASTNode node) {
+  public BallerinaScopeStatementImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitCheckedExpression(this);
+    visitor.visitScopeStatement(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,14 +43,14 @@ public class BallerinaCheckedExpressionImpl extends BallerinaExpressionImpl impl
 
   @Override
   @NotNull
-  public BallerinaExpression getExpression() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpression.class));
+  public BallerinaCompensationClause getCompensationClause() {
+    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaCompensationClause.class));
   }
 
   @Override
   @NotNull
-  public PsiElement getCheck() {
-    return notNullChild(findChildByType(CHECK));
+  public BallerinaScopeClause getScopeClause() {
+    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaScopeClause.class));
   }
 
 }

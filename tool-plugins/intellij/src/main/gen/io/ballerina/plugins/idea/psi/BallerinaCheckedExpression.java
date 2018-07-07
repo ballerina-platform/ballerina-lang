@@ -23,7 +23,7 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaCheckedExpression extends BallerinaExpression {
 
-  @Nullable
+  @NotNull
   BallerinaExpression getExpression();
 
   @NotNull

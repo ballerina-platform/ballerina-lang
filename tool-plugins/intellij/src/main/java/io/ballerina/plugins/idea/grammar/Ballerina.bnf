@@ -504,6 +504,14 @@ ContinueStatement ::= continue SEMICOLON {pin=1}
 
 BreakStatement ::= break SEMICOLON {pin=1}
 
+ScopeStatement ::= ScopeClause CompensationClause
+
+ScopeClause ::= scope identifier LEFT_BRACE Statement* RIGHT_BRACE {pin=1}
+
+CompensationClause ::= compensation CallableUnitBody {pin=1}
+
+CompensateStatement ::= compensate identifier SEMICOLON {pin=1}
+
 // typeName is only message
 ForkJoinStatement ::= fork (LEFT_BRACE ForkStatementBody RIGHT_BRACE JoinClause? TimeoutClause?) {pin(".*")=1}
 
@@ -653,9 +661,10 @@ Expression
     |   ElvisExpression
     |   AwaitExpression
     |   typeAccessExpression
-    |   IntegerRangeExpression {
-    recoverWhile=ExpressionRecover
-}
+    |   IntegerRangeExpression
+    |   ScopeStatement
+    |   CompensateStatement
+    {recoverWhile=ExpressionRecover}
 
 typeAccessExpression ::= TypeName
 

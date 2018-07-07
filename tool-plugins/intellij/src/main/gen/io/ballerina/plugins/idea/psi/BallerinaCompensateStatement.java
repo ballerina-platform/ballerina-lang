@@ -21,12 +21,15 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaExpression extends BallerinaCompositeElement {
+public interface BallerinaCompensateStatement extends BallerinaCompositeElement {
 
   @Nullable
-  BallerinaCompensateStatement getCompensateStatement();
+  PsiElement getSemicolon();
+
+  @NotNull
+  PsiElement getCompensate();
 
   @Nullable
-  BallerinaScopeStatement getScopeStatement();
+  PsiElement getIdentifier();
 
 }

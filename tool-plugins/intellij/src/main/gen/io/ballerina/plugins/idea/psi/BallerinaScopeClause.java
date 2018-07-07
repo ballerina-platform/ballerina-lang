@@ -21,12 +21,21 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaExpression extends BallerinaCompositeElement {
+public interface BallerinaScopeClause extends BallerinaCompositeElement {
+
+  @NotNull
+  List<BallerinaStatement> getStatementList();
 
   @Nullable
-  BallerinaCompensateStatement getCompensateStatement();
+  PsiElement getLeftBrace();
 
   @Nullable
-  BallerinaScopeStatement getScopeStatement();
+  PsiElement getRightBrace();
+
+  @Nullable
+  PsiElement getIdentifier();
+
+  @NotNull
+  PsiElement getScope();
 
 }

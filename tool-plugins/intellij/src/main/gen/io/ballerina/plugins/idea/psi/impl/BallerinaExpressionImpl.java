@@ -41,4 +41,16 @@ public class BallerinaExpressionImpl extends BallerinaCompositeElementImpl imple
     else super.accept(visitor);
   }
 
+  @Override
+  @Nullable
+  public BallerinaCompensateStatement getCompensateStatement() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaCompensateStatement.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaScopeStatement getScopeStatement() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaScopeStatement.class);
+  }
+
 }
