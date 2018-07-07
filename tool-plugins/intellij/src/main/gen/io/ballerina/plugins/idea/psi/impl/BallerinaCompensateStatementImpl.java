@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaStreamingInputImpl extends BallerinaCompositeElementImpl implements BallerinaStreamingInput {
+public class BallerinaCompensateStatementImpl extends BallerinaCompositeElementImpl implements BallerinaCompensateStatement {
 
-  public BallerinaStreamingInputImpl(ASTNode node) {
+  public BallerinaCompensateStatementImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitStreamingInput(this);
+    visitor.visitCompensateStatement(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -42,33 +42,15 @@ public class BallerinaStreamingInputImpl extends BallerinaCompositeElementImpl i
   }
 
   @Override
-  @NotNull
-  public BallerinaExpression getExpression() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpression.class));
-  }
-
-  @Override
-  @NotNull
-  public List<BallerinaFunctionInvocation> getFunctionInvocationList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaFunctionInvocation.class);
-  }
-
-  @Override
-  @NotNull
-  public List<BallerinaWhereClause> getWhereClauseList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaWhereClause.class);
-  }
-
-  @Override
   @Nullable
-  public BallerinaWindowClause getWindowClause() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaWindowClause.class);
+  public PsiElement getSemicolon() {
+    return findChildByType(SEMICOLON);
   }
 
   @Override
-  @Nullable
-  public PsiElement getAs() {
-    return findChildByType(AS);
+  @NotNull
+  public PsiElement getCompensate() {
+    return notNullChild(findChildByType(COMPENSATE));
   }
 
   @Override

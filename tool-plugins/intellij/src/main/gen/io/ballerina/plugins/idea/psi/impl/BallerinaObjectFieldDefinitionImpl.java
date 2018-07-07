@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaStreamingInputImpl extends BallerinaCompositeElementImpl implements BallerinaStreamingInput {
+public class BallerinaObjectFieldDefinitionImpl extends BallerinaCompositeElementImpl implements BallerinaObjectFieldDefinition {
 
-  public BallerinaStreamingInputImpl(ASTNode node) {
+  public BallerinaObjectFieldDefinitionImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitStreamingInput(this);
+    visitor.visitObjectFieldDefinition(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,38 +43,68 @@ public class BallerinaStreamingInputImpl extends BallerinaCompositeElementImpl i
 
   @Override
   @NotNull
+  public List<BallerinaAnnotationAttachment> getAnnotationAttachmentList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaAnnotationAttachment.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaExpression getExpression() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpression.class));
+    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
   }
 
   @Override
   @NotNull
-  public List<BallerinaFunctionInvocation> getFunctionInvocationList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaFunctionInvocation.class);
-  }
-
-  @Override
-  @NotNull
-  public List<BallerinaWhereClause> getWhereClauseList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaWhereClause.class);
+  public BallerinaTypeName getTypeName() {
+    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class));
   }
 
   @Override
   @Nullable
-  public BallerinaWindowClause getWindowClause() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaWindowClause.class);
+  public BallerinaDeprecatedAttachment getDeprecatedAttachment() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaDeprecatedAttachment.class);
   }
 
   @Override
   @Nullable
-  public PsiElement getAs() {
-    return findChildByType(AS);
+  public BallerinaDocumentationAttachment getDocumentationAttachment() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaDocumentationAttachment.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getAssign() {
+    return findChildByType(ASSIGN);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getComma() {
+    return findChildByType(COMMA);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getSemicolon() {
+    return findChildByType(SEMICOLON);
   }
 
   @Override
   @Nullable
   public PsiElement getIdentifier() {
     return findChildByType(IDENTIFIER);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getPrivate() {
+    return findChildByType(PRIVATE);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getPublic() {
+    return findChildByType(PUBLIC);
   }
 
 }

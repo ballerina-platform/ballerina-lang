@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaStreamingInputImpl extends BallerinaCompositeElementImpl implements BallerinaStreamingInput {
+public class BallerinaBitwiseShiftExpressionImpl extends BallerinaExpressionImpl implements BallerinaBitwiseShiftExpression {
 
-  public BallerinaStreamingInputImpl(ASTNode node) {
+  public BallerinaBitwiseShiftExpressionImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitStreamingInput(this);
+    visitor.visitBitwiseShiftExpression(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,38 +43,14 @@ public class BallerinaStreamingInputImpl extends BallerinaCompositeElementImpl i
 
   @Override
   @NotNull
-  public BallerinaExpression getExpression() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpression.class));
+  public List<BallerinaExpression> getExpressionList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaExpression.class);
   }
 
   @Override
   @NotNull
-  public List<BallerinaFunctionInvocation> getFunctionInvocationList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaFunctionInvocation.class);
-  }
-
-  @Override
-  @NotNull
-  public List<BallerinaWhereClause> getWhereClauseList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaWhereClause.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaWindowClause getWindowClause() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaWindowClause.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getAs() {
-    return findChildByType(AS);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getIdentifier() {
-    return findChildByType(IDENTIFIER);
+  public BallerinaShiftExpression getShiftExpression() {
+    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaShiftExpression.class));
   }
 
 }

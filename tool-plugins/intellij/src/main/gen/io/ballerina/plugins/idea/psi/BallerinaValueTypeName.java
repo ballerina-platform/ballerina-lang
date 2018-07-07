@@ -24,10 +24,10 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaValueTypeName extends BallerinaCompositeElement {
 
   @Nullable
-  PsiElement getBlob();
+  PsiElement getBoolean();
 
   @Nullable
-  PsiElement getBoolean();
+  PsiElement getByte();
 
   @Nullable
   PsiElement getFloat();

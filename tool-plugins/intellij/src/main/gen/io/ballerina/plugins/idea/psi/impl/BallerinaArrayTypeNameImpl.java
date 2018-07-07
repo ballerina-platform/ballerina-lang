@@ -43,6 +43,18 @@ public class BallerinaArrayTypeNameImpl extends BallerinaTypeNameImpl implements
 
   @Override
   @NotNull
+  public List<BallerinaIntegerLiteral> getIntegerLiteralList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaIntegerLiteral.class);
+  }
+
+  @Override
+  @NotNull
+  public List<BallerinaSealedLiteral> getSealedLiteralList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaSealedLiteral.class);
+  }
+
+  @Override
+  @NotNull
   public BallerinaTypeName getTypeName() {
     return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class));
   }

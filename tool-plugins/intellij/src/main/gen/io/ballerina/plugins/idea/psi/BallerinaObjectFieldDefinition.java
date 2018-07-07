@@ -21,24 +21,39 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaStreamingInput extends BallerinaCompositeElement {
+public interface BallerinaObjectFieldDefinition extends BallerinaCompositeElement {
 
   @NotNull
+  List<BallerinaAnnotationAttachment> getAnnotationAttachmentList();
+
+  @Nullable
   BallerinaExpression getExpression();
 
   @NotNull
-  List<BallerinaFunctionInvocation> getFunctionInvocationList();
-
-  @NotNull
-  List<BallerinaWhereClause> getWhereClauseList();
+  BallerinaTypeName getTypeName();
 
   @Nullable
-  BallerinaWindowClause getWindowClause();
+  BallerinaDeprecatedAttachment getDeprecatedAttachment();
 
   @Nullable
-  PsiElement getAs();
+  BallerinaDocumentationAttachment getDocumentationAttachment();
+
+  @Nullable
+  PsiElement getAssign();
+
+  @Nullable
+  PsiElement getComma();
+
+  @Nullable
+  PsiElement getSemicolon();
 
   @Nullable
   PsiElement getIdentifier();
+
+  @Nullable
+  PsiElement getPrivate();
+
+  @Nullable
+  PsiElement getPublic();
 
 }
