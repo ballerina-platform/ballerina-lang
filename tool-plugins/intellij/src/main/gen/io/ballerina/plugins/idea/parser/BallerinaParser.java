@@ -8913,7 +8913,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // (LEFT_BRACKET RIGHT_BRACKET)+
+  // (LEFT_BRACKET (IntegerLiteral | SealedLiteral)? RIGHT_BRACKET)+
   private static boolean ArrayTypeName_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ArrayTypeName_0")) return false;
     boolean r;
@@ -8929,12 +8929,32 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // LEFT_BRACKET RIGHT_BRACKET
+  // LEFT_BRACKET (IntegerLiteral | SealedLiteral)? RIGHT_BRACKET
   private static boolean ArrayTypeName_0_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ArrayTypeName_0_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeTokensSmart(b, 0, LEFT_BRACKET, RIGHT_BRACKET);
+    r = consumeTokenSmart(b, LEFT_BRACKET);
+    r = r && ArrayTypeName_0_0_1(b, l + 1);
+    r = r && consumeToken(b, RIGHT_BRACKET);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // (IntegerLiteral | SealedLiteral)?
+  private static boolean ArrayTypeName_0_0_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ArrayTypeName_0_0_1")) return false;
+    ArrayTypeName_0_0_1_0(b, l + 1);
+    return true;
+  }
+
+  // IntegerLiteral | SealedLiteral
+  private static boolean ArrayTypeName_0_0_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ArrayTypeName_0_0_1_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = IntegerLiteral(b, l + 1);
+    if (!r) r = SealedLiteral(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }

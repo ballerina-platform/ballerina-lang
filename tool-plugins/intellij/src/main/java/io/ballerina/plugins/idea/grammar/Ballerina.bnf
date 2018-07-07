@@ -341,7 +341,7 @@ AnyTypeName ::= any
 TypeDescTypeName ::= typedesc
 
 //AnnotatedTypeName ::= AnnotationAttachment+ SimpleTypeName
-ArrayTypeName ::= TypeName (LEFT_BRACKET RIGHT_BRACKET)+
+ArrayTypeName ::= TypeName (LEFT_BRACKET (IntegerLiteral | SealedLiteral)? RIGHT_BRACKET)+
 NullableTypeName ::= TypeName QUESTION_MARK
 UnionTypeName ::= TypeName (PIPE TypeName)+
 GroupTypeName ::= LEFT_PARENTHESIS <<isGroupType>> TypeName RIGHT_PARENTHESIS
