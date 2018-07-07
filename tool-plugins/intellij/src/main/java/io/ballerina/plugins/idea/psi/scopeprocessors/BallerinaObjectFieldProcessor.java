@@ -23,11 +23,11 @@ import com.intellij.psi.ResolveState;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.ballerina.plugins.idea.completion.BallerinaCompletionUtils;
 import io.ballerina.plugins.idea.psi.BallerinaFieldDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaFieldDefinitionList;
 import io.ballerina.plugins.idea.psi.BallerinaFiniteType;
 import io.ballerina.plugins.idea.psi.BallerinaFiniteTypeUnit;
 import io.ballerina.plugins.idea.psi.BallerinaObjectBody;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFieldDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaRecordFieldDefinitionList;
 import io.ballerina.plugins.idea.psi.BallerinaRecordTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaTypeName;
@@ -83,8 +83,8 @@ public class BallerinaObjectFieldProcessor extends BallerinaScopeProcessorBase {
                 if (!(typeName instanceof BallerinaRecordTypeName)) {
                     continue;
                 }
-                BallerinaFieldDefinitionList fieldDefinitionList =
-                        ((BallerinaRecordTypeName) typeName).getFieldDefinitionList();
+                BallerinaRecordFieldDefinitionList fieldDefinitionList =
+                        ((BallerinaRecordTypeName) typeName).getRecordFieldDefinitionList();
                 List<BallerinaFieldDefinition> fieldList = fieldDefinitionList.getFieldDefinitionList();
                 for (BallerinaFieldDefinition ballerinaFieldDefinition : fieldList) {
                     PsiElement identifier = ballerinaFieldDefinition.getIdentifier();

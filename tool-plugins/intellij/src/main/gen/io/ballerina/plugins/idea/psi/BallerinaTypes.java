@@ -48,7 +48,8 @@ public interface BallerinaTypes {
   IElementType BINARY_DIV_MUL_MOD_EXPRESSION = new BallerinaCompositeElementType("BINARY_DIV_MUL_MOD_EXPRESSION");
   IElementType BINARY_EQUAL_EXPRESSION = new BallerinaCompositeElementType("BINARY_EQUAL_EXPRESSION");
   IElementType BINARY_OR_EXPRESSION = new BallerinaCompositeElementType("BINARY_OR_EXPRESSION");
-  IElementType BINARY_POW_EXPRESSION = new BallerinaCompositeElementType("BINARY_POW_EXPRESSION");
+  IElementType BITWISE_EXPRESSION = new BallerinaCompositeElementType("BITWISE_EXPRESSION");
+  IElementType BITWISE_SHIFT_EXPRESSION = new BallerinaCompositeElementType("BITWISE_SHIFT_EXPRESSION");
   IElementType BLOB_LITERAL = new BallerinaCompositeElementType("BLOB_LITERAL");
   IElementType BLOCK = new BallerinaCompositeElementType("BLOCK");
   IElementType BRACED_OR_TUPLE_EXPRESSION = new BallerinaCompositeElementType("BRACED_OR_TUPLE_EXPRESSION");
@@ -95,7 +96,6 @@ public interface BallerinaTypes {
   IElementType EXPRESSION_STMT = new BallerinaCompositeElementType("EXPRESSION_STMT");
   IElementType FIELD = new BallerinaCompositeElementType("FIELD");
   IElementType FIELD_DEFINITION = new BallerinaCompositeElementType("FIELD_DEFINITION");
-  IElementType FIELD_DEFINITION_LIST = new BallerinaCompositeElementType("FIELD_DEFINITION_LIST");
   IElementType FIELD_VARIABLE_REFERENCE = new BallerinaCompositeElementType("FIELD_VARIABLE_REFERENCE");
   IElementType FINALLY_CLAUSE = new BallerinaCompositeElementType("FINALLY_CLAUSE");
   IElementType FINITE_TYPE = new BallerinaCompositeElementType("FINITE_TYPE");
@@ -186,11 +186,13 @@ public interface BallerinaTypes {
   IElementType POST_ARITHMETIC_OPERATOR = new BallerinaCompositeElementType("POST_ARITHMETIC_OPERATOR");
   IElementType POST_INCREMENT_STATEMENT = new BallerinaCompositeElementType("POST_INCREMENT_STATEMENT");
   IElementType PROC_INS = new BallerinaCompositeElementType("PROC_INS");
+  IElementType RECORD_FIELD_DEFINITION_LIST = new BallerinaCompositeElementType("RECORD_FIELD_DEFINITION_LIST");
   IElementType RECORD_KEY = new BallerinaCompositeElementType("RECORD_KEY");
   IElementType RECORD_KEY_VALUE = new BallerinaCompositeElementType("RECORD_KEY_VALUE");
   IElementType RECORD_LITERAL = new BallerinaCompositeElementType("RECORD_LITERAL");
   IElementType RECORD_LITERAL_BODY = new BallerinaCompositeElementType("RECORD_LITERAL_BODY");
   IElementType RECORD_LITERAL_EXPRESSION = new BallerinaCompositeElementType("RECORD_LITERAL_EXPRESSION");
+  IElementType RECORD_REST_FIELD_DEFINITION = new BallerinaCompositeElementType("RECORD_REST_FIELD_DEFINITION");
   IElementType RECORD_TYPE_NAME = new BallerinaCompositeElementType("RECORD_TYPE_NAME");
   IElementType REFERENCE_TYPE_NAME = new BallerinaCompositeElementType("REFERENCE_TYPE_NAME");
   IElementType RESERVED_WORD = new BallerinaCompositeElementType("RESERVED_WORD");
@@ -203,6 +205,7 @@ public interface BallerinaTypes {
   IElementType RETURN_PARAMETER = new BallerinaCompositeElementType("RETURN_PARAMETER");
   IElementType RETURN_STATEMENT = new BallerinaCompositeElementType("RETURN_STATEMENT");
   IElementType RETURN_TYPE = new BallerinaCompositeElementType("RETURN_TYPE");
+  IElementType SEALED_LITERAL = new BallerinaCompositeElementType("SEALED_LITERAL");
   IElementType SELECT_CLAUSE = new BallerinaCompositeElementType("SELECT_CLAUSE");
   IElementType SELECT_EXPRESSION = new BallerinaCompositeElementType("SELECT_EXPRESSION");
   IElementType SELECT_EXPRESSION_LIST = new BallerinaCompositeElementType("SELECT_EXPRESSION_LIST");
@@ -211,6 +214,7 @@ public interface BallerinaTypes {
   IElementType SERVICE_ENDPOINT_ATTACHMENTS = new BallerinaCompositeElementType("SERVICE_ENDPOINT_ATTACHMENTS");
   IElementType SET_ASSIGNMENT_CLAUSE = new BallerinaCompositeElementType("SET_ASSIGNMENT_CLAUSE");
   IElementType SET_CLAUSE = new BallerinaCompositeElementType("SET_CLAUSE");
+  IElementType SHIFT_EXPRESSION = new BallerinaCompositeElementType("SHIFT_EXPRESSION");
   IElementType SIMPLE_LITERAL = new BallerinaCompositeElementType("SIMPLE_LITERAL");
   IElementType SIMPLE_LITERAL_EXPRESSION = new BallerinaCompositeElementType("SIMPLE_LITERAL_EXPRESSION");
   IElementType SIMPLE_TYPE_NAME = new BallerinaCompositeElementType("SIMPLE_TYPE_NAME");
@@ -303,12 +307,15 @@ public interface BallerinaTypes {
   IElementType BASE_64_BLOB_LITERAL = new BallerinaTokenType("BASE_64_BLOB_LITERAL");
   IElementType BINARY_INTEGER_LITERAL = new BallerinaTokenType("BINARY_INTEGER_LITERAL");
   IElementType BIND = new BallerinaTokenType("bind");
+  IElementType BITAND = new BallerinaTokenType("BITAND");
+  IElementType BITXOR = new BallerinaTokenType("BITXOR");
   IElementType BLOB = new BallerinaTokenType("blob");
   IElementType BOOLEAN = new BallerinaTokenType("boolean");
   IElementType BOOLEAN_LITERAL = new BallerinaTokenType("BOOLEAN_LITERAL");
   IElementType BREAK = new BallerinaTokenType("break");
   IElementType BUT = new BallerinaTokenType("but");
   IElementType BY = new BallerinaTokenType("by");
+  IElementType BYTE = new BallerinaTokenType("byte");
   IElementType CATCH = new BallerinaTokenType("catch");
   IElementType CDATA = new BallerinaTokenType("cdata");
   IElementType CHECK = new BallerinaTokenType("check");
@@ -582,8 +589,11 @@ public interface BallerinaTypes {
       else if (type == BINARY_OR_EXPRESSION) {
         return new BallerinaBinaryOrExpressionImpl(node);
       }
-      else if (type == BINARY_POW_EXPRESSION) {
-        return new BallerinaBinaryPowExpressionImpl(node);
+      else if (type == BITWISE_EXPRESSION) {
+        return new BallerinaBitwiseExpressionImpl(node);
+      }
+      else if (type == BITWISE_SHIFT_EXPRESSION) {
+        return new BallerinaBitwiseShiftExpressionImpl(node);
       }
       else if (type == BLOB_LITERAL) {
         return new BallerinaBlobLiteralImpl(node);
@@ -722,9 +732,6 @@ public interface BallerinaTypes {
       }
       else if (type == FIELD_DEFINITION) {
         return new BallerinaFieldDefinitionImpl(node);
-      }
-      else if (type == FIELD_DEFINITION_LIST) {
-        return new BallerinaFieldDefinitionListImpl(node);
       }
       else if (type == FIELD_VARIABLE_REFERENCE) {
         return new BallerinaFieldVariableReferenceImpl(node);
@@ -996,6 +1003,9 @@ public interface BallerinaTypes {
       else if (type == PROC_INS) {
         return new BallerinaProcInsImpl(node);
       }
+      else if (type == RECORD_FIELD_DEFINITION_LIST) {
+        return new BallerinaRecordFieldDefinitionListImpl(node);
+      }
       else if (type == RECORD_KEY) {
         return new BallerinaRecordKeyImpl(node);
       }
@@ -1010,6 +1020,9 @@ public interface BallerinaTypes {
       }
       else if (type == RECORD_LITERAL_EXPRESSION) {
         return new BallerinaRecordLiteralExpressionImpl(node);
+      }
+      else if (type == RECORD_REST_FIELD_DEFINITION) {
+        return new BallerinaRecordRestFieldDefinitionImpl(node);
       }
       else if (type == RECORD_TYPE_NAME) {
         return new BallerinaRecordTypeNameImpl(node);
@@ -1047,6 +1060,9 @@ public interface BallerinaTypes {
       else if (type == RETURN_TYPE) {
         return new BallerinaReturnTypeImpl(node);
       }
+      else if (type == SEALED_LITERAL) {
+        return new BallerinaSealedLiteralImpl(node);
+      }
       else if (type == SELECT_CLAUSE) {
         return new BallerinaSelectClauseImpl(node);
       }
@@ -1070,6 +1086,9 @@ public interface BallerinaTypes {
       }
       else if (type == SET_CLAUSE) {
         return new BallerinaSetClauseImpl(node);
+      }
+      else if (type == SHIFT_EXPRESSION) {
+        return new BallerinaShiftExpressionImpl(node);
       }
       else if (type == SIMPLE_LITERAL) {
         return new BallerinaSimpleLiteralImpl(node);

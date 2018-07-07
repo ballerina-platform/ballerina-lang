@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaStreamingInputImpl extends BallerinaCompositeElementImpl implements BallerinaStreamingInput {
+public class BallerinaRecordFieldDefinitionListImpl extends BallerinaCompositeElementImpl implements BallerinaRecordFieldDefinitionList {
 
-  public BallerinaStreamingInputImpl(ASTNode node) {
+  public BallerinaRecordFieldDefinitionListImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitStreamingInput(this);
+    visitor.visitRecordFieldDefinitionList(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,38 +43,14 @@ public class BallerinaStreamingInputImpl extends BallerinaCompositeElementImpl i
 
   @Override
   @NotNull
-  public BallerinaExpression getExpression() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpression.class));
-  }
-
-  @Override
-  @NotNull
-  public List<BallerinaFunctionInvocation> getFunctionInvocationList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaFunctionInvocation.class);
-  }
-
-  @Override
-  @NotNull
-  public List<BallerinaWhereClause> getWhereClauseList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaWhereClause.class);
+  public List<BallerinaFieldDefinition> getFieldDefinitionList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaFieldDefinition.class);
   }
 
   @Override
   @Nullable
-  public BallerinaWindowClause getWindowClause() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaWindowClause.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getAs() {
-    return findChildByType(AS);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getIdentifier() {
-    return findChildByType(IDENTIFIER);
+  public BallerinaRecordRestFieldDefinition getRecordRestFieldDefinition() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaRecordRestFieldDefinition.class);
   }
 
 }

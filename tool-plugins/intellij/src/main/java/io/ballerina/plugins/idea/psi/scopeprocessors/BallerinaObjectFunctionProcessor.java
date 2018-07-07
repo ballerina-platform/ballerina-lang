@@ -23,7 +23,7 @@ import com.intellij.psi.ResolveState;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.ballerina.plugins.idea.completion.BallerinaCompletionUtils;
 import io.ballerina.plugins.idea.completion.inserthandlers.SmartParenthesisInsertHandler;
-import io.ballerina.plugins.idea.psi.BallerinaObjectCallableUnitSignature;
+import io.ballerina.plugins.idea.psi.BallerinaCallableUnitSignature;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
 import org.jetbrains.annotations.NotNull;
@@ -64,8 +64,8 @@ public class BallerinaObjectFunctionProcessor extends BallerinaScopeProcessorBas
                     PsiTreeUtil.findChildrenOfType(element, BallerinaObjectFunctionDefinition.class);
 
             for (BallerinaObjectFunctionDefinition objectFunctionDefinition : objectFunctionDefinitions) {
-                BallerinaObjectCallableUnitSignature objectCallableUnitSignature =
-                        objectFunctionDefinition.getObjectCallableUnitSignature();
+                BallerinaCallableUnitSignature objectCallableUnitSignature =
+                        objectFunctionDefinition.getCallableUnitSignature();
                 if (objectCallableUnitSignature == null) {
                     continue;
                 }
@@ -73,6 +73,9 @@ public class BallerinaObjectFunctionProcessor extends BallerinaScopeProcessorBas
                 PsiElement identifier = objectCallableUnitSignature.getAnyIdentifierName().getIdentifier();
                 if (identifier != null) {
                     if (myResult != null) {
+                        if (objectFunctionDefinition.getCallableUnitSignature() == null) {
+                            continue;
+                        }
                         myResult.addElement(BallerinaCompletionUtils.createFunctionLookupElement
                                 (objectFunctionDefinition, owner, SmartParenthesisInsertHandler.INSTANCE));
                     } else if (myElement.getText().equals(identifier.getText())) {

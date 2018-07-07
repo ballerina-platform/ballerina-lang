@@ -21,9 +21,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaFieldDefinitionList extends BallerinaCompositeElement {
+public interface BallerinaBitwiseShiftExpression extends BallerinaExpression {
 
   @NotNull
-  List<BallerinaFieldDefinition> getFieldDefinitionList();
+  List<BallerinaExpression> getExpressionList();
+
+  @NotNull
+  BallerinaShiftExpression getShiftExpression();
 
 }

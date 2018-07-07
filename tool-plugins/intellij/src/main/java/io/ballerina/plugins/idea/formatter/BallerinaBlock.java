@@ -270,16 +270,18 @@ public class BallerinaBlock extends AbstractBlock {
             return Indent.getNormalIndent();
         } else if (childElementType == BallerinaTypes.BINARY_ADD_SUB_EXPRESSION
                 || childElementType == BallerinaTypes.BINARY_DIV_MUL_MOD_EXPRESSION
-                || childElementType == BallerinaTypes.BINARY_POW_EXPRESSION
                 || childElementType == BallerinaTypes.BINARY_AND_EXPRESSION
                 || childElementType == BallerinaTypes.BINARY_OR_EXPRESSION
+                || childElementType == BallerinaTypes.BITWISE_EXPRESSION
+                || childElementType == BallerinaTypes.BITWISE_SHIFT_EXPRESSION
                 || childElementType == BallerinaTypes.BINARY_COMPARE_EXPRESSION
                 ) {
             if (!(parentElementType == BallerinaTypes.BINARY_ADD_SUB_EXPRESSION
                     || parentElementType == BallerinaTypes.BINARY_DIV_MUL_MOD_EXPRESSION
-                    || parentElementType == BallerinaTypes.BINARY_POW_EXPRESSION
                     || parentElementType == BallerinaTypes.BINARY_AND_EXPRESSION
                     || parentElementType == BallerinaTypes.BINARY_OR_EXPRESSION
+                    || parentElementType == BallerinaTypes.BITWISE_EXPRESSION
+                    || parentElementType == BallerinaTypes.BITWISE_SHIFT_EXPRESSION
                     || parentElementType == BallerinaTypes.BINARY_COMPARE_EXPRESSION
                     || parentElementType == BallerinaTypes.UNARY_EXPRESSION
             )) {

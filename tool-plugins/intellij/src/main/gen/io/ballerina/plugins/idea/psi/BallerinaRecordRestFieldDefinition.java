@@ -21,12 +21,15 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaBinaryPowExpression extends BallerinaBinaryExpression {
+public interface BallerinaRecordRestFieldDefinition extends BallerinaCompositeElement {
 
-  @NotNull
-  List<BallerinaExpression> getExpressionList();
+  @Nullable
+  BallerinaSealedLiteral getSealedLiteral();
 
-  @NotNull
-  PsiElement getPow();
+  @Nullable
+  BallerinaTypeName getTypeName();
+
+  @Nullable
+  PsiElement getEllipsis();
 
 }

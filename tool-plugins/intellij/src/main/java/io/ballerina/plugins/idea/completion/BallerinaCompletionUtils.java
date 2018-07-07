@@ -564,7 +564,8 @@ public class BallerinaCompletionUtils {
                                                             @NotNull PsiElement owner,
                                                             @Nullable InsertHandler<LookupElement> insertHandler) {
 
-        BallerinaObjectCallableUnitSignature objectCallableUnitSignature = definition.getObjectCallableUnitSignature();
+        BallerinaCallableUnitSignature objectCallableUnitSignature = definition.getCallableUnitSignature();
+        // We check and confirm that the objectCallableUnitSignature != null before calling the method.
         BallerinaAnyIdentifierName anyIdentifierName = objectCallableUnitSignature.getAnyIdentifierName();
         PsiElement identifier = anyIdentifierName.getIdentifier();
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(identifier.getText(), identifier)

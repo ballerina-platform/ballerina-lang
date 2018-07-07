@@ -468,8 +468,8 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
             return;
         }
 
-        BallerinaObjectCallableUnitSignature callableUnitSignature =
-                objectFunctionDefinition.getObjectCallableUnitSignature();
+        BallerinaCallableUnitSignature callableUnitSignature =
+                objectFunctionDefinition.getCallableUnitSignature();
         if (callableUnitSignature == null) {
             return;
         }

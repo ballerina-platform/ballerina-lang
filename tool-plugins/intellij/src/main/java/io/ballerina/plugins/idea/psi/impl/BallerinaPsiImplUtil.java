@@ -586,8 +586,8 @@ public class BallerinaPsiImplUtil {
                     PsiTreeUtil.findChildrenOfType(ballerinaTypeDefinition, BallerinaObjectFunctionDefinition.class);
             for (BallerinaObjectFunctionDefinition ballerinaObjectFunctionDefinition :
                     ballerinaObjectFunctionDefinitions) {
-                BallerinaObjectCallableUnitSignature objectCallableUnitSignature =
-                        ballerinaObjectFunctionDefinition.getObjectCallableUnitSignature();
+                BallerinaCallableUnitSignature objectCallableUnitSignature =
+                        ballerinaObjectFunctionDefinition.getCallableUnitSignature();
                 if (objectCallableUnitSignature == null) {
                     continue;
                 }
@@ -609,8 +609,8 @@ public class BallerinaPsiImplUtil {
             Collection<BallerinaObjectFunctionDefinition> ballerinaObjectFunctionDefinitions =
                     PsiTreeUtil.findChildrenOfType(ballerinaTypeDefinition, BallerinaObjectFunctionDefinition.class);
             for (BallerinaObjectFunctionDefinition functionDefinition : ballerinaObjectFunctionDefinitions) {
-                BallerinaObjectCallableUnitSignature objectCallableUnitSignature =
-                        functionDefinition.getObjectCallableUnitSignature();
+                BallerinaCallableUnitSignature objectCallableUnitSignature =
+                        functionDefinition.getCallableUnitSignature();
                 if (objectCallableUnitSignature == null) {
                     continue;
                 }
@@ -626,6 +626,61 @@ public class BallerinaPsiImplUtil {
     @Nullable
     public static BallerinaTypeDefinition getClientFromReturnType(@NotNull BallerinaObjectCallableUnitSignature
                                                                           signature) {
+        return CachedValuesManager.getCachedValue(signature, () -> {
+            BallerinaReturnParameter returnParameter = signature.getReturnParameter();
+            if (returnParameter == null) {
+                return CachedValueProvider.Result.create(null, signature);
+            }
+            BallerinaReturnType returnType = returnParameter.getReturnType();
+            if (returnType == null) {
+                return CachedValueProvider.Result.create(null, signature);
+            }
+            BallerinaTypeName typeName = returnType.getTypeName();
+            if (typeName instanceof BallerinaTupleTypeName) {
+                List<BallerinaTypeName> typeNameList = ((BallerinaTupleTypeName) typeName).getTypeNameList();
+                if (typeNameList.size() != 1) {
+                    return CachedValueProvider.Result.create(null, signature);
+                }
+                BallerinaTypeName ballerinaTypeName = typeNameList.get(0);
+                if (!(ballerinaTypeName instanceof BallerinaSimpleTypeName)) {
+                    return CachedValueProvider.Result.create(null, signature);
+                }
+                PsiElement typeFromTypeName = getTypeFromTypeName(ballerinaTypeName);
+                if (typeFromTypeName == null) {
+                    return CachedValueProvider.Result.create(null, signature);
+                }
+                if ((!(typeFromTypeName.getParent() instanceof BallerinaTypeDefinition))) {
+                    return CachedValueProvider.Result.create(null, signature);
+                }
+                BallerinaTypeDefinition result = ((BallerinaTypeDefinition) typeFromTypeName.getParent());
+                return CachedValueProvider.Result.create(result, signature);
+            } else if (typeName instanceof BallerinaSimpleTypeName) {
+                PsiElement typeFromTypeName = getTypeFromTypeName(typeName);
+                if (typeFromTypeName != null) {
+                    if ((typeFromTypeName.getParent() instanceof BallerinaTypeDefinition)) {
+                        BallerinaTypeDefinition result = ((BallerinaTypeDefinition) typeFromTypeName.getParent());
+                        return CachedValueProvider.Result.create(result, signature);
+                    }
+                    PsiReference reference = typeFromTypeName.findReferenceAt(typeFromTypeName.getTextLength());
+                    if (reference == null) {
+                        return CachedValueProvider.Result.create(null, signature);
+                    }
+                    PsiElement resolvedElement = reference.resolve();
+                    if (resolvedElement == null) {
+                        return CachedValueProvider.Result.create(null, signature);
+                    }
+                    if (resolvedElement.getParent() instanceof BallerinaTypeDefinition) {
+                        BallerinaTypeDefinition result = (BallerinaTypeDefinition) resolvedElement;
+                        return CachedValueProvider.Result.create(result, signature);
+                    }
+                }
+            }
+            return CachedValueProvider.Result.create(null, signature);
+        });
+    }
+
+    @Nullable
+    public static BallerinaTypeDefinition getClientFromReturnType(@NotNull BallerinaCallableUnitSignature signature) {
         return CachedValuesManager.getCachedValue(signature, () -> {
             BallerinaReturnParameter returnParameter = signature.getReturnParameter();
             if (returnParameter == null) {
@@ -993,8 +1048,8 @@ public class BallerinaPsiImplUtil {
             BallerinaObjectFunctionDefinition objectFunctionDefinition = PsiTreeUtil.getParentOfType(parent,
                     BallerinaObjectFunctionDefinition.class);
             if (objectFunctionDefinition != null) {
-                BallerinaObjectCallableUnitSignature callableUnitSignature =
-                        objectFunctionDefinition.getObjectCallableUnitSignature();
+                BallerinaCallableUnitSignature callableUnitSignature =
+                        objectFunctionDefinition.getCallableUnitSignature();
                 if (callableUnitSignature == null) {
                     return CachedValueProvider.Result.create(null, variableReference);
                 }

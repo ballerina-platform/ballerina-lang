@@ -80,49 +80,42 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 %type IElementType
 %unicode
 
-DECIMAL_INTEGER_LITERAL = {DecimalNumeral} {IntegerTypeSuffix}?
-HEX_INTEGER_LITERAL = {HexNumeral} {IntegerTypeSuffix}?
-OCTAL_INTEGER_LITERAL = {OctalNumeral} {IntegerTypeSuffix}?
-BINARY_INTEGER_LITERAL = {BinaryNumeral} {IntegerTypeSuffix}?
+DECIMAL_INTEGER_LITERAL = {DecimalNumeral}
+HEX_INTEGER_LITERAL = {HexNumeral}
+OCTAL_INTEGER_LITERAL = {OctalNumeral}
+BINARY_INTEGER_LITERAL = {BinaryNumeral}
 
-IntegerTypeSuffix = [lL]
-DecimalNumeral = 0 | {NonZeroDigit} ({Digits}? | {Underscores} {Digits})
-Digits = {Digit} ({DigitOrUnderscore}* {Digit})?
+DecimalNumeral = 0 | {NonZeroDigit} {Digits}?
+Digits = {Digit}+
 Digit = 0 | {NonZeroDigit}
 NonZeroDigit = [1-9]
-DigitOrUnderscore = {Digit} | "_"
-Underscores = "_"+
 
 HexNumeral = 0 [xX] {HexDigits}
-HexDigits = {HexDigit} ({HexDigitOrUnderscore}* {HexDigit})?
+HexDigits = {HexDigit}+
 HexDigit = [0-9a-fA-F]
-HexDigitOrUnderscore = {HexDigit} | '_'
 
-OctalNumeral = 0 {Underscores}? {OctalDigits}
-OctalDigits = {OctalDigit} ({OctalDigitOrUnderscore}* {OctalDigit})?
+OctalNumeral = 0 {OctalDigits}
+OctalDigits = {OctalDigit}+
 OctalDigit = [0-7]
-OctalDigitOrUnderscore = {OctalDigit} | '_'
 
 BinaryNumeral = 0 [bB] {BinaryDigits}
-BinaryDigits = {BinaryDigit} ({BinaryDigitOrUnderscore}* {BinaryDigit})?
+BinaryDigits = {BinaryDigit}+
 BinaryDigit = [01]
-BinaryDigitOrUnderscore = {BinaryDigit} | '_'
 
 // §3.10.2 Floating-Point Literals
 
 FLOATING_POINT_LITERAL = {DecimalFloatingPointLiteral} | {HexadecimalFloatingPointLiteral}
 
-DecimalFloatingPointLiteral = {Digits} "." ({Digits} {ExponentPart}? {FloatTypeSuffix}? | {Digits}? {ExponentPart} {FloatTypeSuffix}? | {Digits}? {ExponentPart}? {FloatTypeSuffix})
-    | "." {Digits} {ExponentPart}? {FloatTypeSuffix}?
-    | {Digits} {ExponentPart} {FloatTypeSuffix}?
-    | {Digits} {FloatTypeSuffix}
+DecimalFloatingPointLiteral = {Digits} "." ({Digits} {ExponentPart}? | {Digits}? {ExponentPart})
+    | "." {Digits} {ExponentPart}?
+    | {Digits} {ExponentPart}
+    | {Digits}
 ExponentPart = {ExponentIndicator} {SignedInteger}
 ExponentIndicator = [eE]
 SignedInteger = {Sign}? {Digits}
 Sign = [+-]
-FloatTypeSuffix = [fFdD]
 
-HexadecimalFloatingPointLiteral = {HexSignificand} {BinaryExponent} {FloatTypeSuffix}?
+HexadecimalFloatingPointLiteral = {HexSignificand} {BinaryExponent}
 HexSignificand = {HexNumeral} "."? | '0' [xX] {HexDigits}? "." {HexDigits}
 BinaryExponent = {BinaryExponentIndicator} {SignedInteger}
 BinaryExponentIndicator = [pP]
@@ -327,13 +320,15 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "await"                                     { return AWAIT; }
 
     "bind"                                      { return BIND; }
-    "blob"                                      { return BLOB; }
     "boolean"                                   { return BOOLEAN; }
     "break"                                     { return BREAK; }
     "but"                                       { return BUT; }
+    "byte"                                      { return BYTE; }
 
     "catch"                                     { return CATCH; }
     "check"                                     { return CHECK; }
+    "compensation"                              { return COMPENSATION; }
+    "compensate"                                { return COMPENSATE; }
     "continue"                                  { return CONTINUE; }
 
     "documentation"                             { return DOCUMENTATION; }
@@ -376,6 +371,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
 
     "parameter"                                 { return TYPE_PARAMETER; }
     "private"                                   { return PRIVATE; }
+    "primarykey"                                { return PRIMARYKEY; }
     "public"                                    { return PUBLIC; }
 
     "record"                                    { return RECORD; }
@@ -386,6 +382,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "returns"                                   { return RETURNS; }
 
     "service"                                   { return SERVICE; }
+    "scoe"                                      { return SCOPE; }
     "some"                                      { return SOME; }
     "start"                                     { return START; }
     "stream"                                    { return STREAM; }
@@ -429,7 +426,6 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "-"                                         { return SUB; }
     "*"                                         { return MUL; }
     "/"                                         { return DIV; }
-    "^"                                         { return POW; }
     "%"                                         { return MOD; }
 
     "!"                                         { return NOT; }
@@ -441,6 +437,9 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "<="                                        { return LT_EQUAL; }
     "&&"                                        { return AND; }
     "||"                                        { return OR; }
+
+    "&"                                         { return BITAND; }
+    "^"                                         { return BITXOR; }
 
     "->"                                        { return RARROW; }
     "<-"                                        { return LARROW; }

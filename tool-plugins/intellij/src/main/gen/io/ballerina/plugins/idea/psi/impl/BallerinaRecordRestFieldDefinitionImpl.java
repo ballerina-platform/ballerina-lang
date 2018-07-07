@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaFieldDefinitionListImpl extends BallerinaCompositeElementImpl implements BallerinaFieldDefinitionList {
+public class BallerinaRecordRestFieldDefinitionImpl extends BallerinaCompositeElementImpl implements BallerinaRecordRestFieldDefinition {
 
-  public BallerinaFieldDefinitionListImpl(ASTNode node) {
+  public BallerinaRecordRestFieldDefinitionImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitFieldDefinitionList(this);
+    visitor.visitRecordRestFieldDefinition(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -42,9 +42,21 @@ public class BallerinaFieldDefinitionListImpl extends BallerinaCompositeElementI
   }
 
   @Override
-  @NotNull
-  public List<BallerinaFieldDefinition> getFieldDefinitionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaFieldDefinition.class);
+  @Nullable
+  public BallerinaSealedLiteral getSealedLiteral() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaSealedLiteral.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaTypeName getTypeName() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getEllipsis() {
+    return findChildByType(ELLIPSIS);
   }
 
 }

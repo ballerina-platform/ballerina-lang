@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaBinaryPowExpressionImpl extends BallerinaBinaryExpressionImpl implements BallerinaBinaryPowExpression {
+public class BallerinaBitwiseExpressionImpl extends BallerinaExpressionImpl implements BallerinaBitwiseExpression {
 
-  public BallerinaBinaryPowExpressionImpl(ASTNode node) {
+  public BallerinaBitwiseExpressionImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitBinaryPowExpression(this);
+    visitor.visitBitwiseExpression(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -48,9 +48,21 @@ public class BallerinaBinaryPowExpressionImpl extends BallerinaBinaryExpressionI
   }
 
   @Override
-  @NotNull
-  public PsiElement getPow() {
-    return notNullChild(findChildByType(POW));
+  @Nullable
+  public PsiElement getBitand() {
+    return findChildByType(BITAND);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getBitxor() {
+    return findChildByType(BITXOR);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getPipe() {
+    return findChildByType(PIPE);
   }
 
 }
