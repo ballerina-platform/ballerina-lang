@@ -419,6 +419,8 @@ Statement ::=
     |   ExpressionStmt
     |   StreamingQueryStatement
     |   DoneStatement
+    |   ScopeStatement
+    |   CompensateStatement
 {recoverWhile = StatementRecover}
 
 // Todo - Add more tokens
@@ -662,8 +664,8 @@ Expression
     |   AwaitExpression
     |   typeAccessExpression
     |   IntegerRangeExpression
-    |   ScopeStatement
-    |   CompensateStatement
+    |   BitwiseExpression
+    |   BitwiseShiftExpression
     {recoverWhile=ExpressionRecover}
 
 typeAccessExpression ::= TypeName

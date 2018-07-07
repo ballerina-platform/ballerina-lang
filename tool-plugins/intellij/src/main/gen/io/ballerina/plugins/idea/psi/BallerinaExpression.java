@@ -23,10 +23,4 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaExpression extends BallerinaCompositeElement {
 
-  @Nullable
-  BallerinaCompensateStatement getCompensateStatement();
-
-  @Nullable
-  BallerinaScopeStatement getScopeStatement();
-
 }

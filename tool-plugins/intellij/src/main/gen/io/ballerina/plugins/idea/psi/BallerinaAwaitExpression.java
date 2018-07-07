@@ -23,7 +23,7 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaAwaitExpression extends BallerinaExpression {
 
-  @NotNull
+  @Nullable
   BallerinaExpression getExpression();
 
   @NotNull
