@@ -156,6 +156,7 @@ public interface BallerinaTypes {
   IElementType OBJECT_BODY = new BallerinaCompositeElementType("OBJECT_BODY");
   IElementType OBJECT_CALLABLE_UNIT_SIGNATURE = new BallerinaCompositeElementType("OBJECT_CALLABLE_UNIT_SIGNATURE");
   IElementType OBJECT_DEFAULTABLE_PARAMETER = new BallerinaCompositeElementType("OBJECT_DEFAULTABLE_PARAMETER");
+  IElementType OBJECT_FIELD_DEFINITION = new BallerinaCompositeElementType("OBJECT_FIELD_DEFINITION");
   IElementType OBJECT_FUNCTIONS = new BallerinaCompositeElementType("OBJECT_FUNCTIONS");
   IElementType OBJECT_FUNCTION_DEFINITION = new BallerinaCompositeElementType("OBJECT_FUNCTION_DEFINITION");
   IElementType OBJECT_INITIALIZER = new BallerinaCompositeElementType("OBJECT_INITIALIZER");
@@ -184,9 +185,7 @@ public interface BallerinaTypes {
   IElementType PATTERN_STREAMING_INPUT = new BallerinaCompositeElementType("PATTERN_STREAMING_INPUT");
   IElementType POST_ARITHMETIC_OPERATOR = new BallerinaCompositeElementType("POST_ARITHMETIC_OPERATOR");
   IElementType POST_INCREMENT_STATEMENT = new BallerinaCompositeElementType("POST_INCREMENT_STATEMENT");
-  IElementType PRIVATE_OBJECT_FIELDS = new BallerinaCompositeElementType("PRIVATE_OBJECT_FIELDS");
   IElementType PROC_INS = new BallerinaCompositeElementType("PROC_INS");
-  IElementType PUBLIC_OBJECT_FIELDS = new BallerinaCompositeElementType("PUBLIC_OBJECT_FIELDS");
   IElementType RECORD_KEY = new BallerinaCompositeElementType("RECORD_KEY");
   IElementType RECORD_KEY_VALUE = new BallerinaCompositeElementType("RECORD_KEY_VALUE");
   IElementType RECORD_LITERAL = new BallerinaCompositeElementType("RECORD_LITERAL");
@@ -907,6 +906,9 @@ public interface BallerinaTypes {
       else if (type == OBJECT_DEFAULTABLE_PARAMETER) {
         return new BallerinaObjectDefaultableParameterImpl(node);
       }
+      else if (type == OBJECT_FIELD_DEFINITION) {
+        return new BallerinaObjectFieldDefinitionImpl(node);
+      }
       else if (type == OBJECT_FUNCTIONS) {
         return new BallerinaObjectFunctionsImpl(node);
       }
@@ -991,14 +993,8 @@ public interface BallerinaTypes {
       else if (type == POST_INCREMENT_STATEMENT) {
         return new BallerinaPostIncrementStatementImpl(node);
       }
-      else if (type == PRIVATE_OBJECT_FIELDS) {
-        return new BallerinaPrivateObjectFieldsImpl(node);
-      }
       else if (type == PROC_INS) {
         return new BallerinaProcInsImpl(node);
-      }
-      else if (type == PUBLIC_OBJECT_FIELDS) {
-        return new BallerinaPublicObjectFieldsImpl(node);
       }
       else if (type == RECORD_KEY) {
         return new BallerinaRecordKeyImpl(node);

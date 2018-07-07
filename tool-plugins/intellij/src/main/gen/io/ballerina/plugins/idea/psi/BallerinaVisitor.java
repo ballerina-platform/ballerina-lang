@@ -485,6 +485,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitCompositeElement(o);
   }
 
+  public void visitObjectFieldDefinition(@NotNull BallerinaObjectFieldDefinition o) {
+    visitCompositeElement(o);
+  }
+
   public void visitObjectFunctionDefinition(@NotNull BallerinaObjectFunctionDefinition o) {
     visitCompositeElement(o);
   }
@@ -589,15 +593,7 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitCompositeElement(o);
   }
 
-  public void visitPrivateObjectFields(@NotNull BallerinaPrivateObjectFields o) {
-    visitCompositeElement(o);
-  }
-
   public void visitProcIns(@NotNull BallerinaProcIns o) {
-    visitCompositeElement(o);
-  }
-
-  public void visitPublicObjectFields(@NotNull BallerinaPublicObjectFields o) {
     visitCompositeElement(o);
   }
 

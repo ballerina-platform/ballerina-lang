@@ -306,6 +306,9 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     else if (t == OBJECT_DEFAULTABLE_PARAMETER) {
       r = ObjectDefaultableParameter(b, 0);
     }
+    else if (t == OBJECT_FIELD_DEFINITION) {
+      r = ObjectFieldDefinition(b, 0);
+    }
     else if (t == OBJECT_FUNCTION_DEFINITION) {
       r = ObjectFunctionDefinition(b, 0);
     }
@@ -381,14 +384,8 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     else if (t == POST_INCREMENT_STATEMENT) {
       r = PostIncrementStatement(b, 0);
     }
-    else if (t == PRIVATE_OBJECT_FIELDS) {
-      r = PrivateObjectFields(b, 0);
-    }
     else if (t == PROC_INS) {
       r = ProcIns(b, 0);
-    }
-    else if (t == PUBLIC_OBJECT_FIELDS) {
-      r = PublicObjectFields(b, 0);
     }
     else if (t == RECORD_KEY) {
       r = RecordKey(b, 0);
@@ -3440,7 +3437,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // PublicObjectFields? PrivateObjectFields? ObjectInitializer? ObjectFunctions?
+  // ObjectFieldDefinition* ObjectInitializer? ObjectFunctions?
   public static boolean ObjectBody(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ObjectBody")) return false;
     boolean r;
@@ -3448,35 +3445,32 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     r = ObjectBody_0(b, l + 1);
     r = r && ObjectBody_1(b, l + 1);
     r = r && ObjectBody_2(b, l + 1);
-    r = r && ObjectBody_3(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
 
-  // PublicObjectFields?
+  // ObjectFieldDefinition*
   private static boolean ObjectBody_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ObjectBody_0")) return false;
-    PublicObjectFields(b, l + 1);
-    return true;
-  }
-
-  // PrivateObjectFields?
-  private static boolean ObjectBody_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ObjectBody_1")) return false;
-    PrivateObjectFields(b, l + 1);
+    int c = current_position_(b);
+    while (true) {
+      if (!ObjectFieldDefinition(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "ObjectBody_0", c)) break;
+      c = current_position_(b);
+    }
     return true;
   }
 
   // ObjectInitializer?
-  private static boolean ObjectBody_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ObjectBody_2")) return false;
+  private static boolean ObjectBody_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectBody_1")) return false;
     ObjectInitializer(b, l + 1);
     return true;
   }
 
   // ObjectFunctions?
-  private static boolean ObjectBody_3(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ObjectBody_3")) return false;
+  private static boolean ObjectBody_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectBody_2")) return false;
     ObjectFunctions(b, l + 1);
     return true;
   }
@@ -3521,6 +3515,98 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     r = r && consumeToken(b, ASSIGN);
     r = r && Expression(b, l + 1, -1);
     exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // AnnotationAttachment* documentationAttachment? deprecatedAttachment? (public | private)? TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON)
+  public static boolean ObjectFieldDefinition(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectFieldDefinition")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, OBJECT_FIELD_DEFINITION, "<object field definition>");
+    r = ObjectFieldDefinition_0(b, l + 1);
+    r = r && ObjectFieldDefinition_1(b, l + 1);
+    r = r && ObjectFieldDefinition_2(b, l + 1);
+    r = r && ObjectFieldDefinition_3(b, l + 1);
+    r = r && TypeName(b, l + 1, -1);
+    p = r; // pin = 5
+    r = r && report_error_(b, consumeToken(b, IDENTIFIER));
+    r = p && report_error_(b, ObjectFieldDefinition_6(b, l + 1)) && r;
+    r = p && ObjectFieldDefinition_7(b, l + 1) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // AnnotationAttachment*
+  private static boolean ObjectFieldDefinition_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectFieldDefinition_0")) return false;
+    int c = current_position_(b);
+    while (true) {
+      if (!AnnotationAttachment(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "ObjectFieldDefinition_0", c)) break;
+      c = current_position_(b);
+    }
+    return true;
+  }
+
+  // documentationAttachment?
+  private static boolean ObjectFieldDefinition_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectFieldDefinition_1")) return false;
+    documentationAttachment(b, l + 1);
+    return true;
+  }
+
+  // deprecatedAttachment?
+  private static boolean ObjectFieldDefinition_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectFieldDefinition_2")) return false;
+    deprecatedAttachment(b, l + 1);
+    return true;
+  }
+
+  // (public | private)?
+  private static boolean ObjectFieldDefinition_3(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectFieldDefinition_3")) return false;
+    ObjectFieldDefinition_3_0(b, l + 1);
+    return true;
+  }
+
+  // public | private
+  private static boolean ObjectFieldDefinition_3_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectFieldDefinition_3_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, PUBLIC);
+    if (!r) r = consumeToken(b, PRIVATE);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // (ASSIGN Expression)?
+  private static boolean ObjectFieldDefinition_6(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectFieldDefinition_6")) return false;
+    ObjectFieldDefinition_6_0(b, l + 1);
+    return true;
+  }
+
+  // ASSIGN Expression
+  private static boolean ObjectFieldDefinition_6_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectFieldDefinition_6_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, ASSIGN);
+    r = r && Expression(b, l + 1, -1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // COMMA | SEMICOLON
+  private static boolean ObjectFieldDefinition_7(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectFieldDefinition_7")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, COMMA);
+    if (!r) r = consumeToken(b, SEMICOLON);
+    exit_section_(b, m, null, r);
     return r;
   }
 
@@ -4403,33 +4489,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // private LEFT_BRACE fieldDefinition* RIGHT_BRACE
-  public static boolean PrivateObjectFields(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "PrivateObjectFields")) return false;
-    if (!nextTokenIs(b, PRIVATE)) return false;
-    boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, PRIVATE_OBJECT_FIELDS, null);
-    r = consumeTokens(b, 1, PRIVATE, LEFT_BRACE);
-    p = r; // pin = 1
-    r = r && report_error_(b, PrivateObjectFields_2(b, l + 1));
-    r = p && consumeToken(b, RIGHT_BRACE) && r;
-    exit_section_(b, l, m, r, p, null);
-    return r || p;
-  }
-
-  // fieldDefinition*
-  private static boolean PrivateObjectFields_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "PrivateObjectFields_2")) return false;
-    int c = current_position_(b);
-    while (true) {
-      if (!fieldDefinition(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "PrivateObjectFields_2", c)) break;
-      c = current_position_(b);
-    }
-    return true;
-  }
-
-  /* ********************************************************** */
   // XML_TAG_SPECIAL_OPEN (XML_PI_TEMPLATE_TEXT Expression EXPRESSION_END)* XML_PI_TEXT
   public static boolean ProcIns(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ProcIns")) return false;
@@ -4466,33 +4525,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     r = r && consumeToken(b, EXPRESSION_END);
     exit_section_(b, m, null, r);
     return r;
-  }
-
-  /* ********************************************************** */
-  // public LEFT_BRACE fieldDefinition* RIGHT_BRACE
-  public static boolean PublicObjectFields(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "PublicObjectFields")) return false;
-    if (!nextTokenIs(b, PUBLIC)) return false;
-    boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, PUBLIC_OBJECT_FIELDS, null);
-    r = consumeTokens(b, 2, PUBLIC, LEFT_BRACE);
-    p = r; // pin = 2
-    r = r && report_error_(b, PublicObjectFields_2(b, l + 1));
-    r = p && consumeToken(b, RIGHT_BRACE) && r;
-    exit_section_(b, l, m, r, p, null);
-    return r || p;
-  }
-
-  // fieldDefinition*
-  private static boolean PublicObjectFields_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "PublicObjectFields_2")) return false;
-    int c = current_position_(b);
-    while (true) {
-      if (!fieldDefinition(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "PublicObjectFields_2", c)) break;
-      c = current_position_(b);
-    }
-    return true;
   }
 
   /* ********************************************************** */

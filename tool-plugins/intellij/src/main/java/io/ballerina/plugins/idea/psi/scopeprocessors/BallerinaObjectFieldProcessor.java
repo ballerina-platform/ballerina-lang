@@ -27,8 +27,7 @@ import io.ballerina.plugins.idea.psi.BallerinaFieldDefinitionList;
 import io.ballerina.plugins.idea.psi.BallerinaFiniteType;
 import io.ballerina.plugins.idea.psi.BallerinaFiniteTypeUnit;
 import io.ballerina.plugins.idea.psi.BallerinaObjectBody;
-import io.ballerina.plugins.idea.psi.BallerinaPrivateObjectFields;
-import io.ballerina.plugins.idea.psi.BallerinaPublicObjectFields;
+import io.ballerina.plugins.idea.psi.BallerinaObjectFieldDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaRecordTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaTypeName;
@@ -99,7 +98,7 @@ public class BallerinaObjectFieldProcessor extends BallerinaScopeProcessorBase {
                         }
                         myResult.addElement(BallerinaCompletionUtils.createFieldLookupElement(identifier, owner,
                                 type, BallerinaPsiImplUtil.getObjectFieldDefaultValue(ballerinaFieldDefinition),
-                                null, false));
+                                null, false, false));
                     } else if (myElement.getText().equals(identifier.getText())) {
                         add(identifier);
                     }
@@ -117,28 +116,24 @@ public class BallerinaObjectFieldProcessor extends BallerinaScopeProcessorBase {
             return;
         }
 
-        BallerinaPublicObjectFields publicObjectFields = ballerinaObjectBody.getPublicObjectFields();
-        if (publicObjectFields != null) {
-            processObjectFields(ballerinaTypeDefinition.getIdentifier(), publicObjectFields.getFieldDefinitionList(),
-                    true);
-        }
-        BallerinaPrivateObjectFields privateObjectFields = ballerinaObjectBody.getPrivateObjectFields();
-        if (privateObjectFields != null) {
-            processObjectFields(ballerinaTypeDefinition.getIdentifier(), privateObjectFields.getFieldDefinitionList(),
-                    false);
-        }
+        List<BallerinaObjectFieldDefinition> objectFieldDefinitionList =
+                ballerinaObjectBody.getObjectFieldDefinitionList();
+        processObjectFields(ballerinaTypeDefinition.getIdentifier(), objectFieldDefinitionList);
     }
 
     // Todo - Merge with function in BallerinaBlockProcessor
     private void processObjectFields(@NotNull PsiElement typeName,
-                                     @NotNull List<BallerinaFieldDefinition> fieldDefinitionList,
-                                     boolean isPublic) {
-        for (BallerinaFieldDefinition ballerinaFieldDefinition : fieldDefinitionList) {
+                                     @NotNull List<BallerinaObjectFieldDefinition> fieldDefinitionList) {
+        for (BallerinaObjectFieldDefinition ballerinaFieldDefinition : fieldDefinitionList) {
             PsiElement identifier = ballerinaFieldDefinition.getIdentifier();
+            if (identifier == null) {
+                return;
+            }
             if (myResult != null) {
                 myResult.addElement(BallerinaCompletionUtils.createFieldLookupElement(identifier, typeName,
                         ballerinaFieldDefinition.getTypeName().getText(),
-                        BallerinaPsiImplUtil.getObjectFieldDefaultValue(ballerinaFieldDefinition), null, isPublic));
+                        BallerinaPsiImplUtil.getObjectFieldDefaultValue(ballerinaFieldDefinition), null,
+                        ballerinaFieldDefinition.getPublic() == null, ballerinaFieldDefinition.getPrivate() == null));
             } else if (myElement.getText().equals(identifier.getText())) {
                 add(identifier);
             }

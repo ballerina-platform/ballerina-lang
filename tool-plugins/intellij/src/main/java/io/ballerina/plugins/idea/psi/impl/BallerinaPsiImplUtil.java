@@ -84,6 +84,7 @@ import io.ballerina.plugins.idea.psi.BallerinaNamedPattern;
 import io.ballerina.plugins.idea.psi.BallerinaNamespaceDeclaration;
 import io.ballerina.plugins.idea.psi.BallerinaNullableTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaObjectCallableUnitSignature;
+import io.ballerina.plugins.idea.psi.BallerinaObjectFieldDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaObjectInitializer;
 import io.ballerina.plugins.idea.psi.BallerinaObjectInitializerParameterList;
@@ -1547,6 +1548,15 @@ public class BallerinaPsiImplUtil {
 
     @Nullable
     public static String getObjectFieldDefaultValue(@Nullable BallerinaFieldDefinition ballerinaFieldDefinition) {
+        if (ballerinaFieldDefinition == null) {
+            return null;
+        }
+        BallerinaExpression expression = ballerinaFieldDefinition.getExpression();
+        return formatParameterDefaultValue(expression);
+    }
+
+    @Nullable
+    public static String getObjectFieldDefaultValue(@Nullable BallerinaObjectFieldDefinition ballerinaFieldDefinition) {
         if (ballerinaFieldDefinition == null) {
             return null;
         }

@@ -28,7 +28,6 @@ import io.ballerina.plugins.idea.psi.BallerinaCallableUnitSignature;
 import io.ballerina.plugins.idea.psi.BallerinaDefaultableParameter;
 import io.ballerina.plugins.idea.psi.BallerinaEndpointDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaEndpointParameter;
-import io.ballerina.plugins.idea.psi.BallerinaFieldDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaForeachStatement;
 import io.ballerina.plugins.idea.psi.BallerinaFormalParameterList;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
@@ -39,6 +38,7 @@ import io.ballerina.plugins.idea.psi.BallerinaNamespaceDeclarationStatement;
 import io.ballerina.plugins.idea.psi.BallerinaObjectBody;
 import io.ballerina.plugins.idea.psi.BallerinaObjectCallableUnitSignature;
 import io.ballerina.plugins.idea.psi.BallerinaObjectDefaultableParameter;
+import io.ballerina.plugins.idea.psi.BallerinaObjectFieldDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaObjectInitializer;
 import io.ballerina.plugins.idea.psi.BallerinaObjectParameter;
@@ -46,8 +46,6 @@ import io.ballerina.plugins.idea.psi.BallerinaObjectParameterList;
 import io.ballerina.plugins.idea.psi.BallerinaParameter;
 import io.ballerina.plugins.idea.psi.BallerinaParameterList;
 import io.ballerina.plugins.idea.psi.BallerinaParameterWithType;
-import io.ballerina.plugins.idea.psi.BallerinaPrivateObjectFields;
-import io.ballerina.plugins.idea.psi.BallerinaPublicObjectFields;
 import io.ballerina.plugins.idea.psi.BallerinaResourceDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaResourceParameterList;
 import io.ballerina.plugins.idea.psi.BallerinaRestParameter;
@@ -400,30 +398,26 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
             return;
         }
 
-        BallerinaPublicObjectFields publicObjectFields = ballerinaObjectBody.getPublicObjectFields();
-        if (publicObjectFields != null) {
-            processObjectFields(ballerinaTypeDefinition.getIdentifier(), publicObjectFields.getFieldDefinitionList(),
-                    true);
-        }
-        BallerinaPrivateObjectFields privateObjectFields = ballerinaObjectBody.getPrivateObjectFields();
-        if (privateObjectFields != null) {
-            processObjectFields(ballerinaTypeDefinition.getIdentifier(), privateObjectFields.getFieldDefinitionList(),
-                    false);
-        }
+        List<BallerinaObjectFieldDefinition> objectFieldDefinitionList =
+                ballerinaObjectBody.getObjectFieldDefinitionList();
+        processObjectFields(ballerinaTypeDefinition.getIdentifier(), objectFieldDefinitionList);
     }
 
     private void processObjectFields(@Nullable PsiElement typeName,
-                                     @NotNull List<BallerinaFieldDefinition> fieldDefinitionList,
-                                     boolean isPublic) {
+                                     @NotNull List<BallerinaObjectFieldDefinition> fieldDefinitionList) {
         if (typeName == null) {
             return;
         }
-        for (BallerinaFieldDefinition ballerinaFieldDefinition : fieldDefinitionList) {
+        for (BallerinaObjectFieldDefinition ballerinaFieldDefinition : fieldDefinitionList) {
             PsiElement identifier = ballerinaFieldDefinition.getIdentifier();
+            if (identifier == null) {
+                continue;
+            }
             if (myResult != null) {
                 myResult.addElement(BallerinaCompletionUtils.createFieldLookupElement(identifier, typeName,
                         ballerinaFieldDefinition.getTypeName().getText(),
-                        BallerinaPsiImplUtil.getObjectFieldDefaultValue(ballerinaFieldDefinition), null, isPublic));
+                        BallerinaPsiImplUtil.getObjectFieldDefaultValue(ballerinaFieldDefinition), null,
+                        ballerinaFieldDefinition.getPublic() != null, ballerinaFieldDefinition.getPrivate() != null));
             } else if (myElement.getText().equals(identifier.getText())) {
                 add(identifier);
             }

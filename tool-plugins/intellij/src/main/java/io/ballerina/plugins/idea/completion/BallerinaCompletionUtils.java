@@ -689,7 +689,7 @@ public class BallerinaCompletionUtils {
                                                          @NotNull PsiElement ownerName,
                                                          @NotNull String type, @Nullable String defaultValue,
                                                          @Nullable InsertHandler<LookupElement> insertHandler,
-                                                         boolean isPublic) {
+                                                         boolean isPublic, boolean isPrivate) {
         LookupElementBuilder lookupElementBuilder = LookupElementBuilder.createWithSmartPointer(fieldName.getText(),
                 fieldName).withInsertHandler(insertHandler).withTypeText(type).bold();
 
