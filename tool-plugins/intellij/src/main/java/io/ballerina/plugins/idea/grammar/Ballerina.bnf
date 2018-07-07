@@ -448,9 +448,17 @@ RecordKeyValue ::= RecordKey COLON Expression {pin=1}
 
 RecordKey ::= Expression | identifier
 
-TableLiteral ::= table TableInitialization {pin=1}
+TableLiteral ::= table LEFT_BRACE TableColumnDefinition? (COMMA TableDataArray)? RIGHT_BRACE {pin=1}
 
-TableInitialization ::= RecordLiteral
+TableColumnDefinition ::= LEFT_BRACE (TableColumn (COMMA TableColumn)*)? RIGHT_BRACE
+
+TableColumn ::= primarykey? identifier
+
+TableDataArray ::= LEFT_BRACKET TableDataList? RIGHT_BRACKET
+
+TableDataList ::=  TableData (COMMA TableData)* | ExpressionList
+
+TableData ::= LEFT_BRACE ExpressionList RIGHT_BRACE
 
 ArrayLiteral ::= LEFT_BRACKET ExpressionList? RIGHT_BRACKET
 

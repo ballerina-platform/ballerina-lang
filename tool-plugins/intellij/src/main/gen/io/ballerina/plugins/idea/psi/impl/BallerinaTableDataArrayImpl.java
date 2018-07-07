@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaTableLiteralImpl extends BallerinaCompositeElementImpl implements BallerinaTableLiteral {
+public class BallerinaTableDataArrayImpl extends BallerinaCompositeElementImpl implements BallerinaTableDataArray {
 
-  public BallerinaTableLiteralImpl(ASTNode node) {
+  public BallerinaTableDataArrayImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitTableLiteral(this);
+    visitor.visitTableDataArray(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,38 +43,20 @@ public class BallerinaTableLiteralImpl extends BallerinaCompositeElementImpl imp
 
   @Override
   @Nullable
-  public BallerinaTableColumnDefinition getTableColumnDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTableColumnDefinition.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaTableDataArray getTableDataArray() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTableDataArray.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getComma() {
-    return findChildByType(COMMA);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getLeftBrace() {
-    return findChildByType(LEFT_BRACE);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getRightBrace() {
-    return findChildByType(RIGHT_BRACE);
+  public BallerinaTableDataList getTableDataList() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaTableDataList.class);
   }
 
   @Override
   @NotNull
-  public PsiElement getTable() {
-    return notNullChild(findChildByType(TABLE));
+  public PsiElement getLeftBracket() {
+    return notNullChild(findChildByType(LEFT_BRACKET));
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getRightBracket() {
+    return notNullChild(findChildByType(RIGHT_BRACKET));
   }
 
 }

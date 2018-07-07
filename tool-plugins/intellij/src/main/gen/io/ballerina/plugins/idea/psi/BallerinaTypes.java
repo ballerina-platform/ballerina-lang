@@ -234,7 +234,11 @@ public interface BallerinaTypes {
   IElementType STRING_TEMPLATE_CONTENT = new BallerinaCompositeElementType("STRING_TEMPLATE_CONTENT");
   IElementType STRING_TEMPLATE_LITERAL = new BallerinaCompositeElementType("STRING_TEMPLATE_LITERAL");
   IElementType STRING_TEMPLATE_LITERAL_EXPRESSION = new BallerinaCompositeElementType("STRING_TEMPLATE_LITERAL_EXPRESSION");
-  IElementType TABLE_INITIALIZATION = new BallerinaCompositeElementType("TABLE_INITIALIZATION");
+  IElementType TABLE_COLUMN = new BallerinaCompositeElementType("TABLE_COLUMN");
+  IElementType TABLE_COLUMN_DEFINITION = new BallerinaCompositeElementType("TABLE_COLUMN_DEFINITION");
+  IElementType TABLE_DATA = new BallerinaCompositeElementType("TABLE_DATA");
+  IElementType TABLE_DATA_ARRAY = new BallerinaCompositeElementType("TABLE_DATA_ARRAY");
+  IElementType TABLE_DATA_LIST = new BallerinaCompositeElementType("TABLE_DATA_LIST");
   IElementType TABLE_LITERAL = new BallerinaCompositeElementType("TABLE_LITERAL");
   IElementType TABLE_LITERAL_EXPRESSION = new BallerinaCompositeElementType("TABLE_LITERAL_EXPRESSION");
   IElementType TABLE_QUERY = new BallerinaCompositeElementType("TABLE_QUERY");
@@ -436,6 +440,7 @@ public interface BallerinaTypes {
   IElementType OUTPUT = new BallerinaTokenType("output");
   IElementType PIPE = new BallerinaTokenType("|");
   IElementType POW = new BallerinaTokenType("^");
+  IElementType PRIMARYKEY = new BallerinaTokenType("primarykey");
   IElementType PRIVATE = new BallerinaTokenType("private");
   IElementType PUBLIC = new BallerinaTokenType("public");
   IElementType QNAME_SEPARATOR = new BallerinaTokenType("QNAME_SEPARATOR");
@@ -1154,8 +1159,20 @@ public interface BallerinaTypes {
       else if (type == STRING_TEMPLATE_LITERAL_EXPRESSION) {
         return new BallerinaStringTemplateLiteralExpressionImpl(node);
       }
-      else if (type == TABLE_INITIALIZATION) {
-        return new BallerinaTableInitializationImpl(node);
+      else if (type == TABLE_COLUMN) {
+        return new BallerinaTableColumnImpl(node);
+      }
+      else if (type == TABLE_COLUMN_DEFINITION) {
+        return new BallerinaTableColumnDefinitionImpl(node);
+      }
+      else if (type == TABLE_DATA) {
+        return new BallerinaTableDataImpl(node);
+      }
+      else if (type == TABLE_DATA_ARRAY) {
+        return new BallerinaTableDataArrayImpl(node);
+      }
+      else if (type == TABLE_DATA_LIST) {
+        return new BallerinaTableDataListImpl(node);
       }
       else if (type == TABLE_LITERAL) {
         return new BallerinaTableLiteralImpl(node);

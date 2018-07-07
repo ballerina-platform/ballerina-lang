@@ -40,7 +40,6 @@ import io.ballerina.plugins.idea.psi.BallerinaAnyIdentifierName;
 import io.ballerina.plugins.idea.psi.BallerinaCallableUnitSignature;
 import io.ballerina.plugins.idea.psi.BallerinaFormalParameterList;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaObjectCallableUnitSignature;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaObjectInitializer;
 import io.ballerina.plugins.idea.psi.BallerinaObjectInitializerParameterList;

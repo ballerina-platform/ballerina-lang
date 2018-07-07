@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaTableLiteralImpl extends BallerinaCompositeElementImpl implements BallerinaTableLiteral {
+public class BallerinaTableDataImpl extends BallerinaCompositeElementImpl implements BallerinaTableData {
 
-  public BallerinaTableLiteralImpl(ASTNode node) {
+  public BallerinaTableDataImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitTableLiteral(this);
+    visitor.visitTableData(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -42,39 +42,21 @@ public class BallerinaTableLiteralImpl extends BallerinaCompositeElementImpl imp
   }
 
   @Override
-  @Nullable
-  public BallerinaTableColumnDefinition getTableColumnDefinition() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTableColumnDefinition.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaTableDataArray getTableDataArray() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTableDataArray.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getComma() {
-    return findChildByType(COMMA);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getLeftBrace() {
-    return findChildByType(LEFT_BRACE);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getRightBrace() {
-    return findChildByType(RIGHT_BRACE);
+  @NotNull
+  public BallerinaExpressionList getExpressionList() {
+    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpressionList.class));
   }
 
   @Override
   @NotNull
-  public PsiElement getTable() {
-    return notNullChild(findChildByType(TABLE));
+  public PsiElement getLeftBrace() {
+    return notNullChild(findChildByType(LEFT_BRACE));
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getRightBrace() {
+    return notNullChild(findChildByType(RIGHT_BRACE));
   }
 
 }

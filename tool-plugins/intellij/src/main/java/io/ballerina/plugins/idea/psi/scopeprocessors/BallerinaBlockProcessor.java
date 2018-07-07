@@ -36,7 +36,6 @@ import io.ballerina.plugins.idea.psi.BallerinaNameReference;
 import io.ballerina.plugins.idea.psi.BallerinaNamespaceDeclaration;
 import io.ballerina.plugins.idea.psi.BallerinaNamespaceDeclarationStatement;
 import io.ballerina.plugins.idea.psi.BallerinaObjectBody;
-import io.ballerina.plugins.idea.psi.BallerinaObjectCallableUnitSignature;
 import io.ballerina.plugins.idea.psi.BallerinaObjectDefaultableParameter;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFieldDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFunctionDefinition;

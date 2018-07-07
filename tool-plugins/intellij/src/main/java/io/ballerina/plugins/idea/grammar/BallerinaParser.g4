@@ -309,11 +309,28 @@ recordKey
     ;
 
 tableLiteral
-    :   TYPE_TABLE tableInitialization
+    :   TYPE_TABLE LEFT_BRACE tableColumnDefinition? (COMMA tableDataArray)? RIGHT_BRACE
     ;
 
-tableInitialization
-    :   recordLiteral
+tableColumnDefinition
+    :   LEFT_BRACE (tableColumn (COMMA tableColumn)*)? RIGHT_BRACE
+    ;
+
+tableColumn
+    :   PRIMARYKEY? Identifier
+    ;
+
+tableDataArray
+    :   LEFT_BRACKET tableDataList? RIGHT_BRACKET
+    ;
+
+tableDataList
+    :   tableData (COMMA tableData)*
+    |   expressionList
+    ;
+
+tableData
+    :   LEFT_BRACE expressionList RIGHT_BRACE
     ;
 
 arrayLiteral

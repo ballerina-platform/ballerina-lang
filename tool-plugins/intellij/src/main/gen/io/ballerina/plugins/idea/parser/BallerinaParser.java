@@ -504,8 +504,20 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     else if (t == STRING_TEMPLATE_LITERAL) {
       r = StringTemplateLiteral(b, 0);
     }
-    else if (t == TABLE_INITIALIZATION) {
-      r = TableInitialization(b, 0);
+    else if (t == TABLE_COLUMN) {
+      r = TableColumn(b, 0);
+    }
+    else if (t == TABLE_COLUMN_DEFINITION) {
+      r = TableColumnDefinition(b, 0);
+    }
+    else if (t == TABLE_DATA) {
+      r = TableData(b, 0);
+    }
+    else if (t == TABLE_DATA_ARRAY) {
+      r = TableDataArray(b, 0);
+    }
+    else if (t == TABLE_DATA_LIST) {
+      r = TableDataList(b, 0);
     }
     else if (t == TABLE_LITERAL) {
       r = TableLiteral(b, 0);
@@ -5970,29 +5982,200 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // RecordLiteral
-  public static boolean TableInitialization(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "TableInitialization")) return false;
+  // primarykey? identifier
+  public static boolean TableColumn(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TableColumn")) return false;
+    if (!nextTokenIs(b, "<table column>", IDENTIFIER, PRIMARYKEY)) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, TABLE_COLUMN, "<table column>");
+    r = TableColumn_0(b, l + 1);
+    r = r && consumeToken(b, IDENTIFIER);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // primarykey?
+  private static boolean TableColumn_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TableColumn_0")) return false;
+    consumeToken(b, PRIMARYKEY);
+    return true;
+  }
+
+  /* ********************************************************** */
+  // LEFT_BRACE (TableColumn (COMMA TableColumn)*)? RIGHT_BRACE
+  public static boolean TableColumnDefinition(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TableColumnDefinition")) return false;
     if (!nextTokenIs(b, LEFT_BRACE)) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = RecordLiteral(b, l + 1);
-    exit_section_(b, m, TABLE_INITIALIZATION, r);
+    r = consumeToken(b, LEFT_BRACE);
+    r = r && TableColumnDefinition_1(b, l + 1);
+    r = r && consumeToken(b, RIGHT_BRACE);
+    exit_section_(b, m, TABLE_COLUMN_DEFINITION, r);
+    return r;
+  }
+
+  // (TableColumn (COMMA TableColumn)*)?
+  private static boolean TableColumnDefinition_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TableColumnDefinition_1")) return false;
+    TableColumnDefinition_1_0(b, l + 1);
+    return true;
+  }
+
+  // TableColumn (COMMA TableColumn)*
+  private static boolean TableColumnDefinition_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TableColumnDefinition_1_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = TableColumn(b, l + 1);
+    r = r && TableColumnDefinition_1_0_1(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // (COMMA TableColumn)*
+  private static boolean TableColumnDefinition_1_0_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TableColumnDefinition_1_0_1")) return false;
+    int c = current_position_(b);
+    while (true) {
+      if (!TableColumnDefinition_1_0_1_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "TableColumnDefinition_1_0_1", c)) break;
+      c = current_position_(b);
+    }
+    return true;
+  }
+
+  // COMMA TableColumn
+  private static boolean TableColumnDefinition_1_0_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TableColumnDefinition_1_0_1_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, COMMA);
+    r = r && TableColumn(b, l + 1);
+    exit_section_(b, m, null, r);
     return r;
   }
 
   /* ********************************************************** */
-  // table TableInitialization
+  // LEFT_BRACE ExpressionList RIGHT_BRACE
+  public static boolean TableData(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TableData")) return false;
+    if (!nextTokenIs(b, LEFT_BRACE)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, LEFT_BRACE);
+    r = r && ExpressionList(b, l + 1);
+    r = r && consumeToken(b, RIGHT_BRACE);
+    exit_section_(b, m, TABLE_DATA, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // LEFT_BRACKET TableDataList? RIGHT_BRACKET
+  public static boolean TableDataArray(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TableDataArray")) return false;
+    if (!nextTokenIs(b, LEFT_BRACKET)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, LEFT_BRACKET);
+    r = r && TableDataArray_1(b, l + 1);
+    r = r && consumeToken(b, RIGHT_BRACKET);
+    exit_section_(b, m, TABLE_DATA_ARRAY, r);
+    return r;
+  }
+
+  // TableDataList?
+  private static boolean TableDataArray_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TableDataArray_1")) return false;
+    TableDataList(b, l + 1);
+    return true;
+  }
+
+  /* ********************************************************** */
+  // TableData (COMMA TableData)* | ExpressionList
+  public static boolean TableDataList(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TableDataList")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, TABLE_DATA_LIST, "<table data list>");
+    r = TableDataList_0(b, l + 1);
+    if (!r) r = ExpressionList(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // TableData (COMMA TableData)*
+  private static boolean TableDataList_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TableDataList_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = TableData(b, l + 1);
+    r = r && TableDataList_0_1(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // (COMMA TableData)*
+  private static boolean TableDataList_0_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TableDataList_0_1")) return false;
+    int c = current_position_(b);
+    while (true) {
+      if (!TableDataList_0_1_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "TableDataList_0_1", c)) break;
+      c = current_position_(b);
+    }
+    return true;
+  }
+
+  // COMMA TableData
+  private static boolean TableDataList_0_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TableDataList_0_1_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, COMMA);
+    r = r && TableData(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // table LEFT_BRACE TableColumnDefinition? (COMMA TableDataArray)? RIGHT_BRACE
   public static boolean TableLiteral(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TableLiteral")) return false;
     if (!nextTokenIs(b, TABLE)) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, TABLE_LITERAL, null);
-    r = consumeToken(b, TABLE);
+    r = consumeTokens(b, 1, TABLE, LEFT_BRACE);
     p = r; // pin = 1
-    r = r && TableInitialization(b, l + 1);
+    r = r && report_error_(b, TableLiteral_2(b, l + 1));
+    r = p && report_error_(b, TableLiteral_3(b, l + 1)) && r;
+    r = p && consumeToken(b, RIGHT_BRACE) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
+  }
+
+  // TableColumnDefinition?
+  private static boolean TableLiteral_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TableLiteral_2")) return false;
+    TableColumnDefinition(b, l + 1);
+    return true;
+  }
+
+  // (COMMA TableDataArray)?
+  private static boolean TableLiteral_3(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TableLiteral_3")) return false;
+    TableLiteral_3_0(b, l + 1);
+    return true;
+  }
+
+  // COMMA TableDataArray
+  private static boolean TableLiteral_3_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TableLiteral_3_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, COMMA);
+    r = r && TableDataArray(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
   }
 
   /* ********************************************************** */
