@@ -367,13 +367,13 @@ class DefaultNodeFactory {
                 endpoint ${'http:' + "Client"} ${args.name} {};
             `));
         }
-        const { endpoint, packageName, fullPackageName } = args;
+        const { endpoint, packageName } = args;
         let endpointPackageAlias = (packageName !== 'Current Package' && packageName !== '' &&
             packageName !== 'builtin') ? (packageName + ':') : '';
         endpointPackageAlias = endpointPackageAlias !== '' ? endpointPackageAlias.split(/[.]+/).pop() : '';
 
         return getNodeForFragment(FragmentUtils.createEndpointVarDefFragment(`
-            endpoint ${endpointPackageAlias + endpoint.getName()} ep {};
+            endpoint ${endpointPackageAlias + endpoint} ep {};
         `));
     }
 

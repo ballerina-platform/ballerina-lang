@@ -742,10 +742,9 @@ public class ParserUtils {
             allPackages.forEach(packageIDDTO -> {
                 String pkgName = packageIDDTO.getName();
                 String orgName = packageIDDTO.getOrgName();
-                ModelPackage pkgModel = new ModelPackage(pkgName, orgName);
                 List<Endpoint> endpointsList = allEndpoints
                         .stream()
-                        .map(bObjectTypeSymbolDTO -> new Endpoint(bObjectTypeSymbolDTO.getName(), pkgName))
+                        .map(bObjectTypeSymbolDTO -> new Endpoint(bObjectTypeSymbolDTO.getName(), pkgName, orgName))
                         .collect(Collectors.toList());
                 endpoints.addAll(endpointsList);
             });

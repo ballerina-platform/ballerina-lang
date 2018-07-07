@@ -24,6 +24,7 @@ import java.util.List;
 public class Endpoint {
     private String name;
     private String packageName;
+    private String orgName;
     private List<Function> actions;
     private String fileName;
     private List<StructField> fields;
@@ -39,6 +40,12 @@ public class Endpoint {
         this.packageName = packageName;
     }
 
+    public Endpoint(String name, String packageName, String orgName) {
+        this.name = name;
+        this.packageName = packageName;
+        this.orgName = orgName;
+    }
+
     public String getName() {
         return name;
     }
@@ -47,6 +54,13 @@ public class Endpoint {
         this.name = name;
     }
 
+    public void setOrgName(String orgName) {
+        this.orgName = orgName;
+    }
+
+    public String getOrgName() {
+        return orgName;
+    }
 
     public String getPackageName() {
         return packageName;

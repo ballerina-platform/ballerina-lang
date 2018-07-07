@@ -131,6 +131,31 @@ export function getPackages() {
     });
 }
 
+export function getEndpoints() {
+    const endpoint = getServiceEndpoint('ballerina-parser') + '/endpoints';
+
+    return new Promise((resolve, reject) => {
+        axios.get(endpoint, { headers: CONTENT_TYPE_JSON_HEADER })
+            .then((response) => {
+                resolve(response.data.packages);
+            }).catch(error => reject(error));
+    });
+}
+
+export function getActions(packageName, typeName) {
+    const endpoint = getServiceEndpoint('ballerina-parser') + '/actions';
+    const data = {
+        pkgName: packageName,
+        typeName,
+    };
+    return new Promise((resolve, reject) => {
+        axios.get(endpoint, data, { headers: CONTENT_TYPE_JSON_HEADER })
+            .then((response) => {
+                resolve(response.data.packages);
+            }).catch(error => reject(error));
+    });
+}
+
 /**
  * Invoke parser service and returns a promise with available types
  */
