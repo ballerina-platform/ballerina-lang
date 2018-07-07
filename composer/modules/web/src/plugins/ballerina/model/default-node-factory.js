@@ -379,7 +379,7 @@ class DefaultNodeFactory {
 
     createConnectorActionInvocationAssignmentStatement(args) {
         let stmtString = '';
-        const { functionDef, packageName, fullPackageName, endpoint } = args;
+        const { functionDef, packageName, fullPackageName, endpoint, actionName } = args;
 
         if (functionDef && functionDef.getReturnParams().length > 0) {
             stmtString = 'var var1 = ';
@@ -409,9 +409,9 @@ class DefaultNodeFactory {
             node.setVariables(returnNode.getVariables());
         }
 
-        if (functionDef) {
+        if (actionName) {
             const pkgStr = packageName !== 'Current Package' ? packageName.split(/[.]+/).pop() : '';
-            node.getExpression().getName().setValue(functionDef.getName());
+            node.getExpression().getName().setValue(actionName);
             node.getExpression().setFullPackageName(fullPackageName);
             node.getExpression().getPackageAlias().setValue(pkgStr);
         }

@@ -50,7 +50,7 @@ const renderSuggestion = (suggestion, value) => {
     return (<div>
         {suggestion.packageName.split(/[.]+/).pop()}
         -&gt;
-        <strong>{suggestion.functionDef.getName()}</strong>
+        <strong>{suggestion.actionName}</strong>
     </div>);
 };
 
@@ -133,35 +133,7 @@ class DefaultCtrl extends React.Component {
         const node = DefaultNodeFactory.createConnectorActionInvocationAssignmentStatement(item.suggestion);
         this.props.model.getBody().acceptDrop(node);
     }
-
-    // getAllSugestions(endpointNode) {
-    //     const suggestions = [];
-
-    //     // const environment = this.context.editor.environment;
-    //     // const packages = environment.getFilteredPackages([]);
-    //     // const endpointTypeName = endpointNode.endPointType.typeName.value;
-    //     // let endpointTypePkg = endpointNode.endPointType.packageAlias.getValue();
-    //     // endpointTypePkg = (endpointTypePkg === '') ? 'Current Package' : endpointTypePkg;
-    //     // const pkg = _.find(packages, (ownerPackage) => (ownerPackage.getName().endsWith(endpointTypePkg)));
-    //     // const getClientFunction = _.find(pkg.getFunctionDefinitions(),
-    //     //     (functionItem) => functionItem._name === 'getClient' && functionItem._receiverType === endpointTypeName);
-    //     // const clientStructType = ((getClientFunction)._returnParams[0]).type;
-    //     // const structTypeComponents = clientStructType.split(":");
-
-    //     // _.filter(pkg.getFunctionDefinitions(), (functionDef) => {
-    //     //     return functionDef._receiverType === structTypeComponents[structTypeComponents.length - 1];
-    //     // }).forEach((functionDef) => {
-    //     //     const pkgName = structTypeComponents.length > 1 ? structTypeComponents[0] : '';
-    //     //     suggestions.push({
-    //     //         pkg,
-    //     //         functionDef,
-    //     //         packageName: pkgName,
-    //     //         fullPackageName: pkgName,
-    //     //     });
-    //     // });
-    //     return suggestions;
-    // }
-
+    
     getSuggestionValue(suggestion) {
         return this.state.value;
     }
@@ -183,20 +155,18 @@ class DefaultCtrl extends React.Component {
             return;
         }
         const type = endpoint.endPointType.typeName.value;
-        const pkg = endpoint.endPointType.packageAlias.value;
-        getActions(pkg, type).then((actions) => {
+        const pkgname = endpoint.endPointType.packageAlias.value;
+        getActions(pkgname, type).then((actions) => {
             const suggestionsMap = {};
-            // packages.forEach((pkg) => {
-            //     const pkgname = pkg.packageName;
-            //     const endpoint = pkg.name;
-            //     const key = `${pkgname}-${endpoint}`;
-            //     suggestionsMap[key] = {
-            //         endpoint,
-            //         packageName: pkgname,
-            //         fullPackageName: pkgname,
-            //         orgName: pkg.orgName,
-            //     };
-            // });
+            actions.forEach((pkg) => {
+                const actionName = pkg.name;
+                const key = `${pkgname}-${actionName}`;
+                suggestionsMap[key] = {
+                    actionName,
+                    packageName: pkgname,
+                    fullPackageName: pkgname,
+                };
+            });
             const suggestions = _.values(suggestionsMap);
             this.setState({
                 listConnectors: true,

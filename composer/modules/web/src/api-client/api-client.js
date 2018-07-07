@@ -149,7 +149,7 @@ export function getActions(packageName, typeName) {
         typeName,
     };
     return new Promise((resolve, reject) => {
-        axios.get(endpoint, data, { headers: CONTENT_TYPE_JSON_HEADER })
+        axios.get(endpoint, { params: data }, { headers: CONTENT_TYPE_JSON_HEADER })
             .then((response) => {
                 resolve(response.data.packages);
             }).catch(error => reject(error));

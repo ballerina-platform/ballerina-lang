@@ -761,6 +761,7 @@ public class ParserUtils {
             LSIndexImpl lsIndex = LSIndexImpl.getInstance();
             LSIndexQueryProcessor lsIndexQueryProcessor = lsIndex.getQueryProcessor();
             List<BFunctionDTO> allPackages = lsIndexQueryProcessor.getActions(pkgName, typeName);
+            actions.addAll(allPackages);
         } catch (Exception e) {
             // Above catch is to fail safe composer front end due to core errors.
             logger.warn("Error while loading package: " + e.getMessage());
