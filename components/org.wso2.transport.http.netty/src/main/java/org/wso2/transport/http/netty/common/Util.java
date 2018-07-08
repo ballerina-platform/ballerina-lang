@@ -44,17 +44,24 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.config.ChunkConfig;
+import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.config.SslConfiguration;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonRequest;
+import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.message.Listener;
+import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 import org.wso2.transport.http.netty.sender.CertificateValidationHandler;
 import org.wso2.transport.http.netty.sender.OCSPStaplingHandler;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.channels.ClosedChannelException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -66,6 +73,7 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
 import static org.wso2.transport.http.netty.common.Constants.COLON;
+import static org.wso2.transport.http.netty.common.Constants.HEADER_VAL_100_CONTINUE;
 import static org.wso2.transport.http.netty.common.Constants.HTTP_HOST;
 import static org.wso2.transport.http.netty.common.Constants.HTTP_PORT;
 import static org.wso2.transport.http.netty.common.Constants.HTTP_SCHEME;
@@ -739,5 +747,110 @@ public class Util {
                 log.debug("Trying to remove not engaged {} handler from the pipeline", name);
             }
         }
+    }
+
+    /**
+     * Create a HttpCarbonMessage using the netty inbound http request.
+     * @param httpRequestHeaders of inbound request
+     * @param ctx of the inbound request
+     * @param remoteAddress remote address of the connection
+     * @param interfaceId to which the request received
+     * @param sourceHandler instance which handled the particular request
+     * @return HttpCarbon message
+     */
+    public static HTTPCarbonMessage createInboundReqCarbonMsg(HttpRequest httpRequestHeaders,
+            ChannelHandlerContext ctx, SocketAddress remoteAddress, String interfaceId, SourceHandler sourceHandler) {
+
+        HTTPCarbonMessage inboundRequestMsg =
+                new HttpCarbonRequest(httpRequestHeaders, new DefaultListener(ctx));
+        inboundRequestMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
+
+        inboundRequestMsg.setProperty(Constants.CHNL_HNDLR_CTX, ctx);
+        inboundRequestMsg.setProperty(Constants.SRC_HANDLER, sourceHandler);
+        HttpVersion protocolVersion = httpRequestHeaders.protocolVersion();
+        inboundRequestMsg.setProperty(Constants.HTTP_VERSION,
+                protocolVersion.majorVersion() + "." + protocolVersion.minorVersion());
+        inboundRequestMsg.setProperty(Constants.HTTP_METHOD, httpRequestHeaders.method().name());
+        InetSocketAddress localAddress = null;
+
+        //This check was added because in case of netty embedded channel, this could be of type 'EmbeddedSocketAddress'.
+        if (ctx.channel().localAddress() instanceof InetSocketAddress) {
+            localAddress = (InetSocketAddress) ctx.channel().localAddress();
+        }
+        inboundRequestMsg.setProperty(Constants.LISTENER_PORT, localAddress != null ? localAddress.getPort() : null);
+        inboundRequestMsg.setProperty(Constants.LISTENER_INTERFACE_ID, interfaceId);
+        inboundRequestMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
+
+        boolean isSecuredConnection = false;
+        if (ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null) {
+            isSecuredConnection = true;
+        }
+        inboundRequestMsg.setProperty(Constants.IS_SECURED_CONNECTION, isSecuredConnection);
+
+        inboundRequestMsg.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
+        inboundRequestMsg.setProperty(Constants.REMOTE_ADDRESS, remoteAddress);
+        inboundRequestMsg.setProperty(Constants.REQUEST_URL, httpRequestHeaders.uri());
+        inboundRequestMsg.setProperty(Constants.TO, httpRequestHeaders.uri());
+        //Added protocol name as a string
+
+        return inboundRequestMsg;
+    }
+
+    /**
+     * Create a HttpCarbonMessage using the netty inbound response message.
+     * @param ctx of the inbound response message
+     * @param httpResponseHeaders of the inbound response message
+     * @param outboundRequestMsg is the correlated outbound request message
+     * @return HttpCarbon message
+     */
+    public static HTTPCarbonMessage createInboundRespCarbonMsg(ChannelHandlerContext ctx,
+            HttpResponse httpResponseHeaders, HTTPCarbonMessage outboundRequestMsg) {
+        HTTPCarbonMessage inboundResponseMsg = new HttpCarbonResponse(httpResponseHeaders, new DefaultListener(ctx));
+        inboundResponseMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY,
+                new PooledDataStreamerFactory(ctx.alloc()));
+
+        inboundResponseMsg.setProperty(Constants.DIRECTION, Constants.DIRECTION_RESPONSE);
+        inboundResponseMsg.setProperty(Constants.HTTP_STATUS_CODE, httpResponseHeaders.status().code());
+
+        //copy required properties for service chaining from incoming carbon message to the response carbon message
+        //copy shared worker pool
+        inboundResponseMsg.setProperty(Constants.EXECUTOR_WORKER_POOL, outboundRequestMsg
+                .getProperty(Constants.EXECUTOR_WORKER_POOL));
+
+        return inboundResponseMsg;
+    }
+
+    /**
+     * Check whether a connection should alive or not.
+     * @param keepAliveConfig of the connection
+     * @param outboundRequestMsg of this particular transaction
+     * @return true if the connection should be kept alive
+     */
+    public static boolean isKeepAlive(KeepAliveConfig keepAliveConfig, HTTPCarbonMessage outboundRequestMsg) {
+        switch (keepAliveConfig) {
+        case AUTO:
+            if (Float.valueOf((String) outboundRequestMsg.getProperty(Constants.HTTP_VERSION)) > Constants.HTTP_1_0) {
+                return true;
+            } else {
+                return false;
+            }
+        case ALWAYS:
+            return true;
+        case NEVER:
+            return false;
+        default:
+            // The execution will never reach here. To make the code compilable, default case has to be placed here.
+            return true;
+        }
+    }
+
+    /**
+     * Check whether a particular request is expecting continue.
+     * @param inboundRequestMsg in question
+     * @return true if the request expects 100-continue response
+     */
+    public static boolean is100ContinueRequest(HTTPCarbonMessage inboundRequestMsg) {
+        return HEADER_VAL_100_CONTINUE.equalsIgnoreCase(
+                inboundRequestMsg.getHeader(HttpHeaderNames.EXPECT.toString()));
     }
 }
