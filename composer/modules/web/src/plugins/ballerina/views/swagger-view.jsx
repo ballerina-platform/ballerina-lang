@@ -145,12 +145,12 @@ class SwaggerView extends React.Component {
             this.context.editor.setActiveView(SPLIT_VIEW);
         }
         this.props.resetSwaggerViewFun();
-        /* this.context.astRoot.trigger('tree-modified', {
+        this.context.astRoot.trigger('tree-modified', {
             origin: this.context.astRoot,
             type: 'swagger',
             title: 'Modify Swagger Definition',
             context: this.context.astRoot,
-        }); */
+        });
     }
 
     /**

@@ -108,12 +108,11 @@
     <properties>
         <project.build.sourceEncoding>${file.encoding}</project.build.sourceEncoding>
         <org.wso2.transport.http.version>6.0.63</org.wso2.transport.http.version>
-        <jackson.core.version>2.4.5</jackson.core.version>
         <maven.shadeplugin.version>2.4.1</maven.shadeplugin.version>
         <lsp4j.version>0.3.0</lsp4j.version>
         <msf4j.version>2.5.0</msf4j.version>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
-        <jackson.core.version>2.4.5</jackson.core.version>
+        <jackson.core.version>2.9.1</jackson.core.version>
         <google.guava.version>21.0</google.guava.version>
     </properties>
 </project>

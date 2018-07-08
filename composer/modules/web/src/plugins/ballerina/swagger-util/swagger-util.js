@@ -76,16 +76,27 @@ class SwaggerUtil {
 
 
     static mergeAnnotations(to, from) {
-        console.log(from);
         // iterate annotations
         from.annotationAttachments.forEach((node) => {
-            const match = to.annotationAttachments.forEach((annotation) => {
+            const match = to.annotationAttachments.find((annotation) => {
                 return node.annotationName.value === annotation.annotationName.value &&
                     node.packageAlias.value === annotation.packageAlias.value;
             });
             // if not found add annotations
             if (match) {
-                console.log(match);
+                if (TreeUtil.isRecordLiteralExpr(match.expression) &&
+                    TreeUtil.isRecordLiteralExpr(node.expression)) {
+                    node.expression.keyValuePairs.forEach((newRec) => {
+                        const matchRec = match.expression.keyValuePairs.find((oldRec) => {
+                            return oldRec.key.variableName.value === newRec.key.variableName.value;
+                        });
+                        if (matchRec) {
+                            match.expression.replaceKeyValuePairs(matchRec, newRec);
+                        } else {
+                            match.expression.addKeyValuePairs(newRec);
+                        }
+                    });
+                }
             } else {
                 // if found add attributes.
                 to.addAnnotationAttachments(node);
