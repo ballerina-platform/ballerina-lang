@@ -53,7 +53,7 @@ service<http:Service> redirect2 bind {port:9093} {
     }
     redirect2 (endpoint client, http:Request req) {
         http:Response res = new;
-        res. setPayload("Hello World!");
+        res. setPayload("Redirect Works!");
         _ = client -> respond( res) but { error e => log:printError("Error in
         responding", err = e) };
     }
