@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/runtime;
 
-type Employee {
+type Employee record {
     int id,
     string name,
 };

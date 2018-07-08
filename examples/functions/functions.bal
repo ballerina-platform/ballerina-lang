@@ -5,7 +5,7 @@ function printValue(string value) {
     io:println(value);
 }
 
-// This function takes two int values and return their sum as an integer.
+// This function takes two `int` values and returns their sum as an integer.
 function add(int a, int b) returns (int) {
     return a + b;
 }

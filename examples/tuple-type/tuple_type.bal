@@ -6,7 +6,7 @@ function main(string... args) {
     (int, string) a = (10, "John");
     io:println(a);
 
-    // This has a tuple of variable names to the left, and a variable referent of which the type is `tuple`.
+    // This has a tuple of variable names to the left, and a variable referent of which the type is a tuple.
     // This assignment statement assigns values of the tuple in the right to the variables in the left.
     // In Ballerina, this is referred to as tuple destructuring.
     int aint;
@@ -23,11 +23,11 @@ function main(string... args) {
     io:println("06/10: " + "quotient=" + q + " " + "remainder=" + r);
 
     //To ignore a return value, use '_'.
-    //This ignores the first return value.
+    //This ignores the second return value.
     var (q1, _) = divideBy10(57);
     io:println("57/10: " + "quotient=" + q1);
 
-    //This ignores the second return value.
+    //This ignores the first return value.
     var (_, r1) = divideBy10(9);
     io:println("09/10: " + "remainder=" + r1);
 }

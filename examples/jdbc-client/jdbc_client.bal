@@ -12,7 +12,7 @@ endpoint jdbc:Client testDB {
 };
 
 // This is the type created to represent data row.
-type Student {
+type Student record {
     int id,
     int age,
     string name,

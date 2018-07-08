@@ -1,4 +1,4 @@
-// In a function execution, a `fork-join` statement splits the current execution to multiple workers, which do their work in
+// In a function execution, a fork-join statement splits the current execution to multiple workers, which do their work in
 // parallel, and joins the executions together to process their results.
 // The `fork` block allows you to start any number of parallel workers at once.
 // The `join` block gets the results from the workers that are running in parallel.

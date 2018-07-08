@@ -19,7 +19,7 @@ function main(string... args) {
     length = lengthof jsonArray;
     io:println("JSON array size: ", length);
 
-    // This creates an int constrained map.
+    // This creates an `int` constrained map.
     map<int> strMap;
     strMap["A"] = 1;
     strMap["B"] = 2;
@@ -44,9 +44,9 @@ function main(string... args) {
     length = lengthof x1.*.elements();
     io:println("XML child elements size: ", length);
  
-    // This creates a blob value.
+    // This creates a `blob` value.
     blob bl = myStr.toBlob("UTF-8");
-    // Print the length of the blob value.
+    // Print the length of the `blob` value.
     length = lengthof bl;
     io:println("BLOB size: ", length);
 }

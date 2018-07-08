@@ -6,7 +6,7 @@ int counter = 0;
 
 // This is the mock function that will replace the real function.
 @test:Mock {
-    packageName: "ballerina.io",
+    packageName: "ballerina/io",
     functionName: "println"
 }
 public function mockPrint(any... s) {
@@ -24,9 +24,9 @@ function testFunc() {
     string op3 = "Name: Anne";
     string op4 = "Name: John";
     string op5 = "Name: Peter";
-    string op6 = "Average of Low salary:125.25";
-    string op7 = "Deleted row count:2";
-    string js1 = "[{\"id\":1,\"name\":\"Jane\",\"salary\":300.5},{\"id\":3,\"name\":\"John\",\"salary\":400.5}]";
+    string op6 = "Average of Low salary: 125.25";
+    string op7 = "Selected row count: 4";
+    string js1 = "table<ballerina-examples/table:0.0.1:Employee> {index: [], primaryKey: [\"id\"], data: [{id:1, name:\"Jane\", salary:300.5}, {id:3, name:\"John\", salary:400.5}]}";
     xml xml1 = xml `<results><result><id>1</id><name>Jane</name><salary>300.5</salary></result><result><id>3</id><name>
     John</name><salary>400.5</salary></result></results>`;
 
@@ -37,6 +37,6 @@ function testFunc() {
     test:assertEquals(op5, <string>outputs[4]);
     test:assertEquals(op6, <string>outputs[5]);
     test:assertEquals(op7, <string>outputs[6]);
-    test:assertEquals(js1, <string>outputs[8]);
-    test:assertEquals(xml1, outputs[9]);
+    test:assertEquals(js1, <string>outputs[9]);
+    test:assertEquals(xml1, outputs[11]);
 }

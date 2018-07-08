@@ -9,7 +9,7 @@ function main(string... args) {
         io:println("[w1 -> w2] i: ", i, " k: ", k);
         // Send messages to worker `w2`. This message contains a tuple value with member types of `int` and `float`.
         (i, k) -> w2;
-        // Receive a message from worker `w2`. This message contains a `JSON` type value.
+        // Receive a message from worker `w2`. This message contains a `json` type value.
         json j;
         j <- w2;
         string jStr = j.toString();

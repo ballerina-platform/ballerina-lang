@@ -6,7 +6,7 @@ function userDefinedSecureOperation(@sensitive string secureParameter) {
 
 }
 
-type Student {
+type Student record {
     string firstname,
 };
 
@@ -83,6 +83,6 @@ function sanitizeAndReturnUntainted(string input) returns @untainted string {
 
 function isInteger(string input) returns boolean {
     string regEx = "\\d+";
-    boolean isInteger = check input.matches(regEx);
-    return isInteger;
+    boolean isInt = check input.matches(regEx);
+    return isInt;
 }

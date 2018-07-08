@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ballerina-platform/ballerina-examples.svg?branch=master)](https://travis-ci.org/ballerina-platform/ballerina-examples)
+
 # Ballerina by Example
 
 [Ballerina by Example](https://ballerina.io/learn/by-example/) teaches you the Ballerina language incrementally with commented examples that cover every nuance of the syntax. The source for these can be found in this repository.

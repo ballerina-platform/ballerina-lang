@@ -1,6 +1,6 @@
 import ballerina/io;
 
-type address {
+type address record {
     string line01;
     string line02;
     string city;
@@ -9,7 +9,7 @@ type address {
 };
 
 // According to this, `addr` and `guardian` fields may or may not contain a value.
-type person {
+type person record {
     string name;
     int age;
     address? addr;
@@ -43,8 +43,8 @@ function main(string... args) {
     string? city2 = p2.addr.city;
     io:println(city2);
 
-    // Here, the `Elvis` operator is used to eliminate `nil`.
-    // If the value of the first expression is not `nil`, the `Elvis` operator returns that value.
+    // Here, the Elvis operator is used to eliminate `nil`.
+    // If the value of the first expression is not `nil`, the Elvis operator returns that value.
     // If the value of the first expression is `nil`, the operator returns the value of the second expression.
     string defaultCity = "San Jose";
     string city = city2 ?: defaultCity;

@@ -6,7 +6,7 @@ int counter = 0;
 
 // This is the mock function which will replace the real function
 @test:Mock {
-    packageName: "ballerina.io",
+    packageName: "ballerina/io",
     functionName: "println"
 }
 public function mockPrint(any... s) {
@@ -26,7 +26,7 @@ function testFunc() {
     //test:assertEquals(expectedError, outputs[3]);
 }
 
-type ExpectedRecordType {
+type ExpectedRecordType record {
     string message;
     error? cause;
     string key;

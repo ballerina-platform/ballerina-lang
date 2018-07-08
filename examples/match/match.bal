@@ -1,6 +1,6 @@
 import ballerina/io;
 
-type KeyNotFoundError {
+type KeyNotFoundError record {
     string message;
     error? cause;
     string key;

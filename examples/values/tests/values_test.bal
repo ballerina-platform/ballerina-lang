@@ -6,7 +6,7 @@ int counter = 0;
 
 // This is the mock function which will replace the real function
 @test:Mock {
-    packageName: "ballerina.io",
+    packageName: "ballerina/io",
     functionName: "println"
 }
 public function mockPrint(any... s) {
@@ -20,6 +20,7 @@ function testFunc() {
     main();
     test:assertEquals(10, outputs[0]);
     test:assertEquals(20.0, outputs[1]);
-    test:assertEquals("Ballerina", outputs[2]);
-    test:assertEquals(true, outputs[3]);
+    test:assertEquals(23, outputs[2]);
+    test:assertEquals("Ballerina", outputs[3]);
+    test:assertEquals(true, outputs[4]);
 }

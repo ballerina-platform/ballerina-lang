@@ -6,7 +6,7 @@ function println(string|int value) {
 }
 
 // This is a custom error record.
-type KeyNotFoundError {
+type KeyNotFoundError record {
     string message;
     error? cause;
     string key;

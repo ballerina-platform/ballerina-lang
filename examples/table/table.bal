@@ -1,35 +1,38 @@
 import ballerina/io;
+import ballerina/log;
 
-type Employee {
+type Employee record {
     int id,
     string name,
     float salary,
 };
 
-type EmployeeSalary {
+type EmployeeSalary record {
     int id,
     float salary,
 };
 
 function main(string... args) {
-    // This creates an in-memory table constrained by the employee type and with ID as the primary key.
-    table<Employee> tb = table {
-        primaryKey: ["id"]
-    };
-
     // Create Employee records.
     Employee e1 = { id: 1, name: "Jane", salary: 300.50 };
     Employee e2 = { id: 2, name: "Anne", salary: 100.50 };
     Employee e3 = { id: 3, name: "John", salary: 400.50 };
     Employee e4 = { id: 4, name: "Peter", salary: 150.0 };
-    Employee[] employees = [e1, e2, e3, e4];
 
+    // This creates an in-memory table constrained by the `Employee` type with id as the primary key.
+    // Two records are inserted to the table.
+    table<Employee> tb = table {
+        { primarykey id, name, salary },
+        [e1, e2]
+    };
+
+    Employee[] employees = [e3, e4];
     // This adds the created records to the table.
-    foreach (e in employees) {
-        var ret = tb.add(e);
+    foreach (emp in employees) {
+        var ret = tb.add(emp);
         match ret {
-            () => io:println("Adding to table successful");
-            error e => io:println("Adding to table failed: " + e.message);
+            () => log:printInfo("Adding to table successful");
+            error e => log:printInfo("Adding to table failed: " + e.message);
         }
     }
 
@@ -38,13 +41,13 @@ function main(string... args) {
     io:println(tb);
 
     // This accesses rows using the `foreach` loop.
-    io:println("Using foreach: ");
+    log:printInfo("Using foreach: ");
     foreach x in tb {
-        io:println("Name: " + x.name);
+        log:printInfo("Name: " + x.name);
     }
 
     //This accesses rows using the `while` loop.
-    io:println("Using while loop: ");
+    log:printInfo("Using while loop: ");
     while (tb.hasNext()) {
         var ret = <Employee>tb.getNext();
         match ret {
@@ -69,7 +72,7 @@ function main(string... args) {
     // This deletes the rows that match a given criteria.
     var ret = tb.remove(isLowerSalary);
     match ret {
-        int count => io:println("Deleted row count: " + count);
+        int rowCount => io:println("Deleted row count: " + rowCount);
         error e => io:println("Error in removing employees from table: "
                                + e.message);
     }

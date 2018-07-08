@@ -11,7 +11,7 @@ function main(string... args) {
     any a = 5;
     io:println(a);
 
-    // First, the variable of the `any` type needs to be casted to the required type (`int` in this example) as shown here. More information about type casting is available in the next section.
+    // First, the variable of the `any` type needs to be cast to the required type (`int` in this example) as shown here.
     int intVal = check <int>a;
     io:println(intVal + 10);
 

@@ -4,7 +4,7 @@ import ballerina/runtime;
 int index;
 
 // Create a record type that represents the regulator state.
-type RegulatorState {
+type RegulatorState record {
     int deviceId;
     int roomNo;
     float tempSet;
@@ -12,7 +12,7 @@ type RegulatorState {
 };
 
 // Create a record type that represents the user actions on the hotel key.
-type RoomKeyAction {
+type RoomKeyAction record {
     int roomNo;
     string userAction;
 };

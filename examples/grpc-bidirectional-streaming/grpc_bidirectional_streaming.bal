@@ -3,7 +3,7 @@ import ballerina/io;
 import ballerina/grpc;
 
 // The server endpoint configuration.
-endpoint grpc:Listener ep {
+endpoint grpc:Listener listener {
     host: "localhost",
     port: 9090
 };
@@ -14,7 +14,7 @@ endpoint grpc:Listener ep {
     serverStreaming: true
 }
 
-service<grpc:Service> Chat bind ep {
+service<grpc:Service> Chat bind listener {
     map<grpc:Listener> consMap;
 
     //This resource is triggered when a new caller connection is initialized.
@@ -66,7 +66,7 @@ service<grpc:Service> Chat bind ep {
     }
 }
 
-type ChatMessage {
+type ChatMessage record {
     string name;
     string message;
 };

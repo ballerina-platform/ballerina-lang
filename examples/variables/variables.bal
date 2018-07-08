@@ -10,8 +10,8 @@ public int count;
 @final
 public string OK = "ok";
 
-// Declare a public variable that behaves as a constant for other packages
-// the code in the current package can update the value.
+// Declare a public variable that behaves as a constant for other packages.
+// The code in the current package can update the value.
 @readonly
 public int status = 1;
 

@@ -40,13 +40,26 @@ service<http:WebSocketService> SimpleProxyService bind { port: 9090 } {
     }
 
     //This resource is triggered when a new binary frame is received from a client.
-    onBinary(endpoint caller, blob data, boolean finalFrame) {
+    onBinary(endpoint caller, byte[] data, boolean finalFrame) {
 
         endpoint http:WebSocketClient clientEp =
                         getAssociatedClientEndpoint(caller);
         clientEp->pushBinary(data, final = finalFrame)
             but { error e => log:printError(
                      "Error occurred when sending binary message", err = e) };
+    }
+
+    //This resource is triggered when an error occurs in the connection.
+    onError(endpoint caller, error err) {
+
+        endpoint http:WebSocketClient clientEp =
+        getAssociatedClientEndpoint(caller);
+        clientEp->close(1011, "Unexpected condition")
+        but { error e => log:printError(
+                     "Error occurred when closing the connection", err = e) };
+        _ = caller.attributes.remove(ASSOCIATED_CONNECTION);
+        log:printError("Unexpected error hense closing the connection",
+                        err = err);
     }
 
     //This resource is triggered when a client connection is closed from the client side.
@@ -75,13 +88,26 @@ service<http:WebSocketClientService> ClientService {
     }
 
     //This resource is triggered when a new binary frame is received from the remote backend.
-    onBinary(endpoint caller, blob data, boolean finalFrame) {
+    onBinary(endpoint caller, byte[] data, boolean finalFrame) {
 
         endpoint http:WebSocketListener serverEp =
                         getAssociatedServerEndpoint(caller);
         serverEp->pushBinary(data, final = finalFrame)
             but { error e => log:printError(
                      "Error occurred when sending binary message", err = e) };
+    }
+
+    //This resource is triggered when an error occurs in the connection.
+    onError(endpoint caller, error err) {
+
+        endpoint http:WebSocketListener serverEp =
+                        getAssociatedServerEndpoint(caller);
+        serverEp->close(1011, "Unexpected condition")
+        but { error e => log:printError(
+                     "Error occurred when closing the connection", err = e) };
+        _ = caller.attributes.remove(ASSOCIATED_CONNECTION);
+        log:printError("Unexpected error hense closing the connection",
+                        err = err);
     }
 
     //This resource is triggered when a client connection is closed by the remote backend.

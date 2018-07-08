@@ -1,5 +1,3 @@
-import ballerina/log;
-import ballerina/runtime;
 import ballerina/io;
 
 function main(string... args) {
@@ -8,7 +6,7 @@ function main(string... args) {
     try {
         io:println("Start dividing numbers");
         // An error is thrown when the `divideNumbers` function is executed.
-        result = divideNumbers(1, 0);
+        result = check divideNumbers(1, 0);
         // When an error is thrown, the error type is matched to the clause defined in the `catch` block and the
         // respective `catch` block is called. The `error` type `catch` clause is structurally equivalent to any `error` type
         // that is thrown and it can be used to catch all errors.
@@ -19,6 +17,10 @@ function main(string... args) {
     }
 }
 
-function divideNumbers(int a, int b) returns int {
+function divideNumbers(int a, int b) returns int|error {
+    if (b == 0) {
+        error err = { message: "Division by 0 is not defined" };
+        return err;
+    }
     return a / b;
 }

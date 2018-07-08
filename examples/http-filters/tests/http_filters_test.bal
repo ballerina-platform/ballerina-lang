@@ -21,7 +21,7 @@ function testFunc() {
     var response = httpEndpoint->get("/hello/sayHello");
     match response {
         http:Response resp => {
-            test:assertEquals(resp.getHeader("filterName"), "RequestFilter-1");
+            test:assertEquals(resp.getHeader("X-filterName"), "RequestFilter-1");
         }
         error err => test:assertFail(msg = "Failed to call the endpoint:");
     }

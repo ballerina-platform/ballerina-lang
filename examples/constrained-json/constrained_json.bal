@@ -1,7 +1,7 @@
 import ballerina/io;
 
 // Defining Person type.
-type Person {
+type Person record {
     string name;
     int age;
     string city;
@@ -22,7 +22,7 @@ function main(string... args) {
     // add new elements that are not in the struct.
     json employee = person;
 
-    // After that, we can add new elements to the JSON.
+    // After that, we can add new elements to the JSON, and access them.
     employee.profession = "Software Engineer";
-    io:println(employee);
+    io:println(employee.profession);
 }

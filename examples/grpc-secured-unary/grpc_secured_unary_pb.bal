@@ -4,14 +4,12 @@ import ballerina/io;
 
 // Blocking client.
 public type HelloWorldBlockingStub object {
-    public {
-        grpc:Client clientEndpoint;
-        grpc:Stub stub;
-    }
+    public grpc:Client clientEndpoint;
+    public grpc:Stub stub;
 
-    function initStub(grpc:Client clientEndpoint) {
+    function initStub(grpc:Client ep) {
         grpc:Stub navStub = new;
-        navStub.initStub(clientEndpoint, "blocking", DESCRIPTOR_KEY,
+        navStub.initStub(ep, "blocking", DESCRIPTOR_KEY,
                                                                 descriptorMap);
         self.stub = navStub;
     }
@@ -36,14 +34,12 @@ public type HelloWorldBlockingStub object {
 
 // Non-blocking client.
 public type HelloWorldStub object {
-    public {
-        grpc:Client clientEndpoint;
-        grpc:Stub stub;
-    }
+    public grpc:Client clientEndpoint;
+    public grpc:Stub stub;
 
-    function initStub(grpc:Client clientEndpoint) {
+    function initStub(grpc:Client ep) {
         grpc:Stub navStub = new;
-        navStub.initStub(clientEndpoint, "non-blocking", DESCRIPTOR_KEY,
+        navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY,
                                                                 descriptorMap);
         self.stub = navStub;
     }
@@ -57,21 +53,19 @@ public type HelloWorldStub object {
 
 // Blocking endpoint.
 public type HelloWorldBlockingClient object {
-    public {
-        grpc:Client client;
-        HelloWorldBlockingStub stub;
-    }
+    public grpc:Client client;
+    public HelloWorldBlockingStub stub;
 
     public function init(grpc:ClientEndpointConfig config) {
         // Initialize client endpoint.
-        grpc:Client client = new;
-        client.init(config);
-        self.client = client;
+        grpc:Client c = new;
+        c.init(config);
+        self.client = c;
 
         // Initialize service stub.
-        HelloWorldBlockingStub stub = new;
-        stub.initStub(client);
-        self.stub = stub;
+        HelloWorldBlockingStub s = new;
+        s.initStub(c);
+        self.stub = s;
     }
 
     public function getCallerActions() returns (HelloWorldBlockingStub) {
@@ -81,21 +75,19 @@ public type HelloWorldBlockingClient object {
 
 // Non-blocking client endpoint.
 public type HelloWorldClient object {
-    public {
-        grpc:Client client;
-        HelloWorldStub stub;
-    }
+    public grpc:Client client;
+    public HelloWorldStub stub;
 
     public function init(grpc:ClientEndpointConfig config) {
         // Initialize client endpoint.
-        grpc:Client client = new;
-        client.init(config);
-        self.client = client;
+        grpc:Client c = new;
+        c.init(config);
+        self.client = c;
 
         // Initialize service stub.
-        HelloWorldStub stub = new;
-        stub.initStub(client);
-        self.stub = stub;
+        HelloWorldStub s = new;
+        s.initStub(c);
+        self.stub = s;
 
     }
 

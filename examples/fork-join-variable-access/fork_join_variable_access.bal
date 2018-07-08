@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// The in scope variables can be accessed by the workers in the `fork-join` statement.
+// The in scope variables can be accessed by the workers in the fork-join statement.
 function main(string... args) {
     // These variables can be accessed by the forked workers.
     int i = 100;
@@ -12,7 +12,7 @@ function main(string... args) {
     io:println("[default worker] before fork-join: value of name is [", 
                 name, "] value of era is [", era, "]");
 
-    // Declare the `fork-join` statement.
+    // Declare the fork-join statement.
     fork {
         worker W1 {
             // Change the value of the integer variable `i` within the worker W1.
@@ -21,7 +21,7 @@ function main(string... args) {
             m["name"] = "Rajasinghe";
             // Define a new variable within the worker to send to the `join` block.
             string n = "Colombo";
-            // Send the data to the `join` block of the `fork-join` from worker W1.
+            // Send the data to the `join` block of the fork-join from worker W1.
             (i, n) -> fork;
         }
 
@@ -30,14 +30,14 @@ function main(string... args) {
             s = "Ballerina";
             // Change the value of map variable `m` within the worker W2.
             m["era"] = "Kandy";
-            // Send the data to the `join` block of the `fork-join` from worker W2.
+            // Send the data to the `join` block of the fork-join from worker W2.
             s -> fork;
         }
     } join (all) (map results) {
         int p;
         string l;
         // Declare variables to receive the results from the forked workers W1 and W2.
-        // The `results` map contains a map of `any` type values from each worker defined within the `fork-join` statement.
+        // The `results` map contains a map of `any` type values from each worker defined within the fork-join statement.
         // The tuple value received from worker W1 is de-structured and assigned to variables `p` and `l`.
         (p, l) = check <(int, string)>results["W1"];
 
@@ -52,7 +52,7 @@ function main(string... args) {
         io:println("[default worker] within join: " +
                     "value of string variable from W2 is [", q, "]");
     }
-    // Print the values after the `fork-join` statement to check the values of the variables.
+    // Print the values after the fork-join statement to check the values of the variables.
     // The value type variables have not changed since they are passed in as a copy of the original variable.
     io:println("[default worker] after fork-join: " + 
                "value of integer variable is [", i, "] ",

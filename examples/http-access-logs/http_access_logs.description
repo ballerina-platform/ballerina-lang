@@ -1,2 +1,1 @@
-// The http-access-logs sample exhibits the nature of the access logs generation with
-// respect to the requests processed by Ballerina.
+// Ballerina supports HTTP access logs for HTTP services. The access log format used is the combined log format.

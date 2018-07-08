@@ -4,14 +4,12 @@ import ballerina/io;
 
 // Non-blocking client.
 public type HelloWorldStub object {
-    public {
-        grpc:Client clientEndpoint;
-        grpc:Stub stub;
-    }
+    public grpc:Client clientEndpoint;
+    public grpc:Stub stub;
 
-    function initStub(grpc:Client clientEndpoint) {
+    function initStub(grpc:Client ep) {
         grpc:Stub navStub = new;
-        navStub.initStub(clientEndpoint, "non-blocking", DESCRIPTOR_KEY,
+        navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY,
                                                                 descriptorMap);
         self.stub = navStub;
     }
@@ -33,21 +31,19 @@ public type HelloWorldStub object {
 
 // Non-blocking client endpoint.
 public type HelloWorldClient object {
-    public {
-        grpc:Client client;
-        HelloWorldStub stub;
-    }
+    public grpc:Client client;
+    public HelloWorldStub stub;
 
     public function init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
-        grpc:Client client = new;
-        client.init(config);
-        self.client = client;
+        grpc:Client c = new;
+        c.init(config);
+        self.client = c;
 
         // initialize service stub.
-        HelloWorldStub stub = new;
-        stub.initStub(client);
-        self.stub = stub;
+        HelloWorldStub s = new;
+        s.initStub(c);
+        self.stub = s;
 
     }
 

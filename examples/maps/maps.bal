@@ -21,20 +21,20 @@ function main(string... args) {
     addrMap.postalCode = "00301";
     io:println(addrMap);
 
-    // You can use the 'keys' function in the 'maps' package to get an array of keys.
+    // You can use the `keys()` function of the map to get the keys of the map as an array.
     io:println(addrMap.keys());
 
     // Print the number of keys in the map.
     io:println(lengthof addrMap);
 
-    // You can remove a key using the 'remove' method.
+    // You can remove a key using the `remove()` function.
     var isRemoved = addrMap.remove("postalCode");
     io:println(addrMap);
 
-    // Constrained maps can only contain values of type which the map is constrained to.
+    // Constrained maps can only contain values of the type specified by the type descriptor.
     map<string> stringMap;
 
-    // Similarly, this is how you can add or update the value of a key to map constrained with string.
+    // There is no difference in how a value is added or updated in a constrained map
     stringMap["index"] = "100892N";
 
     // Notice you do not need explicit conversion to string here when retrieving value from map.
