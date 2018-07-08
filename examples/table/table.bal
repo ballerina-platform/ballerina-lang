@@ -1,5 +1,4 @@
 import ballerina/io;
-import ballerina/log;
 
 type Employee record {
     int id,
@@ -13,6 +12,20 @@ type EmployeeSalary record {
 };
 
 function main(string... args) {
+    // This creates an in-memory table constrained by the `Employee` type with id is marked as the
+    // primary key in column descriptor. Three data records are inserted to the table. Order of
+    // the data values should match with the order of the column descriptor.
+    table<Employee> tbEmployee = table {
+        { primarykey id, name, salary },
+        [ { 1, "Mary",  300.5 },
+          { 2, "John",  200.5 },
+          { 3, "Jim", 330.5 }
+        ]
+    };
+    // This prints the table data.
+    io:print("Table Information: ");
+    io:println(tbEmployee);
+
     // Create Employee records.
     Employee e1 = { id: 1, name: "Jane", salary: 300.50 };
     Employee e2 = { id: 2, name: "Anne", salary: 100.50 };
@@ -31,8 +44,8 @@ function main(string... args) {
     foreach (emp in employees) {
         var ret = tb.add(emp);
         match ret {
-            () => log:printInfo("Adding to table successful");
-            error e => log:printInfo("Adding to table failed: " + e.message);
+            () => io:println("Adding record to table successful");
+            error e => io:println("Adding to table failed: " + e.message);
         }
     }
 
@@ -41,13 +54,13 @@ function main(string... args) {
     io:println(tb);
 
     // This accesses rows using the `foreach` loop.
-    log:printInfo("Using foreach: ");
+    io:println("Using foreach: ");
     foreach x in tb {
-        log:printInfo("Name: " + x.name);
+        io:println("Name: " + x.name);
     }
 
     //This accesses rows using the `while` loop.
-    log:printInfo("Using while loop: ");
+    io:println("Using while loop: ");
     while (tb.hasNext()) {
         var ret = <Employee>tb.getNext();
         match ret {
