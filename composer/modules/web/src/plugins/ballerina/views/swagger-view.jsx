@@ -25,7 +25,9 @@ import { Button } from 'semantic-ui-react';
 import SwaggerEditorBundle from 'swagger-editor-dist/swagger-editor-bundle';
 import ServiceNode from 'plugins/ballerina/model/tree/service-node';
 import { getSwaggerDefinition, getServiceDefinition } from 'api-client/api-client';
+import TreeBuilder from './../model/tree-builder';
 import { SPLIT_VIEW } from './constants';
+import SwaggerUtil from '../swagger-util/swagger-util';
 
 
 const ace = global.ace;
@@ -84,9 +86,9 @@ class SwaggerView extends React.Component {
         this.resourceMappings = new Map();
         this.onEditorChange = this.onEditorChange.bind(this);
 
-        /*props.commandProxy.on('save', () => {
+        /* props.commandProxy.on('save', () => {
             this.updateService();
-        }, this);*/
+        }, this); */
     }
 
     /**
@@ -134,7 +136,7 @@ class SwaggerView extends React.Component {
         }
     }
 
-    handleCloseSwaggerView(){
+    handleCloseSwaggerView() {
         if (this.props.hideSwaggerAceEditor ||
             this.swaggerAce.getSession().getUndoManager().isClean()) {
             this.context.editor.setActiveView(SPLIT_VIEW);
@@ -143,12 +145,12 @@ class SwaggerView extends React.Component {
             this.context.editor.setActiveView(SPLIT_VIEW);
         }
         this.props.resetSwaggerViewFun();
-        /*this.context.astRoot.trigger('tree-modified', {
+        /* this.context.astRoot.trigger('tree-modified', {
             origin: this.context.astRoot,
             type: 'swagger',
             title: 'Modify Swagger Definition',
             context: this.context.astRoot,
-        });*/
+        }); */
     }
 
     /**
@@ -189,7 +191,8 @@ class SwaggerView extends React.Component {
             // Merge to service. this.swagger
             getServiceDefinition(this.swagger, this.props.targetService.getName().getValue())
                 .then((serviceDefinition) => {
-                    
+                    SwaggerUtil.merge(this.context.astRoot, TreeBuilder.build(serviceDefinition.model),
+                    this.props.targetService);
                 })
                 .catch(error => log.error(error));
         }
@@ -280,10 +283,13 @@ class SwaggerView extends React.Component {
                     height: this.props.height,
                 }}
             >
-                <div className="close-swagger">
-                    <Button onClick={()=>{
-                        this.handleCloseSwaggerView();
-                    }} size='small'>Back</Button>
+                <div className='close-swagger'>
+                    <Button
+                        onClick={() => {
+                            this.handleCloseSwaggerView();
+                        }}
+                        size='small'
+                    >Back</Button>
                 </div>
                 <div
                     className='swaggerEditor'
