@@ -137,7 +137,7 @@ public class IOUtils {
         Register register = event.getRegister();
         EventExecutor exec = register.getExec();
         Channel channel = exec.getChannel();
-        if (channel.hasReachedEnd() || !channel.getByteChannel().isOpen()) {
+        if (!channel.getByteChannel().isOpen()) {
             register.discard();
             return true;
         }

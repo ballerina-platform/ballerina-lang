@@ -25,7 +25,6 @@ import org.ballerinalang.stdlib.io.socket.server.SocketIOExecutorQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.function.Function;
@@ -74,8 +73,11 @@ public class SelectableEventRegister extends Register {
         SocketChannel socketChannel = (SocketChannel) channel.getByteChannel();
         try {
             final SelectionKey selectionKey = socketChannel.keyFor(SelectorManager.getInstance());
-            selectionKey.cancel();
-        } catch (IOException e) {
+            if (selectionKey != null) {
+                exec.execute();
+                selectionKey.cancel();
+            }
+        } catch (Throwable e) {
             log.error("Unable to deregister selection key for channel[" + channel + "]: " + e.getMessage(), e);
         }
     }
