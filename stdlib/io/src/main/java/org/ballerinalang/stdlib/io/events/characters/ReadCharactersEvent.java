@@ -25,6 +25,7 @@ import org.ballerinalang.stdlib.io.events.EventContext;
 import org.ballerinalang.stdlib.io.events.EventResult;
 import org.ballerinalang.stdlib.io.events.EventType;
 import org.ballerinalang.stdlib.io.events.result.AlphaResult;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +48,10 @@ public class ReadCharactersEvent implements Event {
      * Context of the event which will be called upon completion.
      */
     private EventContext context;
+    /**
+     * Represents empty string.
+     */
+    private static final String EMPTY = "";
 
     private static final Logger log = LoggerFactory.getLogger(ReadCharactersEvent.class);
 
@@ -65,8 +70,16 @@ public class ReadCharactersEvent implements Event {
     public EventResult get() {
         AlphaResult result;
         try {
-            String content = channel.read(numberOfCharacters);
-            result = new AlphaResult(content, context);
+            if (channel.hasReachedEnd()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Channel " + channel.hashCode() + " reached it's end");
+                }
+                context.setError(new Throwable(IOConstants.IO_EOF));
+                result = new AlphaResult(EMPTY, context);
+            } else {
+                String content = channel.read(numberOfCharacters);
+                result = new AlphaResult(content, context);
+            }
         } catch (IOException e) {
             log.error("Error occurred while reading from character channel", e);
             context.setError(e);

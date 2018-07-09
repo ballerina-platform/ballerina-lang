@@ -26,6 +26,7 @@ import org.ballerinalang.stdlib.io.events.EventContext;
 import org.ballerinalang.stdlib.io.events.EventResult;
 import org.ballerinalang.stdlib.io.events.EventType;
 import org.ballerinalang.stdlib.io.events.result.AlphaCollectionResult;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,8 +63,16 @@ public class DelimitedRecordReadEvent implements Event {
     public EventResult get() {
         AlphaCollectionResult result;
         try {
-            String[] content = channel.read();
-            result = new AlphaCollectionResult(content, context);
+            if (channel.hasReachedEnd()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Channel " + channel.hashCode() + " reached it's end");
+                }
+                context.setError(new Throwable(IOConstants.IO_EOF));
+                result = new AlphaCollectionResult(context);
+            } else {
+                String[] content = channel.read();
+                result = new AlphaCollectionResult(content, context);
+            }
         } catch (IOException e) {
             log.error("Error occurred while reading from record channel", e);
             context.setError(e);

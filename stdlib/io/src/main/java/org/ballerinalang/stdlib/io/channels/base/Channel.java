@@ -43,7 +43,7 @@ import java.util.Arrays;
  * bytes I/O reading/writing APIs.
  * </p>
  */
-public abstract class Channel {
+public abstract class Channel implements IOChannel {
     /**
      * Will be used to read/write bytes to/from channels.
      */
@@ -150,6 +150,7 @@ public abstract class Channel {
      *
      * @return id of the channel.
      */
+    @Override
     public int id() {
         return channel.hashCode();
     }
@@ -159,6 +160,7 @@ public abstract class Channel {
      *
      * @return true if the channel has reached to it's end
      */
+    @Override
     public boolean hasReachedEnd() {
         return hasReachedToEnd;
     }
@@ -178,7 +180,7 @@ public abstract class Channel {
      */
     public int read(ByteBuffer buffer) throws IOException {
         int readBytes = reader.read(buffer, channel);
-        if (readBytes <= 0) {
+        if (readBytes < 0) {
             //Since we're counting the bytes if a value < 0 is returned, this will be re-set
             readBytes = 0;
             hasReachedToEnd = true;
@@ -245,6 +247,7 @@ public abstract class Channel {
      *
      * @throws IOException errors occur while closing the connection.
      */
+    @Override
     public void close() throws IOException {
         try {
             if (null != channel) {

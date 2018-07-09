@@ -27,7 +27,7 @@ import java.nio.ByteOrder;
 /**
  * Represents a channel which will allow performing data i/o operations.
  */
-public class DataChannel {
+public class DataChannel implements IOChannel {
     /**
      * Source for reading bytes.
      */
@@ -45,6 +45,11 @@ public class DataChannel {
     public DataChannel(Channel channel, ByteOrder order) {
         this.channel = channel;
         this.order = order;
+    }
+
+    @Override
+    public boolean hasReachedEnd() {
+        return channel.hasReachedEnd();
     }
 
     public Channel getChannel() {

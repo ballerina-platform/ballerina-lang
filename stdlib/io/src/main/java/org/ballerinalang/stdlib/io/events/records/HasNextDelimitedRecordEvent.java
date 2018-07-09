@@ -25,6 +25,7 @@ import org.ballerinalang.stdlib.io.events.EventContext;
 import org.ballerinalang.stdlib.io.events.EventResult;
 import org.ballerinalang.stdlib.io.events.EventType;
 import org.ballerinalang.stdlib.io.events.result.BooleanResult;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,8 +58,16 @@ public class HasNextDelimitedRecordEvent implements Event {
     public EventResult get() {
         BooleanResult result;
         try {
-            boolean hasNext = channel.hasNext();
-            result = new BooleanResult(hasNext, context);
+            if (channel.hasReachedEnd()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Channel " + channel.hashCode() + " reached it's end");
+                }
+                context.setError(new Throwable(IOConstants.IO_EOF));
+                result = new BooleanResult(false, context);
+            } else {
+                boolean hasNext = channel.hasNext();
+                result = new BooleanResult(hasNext, context);
+            }
         } catch (IOException e) {
             String message = "Error occurred while reading bytes for hasNext()";
             log.error(message, e);

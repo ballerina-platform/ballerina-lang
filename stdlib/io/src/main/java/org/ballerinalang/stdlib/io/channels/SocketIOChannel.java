@@ -59,6 +59,11 @@ public class SocketIOChannel extends Channel {
     }
 
     @Override
+    public Channel getChannel() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public boolean isSelectable() {
         return selectable;
     }

@@ -25,6 +25,7 @@ import org.ballerinalang.stdlib.io.events.EventContext;
 import org.ballerinalang.stdlib.io.events.EventResult;
 import org.ballerinalang.stdlib.io.events.EventType;
 import org.ballerinalang.stdlib.io.events.result.AlphaResult;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,8 +68,16 @@ public class ReadStringEvent implements Event {
     public EventResult get() {
         AlphaResult result;
         try {
-            String alphaResult = channel.readString(nBytes, encoding);
-            result = new AlphaResult(alphaResult, context);
+            if (channel.hasReachedEnd()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Channel " + channel.hashCode() + " reached it's end");
+                }
+                context.setError(new Throwable(IOConstants.IO_EOF));
+                result = new AlphaResult(context);
+            } else {
+                String alphaResult = channel.readString(nBytes, encoding);
+                result = new AlphaResult(alphaResult, context);
+            }
         } catch (IOException e) {
             log.error("Error occurred while reading string", e);
             context.setError(e);
