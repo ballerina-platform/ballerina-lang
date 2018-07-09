@@ -17,7 +17,10 @@ endpoint http:Client backendClientEP {
             timeWindowMillis: 10000,
             // The granularity at which the time window slides.
             // This is measured in milliseconds.
-            bucketSizeMillis: 2000
+            bucketSizeMillis: 2000,
+            // Minimum number of requests in a `RollingWindow`
+            // that will; trip the circuit.
+            requestVolumeThreshold: 0
         },
         // The threshold for request failures.
         // When this threshold exceeds, the circuit trips.
@@ -83,11 +86,10 @@ service<http:Service> helloWorld bind { port: 8080 } {
     }
     sayHello(endpoint caller, http:Request req) {
         if (counter % 5 == 0) {
+            counter = counter + 1;
             // Delay the response by 5000 milliseconds to
             // mimic the network level delays.
             runtime:sleep(5000);
-
-            counter = counter + 1;
             http:Response res = new;
             res.setPayload("Hello World!!!");
             caller->respond(res) but {
