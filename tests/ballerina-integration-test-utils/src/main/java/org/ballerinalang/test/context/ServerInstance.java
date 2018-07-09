@@ -71,7 +71,7 @@ public class ServerInstance implements Server {
      *
      * @param port In which server starts.
      * @return ballerinaServer      Started server instance.
-     * @throws BallerinaTestException
+     * @throws BallerinaTestException If any exception is thrown when starting the ballerina server
      */
     public static ServerInstance initBallerinaServer(int port) throws BallerinaTestException {
         String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
@@ -84,7 +84,7 @@ public class ServerInstance implements Server {
      * Method to start Ballerina server in default port 9092 with given bal file.
      *
      * @return ballerinaServer      Started server instance.
-     * @throws BallerinaTestException
+     * @throws BallerinaTestException If any exception is thrown when starting the ballerina server
      */
     public static ServerInstance initBallerinaServer() throws BallerinaTestException {
         int defaultPort = Constant.DEFAULT_HTTP_PORT;
@@ -298,6 +298,8 @@ public class ServerInstance implements Server {
     /**
      * to change the server configuration if required. This method can be overriding when initialising
      * the object of this class.
+     *
+     * @throws BallerinaTestException if configuring server failed
      */
     protected void configServer() throws BallerinaTestException {
     }
