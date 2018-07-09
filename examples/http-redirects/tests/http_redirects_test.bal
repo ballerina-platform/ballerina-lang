@@ -18,5 +18,5 @@ public function mockPrint(any... s) {
 function testFunc() {
     // Invoking the `main` function. 
     main();
-    test:assertEquals("Response received for the GET request is : Redirect Works!", outputs[0]);
+    test:assertEquals("Response received : Hello World!", outputs[0]);
 }
