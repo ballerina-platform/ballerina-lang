@@ -20,6 +20,8 @@ import { CONTRIBUTIONS } from 'core/plugin/constants';
 import { read } from 'core/workspace/fs-util';
 import { COMMANDS as WORKSPACE_COMMANDS } from 'core/workspace/constants';
 import { getServiceDefinition } from 'api-client/api-client';
+import TreeBuilder from '../ballerina/model/tree-builder';
+import SwaggerUtil from '../ballerina/swagger-util/swagger-util';
 import log from 'log';
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
@@ -53,14 +55,13 @@ class ImportSwaggerPlugin extends Plugin {
             // if not already opened
             read(filePath)
                 .then((swaggerFile) => {
-                    getServiceDefinition(swaggerFile.content, 'default')
+                    getServiceDefinition(JSON.parse(swaggerFile.content), 'swaggerService')
                     .then((serviceDefinition) => {
                         const { command: { dispatch }, editor } = appContext;
                         dispatch(WORKSPACE_COMMANDS.CREATE_NEW_FILE);
-
-
+                        const newAst = SwaggerUtil.cleanResources(TreeBuilder.build(serviceDefinition.model));
                         const balFile = editor.getActiveEditor().file;
-                        balFile.setContent(serviceDefinition, true);
+                        balFile.setContent(newAst.getSource(), true);
                         resolve(balFile);
                     })
                     .catch(error => log.error(error));

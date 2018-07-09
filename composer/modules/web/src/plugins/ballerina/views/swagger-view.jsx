@@ -21,7 +21,7 @@ import $ from 'jquery';
 import * as YAML from 'js-yaml';
 import PropTypes from 'prop-types';
 import log from 'log';
-import { Button } from 'semantic-ui-react';
+import { Button, Icon } from 'semantic-ui-react';
 import SwaggerEditorBundle from 'swagger-editor-dist/swagger-editor-bundle';
 import ServiceNode from 'plugins/ballerina/model/tree/service-node';
 import { getSwaggerDefinition, getServiceDefinition } from 'api-client/api-client';
@@ -145,12 +145,12 @@ class SwaggerView extends React.Component {
             this.context.editor.setActiveView(SPLIT_VIEW);
         }
         this.props.resetSwaggerViewFun();
-        this.context.astRoot.trigger('tree-modified', {
+        /* this.context.astRoot.trigger('tree-modified', {
             origin: this.context.astRoot,
             type: 'swagger',
             title: 'Modify Swagger Definition',
             context: this.context.astRoot,
-        });
+        }); */
     }
 
     /**
@@ -279,17 +279,21 @@ class SwaggerView extends React.Component {
             <div
                 className='swagger-view-container'
                 style={{
-                    width: this.props.width,
+                    width: '100%',
                     height: this.props.height,
                 }}
             >
                 <div className='close-swagger'>
                     <Button
+                        primary
                         onClick={() => {
                             this.handleCloseSwaggerView();
                         }}
                         size='small'
-                    >Back</Button>
+                        content='Back'
+                        icon='left arrow'
+                        labelPosition='left'
+                    />
                 </div>
                 <div
                     className='swaggerEditor'

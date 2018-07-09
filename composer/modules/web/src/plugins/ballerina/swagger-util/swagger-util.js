@@ -69,6 +69,7 @@ class SwaggerUtil {
                 SwaggerUtil.mergeAnnotations(match, resource);
             } else {
                 // if a matching resource is not found add it to service.
+                resource.body.statements = [];
                 targetService.addResources(resource);
             }
         });
@@ -109,6 +110,18 @@ class SwaggerUtil {
         return targetService.resources.find((node) => {
             return node.name.value === resource.name.value;
         });
+    }
+
+    static cleanResources(ast) {
+        ast.topLevelNodes.forEach((element) => {
+            // merge service.
+            if (TreeUtil.isService(element)) {
+                element.resources.forEach((resource) => {
+                    resource.body.statements = [];
+                });
+            }
+        });
+        return ast;
     }
 }
 
