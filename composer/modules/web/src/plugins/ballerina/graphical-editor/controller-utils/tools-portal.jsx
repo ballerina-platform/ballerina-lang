@@ -28,18 +28,22 @@ class ToolsPortal extends React.Component {
 
     componentDidMount() {
         const menuRoot = this.context.getGraphicalEditorContainer();
-        menuRoot.appendChild(this.el);
+        if (menuRoot) {
+            menuRoot.appendChild(this.el);
+        }
     }
 
     componentWillUnmount() {
         const menuRoot = this.context.getGraphicalEditorContainer();
-        menuRoot.removeChild(this.el);
+        if (menuRoot) {
+            menuRoot.removeChild(this.el);
+        }
     }
 
     render() {
         return ReactDOM.createPortal(
             this.props.children,
-            this.el
+            this.el,
         );
     }
 }

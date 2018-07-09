@@ -53,7 +53,7 @@ import { EVENTS, RESPOSIVE_MENU_TRIGGER } from '../constants';
 import ViewButton from './view-button';
 import MonacoBasedUndoManager from './../utils/monaco-based-undo-manager';
 import FormattingUtil from './../model/formatting-util';
-import FormatVisitor from "../visitors/format-visitor";
+import FormatVisitor from '../visitors/format-visitor';
 
 /**
  * React component for BallerinaFileEditor.
@@ -90,6 +90,12 @@ class BallerinaFileEditor extends React.Component {
         // listen for the changes to file content
         this.props.file.on(CONTENT_MODIFIED, (evt) => {
             const originEvtType = evt.originEvt.type;
+            if (originEvtType !== CHANGE_EVT_TYPES.SOURCE_MODIFIED &&
+                originEvtType !== CHANGE_EVT_TYPES.TREE_MODIFIED) {
+                const newContent = evt.newContent;
+                this.sourceEditorRef.setContent(newContent, true);
+            }
+
             if (originEvtType !== CHANGE_EVT_TYPES.TREE_MODIFIED) {
                 // upon code format
                 this.state.isASTInvalid = true;
@@ -100,7 +106,7 @@ class BallerinaFileEditor extends React.Component {
         this.props.editorModel.setProperty('balEnvironment', this.environment);
 
         this.hideSwaggerAceEditor = false;
-        this.swagger  = '';
+        this.swagger = '';
         this.swaggerEditorID = '';
 
         // Resize the canvas
@@ -115,7 +121,7 @@ class BallerinaFileEditor extends React.Component {
                 const formattingUtil = new FormattingUtil();
                 this.formatSource.setFormattingUtil(formattingUtil);
                 this.state.model.accept(this.formatSource);
-                let newContent = this.state.model.getSource();
+                const newContent = this.state.model.getSource();
                 // set the underlaying file.
                 this.props.file.setContent(newContent, {
                     type: CHANGE_EVT_TYPES.CODE_FORMAT,
@@ -294,14 +300,14 @@ class BallerinaFileEditor extends React.Component {
         const designWidth = (this.state.activeView === DESIGN_VIEW) ? this.props.width :
             this.props.width - this.state.splitSize;
 
-        if(designWidth < RESPOSIVE_MENU_TRIGGER.HIDDEN_MODE && !this.fetchState('diagramFitToWidth', true)){
+        if (designWidth < RESPOSIVE_MENU_TRIGGER.HIDDEN_MODE && !this.fetchState('diagramFitToWidth', true)) {
             this.setState({
                 isDiagramOnEditMode: true,
             });
             this.onModeChange({ mode: 'action', fitToWidth: true });
         }
 
-        if(this.state.isDiagramOnEditMode && designWidth > ( RESPOSIVE_MENU_TRIGGER.HIDDEN_MODE - 10 ) ){
+        if (this.state.isDiagramOnEditMode && designWidth > (RESPOSIVE_MENU_TRIGGER.HIDDEN_MODE - 10)) {
             this.setState({
                 isDiagramOnEditMode: false,
             });
@@ -637,7 +643,7 @@ class BallerinaFileEditor extends React.Component {
             this.state.splitSize;
         const designWidth = (this.state.activeView === DESIGN_VIEW) ? this.props.width :
             this.props.width - this.state.splitSize;
-        const height = this.props.height - 10; //height is reduced to accommodate scroll bars
+        const height = this.props.height - 10; // height is reduced to accommodate scroll bars
 
         const sourceView = (
             <SourceView
