@@ -59,14 +59,14 @@ service<http:Service> hello bind { port: 9090 } {
         caller->respond(res) but { error e => log:printError(respErr, err = e) };
     }
 
-    //Bind the JSON payload to a custom struct. The payload's content should match the struct.
+    //Bind the JSON payload to a custom record. The payload's content should match the record.
     @http:ResourceConfig {
         methods: ["POST"],
         body: "student",
         consumes: ["application/json"]
     }
     bindStruct(endpoint caller, http:Request req, Student student) {
-        //Access the fields of the struct 'Student'.
+        //Access the fields of the record 'Student'.
         string name = student.Name;
         int grade = student.Grade;
 

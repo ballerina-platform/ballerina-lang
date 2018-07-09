@@ -1,4 +1,4 @@
-// A JSON can be constrained with a struct definition to restrict the fields of the JSON to that of the
-// struct. If you try to access a field with an invalid field as per the struct definition or initialize
+// A JSON can be constrained with a record definition to restrict the fields of the JSON to that of the
+// record. If you try to access a field with an invalid field as per the record definition or initialize
 // a JSON with invalid fields, this will cause a compilation error. Restricting the fields of the JSON will
 // enforce the format of the JSON variable.

@@ -1,1 +1,3 @@
-//HTTP data binding helps access payload through the last resource signature parameter. The parameter name should be declared in the resource config under the 'body' annotation. String, JSON, XML, BLOB, and Struct are supported as parameter types.
+// HTTP data binding helps access payload through the last resource signature parameter. The parameter name should be
+// declared in the resource config under the 'body' annotation. `string`, `json`, `xml`, `byte[]`, and records are
+// supported as parameter types.

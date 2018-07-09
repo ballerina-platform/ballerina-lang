@@ -36,10 +36,10 @@ function testAggregationQuery(
 }
 
 function main(string... args) {
-    // Create a stream that is constrained by the `StatusCount` struct type.
+    // Create a stream that is constrained by the `StatusCount` record type.
     stream<StatusCount> filteredStatusCountStream;
 
-    // Create a stream that is constrained by the `Teacher` struct type.
+    // Create a stream that is constrained by the `Teacher` record type.
     stream<Teacher> teacherStream;
 
     //Invoke the method that contains the forever streaming statement.
