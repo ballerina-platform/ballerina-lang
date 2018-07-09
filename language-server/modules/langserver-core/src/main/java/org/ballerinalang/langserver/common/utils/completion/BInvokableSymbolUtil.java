@@ -92,7 +92,9 @@ public class BInvokableSymbolUtil {
         List<BVarSymbol> parameterDefs = bInvokableSymbol.getParameters();
         List<BVarSymbol> defaultParameterDefs = bInvokableSymbol.getDefaultableParameters();
 
-        if (bInvokableSymbol.kind == null && SymbolKind.RECORD.equals(bInvokableSymbol.owner.kind)) {
+        if (bInvokableSymbol.kind == null
+                && (SymbolKind.RECORD.equals(bInvokableSymbol.owner.kind)
+                || SymbolKind.FUNCTION.equals(bInvokableSymbol.owner.kind))) {
             List<String> funcArguments = CommonUtil.FunctionGenerator.getFuncArguments(bInvokableSymbol);
             if (funcArguments != null) {
                 int funcArgumentsCount = funcArguments.size();
