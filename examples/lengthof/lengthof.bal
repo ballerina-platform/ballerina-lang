@@ -43,10 +43,4 @@ function main(string... args) {
                   </book>`;
     length = lengthof x1.*.elements();
     io:println("XML child elements size: ", length);
- 
-    // This creates a `blob` value.
-    blob bl = myStr.toBlob("UTF-8");
-    // Print the length of the `blob` value.
-    length = lengthof bl;
-    io:println("BLOB size: ", length);
 }
