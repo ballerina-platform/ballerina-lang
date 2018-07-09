@@ -17,12 +17,9 @@
  */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.model.types.BField;
-import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.util.Flags;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -233,29 +230,27 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     @Override
     public String stringValue() {
         readLock.lock();
-        StringJoiner sj = new StringJoiner(", ", "{", "}");
         try {
-            switch (type.getTag()) {
-                case TypeTags.OBJECT_TYPE_TAG:
-                    for (BField field : ((BStructureType) this.type).getFields()) {
-                        if (!Flags.isFlagOn(field.flags, Flags.PUBLIC)) {
-                            continue;
-                        }
-                        String fieldName = field.getFieldName();
-                        V fieldVal = get((K) fieldName);
-                        sj.add(fieldName + ":" + getStringValue(fieldVal));
-                    }
-                    break;
-                default:
-                    String keySeparator = type.getTag() == TypeTags.MAP_TAG ? "\"" : "";
-                    for (Iterator<Map.Entry<K, V>> i = map.entrySet().iterator(); i.hasNext();) {
-                        String key;
-                        Map.Entry<K, V> e = i.next();
-                        key = keySeparator + (String) e.getKey() + keySeparator;
-                        V value = e.getValue();
-                        sj.add(key + ":" + getStringValue(value));
-                    }
-                    break;
+            String keySeparator = type.getTag() == TypeTags.MAP_TAG ? "\"" : "";
+            StringJoiner sj = new StringJoiner(", ", "{", "}");
+            for (Iterator<Map.Entry<K, V>> i = map.entrySet().iterator(); i.hasNext();) {
+    
+                String key;
+                String stringValue;
+    
+                Map.Entry<K, V> e = i.next();
+                key = keySeparator + (String) e.getKey() + keySeparator;
+                V value = e.getValue();
+    
+                if (value == null) {
+                    stringValue = null;
+                } else if (value instanceof BString) {
+                    stringValue = "\"" + value.stringValue() + "\"";
+                } else {
+                    stringValue = value.stringValue();
+                }
+    
+                sj.add(key + ":" + stringValue);
             }
             return sj.toString();
         } finally {
@@ -356,14 +351,5 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     public String toString() {
         return stringValue();
     }
-
-    private String getStringValue(V value) {
-        if (value == null) {
-            return null;
-        } else if (value instanceof BString) {
-            return "\"" + value.stringValue() + "\"";
-        } else {
-            return value.stringValue();
-        }
-    }
 }
+
