@@ -1,5 +1,5 @@
 // JSON to XML conversion can be done using the `toXML` function. This function takes
-// a struct of options as an argument. The options struct has two fields:
+// a record of options as an argument. The options record has two fields:
 // the `attributePrefix` and the `arrayEntryTag`. The `attributePrefix` is a
 // prefix used to identify the XML attributes. The default value of the `attributePrefix` 
 // option is `@`. The `arrayEntryTag` is the name of the tag that is to be added
