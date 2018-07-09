@@ -183,6 +183,9 @@ class RightCtrl extends React.Component {
             packages.forEach((pkg) => {
                 const pkgname = pkg.packageName;
                 const endpoint = pkg.name;
+                if (endpoint.includes('Listener')) {
+                    return;
+                }
                 const key = `${pkgname}-${endpoint}`;
                 suggestionsMap[key] = {
                     endpoint,

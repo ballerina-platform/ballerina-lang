@@ -24,10 +24,7 @@ import WorkerTools from 'plugins/ballerina/tool-palette/item-provider/worker-too
 import ControllerUtil from 'plugins/ballerina/diagram/views/default/components/controllers/controller-util';
 import TreeUtil from 'plugins/ballerina/model/tree-util';
 import { getActions } from 'api-client/api-client';
-import LifelineTools from 'plugins/ballerina/tool-palette/item-provider/lifeline-tools';
-import TreeBuilder from 'plugins/ballerina/model/tree-builder';
 import DefaultNodeFactory from 'plugins/ballerina/model/default-node-factory';
-import FragmentUtils from 'plugins/ballerina/utils/fragment-utils';
 import HoverButton from '../controller-utils/hover-button';
 import Item from '../controller-utils/item';
 import Search from '../controller-utils/search';
@@ -35,22 +32,8 @@ import Toolbox from 'plugins/ballerina/diagram/views/default/components/decorato
 
 // Use your imagination to render suggestions.
 const renderSuggestion = (suggestion, value) => {
-    if (suggestion.addNewValue) {
-        return (
-            <div className='add-new-connector-area'>
-                <a className='add-new-connector-button'>
-                    <i className='fw fw-action' />
-                    {' Create new action "'}
-                    <b>{value.query + '"'}</b>
-                </a>
-            </div>
-        );
-    }
-
-    return (<div>
-        {suggestion.packageName.split(/[.]+/).pop()}
-        -&gt;
-        <strong>{suggestion.actionName}</strong>
+    return (<div className='endpoint-item'>
+        {suggestion.actionName}
     </div>);
 };
 
@@ -84,38 +67,16 @@ class DefaultCtrl extends React.Component {
     // Autosuggest will call this function every time you need to update suggestions.
     // You already implemented this logic above, so just use it.
     onSuggestionsFetchRequested({ value }) {
-        const environment = this.context.editor.environment;
-        const packages = environment.getFilteredPackages([]);
-        const suggestions = [];
-        packages.forEach((pkg) => {
-            const pkgname = pkg.getName();
-            const connectors = pkg.getConnectors();
-            connectors.forEach((connector) => {
-                const conName = connector.getName();
-                if (this.state.selectedConnecter === conName) {
-                    const actions = connector.getActions();
-                    actions.forEach((action) => {
-                        const actionName = action.getName();
-                        // do the match
-                        if (value === ''
-                            || actionName.toLowerCase().includes(value)) {
-                            suggestions.push({
-                                pkg,
-                                action,
-                                connector,
-                                packageName: pkgname,
-                                fullPackageName: pkgname,
-                            });
-                        }
-                    });
+        let suggestions = this.state.allSuggestions;
+        if (value !== '') {
+            suggestions = this.state.allSuggestions.filter((pkg) => {
+                if (pkg.actionName.toLowerCase().includes(value)) {
+                    return true;
+                } else {
+                    return false;
                 }
             });
-        });
-
-        if (value !== '') {
-            suggestions.push({ addNewValue: true });
         }
-
         this.setState({
             suggestions,
         });
@@ -159,8 +120,11 @@ class DefaultCtrl extends React.Component {
         getActions(pkgname, type).then((actions) => {
             const suggestionsMap = {};
             actions.forEach((pkg) => {
-                const actionName = pkg.name;
+                const actionName = pkg.name.split(/[.]+/).pop();
                 const key = `${pkgname}-${actionName}`;
+                if (actionName === 'new') {
+                    return;
+                }
                 suggestionsMap[key] = {
                     actionName,
                     packageName: pkgname,
@@ -255,16 +219,18 @@ class DefaultCtrl extends React.Component {
                                 Select an action
                             </div>
                         </div>
-                        <Search
-                            suggestions={suggestions}
-                            onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-                            onSuggestionSelected={this.onSuggestionSelected}
-                            getSuggestionValue={this.getSuggestionValue}
-                            renderSuggestion={renderSuggestion}
-                            alwaysRenderSuggestions
-                            inputProps={inputProps}
-                            ref={this.storeInputReference}
-                        />
+                        <div className='suggest-list'>
+                            <Search
+                                suggestions={suggestions}
+                                onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+                                onSuggestionSelected={this.onSuggestionSelected}
+                                getSuggestionValue={this.getSuggestionValue}
+                                renderSuggestion={renderSuggestion}
+                                alwaysRenderSuggestions
+                                inputProps={inputProps}
+                                ref={this.storeInputReference}
+                            />
+                        </div>
                     </div>
                 }
             </HoverButton>
