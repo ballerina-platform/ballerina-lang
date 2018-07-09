@@ -200,7 +200,7 @@ Definition ::= ( TypeDefinition
     recoverWhile=TopLevelDefinitionRecover
 }
 
-private TopLevelDefinitionRecover ::= !(DOCUMENTATION_TEMPLATE_START|DEPRECATED_TEMPLATE_START|'@'|native|public|type|typedesc|service|function|enum|annotation|endpoint|int|float|boolean|string|blob|map|xml|xmlns|json|table|any|stream|object|future|identifier|'{')
+private TopLevelDefinitionRecover ::= !(DOCUMENTATION_TEMPLATE_START|DEPRECATED_TEMPLATE_START|'@'|native|public|type|typedesc|service|function|enum|annotation|endpoint|int|float|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|future|identifier|'{')
 
 ServiceDefinition ::= service (LT NameReference GT)? identifier ServiceEndpointAttachments?  ServiceBody {pin=1}
 ServiceEndpointAttachments ::= bind (NameReference (COMMA NameReference)* | RecordLiteral) {pin=1}
@@ -426,7 +426,7 @@ Statement ::=
 // Todo - Add more tokens
 // Note - Literals are added for worker interactions - 10 -> w2;
 // NULL_LITERAL is added for match pattern -  null => return "error";
-private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|blob|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|from|worker|done|identifier)
+private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|byte|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|from|worker|done|identifier)
 
 //private StatementRecover ::= !(/*'!' | '&' | '(' | '*' | '+' | '-' |*/ ';' /*| '<-' | '^' | 'type' |*/ /*'{' | '|' |*/ '|=' | '||' | '}' | /*break | case | char | continue | decimali | default | defer | else | fallthrough | float | floati | for | func | go | goto | hex |*/ identifier | /* if | interface | map | oct | return | select |*/ string  | /*struct | switch | var | continue |try |*/ int )
 
@@ -686,7 +686,7 @@ TableQueryExpression ::= TableQuery
 
 TableLiteralExpression ::= TableLiteral
 
-private ExpressionRecover ::= !(NULL_LITERAL|int|string|float|boolean|blob|any|map|table|function|stream|'}'|';'|var |while|match|foreach|continue|break|fork|try|throw|return|abort|fail|lock|xmlns|transaction|but|if|forever|object|check)
+private ExpressionRecover ::= !(NULL_LITERAL|int|string|float|boolean|byte|any|map|table|function|stream|'}'|';'|var |while|match|foreach|continue|break|fork|try|throw|return|abort|fail|lock|xmlns|transaction|but|if|forever|object|check)
 
 fake BinaryExpression ::= Expression {
   methods=[left="Expression[0]" right="Expression[1]" getOperator]
