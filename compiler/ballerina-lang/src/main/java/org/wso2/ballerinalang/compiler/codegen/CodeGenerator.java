@@ -3086,7 +3086,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
 
         if (!tryCatchErrorRangeToIPStack.empty()
-                && tryCatchErrorRangeToIPStack.peek() == RET_IN_FINALLY_TO_IP_PLACE_HOLDER) { //if try in finally
+                && tryCatchErrorRangeToIPStack.peek() == RET_IN_FINALLY_TO_IP_PLACE_HOLDER) {
+            // if the node is being visited due to a try block being present in a finally block
             tryCatchErrorRangeToIPStack.pop();
         }
         int fromIP = nextIP();
@@ -3101,6 +3102,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             tryCatchErrorRangeFromIPStack.pop();
         }
 
+        // Add error range entries for all subsequent ranges identified when visiting the try node
         while (!tryCatchErrorRangeFromIPStack.empty() && tryCatchErrorRangeFromIPStack.peek() != fromIP) {
             int poppedFromIP = tryCatchErrorRangeFromIPStack.pop();
             int poppedToIP = tryCatchErrorRangeToIPStack.pop();
@@ -3109,10 +3111,10 @@ public class CodeGenerator extends BLangNodeVisitor {
             }
         }
 
+        // Add the error range entry for the initial range of the try node
         tryCatchErrorRangeFromIPStack.pop();
         int toIP = tryCatchErrorRangeToIPStack.pop();
         toIP = (toIP == TO_IP_PLACE_HOLDER) ? (nextIP() - 1) : toIP;
-
         unhandledErrorRangeList.add(new int[]{fromIP, toIP});
 
         // Append finally block instructions.
@@ -3129,17 +3131,21 @@ public class CodeGenerator extends BLangNodeVisitor {
             addLineNumberInfo(bLangCatch.pos);
             if (!tryCatchErrorRangeToIPStack.empty()
                     && tryCatchErrorRangeToIPStack.peek() == RET_IN_FINALLY_TO_IP_PLACE_HOLDER) {
-                tryCatchErrorRangeToIPStack.pop(); //if catch in finally
+                // if the node is being visited due to a catch block being present in a finally block
+                tryCatchErrorRangeToIPStack.pop();
             }
             int targetIP = nextIP();
             tryCatchErrorRangeFromIPStack.push(targetIP);
             tryCatchErrorRangeToIPStack.push(TO_IP_PLACE_HOLDER);
             genNode(bLangCatch, env);
 
+            // Pop out the final additional IP pushed on to the stack, if pushed when generating finally instructions
+            // due to a return statement being present in the catch block
             if (tryCatchErrorRangeFromIPStack.size() > 1 && tryCatchErrorRangeFromIPStack.peek() != targetIP) {
                 tryCatchErrorRangeFromIPStack.pop();
             }
 
+            // Add error range entries for all subsequent ranges identified when visiting the catch node
             while (!tryCatchErrorRangeFromIPStack.empty() && tryCatchErrorRangeFromIPStack.peek() != targetIP) {
                 int poppedFromIP = tryCatchErrorRangeFromIPStack.pop();
                 int poppedToIP = tryCatchErrorRangeToIPStack.pop();
@@ -3147,6 +3153,8 @@ public class CodeGenerator extends BLangNodeVisitor {
                     unhandledCatchErrorRangeList.add(new int[]{poppedFromIP, poppedToIP});
                 }
             }
+
+            // Add the error range entry for the initial range of the catch node
             tryCatchErrorRangeFromIPStack.pop();
             int catchToIP = tryCatchErrorRangeToIPStack.pop();
             catchToIP = (catchToIP == TO_IP_PLACE_HOLDER) ? (nextIP() - 1) : catchToIP;
@@ -3350,6 +3358,10 @@ public class CodeGenerator extends BLangNodeVisitor {
                             }
                             tryCatchErrorRangeToIPStack.push(nextIP() - 1);
                         } else {
+                            // if generateFinallyInstructions is called due to a return statement being present in a
+                            // finally block being visited due to a previous call to generateFinallyInstructions, but
+                            // the finally block does not contain a try/catch statement, avoid adding error table
+                            // entries
                             returnInFinally = true;
                         }
                     } else {
