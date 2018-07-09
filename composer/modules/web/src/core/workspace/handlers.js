@@ -88,7 +88,13 @@ export function getHandlerDefinitions(workspaceManager) {
         },
         {
             cmdID: COMMANDS.SAVE_FILE,
-            handler: ({ file = undefined, onSaveSuccess = () => {}, onSaveFail = () => {} }) => {
+            handler: ({
+                file = undefined,
+                onSaveSuccess = () => {},
+                onSaveFail = (err) => {
+                    workspaceManager.appContext.alert.showError(err);
+                },
+            }) => {
                 const { command: { dispatch }, editor } = workspaceManager.appContext;
                 const targetFile = file || editor.getActiveEditor().file;
                 const onSuccess = () => {

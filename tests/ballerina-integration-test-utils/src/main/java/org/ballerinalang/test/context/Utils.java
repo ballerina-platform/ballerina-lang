@@ -126,7 +126,7 @@ public class Utils {
      * Check whether the provided port is open.
      *
      * @param port The port that needs to be checked
-     * @return true if the port is open & false otherwise
+     * @return true if the port is open and false otherwise
      */
     public static boolean isPortOpen(int port) {
         Socket socket = null;

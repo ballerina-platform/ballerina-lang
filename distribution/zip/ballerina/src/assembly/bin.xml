@@ -38,13 +38,22 @@
                 <include>LICENSE</include>
             </includes>
         </fileSet>
-
         <fileSet>
             <directory>resources/security</directory>
             <outputDirectory>bre/security</outputDirectory>
             <fileMode>644</fileMode>
         </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/ballerina-all-sources
+            </directory>
+            <outputDirectory>src</outputDirectory>
+            <excludes>
+                <exclude>target/</exclude>
+            </excludes>
+        </fileSet>
     </fileSets>
+
     <files>
         <file>
             <source>bin/version.txt</source>
@@ -89,35 +98,39 @@
             <outputDirectory>bre/lib</outputDirectory>
             <scope>runtime</scope>
             <includes>
+                <!-- stdlib dependencies -->
                 <include>org.ballerinalang:ballerina-builtin:jar</include>
                 <include>org.ballerinalang:ballerina-config-api:jar</include>
                 <include>org.ballerinalang:ballerina-crypto:jar</include>
-                <include>org.ballerinalang:ballerina-h2:jar</include>
-                <include>org.ballerinalang:ballerina-jdbc:jar</include>
-                <include>org.ballerinalang:ballerina-mysql:jar</include>
-                <include>org.ballerinalang:ballerina-sql:jar</include>
                 <include>org.ballerinalang:ballerina-file:jar</include>
                 <include>org.ballerinalang:ballerina-grpc:jar</include>
+                <include>org.ballerinalang:ballerina-h2:jar</include>
                 <include>org.ballerinalang:ballerina-http:jar</include>
                 <include>org.ballerinalang:ballerina-internal:jar</include>
                 <include>org.ballerinalang:ballerina-io:jar</include>
+                <include>org.ballerinalang:ballerina-jdbc:jar</include>
                 <include>org.ballerinalang:ballerina-jms:jar</include>
                 <include>org.ballerinalang:ballerina-log-api:jar</include>
                 <include>org.ballerinalang:ballerina-math:jar</include>
                 <include>org.ballerinalang:ballerina-mime:jar</include>
+                <include>org.ballerinalang:ballerina-mysql:jar</include>
+                <include>org.ballerinalang:ballerina-observability:jar</include>
                 <include>org.ballerinalang:ballerina-reflect:jar</include>
                 <include>org.ballerinalang:ballerina-runtime:jar</include>
+                <include>org.ballerinalang:ballerina-sql:jar</include>
+                <include>org.ballerinalang:ballerina-streams:jar</include>
                 <include>org.ballerinalang:ballerina-system:jar</include>
                 <include>org.ballerinalang:ballerina-task:jar</include>
                 <include>org.ballerinalang:ballerina-time:jar</include>
                 <include>org.ballerinalang:ballerina-transactions:jar</include>
                 <include>org.ballerinalang:ballerina-websub:jar</include>
+
                 <include>org.ballerinalang:ballerina-core:jar</include>
                 <include>org.ballerinalang:ballerina-lang:jar</include>
                 <include>org.ballerinalang:ballerina-launcher:jar</include>
                 <include>org.ballerinalang:ballerina-config:jar</include>
                 <include>org.ballerinalang:ballerina-logging:jar</include>
-                <include>org.ballerinalang:ballerina-observability:jar</include>
+
                 <include>org.ballerinalang:strip-bouncycastle:jar</include>
                 <include>org.ballerinalang:ballerina-cli-utils:jar</include>
                 <include>org.ballerinalang:toml-parser:jar</include>

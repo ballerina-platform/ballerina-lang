@@ -272,12 +272,14 @@ public class ObservabilityUtils {
             Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
             if (observerContext.isPresent()) {
                 BSpan span = (BSpan) observerContext.get().getProperty(KEY_SPAN);
-                HashMap<String, Object> logs = new HashMap<>(1);
-                logs.put(logLevel, logMessage);
-                if (!isError) {
-                    span.log(logs);
-                } else {
-                    span.logError(logs);
+                if (span != null) {
+                    HashMap<String, Object> logs = new HashMap<>(1);
+                    logs.put(logLevel, logMessage);
+                    if (!isError) {
+                        span.log(logs);
+                    } else {
+                        span.logError(logs);
+                    }
                 }
             }
         }

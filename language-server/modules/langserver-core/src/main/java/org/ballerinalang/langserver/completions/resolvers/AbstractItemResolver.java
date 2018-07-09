@@ -67,8 +67,9 @@ public abstract class AbstractItemResolver {
             BSymbol bSymbol = symbolInfo.getScopeEntry() != null ? symbolInfo.getScopeEntry().symbol : null;
             if (!(bSymbol != null && bSymbol.getName().getValue().startsWith("$"))) {
                 if ((bSymbol instanceof BInvokableSymbol
-                        && (((BInvokableSymbol) bSymbol).kind == null &&
-                        SymbolKind.RECORD.equals(((BInvokableSymbol) bSymbol).owner.kind)
+                        && ((((BInvokableSymbol) bSymbol).kind == null
+                        && (SymbolKind.RECORD.equals(((BInvokableSymbol) bSymbol).owner.kind)
+                        || SymbolKind.FUNCTION.equals(((BInvokableSymbol) bSymbol).owner.kind)))
                         || SymbolKind.FUNCTION.equals(((BInvokableSymbol) bSymbol).kind)))
                         || symbolInfo.isIterableOperation()) {
                     completionItem = this.populateBallerinaFunctionCompletionItem(symbolInfo);

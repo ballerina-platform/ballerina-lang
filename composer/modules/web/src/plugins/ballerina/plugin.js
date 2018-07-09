@@ -38,6 +38,7 @@ import { PLUGIN_ID, EDITOR_ID, DOC_VIEW_ID, COMMANDS as COMMAND_IDS, TOOLS as TO
             DIALOGS as DIALOG_IDS, EVENTS } from './constants';
 import OpenProgramDirConfirmDialog from './dialogs/OpenProgramDirConfirmDialog';
 import FixPackageNameOrPathConfirmDialog from './dialogs/FixPackageNameOrPathConfirmDialog';
+import InvalidSwaggerDialog from './dialogs/InvalidSwaggerDialog';
 import { isInCorrectPath, getCorrectPackageForPath, getCorrectPathForPackage } from './utils/program-dir-utils';
 import TreeBuilder from './model/tree-builder';
 import FragmentUtils from './utils/fragment-utils';
@@ -324,6 +325,15 @@ class BallerinaPlugin extends Plugin {
                 {
                     id: DIALOG_IDS.FIX_PACKAGE_NAME_OR_PATH_CONFIRM,
                     component: FixPackageNameOrPathConfirmDialog,
+                    propsProvider: () => {
+                        return {
+                            ballerinaPlugin: this,
+                        };
+                    },
+                },
+                {
+                    id: DIALOG_IDS.INVALID_SWAGGER_DIALOG,
+                    component: InvalidSwaggerDialog,
                     propsProvider: () => {
                         return {
                             ballerinaPlugin: this,
