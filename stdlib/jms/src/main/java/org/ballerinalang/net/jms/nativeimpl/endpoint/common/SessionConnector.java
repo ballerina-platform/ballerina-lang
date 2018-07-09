@@ -73,7 +73,7 @@ public class SessionConnector implements BallerinaTransactionContext {
     public void rollback() {
         try {
             if (session.getAcknowledgeMode() == Session.SESSION_TRANSACTED) {
-                session.commit();
+                session.rollback();
             }
         } catch (JMSException e) {
             throw new BallerinaException("transaction rollback failed: " + e.getLocalizedMessage(), e);
