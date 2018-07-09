@@ -476,6 +476,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <id>unpack-dependencies</id>
@@ -488,13 +489,6 @@
                             <outputDirectory>${project.build.directory}/lib</outputDirectory>
                         </configuration>
                     </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
                     <execution>
                         <id>unpack-balx-dependencies</id>
                         <phase>generate-resources</phase>
@@ -506,14 +500,6 @@
                             <outputDirectory>${project.build.directory}/lib/balx</outputDirectory>
                         </configuration>
                     </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.0.0</version>
-                <executions>
                     <execution>
                         <id>unpack-dependencies-runtime</id>
                         <phase>package</phase>
