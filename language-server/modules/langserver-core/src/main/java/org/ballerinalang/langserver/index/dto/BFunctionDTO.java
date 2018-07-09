@@ -46,7 +46,7 @@ public class BFunctionDTO {
         this.completionItem = completionItem;
     }
 
-    public BFunctionDTO(int packageId, int objectId, String name, CompletionItem completionItem){
+    public BFunctionDTO(int packageId, int objectId, String name, CompletionItem completionItem) {
         this.packageId = packageId;
         this.objectId = objectId;
         this.name = name;

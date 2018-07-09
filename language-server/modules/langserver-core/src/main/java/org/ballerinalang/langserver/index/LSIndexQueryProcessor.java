@@ -511,7 +511,7 @@ public class LSIndexQueryProcessor {
         try {
             statement = connection.prepareStatement(Constants.GET_ALL_ACTIONS);
             statement.setString(1, pkgName);
-            statement.setString(2,type);
+            statement.setString(2, type);
             resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 packages.add(new BFunctionDTO(
