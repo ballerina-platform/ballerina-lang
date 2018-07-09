@@ -47,8 +47,8 @@ public class PackagingSearchTestCase extends IntegrationTestCase {
         serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
     }
 
-    @Test(description = "Test pulling a package from central")
-    public void testPull() throws Exception {
+    @Test(description = "Test searching a package from central")
+    public void testSearch() throws Exception {
         ballerinaClient = new ServerInstance(serverZipPath);
         String[] clientArgs = {"searchTestPackage"};
 
