@@ -493,7 +493,9 @@ ObjectType
    ;
 
 RecordType
-   : <fields>*
+   : <isRestFieldAvailable?> <fields>* <restFieldType.source> ...
+   | <sealed?>               <fields>*                      ! ...
+   |                         <fields>*
    ;
 
 TypedescExpression

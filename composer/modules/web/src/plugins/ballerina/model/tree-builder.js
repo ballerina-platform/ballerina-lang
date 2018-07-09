@@ -402,6 +402,12 @@ class TreeBuilder {
             }
         }
 
+        if (node.kind === 'RecordType') {
+            if (node.restFieldType) {
+               node.isRestFieldAvailable = true;
+            }
+        }
+
         if (node.kind === 'TypeInitExpr') {
             if (node.expressions.length <= 0) {
                 node.noExpressionAvailable = true;
@@ -541,13 +547,23 @@ class TreeBuilder {
         if (node.kind === 'ArrayType') {
             if (node.dimensions > 0 && node.ws) {
                 node.dimensionAsString = "";
+                let startingBracket;
+                let endingBracket;
+                let content = "";
+
                 for (let j = 0; j < node.ws.length; j++) {
                     if (node.ws[j].text === '[') {
-                        let startingBracket = node.ws[j];
-                        let endingBracket = node.ws[j + 1];
-
-                        node.dimensionAsString += startingBracket.ws + startingBracket.text +
+                        startingBracket = node.ws[j];
+                    } else if (node.ws[j].text === ']') {
+                        endingBracket = node.ws[j];
+                        node.dimensionAsString += startingBracket.text + content +
                             endingBracket.ws + endingBracket.text;
+
+                        content = "";
+                        startingBracket = null;
+                        endingBracket = null;
+                    } else if (startingBracket) {
+                        content += node.ws[j].ws + node.ws[j].text;
                     }
                 }
             }
