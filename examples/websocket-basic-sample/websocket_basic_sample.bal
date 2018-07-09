@@ -27,13 +27,20 @@ service<http:WebSocketService> basic bind { port: 9090 } {
 
         if (text == "ping") {
             io:println("Pinging...");
-            caller->ping(pingData) but { error e => log:printError("Error sending ping", err = e) };
+            caller->ping(pingData) but {
+                error e => log:printError("Error sending ping", err = e)
+            };
         } else if (text == "closeMe") {
-            caller->close(1001, "You asked me to close the connection")
-            but { error e => log:printError("Error occurred when closing the connection", err = e) };
+            caller->close(1001, "You asked me to close the connection") but {
+                error e => log:printError(
+                               "Error occurred when closing the connection",
+                               err = e)
+            };
         } else {
-            caller->pushText("You said: " + text) but { error e => log:printError("Error occurred when sending text",
-                err = e) };
+            caller->pushText("You said: " + text) but {
+                error e => log:printError("Error occurred when sending text",
+                err = e)
+            };
         }
     }
 
@@ -42,13 +49,20 @@ service<http:WebSocketService> basic bind { port: 9090 } {
         io:println("\nNew binary message received");
         io:print("UTF-8 decoded binary message: ");
         io:println(b);
-        caller->pushBinary(b) but { error e => log:printError("Error occurred when sending binary", err = e) };
+        caller->pushBinary(b) but {
+            error e => log:printError(
+                           "Error occurred when sending binary", err = e)
+        };
     }
 
     // This resource is triggered when a ping message is received from the client. If this resource is not implemented,
     // a pong message is automatically sent to the connected endpoint when a ping is received.
     onPing(endpoint caller, byte[] data) {
-        caller->pong(data) but { error e => log:printError("Error occurred when closing the connection", err = e) };
+        caller->pong(data) but {
+            error e => log:printError(
+                           "Error occurred when closing the connection",
+                           err = e)
+        };
     }
 
     // This resource is triggered when a pong message is received.
@@ -62,7 +76,8 @@ service<http:WebSocketService> basic bind { port: 9090 } {
         io:println("\nReached idle timeout");
         io:println("Closing connection " + caller.id);
         caller->close(1001, "Connection timeout") but {
-            error e => log:printError("Error occured when closing the connection", err = e)
+            error e => log:printError(
+                           "Error occured when closing the connection", err = e)
         };
     }
 
@@ -75,6 +90,6 @@ service<http:WebSocketService> basic bind { port: 9090 } {
 
     // This resource is triggered when a client connection is closed from the client side.
     onClose(endpoint caller, int statusCode, string reason) {
-        io:println("\nClient left with status code " + statusCode + " because " + reason);
+        io:println(string `Client left with {{statusCode}} because {{reason}}`);
     }
 }
