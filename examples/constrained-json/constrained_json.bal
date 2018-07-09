@@ -5,6 +5,7 @@ type Person record {
     string name;
     int age;
     string city;
+    !...
 };
 
 function main(string... args) {
