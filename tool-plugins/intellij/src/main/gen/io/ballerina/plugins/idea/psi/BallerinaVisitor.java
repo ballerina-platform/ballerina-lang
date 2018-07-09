@@ -120,8 +120,12 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitBinaryExpression(o);
   }
 
-  public void visitBinaryPowExpression(@NotNull BallerinaBinaryPowExpression o) {
-    visitBinaryExpression(o);
+  public void visitBitwiseExpression(@NotNull BallerinaBitwiseExpression o) {
+    visitExpression(o);
+  }
+
+  public void visitBitwiseShiftExpression(@NotNull BallerinaBitwiseShiftExpression o) {
+    visitExpression(o);
   }
 
   public void visitBlobLiteral(@NotNull BallerinaBlobLiteral o) {
@@ -173,6 +177,14 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitComment(@NotNull BallerinaComment o) {
+    visitCompositeElement(o);
+  }
+
+  public void visitCompensateStatement(@NotNull BallerinaCompensateStatement o) {
+    visitCompositeElement(o);
+  }
+
+  public void visitCompensationClause(@NotNull BallerinaCompensationClause o) {
     visitCompositeElement(o);
   }
 
@@ -261,7 +273,7 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitCompositeElement(o);
   }
 
-  public void visitFieldDefinitionList(@NotNull BallerinaFieldDefinitionList o) {
+  public void visitFieldDefinition(@NotNull BallerinaFieldDefinition o) {
     visitCompositeElement(o);
   }
 
@@ -485,6 +497,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitCompositeElement(o);
   }
 
+  public void visitObjectFieldDefinition(@NotNull BallerinaObjectFieldDefinition o) {
+    visitCompositeElement(o);
+  }
+
   public void visitObjectFunctionDefinition(@NotNull BallerinaObjectFunctionDefinition o) {
     visitCompositeElement(o);
   }
@@ -589,15 +605,11 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitCompositeElement(o);
   }
 
-  public void visitPrivateObjectFields(@NotNull BallerinaPrivateObjectFields o) {
-    visitCompositeElement(o);
-  }
-
   public void visitProcIns(@NotNull BallerinaProcIns o) {
     visitCompositeElement(o);
   }
 
-  public void visitPublicObjectFields(@NotNull BallerinaPublicObjectFields o) {
+  public void visitRecordFieldDefinitionList(@NotNull BallerinaRecordFieldDefinitionList o) {
     visitCompositeElement(o);
   }
 
@@ -619,6 +631,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
 
   public void visitRecordLiteralExpression(@NotNull BallerinaRecordLiteralExpression o) {
     visitExpression(o);
+  }
+
+  public void visitRecordRestFieldDefinition(@NotNull BallerinaRecordRestFieldDefinition o) {
+    visitCompositeElement(o);
   }
 
   public void visitRecordTypeName(@NotNull BallerinaRecordTypeName o) {
@@ -665,6 +681,18 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitCompositeElement(o);
   }
 
+  public void visitScopeClause(@NotNull BallerinaScopeClause o) {
+    visitCompositeElement(o);
+  }
+
+  public void visitScopeStatement(@NotNull BallerinaScopeStatement o) {
+    visitCompositeElement(o);
+  }
+
+  public void visitSealedLiteral(@NotNull BallerinaSealedLiteral o) {
+    visitCompositeElement(o);
+  }
+
   public void visitSelectClause(@NotNull BallerinaSelectClause o) {
     visitCompositeElement(o);
   }
@@ -694,6 +722,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitSetClause(@NotNull BallerinaSetClause o) {
+    visitCompositeElement(o);
+  }
+
+  public void visitShiftExpression(@NotNull BallerinaShiftExpression o) {
     visitCompositeElement(o);
   }
 
@@ -749,7 +781,23 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitExpression(o);
   }
 
-  public void visitTableInitialization(@NotNull BallerinaTableInitialization o) {
+  public void visitTableColumn(@NotNull BallerinaTableColumn o) {
+    visitCompositeElement(o);
+  }
+
+  public void visitTableColumnDefinition(@NotNull BallerinaTableColumnDefinition o) {
+    visitCompositeElement(o);
+  }
+
+  public void visitTableData(@NotNull BallerinaTableData o) {
+    visitCompositeElement(o);
+  }
+
+  public void visitTableDataArray(@NotNull BallerinaTableDataArray o) {
+    visitCompositeElement(o);
+  }
+
+  public void visitTableDataList(@NotNull BallerinaTableDataList o) {
     visitCompositeElement(o);
   }
 
@@ -1012,10 +1060,6 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitEndpointParameter(@NotNull BallerinaEndpointParameter o) {
-    visitCompositeElement(o);
-  }
-
-  public void visitFieldDefinition(@NotNull BallerinaFieldDefinition o) {
     visitCompositeElement(o);
   }
 

@@ -24,19 +24,17 @@ import io.ballerina.plugins.idea.psi.BallerinaAnyIdentifierName;
 import io.ballerina.plugins.idea.psi.BallerinaCallableUnitSignature;
 import io.ballerina.plugins.idea.psi.BallerinaEndpointDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaEndpointParameter;
-import io.ballerina.plugins.idea.psi.BallerinaFieldDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaGlobalEndpointDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaGlobalVariableDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaIdentifier;
 import io.ballerina.plugins.idea.psi.BallerinaNamedPattern;
 import io.ballerina.plugins.idea.psi.BallerinaObjectCallableUnitSignature;
+import io.ballerina.plugins.idea.psi.BallerinaObjectFieldDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaObjectInitializer;
 import io.ballerina.plugins.idea.psi.BallerinaObjectParameter;
 import io.ballerina.plugins.idea.psi.BallerinaOrgName;
 import io.ballerina.plugins.idea.psi.BallerinaPackageReference;
 import io.ballerina.plugins.idea.psi.BallerinaParameterWithType;
-import io.ballerina.plugins.idea.psi.BallerinaPrivateObjectFields;
-import io.ballerina.plugins.idea.psi.BallerinaPublicObjectFields;
 import io.ballerina.plugins.idea.psi.BallerinaRestParameter;
 import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaVariableDefinitionStatement;
@@ -99,16 +97,10 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
             return "Worker";
         } else if (parent instanceof BallerinaAnnotationDefinition) {
             return "Annotation";
-        } else if (parent instanceof BallerinaFieldDefinition) {
-            if (superParent instanceof BallerinaPublicObjectFields) {
-                return "Public Object Field";
-            } else if (superParent instanceof BallerinaPrivateObjectFields) {
-                return "Private Object Field";
-            } else {
-                return "Field";
-            }
-        } else if (parent instanceof BallerinaObjectParameter) {
+        } else if (parent instanceof BallerinaObjectFieldDefinition) {
             return "Object Field";
+        } else if (parent instanceof BallerinaObjectParameter) {
+            return "Object Parameter";
         } else if (parent instanceof BallerinaVariableDefinitionStatement) {
             return "Variable";
         } else if (parent instanceof BallerinaNamedPattern) {

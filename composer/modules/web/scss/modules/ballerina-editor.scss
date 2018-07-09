@@ -408,7 +408,8 @@
 }
 
 .close-swagger{
-  background-color: #a1a1a1;
+  background-color: #1e1e1e;
+  padding: 5px;
 }
 
 swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
@@ -440,6 +441,15 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 
 .SplitPane .vertical {
   overflow: hidden;
+}
+
+.swagger-container .SplitPane .Pane2{
+  overflow: scroll;
+  padding-bottom: 40px;
+}
+
+.swagger-container .SplitPane .Pane1{
+  padding-bottom: 40px;
 }
 
 .divider {

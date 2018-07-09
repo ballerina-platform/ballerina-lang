@@ -219,8 +219,7 @@ public class BallerinaBlock extends AbstractBlock {
                 || parentElementType == BallerinaTypes.FOREACH_STATEMENT
                 || parentElementType == BallerinaTypes.LOCK_STATEMENT
                 || parentElementType == BallerinaTypes.OBJECT_TYPE_NAME
-                || parentElementType == BallerinaTypes.PRIVATE_OBJECT_FIELDS
-                || parentElementType == BallerinaTypes.PUBLIC_OBJECT_FIELDS
+                || parentElementType == BallerinaTypes.OBJECT_FIELD_DEFINITION
                 || parentElementType == BallerinaTypes.TRY_CATCH_STATEMENT
                 || parentElementType == BallerinaTypes.CATCH_CLAUSE
                 || parentElementType == BallerinaTypes.FINALLY_CLAUSE
@@ -271,16 +270,18 @@ public class BallerinaBlock extends AbstractBlock {
             return Indent.getNormalIndent();
         } else if (childElementType == BallerinaTypes.BINARY_ADD_SUB_EXPRESSION
                 || childElementType == BallerinaTypes.BINARY_DIV_MUL_MOD_EXPRESSION
-                || childElementType == BallerinaTypes.BINARY_POW_EXPRESSION
                 || childElementType == BallerinaTypes.BINARY_AND_EXPRESSION
                 || childElementType == BallerinaTypes.BINARY_OR_EXPRESSION
+                || childElementType == BallerinaTypes.BITWISE_EXPRESSION
+                || childElementType == BallerinaTypes.BITWISE_SHIFT_EXPRESSION
                 || childElementType == BallerinaTypes.BINARY_COMPARE_EXPRESSION
                 ) {
             if (!(parentElementType == BallerinaTypes.BINARY_ADD_SUB_EXPRESSION
                     || parentElementType == BallerinaTypes.BINARY_DIV_MUL_MOD_EXPRESSION
-                    || parentElementType == BallerinaTypes.BINARY_POW_EXPRESSION
                     || parentElementType == BallerinaTypes.BINARY_AND_EXPRESSION
                     || parentElementType == BallerinaTypes.BINARY_OR_EXPRESSION
+                    || parentElementType == BallerinaTypes.BITWISE_EXPRESSION
+                    || parentElementType == BallerinaTypes.BITWISE_SHIFT_EXPRESSION
                     || parentElementType == BallerinaTypes.BINARY_COMPARE_EXPRESSION
                     || parentElementType == BallerinaTypes.UNARY_EXPRESSION
             )) {
@@ -358,9 +359,7 @@ public class BallerinaBlock extends AbstractBlock {
             childIndent = Indent.getNormalIndent();
         } else if (myNode.getElementType() == BallerinaTypes.OBJECT_TYPE_NAME) {
             childIndent = Indent.getNormalIndent();
-        } else if (myNode.getElementType() == BallerinaTypes.PUBLIC_OBJECT_FIELDS) {
-            childIndent = Indent.getNormalIndent();
-        } else if (myNode.getElementType() == BallerinaTypes.PRIVATE_OBJECT_FIELDS) {
+        } else if (myNode.getElementType() == BallerinaTypes.OBJECT_FIELD_DEFINITION) {
             childIndent = Indent.getNormalIndent();
         } else if (myNode.getElementType() == BallerinaTypes.FOREVER_STATEMENT) {
             childIndent = Indent.getNormalIndent();
