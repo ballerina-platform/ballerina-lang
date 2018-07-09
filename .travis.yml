@@ -67,6 +67,6 @@ script:
 
 - ballerina test http-1.1-to-2.0-protocol-switch
 
-#- ballerina test http-redirects
+- ballerina test http-redirects
 
 #- ballerina test testerina-function-mocks
