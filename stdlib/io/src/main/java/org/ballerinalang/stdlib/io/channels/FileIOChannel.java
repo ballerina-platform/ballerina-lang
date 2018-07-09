@@ -19,9 +19,7 @@ package org.ballerinalang.stdlib.io.channels;
 
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.readers.AsyncReader;
-import org.ballerinalang.stdlib.io.channels.base.readers.BlockingReader;
 import org.ballerinalang.stdlib.io.channels.base.writers.AsyncWriter;
-import org.ballerinalang.stdlib.io.channels.base.writers.BlockingWriter;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 
 import java.io.IOException;
@@ -40,13 +38,10 @@ public class FileIOChannel extends Channel {
      */
     private FileChannel channel;
 
-    FileIOChannel(FileChannel channel, int size) throws BallerinaIOException {
-        super(channel, new BlockingReader(), new BlockingWriter(), size);
-        this.channel = channel;
-    }
 
     public FileIOChannel(FileChannel channel) throws BallerinaIOException {
         super(channel, new AsyncReader(), new AsyncWriter());
+        this.channel = channel;
     }
 
     /**

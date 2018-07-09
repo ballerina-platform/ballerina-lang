@@ -36,7 +36,7 @@ import java.nio.channels.NonReadableChannelException;
  */
 public class AsyncReader implements Reader {
 
-    private static final Logger log = LoggerFactory.getLogger(BlockingReader.class);
+    private static final Logger log = LoggerFactory.getLogger(AsyncReader.class);
 
     /**
      * Reads bytes asynchronously.

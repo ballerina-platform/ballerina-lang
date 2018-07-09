@@ -113,6 +113,7 @@ public abstract class Channel implements IOChannel {
      * @param size    the size of the fixed buffer.
      * @throws BallerinaIOException initialization error.
      */
+    @Deprecated
     public Channel(ByteChannel channel, Reader reader, Writer writer, int size) throws BallerinaIOException {
         if (null != channel) {
             this.channel = channel;

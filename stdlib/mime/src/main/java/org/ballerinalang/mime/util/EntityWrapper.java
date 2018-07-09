@@ -19,10 +19,9 @@
 package org.ballerinalang.mime.util;
 
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.channels.base.readers.BlockingReader;
-import org.ballerinalang.stdlib.io.channels.base.writers.BlockingWriter;
+import org.ballerinalang.stdlib.io.channels.base.readers.AsyncReader;
+import org.ballerinalang.stdlib.io.channels.base.writers.AsyncWriter;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
-import org.ballerinalang.stdlib.io.utils.IOConstants;
 
 import java.io.IOException;
 import java.nio.channels.WritableByteChannel;
@@ -36,7 +35,9 @@ import java.nio.channels.WritableByteChannel;
 public class EntityWrapper extends Channel {
 
     public EntityWrapper(EntityBodyChannel channel) throws BallerinaIOException {
-        super(channel, new BlockingReader(), new BlockingWriter(), IOConstants.CHANNEL_BUFFER_SIZE);
+//        super(channel, new BlockingReader(), new BlockingWriter(), IOConstants.CHANNEL_BUFFER_SIZE);
+        super(channel, new AsyncReader(), new AsyncWriter());
+
     }
 
     @Override
