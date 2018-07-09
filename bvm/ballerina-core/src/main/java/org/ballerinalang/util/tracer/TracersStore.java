@@ -117,4 +117,13 @@ public class TracersStore {
             return tracer.getTracer(name, serviceName);
         }
     }
+
+    /**
+     * Checks whether the tracer store is initialized.
+     *
+     * @return boolean value whether it's initialized.
+     */
+    public boolean isInitialized() {
+        return this.tracerStore != null;
+    }
 }
