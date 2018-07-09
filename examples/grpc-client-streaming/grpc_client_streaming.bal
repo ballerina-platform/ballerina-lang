@@ -12,7 +12,7 @@ endpoint grpc:Listener listener {
     name: "lotsOfGreetings",
     clientStreaming: true
 }
-service<grpc:Service> HelloWorld bind listener {
+service HelloWorld bind listener {
 
     //This resource is triggered when a new caller connection is initialized.
     onOpen(endpoint caller) {

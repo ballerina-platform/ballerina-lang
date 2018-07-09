@@ -13,29 +13,24 @@ endpoint grpc:Listener listener {
     clientStreaming: true,
     serverStreaming: true
 }
-
-service<grpc:Service> Chat bind listener {
+service Chat bind listener {
     map<grpc:Listener> consMap;
 
     //This resource is triggered when a new caller connection is initialized.
     onOpen(endpoint caller) {
-        var connID = caller.id;
-        consMap[<string>connID] = caller;
+        io:println(string `{{caller.id}} connected to chat`);
+        consMap[<string>caller.id] = caller;
     }
 
     //This resource is triggered when the caller sends a request message to the service.
     onMessage(endpoint caller, ChatMessage chatMsg) {
-        endpoint grpc:Listener con;
+        endpoint grpc:Listener ep;
         string msg = string `{{chatMsg.name}}: {{chatMsg.message}}`;
         io:println(msg);
-        string[] conKeys = consMap.keys();
-        int len = lengthof conKeys;
-        int i = 0;
-        while (i < len) {
-            con = <grpc:Listener>consMap[conKeys[i]];
-            error? err = caller->send(msg);
+        foreach id, con in consMap {
+            ep = con;
+            error? err = ep->send(msg);
             io:println(err.message but { () => "" });
-            i = i + 1;
         }
     }
 
@@ -49,19 +44,14 @@ service<grpc:Service> Chat bind listener {
 
     //This resource is triggered when the caller sends a notification to the server to indicate that it has finished sending messages.
     onComplete(endpoint caller) {
-        endpoint grpc:Listener con;
-        var connID = caller.id;
-        string msg = string `{{connID}} left the chat`;
+        endpoint grpc:Listener ep;
+        string msg = string `{{caller.id}} left the chat`;
         io:println(msg);
-        var v = consMap.remove(<string>connID);
-        string[] conKeys = consMap.keys();
-        int len = lengthof conKeys;
-        int i = 0;
-        while (i < len) {
-            con = <grpc:Listener>consMap[conKeys[i]];
-            error? err = con->send(msg);
+        var v = consMap.remove(<string>caller.id);
+        foreach id, con in consMap {
+            ep = con;
+            error? err = ep->send(msg);
             io:println(err.message but { () => "" });
-            i = i + 1;
         }
     }
 }

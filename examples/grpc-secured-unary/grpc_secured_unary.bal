@@ -15,7 +15,7 @@ endpoint grpc:Listener listener {
     }
 };
 
-service<grpc:Service> HelloWorld bind listener {
+service HelloWorld bind listener {
     hello(endpoint caller, string name) {
         io:println("name: " + name);
         string message = "Hello " + name;
