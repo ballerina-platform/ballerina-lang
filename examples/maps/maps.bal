@@ -38,6 +38,11 @@ function main(string... args) {
     stringMap["index"] = "100892N";
 
     // Notice you do not need explicit conversion to string here when retrieving value from map.
-    string index = stringMap["index"];
+    string index = stringMap.index;
     io:println(index);
+
+    // Note that Index-based access will return a union of constraint+nil.
+    // If the key does not exist a nil value is returned.
+    string index2 = stringMap["index"] ?: "";
+    io:println(index2);
 }
