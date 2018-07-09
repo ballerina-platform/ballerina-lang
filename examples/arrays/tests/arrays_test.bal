@@ -26,4 +26,7 @@ function testFunc() {
     test:assertEquals(3, outputs[5]);
     test:assertEquals(3, outputs[6]);
     test:assertEquals(9, outputs[7]);
+    test:assertEquals(5, outputs[8]);
+    test:assertEquals(5, outputs[9]);
+    test:assertEquals(4, outputs[10]);
 }
