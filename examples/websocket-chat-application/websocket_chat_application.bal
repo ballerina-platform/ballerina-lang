@@ -30,7 +30,8 @@ service<http:Service> chatAppUpgrader bind { port: 9090 } {
         wsEp = caller->acceptWebSocketUpgrade(headers);
         wsEp.attributes[NAME] = name;
         wsEp.attributes[AGE] = queryParams["age"];
-        string msg = "Hi " + name + "! You have succesfully connected to the chat";
+        string msg =
+            "Hi " + name + "! You have succesfully connected to the chat";
         wsEp->pushText(msg) but {
             error e => log:printError("Error sending message", err = e)
         };
@@ -46,8 +47,8 @@ service<http:WebSocketService> chatApp {
     // broadcast that the user has joined the chat.
     onOpen(endpoint caller) {
         string msg;
-        msg = string `{{getAttributeStr(caller, NAME)}} with age {{getAttributeStr(caller, AGE)}}
-         connected to chat`;
+        msg = string `{{getAttributeStr(caller, NAME)}} with age
+                            {{getAttributeStr(caller, AGE)}} connected to chat`;
         broadcast(msg);
         connectionsMap[caller.id] = caller;
     }
@@ -77,7 +78,8 @@ function broadcast(string text) {
     }
 }
 
-function getAttributeStr(http:WebSocketListener ep, string key) returns (string) {
+function getAttributeStr(http:WebSocketListener ep, string key)
+             returns (string) {
     var name = <string>ep.attributes[key];
     return name;
 }
