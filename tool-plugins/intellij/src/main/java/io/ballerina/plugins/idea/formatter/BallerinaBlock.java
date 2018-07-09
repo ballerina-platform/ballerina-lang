@@ -247,7 +247,8 @@ public class BallerinaBlock extends AbstractBlock {
                 || childElementType == BallerinaTypes.VARIABLE_DEFINITION_STATEMENT
                 || childElementType == BallerinaTypes.RESOURCE_DEFINITION)) {
             return Indent.getNormalIndent();
-        } else if (childElementType == BallerinaTypes.FIELD_DEFINITION) {
+        } else if (childElementType == BallerinaTypes.FIELD_DEFINITION ||
+                childElementType == BallerinaTypes.RECORD_REST_FIELD_DEFINITION) {
             return Indent.getNormalIndent();
         } else if (childElementType == BallerinaTypes.INVOCATION_ARG_LIST) {
             return Indent.getIndent(Indent.Type.NORMAL, true, true);
