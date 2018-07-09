@@ -12,11 +12,11 @@ function getFileChannel(string filePath,
 
 // Reads a specified number of bytes from the given channel.
 function readBytes(io:ByteChannel channel,
-                   int numberOfBytes) returns (blob, int) {
+                   int numberOfBytes) returns (byte[], int) {
     // Here is how the bytes are read from the channel.
     var result = channel.read(numberOfBytes);
     match result {
-        (blob, int) content => {
+        (byte[], int) content => {
             return content;
         }
         error readError => {
@@ -27,7 +27,7 @@ function readBytes(io:ByteChannel channel,
 
 // Writes byte content with the given offset to a channel.
 function writeBytes(io:ByteChannel channel,
-                    blob content,
+                    byte[] content,
                     int startOffset = 0) returns int {
     // Here is how the bytes are written to the channel.
     var result = channel.write(content, startOffset);
@@ -49,7 +49,7 @@ function copy(io:ByteChannel src, io:ByteChannel dst) {
     int numberOfBytesWritten = 0;
     int readCount = 0;
     int offset = 0;
-    blob readContent;
+    byte[] readContent;
     boolean doneCopying = false;
     try {
         // Here is how to read all the content from
