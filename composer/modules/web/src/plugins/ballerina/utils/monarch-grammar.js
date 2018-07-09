@@ -17,13 +17,13 @@ export default {
     otherKeywords: [
         'import', 'version', 'public', 'attach', 'as', 'native',
         'annotation', 'package', 'connector', 'function', 'resource', 'service', 'action',
-        'worker', 'struct', 'transformer', 'endpoint',
+        'worker', 'struct', 'transformer', 'endpoint', 'record',
         'const', 'true', 'false', 'reply', 'create', 'parameter', 'new', 'async', 'untaint', 'done', 'start',
-        'onretry', 'oncommit', 'onabort'
+        'onretry', 'oncommit', 'onabort', 'sealed', 'primarykey', 'scope', 'compensate', 'compensation'
     ],
 
     typeKeywords: [
-        'boolean', 'int', 'float', 'string', 'var', 'any', 'datatable', 'table', 'blob',
+        'boolean', 'int', 'float', 'string', 'var', 'any', 'datatable', 'table', 'byte',
         'map', 'exception', 'json', 'xml', 'xmlns', 'error', 'type', 'future'
     ],
 
