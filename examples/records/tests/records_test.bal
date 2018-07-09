@@ -27,6 +27,6 @@ function testFunc() {
     test:assertEquals(<string>outputs[3], "Jack");
     test:assertEquals(outputs[4], 0);
     test:assertEquals(<string>outputs[5], "{name:\"Peter\", age:25, parent:null, status:\"\"}");
-    test:assertEquals( <string>outputs[6],
+    test:assertEquals(<string>outputs[6],
         "{name:\"Jack\", age:20, parent:{name:\"Peter\", age:25, parent:null, status:\"\"}, status:\"\"}");
 }
