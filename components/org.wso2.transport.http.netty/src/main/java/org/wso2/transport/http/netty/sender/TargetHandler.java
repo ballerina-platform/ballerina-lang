@@ -126,7 +126,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 if (!isKeepAlive(keepAliveConfig, outboundRequestMsg)) {
                     closeChannel(ctx);
                 }
-
                 connectionManager.returnChannel(targetChannel);
             }
         }

@@ -48,6 +48,7 @@ import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.config.SslConfiguration;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.exception.ConfigurationException;
 import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -791,7 +792,6 @@ public class Util {
         inboundRequestMsg.setProperty(Constants.REMOTE_ADDRESS, remoteAddress);
         inboundRequestMsg.setProperty(Constants.REQUEST_URL, httpRequestHeaders.uri());
         inboundRequestMsg.setProperty(Constants.TO, httpRequestHeaders.uri());
-        //Added protocol name as a string
 
         return inboundRequestMsg;
     }
@@ -825,8 +825,10 @@ public class Util {
      * @param keepAliveConfig of the connection
      * @param outboundRequestMsg of this particular transaction
      * @return true if the connection should be kept alive
+     * @throws ConfigurationException for invalid configurations
      */
-    public static boolean isKeepAlive(KeepAliveConfig keepAliveConfig, HTTPCarbonMessage outboundRequestMsg) {
+    public static boolean isKeepAlive(KeepAliveConfig keepAliveConfig, HTTPCarbonMessage outboundRequestMsg)
+            throws ConfigurationException {
         switch (keepAliveConfig) {
         case AUTO:
             if (Float.valueOf((String) outboundRequestMsg.getProperty(Constants.HTTP_VERSION)) > Constants.HTTP_1_0) {
@@ -839,8 +841,10 @@ public class Util {
         case NEVER:
             return false;
         default:
-            // The execution will never reach here. To make the code compilable, default case has to be placed here.
-            return true;
+            // The execution will never reach here. In case execution reach here means it should be an invalid value
+            // for keep-alive configurations.
+            throw new ConfigurationException("Invalid keep-alive configuration value : "
+                    + keepAliveConfig.toString());
         }
     }
 
