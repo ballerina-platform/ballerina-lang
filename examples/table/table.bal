@@ -12,7 +12,7 @@ type EmployeeSalary record {
 };
 
 function main(string... args) {
-    // This creates an in-memory table constrained by the `Employee` type with id is marked as the
+    // This creates an in-memory table constrained by the `Employee` type with id marked as the
     // primary key in column descriptor. Three data records are inserted to the table. Order of
     // the data values should match with the order of the column descriptor.
     table<Employee> tbEmployee = table {
