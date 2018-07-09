@@ -88,6 +88,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
+import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
+import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
 
 /**
  * @since 0.94
@@ -597,13 +599,11 @@ public class SymbolResolver extends BLangNodeVisitor {
                 resultType = new BArrayType(resultType, arrayTypeSymbol);
             } else {
                 int size = arrayTypeNode.sizes[i];
-                if (arrayTypeNode.isOpenSealed && i == arrayTypeNode.dimensions - 1) {
-                    // Only first dimension is open sealed
-                    resultType = new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.OPEN_SEALED);
-                } else {
-                    resultType = size == -1 ? new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.UNSEALED) :
-                            new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.CLOSED_SEALED);
-                }
+                resultType = (size == UNSEALED_ARRAY_INDICATOR) ?
+                        new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.UNSEALED) :
+                        (size == OPEN_SEALED_ARRAY_INDICATOR) ?
+                                new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.OPEN_SEALED) :
+                                new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.CLOSED_SEALED);
             }
             arrayTypeSymbol.type = resultType;
         }

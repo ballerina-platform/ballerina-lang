@@ -37,21 +37,21 @@ public class FunctionOverloadTest {
     public void testFunctionOverloadingDifferentArgCount() {
         CompileResult compile = BCompileUtil.compile("test-src/functions/function-overloading-diff-arg-count.bal");
         Assert.assertEquals(compile.getErrorCount(), 1);
-        BAssertUtil.validateError(compile, 0, "redeclared symbol 'testOverloading'", 5, 1);
+        BAssertUtil.validateError(compile, 0, "redeclared symbol 'testOverloading'", 5, 10);
     }
 
     @Test(description = "Test functino overloading which has same argument count")
     public void testFunctionOverloadingSameArgCountTest() {
         CompileResult compile = BCompileUtil.compile("test-src/functions/function-overloading.bal");
         Assert.assertEquals(compile.getErrorCount(), 1);
-        BAssertUtil.validateError(compile, 0, "redeclared symbol 'testOverloading'", 5, 1);
+        BAssertUtil.validateError(compile, 0, "redeclared symbol 'testOverloading'", 5, 10);
     }
 
     @Test(description = "Test if incorrect function overloading produces errors")
     public void testInvalidFunctionOverloading() {
         CompileResult compile = BCompileUtil.compile("test-src/functions/invalid-function-overloading.bal");
         Assert.assertEquals(compile.getErrorCount(), 1);
-        BAssertUtil.validateError(compile, 0, "redeclared symbol 'testOverloading'", 5, 1);
+        BAssertUtil.validateError(compile, 0, "redeclared symbol 'testOverloading'", 5, 10);
     }
 
 }

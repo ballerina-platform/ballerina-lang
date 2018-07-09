@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaTableInitializationImpl extends BallerinaCompositeElementImpl implements BallerinaTableInitialization {
+public class BallerinaCompensationClauseImpl extends BallerinaCompositeElementImpl implements BallerinaCompensationClause {
 
-  public BallerinaTableInitializationImpl(ASTNode node) {
+  public BallerinaCompensationClauseImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitTableInitialization(this);
+    visitor.visitCompensationClause(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -42,9 +42,15 @@ public class BallerinaTableInitializationImpl extends BallerinaCompositeElementI
   }
 
   @Override
+  @Nullable
+  public BallerinaCallableUnitBody getCallableUnitBody() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaCallableUnitBody.class);
+  }
+
+  @Override
   @NotNull
-  public BallerinaRecordLiteral getRecordLiteral() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaRecordLiteral.class));
+  public PsiElement getCompensation() {
+    return notNullChild(findChildByType(COMPENSATION));
   }
 
 }

@@ -66,6 +66,7 @@ public class LogLeecher {
     /**
      * Wait until a specific log is found.
      *
+     * @param timeout timeout
      * @throws BallerinaTestException if waiting is interrupted
      */
     public void waitForText(long timeout) throws BallerinaTestException {

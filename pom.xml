@@ -1487,7 +1487,7 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-examples</artifactId>
-                <version>${ballerina.version}</version>
+                <version>${ballerina.examples.version}</version>
                 <type>zip</type>
             </dependency>
         </dependencies>
@@ -2109,6 +2109,7 @@
 
     <properties>
         <ballerina.version>0.976.1-SNAPSHOT</ballerina.version>
+        <ballerina.examples.version>0.976.1-SNAPSHOT</ballerina.examples.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <commons-net.version>3.6</commons-net.version>
@@ -2131,7 +2132,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.209</transport.http.version>
+        <transport.http.version>6.0.212</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>

@@ -200,8 +200,8 @@ function testGetAttributesAsMap() returns (map, map, string, string) {
     map m1 = <map> x1@;
     map m2 = <map> x2@;
     
-    var s1 = <string> m1["{http://sample.com/wso2/a1}foo1"];
-    var s2 = <string> m1[ns0:foo1];
+    var s1 = m1["{http://sample.com/wso2/a1}foo1"] but { () => "", any a => <string> a};
+    var s2 = m1[ns0:foo1] but { () => "", any a => <string> a};
     return (m1, m2, s1, s2);
 }
 

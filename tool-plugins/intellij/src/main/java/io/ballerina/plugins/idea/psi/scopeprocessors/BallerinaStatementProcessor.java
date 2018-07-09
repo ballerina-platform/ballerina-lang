@@ -25,9 +25,9 @@ import io.ballerina.plugins.idea.completion.BallerinaCompletionUtils;
 import io.ballerina.plugins.idea.psi.BallerinaCatchClause;
 import io.ballerina.plugins.idea.psi.BallerinaExpression;
 import io.ballerina.plugins.idea.psi.BallerinaFieldDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaFieldDefinitionList;
 import io.ballerina.plugins.idea.psi.BallerinaJoinClause;
 import io.ballerina.plugins.idea.psi.BallerinaNamedPattern;
+import io.ballerina.plugins.idea.psi.BallerinaRecordFieldDefinitionList;
 import io.ballerina.plugins.idea.psi.BallerinaRecordKey;
 import io.ballerina.plugins.idea.psi.BallerinaRecordKeyValue;
 import io.ballerina.plugins.idea.psi.BallerinaRecordLiteralExpression;
@@ -92,8 +92,8 @@ public class BallerinaStatementProcessor extends BallerinaScopeProcessorBase {
                         if (resolvedElement != null) {
                             PsiElement parent = resolvedElement.getParent();
                             if (resolvedElement instanceof BallerinaRecordTypeName) {
-                                BallerinaFieldDefinitionList fieldDefinitionList = PsiTreeUtil.findChildOfType(parent,
-                                        BallerinaFieldDefinitionList.class);
+                                BallerinaRecordFieldDefinitionList fieldDefinitionList =
+                                        PsiTreeUtil.findChildOfType(parent, BallerinaRecordFieldDefinitionList.class);
                                 List<BallerinaFieldDefinition> fieldDefinitions =
                                         PsiTreeUtil.getChildrenOfTypeAsList(fieldDefinitionList,
                                                 BallerinaFieldDefinition.class);
@@ -110,8 +110,7 @@ public class BallerinaStatementProcessor extends BallerinaScopeProcessorBase {
                                         myResult.addElement(BallerinaCompletionUtils.createFieldLookupElement
                                                 (identifier, resolvedElement, type,
                                                         BallerinaPsiImplUtil.getObjectFieldDefaultValue
-                                                                (ballerinaFieldDefinition),
-                                                        null, false));
+                                                                (ballerinaFieldDefinition), null, false, false));
                                     } else if (myElement.getText().equals(identifier.getText())) {
                                         add(identifier);
                                     }

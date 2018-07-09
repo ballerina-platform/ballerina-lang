@@ -31,6 +31,7 @@ public class ItemResolverConstants {
     public static final String WORKER = "worker";
     public static final String TRANSACTION = "transaction";
     public static final String ABORT = "abort";
+    public static final String RETRY = "retry";
     public static final String TRY = "try";
     public static final String WHILE = "while";
     public static final String LOCK = "lock";

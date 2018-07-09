@@ -925,7 +925,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         BMapType mapType = (BMapType) mapKeyAccessExpr.expr.type;
         if (variableStore) {
             int opcode = getValueToRefTypeCastOpcode(mapType.constraint.tag);
-            if (opcode == InstructionCodes.NOP) {
+            if (opcode == InstructionCodes.NOP || !mapKeyAccessExpr.except) {
                 emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, mapKeyAccessExpr.regIndex);
             } else {
                 RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
@@ -936,7 +936,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             IntegerCPEntry exceptCPEntry = new IntegerCPEntry(mapKeyAccessExpr.except ? 1 : 0);
             Operand except = getOperand(currentPkgInfo.addCPEntry(exceptCPEntry));
             int opcode = getRefToValueTypeCastOpcode(mapType.constraint.tag);
-            if (opcode == InstructionCodes.NOP) {
+            if (opcode == InstructionCodes.NOP || !mapKeyAccessExpr.except) {
                 emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(mapKeyAccessExpr),
                         except);
             } else {

@@ -40,7 +40,7 @@ public class StructNegativeTest {
     @Test
     public void testStructNegative() {
         // test duplicate struct definitions
-        BAssertUtil.validateError(result, 0, "redeclared symbol 'Department'", 7, 1);
+        BAssertUtil.validateError(result, 0, "redeclared symbol 'Department'", 7, 6);
 
         // test struct with duplicate fields
         BAssertUtil.validateError(result, 1, "redeclared symbol 'id'", 16, 5);
@@ -54,10 +54,10 @@ public class StructNegativeTest {
         BAssertUtil.validateError(result, 4, "undefined symbol 'dpt1'", 26, 5);
 
         // test undeclared struct-field access
-        BAssertUtil.validateError(result, 5, "undefined field 'id' in struct 'Department'", 32, 5);
+        BAssertUtil.validateError(result, 5, "undefined field 'id' in record 'Department'", 32, 5);
 
         // test undeclared field init
-        BAssertUtil.validateError(result, 6, "undefined field 'age' in struct 'Department'", 37, 37);
+        BAssertUtil.validateError(result, 6, "undefined field 'age' in record 'Department'", 37, 37);
 
         // test field init with mismatching type
         BAssertUtil.validateError(result, 7, "incompatible types: expected 'string', found 'int'", 42, 31);
@@ -67,14 +67,14 @@ public class StructNegativeTest {
     public void testInvalidStructLiteralKey() {
         CompileResult result = BCompileUtil.compile("test-src/structs/invalid-struct-literal-key-negative.bal");
         // test struct init with invalid field name
-        BAssertUtil.validateError(result, 0, "invalid key: only identifiers are allowed for struct literal keys", 12,
+        BAssertUtil.validateError(result, 0, "invalid key: only identifiers are allowed for record literal keys", 12,
                 23);
     }
 
     @Test
     public void testExpressionAsStructLiteralKey() {
         CompileResult result = BCompileUtil.compile("test-src/structs/expression-as-struct-literal-key-negative.bal");
-        BAssertUtil.validateError(result, 0, "invalid key: only identifiers are allowed for struct literal keys", 7,
+        BAssertUtil.validateError(result, 0, "invalid key: only identifiers are allowed for record literal keys", 7,
                 21);
     }
 

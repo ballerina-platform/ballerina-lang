@@ -44,7 +44,9 @@ class HoverGroup extends React.Component {
         }
     }
     componentWillUnmount() {
-        this.props.model.off('render-menu');
+        if (typeof this.props.model.off === 'function') {
+            this.props.model.off('render-menu');
+        }
     }
     renderMenu({ content, region, origin }) {
         if (region === this.props.region) {

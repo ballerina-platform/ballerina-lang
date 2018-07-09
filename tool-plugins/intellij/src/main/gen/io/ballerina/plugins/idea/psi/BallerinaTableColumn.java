@@ -21,12 +21,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaBinaryPowExpression extends BallerinaBinaryExpression {
+public interface BallerinaTableColumn extends BallerinaCompositeElement {
 
   @NotNull
-  List<BallerinaExpression> getExpressionList();
+  PsiElement getIdentifier();
 
-  @NotNull
-  PsiElement getPow();
+  @Nullable
+  PsiElement getPrimarykey();
 
 }

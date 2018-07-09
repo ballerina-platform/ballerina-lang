@@ -24,7 +24,7 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaRecordTypeName extends BallerinaTypeName {
 
   @NotNull
-  BallerinaFieldDefinitionList getFieldDefinitionList();
+  BallerinaRecordFieldDefinitionList getRecordFieldDefinitionList();
 
   @NotNull
   PsiElement getLeftBrace();

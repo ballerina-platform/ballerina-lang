@@ -149,8 +149,8 @@ function scheduleAppointment(string cronExpression) {
 }
 
 function onTrigger() returns error? {
-    io:println("tasks is triggered and the value of count is : " + count);
     count = count + 1;
+    io:println("tasks is triggered and the value of count is : " + count);
 
     if(count == 10) {
         error e = {message:"Task appointment cannot be executed when the count is 10"};

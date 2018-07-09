@@ -38,6 +38,7 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.definition.util.DefinitionUtil;
+import org.ballerinalang.langserver.formatting.FormattingUtil;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.langserver.references.util.ReferenceUtil;
 import org.ballerinalang.langserver.rename.RenameUtil;
@@ -415,7 +416,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
             JsonObject ast = TextDocumentFormatUtil.getAST(params, documentManager, formatContext);
             SourceGen sourceGen = new SourceGen(0);
             sourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
-            textEditContent = sourceGen.getSourceOf(ast.getAsJsonObject("model"), true, false);
+            FormattingUtil formattingUtil = new FormattingUtil();
+            formattingUtil.accept(ast.getAsJsonObject("model"));
+            textEditContent = sourceGen.getSourceOf(ast.getAsJsonObject("model"), false, false);
             TextEdit textEdit = new TextEdit(range, textEditContent);
             return Collections.singletonList(textEdit);
         });

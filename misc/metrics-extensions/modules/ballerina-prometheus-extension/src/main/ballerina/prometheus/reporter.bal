@@ -139,11 +139,10 @@ function generateMetric(string name, map<string>? labels, int|float value) retur
 }
 
 function getLabelsString(map<string> labels) returns string {
-    string[] keys = labels.keys();
     string stringLabel = "{";
-    foreach key in keys {
+    foreach key, value in labels {
         string labelKey = key.replaceAll("\\.", "_");
-        string entry = labelKey + "=\"" + labels[key] + "\"";
+        string entry = labelKey + "=\"" + value + "\"";
         stringLabel += (entry + ",");
     }
     if (stringLabel != "{") {

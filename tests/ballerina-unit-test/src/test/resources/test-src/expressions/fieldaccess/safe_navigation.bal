@@ -199,7 +199,7 @@ function testJSONNilLiftingOnLHS_2() returns json {
     return j;
 }
 
-function testNonExistingMapKeyWithIndexAccess() returns string {
+function testNonExistingMapKeyWithIndexAccess() returns string? {
     map<string> m;
     return m["a"];
 }
@@ -215,11 +215,11 @@ function testMapNilLiftingOnLHS_1() returns map {
     return m;
 }
 
-// function testMapNilLiftingOnLHS_2() returns map {
-//     map<json> m;
-//     m["name"].fname = "John";
-//     return m;
-// }
+function testMapNilLiftingOnLHS_2() returns map {
+    map<json> m;
+    m["name"].fname = "John";
+    return m;
+}
 
 function testFunctionInvocOnJsonNonExistingField (json inputJson) returns (json, string, string[]) {
     json j = {name:"John"};

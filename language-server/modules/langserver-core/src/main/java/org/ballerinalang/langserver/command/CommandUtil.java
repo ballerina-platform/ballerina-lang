@@ -19,6 +19,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.CommonUtil.FunctionGenerator;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
@@ -38,18 +39,7 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -59,27 +49,17 @@ import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -167,9 +147,9 @@ public class CommandUtil {
                 if (returnStatement != null) {
                     args.add(new CommandArgument(CommandConstants.ARG_KEY_RETURN_DEFAULT_VAL, returnStatement));
                 }
-                String arguments = FunctionGenerator.getFuncArguments(functionNode);
+                List<String> arguments = FunctionGenerator.getFuncArguments(functionNode);
                 if (arguments != null) {
-                    args.add(new CommandArgument(CommandConstants.ARG_KEY_FUNC_ARGS, arguments));
+                    args.add(new CommandArgument(CommandConstants.ARG_KEY_FUNC_ARGS, String.join(", ", arguments)));
                 }
             }
             args.add(new CommandArgument(CommandConstants.ARG_KEY_FUNC_NAME, functionName));
@@ -511,253 +491,6 @@ public class CommandUtil {
 
         int getReplaceStartFrom() {
             return replaceStartFrom;
-        }
-    }
-
-    /**
-     * Inner class for generating function code.
-     */
-    public static class FunctionGenerator {
-
-        /**
-         * Generate function code.
-         *
-         * @param name               function name
-         * @param returnType         return type
-         * @param returnDefaultValue default return value
-         * @return
-         */
-        public static String createFunction(String name, String args, String returnType, String returnDefaultValue) {
-            String funcBody = CommonUtil.LINE_SEPARATOR;
-            String funcReturnSignature = "";
-            if (returnType != null) {
-                funcBody = returnDefaultValue + funcBody;
-                funcReturnSignature = " returns " + returnType + " ";
-            }
-            return CommonUtil.LINE_SEPARATOR + CommonUtil.LINE_SEPARATOR + "function " + name + "(" + args + ")"
-                    + funcReturnSignature + "{" + CommonUtil.LINE_SEPARATOR + funcBody + "}"
-                    + CommonUtil.LINE_SEPARATOR;
-        }
-
-        private static String getFuncReturnDefaultStatement(BLangNode bLangNode, String returnStatement) {
-            if (bLangNode.type == null && bLangNode instanceof BLangTupleDestructure) {
-                // Check for tuple assignment eg. (int, int)
-                List<String> list = new ArrayList<>();
-                for (BLangExpression bLangExpression : ((BLangTupleDestructure) bLangNode).varRefs) {
-                    if (bLangExpression.type != null) {
-                        list.add(getFuncReturnDefaultStatement(bLangExpression.type, "{%1}"));
-                    }
-                }
-                return returnStatement.replace("{%1}", "(" + String.join(", ", list) + ")");
-            } else if (bLangNode instanceof BLangLiteral) {
-                return returnStatement.replace("{%1}", ((BLangLiteral) bLangNode).getValue().toString());
-            } else if (bLangNode instanceof BLangAssignment) {
-                return returnStatement.replace("{%1}", "0");
-            }
-            return (bLangNode.type != null)
-                    ? getFuncReturnDefaultStatement(bLangNode.type, returnStatement)
-                    : null;
-        }
-
-        private static String getFuncReturnDefaultStatement(BType bType, String returnStatement) {
-            if (bType.tsymbol == null && bType instanceof BArrayType) {
-                return returnStatement.replace("{%1}", "[" +
-                        getFuncReturnDefaultStatement(((BArrayType) bType).eType.tsymbol, "") + "]");
-            } else if (bType instanceof BFiniteType) {
-                // Check for finite set assignment
-                BFiniteType bFiniteType = (BFiniteType) bType;
-                Set<BLangExpression> valueSpace = bFiniteType.valueSpace;
-                if (!valueSpace.isEmpty()) {
-                    return getFuncReturnDefaultStatement(valueSpace.stream().findFirst().get(), returnStatement);
-                }
-            } else if (bType instanceof BMapType && ((BMapType) bType).constraint != null) {
-                // Check for constrained map assignment eg. map<Student>
-                BType constraintType = ((BMapType) bType).constraint;
-                String name = constraintType.tsymbol.name.getValue();
-                String mapName = name.toLowerCase(Locale.ROOT) + "Map";
-                String mapDef = "map<" + name + "> " + mapName + " = "
-                        + "{key: " + getFuncReturnDefaultStatement(constraintType, "{%1}") + "};"
-                        + CommonUtil.LINE_SEPARATOR;
-                return returnStatement
-                        .replace("return", mapDef + "    return")
-                        .replace("{%1}", mapName);
-            } else if (bType instanceof BUnionType) {
-                BUnionType bUnionType = (BUnionType) bType;
-                Set<BType> memberTypes = bUnionType.memberTypes;
-                if (!memberTypes.isEmpty()) {
-                    return getFuncReturnDefaultStatement(memberTypes.stream().findFirst().get(), returnStatement);
-                }
-            } else if (bType instanceof BObjectType && ((BObjectType) bType).tsymbol instanceof BObjectTypeSymbol) {
-                BObjectTypeSymbol bStructSymbol = (BObjectTypeSymbol) ((BObjectType) bType).tsymbol;
-                List<String> list = new ArrayList<>();
-                for (BVarSymbol param : bStructSymbol.initializerFunc.symbol.params) {
-                    list.add(getFuncReturnDefaultStatement(param.type.tsymbol, "{%1}"));
-                }
-                return returnStatement.replace("{%1}", "new " + bStructSymbol.name.getValue()
-                        + "(" + String.join(", ", list) + ")");
-            }
-            return (bType.tsymbol != null) ? getFuncReturnDefaultStatement(bType.tsymbol, returnStatement) :
-                    returnStatement.replace("{%1}", "()");
-        }
-
-        private static String getFuncReturnDefaultStatement(BTypeSymbol tSymbol, String returnStatement) {
-            String result;
-            switch (tSymbol.name.getValue()) {
-                case "int":
-                case "any":
-                    result = "0";
-                    break;
-                case "string":
-                    result = "\"\"";
-                    break;
-                case "float":
-                    result = "0.0";
-                    break;
-                case "json":
-                    result = "{}";
-                    break;
-                case "map":
-                    result = "<map>{}";
-                    break;
-                case "boolean":
-                    result = "false";
-                    break;
-                case "xml":
-                    result = "xml ` `";
-                    break;
-                case "blob":
-                    result = "[]";
-                    break;
-                default:
-                    result = "()";
-                    break;
-            }
-            return returnStatement.replace("{%1}", result);
-        }
-
-        private static String getFuncReturnSignature(BLangNode bLangNode) {
-            if (bLangNode.type == null && bLangNode instanceof BLangTupleDestructure) {
-                // Check for tuple assignment eg. (int, int)
-                List<String> list = new ArrayList<>();
-                for (BLangExpression bLangExpression : ((BLangTupleDestructure) bLangNode).varRefs) {
-                    if (bLangExpression.type != null) {
-                        list.add(getFuncReturnSignature(bLangExpression.type));
-                    }
-                }
-                return "(" + String.join(", ", list) + ")";
-            } else if (bLangNode instanceof BLangAssignment) {
-                if (((BLangAssignment) bLangNode).declaredWithVar) {
-                    return "any";
-                }
-            }
-            return (bLangNode.type != null) ? getFuncReturnSignature(bLangNode.type) : null;
-        }
-
-        private static String getFuncReturnSignature(BType bType) {
-            if (bType.tsymbol == null && bType instanceof BArrayType) {
-                // Check for array assignment eg.  int[]
-                return getFuncReturnSignature(((BArrayType) bType).eType.tsymbol) + "[]";
-            } else if (bType instanceof BMapType && ((BMapType) bType).constraint != null) {
-                // Check for constrained map assignment eg. map<Student>
-                BTypeSymbol tSymbol = ((BMapType) bType).constraint.tsymbol;
-                if (tSymbol != null) {
-                    return "map<" + getFuncReturnSignature(tSymbol) + ">";
-                }
-            } else if (bType instanceof BUnionType) {
-                // Check for union type assignment eg. int | string
-                List<String> list = new ArrayList<>();
-                for (BType memberType : ((BUnionType) bType).memberTypes) {
-                    list.add(getFuncReturnSignature(memberType));
-                }
-                return "(" + String.join("|", list) + ")";
-            }
-            return (bType.tsymbol != null) ? getFuncReturnSignature(bType.tsymbol) : "any";
-        }
-
-        private static String getFuncReturnSignature(BTypeSymbol tSymbol) {
-            if (tSymbol != null) {
-                return tSymbol.name.getValue();
-            }
-            return "any";
-        }
-
-        private static String getFuncArguments(BLangNode parent) {
-            List<String> list = new ArrayList<>();
-            if (parent instanceof BLangInvocation) {
-                BLangInvocation bLangInvocation = (BLangInvocation) parent;
-                if (bLangInvocation.argExprs.isEmpty()) {
-                    return null;
-                }
-                int argCounter = 1;
-                Set<String> argNames = new HashSet<>();
-                for (BLangExpression bLangExpression : bLangInvocation.argExprs) {
-                    if (bLangExpression instanceof BLangSimpleVarRef) {
-                        BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) bLangExpression;
-                        String varName = simpleVarRef.variableName.value;
-                        String argType = lookupVariableReturnType(varName, parent);
-                        list.add(argType + " " + varName);
-                        argNames.add(varName);
-                    } else if (bLangExpression instanceof BLangInvocation) {
-                        BLangInvocation invocation = (BLangInvocation) bLangExpression;
-                        String functionName = invocation.name.value;
-                        String argType = lookupFunctionReturnType(functionName, parent);
-                        String argName = generateArgName(argCounter++, argNames);
-                        list.add(argType + " " + argName);
-                        argNames.add(argName);
-                    } else {
-                        String argName = generateArgName(argCounter++, argNames);
-                        list.add("any " + argName);
-                        argNames.add(argName);
-                    }
-                }
-            }
-            return (!list.isEmpty()) ? String.join(", ", list) : null;
-        }
-
-        private static String lookupVariableReturnType(String variableName, BLangNode parent) {
-            if (parent instanceof BLangBlockStmt) {
-                BLangBlockStmt blockStmt = (BLangBlockStmt) parent;
-                Scope scope = blockStmt.scope;
-                if (scope != null) {
-                    for (Map.Entry<Name, Scope.ScopeEntry> entry : scope.entries.entrySet()) {
-                        String key = entry.getKey().getValue();
-                        BSymbol symbol = entry.getValue().symbol;
-                        if (variableName.equals(key) && symbol instanceof BVarSymbol) {
-                            return getFuncReturnSignature(symbol.type);
-                        }
-                    }
-                }
-            }
-            return (parent != null && parent.parent != null)
-                    ? lookupVariableReturnType(variableName, parent.parent)
-                    : "any";
-        }
-
-        private static String lookupFunctionReturnType(String functionName, BLangNode parent) {
-            if (parent instanceof BLangPackage) {
-                BLangPackage blockStmt = (BLangPackage) parent;
-                List<BLangFunction> functions = blockStmt.functions;
-                for (BLangFunction function : functions) {
-                    if (functionName.equals(function.name.getValue())) {
-                        return getFuncReturnSignature(function.returnTypeNode);
-                    }
-                }
-            }
-            return (parent != null && parent.parent != null)
-                    ? lookupFunctionReturnType(functionName, parent.parent) : "any";
-        }
-
-        private static String generateArgName(int value, Set<String> argNames) {
-            StringBuilder result = new StringBuilder();
-            int index = value;
-            while (--index >= 0) {
-                result.insert(0, (char) ('a' + index % 26));
-                index /= 26;
-            }
-            while (argNames.contains(result.toString())) {
-                result = new StringBuilder(generateArgName(++value, argNames));
-            }
-            return result.toString();
         }
     }
 }

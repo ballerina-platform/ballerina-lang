@@ -60,15 +60,21 @@ documentation {
 }
 function abortTransaction(string transactionId, int transactionBlockId) returns error? {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
-    if (participatedTransactions.hasKey(participatedTxnId)) {
-        TwoPhaseCommitTransaction txn = participatedTransactions[participatedTxnId];
-        return txn.markForAbortion();
-    } else if (initiatedTransactions.hasKey(transactionId)) {
-        TwoPhaseCommitTransaction txn = initiatedTransactions[transactionId];
-        return txn.markForAbortion();
-    } else {
-        error err = {message:"Unknown transaction"};
-        throw err;
+    match (participatedTransactions[participatedTxnId]) {
+        TwoPhaseCommitTransaction txn => {
+            return txn.markForAbortion();
+        }
+        () => { 
+            match (initiatedTransactions[transactionId]) {
+                TwoPhaseCommitTransaction txn => {
+                    return txn.markForAbortion();
+                }
+                () => {
+                    error err = {message:"Unknown transaction"};
+                    throw err;
+                }
+            }
+        }
     }
 }
 
@@ -90,14 +96,20 @@ function endTransaction(string transactionId, int transactionBlockId) returns st
 
     // Only the initiator can end the transaction. Here we check whether the entity trying to end the transaction is
     // an initiator or just a local participant
-    if (initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
-        TwoPhaseCommitTransaction initiatedTxn = initiatedTransactions[transactionId];
-        if (initiatedTxn.state == TXN_STATE_ABORTED) {
-            return initiatedTxn.abortInitiatorTransaction();
-        } else {
-            string|error ret = initiatedTxn.twoPhaseCommit();
-            removeInitiatedTransaction(transactionId);
-            return ret;
+    if (!participatedTransactions.hasKey(participatedTxnId)) {
+        match (initiatedTransactions[transactionId]) {
+            () => {
+                return "";
+            }
+            TwoPhaseCommitTransaction initiatedTxn => {
+                if (initiatedTxn.state == TXN_STATE_ABORTED) {
+                    return initiatedTxn.abortInitiatorTransaction();
+                } else {
+                    string|error ret = initiatedTxn.twoPhaseCommit();
+                    removeInitiatedTransaction(transactionId);
+                    return ret;
+                }
+            }
         }
     } else {
         return "";  // Nothing to do on endTransaction if you are a participant

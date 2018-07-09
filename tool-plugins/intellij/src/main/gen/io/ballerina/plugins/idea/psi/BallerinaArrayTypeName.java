@@ -24,6 +24,12 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaArrayTypeName extends BallerinaTypeName {
 
   @NotNull
+  List<BallerinaIntegerLiteral> getIntegerLiteralList();
+
+  @NotNull
+  List<BallerinaSealedLiteral> getSealedLiteralList();
+
+  @NotNull
   BallerinaTypeName getTypeName();
 
 }

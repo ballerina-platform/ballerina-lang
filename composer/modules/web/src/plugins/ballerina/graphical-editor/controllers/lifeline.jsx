@@ -41,7 +41,7 @@ class DefaultCtrl extends React.Component {
         const items = ControllerUtil.convertToAddItems(WorkerTools, model.getBody());
         const top = bBox.y + bBox.h + 15;
         const left = bBox.x;
-        if (TreeUtil.isInitFunction(model) || model.workers.length > 0) {
+        if (TreeUtil.isInitFunction(model) || model.workers.length > 0 || model.lambda) {
             return null;
         }
 

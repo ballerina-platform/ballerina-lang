@@ -56,7 +56,7 @@ public class ConstrainedMapTest {
         Assert.assertEquals(negativeResult.getErrorCount(), 9);
         BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'map<int>', found 'map'", 3, 12);
         BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'int', found 'string'", 7, 44);
-        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'string', found 'int'", 13, 23);
+        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'string?', found 'int'", 13, 23);
         BAssertUtil.validateError(negativeResult, 3, "incompatible types: expected 'map<int>', found 'map<string>'",
                 19, 12);
         BAssertUtil.validateError(negativeResult, 4, "incompatible types: expected 'map<Person>', " +
@@ -97,11 +97,10 @@ public class ConstrainedMapTest {
         Assert.assertEquals(returns[0].stringValue(), "kevin");
     }
 
-    @Test(description = "Test Map constrained with value type index based value retrieval negative case.",
-            expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: error, message: cannot find key 'names'.*")
+    @Test(description = "Test Map constrained with value type index based value retrieval negative case.")
     public void testConstrainedMapValueTypeIndexBasedNegative() {
-        BRunUtil.invoke(compileResult, "testConstrainedMapValueTypeIndexBasedNegative");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedMapValueTypeIndexBasedNegative");
+        Assert.assertNull(returns[0]);
     }
 
     @Test(description = "Test Map constrained with user defined type value retrieval positive case.")
@@ -185,8 +184,8 @@ public class ConstrainedMapTest {
         Assert.assertNotNull(returns[1]);
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertTrue(returns[1] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 36);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 63);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
     @Test(description = "Test Map constrained with value type float positive.")
@@ -209,8 +208,8 @@ public class ConstrainedMapTest {
         Assert.assertNotNull(returns[1]);
         Assert.assertTrue(returns[0] instanceof BFloat);
         Assert.assertTrue(returns[1] instanceof BFloat);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 3.6);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 6.3);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 0.0);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 0.0);
     }
 
     @Test(description = "Test Map constrained with value type boolean positive.")
@@ -233,7 +232,7 @@ public class ConstrainedMapTest {
         Assert.assertNotNull(returns[1]);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(returns[1] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
+        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
         Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), false);
     }
 
