@@ -19,9 +19,9 @@ documentation {
     Represents a TCP socket.
 
     F{{channel}} ByteChannel which will represent the socket connection
-    F{{port}} Remote server connection port
+    F{{remotePort}} Remote server connection port
     F{{localPort}} Local port the socket connection should bound
-    F{{address}} IP/Host of the remote server
+    F{{remoteAddress}} IP/Host of the remote server
     F{{localAddress}} Local interface the connection should bound
 }
 public type Socket object {
