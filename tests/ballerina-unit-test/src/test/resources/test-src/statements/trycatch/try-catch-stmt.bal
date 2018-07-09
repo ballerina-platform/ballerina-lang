@@ -212,3 +212,152 @@ function testReturnInFinallyWithThrowInTryAndFinally() returns int {
         return 40;
     }
 }
+
+function nestedTryCatchFinallyWithReturns(int i) returns int {
+    int total = 0;
+    try {
+        if (i < 5) {
+            total += 10;
+            ErrorOne err = { message:"Try Block Error One" };
+            throw err;
+        } else if (i < 10) {
+            total += 15;
+            ErrorTwo err = { message:"Try Block Error Two" };
+            throw err;
+        }
+        total += 20;
+        return 4;
+    } catch (ErrorOne e) {
+        if (i < 5) {
+            total += 25;
+            ErrorOne err = { message:"Error One - Catch Block Error One" };
+            throw err;
+        } else if (i < 10) {
+            total += 30;
+            ErrorTwo err = { message:"Error One - Catch Block Error Two" };
+            throw err;
+        }
+        total += 35;
+        return 22;
+    } catch (ErrorTwo e) {
+        if (i < 5) {
+            total += 40;
+            ErrorOne err = { message:"Error Two - Catch Block Error One" };
+            throw err;
+        } else if (i < 10) {
+            total += 45;
+            ErrorTwo err = { message:"Error Two - Catch Block Error Two" };
+            throw err;
+        }
+        total += 50;
+        return 24;
+    } catch (error e) {
+        total += 55;
+        error abc = { message: "Error - Catch Block Error" };
+        if (true) {
+            throw abc;
+        }
+        total += 60;
+        return 26;
+    } finally {
+        try {
+            try {
+                try {
+                    if (i < 5) {
+                        total += 65;
+                        ErrorOne err = { message:"Extreme Inner Try Block Error One" };
+                        throw err;
+                    } else if (i < 10) {
+                        total += 70;
+                        ErrorTwo err = { message:"Extreme Inner Try Block Error Two" };
+                        throw err;
+                    }
+                    total += 75;
+                    return 4;
+                } catch (ErrorOne e) {
+                    if (i < 5) {
+                        total += 80;
+                        ErrorOne err = { message:"Error One - Extreme Inner Catch Block Error One" };
+                        throw err;
+                    } else if (i < 10) {
+                        total += 85;
+                        ErrorTwo err = { message:"Error One - Extreme Inner Catch Block Error Two" };
+                        throw err;
+                    }
+                    total += 90;
+                    return 22;
+                } catch (ErrorTwo e) {
+                    if (i < 5) {
+                        total += 95;
+                        ErrorOne err = { message:"Error Two - Extreme Inner Catch Block Error One" };
+                        throw err;
+                    } else if (i < 10) {
+                        total += 100;
+                        ErrorTwo err = { message:"Error Two - Extreme Inner Catch Block Error Two" };
+                        throw err;
+                    }
+                    total += 105;
+                    return 24;
+                } catch (error e) {
+                    total += 110;
+                    error abc = { message: "Error - Extreme Inner Catch Block Error" };
+                    if (true) {
+                        throw abc;
+                    }
+                    total += 115;
+                    return 26;
+                } finally {
+                    total += 120;
+                    error abc = { message: "Extreme Inner Finally Block Error" };
+                    if (i > 5) {
+                        throw abc;
+                    }
+                    total += 125;
+                    return 40;
+                }
+            } catch (error e) {
+                total += 130;
+                error abc = { message: "Inner Catch Block Error" };
+                if (true) {
+                    throw abc;
+                }
+                total += 135;
+                return 30;
+            } finally {
+                total += 140;
+                error abc = { message: "Inner Finally Block Error" };
+                if (i > 5) {
+                    throw abc;
+                }
+                total += 145;
+                return 40;
+            }
+        } catch (error e) {
+            total += 150;
+            error abc = { message: "Outer Catch Block Error" };
+            if (true) {
+                throw abc;
+            }
+            total += 155;
+            return 60;
+        } finally {
+            total += 160;
+            error abc = { message: "Outer Catch Block Error " + <string>total };
+            if (true) {
+                throw abc;
+            }
+            total += 165;
+            return 80;
+        }
+    }
+}
+
+public type ErrorOne record {
+    string message;
+    error? cause;
+};
+
+public type ErrorTwo record {
+    string message;
+    error? cause;
+};

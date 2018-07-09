@@ -195,6 +195,27 @@ public class TryCatchThrowStmtTest {
         BRunUtil.invoke(compileResult, "testReturnInFinallyWithThrowInTryAndFinally", new BValue[]{});
     }
 
+    @Test(description = "Test nested try/catch with inner finally throwing an error where try/catch/finally return",
+            expectedExceptionsMessageRegExp = ".*error, message: outer Catch Block Error 1180.*",
+            expectedExceptions = BLangRuntimeException.class)
+    public void nestedTryCatchFinallyWithReturnsOne() {
+        BRunUtil.invoke(compileResult, "nestedTryCatchFinallyWithReturns", new BValue[]{new BInteger(1)});
+    }
+
+    @Test(description = "Test nested try/catch with inner finally throwing an error where try/catch/finally return",
+            expectedExceptionsMessageRegExp = ".*error, message: outer Catch Block Error 930.*",
+            expectedExceptions = BLangRuntimeException.class)
+    public void nestedTryCatchFinallyWithReturnsTwo() {
+        BRunUtil.invoke(compileResult, "nestedTryCatchFinallyWithReturns", new BValue[]{new BInteger(8)});
+    }
+
+    @Test(description = "Test nested try/catch with inner finally throwing an error where try/catch/finally return",
+            expectedExceptionsMessageRegExp = ".*error, message: outer Catch Block Error 795.*",
+            expectedExceptions = BLangRuntimeException.class)
+    public void nestedTryCatchFinallyWithReturnsThree() {
+        BRunUtil.invoke(compileResult, "nestedTryCatchFinallyWithReturns", new BValue[]{new BInteger(15)});
+    }
+
     @Test()
     public void testDuplicateExceptionVariable() {
         BAssertUtil.validateError(compileResultNegative, 0, "redeclared symbol 'e'", 5, 9);
