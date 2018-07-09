@@ -28,7 +28,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -69,7 +68,7 @@ public abstract class ConnectionAction implements NativeCallableUnit {
             if (boundaryString != null) {
                 serializeMultiparts(boundaryString, entityStruct, messageOutputStream);
             } else {
-                MessageDataSource outboundMessageSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+                BValue outboundMessageSource = EntityBodyHandler.getMessageDataSource(entityStruct);
                 serializeMsgDataSource(outboundMessageSource, entityStruct, messageOutputStream);
             }
         }
@@ -107,11 +106,11 @@ public abstract class ConnectionAction implements NativeCallableUnit {
         outResponseStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
     }
 
-    protected void serializeMsgDataSource(MessageDataSource outboundMessageSource, BMap<String, BValue> entityStruct,
+    protected void serializeMsgDataSource(BValue outboundMessageSource, BMap<String, BValue> entityStruct,
                                           OutputStream messageOutputStream) {
         try {
             if (outboundMessageSource != null) {
-                outboundMessageSource.serializeData(messageOutputStream);
+                outboundMessageSource.serialize(messageOutputStream);
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
             } else { //When the entity body is a byte channel
                 EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);

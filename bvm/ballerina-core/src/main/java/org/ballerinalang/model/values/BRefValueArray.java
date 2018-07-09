@@ -30,9 +30,9 @@ import java.util.StringJoiner;
  */
 public class BRefValueArray extends BNewArray {
 
-    private BRefType[] values;
+    private BRefType<?>[] values;
 
-    public BRefValueArray(BRefType[] values, BType type) {
+    public BRefValueArray(BRefType<?>[] values, BType type) {
         this.values = values;
         super.arrayType = type;
         this.size = values.length;
@@ -57,12 +57,18 @@ public class BRefValueArray extends BNewArray {
         values = (BRefType[]) newArrayInstance(BRefType.class);
     }
 
-    public void add(long index, BRefType value) {
+    public void add(long index, BRefType<?> value) {
         prepareForAdd(index, values.length);
         values[(int) index] = value;
     }
 
-    public BRefType get(long index) {
+    public void append(BRefType<?> value) {
+        int index = values.length;
+        prepareForAdd(index, values.length);
+        values[index] = value;
+    }
+
+    public BRefType<?> get(long index) {
         rangeCheckForGet(index, size);
         return values[(int) index];
     }
@@ -101,5 +107,9 @@ public class BRefValueArray extends BNewArray {
     @Override
     public BValue getBValue(long index) {
         return get(index);
+    }
+
+    public BRefType<?>[] getValues() {
+        return values;
     }
 }

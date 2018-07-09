@@ -18,9 +18,13 @@
 package org.ballerinalang.util.debugger.util;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonGenerator;
-import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.util.JsonParser;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.util.debugger.DebugConstants;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.debugger.dto.CommandDTO;
@@ -86,29 +90,35 @@ public class DebugMsgUtil {
     /**
      * Method to build CommandDTO instance with given json msg.
      *
-     * @param json msg String.
+     * @param jsonStr msg String.
      * @return object instance.
      */
-    public static CommandDTO buildCommandDTO(String json) {
-        JsonNode node = JsonParser.parse(json);
+    public static CommandDTO buildCommandDTO(String jsonStr) {
+        BRefType<?> node = JsonParser.parse(jsonStr);
         CommandDTO commandDTO = new CommandDTO();
-        commandDTO.setCommand(node.get(COMMAND) == null ? null : node.get(COMMAND).stringValue());
-        commandDTO.setThreadId(node.get(THREAD_ID) == null ? null : node.get(THREAD_ID).stringValue());
-        commandDTO.setPoints(buildBreakPoints(node.get(POINTS)));
+        
+        if (node.getType().getTag() == TypeTags.JSON_TAG) {
+            BMap<String, BRefType<?>> json = (BMap) node;
+            commandDTO.setCommand(json.get(COMMAND) == null ? null : json.get(COMMAND).stringValue());
+            commandDTO.setThreadId(json.get(THREAD_ID) == null ? null : json.get(THREAD_ID).stringValue());
+            commandDTO.setPoints(buildBreakPoints(json.get(POINTS)));
+        }
         return commandDTO;
     }
 
-    private static List<BreakPointDTO> buildBreakPoints(JsonNode node) {
-        if (node == null || !node.isArray()) {
+    private static List<BreakPointDTO> buildBreakPoints(BRefType<?> json) {
+        if (json == null || json.getType().getTag() != TypeTags.ARRAY_TAG) {
             return null;
         }
         List<BreakPointDTO> bPoints = new ArrayList<>();
-        for (int i = 0; i < node.size(); i++) {
-            JsonNode element = node.get(i);
+        BRefValueArray jsonArray = (BRefValueArray) json;
+        for (int i = 0; i < jsonArray.size(); i++) {
+            BMap<String, BRefType<?>> element = (BMap) jsonArray.get(i);
             BreakPointDTO bPoint = new BreakPointDTO();
             bPoint.setPackagePath(element.get(PACKAGE_PATH) == null ? null : element.get(PACKAGE_PATH).stringValue());
             bPoint.setFileName(element.get(FILE_NAME) == null ? null : element.get(FILE_NAME).stringValue());
-            bPoint.setLineNumber(element.get(LINE_NUMBER) == null ? -1 : (int) element.get(LINE_NUMBER).longValue());
+            bPoint.setLineNumber(
+                    element.get(LINE_NUMBER) == null ? -1 : (int) ((BInteger) element.get(LINE_NUMBER)).intValue());
             bPoints.add(bPoint);
         }
         return bPoints;

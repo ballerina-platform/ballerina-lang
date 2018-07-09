@@ -18,8 +18,8 @@ package org.ballerinalang.test.nativeimpl.functions;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BByteArray;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
@@ -126,7 +126,7 @@ public class CryptoTest {
         String expectedCRC32Hash = "ce5879b2";
 
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHashWithCRC32ForJSON",
-                                                new BValue[]{new BJSON(payload)});
+                                                new BValue[]{ JsonParser.parse(payload) });
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(returnValues[0].stringValue(), expectedCRC32Hash);
     }

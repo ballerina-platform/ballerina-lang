@@ -20,8 +20,10 @@ package org.ballerinalang.test.services.dispatching;
 
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
@@ -61,8 +63,8 @@ public class VersioningDispatchingTest {
         HTTPCarbonMessage response = Services.invokeNew(result1, PKG_NAME, VERSION1, MOCK_ENDPOINT_NAME, request);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("hello").asText(), "common service"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("hello").stringValue(), "common service"
                 , "Incorrect resource invoked.");
     }
 
@@ -82,8 +84,8 @@ public class VersioningDispatchingTest {
         HTTPCarbonMessage response = Services.invokeNew(result1, PKG_NAME, VERSION1, MOCK_ENDPOINT_NAME, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("hello").asText(), "Only template"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("hello").stringValue(), "Only template"
                 , "Incorrect resource invoked.");
     }
 
@@ -116,8 +118,8 @@ public class VersioningDispatchingTest {
         HTTPCarbonMessage response = Services.invokeNew(result1, PKG_NAME, VERSION1, MOCK_ENDPOINT_NAME, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("hello").asText(), "only allow no version"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("hello").stringValue(), "only allow no version"
                 , "Incorrect resource invoked.");
     }
 
@@ -151,8 +153,8 @@ public class VersioningDispatchingTest {
         HTTPCarbonMessage response = Services.invokeNew(result1, PKG_NAME, VERSION1, MOCK_ENDPOINT_NAME, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("hello").asText(), "only match major"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("hello").stringValue(), "only match major"
                 , "Incorrect resource invoked.");
     }
 
@@ -202,8 +204,8 @@ public class VersioningDispatchingTest {
         HTTPCarbonMessage response = Services.invokeNew(result2, PKG_NAME, VERSION2, MOCK_ENDPOINT_NAME, request);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("hello").asText(), "common service"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("hello").stringValue(), "common service"
                 , "Incorrect resource invoked.");
     }
 
@@ -222,8 +224,8 @@ public class VersioningDispatchingTest {
         HTTPCarbonMessage response = Services.invokeNew(result3, PKG_NAME, VERSION3, MOCK_ENDPOINT_NAME, request);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("hello").asText(), "common service"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("hello").stringValue(), "common service"
                 , "Incorrect resource invoked.");
     }
 

@@ -24,7 +24,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -109,9 +109,8 @@ public class IdentifierLiteralTest {
     public void testUsingIdentifierLiteralAsReferenceType() {
         BValue[] returns = BRunUtil.invoke(result, "useILAsrefType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BJSON.class);
-        String actualFirstName = ((BJSON) returns[0]).stringValue();
-        Assert.assertEquals(actualFirstName, "{\"name\":\"James\",\"age\":30}");
+        Assert.assertSame(returns[0].getClass(), BMap.class);
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"James\",\"age\":30}");
     }
 
     @Test(description = "Test using identifier literals in arrays and array indexes")
@@ -236,7 +235,7 @@ public class IdentifierLiteralTest {
     public void testAcessJSONFielAsIL() {
         BValue[] returns = BRunUtil.invoke(result, "testAcessJSONFielAsIL");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BJSON.class);
+        Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "I am an integer");
     }
 }

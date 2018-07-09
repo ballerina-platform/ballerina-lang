@@ -18,10 +18,13 @@
 package org.ballerinalang.test.services.dispatching;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
@@ -58,12 +61,12 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"X-ORDER-ID":"ORD12345","ProductID":"PID123","RegID":"RID123"}
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get(xOrderIdHeadeName).asText(), xOrderIdHeadeValue
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get(xOrderIdHeadeName).stringValue(), xOrderIdHeadeValue
                 , "Header value mismatched");
-        Assert.assertEquals(bJson.value().get("ProductID").asText(), "PID123"
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("ProductID").stringValue(), "PID123"
                 , "ProductID variable not set properly.");
-        Assert.assertEquals(bJson.value().get("RegID").asText(), "RID123"
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("RegID").stringValue(), "RID123"
                 , "RegID variable not set properly.");
     }
 
@@ -92,12 +95,12 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"X-ORDER-ID":"ORD12345","ProductID":"PID123","RegID":"RID123"}
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("Template").asText(), "T4"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Template").stringValue(), "T4"
                 , "Resource dispatched to wrong template");
-        Assert.assertEquals(bJson.value().get("ProductID").asText(), "PID123"
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("ProductID").stringValue(), "PID123"
                 , "ProductID variable not set properly.");
-        Assert.assertEquals(bJson.value().get("RegID").asText(), "RID123"
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("RegID").stringValue(), "RID123"
                 , "RegID variable not set properly.");
     }
 
@@ -108,12 +111,12 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"Template":"T2","ProductID":"PID125","RegID":"RID125"}
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("Template").asText(), "T2"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Template").stringValue(), "T2"
                 , "Resource dispatched to wrong template");
-        Assert.assertEquals(bJson.value().get("ProductID").asText(), "PID125"
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("ProductID").stringValue(), "PID125"
                 , "ProductID variable not set properly.");
-        Assert.assertEquals(bJson.value().get("RegID").asText(), "RID125"
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("RegID").stringValue(), "RID125"
                 , "RegID variable not set properly.");
     }
 
@@ -124,12 +127,12 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"Template":"T3","ProductID":"PID125","RegID":"RID125"}
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("Template").asText(), "T3"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Template").stringValue(), "T3"
                 , "Resource dispatched to wrong template");
-        Assert.assertEquals(bJson.value().get("ProductID").asText(), "PID125"
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("ProductID").stringValue(), "PID125"
                 , "ProductID variable not set properly.");
-        Assert.assertEquals(bJson.value().get("RegID").asText(), "RID125"
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("RegID").stringValue(), "RID125"
                 , "RegID variable not set properly.");
     }
 
@@ -140,12 +143,12 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"Template":"T5","ProductID":"PID125","RegID":"RID125"}
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("Template").asText(), "T5"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Template").stringValue(), "T5"
                 , "Resource dispatched to wrong template");
-        Assert.assertEquals(bJson.value().get("ProductID").asText(), "PID125"
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("ProductID").stringValue(), "PID125"
                 , "ProductID variable not set properly.");
-        Assert.assertEquals(bJson.value().get("RegID").asText(), "RID125"
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("RegID").stringValue(), "RID125"
                 , "RegID variable not set properly.");
     }
 
@@ -156,12 +159,12 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"X-ORDER-ID":"ORD12345","ProductID":"PID123","RegID":"RID123"}
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("Template").asText(), "T6"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Template").stringValue(), "T6"
                 , "Resource dispatched to wrong template");
-        Assert.assertEquals(bJson.value().get("ProductID").asText(), "PID123"
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("ProductID").stringValue(), "PID123"
                 , "ProductID variable not set properly.");
-        Assert.assertEquals(bJson.value().get("RegID").asText(), "RID123"
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("RegID").stringValue(), "RID123"
                 , "RegID variable not set properly.");
     }
 
@@ -173,12 +176,12 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"X-ORDER-ID":"ORD12345","ProductID":"PID123","RegID":"RID123"}
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("Template").asText(), "T6"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Template").stringValue(), "T6"
                 , "Resource dispatched to wrong template");
-        Assert.assertEquals(bJson.value().get("ProductID").asText(), "PID 123"
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("ProductID").stringValue(), "PID 123"
                 , "ProductID variable not set properly.");
-        Assert.assertEquals(bJson.value().get("RegID").asText(), "RID 123"
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("RegID").stringValue(), "RID 123"
                 , "RegID variable not set properly.");
     }
 
@@ -215,9 +218,9 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
 
-        Assert.assertEquals(bJson.value().get("echo11").asText(), "echo11"
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo11").stringValue(), "echo11"
                 , "Resource dispatched to wrong template");
     }
 
@@ -228,8 +231,8 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("echo").asText(), "wso2"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo").stringValue(), "wso2"
                 , "Resource dispatched to wrong template");
     }
 
@@ -377,8 +380,8 @@ public class UriTemplateDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("echo").asText(), "sanitized"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo").stringValue(), "sanitized"
                 , "Resource dispatched to wrong template");
     }
 
@@ -390,8 +393,8 @@ public class UriTemplateDispatcherTest {
 
         Assert.assertNotNull(response, "Response message not found");
 
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("echo113").asText(), "b[ar"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo113").stringValue(), "b[ar"
                 , "Resource dispatched to wrong template");
     }
 
@@ -403,8 +406,8 @@ public class UriTemplateDispatcherTest {
 
         Assert.assertNotNull(response, "Response message not found");
 
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("echo114").asText(), "b[ar14"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo114").stringValue(), "b[ar14"
                 , "Resource dispatched to wrong template");
     }
 }

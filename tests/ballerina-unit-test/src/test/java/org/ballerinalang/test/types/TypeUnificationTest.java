@@ -21,7 +21,6 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -59,9 +58,8 @@ public class TypeUnificationTest {
         Assert.assertEquals(((BInteger) parent.get("age")).intValue(), 50);
 
         // check inner json
-        Assert.assertTrue(person.get("info") instanceof BJSON);
-        BJSON info = ((BJSON) person.get("info"));
-        Assert.assertEquals(info.getMessageAsString(), "{\"status\":\"single\"}");
+        Assert.assertTrue(person.get("info") instanceof BMap);
+        Assert.assertEquals(person.get("info").stringValue(), "{\"status\":\"single\"}");
 
         // check inner map
         Assert.assertTrue(person.get("address") instanceof BMap);
@@ -115,7 +113,7 @@ public class TypeUnificationTest {
     @Test
     public void testSetValueToJsonInStruct() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetValueToJsonInStruct");
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(), "{\"status\":\"widowed\",\"retired\":true}");
     }
 }

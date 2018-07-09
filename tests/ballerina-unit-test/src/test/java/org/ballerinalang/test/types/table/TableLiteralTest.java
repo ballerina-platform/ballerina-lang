@@ -27,7 +27,8 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
@@ -41,8 +42,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import static org.awaitility.Awaitility.await;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 
 
 /**
@@ -177,7 +178,7 @@ public class TableLiteralTest {
     @Test(priority = 1)
     public void testTableWithAllDataToJson() {
         BValue[] returns = BRunUtil.invoke(result, "testTableWithAllDataToJson");
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BRefValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[{\"id\":1,\"jsonData\":{\"name\":\"apple\",\"color\":\"red\","
                 + "\"price\":30.3},\"xmlData\":\"<book>The Lost World</book>\"},{\"id\":2,\""
                 + "jsonData\":{\"name\":\"apple\",\"color\":\"red\",\"price\":30.3},"
@@ -198,7 +199,7 @@ public class TableLiteralTest {
     @Test(priority = 1)
     public void testTableWithAllDataToStruct() {
         BValue[] returns = BRunUtil.invoke(result, "testTableWithAllDataToStruct");
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertTrue(returns[1] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"apple\",\"color\":\"red\",\"price\":30.3}");
         Assert.assertEquals(returns[1].stringValue(), "<book>The Lost World</book>");

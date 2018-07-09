@@ -213,7 +213,6 @@ public interface InstructionCodes {
     int NULL2JSON = 182;
 
     int ANY2TYPE = 183;
-    int S2JSONX = 184;
     int NULL2S = 185;
 
     int LOCK = 186;
@@ -244,7 +243,6 @@ public interface InstructionCodes {
     int SNEWARRAY = 203;
     int BNEWARRAY = 204;
     int RNEWARRAY = 205;
-    int JSONNEWARRAY = 206;
     int ARRAYLEN = 207;
     int LENGTHOF = 208;
 

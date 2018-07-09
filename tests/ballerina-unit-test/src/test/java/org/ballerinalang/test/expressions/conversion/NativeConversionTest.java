@@ -21,13 +21,11 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
@@ -83,7 +81,7 @@ public class NativeConversionTest {
         Assert.assertEquals(addressMap.get("country").stringValue(), "SriLanka");
 
         BValue info = map.get("info");
-        Assert.assertTrue(info instanceof BJSON);
+        Assert.assertTrue(info instanceof BMap);
         Assert.assertEquals(info.stringValue(), "{\"status\":\"single\"}");
 
         BValue marks = map.get("marks");
@@ -117,7 +115,7 @@ public class NativeConversionTest {
         Assert.assertEquals(parentStruct.get("marks"), null);
 
         BValue info = struct.get("info");
-        Assert.assertTrue(info instanceof BJSON);
+        Assert.assertTrue(info instanceof BMap);
         Assert.assertEquals(info.stringValue(), "{\"status\":\"single\"}");
 
         BValue address = struct.get("address");
@@ -157,7 +155,7 @@ public class NativeConversionTest {
         Assert.assertEquals(parentStruct.get("marks"), null);
 
         BValue info = struct.get("info");
-        Assert.assertTrue(info instanceof BJSON);
+        Assert.assertTrue(info instanceof BMap);
         Assert.assertEquals(info.stringValue(), "{\"status\":\"single\"}");
 
         BValue address = struct.get("address");
@@ -177,60 +175,60 @@ public class NativeConversionTest {
     @Test
     public void testStructToJson() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructToJson");
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        JsonNode child = ((BJSON) returns[0]).value();
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, BValue> child = ((BMap<String, BValue>) returns[0]);
         Assert.assertEquals(child.get("name").stringValue(), "Child");
-        Assert.assertEquals(child.get("age").longValue(), 25);
+        Assert.assertEquals(((BInteger) child.get("age")).intValue(), 25);
 
-        JsonNode parent = child.get("parent");
-        Assert.assertTrue(parent.isObject());
+        Assert.assertTrue(child.get("parent") instanceof BMap);
+        BMap<String, BValue> parent = (BMap<String, BValue>) child.get("parent");
         Assert.assertEquals(parent.get("name").stringValue(), "Parent");
-        Assert.assertEquals(parent.get("age").longValue(), 50);
-        Assert.assertTrue(parent.get("parent").isNull());
-        Assert.assertTrue(parent.get("info").isNull());
-        Assert.assertTrue(parent.get("address").isNull());
-        Assert.assertTrue(parent.get("marks").isNull());
+        Assert.assertEquals(((BInteger) parent.get("age")).intValue(), 50);
+        Assert.assertNull(parent.get("parent"));
+        Assert.assertNull(parent.get("info"));
+        Assert.assertNull(parent.get("address"));
+        Assert.assertNull(parent.get("marks"));
 
-        JsonNode info = child.get("info");
-        Assert.assertTrue(info.isObject());
+        Assert.assertTrue(child.get("info") instanceof BMap);
+        BMap<String, BValue> info = (BMap<String, BValue>) child.get("info");
         Assert.assertEquals(info.get("status").stringValue(), "single");
 
-        JsonNode address = child.get("address");
-        Assert.assertTrue(info.isObject());
+        Assert.assertTrue(child.get("address") instanceof BMap);
+        BMap<String, BValue> address = (BMap<String, BValue>) child.get("address");
         Assert.assertEquals(address.get("country").stringValue(), "SriLanka");
         Assert.assertEquals(address.get("city").stringValue(), "Colombo");
 
-        JsonNode marks = child.get("marks");
-        Assert.assertTrue(marks.isArray());
+        Assert.assertTrue(child.get("marks") instanceof BRefValueArray);
+        BRefValueArray marks = (BRefValueArray) child.get("marks");
         Assert.assertEquals(marks.size(), 3);
-        Assert.assertEquals(marks.get(0).longValue(), 87);
-        Assert.assertEquals(marks.get(1).longValue(), 94);
-        Assert.assertEquals(marks.get(2).longValue(), 72);
+        Assert.assertEquals(((BInteger) marks.get(0)).intValue(), 87);
+        Assert.assertEquals(((BInteger) marks.get(1)).intValue(), 94);
+        Assert.assertEquals(((BInteger) marks.get(2)).intValue(), 72);
     }
     
     @Test
     public void testStructToJsonConstrained1() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructToJsonConstrained1");
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BMap);
     }
     
     @Test
     public void testStructToJsonConstrained2() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructToJsonConstrained2");
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BMap);
     }
     
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*cannot convert 'Person2' to type 'json<Person3>'.*")
     public void testStructToJsonConstrainedNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructToJsonConstrainedNegative");
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BMap);
     }
 
     @Test(description = "Test converting a map to json")
     public void testMapToJsonConversion() {
         BValue[] result = BRunUtil.invoke(compileResult, "testComplexMapToJson");
-        Assert.assertTrue(result[0] instanceof BJSON);
+        Assert.assertTrue(result[0] instanceof BMap);
         Assert.assertEquals(result[0].toString(), "{\"name\":\"Supun\",\"age\":25,\"gpa\":2.81,\"status\":true}");
     }
 
@@ -345,8 +343,8 @@ public class NativeConversionTest {
         Assert.assertEquals(array.get(1).stringValue(), "Supun");
         Assert.assertEquals(((BFloat) array.get(2)).floatValue(), 5.36);
         Assert.assertEquals(((BBoolean) array.get(3)).booleanValue(), true);
-        Assert.assertEquals(((BJSON) array.get(4)).stringValue(), "{\"lname\":\"Setunga\"}");
-        Assert.assertEquals(((BJSON) array.get(5)).stringValue(), "[4,3,7]");
+        Assert.assertEquals(array.stringValue(), "{\"lname\":\"Setunga\"}");
+        Assert.assertEquals(array.stringValue(), "[4,3,7]");
         Assert.assertEquals(array.get(6), null);
     }
 
@@ -482,7 +480,7 @@ public class NativeConversionTest {
     @Test
     public void testStructWithStringArrayToJSON() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructWithStringArrayToJSON");
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(), "{\"names\":[\"John\",\"Doe\"]}");
     }
 

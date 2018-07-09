@@ -62,13 +62,13 @@ public class GetXml extends BlockingNativeCallableUnit {
             String baseType = HeaderUtil.getBaseType(entityStruct);
             if (baseType != null && (baseType.toLowerCase(Locale.getDefault()).endsWith(XML_TYPE_IDENTIFIER) ||
                     baseType.toLowerCase(Locale.getDefault()).endsWith(XML_SUFFIX))) {
-                MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+                BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
                 if (dataSource != null) {
                     if (dataSource instanceof BXML) {
                         result = (BXML) dataSource;
                     } else {
                         // else, build the XML from the string representation of the payload.
-                        result = XMLUtils.parse(dataSource.getMessageAsString());
+                        result = XMLUtils.parse(dataSource.stringValue());
                     }
                 } else {
                     result = EntityBodyHandler.constructXmlDataSource(entityStruct);

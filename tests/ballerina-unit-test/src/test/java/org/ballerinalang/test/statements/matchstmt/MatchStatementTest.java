@@ -21,11 +21,10 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.util.JsonNode;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -114,29 +113,25 @@ public class MatchStatementTest {
 
     @Test(description = "Test basics of match statement")
     public void testMatchStatementBasics9() {
-        JsonNode jsonNode = new JsonNode(10);
-        BJSON jsonValue = new BJSON(jsonNode);
+        BValue jsonValue = JsonParser.parse("10");
         BValue[] returns = BRunUtil.invoke(result, "testMatchStatementBasics9", new BValue[]{jsonValue});
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "json int| null matched");
 
-        jsonNode = new JsonNode("string value");
-        jsonValue = new BJSON(jsonNode);
+        jsonValue = JsonParser.parse("string value");
         returns = BRunUtil.invoke(result, "testMatchStatementBasics9", new BValue[]{jsonValue});
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "json string | boolean matched");
 
-        jsonNode = new JsonNode(false);
-        jsonValue = new BJSON(jsonNode);
+        jsonValue = JsonParser.parse("false");
         returns = BRunUtil.invoke(result, "testMatchStatementBasics9", new BValue[]{jsonValue});
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "json string | boolean matched");
 
-        jsonNode = new JsonNode(10.89);
-        jsonValue = new BJSON(jsonNode);
+        jsonValue = JsonParser.parse("10.89");
         returns = BRunUtil.invoke(result, "testMatchStatementBasics9", new BValue[]{jsonValue});
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
@@ -179,8 +174,7 @@ public class MatchStatementTest {
 
     @Test(description = "Test basics of match statement")
     public void testMatchStatementBasics14() {
-        JsonNode jsonNode = new JsonNode(10);
-        BJSON jsonValue = new BJSON(jsonNode);
+        BValue jsonValue = JsonParser.parse("10");
         BValue[] returns = BRunUtil.invoke(result, "testMatchStatementBasics14", new BValue[]{jsonValue});
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
@@ -189,8 +183,7 @@ public class MatchStatementTest {
 
     @Test(description = "Test basics of match statement")
     public void testMatchStatementBasics15() {
-        JsonNode jsonNode = new JsonNode(false);
-        BJSON jsonValue = new BJSON(jsonNode);
+        BValue jsonValue = JsonParser.parse("false");
         BValue[] returns = BRunUtil.invoke(result, "testMatchStatementBasics14", new BValue[]{jsonValue});
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);

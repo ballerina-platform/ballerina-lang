@@ -19,7 +19,9 @@ package org.ballerinalang.test.services.dispatching;
 
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.util.JsonParser;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -50,8 +52,8 @@ public class UriTemplateDefaultDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("echo").asText(), "dispatched to service name"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo").stringValue(), "dispatched to service name"
                 , "Resource dispatched to wrong template");
     }
 
@@ -62,9 +64,9 @@ public class UriTemplateDefaultDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("echo").asText(), "dispatched to empty service name"
-                , "Resource dispatched to wrong template");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo").stringValue(),
+                "dispatched to empty service name", "Resource dispatched to wrong template");
     }
 
     @Test(description = "Test dispatching with Service name when annotation is not available")
@@ -74,9 +76,9 @@ public class UriTemplateDefaultDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("echo").asText(), "dispatched to a service without an annotation"
-                , "Resource dispatched to wrong template");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo").stringValue(),
+                "dispatched to a service without an annotation", "Resource dispatched to wrong template");
     }
 
     @Test(description = "Test dispatching with Service name when annotation is not available")
@@ -86,8 +88,8 @@ public class UriTemplateDefaultDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("echo").asText(), "dispatched to a proxy service"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo").stringValue(), "dispatched to a proxy service"
                 , "Resource dispatched to wrong template");
     }
 
@@ -98,8 +100,8 @@ public class UriTemplateDefaultDispatcherTest {
         HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("echo").asText(), "dispatched to a proxy service"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo").stringValue(), "dispatched to a proxy service"
                 , "Resource dispatched to wrong template");
     }
 }

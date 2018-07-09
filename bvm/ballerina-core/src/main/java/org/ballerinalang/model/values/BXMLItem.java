@@ -591,7 +591,7 @@ public final class BXMLItem extends BXML<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public void serializeData(OutputStream outputStream) {
+    public void serialize(OutputStream outputStream) {
         try {
             this.omNode.serialize(outputStream);
         } catch (Throwable t) {

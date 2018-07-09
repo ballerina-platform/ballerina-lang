@@ -20,7 +20,9 @@ package org.ballerinalang.test.services.nativeimpl.endpoint;
 
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.util.JsonParser;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
@@ -58,8 +60,8 @@ public class ServiceEndpointTest {
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 200);
 
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("protocol").asText(), protocolValue);
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("protocol").stringValue(), protocolValue);
     }
 
     @Test(description = "Test the local struct values of the ServiceEndpoint struct within a service")
@@ -75,11 +77,12 @@ public class ServiceEndpointTest {
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 200);
 
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.getMessageAsString(), expectedMessage, "Local address does not populated correctly.");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(bJson.stringValue(), expectedMessage, "Local address does not populated correctly.");
 
-        String host = ((BJSON) bJson).value().get("local").get("host").asText();
-        String port = ((BJSON) bJson).value().get("local").get("port").asText();
+        BMap<String, BValue> local = (BMap<String, BValue>) ((BMap<String, BValue>) bJson).get("local");
+        String host = local.get("host").stringValue();
+        String port = local.get("port").stringValue();
 
         Assert.assertEquals(host, expectedHost, "Host does not populated correctly.");
         Assert.assertEquals(port, expectedPort, "Port does not populated correctly.");

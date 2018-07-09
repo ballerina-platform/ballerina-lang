@@ -23,7 +23,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
@@ -49,9 +49,8 @@ public class BAnyTypeSuccessScenariosTest {
     public void testAnyReturnWithJson() {
         BValue[] returns = BRunUtil.invoke(result, "jsonReturnTest", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BJSON.class);
-        BJSON json = (BJSON) returns[0];
-        Assert.assertEquals(json.stringValue(), "{\"PropertyName\":\"Value\"}", "Invalid json value returned.");
+        Assert.assertSame(returns[0].getClass(), BMap.class);
+        Assert.assertEquals(returns[0].stringValue(), "{\"PropertyName\":\"Value\"}", "Invalid json value returned.");
     }
 
     @Test(description = "Test any type as a return value with actual table returning")
@@ -68,9 +67,8 @@ public class BAnyTypeSuccessScenariosTest {
     public void testInputAnyAsTable() {
         BValue[] returns = BRunUtil.invoke(result, "inputAnyAsTableTest");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BJSON.class);
-        BJSON bjson = (BJSON) returns[0];
-        Assert.assertEquals(bjson.stringValue(), "[{\"id\":1,\"name\":\"Jane\"},{\"id\":2,\"name\":\"Anne\"}]");
+        Assert.assertSame(returns[0].getClass(), BMap.class);
+        Assert.assertEquals(returns[0].stringValue(), "[{\"id\":1,\"name\":\"Jane\"},{\"id\":2,\"name\":\"Anne\"}]");
     }
 
 //TODO fix below scenario - basically need to rewrite the tree in method visit(ReturnStmt returnStmt) in
@@ -106,20 +104,18 @@ public class BAnyTypeSuccessScenariosTest {
     public void testAnyToAnyCast() {
         BValue[] returns = BRunUtil.invoke(result, "anyToAnyExplicitCasting", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BJSON.class);
-        BJSON json = (BJSON) returns[0];
-        Assert.assertEquals(json.stringValue(), "{\"PropertyName\":\"Value\"}", "Invalid json value returned.");
+        Assert.assertSame(returns[0].getClass(), BMap.class);
+        Assert.assertEquals(returns[0].stringValue(), "{\"PropertyName\":\"Value\"}", "Invalid json value returned.");
     }
 
     @Test(description = "Test Multiple returns with any")
     public void testMultipleReturnWithAny() {
         BValue[] returns = BRunUtil.invoke(result, "multipleReturnWithAny", new BValue[0]);
         Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BJSON.class);
+        Assert.assertSame(returns[0].getClass(), BMap.class);
         Assert.assertSame(returns[1].getClass(), BInteger.class);
-        BJSON json = (BJSON) returns[0];
         BInteger intVal = (BInteger) returns[1];
-        Assert.assertEquals(json.stringValue(), "{\"PropertyName\":\"Value\"}", "Invalid json value returned.");
+        Assert.assertEquals(returns[0].stringValue(), "{\"PropertyName\":\"Value\"}", "Invalid json value returned.");
         Assert.assertEquals(intVal.intValue(), 7, "Invalid int value returned.");
     }
 

@@ -26,7 +26,6 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -52,10 +51,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import static org.ballerinalang.test.utils.SQLDBUtils.DB_DIRECTORY;
 import static org.ballerinalang.test.utils.SQLDBUtils.DBType.H2;
 import static org.ballerinalang.test.utils.SQLDBUtils.DBType.MYSQL;
 import static org.ballerinalang.test.utils.SQLDBUtils.DBType.POSTGRES;
-import static org.ballerinalang.test.utils.SQLDBUtils.DB_DIRECTORY;
 
 /**
  * Class to test functionality of tables.
@@ -134,7 +133,7 @@ public class TableTest {
     public void testToJson() {
         BValue[] returns = BRunUtil.invoke(result, "testToJson", connectionArgs);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BRefValueArray);
         String expected;
         if (dbType == POSTGRES) {
             expected = "[{\"int_type\":1,\"long_type\":9223372036854774807,\"float_type\":123.339996,"
@@ -207,7 +206,7 @@ public class TableTest {
     public void testToJsonMultipleConsume() {
         BValue[] returns = BRunUtil.invoke(result, "testToJsonMultipleConsume", connectionArgs);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BRefValueArray);
         String expected;
         if (dbType == MYSQL) {
             expected = "[{\"int_type\":1,\"long_type\":9223372036854774807,\"float_type\":123.34,"
@@ -263,7 +262,7 @@ public class TableTest {
     public void testToJsonComplex() {
         BValue[] returns = BRunUtil.invoke(result, "testToJsonComplex", connectionArgs);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BRefValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[{\"INT_TYPE\":1,\"INT_ARRAY\":[1,2,3],"
                 + "\"LONG_TYPE\":9223372036854774807,\"LONG_ARRAY\":[100000000,200000000,300000000],"
                 + "\"FLOAT_TYPE\":123.34,\"FLOAT_ARRAY\":[245.23,5559.49,8796.123],\"DOUBLE_TYPE\":2.139095039E9,"
@@ -275,7 +274,7 @@ public class TableTest {
     public void testToJsonComplexWithStructDef() {
         BValue[] returns = BRunUtil.invoke(result, "testToJsonComplexWithStructDef", connectionArgs);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BRefValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[{\"i\":1,\"iA\":[1,2,3],\"l\":9223372036854774807,"
                 + "\"lA\":[100000000,200000000,300000000],\"f\":123.34,\"fA\":[245.23,5559.49,8796.123],"
                 + "\"d\":2.139095039E9,\"b\":true,\"s\":\"Hello\",\"dA\":[245.23,5559.49,8796.123],"
@@ -461,7 +460,7 @@ public class TableTest {
     public void testJsonWithNull() {
         BValue[] returns = BRunUtil.invoke(result,  "testJsonWithNull", connectionArgs);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BRefValueArray);
         String expected;
         if (dbType == POSTGRES) {
             expected = "[{\"int_type\":0,\"long_type\":0,\"float_type\":0.0,\"double_type\":0.0,"

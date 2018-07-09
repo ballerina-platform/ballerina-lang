@@ -21,7 +21,9 @@ package org.ballerinalang.test.services.dispatching;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.util.JsonParser;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -32,6 +34,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
+
 import java.io.File;
 
 /**
@@ -56,16 +59,18 @@ public class VirtualHostDispatchingTest {
         HTTPCarbonMessage response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, request);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("echo").asText(), hostName1, "Incorrect resource invoked.");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo").stringValue(), hostName1,
+                "Incorrect resource invoked.");
 
         request = MessageUtils.generateHTTPMessage("/page/index", "GET");
         request.setHeader(HttpHeaderNames.HOST.toString(), hostName2);
         response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, request);
 
         Assert.assertNotNull(response, "Response message not found");
-        bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("echo").asText(), hostName2, "Incorrect resource invoked.");
+        bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo").stringValue(), hostName2,
+                "Incorrect resource invoked.");
     }
 
     @Test()
@@ -76,15 +81,17 @@ public class VirtualHostDispatchingTest {
         HTTPCarbonMessage response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, request);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("echo").asText(), hostName1, "Incorrect resource invoked.");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo").stringValue(), hostName1,
+                "Incorrect resource invoked.");
 
         request = MessageUtils.generateHTTPMessage("/page/index", "GET");
         response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, request);
 
         Assert.assertNotNull(response, "Response message not found");
-        bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("echo").asText(), "no host", "Incorrect resource invoked.");
+        bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo").stringValue(), "no host",
+                "Incorrect resource invoked.");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,

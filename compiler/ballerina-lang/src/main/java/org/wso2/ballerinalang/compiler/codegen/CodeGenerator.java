@@ -673,25 +673,20 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangJSONArrayLiteral arrayLiteral) {
-        arrayLiteral.regIndex = calcAndGetExprRegIndex(arrayLiteral);
-        List<BLangExpression> argExprs = arrayLiteral.exprs;
-
-        BLangLiteral arraySizeLiteral = new BLangLiteral();
-        arraySizeLiteral.pos = arrayLiteral.pos;
-        arraySizeLiteral.value = (long) argExprs.size();
-        arraySizeLiteral.type = symTable.intType;
-        genNode(arraySizeLiteral, this.env);
+        // Emit create array instruction
+        int opcode = getOpcodeForArrayOperations(arrayLiteral.type.tag, InstructionCodes.INEWARRAY);
+        Operand arrayVarRegIndex = calcAndGetExprRegIndex(arrayLiteral);
+        Operand typeCPIndex = getTypeCPIndex(arrayLiteral.type);
 
         long size = arrayLiteral.type.tag == TypeTags.ARRAY &&
                 ((BArrayType) arrayLiteral.type).state != BArrayState.UNSEALED ?
                 (long) ((BArrayType) arrayLiteral.type).size : -1L;
-        BLangLiteral sealedSizeLiteral = generateIntegerLiteralNode(arrayLiteral, size);
+        BLangLiteral arraySizeLiteral = generateIntegerLiteralNode(arrayLiteral, size);
 
-        emit(InstructionCodes.JSONNEWARRAY,
-                arrayLiteral.regIndex, arraySizeLiteral.regIndex, sealedSizeLiteral.regIndex);
+        emit(opcode, arrayVarRegIndex, typeCPIndex, arraySizeLiteral.regIndex);
 
-        for (int i = 0; i < argExprs.size(); i++) {
-            BLangExpression argExpr = argExprs.get(i);
+        for (int i = 0; i < arrayLiteral.exprs.size(); i++) {
+            BLangExpression argExpr = arrayLiteral.exprs.get(i);
             genNode(argExpr, this.env);
 
             BLangLiteral indexLiteral = new BLangLiteral();

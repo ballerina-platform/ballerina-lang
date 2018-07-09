@@ -19,9 +19,12 @@
 package org.ballerinalang.test.services.cors;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.util.JsonParser;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
@@ -64,8 +67,8 @@ public class HTTPCorsTest {
         HTTPCarbonMessage response = Services.invokeNew(complieResult, TEST_EP, cMsg);
 
         Assert.assertNotNull(response);
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("echo").asText(), "resCors");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo").stringValue(), "resCors");
         Assert.assertEquals("http://www.wso2.com",
                 response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString()));
         Assert.assertEquals("true", response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()));
@@ -79,8 +82,8 @@ public class HTTPCorsTest {
         HTTPCarbonMessage response = Services.invokeNew(complieResult, TEST_EP, cMsg);
 
         Assert.assertNotNull(response);
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("echo").asText(), "serCors");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo").stringValue(), "serCors");
         Assert.assertEquals(response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString()),
                 "http://www.hello.com");
         Assert.assertEquals(response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()), "true");
@@ -94,8 +97,8 @@ public class HTTPCorsTest {
         HTTPCarbonMessage response = Services.invokeNew(complieResult, TEST_EP, cMsg);
 
         Assert.assertNotNull(response);
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("echo").asText(), "resOnlyCors");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo").stringValue(), "resOnlyCors");
         Assert.assertEquals("http://www.hello.com",
                 response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString()));
         Assert.assertEquals(null, response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()));
@@ -111,8 +114,8 @@ public class HTTPCorsTest {
         HTTPCarbonMessage response = Services.invokeNew(complieResult, TEST_EP, cMsg);
 
         Assert.assertNotNull(response);
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("echo").asText(), "moreOrigins");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo").stringValue(), "moreOrigins");
         Assert.assertEquals("http://www.wso2.com http://www.amazon.com",
                 response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString()));
         Assert.assertEquals("true", response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()));
@@ -126,8 +129,8 @@ public class HTTPCorsTest {
         HTTPCarbonMessage response = Services.invokeNew(complieResult, TEST_EP, cMsg);
 
         Assert.assertNotNull(response);
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("echo").asText(), "resCors");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo").stringValue(), "resCors");
         Assert.assertEquals(null, response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString()));
         Assert.assertNull(null, response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()));
     }
@@ -140,8 +143,8 @@ public class HTTPCorsTest {
         HTTPCarbonMessage response = Services.invokeNew(complieResult, TEST_EP, cMsg);
 
         Assert.assertNotNull(response);
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("echo").asText(), "resCors");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo").stringValue(), "resCors");
         Assert.assertEquals(null, response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString()));
         Assert.assertNull(null, response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()));
     }
@@ -154,8 +157,8 @@ public class HTTPCorsTest {
         HTTPCarbonMessage response = Services.invokeNew(complieResult, TEST_EP, cMsg);
 
         Assert.assertNotNull(response);
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("echo").asText(), "resOnlyCors");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo").stringValue(), "resOnlyCors");
         Assert.assertEquals("http://www.facebook.com",
                 response.getHeader(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN.toString()));
     }
@@ -333,8 +336,8 @@ public class HTTPCorsTest {
         HTTPCarbonMessage response = Services.invokeNew(complieResult, TEST_EP, cMsg);
 
         Assert.assertNotNull(response);
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("echo").asText(), "noCorsOPTIONS");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo").stringValue(), "noCorsOPTIONS");
     }
 
     @Test(description = "Test for case insensitive origin")

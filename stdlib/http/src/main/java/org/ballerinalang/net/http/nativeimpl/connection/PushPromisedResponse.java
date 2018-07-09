@@ -97,7 +97,7 @@ public class PushPromisedResponse extends ConnectionAction {
 
         BMap<String, BValue> entityStruct = extractEntity(outboundResponseStruct);
         if (entityStruct != null) {
-            MessageDataSource outboundMessageSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+            BValue outboundMessageSource = EntityBodyHandler.getMessageDataSource(entityStruct);
             serializeMsgDataSource(outboundMessageSource, entityStruct, messageOutputStream);
         }
     }

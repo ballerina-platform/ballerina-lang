@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.TableJSONDataSource;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
@@ -59,6 +60,13 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     public BMap(BType type) {
         this.map = new LinkedHashMap<>();
         this.type = type;
+    }
+
+    /**
+     * @param tableJSONDataSource
+     */
+    public BMap(TableJSONDataSource tableJSONDataSource) {
+        // TODO Auto-generated constructor stub
     }
 
     /**

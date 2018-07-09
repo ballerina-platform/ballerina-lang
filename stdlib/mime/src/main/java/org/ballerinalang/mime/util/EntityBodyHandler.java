@@ -21,11 +21,14 @@ package org.ballerinalang.mime.util;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.runtime.message.BlobDataSource;
@@ -102,8 +105,8 @@ public class EntityBodyHandler {
      * @param entityStruct Represent a ballerina entity
      * @return MessageDataSource which represent the entity body in memory
      */
-    public static MessageDataSource getMessageDataSource(BMap<String, BValue> entityStruct) {
-        return entityStruct.getNativeData(MESSAGE_DATA_SOURCE) != null ? (MessageDataSource) entityStruct.getNativeData
+    public static BValue getMessageDataSource(BMap<String, BValue> entityStruct) {
+        return entityStruct.getNativeData(MESSAGE_DATA_SOURCE) != null ? (BValue) entityStruct.getNativeData
                 (MESSAGE_DATA_SOURCE) : null;
     }
 
@@ -113,7 +116,7 @@ public class EntityBodyHandler {
      * @param entityStruct      Represent the ballerina entity
      * @param messageDataSource which represent the entity body in memory
      */
-    public static void addMessageDataSource(BMap<String, BValue> entityStruct, MessageDataSource messageDataSource) {
+    public static void addMessageDataSource(BMap<String, BValue> entityStruct, BValue messageDataSource) {
         entityStruct.addNativeData(MESSAGE_DATA_SOURCE, messageDataSource);
     }
 
@@ -121,17 +124,17 @@ public class EntityBodyHandler {
      * Construct BlobDataSource from the underneath byte channel which is associated with the entity struct.
      *
      * @param entityStruct Represent an entity struct
-     * @return BlobDataSource Data source for binary data which is kept in memory
+     * @return Data source for binary data which is kept in memory
      * @throws IOException In case an error occurred while creating blob data source
      */
-    public static BlobDataSource constructBlobDataSource(BMap<String, BValue> entityStruct) throws IOException {
+    public static BByteArray constructBlobDataSource(BMap<String, BValue> entityStruct) throws IOException {
         Channel byteChannel = getByteChannel(entityStruct);
         if (byteChannel == null) {
-            return null;
+            return new BByteArray(new byte[0]);
         }
         byte[] byteData = MimeUtil.getByteArray(byteChannel.getInputStream());
         byteChannel.close();
-        return new BlobDataSource(byteData);
+        return new BByteArray(byteData);
     }
 
     /**
@@ -140,9 +143,9 @@ public class EntityBodyHandler {
      * @param entityStruct Represent an entity struct
      * @return BJSON data source which is kept in memory
      */
-    public static BJSON constructJsonDataSource(BMap<String, BValue> entityStruct) {
+    public static BRefType<?> constructJsonDataSource(BMap<String, BValue> entityStruct) {
         try {
-            BJSON jsonData;
+            BRefType<?> jsonData;
             Channel byteChannel = getByteChannel(entityStruct);
             if (byteChannel == null) {
                 return null;
@@ -151,12 +154,12 @@ public class EntityBodyHandler {
             if (contentTypeValue != null && !contentTypeValue.isEmpty()) {
                 String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
                 if (charsetValue != null && !charsetValue.isEmpty()) {
-                    jsonData = new BJSON(byteChannel.getInputStream(), null, charsetValue);
+                    jsonData = JsonParser.parse(byteChannel.getInputStream(), charsetValue);
                 } else {
-                    jsonData = new BJSON(byteChannel.getInputStream());
+                    jsonData = JsonParser.parse(byteChannel.getInputStream());
                 }
             } else {
-                jsonData = new BJSON(byteChannel.getInputStream());
+                jsonData = JsonParser.parse(byteChannel.getInputStream());
             }
             byteChannel.close();
             return jsonData;
@@ -202,7 +205,7 @@ public class EntityBodyHandler {
      * @param entityStruct Represent an entity struct
      * @return StringDataSource which represent the entity body which is kept in memory
      */
-    public static StringDataSource constructStringDataSource(BMap<String, BValue> entityStruct) {
+    public static BString constructStringDataSource(BMap<String, BValue> entityStruct) {
         try {
             String textContent;
             Channel byteChannel = getByteChannel(entityStruct);
@@ -221,7 +224,7 @@ public class EntityBodyHandler {
                 textContent = StringUtils.getStringFromInputStream(byteChannel.getInputStream());
             }
             byteChannel.close();
-            return new StringDataSource(textContent);
+            return new BString(textContent);
         } catch (IOException e) {
             throw new BallerinaIOException("Error occurred while closing the channel", e);
         }

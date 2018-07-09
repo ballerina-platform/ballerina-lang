@@ -26,10 +26,10 @@ import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -38,7 +38,6 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
@@ -138,8 +137,9 @@ public class RequestNativeFunctionSuccessTest {
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(ResponseReader.getReturnValue(response));
-        Assert.assertEquals(bJson.value().get(key).asText(), value);
+        BValue bJson = JsonParser.parse(ResponseReader.getReturnValue(response));
+        Assert.assertTrue(bJson instanceof BMap);
+        Assert.assertEquals(((BMap) bJson).get(key).stringValue(), value);
     }
 
     @Test(description = "Test getBinaryPayload method of the request")
@@ -198,8 +198,9 @@ public class RequestNativeFunctionSuccessTest {
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("value").asText(), String.valueOf(length));
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertTrue(bJson instanceof BMap);
+        Assert.assertEquals(((BMap) bJson).get("value").stringValue(), String.valueOf(length));
     }
 
     @Test
@@ -233,8 +234,9 @@ public class RequestNativeFunctionSuccessTest {
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("value").asText(), APPLICATION_FORM);
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertTrue(bJson instanceof BMap);
+        Assert.assertEquals(((BMap) bJson).get("value").stringValue(), APPLICATION_FORM);
     }
 
     @Test(description = "Test GetHeaders function within a function")
@@ -278,7 +280,8 @@ public class RequestNativeFunctionSuccessTest {
         BValue[] returnVals = BRunUtil.invokeStateful(result, "testGetJsonPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertEquals(((BJSON) returnVals[0]).value().get("code").asText(), "123");
+        Assert.assertTrue(returnVals[0] instanceof BMap);
+        Assert.assertEquals(((BMap) returnVals[0]).get("code").stringValue(), "123");
     }
 
     @Test(description = "Test GetJsonPayload function within a service")
@@ -293,7 +296,7 @@ public class RequestNativeFunctionSuccessTest {
                 MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers, jsonString);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(new BJSON(ResponseReader.getReturnValue(response)).value().stringValue(), value);
+        Assert.assertEquals(JsonParser.parse(ResponseReader.getReturnValue(response)).stringValue(), value);
     }
 
     @Test
@@ -401,8 +404,9 @@ public class RequestNativeFunctionSuccessTest {
                 MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers, jsonString);
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get(key).asText(), value);
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertTrue(bJson instanceof BMap);
+        Assert.assertEquals(((BMap) bJson).get(key).stringValue(), value);
     }
 
     @Test(description = "Test RemoveAllHeaders function within a service")
@@ -412,8 +416,9 @@ public class RequestNativeFunctionSuccessTest {
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("value").asText(), "value is null");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertTrue(bJson instanceof BMap);
+        Assert.assertEquals(((BMap) bJson).get("value").stringValue(), "value is null");
     }
 
     @Test
@@ -463,13 +468,14 @@ public class RequestNativeFunctionSuccessTest {
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("value").asText(), value);
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertTrue(bJson instanceof BMap);
+        Assert.assertEquals(((BMap) bJson).get("value").stringValue(), value);
     }
 
     @Test
     public void testSetJsonPayload() {
-        BJSON value = new BJSON("{'name':'wso2'}");
+        BValue value = JsonParser.parse("{'name':'wso2'}");
         BValue[] inputArg = { value };
         BValue[] returnVals = BRunUtil.invokeStateful(result, "testSetJsonPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -477,8 +483,9 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entity =
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD);
-        BJSON bJson = (BJSON) EntityBodyHandler.getMessageDataSource(entity);
-        Assert.assertEquals(bJson.value().get("name").asText(), "wso2", "Payload is not set properly");
+        BValue bJson = EntityBodyHandler.getMessageDataSource(entity);
+        Assert.assertTrue(bJson instanceof BMap);
+        Assert.assertEquals(((BMap) bJson).get("name").stringValue(), "wso2", "Payload is not set properly");
     }
 
     @Test(description = "Test SetJsonPayload function within a service")
@@ -489,8 +496,9 @@ public class RequestNativeFunctionSuccessTest {
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("lang").asText(), value);
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertTrue(bJson instanceof BMap);
+        Assert.assertEquals(((BMap) bJson).get("lang").stringValue(), value);
     }
 
     @Test
@@ -516,8 +524,9 @@ public class RequestNativeFunctionSuccessTest {
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("lang").asText(), value);
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertTrue(bJson instanceof BMap);
+        Assert.assertEquals(((BMap) bJson).get("lang").stringValue(), value);
     }
 
     @Test
@@ -544,8 +553,9 @@ public class RequestNativeFunctionSuccessTest {
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("lang").asText(), value);
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertTrue(bJson instanceof BMap);
+        Assert.assertEquals(((BMap) bJson).get("lang").stringValue(), value);
     }
 
     @Test(description = "Test setBinaryPayload() function within a service")
@@ -556,8 +566,9 @@ public class RequestNativeFunctionSuccessTest {
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("lang").asText(), value);
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertTrue(bJson instanceof BMap);
+        Assert.assertEquals(((BMap) bJson).get("lang").stringValue(), value);
     }
 
     @Test(description = "Test getBinaryPayload() function within a service")
@@ -583,8 +594,8 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertTrue(returnVals[0] instanceof BMap);
         BMap<String, BValue> entity =
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD);
-        MessageDataSource messageDataSource = EntityBodyHandler.getMessageDataSource(entity);
-        Assert.assertEquals(messageDataSource.getMessageAsString(), "Ballerina", "Payload is not set properly");
+        BValue messageDataSource = EntityBodyHandler.getMessageDataSource(entity);
+        Assert.assertEquals(messageDataSource.stringValue(), "Ballerina", "Payload is not set properly");
     }
 
     @Test(description = "Test setEntityBody() function")
@@ -608,9 +619,9 @@ public class RequestNativeFunctionSuccessTest {
          * String returnJsonValue = new String(Files.readAllBytes(Paths.get(returnFileStruct.getStringField(0))),
          * UTF_8);
          */
-        BJSON bJson = EntityBodyHandler.constructJsonDataSource(entity);
-
-        Assert.assertEquals(bJson.value().get("name").asText(), "wso2", "Payload is not set properly");
+        BValue bJson = EntityBodyHandler.constructJsonDataSource(entity);
+        Assert.assertTrue(bJson instanceof BMap);
+        Assert.assertEquals(((BMap) bJson).get("name").stringValue(), "wso2", "Payload is not set properly");
 
     }
 

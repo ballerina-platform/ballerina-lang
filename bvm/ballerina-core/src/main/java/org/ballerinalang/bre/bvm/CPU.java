@@ -35,7 +35,6 @@ import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
 import org.ballerinalang.model.util.JSONUtils;
-import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBoolean;
@@ -52,7 +51,6 @@ import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BIntRange;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BIterator;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
@@ -557,7 +555,6 @@ public class CPU {
                     case InstructionCodes.JSON2T:
                     case InstructionCodes.XMLATTRS2MAP:
                     case InstructionCodes.S2XML:
-                    case InstructionCodes.S2JSONX:
                     case InstructionCodes.XML2S:
                     case InstructionCodes.ANY2SCONV:
                         execTypeConversionOpcodes(ctx, sf, opcode, operands);
@@ -584,10 +581,10 @@ public class CPU {
                             break;
                         }
     
-                        if (value.getType().getTag() == TypeTags.JSON_TAG) {
-                            sf.longRegs[j] = ((BJSON) value).value().size();
-                            break;
-                        }
+//                        if (value.getType().getTag() == TypeTags.JSON_TAG) {
+//                            sf.longRegs[j] = ((BJSON) value).value().size();
+//                            break;
+//                        }
     
                         sf.longRegs[j] = ((BNewArray) value).size();
                         break;
@@ -612,19 +609,6 @@ public class CPU {
                         typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
                         sf.refRegs[i] = new BRefValueArray(typeRefCPEntry.getType());
                         break;
-                    case InstructionCodes.JSONNEWARRAY:
-                        i = operands[0];
-                        j = operands[1];
-                        k = operands[2];
-                        // This is a temporary solution to create n-valued JSON array
-                        StringJoiner stringJoiner = new StringJoiner(",", "[", "]");
-                        int size = (int) sf.longRegs[k] == -1 ? (int) sf.longRegs[j] : (int) sf.longRegs[k];
-                        for (int index = 0; index < size; index++) {
-                            stringJoiner.add(null);
-                        }
-                        sf.refRegs[i] = new BJSON(stringJoiner.toString(), (int) sf.longRegs[k]);
-                        break;
-    
                     case InstructionCodes.NEWSTRUCT:
                         createNewStruct(ctx, operands, sf);
                         break;
@@ -639,7 +623,7 @@ public class CPU {
                         i = operands[0];
                         cpIndex = operands[1];
                         typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
-                        sf.refRegs[i] = new BJSON("{}", typeRefCPEntry.getType());
+                        sf.refRegs[i] = new BMap<String, BRefType>(typeRefCPEntry.getType());
                         break;
                     case InstructionCodes.NEWTABLE:
                         i = operands[0];
@@ -1161,7 +1145,6 @@ public class CPU {
         BRefValueArray bArray;
         BMap<String, BValue> structureType;
         BMap<String, BRefType> bMap;
-        BJSON jsonVal;
         switch (opcode) {
             case InstructionCodes.IMOVE:
                 lvIndex = operands[0];
@@ -1294,14 +1277,14 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                jsonVal = (BJSON) sf.refRegs[i];
-                if (jsonVal == null) {
-                    handleNullRefError(ctx);
-                    break;
-                }
+//                bMap = (BJSON) sf.refRegs[i];
+//                if (jsonVal == null) {
+//                    handleNullRefError(ctx);
+//                    break;
+//                }
 
                 try {
-                    sf.refRegs[k] = JSONUtils.getArrayElement(jsonVal, sf.longRegs[j]);
+                    sf.refRegs[k] = JSONUtils.getArrayElement(sf.refRegs[i], sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1360,13 +1343,13 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                jsonVal = (BJSON) sf.refRegs[i];
-                if (jsonVal == null) {
-                    sf.refRegs[k] = null;
-                    break;
-                }
+//                jsonVal = (BJSON) sf.refRegs[i];
+//                if (jsonVal == null) {
+//                    sf.refRegs[k] = null;
+//                    break;
+//                }
 
-                sf.refRegs[k] = JSONUtils.getElement(jsonVal, sf.stringRegs[j]);
+                sf.refRegs[k] = JSONUtils.getElement(sf.refRegs[i], sf.stringRegs[j]);
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -1389,7 +1372,6 @@ public class CPU {
         BRefValueArray bArray;
         BMap<String, BValue> structureType;
         BMap<String, BRefType> bMap;
-        BJSON jsonVal;
         switch (opcode) {
             case InstructionCodes.IASTORE:
                 i = operands[0];
@@ -1497,14 +1479,14 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                jsonVal = (BJSON) sf.refRegs[i];
-                if (jsonVal == null) {
-                    handleNullRefError(ctx);
-                    break;
-                }
+//                jsonVal = (BJSON) sf.refRegs[i];
+//                if (jsonVal == null) {
+//                    handleNullRefError(ctx);
+//                    break;
+//                }
 
                 try {
-                    JSONUtils.setArrayElement(jsonVal, sf.longRegs[j], (BJSON) sf.refRegs[k]);
+                    JSONUtils.setArrayElement(sf.refRegs[i], sf.longRegs[j], sf.refRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1568,12 +1550,12 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                jsonVal = (BJSON) sf.refRegs[i];
-                if (jsonVal == null) {
-                    handleNullRefError(ctx);
-                    break;
-                }
-                JSONUtils.setElement(jsonVal, sf.stringRegs[j], (BJSON) sf.refRegs[k]);
+//                jsonVal = (BJSON) sf.refRegs[i];
+//                if (jsonVal == null) {
+//                    handleNullRefError(ctx);
+//                    break;
+//                }
+                JSONUtils.setElement(sf.refRegs[i], sf.stringRegs[j], sf.refRegs[k]);
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -2093,11 +2075,11 @@ public class CPU {
                     /* if the value is a JSON and target is a (boxed) value type, then even though
                      * they should be assignable, we can't use the same ref value, but rather, the BJSON
                      * should be converted to the respective boxed value types */
-                    if (bRefTypeValue instanceof BJSON && BTypes.isValueType(typeRefCPEntry.getType())) {
-                        sf.refRegs[j] = ((BJSON) bRefTypeValue).getPrimitiveBoxedValue();
-                    } else {
+//                    if (bRefTypeValue instanceof BJSON && BTypes.isValueType(typeRefCPEntry.getType())) {
+//                        sf.refRegs[j] = ((BJSON) bRefTypeValue).getPrimitiveBoxedValue();
+//                    } else {
                         sf.refRegs[j] = bRefTypeValue;
-                    }
+//                    }
                 } else {
                     handleTypeCastError(ctx, sf, j, bRefTypeValue != null ? bRefTypeValue.getType() : BTypes.typeNull,
                             typeRefCPEntry.getType());
@@ -2116,13 +2098,14 @@ public class CPU {
                 }
                 break;
             case InstructionCodes.NULL2JSON:
+                // FIXME: Remove this if possible
                 j = operands[1];
-                sf.refRegs[j] = new BJSON("null");
+                sf.refRegs[j] = null;
                 break;
             case InstructionCodes.B2JSON:
                 i = operands[0];
                 j = operands[1];
-                sf.refRegs[j] = new BJSON(sf.intRegs[i] == 1 ? "true" : "false");
+                sf.refRegs[j] = new BBoolean(sf.intRegs[i] == 0);
                 break;
             case InstructionCodes.JSON2I:
                 castJSONToInt(ctx, operands, sf);
@@ -2192,9 +2175,10 @@ public class CPU {
                 }
                 break;
             case InstructionCodes.I2JSON:
+                // FIXME: replace with I2ANY
                 i = operands[0];
                 j = operands[1];
-                sf.refRegs[j] = new BJSON(Long.toString(sf.longRegs[i]));
+                sf.refRegs[j] = new BInteger(sf.longRegs[i]);
                 break;
             case InstructionCodes.BI2I:
                 i = operands[0];
@@ -2217,9 +2201,10 @@ public class CPU {
                 sf.intRegs[j] = sf.doubleRegs[i] != 0.0 ? 1 : 0;
                 break;
             case InstructionCodes.F2JSON:
+                // FIXME: replace with F2ANY
                 i = operands[0];
                 j = operands[1];
-                sf.refRegs[j] = new BJSON(Double.toString(sf.doubleRegs[i]));
+                sf.refRegs[j] = new BFloat(sf.doubleRegs[i]);
                 break;
             case InstructionCodes.S2I:
                 i = operands[0];
@@ -2259,10 +2244,11 @@ public class CPU {
                 sf.intRegs[j] = Boolean.parseBoolean(sf.stringRegs[i]) ? 1 : 0;
                 break;
             case InstructionCodes.S2JSON:
+                // FIXME: Replace with S2ANY
                 i = operands[0];
                 j = operands[1];
                 str = StringEscapeUtils.escapeJson(sf.stringRegs[i]);
-                sf.refRegs[j] = str == null ? null : new BJSON("\"" + str + "\"");
+                sf.refRegs[j] = new BString("\"" + str + "\"");
                 break;
             case InstructionCodes.B2I:
                 i = operands[0];
@@ -2356,20 +2342,6 @@ public class CPU {
 
                 try {
                     sf.refRegs[j] = XMLUtils.parse(str);
-                    sf.refRegs[k] = null;
-                } catch (BallerinaException e) {
-                    sf.refRegs[j] = null;
-                    handleTypeConversionError(ctx, sf, k, e.getMessage());
-                }
-                break;
-            case InstructionCodes.S2JSONX:
-                i = operands[0];
-                j = operands[1];
-                k = operands[2];
-                str = sf.stringRegs[i];
-
-                try {
-                    sf.refRegs[j] = str == null ? null : new BJSON(str);
                     sf.refRegs[k] = null;
                 } catch (BallerinaException e) {
                     sf.refRegs[j] = null;
@@ -3050,7 +3022,7 @@ public class CPU {
         }
 
         if (getElementType(rhsType).getTag() == TypeTags.JSON_TAG) {
-            return checkJSONCast(((BJSON) rhsValue).value(), rhsType, lhsType);
+            return checkJSONCast(rhsValue, rhsType, lhsType);
         }
 
         if (lhsType.getTag() == TypeTags.ARRAY_TAG && rhsValue instanceof BNewArray) {
@@ -3359,125 +3331,76 @@ public class CPU {
         int i = operands[0];
         int j = operands[1];
 
-        BJSON jsonValue = (BJSON) sf.refRegs[i];
+        BRefType<?> jsonValue = sf.refRegs[i];
         if (jsonValue == null) {
             handleNullRefError(ctx);
             return;
         }
 
-        JsonNode jsonNode;
-        try {
-            jsonNode = jsonValue.value();
-        } catch (BallerinaException e) {
-            String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
-                    BTypes.typeJSON, BTypes.typeInt, e.getMessage());
-            ctx.setError(BLangVMErrors.createError(ctx, errorMsg));
-            handleError(ctx);
-            return;
-        }
-
-        if (jsonNode.isLong()) {
-            sf.longRegs[j] = jsonNode.longValue();
+        if (jsonValue.getType().getTag() == TypeTags.INT_TAG) {
+            sf.longRegs[j] = ((BInteger) jsonValue).intValue();
             return;
         }
 
         sf.longRegs[j] = 0;
-//        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.INT_TNAME);
     }
 
     private static void castJSONToFloat(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
         int i = operands[0];
         int j = operands[1];
 
-        BJSON jsonValue = (BJSON) sf.refRegs[i];
+        BRefType<?> jsonValue = sf.refRegs[i];
         if (jsonValue == null) {
             handleNullRefError(ctx);
             return;
         }
 
-        JsonNode jsonNode;
-        try {
-            jsonNode = jsonValue.value();
-        } catch (BallerinaException e) {
-            String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
-                    BTypes.typeJSON, BTypes.typeFloat, e.getMessage());
-            ctx.setError(BLangVMErrors.createError(ctx, errorMsg));
-            handleError(ctx);
-            return;
-        }
-
-        if (jsonNode.isDouble()) {
-            sf.doubleRegs[j] = jsonNode.doubleValue();
+        if (jsonValue.getType().getTag() == TypeTags.FLOAT_TAG) {
+            sf.doubleRegs[j] = ((BFloat) jsonValue).floatValue();
             return;
         }
 
         sf.doubleRegs[j] = 0;
-//        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.FLOAT_TNAME);
     }
 
     private static void castJSONToString(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
         int i = operands[0];
         int j = operands[1];
 
-        BJSON jsonValue = (BJSON) sf.refRegs[i];
+        BRefType<?> jsonValue = sf.refRegs[i];
         if (jsonValue == null) {
             handleNullRefError(ctx);
             return;
         }
 
-        JsonNode jsonNode;
-        try {
-            jsonNode = jsonValue.value();
-        } catch (BallerinaException e) {
-            sf.stringRegs[j] = BLangConstants.STRING_EMPTY_VALUE;
-            String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
-                    BTypes.typeJSON, BTypes.typeString, e.getMessage());
-            ctx.setError(BLangVMErrors.createError(ctx, errorMsg));
-            handleError(ctx);
-            return;
-        }
-
-        if (jsonNode.isString()) {
-            sf.stringRegs[j] = jsonNode.stringValue();
+        if (jsonValue.getType().getTag() == TypeTags.STRING_TAG) {
+            sf.stringRegs[j] = jsonValue.stringValue();
             return;
         }
 
         sf.stringRegs[j] = STRING_NULL_VALUE;
-//        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.STRING_TNAME);
     }
 
     private static void castJSONToBoolean(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
         int i = operands[0];
         int j = operands[1];
 
-        BJSON jsonValue = (BJSON) sf.refRegs[i];
+        BRefType<?> jsonValue = sf.refRegs[i];
         if (jsonValue == null) {
             handleNullRefError(ctx);
             return;
         }
 
-        JsonNode jsonNode;
-        try {
-            jsonNode = jsonValue.value();
-        } catch (BallerinaException e) {
-            String errorMsg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.CASTING_FAILED_WITH_CAUSE,
-                    BTypes.typeJSON, BTypes.typeBoolean, e.getMessage());
-            ctx.setError(BLangVMErrors.createError(ctx, errorMsg));
-            handleError(ctx);
-            return;
-        }
-
-        if (jsonNode.isBoolean()) {
-            sf.intRegs[j] = jsonNode.booleanValue() ? 1 : 0;
+        if (jsonValue.getType().getTag() == TypeTags.FLOAT_TAG) {
+            sf.intRegs[j] = ((BBoolean) jsonValue).booleanValue() ? 1 : 0;
             return;
         }
 
         // Reset the value in the case of an error;
         sf.intRegs[j] = 0;
-//        handleTypeCastError(ctx, sf, j, JSONUtils.getTypeName(jsonNode), TypeConstants.BOOLEAN_TNAME);
     }
 
-    private static boolean checkJSONEquivalency(JsonNode json, BJSONType sourceType, BJSONType targetType) {
+    private static boolean checkJSONEquivalency(BValue json, BJSONType sourceType, BJSONType targetType) {
         BStructureType sourceConstrainedType = (BStructureType) sourceType.getConstrainedType();
         BStructureType targetConstrainedType = (BStructureType) targetType.getConstrainedType();
 
@@ -3497,14 +3420,23 @@ public class CPU {
         }
 
         // Casting from unconstrained JSON to constrained JSON
+        if (json == null) {
+            return true;
+        }
+
+        if (json.getType().getTag() != TypeTags.MAP_TAG) {
+            return false;
+        }
+
+        BMap<String, BValue> jsonObject = (BMap<String, BValue>) json;
         BField[] tFields = targetConstrainedType.getFields();
         for (int i = 0; i < tFields.length; i++) {
             String fieldName = tFields[i].getFieldName();
-            if (!json.has(fieldName)) {
+            if (!jsonObject.hasKey(fieldName)) {
                 return false;
             }
 
-            if (!checkJSONCast(json.get(fieldName), sourceType, tFields[i].getFieldType())) {
+            if (!checkJSONCast(jsonObject.get(fieldName), sourceType, tFields[i].getFieldType())) {
                 return false;
             }
         }
@@ -3520,26 +3452,24 @@ public class CPU {
      * @param targetType Target type
      * @return Runtime compatibility for casting
      */
-    private static boolean checkJSONCast(JsonNode json, BType sourceType, BType targetType) {
+    private static boolean checkJSONCast(BValue json, BType sourceType, BType targetType) {
         switch (targetType.getTag()) {
             case TypeTags.STRING_TAG:
-                return json.isString();
             case TypeTags.INT_TAG:
-                return json.isLong();
             case TypeTags.FLOAT_TAG:
-                return json.isDouble();
             case TypeTags.BOOLEAN_TAG:
-                return json.isBoolean();
+                return json != null && json.getType().getTag() == targetType.getTag();
             case TypeTags.ARRAY_TAG:
-                if (!json.isArray()) {
+                if (json == null || json.getType().getTag() != TypeTags.ARRAY_TAG) {
                     return false;
                 }
                 BArrayType arrayType = (BArrayType) targetType;
-                for (int i = 0; i < json.size(); i++) {
+                BRefValueArray array = (BRefValueArray) json;
+                for (int i = 0; i < array.size(); i++) {
                     // get the element type of source and json, and recursively check for json casting.
                     BType sourceElementType = sourceType.getTag() == TypeTags.ARRAY_TAG
                             ? ((BArrayType) sourceType).getElementType() : sourceType;
-                    if (!checkJSONCast(json.get(i), sourceElementType, arrayType.getElementType())) {
+                    if (!checkJSONCast(array.get(i), sourceElementType, arrayType.getElementType())) {
                         return false;
                     }
                 }
@@ -3613,14 +3543,14 @@ public class CPU {
         int j = operands[2];
         BArrayType targetType = (BArrayType) ((TypeRefCPEntry) ctx.constPool[cpIndex]).getType();
 
-        BJSON json = (BJSON) sf.refRegs[i];
+        BRefType<?> json = sf.refRegs[i];
         if (json == null) {
             handleNullRefError(ctx);
             return;
         }
 
         try {
-            sf.refRegs[j] = (BRefType<?>) JSONUtils.convertJSON(json.value(), targetType);
+            sf.refRegs[j] = (BRefType<?>) JSONUtils.convertJSON(json, targetType);
         } catch (Exception e) {
             String errorMsg = "cannot convert '" + json.getType() + "' to type '" + targetType + "': " +
                     e.getMessage();
@@ -3656,14 +3586,14 @@ public class CPU {
         int j = operands[2];
         BMapType targetType = (BMapType) ((TypeRefCPEntry) ctx.constPool[cpIndex]).getType();
 
-        BJSON json = (BJSON) sf.refRegs[i];
+        BRefType<?> json = sf.refRegs[i];
         if (json == null) {
             handleNullRefError(ctx);
             return;
         }
 
         try {
-            sf.refRegs[j] = JSONUtils.jsonNodeToBMap(json.value(), targetType);
+            sf.refRegs[j] = JSONUtils.jsonToBMap(json, targetType);
         } catch (Exception e) {
             String errorMsg = "cannot convert '" + json.getType() + "' to type '" + targetType + "': " +
                     e.getMessage();
@@ -3770,7 +3700,7 @@ public class CPU {
         int j = operands[2];
 
         TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
-        BJSON bjson = (BJSON) sf.refRegs[i];
+        BRefType<?> bjson = sf.refRegs[i];
         if (bjson == null) {
             handleNullRefError(ctx);
             return;
@@ -3840,13 +3770,13 @@ public class CPU {
         if (typeTag == TypeTags.XML_TAG) {
             sf.longRegs[j] = ((BXML) entity).length();
             return;
-        } else if (entity instanceof BJSON) {
-            if (JSONUtils.isJSONArray((BJSON) entity)) {
-                sf.longRegs[j] = JSONUtils.getJSONArrayLength((BJSON) sf.refRegs[i]);
-            } else {
-                sf.longRegs[j] = -1;
-            }
-            return;
+//        } else if (entity instanceof BJSON) {
+//            if (JSONUtils.isJSONArray((BJSON) entity)) {
+//                sf.longRegs[j] = JSONUtils.getJSONArrayLength((BJSON) sf.refRegs[i]);
+//            } else {
+//                sf.longRegs[j] = -1;
+//            }
+//            return;
         } else if (typeTag == TypeTags.MAP_TAG) {
             sf.longRegs[j] = ((BMap) entity).size();
             return;

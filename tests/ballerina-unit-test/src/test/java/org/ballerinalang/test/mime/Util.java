@@ -232,7 +232,7 @@ public class Util {
         BXMLItem xmlContent = new BXMLItem("<name>Ballerina</name>");
         BMap<String, BValue> bodyPart = getEntityStruct(result);
         EntityBodyChannel byteChannel = new EntityBodyChannel(new ByteArrayInputStream(
-                xmlContent.getMessageAsString().getBytes(StandardCharsets.UTF_8)));
+                xmlContent.stringValue().getBytes(StandardCharsets.UTF_8)));
         bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(byteChannel));
         MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, APPLICATION_XML);
         return bodyPart;

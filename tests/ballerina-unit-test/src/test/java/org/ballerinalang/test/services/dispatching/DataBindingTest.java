@@ -19,10 +19,13 @@
 package org.ballerinalang.test.services.dispatching;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.util.JsonParser;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -58,8 +61,8 @@ public class DataBindingTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertEquals(bJson.value().get("Person").asText(), "WSO2"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Person").stringValue(), "WSO2"
                 , "Person variable not set properly.");
     }
 
@@ -71,10 +74,10 @@ public class DataBindingTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertEquals(bJson.value().get("Key").asText(), "hello"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Key").stringValue(), "hello"
                 , "Key variable not set properly.");
-        Assert.assertEquals(bJson.value().get("Person").asText(), "WSO2"
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Person").stringValue(), "WSO2"
                 , "Person variable not set properly.");
     }
 
@@ -86,10 +89,10 @@ public class DataBindingTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertEquals(bJson.value().get("Key").asText(), "WSO2"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Key").stringValue(), "WSO2"
                 , "Key variable not set properly.");
-        Assert.assertEquals(bJson.value().get("Team").asText(), "ballerina"
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Team").stringValue(), "ballerina"
                 , "Team variable not set properly.");
     }
 
@@ -101,10 +104,10 @@ public class DataBindingTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertEquals(bJson.value().get("Key").asText(), "name"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Key").stringValue(), "name"
                 , "Key variable not set properly.");
-        Assert.assertEquals(bJson.value().get("Team").asText(), "WSO2"
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Team").stringValue(), "WSO2"
                 , "Team variable not set properly.");
     }
 
@@ -116,8 +119,8 @@ public class DataBindingTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertEquals(bJson.value().get("Key").asText(), "WSO2"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Key").stringValue(), "WSO2"
                 , "Key variable not set properly.");
     }
 
@@ -129,10 +132,10 @@ public class DataBindingTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertEquals(bJson.value().get("Key").asText(), "wso2"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Key").stringValue(), "wso2"
                 , "Key variable not set properly.");
-        Assert.assertEquals(bJson.value().get("Age").asText(), "12"
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Age").stringValue(), "12"
                 , "Age variable not set properly.");
     }
 
@@ -143,8 +146,8 @@ public class DataBindingTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertEquals(bJson.value().get("Person").asText(), "WSO2"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Person").stringValue(), "WSO2"
                 , "Person variable not set properly.");
     }
 
@@ -156,10 +159,10 @@ public class DataBindingTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertEquals(bJson.value().get("Key").asText(), "WSO2"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Key").stringValue(), "WSO2"
                 , "Key variable not set properly.");
-        Assert.assertEquals(bJson.value().get("Team").asText(), "EI"
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Team").stringValue(), "EI"
                 , "Team variable not set properly.");
     }
 
@@ -171,8 +174,8 @@ public class DataBindingTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertEquals(bJson.value().get("Key").asText(), "{'name':'WSO2', 'team':'ballerina'}"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Key").stringValue(), "{'name':'WSO2', 'team':'ballerina'}"
                 , "Key variable not set properly.");
     }
 
@@ -184,7 +187,7 @@ public class DataBindingTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
@@ -212,10 +215,10 @@ public class DataBindingTest {
                 .generateHTTPMessage("/echo/body3", "GET");
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertEquals(bJson.value().get("Key").asText(), "null"
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Key").stringValue(), "null"
                 , "Key variable not set properly.");
-        Assert.assertEquals(bJson.value().get("Team").asText(), "null"
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Team").stringValue(), "null"
                 , "Team variable not set properly.");
     }
 
