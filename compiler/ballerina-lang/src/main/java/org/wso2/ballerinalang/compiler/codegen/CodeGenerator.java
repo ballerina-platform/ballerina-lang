@@ -3379,7 +3379,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                     }
                 }
 
-                if (!returnInFinally) {
+                if (hasReturn && !returnInFinally) {
                     tryCatchErrorRangeFromIPStack.push(nextIP() + 1);
                 }
             } else if (NodeKind.LOCK == parent.getKind()) {
