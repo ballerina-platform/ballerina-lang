@@ -39,8 +39,6 @@ function testFunc() {
     var response2 = httpEndpoint->options("/crossOriginService/lang", message = req2);
     match response2 {
         http:Response resp => {
-            var res = check resp.getTextPayload();
-            test:assertEquals(res, "");
             // Asserting the header values.
             test:assertEquals(resp.getHeader("Access-Control-Allow-Methods"), "POST");
             test:assertEquals(resp.getHeader("Access-Control-Allow-Origin"), "http://www.m3.com");

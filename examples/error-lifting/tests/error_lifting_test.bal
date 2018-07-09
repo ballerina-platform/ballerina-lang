@@ -12,12 +12,19 @@ int counter = 0;
 public function mockPrint(any... s) {
     outputs[counter] = s[0];
     counter++;
+    outputs[counter] = s[1];
+    counter++;
 }
 
 @test:Config
 function testFunc() {
     // Invoking the main function
     main();
-    test:assertEquals(<string>outputs[0], "{\"name\":\"Jon\",\"age\":25,\"city\":\"Colombo\"}");
-    test:assertEquals(<string>outputs[1], "Software Engineer");
+
+    string statusCode = "The status code: ";
+    error err = { message: "response error" };
+    test:assertEquals(statusCode, outputs[0]);
+    test:assertEquals(err, outputs[1]);
+    test:assertEquals(statusCode, outputs[2]);
+    test:assertEquals((), outputs[3]);
 }

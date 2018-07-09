@@ -1,6 +1,6 @@
 import ballerina/io;
 
-// Defines an object called 'Person'. It contains public and private fields along with their types. Optionally, for fields, the default value can be defined. If not, the default value for that type will automatically get set.
+// Defines an object called 'Person'. It contains public, private and protected fields along with their types. Optionally, for fields, the default value can be defined. If not, the default value for that type will automatically get set.
 type Person object {
     public int age,
     public string name,
@@ -8,7 +8,7 @@ type Person object {
     public Person? parent,
     // Private fields are only visible within the object and its functions.
     private string email = "default@abc.com",
-    // Protected fields (i.e., no access modifiers) are visible within the same package.
+    // Protected fields (i.e., no access modifiers) are visible only within the same package.
     string address = "No 20, Palm grove",
 };
 

@@ -23,14 +23,10 @@ function testFunc() {
     // Invoking the main function
     main();
 
-    string out1 = "Integer array size: 3";
-    string out2 = "JSON array size: 2";
-    string out3 = "Map size: 2";
-    string out4 = "String size: 23";
-    string out5 = "XML child elements size: 2";
+    string out1 = "Start dividing numbers";
+    string out2 = "Error occurred: Division by 0 is not defined";
+    string out3 = "Finally block executed";
     test:assertEquals(out1, outputs[0]);
     test:assertEquals(out2, outputs[1]);
     test:assertEquals(out3, outputs[2]);
-    test:assertEquals(out4, outputs[3]);
-    test:assertEquals(out5, outputs[4]);
 }

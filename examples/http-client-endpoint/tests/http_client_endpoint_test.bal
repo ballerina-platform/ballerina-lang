@@ -9,8 +9,8 @@ int counter = 0;
     packageName: "ballerina/io",
     functionName: "println"
 }
-public function mockPrint(any... s) {
-    outputs[counter] = s[0];
+public function mockPrint(any... a) {
+    outputs[counter] = a[0];
     counter++;
 }
 
@@ -21,12 +21,6 @@ function testFunc() {
         "args": {
             "test": "123"
         },
-        "headers": {
-            "host": "postman-echo.com",
-            "user-agent": "ballerina/0.970.0-alpha4-SNAPSHOT",
-            "x-forwarded-port": "443",
-            "x-forwarded-proto": "https"
-        },
         "url": "https://postman-echo.com/get?test=123"
     };
 
@@ -35,78 +29,69 @@ function testFunc() {
         "data": "POST: Hello World",
         "files": {},
         "form": {},
-        "headers": {
-            "host": "postman-echo.com",
-            "content-length": "17",
-            "content-type": "text/plain",
-            "user-agent": "ballerina/0.970.0-alpha4-SNAPSHOT",
-            "x-forwarded-port": "443",
-            "x-forwarded-proto": "https" },
         "json": null,
         "url": "https://postman-echo.com/post"
     };
 
     json jsonRes3 = {
         "args": {},
-        "data": "{\"method\":\"PUT\",\"payload\":\"Hello World\"}",
+        "data": { "method": "PUT", "payload": "Hello World" },
         "files": {},
         "form": {},
-        "headers": {
-            "host": "postman-echo.com",
-            "content-length": "40",
-            "content-type": "text/plain",
-            "user-agent": "ballerina/0.970.0-alpha4-SNAPSHOT",
-            "x-forwarded-port": "443",
-            "x-forwarded-proto": "https"
-        },
-        "json": null,
+        "json": {"method":"PUT","payload":"Hello World"},
         "url": "https://postman-echo.com/put"
     };
 
     json jsonRes4 = {
         "args": {},
-        "data": "{}",
+        "data": "<request>\n                        <method>PATCH</method>\n                        <payload>Hello World!</payload>\n                      </request>",
         "files": {},
         "form": {},
-        "headers": {
-            "host": "postman-echo.com",
-            "content-length": "2",
-            "content-type": "text/plain",
-            "user-agent": "ballerina/0.970.0-alpha4-SNAPSHOT",
-            "x-forwarded-port": "443",
-            "x-forwarded-proto": "https"
-        },
         "json": null,
         "url": "https://postman-echo.com/patch"
     };
 
     json jsonRes5 = {
         "args": {},
-        "data": "DE",
+        "data": "DELETE: Hello World",
         "files": {},
         "form": {},
-        "headers": {
-            "host": "postman-echo.com",
-            "content-length": "2",
-            "content-type": "text/plain",
-            "user-agent": "ballerina/0.970.0-alpha4-SNAPSHOT",
-            "x-forwarded-port": "443",
-            "x-forwarded-proto": "https"
-        },
         "json": null,
         "url": "https://postman-echo.com/delete"
     };
 
     // Invoking the main function
     main();
-    test:assertEquals("GET request:", outputs[0]);
-    test:assertEquals(jsonRes1, outputs[1]);
-    test:assertEquals("\nPOST request:", outputs[2]);
-    test:assertEquals(jsonRes2, outputs[3]);
-    test:assertEquals("\nPUT request:", outputs[4]);
-    test:assertEquals(jsonRes3, outputs[5]);
-    test:assertEquals("\nPATCH request:", outputs[6]);
-    test:assertEquals(jsonRes4, outputs[7]);
-    test:assertEquals("\nDELETE request:", outputs[8]);
-    test:assertEquals(jsonRes5, outputs[9]);
+
+    test:assertEquals(outputs[0], "GET request:");
+
+    // Remove the headers since the user-agent will be different
+    // from ballerina version to version.
+    json res = check <json>outputs[1];
+    res.remove("headers");
+    test:assertEquals(res, jsonRes1);
+
+    test:assertEquals(outputs[2], "\nPOST request:");
+
+    res = check <json>outputs[3];
+    res.remove("headers");
+    test:assertEquals(res, jsonRes2);
+
+    test:assertEquals(outputs[4], "\nPUT request:");
+
+    res = check <json>outputs[5];
+    res.remove("headers");
+    test:assertEquals(res, jsonRes3);
+
+    test:assertEquals(outputs[6], "\nPATCH request:");
+
+    res = check <json>outputs[7];
+    res.remove("headers");
+    test:assertEquals(res, jsonRes4);
+
+    test:assertEquals(outputs[8], "\nDELETE request:");
+
+    res = check <json>outputs[9];
+    res.remove("headers");
+    test:assertEquals(res, jsonRes5);
 }

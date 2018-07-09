@@ -15,7 +15,7 @@ endpoint websub:Listener websubEP {
     subscribeOnStartUp: true,
     topic: "http://websubpubtopic.com",
     hub: "https://localhost:9191/websub/hub",
-    leaseSeconds: 3600000,
+    leaseSeconds: 36000,
     secret: "Kslk30SNF2AChs2"
 }
 service websubSubscriber bind websubEP {

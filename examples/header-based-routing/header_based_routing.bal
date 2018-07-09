@@ -6,7 +6,8 @@ endpoint http:Client locationEP {
 };
 
 endpoint http:Client weatherEP {
-    url: "http://samples.openweathermap.org"
+    url: "http://samples.openweathermap.org",
+    followRedirects: { enabled: true, maxCount: 5 }
 };
 
 //Service is invoked using `basePath` value "/hbr".

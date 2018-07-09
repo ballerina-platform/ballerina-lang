@@ -27,9 +27,4 @@ function main(string... args) {
     // The implicit initial value of the `boolean` type is `false`.
     boolean b = true;
     io:println(b);
-
-    // The `blob` type represents the set of sequences with zero or more 8-bit bytes.
-    // The implicit initial value of the `blob` type is an empty sequence.
-    blob bl = s.toBlob("UTF-8");
-    io:println(bl);
 }
