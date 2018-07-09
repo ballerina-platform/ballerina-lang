@@ -31,10 +31,10 @@ function testFunc() {
     test:assertEquals("Length: 29", outputs[11]);
     test:assertEquals("Trim: Lion in Town. Catch the Lion", outputs[12]);
     test:assertEquals("HasSuffix: true", outputs[13]);
-    test:assertEquals("HasPreffix: true", outputs[14]);
+    test:assertEquals("HasPrefix: true", outputs[14]);
     test:assertEquals("Unescape: Lion in Town. Catch the Lion ", outputs[15]);
     test:assertEquals("Split: Lion", outputs[16]);
     test:assertEquals("Split: in", outputs[17]);
     test:assertEquals("Split: Town.", outputs[18]);
-    test:assertEquals("Blob: Lion in Town. Catch the Lion ", outputs[19]);
+    test:assertEquals("Bytes: Lion in Town. Catch the Lion ", outputs[19]);
 }

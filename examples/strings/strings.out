@@ -13,10 +13,10 @@ ReplaceAll: Li0n in T0wn. Catch the Li0n
 Length: 29
 Trim: Lion in Town. Catch the Lion
 HasSuffix: true
-HasPreffix: true
+HasPrefix: true
 Unescape: Lion in Town. Catch the Lion
 Split: Lion
 Split: in
 Split: Town.
-Blob: Lion in Town. Catch the Lion
+Bytes: Lion in Town. Catch the Lion
 Sprintf: Lion 5.800000
