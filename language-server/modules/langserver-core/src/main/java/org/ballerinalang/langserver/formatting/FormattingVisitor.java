@@ -641,6 +641,27 @@ public class FormattingVisitor {
                     node.getAsJsonObject("position").get("startColumn").getAsInt()
                             + this.getWhiteSpaceCount(SPACE_TAB));
         }
+
+        if (node.has("restFieldType") &&
+                node.get("restFieldType").getAsJsonObject().has("ws")) {
+            node.get("restFieldType").getAsJsonObject().getAsJsonObject("position").addProperty("startColumn",
+                    node.getAsJsonObject("position").get("startColumn").getAsInt()
+                            + this.getWhiteSpaceCount(SPACE_TAB));
+        }
+
+        if (node.has("sealed") &&
+                node.get("sealed").getAsBoolean() &&
+                node.has("ws")) {
+            JsonArray ws = node.getAsJsonArray("ws");
+            this.preserveHeight(ws, this.getWhiteSpaces(node.getAsJsonObject("position")
+                    .get("startColumn").getAsInt()) + SPACE_TAB);
+
+            if (!this.isHeightAvailable(ws.get(0).getAsJsonObject().get("ws").getAsString())) {
+                ws.get(0).getAsJsonObject().addProperty("ws", NEW_LINE
+                        + this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt())
+                        + SPACE_TAB);
+            }
+        }
     }
 
     private void formatUserDefinedTypeNode(JsonObject node) {

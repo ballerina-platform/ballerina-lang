@@ -5221,7 +5221,9 @@ public class SourceGen {
         }
 
         if (kind.equals("ArrayType")) {
-            if (node.getAsJsonArray("dimensions").size() > 0 && node.has("ws")) {
+            if (node.has("dimensions") &&
+                    node.get("dimensions").getAsInt() > 0 &&
+                    node.has("ws")) {
                 String dimensionAsString = "";
                 JsonObject startingBracket = null;
                 JsonObject endingBracket = null;
