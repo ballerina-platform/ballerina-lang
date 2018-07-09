@@ -34,8 +34,6 @@ public class BLangArrayType extends BLangType implements ArrayTypeNode {
 
     public int[] sizes = new int[0];
 
-    public boolean isOpenSealed; // true when sealed keyword is used
-
     public BLangArrayType() {
     }
 

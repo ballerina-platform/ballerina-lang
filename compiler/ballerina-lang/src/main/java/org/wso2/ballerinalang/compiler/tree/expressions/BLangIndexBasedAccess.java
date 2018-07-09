@@ -171,7 +171,7 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
     }
 
     /**
-     * @since 0.978.0
+     * @since 0.980.0
      */
     public static class BLangTupleAccessExpr extends BLangIndexBasedAccess {
 

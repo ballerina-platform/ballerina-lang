@@ -122,7 +122,7 @@ class Node extends EventChannel {
         for (const childName in this) {
             if (childName !== 'parent' && childName !== 'position' && childName !== 'ws') {
                 if (newTree === undefined || newTree[childName] === undefined) {
-                    console.warn(`could not find ${childName} in newTree`, newTree);
+                    // console.warn(`could not find ${childName} in newTree`, newTree);
                 } else {
                     const child = this[childName];
                     const child2 = newTree[childName];

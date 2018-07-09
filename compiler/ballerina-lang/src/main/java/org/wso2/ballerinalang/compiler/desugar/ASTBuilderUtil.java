@@ -537,9 +537,15 @@ public class ASTBuilderUtil {
     }
 
     public static BLangFieldBasedAccess createFieldAccessExpr(BLangVariableReference varRef, BLangIdentifier field) {
+        return createFieldAccessExpr(varRef, field, false);
+    }
+
+    public static BLangFieldBasedAccess createFieldAccessExpr(BLangVariableReference varRef, BLangIdentifier field,
+                                                              boolean except) {
         BLangFieldBasedAccess fieldAccessExpr = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
         fieldAccessExpr.expr = varRef;
         fieldAccessExpr.field = field;
+        fieldAccessExpr.except = except;
         return fieldAccessExpr;
     }
 

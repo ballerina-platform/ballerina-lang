@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaFieldDefinitionListImpl extends BallerinaCompositeElementImpl implements BallerinaFieldDefinitionList {
+public class BallerinaBitwiseExpressionImpl extends BallerinaExpressionImpl implements BallerinaBitwiseExpression {
 
-  public BallerinaFieldDefinitionListImpl(ASTNode node) {
+  public BallerinaBitwiseExpressionImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitFieldDefinitionList(this);
+    visitor.visitBitwiseExpression(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,8 +43,26 @@ public class BallerinaFieldDefinitionListImpl extends BallerinaCompositeElementI
 
   @Override
   @NotNull
-  public List<BallerinaFieldDefinition> getFieldDefinitionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaFieldDefinition.class);
+  public List<BallerinaExpression> getExpressionList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaExpression.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getBitand() {
+    return findChildByType(BITAND);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getBitxor() {
+    return findChildByType(BITXOR);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getPipe() {
+    return findChildByType(PIPE);
   }
 
 }

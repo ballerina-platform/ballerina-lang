@@ -59,11 +59,11 @@ public class SafeNavigationTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: expected 'string|error?', found 'other|error'", 34, 25);
         BAssertUtil.validateError(negativeResult, i++,
-                "invalid operation: type 'Person|error' does not support field access", 40, 5);
+                "error lifting operator cannot be used in the target expression of an assignment", 40, 5);
         BAssertUtil.validateError(negativeResult, i++,
-                "invalid operation: type 'other|error' does not support field access", 40, 5);
+                "error lifting operator cannot be used in the target expression of an assignment", 40, 5);
         BAssertUtil.validateError(negativeResult, i++,
-                "invalid operation: type 'other|error' does not support field access", 40, 5);
+                "error lifting operator cannot be used in the target expression of an assignment", 40, 5);
         BAssertUtil.validateError(negativeResult, i++,
                 "invalid operation: type 'Person[]|error' does not support indexing", 45, 12);
         BAssertUtil.validateError(negativeResult, i++, "safe navigation operator not required for type 'error?'", 50,
@@ -235,8 +235,7 @@ public class SafeNavigationTest {
         BRunUtil.invoke(result, "testJSONNilLiftingOnLHS_2");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: error, message: cannot find key 'a'.*")
+    @Test
     public void testNonExistingMapKeyWithIndexAccess() {
         BValue[] returns = BRunUtil.invoke(result, "testNonExistingMapKeyWithIndexAccess");
         Assert.assertNull(returns[0]);
@@ -254,6 +253,13 @@ public class SafeNavigationTest {
         BValue[] returns = BRunUtil.invoke(result, "testMapNilLiftingOnLHS_1");
         Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John\"}");
+    }
+
+    @Test
+    public void testMapNilLiftingOnLHS_2() {
+        BValue[] returns = BRunUtil.invoke(result, "testMapNilLiftingOnLHS_2");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":{\"fname\":\"John\"}}");
     }
 
     @Test

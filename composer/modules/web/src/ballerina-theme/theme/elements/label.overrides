@@ -12,3 +12,27 @@
     font-weight      : @fontWeight;
     display          : inline-block;
 }
+
+.ui.grey.labels .label,
+.ui.grey.label {
+    background-color  : @labelGreyColor !important;
+    border-color      : @labelGreyColor !important;
+}
+
+.ui.grey.labels .label:hover,
+a.ui.grey.label:hover {
+    background-color  : @labelGreyHoverColor !important;
+    border-color      : @labelGreyHoverColor !important;
+}
+
+.ui.white.labels .label,
+.ui.white.label {
+    background-color  : @labelWhiteColor !important;
+    border-color      : @labelWhiteColor !important;
+}
+
+.ui.white.labels .label:hover,
+a.ui.white.label:hover {
+    background-color  : @labelWhiteHoverColor !important;
+    border-color      : @labelWhiteHoverColor !important;
+}

@@ -30,7 +30,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BFile;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
+import org.ballerinalang.langserver.compiler.workspace.ExtendedWorkspaceDocumentManagerImpl;
 import org.ballerinalang.model.tree.EndpointNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
 
 public class SwaggerConverterUtils {
 
-    private static LSCompiler lsCompiler = new LSCompiler(WorkspaceDocumentManagerImpl.getInstance());
+    private static LSCompiler lsCompiler = new LSCompiler(ExtendedWorkspaceDocumentManagerImpl.getInstance());
 
     /**
      * This method will generate ballerina string from swagger definition. Since ballerina service definition is super

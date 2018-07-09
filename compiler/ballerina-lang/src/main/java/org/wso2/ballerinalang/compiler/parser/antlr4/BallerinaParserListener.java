@@ -238,6 +238,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitRecordRestFieldDefinition(BallerinaParser.RecordRestFieldDefinitionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#sealedLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void enterSealedLiteral(BallerinaParser.SealedLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#sealedLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void exitSealedLiteral(BallerinaParser.SealedLiteralContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#restDescriptorPredicate}.
 	 * @param ctx the parse tree
 	 */
@@ -397,18 +407,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitFiniteTypeUnit(BallerinaParser.FiniteTypeUnitContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code sealedTypeName}
-	 * labeled alternative in {@link BallerinaParser#sealedType}.
-	 * @param ctx the parse tree
-	 */
-	void enterSealedTypeName(BallerinaParser.SealedTypeNameContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code sealedTypeName}
-	 * labeled alternative in {@link BallerinaParser#sealedType}.
-	 * @param ctx the parse tree
-	 */
-	void exitSealedTypeName(BallerinaParser.SealedTypeNameContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code tupleTypeNameLabel}
 	 * labeled alternative in {@link BallerinaParser#typeName}.

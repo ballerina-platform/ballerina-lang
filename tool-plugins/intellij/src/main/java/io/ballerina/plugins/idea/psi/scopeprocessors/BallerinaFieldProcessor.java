@@ -29,12 +29,12 @@ import io.ballerina.plugins.idea.psi.BallerinaAttachedObject;
 import io.ballerina.plugins.idea.psi.BallerinaBuiltInReferenceTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaField;
 import io.ballerina.plugins.idea.psi.BallerinaFieldDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaFieldDefinitionList;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaIdentifier;
 import io.ballerina.plugins.idea.psi.BallerinaMapArrayVariableReference;
 import io.ballerina.plugins.idea.psi.BallerinaNullableTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFunctionDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaRecordFieldDefinitionList;
 import io.ballerina.plugins.idea.psi.BallerinaRecordTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaSimpleTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaSimpleVariableReference;
@@ -123,8 +123,8 @@ public class BallerinaFieldProcessor extends BallerinaScopeProcessorBase {
                     PsiElement definition = type.getParent();
                     BallerinaIdentifier identifier = PsiTreeUtil.getChildOfType(definition, BallerinaIdentifier.class);
                     if (identifier != null) {
-                        BallerinaFieldDefinitionList fieldDefinitionList = PsiTreeUtil.findChildOfType(type,
-                                BallerinaFieldDefinitionList.class);
+                        BallerinaRecordFieldDefinitionList fieldDefinitionList = PsiTreeUtil.findChildOfType(type,
+                                BallerinaRecordFieldDefinitionList.class);
                         List<BallerinaFieldDefinition> fieldDefinitions =
                                 PsiTreeUtil.getChildrenOfTypeAsList(fieldDefinitionList,
                                         BallerinaFieldDefinition.class);
@@ -140,7 +140,7 @@ public class BallerinaFieldProcessor extends BallerinaScopeProcessorBase {
                                 // Note - Child is passed here instead of identifier because it is is top level
                                 // definition.
                                 myResult.addElement(BallerinaCompletionUtils.createFieldLookupElement(
-                                        definitionIdentifier, identifier, typeName, null, null, false));
+                                        definitionIdentifier, identifier, typeName, null, null, false, false));
                             } else if (myElement.getText().equals(definitionIdentifier.getText())) {
                                 add(definitionIdentifier);
                             }
@@ -301,8 +301,8 @@ public class BallerinaFieldProcessor extends BallerinaScopeProcessorBase {
 
     private void processTypeDefinition(@NotNull BallerinaTypeDefinition typeDefinition,
                                        @NotNull PsiElement identifier) {
-        BallerinaFieldDefinitionList fieldDefinitionList =
-                PsiTreeUtil.findChildOfType(typeDefinition, BallerinaFieldDefinitionList.class);
+        BallerinaRecordFieldDefinitionList fieldDefinitionList =
+                PsiTreeUtil.findChildOfType(typeDefinition, BallerinaRecordFieldDefinitionList.class);
         List<BallerinaFieldDefinition> fieldDefinitions =
                 PsiTreeUtil.getChildrenOfTypeAsList(fieldDefinitionList,
                         BallerinaFieldDefinition.class);
@@ -320,7 +320,7 @@ public class BallerinaFieldProcessor extends BallerinaScopeProcessorBase {
                 // Note - Child is passed here instead of identifier because it is is top level
                 // definition.
                 myResult.addElement(BallerinaCompletionUtils.createFieldLookupElement(
-                        definitionIdentifier, identifier, typeName, null, null, false));
+                        definitionIdentifier, identifier, typeName, null, null, false, false));
             } else if (myElement.getText().equals(definitionIdentifier.getText())) {
                 add(definitionIdentifier);
             }
@@ -329,6 +329,9 @@ public class BallerinaFieldProcessor extends BallerinaScopeProcessorBase {
         Collection<BallerinaObjectFunctionDefinition> functionDefinitions =
                 PsiTreeUtil.findChildrenOfType(typeDefinition, BallerinaObjectFunctionDefinition.class);
         for (BallerinaObjectFunctionDefinition functionDefinition : functionDefinitions) {
+            if (functionDefinition.getCallableUnitSignature() == null) {
+                continue;
+            }
             if (myResult != null) {
                 myResult.addElement(BallerinaCompletionUtils.createFunctionLookupElement(
                         functionDefinition, identifier, SmartParenthesisInsertHandler.INSTANCE));

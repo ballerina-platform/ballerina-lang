@@ -33,6 +33,9 @@ public interface BallerinaStatement extends BallerinaCompositeElement {
   BallerinaBreakStatement getBreakStatement();
 
   @Nullable
+  BallerinaCompensateStatement getCompensateStatement();
+
+  @Nullable
   BallerinaCompoundAssignmentStatement getCompoundAssignmentStatement();
 
   @Nullable
@@ -70,6 +73,9 @@ public interface BallerinaStatement extends BallerinaCompositeElement {
 
   @Nullable
   BallerinaReturnStatement getReturnStatement();
+
+  @Nullable
+  BallerinaScopeStatement getScopeStatement();
 
   @Nullable
   BallerinaStreamingQueryStatement getStreamingQueryStatement();

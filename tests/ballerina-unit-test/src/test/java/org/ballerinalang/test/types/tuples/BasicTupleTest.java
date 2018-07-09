@@ -114,7 +114,7 @@ public class BasicTupleTest {
                 resultNegative, 5, "invalid usage of tuple literal with type 'any'", 45, 14);
     }
 
-    @Test(description = "Test negatives of tuple type")
+    @Test(description = "Test negatives of index based access of tuple type")
     public void testNegativesOfTupleType() {
         BAssertUtil.validateError(resultNegative, 6, "tuple and expression size does not match", 49, 30);
         BAssertUtil.validateError(resultNegative, 7, "tuple index out of range: index: '-1', size: '3'", 54, 14);

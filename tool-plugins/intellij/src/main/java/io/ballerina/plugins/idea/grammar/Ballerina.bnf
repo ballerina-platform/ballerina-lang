@@ -116,9 +116,9 @@
     extends("(FunctionInvocation|SimpleVariable|MapArrayVariable|FieldVariable|XmlAttribVariable|Invocation|AwaitExpression)Reference") = VariableReference
 
     extends("((Simple|Array|Record|Xml|StringTemplate)Literal|(ValueType|BuiltInReferenceType)Type|VariableReference|LambdaFunction|TypeInit|Type(Casting|Conversion|Access)|BracedOrTuple|Await|TableQuery|MatchExpr|Checked|TableLiteral|Elvis|ActionInvocation|typeAccess|IntegerRange)Expression") = Expression
-    extends("(Unary|Binary|Ternary)Expression") = Expression
+    extends("(Unary|Binary|Ternary|Bitwise|BitwiseShift)Expression") = Expression
 
-    extends("Binary(Pow|DivMulMod|AddSub|Compare|Equal|And|Or)Expression") = BinaryExpression
+    extends("Binary(DivMulMod|AddSub|Compare|Equal|And|Or)Expression") = BinaryExpression
 
     extends("(Simple|Array|Nullable|Union|Group|Tuple|Annotated|Object|Record)TypeName|BinaryAndExpression") = TypeName
 
@@ -244,11 +244,7 @@ TypeDefinition ::= (public)? type identifier FiniteType SEMICOLON {
     stubClass="io.ballerina.plugins.idea.stubs.BallerinaTypeDefinitionStub"
 }
 
-ObjectBody ::= PublicObjectFields? PrivateObjectFields? ObjectInitializer? ObjectFunctions?
-
-PublicObjectFields ::= public LEFT_BRACE fieldDefinition* RIGHT_BRACE {pin=2}
-
-PrivateObjectFields ::= private LEFT_BRACE fieldDefinition* RIGHT_BRACE {pin=1}
+ObjectBody ::= ObjectFieldDefinition* ObjectInitializer? ObjectFunctions?
 
 ObjectInitializer ::= AnnotationAttachment* documentationAttachment? (public)? new ObjectInitializerParameterList CallableUnitBody {pin=4}
 
@@ -256,21 +252,22 @@ ObjectInitializerParameterList ::= LEFT_PARENTHESIS ObjectParameterList? RIGHT_P
 
 ObjectFunctions ::= ObjectFunctionDefinition+
 
-// TODO merge with fieldDefinition later
-fieldDefinition ::= AnnotationAttachment* TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON) {pin=3}
+ObjectFieldDefinition ::= AnnotationAttachment* documentationAttachment? deprecatedAttachment? (public | private)? TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON) {pin=5}
 
-// TODO try to merge with formalParameterList later
+FieldDefinition ::= AnnotationAttachment* TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON) {pin=3}
+
+RecordRestFieldDefinition ::= TypeName <<restDescriptorPredicate>> ELLIPSIS | SealedLiteral
+
+SealedLiteral ::= NOT <<restDescriptorPredicate>> ELLIPSIS
+
 ObjectParameterList ::= (ObjectDefaultableParameter | ObjectParameter) (COMMA (ObjectDefaultableParameter | ObjectParameter))* (COMMA RestParameter)? | RestParameter
 
 // Todo - Revert back the changes?
-// TODO try to merge with parameter later
 ObjectParameter ::= AnnotationAttachment* (TypeName identifier | identifier)
 
-// TODO try to merge with defaultable Parameter later
 ObjectDefaultableParameter ::= ObjectParameter ASSIGN Expression
 
-// TODO merge with functionDefinition later
-ObjectFunctionDefinition ::= AnnotationAttachment* documentationAttachment? deprecatedAttachment? (public)? (native)? function ObjectCallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=6}
+ObjectFunctionDefinition ::= AnnotationAttachment* documentationAttachment? deprecatedAttachment? (public)? (native)? function CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=6}
 
 //TODO merge with callableUnitSignature later
 ObjectCallableUnitSignature ::= AnyIdentifierName LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS ReturnParameter? {pin=1}
@@ -344,15 +341,15 @@ AnyTypeName ::= any
 TypeDescTypeName ::= typedesc
 
 //AnnotatedTypeName ::= AnnotationAttachment+ SimpleTypeName
-ArrayTypeName ::= TypeName (LEFT_BRACKET RIGHT_BRACKET)+
+ArrayTypeName ::= TypeName (LEFT_BRACKET (IntegerLiteral | SealedLiteral)? RIGHT_BRACKET)+
 NullableTypeName ::= TypeName QUESTION_MARK
 UnionTypeName ::= TypeName (PIPE TypeName)+
 GroupTypeName ::= LEFT_PARENTHESIS <<isGroupType>> TypeName RIGHT_PARENTHESIS
 TupleTypeName ::= LEFT_PARENTHESIS TypeName (COMMA TypeName)* RIGHT_PARENTHESIS
 ObjectTypeName ::= object LEFT_BRACE ObjectBody RIGHT_BRACE {pin=1}
-RecordTypeName ::= record? LEFT_BRACE FieldDefinitionList RIGHT_BRACE
+RecordTypeName ::= record? LEFT_BRACE RecordFieldDefinitionList RIGHT_BRACE
 
-FieldDefinitionList ::= fieldDefinition*
+RecordFieldDefinitionList ::= FieldDefinition* RecordRestFieldDefinition?
 
 //BuiltInTypeName ::= AnyTypeName
 //                    | SimpleTypeName (LEFT_BRACKET RIGHT_BRACKET)+
@@ -365,7 +362,7 @@ ReferenceTypeName ::= BuiltInReferenceTypeName
 
 UserDefineTypeName ::= NameReference
 
-ValueTypeName ::=   boolean | int | float | string | blob
+ValueTypeName ::=   boolean | int | float | string | byte
 
 BuiltInReferenceTypeName ::= MapTypeName
                              | FutureTypeName
@@ -422,6 +419,8 @@ Statement ::=
     |   ExpressionStmt
     |   StreamingQueryStatement
     |   DoneStatement
+    |   ScopeStatement
+    |   CompensateStatement
 {recoverWhile = StatementRecover}
 
 // Todo - Add more tokens
@@ -449,9 +448,17 @@ RecordKeyValue ::= RecordKey COLON Expression {pin=1}
 
 RecordKey ::= Expression | identifier
 
-TableLiteral ::= table TableInitialization {pin=1}
+TableLiteral ::= table LEFT_BRACE TableColumnDefinition? (COMMA TableDataArray)? RIGHT_BRACE {pin=1}
 
-TableInitialization ::= RecordLiteral
+TableColumnDefinition ::= LEFT_BRACE (TableColumn (COMMA TableColumn)*)? RIGHT_BRACE
+
+TableColumn ::= primarykey? identifier
+
+TableDataArray ::= LEFT_BRACKET TableDataList? RIGHT_BRACKET
+
+TableDataList ::=  TableData (COMMA TableData)* | ExpressionList
+
+TableData ::= LEFT_BRACE ExpressionList RIGHT_BRACE
 
 ArrayLiteral ::= LEFT_BRACKET ExpressionList? RIGHT_BRACKET
 
@@ -506,6 +513,14 @@ WhileStatementBody ::= LEFT_BRACE Block RIGHT_BRACE {pin=1}
 ContinueStatement ::= continue SEMICOLON {pin=1}
 
 BreakStatement ::= break SEMICOLON {pin=1}
+
+ScopeStatement ::= ScopeClause CompensationClause
+
+ScopeClause ::= scope identifier LEFT_BRACE Statement* RIGHT_BRACE {pin=1}
+
+CompensationClause ::= compensation CallableUnitBody {pin=1}
+
+CompensateStatement ::= compensate identifier SEMICOLON {pin=1}
 
 // typeName is only message
 ForkJoinStatement ::= fork (LEFT_BRACE ForkStatementBody RIGHT_BRACE JoinClause? TimeoutClause?) {pin(".*")=1}
@@ -644,7 +659,6 @@ Expression
     |   TypeInitExpression
     |   TypeConversionExpression
     |   UnaryExpression
-    |   BinaryPowExpression
     |   BinaryDivMulModExpression
     |   BinaryAddSubExpression
     |   BinaryCompareExpression
@@ -657,9 +671,10 @@ Expression
     |   ElvisExpression
     |   AwaitExpression
     |   typeAccessExpression
-    |   IntegerRangeExpression {
-    recoverWhile=ExpressionRecover
-}
+    |   IntegerRangeExpression
+    |   BitwiseExpression
+    |   BitwiseShiftExpression
+    {recoverWhile=ExpressionRecover}
 
 typeAccessExpression ::= TypeName
 
@@ -691,7 +706,6 @@ TypeInitExpression ::= TypeInitExpr
 TypeConversionExpression ::= LT TypeName (COMMA FunctionInvocation)? GT Expression {pin=1}
 UnaryExpression ::= (ADD | SUB | NOT | lengthof | untaint) Expression {pin=1}
 BracedOrTupleExpression ::= LEFT_PARENTHESIS Expression (COMMA Expression)* RIGHT_PARENTHESIS
-BinaryPowExpression ::= Expression POW Expression
 BinaryDivMulModExpression ::= Expression (DIV | MUL | MOD) Expression
 BinaryAddSubExpression ::= Expression (ADD | SUB) Expression
 BinaryCompareExpression ::= Expression (LT_EQUAL | GT_EQUAL | GT | LT) Expression
@@ -703,8 +717,13 @@ AwaitExpression ::= await Expression
 MatchExprExpression ::= Expression matchExpression
 CheckedExpression ::= check Expression
 IntegerRangeExpression ::= Expression (ELLIPSIS | HALF_OPEN_RANGE) Expression
-
+BitwiseExpression ::= Expression (BITAND | PIPE | BITXOR) Expression
+BitwiseShiftExpression ::= Expression (ShiftExpression) Expression
 matchExpression ::= but (LEFT_BRACE MatchExpressionPatternClause (COMMA MatchExpressionPatternClause)* RIGHT_BRACE) {pin(".*")=1}
+
+ShiftExpression ::= GT <<shiftExprPredicate>> GT
+    | LT <<shiftExprPredicate>> LT
+    | GT <<shiftExprPredicate>> GT <<shiftExprPredicate>> GT
 
 MatchExpressionPatternClause ::= TypeName identifier? EQUAL_GT Expression {pin=1}
 
@@ -864,7 +883,7 @@ SetClause ::= set SetAssignmentClause (COMMA SetAssignmentClause)* {pin=1}
 
 SetAssignmentClause ::= VariableReference ASSIGN Expression
 
-StreamingInput ::= VariableReference WhereClause? FunctionInvocation* WindowClause? FunctionInvocation* WhereClause? (as identifier)? {pin=1}
+StreamingInput ::= Expression WhereClause? FunctionInvocation* WindowClause? FunctionInvocation* WhereClause? (as identifier)? {pin=1}
 
 JoinStreamingInput ::= (unidirectional JoinType | JoinType unidirectional | JoinType) StreamingInput on Expression
 

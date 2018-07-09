@@ -21,7 +21,7 @@ function accessInvalidIndexOfSealedArray() returns int {
 }
 
 function accessInvalidIndexOfSealedArrayUsingKeyword() returns string {
-    sealed string[] sealedArray = ["1", "2", "3", "4", "5"];
+    string[!...] sealedArray = ["1", "2", "3", "4", "5"];
     string result = sealedArray[5];
     return result;
 }
@@ -33,10 +33,10 @@ function initializeInvalidSizedSealedArray() {
 
 function assignValueToInvalidIndex() {
     int[5] sealedArray1;
-    sealed int[] sealedArray2 = [1, 2, 3, 4, 5];
+    int[!...] sealedArray2 = [1, 2, 3, 4, 5];
     sealedArray1[5] = 12;
     sealedArray2[5] = 12;
-    sealed boolean[] x;
+    boolean[!...] x;
 }
 
 function arrayAssignments() {
@@ -55,7 +55,7 @@ function functionParametersAndReturns() returns int {
 }
 
 function mockFunction(boolean[4] sealedArray) returns (string[]) {
-    sealed string[] sealedStrArray = ["Sam", "Smith"];
+    string[!...] sealedStrArray = ["Sam", "Smith"];
     return sealedStrArray;
 }
 
@@ -81,7 +81,7 @@ function invalidJSONArrays() {
     x3[3] = 12;
     x3[4] = 12;
     json[3] x4 = [1, true, "3"];
-    sealed json[] x5 = x4;
+    json[!...] x5 = x4;
     json[] x6 = [1, true, "3"];
     json[3] x7 = x6;
 }
