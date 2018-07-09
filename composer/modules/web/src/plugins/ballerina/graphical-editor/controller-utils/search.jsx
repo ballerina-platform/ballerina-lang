@@ -23,6 +23,13 @@ import Autosuggest from 'react-autosuggest';
  * Interaction menu item component
  */
 class Search extends React.Component {
+    renderSuggestionsContainer({ containerProps, children, query }) {
+        return (
+            <div {...containerProps} className='suggestions-search-wrapper'>
+                {children}
+            </div>
+        );
+    }
     /**
      * render hover area and button
      * @return {object} button rendering object
@@ -36,6 +43,7 @@ class Search extends React.Component {
                     this.props.onSuggestionSelected(event, item);
                     this.context.menuCloseCallback();
                 }}
+                renderSuggestionsContainer={this.renderSuggestionsContainer}
                 getSuggestionValue={this.props.getSuggestionValue}
                 renderSuggestion={this.props.renderSuggestion}
                 alwaysRenderSuggestions={this.props.alwaysRenderSuggestions}
