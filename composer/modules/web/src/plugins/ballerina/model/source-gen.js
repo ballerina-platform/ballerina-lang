@@ -1680,8 +1680,13 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.expressions, pretty, replaceLambda, l, w, '', ',') + w() + ')';
             }
         case 'UnaryExpr':
-            return w() + node.operatorKind + b(' ')
+            if (node.inTemplateLiteral && node.operatorKind && node.expression) {
+                return w() + '{{' + w() + node.operatorKind + b(' ')
+                 + getSourceOf(node.expression, pretty, l, replaceLambda) + w() + '}}';
+            } else {
+                return w() + node.operatorKind + b(' ')
                  + getSourceOf(node.expression, pretty, l, replaceLambda);
+            }
         case 'UnionTypeNode':
             if (node.emptyParantheses) {
                 return w() + '(' + w() + ')';
