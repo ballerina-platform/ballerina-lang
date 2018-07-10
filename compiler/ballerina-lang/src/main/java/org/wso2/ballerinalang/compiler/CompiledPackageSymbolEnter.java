@@ -875,6 +875,8 @@ public class CompiledPackageSymbolEnter {
         int noOfParams = documentDataStream.readShort();
         for (int i = 0; i < noOfParams; i++) {
             String name = getUTF8CPEntryValue(documentDataStream);
+            //TODO remove below line ASAP, adding dummy value as we can't change binary file right now
+            documentDataStream.readInt();
             String paramKind = getUTF8CPEntryValue(documentDataStream);
             String paramDesc = getUTF8CPEntryValue(documentDataStream);
 
