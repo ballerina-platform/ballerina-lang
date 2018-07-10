@@ -582,6 +582,8 @@ public class PackageInfoWriter {
                 attrDataOutStream.writeShort(docAttrInfo.paramDocInfoList.size());
                 for (ParameterDocumentInfo paramDocInfo : docAttrInfo.paramDocInfoList) {
                     attrDataOutStream.writeInt(paramDocInfo.nameCPIndex);
+                    //TODO remove below line ASAP, adding dummy value as we can't change binary file right now
+                    attrDataOutStream.writeInt(1);
                     attrDataOutStream.writeInt(paramDocInfo.paramKindCPIndex);
                     attrDataOutStream.writeInt(paramDocInfo.descriptionCPIndex);
                 }

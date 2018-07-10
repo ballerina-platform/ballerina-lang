@@ -1053,6 +1053,8 @@ public class PackageInfoReader {
         for (int i = 0; i < noOfParamInfoEntries; i++) {
             int nameCPIndex = dataInStream.readInt();
             String name = getUTF8EntryValue(nameCPIndex, constantPool);
+            //TODO remove below line ASAP, adding dummy value as we can't change binary file right now
+            dataInStream.readInt();
             int paramKindCPIndex = dataInStream.readInt();
             String paramKindValue = getUTF8EntryValue(paramKindCPIndex, constantPool);
             int paramDescCPIndex = dataInStream.readInt();
