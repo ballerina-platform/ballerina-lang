@@ -30,8 +30,7 @@ import org.ballerinalang.persistence.adapters.ArrayListAdapter;
 import org.ballerinalang.persistence.adapters.HashMapAdapter;
 import org.ballerinalang.persistence.adapters.RefTypeAdaptor;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
-import org.ballerinalang.persistence.states.ActiveStates;
-import org.ballerinalang.persistence.states.FailedStates;
+import org.ballerinalang.persistence.states.RuntimeStates;
 import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.runtime.Constants;
 
@@ -105,16 +104,19 @@ public class PersistenceUtils {
         return getMainPackageContext(context.parent);
     }
 
-
-
     public static void handleErrorState(WorkerExecutionContext parentCtx) {
         Object o = parentCtx.globalProps.get(Constants.INSTANCE_ID);
         if (o != null) {
             String instanceId = o.toString();
-            State state = new State(parentCtx, instanceId);
-            state.setIp(parentCtx.ip);
-            FailedStates.add(instanceId, state);
-            ActiveStates.remove(instanceId);
+            List<State> stateList = RuntimeStates.get(instanceId);
+            if (stateList != null && !stateList.isEmpty()) {
+                State state = stateList.get(0);
+                if (state != null) {
+                    state.setIp(parentCtx.ip);
+                    state.setStatus(State.Status.FAILED);
+                    state.setContext(parentCtx);
+                }
+            }
         }
     }
 

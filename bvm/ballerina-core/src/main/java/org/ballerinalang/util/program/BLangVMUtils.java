@@ -46,7 +46,7 @@ import java.io.PrintStream;
  */
 public class BLangVMUtils {
     
-    private static final String SERVICE_INFO_KEY = "SERVICE_INFO";
+    public static final String SERVICE_INFO_KEY = "SERVICE_INFO";
 
     private static final String TRANSACTION_INFO_KEY = "TRANSACTION_INFO";
 

@@ -28,6 +28,10 @@ import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.util.JsonNode.Type;
 import org.ballerinalang.model.util.JsonParser;
+import org.ballerinalang.persistence.serializable.SerializableState;
+import org.ballerinalang.persistence.serializable.reftypes.Serializable;
+import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
+import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBJSON;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -45,7 +49,7 @@ import java.util.StringJoiner;
  *
  * @since 0.8.0
  */
-public final class BJSON extends BallerinaMessageDataSource implements BRefType<JsonNode>, BCollection {
+public final class BJSON extends BallerinaMessageDataSource implements BRefType<JsonNode>, BCollection, Serializable {
 
     private BType type = BTypes.typeJSON;
 
@@ -275,6 +279,11 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     @Override
     public BIterator newIterator() {
         return new BJSONIterator(this);
+    }
+
+    @Override
+    public SerializableRefType serialize(SerializableState state) {
+        return new SerializableBJSON(this);
     }
 
     /**

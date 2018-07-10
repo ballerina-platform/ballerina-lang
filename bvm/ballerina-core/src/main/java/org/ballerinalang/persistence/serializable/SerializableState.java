@@ -20,14 +20,10 @@ package org.ballerinalang.persistence.serializable;
 import com.google.gson.Gson;
 import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.PersistenceUtils;
+import org.ballerinalang.persistence.serializable.reftypes.Serializable;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
-import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBJSON;
-import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 
@@ -149,8 +145,8 @@ public class SerializableState {
     public Object serialize(Object o) {
         if (o == null || PersistenceUtils.isSerializable(o)) {
             return o;
-        } else if (o instanceof BRefType) {
-            return addRefType((BRefType) o);
+        } else if (o instanceof Serializable) {
+            return addRefType((Serializable) o);
         } else {
             return null;
         }
@@ -172,26 +168,16 @@ public class SerializableState {
         }
     }
 
-    public SerializedKey addRefType(BRefType refType) {
-        String refKey = String.valueOf(refType.hashCode());
+    public SerializedKey addRefType(Serializable serializable) {
+        String refKey = String.valueOf(serializable.hashCode());
         if (sRefTypes.containsKey(refKey)) {
             return new SerializedKey(refKey);
         }
-        SerializableRefType sRefType = serializeRefType(refType, this);
+        SerializableRefType sRefType = serializable.serialize(this);
         if (sRefType != null) {
             sRefTypes.put(refKey, sRefType);
             return new SerializedKey(refKey);
         }
         return null;
-    }
-
-    private SerializableRefType serializeRefType(BRefType refType, SerializableState state) {
-        if (refType instanceof BMap) {
-            return new SerializableBMap<>((BMap<?, ? extends BValue>) refType, state);
-        } else if (refType instanceof BJSON) {
-            return new SerializableBJSON((BJSON) refType);
-        } else {
-            return null;
-        }
     }
 }

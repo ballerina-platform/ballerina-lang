@@ -50,4 +50,7 @@ public class Constants {
     public static final String CLASS_NAME = "className";
     public static final String DATA = "data";
     public static final String NULL = "NULL";
+
+    // Default worker name
+    public static final String DEFAULT = "default";
 }

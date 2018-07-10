@@ -19,6 +19,10 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.persistence.serializable.SerializableState;
+import org.ballerinalang.persistence.serializable.reftypes.Serializable;
+import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
+import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBRefArray;
 
 import java.util.Arrays;
 import java.util.StringJoiner;
@@ -26,7 +30,7 @@ import java.util.StringJoiner;
 /**
  * @since 0.87
  */
-public class BRefValueArray extends BNewArray {
+public class BRefValueArray extends BNewArray implements Serializable {
 
     private BType arrayType;
 
@@ -92,5 +96,10 @@ public class BRefValueArray extends BNewArray {
     @Override
     public BValue getBValue(long index) {
         return get(index);
+    }
+
+    @Override
+    public SerializableRefType serialize(SerializableState state) {
+        return new SerializableBRefArray(this, state);
     }
 }

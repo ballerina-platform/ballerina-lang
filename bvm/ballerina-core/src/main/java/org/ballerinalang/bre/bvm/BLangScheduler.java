@@ -24,7 +24,8 @@ import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.states.ActiveStates;
+import org.ballerinalang.persistence.states.RuntimeStates;
+import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
@@ -37,6 +38,7 @@ import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.io.PrintStream;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
@@ -158,8 +160,14 @@ public class BLangScheduler {
         if (ctx.interruptible && ctx.parent != null && ctx.parent.parent == null) {
             Object o = ctx.globalProps.get(Constants.INSTANCE_ID);
             String instanceId = o.toString();
-            ActiveStates.remove(instanceId);
-            PersistenceStore.removeStates(instanceId);
+            List<State> stateList = RuntimeStates.get(instanceId);
+            if (stateList != null && !stateList.isEmpty()) {
+                State state = stateList.get(0);
+                if (state.getStatus().equals(State.Status.ACTIVE)) {
+                    RuntimeStates.remove(instanceId);
+                    PersistenceStore.removeStates(instanceId);
+                }
+            }
         }
         workerCountDown();
     }

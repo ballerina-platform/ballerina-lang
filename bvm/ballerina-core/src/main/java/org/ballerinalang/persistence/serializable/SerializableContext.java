@@ -23,6 +23,7 @@ import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerState;
 import org.ballerinalang.persistence.PersistenceUtils;
+import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -32,6 +33,8 @@ import org.ballerinalang.util.codegen.WorkerInfo;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.ballerinalang.util.program.BLangVMUtils.SERVICE_INFO_KEY;
 
 /**
  * This class represents a serializable Ballerina execution context.
@@ -123,6 +126,7 @@ public class SerializableContext {
         WorkerData workerLocalData = null;
         WorkerData workerResultData = null;
 
+        Map<String, Object> tempGlobalProps = prepareProps(globalProps, state, programFile);
         if (workerLocal != null) {
             workerLocalData = workerLocal.getWorkerData(programFile, state);
         }
@@ -134,18 +138,23 @@ public class SerializableContext {
             PackageInfo packageInfo = programFile.getPackageInfo(callableUnitPkgPath);
             if (enclosingServiceName != null) {
                 ServiceInfo serviceInfo = packageInfo.getServiceInfo(enclosingServiceName);
+                tempGlobalProps.put(SERVICE_INFO_KEY, serviceInfo);
                 callableUnitInfo = serviceInfo.getResourceInfo(callableUnitName);
-                if ("default".equals(workerName)) {
-                    workerInfo = callableUnitInfo.getDefaultWorkerInfo();
-                } else {
-                    workerInfo = callableUnitInfo.getWorkerInfo(workerName);
+                if (callableUnitInfo != null) {
+                    if (Constants.DEFAULT.equals(workerName)) {
+                        workerInfo = callableUnitInfo.getDefaultWorkerInfo();
+                    } else {
+                        workerInfo = callableUnitInfo.getWorkerInfo(workerName);
+                    }
                 }
             } else {
                 callableUnitInfo = packageInfo.getFunctionInfo(callableUnitName);
-                if ("default".equals(workerName)) {
-                    workerInfo = callableUnitInfo.getDefaultWorkerInfo();
-                } else {
-                    workerInfo = callableUnitInfo.getWorkerInfo(workerName);
+                if (callableUnitInfo != null) {
+                    if (Constants.DEFAULT.equals(workerName)) {
+                        workerInfo = callableUnitInfo.getDefaultWorkerInfo();
+                    } else {
+                        workerInfo = callableUnitInfo.getWorkerInfo(workerName);
+                    }
                 }
             }
         }
@@ -164,7 +173,7 @@ public class SerializableContext {
                     parentCtx, respCtx, callableUnitInfo, workerInfo, workerLocalData, workerResultData, retRegIndexes,
                     runInCaller);
         }
-        workerExecutionContext.globalProps = prepareProps(globalProps, state, programFile);
+        workerExecutionContext.globalProps = tempGlobalProps;
         workerExecutionContext.localProps = prepareProps(localProps, state, programFile);
         workerExecutionContext.ip = ip;
         workerExecutionContext.interruptible = interruptible;

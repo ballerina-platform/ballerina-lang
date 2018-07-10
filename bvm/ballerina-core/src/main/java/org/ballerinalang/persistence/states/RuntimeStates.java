@@ -23,16 +23,16 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This is used to manage the @{@link State}s which were failed due to errors.
+ * This is used to manage the active @{@link State}s of the system.
  *
  * @since 0.976.0
  */
-public class FailedStates {
+public class RuntimeStates {
 
     private static Map<String, List<State>> states = new HashMap<>();
 
-    public static void add(String instanceId, State state) {
-        List<State> stateList = states.computeIfAbsent(instanceId, k -> new ArrayList<>());
+    public static void add(State state) {
+        List<State> stateList = states.computeIfAbsent(state.getInstanceId(), k -> new ArrayList<>());
         stateList.add(state);
     }
 
