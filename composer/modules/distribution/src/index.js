@@ -27,6 +27,7 @@ const { createWindow, createSplashWindow } = require('./app');
 const { createErrorWindow } = require('./error-window');
 const { ErrorCodes } = require('./error-codes');
 const registerMenuLoader = require('./menu.js');
+const { version } = require('./version');
 
 // Disable unwanted menus in mac OSX
 if (process.platform === 'darwin') {
@@ -44,18 +45,12 @@ let win,
                     .replace('app.asar', 'app.asar.unpacked');
 
 if (process.platform === 'darwin') {
-    const isDirectory = source => fs.existsSync(source) && fs.lstatSync(source).isDirectory()
-    const getDirectories = source =>
-        fs.readdirSync(source).map(name => path.join(source, name)).filter(isDirectory)
-    const balHomes = getDirectories('/Library/Ballerina');
-    const balHomesWithElectronApp = balHomes.filter(name => isDirectory(path.join(name, 'lib/resources/composer/web/app')))
-    if (balHomesWithElectronApp && balHomesWithElectronApp.length > 0) {
-        balHome = balHomesWithElectronApp[0];
-    }
+    balHome = path.join('/Library', 'Ballerina', `ballerina-${version}`);
 }
 
 let composerHome = path.join(balHome, 'lib', 'resources', 'composer'),
     composerPublicPath = path.join(composerHome, 'web', 'app'),
+    composerSamplesDir = path.join(balHome, 'docs', 'examples'),
     pageURL = `file://${composerPublicPath}/index.html`,
     javaHome = path.join(balHome, 'bre', 'lib', 'jre1.8.0_172'),
     javaExec = path.join(javaHome, 'bin', 'java');
@@ -65,6 +60,15 @@ if (process.platform == 'win32') {
 }
 
 let  openFilePath = '';
+
+function copySamples() {
+    const newSamplesDir = path.join(os.homedir(), '.composer', version, 'examples');
+    if (!fs.existsSync(newSamplesDir)) {
+        fs.ensureDirSync(newSamplesDir);
+        fs.copySync(composerSamplesDir, newSamplesDir);
+    }
+    composerSamplesDir = newSamplesDir;
+}
 
 function createLogger(){
     fs.ensureDirSync(logsDir);
@@ -99,6 +103,7 @@ function startServer(){
     args.push(classpath);
     args.push('-Dballerina.home=' + balHome);
     args.push('-Dcomposer.public.path=' + composerPublicPath);
+    args.push('-Dcomposer.samples.dir=' + composerSamplesDir);
     args.push('-Dopen.browser=false');
     args.push('org.ballerinalang.composer.server.launcher.ServerLauncher');
     args.push('--host');
@@ -220,6 +225,7 @@ app.on('ready', () => {
         splashWin = null;
     });
     createLogger();
+    copySamples();
     logger.info('Resource path is ' + process.resourcesPath);
     logger.info('Using ' + appDir + ' as the app directory.');
     logger.info('verifying availability of java runtime in path');
