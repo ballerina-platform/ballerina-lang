@@ -36,7 +36,7 @@ service<http:Service> OnlineStoreService bind { port: 9090 } {
         printGauge(localGauge);
 
 
-        //Create a gauge with optional fields description and tags defined.
+        //Create a gauge with optional fields description, and tags defined.
         observe:Gauge registeredGaugeWithTags = new("registered_gauge_with_tags",
             desc = "RegisteredGauge", tags = { property: "gaugeProperty", gaugeType: "RegisterType" });
 

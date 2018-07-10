@@ -22,14 +22,14 @@ service<http:Service> OnlineStoreService bind { port: 9090 } {
         //Increment the value of the counter by 20.
         localCounter.increment(amount = 20);
 
-        //Create a counter with optional fields description and tags.
+        //Create a counter with optional fields description, and tags.
         observe:Counter registeredCounter = new("product_total_product_order_quantity",
             desc = "Total quantity required", tags = {prodName:"HeadPhone", prodType:"Electronics"});
 
         //Register the counter instance, therefore it is stored in the global registry and can be reported to the
         //metrics server such as Prometheus. Additionally, this operation will register to the global registry for the
         //first invocation and will throw an error if there is already a registration of different metrics instance
-        //or type. And subsequent invocations of register() will simply retrieve the stored metrics instance
+        //or type. Subsequent invocations of register() will simply retrieve the stored metrics instance
         //for the provided name and tags fields, and use that instance for the subsequent operations on the
         //counter instance.
         _ = registeredCounter.register();

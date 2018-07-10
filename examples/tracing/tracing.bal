@@ -13,7 +13,7 @@ service<http:Service> hello bind { port: 9090 } {
         //Start a child span attaching to the system span generated.
         int spanId = check observe:startSpan("MyFirstLogicSpan");
 
-        //Start a new Root span without attaching to the system span.
+        //Start a new root span without attaching to the system span.
         int rootParentSpanId = observe:startRootSpan("MyRootParentSpan");
         // Some actual logic will go here, and for example we have introduced some delay with sleep.
         runtime:sleep(1000);
@@ -28,16 +28,16 @@ service<http:Service> hello bind { port: 9090 } {
         //Finish `MyRootParentSpan` span.
         _ = observe:finishSpan(rootParentSpanId);
 
-        // Some actual logic will go here, and for example we have introduced some delay with sleep.
+        //Some actual logic will go here, and for example we have introduced some delay with sleep.
         runtime:sleep(1000);
 
-        //Finish the created child span `MyFirstLogicSpan` which was attached to the system trace.
+        //Finish the created child span `MyFirstLogicSpan`, which was attached to the system trace.
         _ = observe:finishSpan(spanId);
 
-        // Use a util method to set a string payload.
+        //Use a util method to set a string payload.
         res.setPayload("Hello, World!");
 
-        // Send the response back to the caller.
+        //Send the response back to the caller.
         caller->respond(res) but { error e => log:printError(
                            "Error sending response", err = e) };
     }
