@@ -35,6 +35,31 @@ import java.util.regex.Pattern;
 public class BallerinaDebuggerUtils {
 
     private static final Pattern VERSION_PATTERN = Pattern.compile("version\\s*=\\s*\"(\\d+\\.\\d+\\.\\d+)\"");
+    private static final Pattern ORG_NAME_PATTERN = Pattern.compile("org-name\\s*=\\s*\"(.*)\"");
+
+    public static String getOrgName(@NotNull Project project) {
+        VirtualFile baseDir = project.getBaseDir();
+        VirtualFile relativeFile = VfsUtilCore.findRelativeFile(BallerinaConstants.BALLERINA_CONFIG_FILE_NAME, baseDir);
+        if (relativeFile == null) {
+            return null;
+        }
+        try (InputStream inputStream = relativeFile.getInputStream()) {
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                Matcher matcher = ORG_NAME_PATTERN.matcher(line);
+                if (matcher.find()) {
+                    return matcher.group(1);
+                }
+            }
+            inputStreamReader.close();
+            bufferedReader.close();
+        } catch (IOException e) {
+            // Ignore errors
+        }
+        return null;
+    }
 
     public static String getVersion(@NotNull Project project) {
         String defaultVersion = "0.0.0";
