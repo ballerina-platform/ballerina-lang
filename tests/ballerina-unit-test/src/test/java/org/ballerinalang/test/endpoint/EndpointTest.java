@@ -104,6 +104,15 @@ public class EndpointTest {
         Assert.assertEquals(result[6].stringValue(), "");
     }
 
+    @Test(description = "Tests locking variables from different package within lock in workers")
+    public void testReferringEndpointInDifferentPkg() {
+        CompileResult compileResult = BCompileUtil.compile(this, "test-src/endpoint", "pkg.bc");
+
+        BValue[] result = BRunUtil.invoke(compileResult, "testCheck");
+        Assert.assertEquals(result.length, 1);
+        Assert.assertEquals(result[0].stringValue(), "{message:\"i1\", cause:null}");
+    }
+
     @Test(description = "Test action negative")
     public void testActionNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/test_action_negative.bal");
