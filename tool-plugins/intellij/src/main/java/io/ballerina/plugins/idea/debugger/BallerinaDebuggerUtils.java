@@ -34,8 +34,8 @@ import java.util.regex.Pattern;
  */
 public class BallerinaDebuggerUtils {
 
-    private static final Pattern VERSION_PATTERN = Pattern.compile("version\\s*=\\s*\"(\\d+\\.\\d+\\.\\d+)\"");
-    private static final Pattern ORG_NAME_PATTERN = Pattern.compile("org-name\\s*=\\s*\"(.*)\"");
+    private static final Pattern VERSION_PATTERN = Pattern.compile("^version\\s*=\\s*\"(\\d+\\.\\d+\\.\\d+)\"");
+    private static final Pattern ORG_NAME_PATTERN = Pattern.compile("^org-name\\s*=\\s*\"(.*)\"");
 
     public static String getOrgName(@NotNull Project project) {
         VirtualFile baseDir = project.getBaseDir();
@@ -48,13 +48,13 @@ public class BallerinaDebuggerUtils {
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             String line;
             while ((line = bufferedReader.readLine()) != null) {
-                Matcher matcher = ORG_NAME_PATTERN.matcher(line);
+                Matcher matcher = ORG_NAME_PATTERN.matcher(line.trim());
                 if (matcher.find()) {
                     return matcher.group(1);
                 }
             }
-            inputStreamReader.close();
             bufferedReader.close();
+            inputStreamReader.close();
         } catch (IOException e) {
             // Ignore errors
         }
@@ -74,13 +74,13 @@ public class BallerinaDebuggerUtils {
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             String line;
             while ((line = bufferedReader.readLine()) != null) {
-                Matcher matcher = VERSION_PATTERN.matcher(line);
+                Matcher matcher = VERSION_PATTERN.matcher(line.trim());
                 if (matcher.find()) {
                     return matcher.group(1);
                 }
             }
-            inputStreamReader.close();
             bufferedReader.close();
+            inputStreamReader.close();
         } catch (IOException e) {
             // Ignore errors
         }
