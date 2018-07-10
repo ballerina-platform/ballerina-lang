@@ -60,6 +60,7 @@ class Application {
             services: config.services,
             // TODO avoid hardcoding, provide a config contributing mechanism from BE
             balHome: config.balHome,
+            samplesDir: config.samplesDir,
             debuggerPath: config.debuggerPath,
         };
 
