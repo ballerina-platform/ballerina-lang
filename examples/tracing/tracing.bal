@@ -21,17 +21,17 @@ service<http:Service> hello bind { port: 9090 } {
         int childSpanId = check observe:startSpan("MyRootChildSpan", parentSpanId = rootParentSpanId);
         // Some actual logic will go here, and for example we have introduced some delay with sleep.
         runtime:sleep(1000);
-        //Finish the created child span.
+        //Finish `MyRootChildSpan` span.
         _ = observe:finishSpan(childSpanId);
         // Some actual logic will go here, and for example we have introduced some delay with sleep.
         runtime:sleep(1000);
-        //Finish the created root parent span.
+        //Finish `MyRootParentSpan` span.
         _ = observe:finishSpan(rootParentSpanId);
 
         // Some actual logic will go here, and for example we have introduced some delay with sleep.
         runtime:sleep(1000);
 
-        //Finish the created child span which was attached to the system trace.
+        //Finish the created child span `MyFirstLogicSpan` which was attached to the system trace.
         _ = observe:finishSpan(spanId);
 
         // Use a util method to set a string payload.
