@@ -58,6 +58,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -69,6 +70,7 @@ import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo.Kind;
 import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
+import org.wso2.ballerinalang.programfile.cpentries.ByteCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
@@ -279,6 +281,8 @@ public class CompiledPackageSymbolEnter {
                 return new UTF8CPEntry(strValue);
             case CP_ENTRY_INTEGER:
                 return new IntegerCPEntry(dataInStream.readLong());
+            case CP_ENTRY_BYTE:
+                return new ByteCPEntry(dataInStream.readByte());
             case CP_ENTRY_FLOAT:
                 return new FloatCPEntry(dataInStream.readDouble());
             case CP_ENTRY_STRING:
@@ -491,11 +495,18 @@ public class CompiledPackageSymbolEnter {
 
     private BRecordTypeSymbol readRecordTypeSymbol(DataInputStream dataInStream,
                                       String name, int flags) throws IOException {
-        BRecordTypeSymbol symbol = (BRecordTypeSymbol) Symbols.createRecordSymbol(flags, names.fromString(name),
-                    this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
+        BRecordTypeSymbol symbol = Symbols.createRecordSymbol(flags, names.fromString(name),
+                                                              this.env.pkgSymbol.pkgID, null,
+                                                              this.env.pkgSymbol);
         symbol.scope = new Scope(symbol);
         BRecordType type = new BRecordType(symbol);
         symbol.type = type;
+
+        type.sealed = dataInStream.readBoolean();
+        if (!type.sealed) {
+            String restFieldTypeDesc = getUTF8CPEntryValue(dataInStream);
+            type.restFieldType = getBTypeFromDescriptor(restFieldTypeDesc);
+        }
 
         // Define Object Fields
         defineSymbols(dataInStream, rethrow(dataInputStream ->
@@ -560,6 +571,12 @@ public class CompiledPackageSymbolEnter {
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
                 litExpr.value = integerCPEntry.getValue();
                 litExpr.typeTag = TypeTags.INT;
+                break;
+            case TypeDescriptor.SIG_BYTE:
+                valueCPIndex = dataInStream.readInt();
+                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
+                litExpr.value = byteCPEntry.getValue();
+                litExpr.typeTag = TypeTags.BYTE;
                 break;
             case TypeDescriptor.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
@@ -786,6 +803,10 @@ public class CompiledPackageSymbolEnter {
                 valueCPIndex = dataInStream.readInt();
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
                 return integerCPEntry.getValue();
+            case TypeDescriptor.SIG_BYTE:
+                valueCPIndex = dataInStream.readInt();
+                ByteCPEntry byteCPEntry = (ByteCPEntry) this.env.constantPool[valueCPIndex];
+                return byteCPEntry.getValue();
             case TypeDescriptor.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
@@ -1048,14 +1069,14 @@ public class CompiledPackageSymbolEnter {
             switch (typeChar) {
                 case 'I':
                     return symTable.intType;
+                case 'W':
+                    return symTable.byteType;
                 case 'F':
                     return symTable.floatType;
                 case 'S':
                     return symTable.stringType;
                 case 'B':
                     return symTable.booleanType;
-                case 'L':
-                    return symTable.blobType;
                 case 'Y':
                     return symTable.typeDesc;
                 case 'A':
@@ -1116,14 +1137,15 @@ public class CompiledPackageSymbolEnter {
         }
 
         @Override
-        public BType getArrayType(BType elementType) {
+        public BType getArrayType(BType elementType, int size) {
             BTypeSymbol arrayTypeSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.asMask(EnumSet
                     .of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
-            return new BArrayType(elementType, arrayTypeSymbol);
+            return size == -1 ? new BArrayType(elementType, arrayTypeSymbol, size, BArrayState.UNSEALED) :
+                    new BArrayType(elementType, arrayTypeSymbol, size, BArrayState.CLOSED_SEALED);
         }
 
         @Override
-        public BType getCollenctionType(char typeChar, List<BType> memberTypes) {
+        public BType getCollectionType(char typeChar, List<BType> memberTypes) {
 
             switch (typeChar) {
                 case 'O':

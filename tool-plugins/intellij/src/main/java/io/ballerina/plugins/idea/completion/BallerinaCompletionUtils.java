@@ -40,7 +40,6 @@ import io.ballerina.plugins.idea.psi.BallerinaAnyIdentifierName;
 import io.ballerina.plugins.idea.psi.BallerinaCallableUnitSignature;
 import io.ballerina.plugins.idea.psi.BallerinaFormalParameterList;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
-import io.ballerina.plugins.idea.psi.BallerinaObjectCallableUnitSignature;
 import io.ballerina.plugins.idea.psi.BallerinaObjectFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaObjectInitializer;
 import io.ballerina.plugins.idea.psi.BallerinaObjectInitializerParameterList;
@@ -564,7 +563,8 @@ public class BallerinaCompletionUtils {
                                                             @NotNull PsiElement owner,
                                                             @Nullable InsertHandler<LookupElement> insertHandler) {
 
-        BallerinaObjectCallableUnitSignature objectCallableUnitSignature = definition.getObjectCallableUnitSignature();
+        BallerinaCallableUnitSignature objectCallableUnitSignature = definition.getCallableUnitSignature();
+        // We check and confirm that the objectCallableUnitSignature != null before calling the method.
         BallerinaAnyIdentifierName anyIdentifierName = objectCallableUnitSignature.getAnyIdentifierName();
         PsiElement identifier = anyIdentifierName.getIdentifier();
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(identifier.getText(), identifier)
@@ -689,7 +689,7 @@ public class BallerinaCompletionUtils {
                                                          @NotNull PsiElement ownerName,
                                                          @NotNull String type, @Nullable String defaultValue,
                                                          @Nullable InsertHandler<LookupElement> insertHandler,
-                                                         boolean isPublic) {
+                                                         boolean isPublic, boolean isPrivate) {
         LookupElementBuilder lookupElementBuilder = LookupElementBuilder.createWithSmartPointer(fieldName.getText(),
                 fieldName).withInsertHandler(insertHandler).withTypeText(type).bold();
 

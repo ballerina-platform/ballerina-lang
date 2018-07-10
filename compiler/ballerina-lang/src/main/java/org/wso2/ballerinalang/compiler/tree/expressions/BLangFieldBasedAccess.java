@@ -34,9 +34,9 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 public class BLangFieldBasedAccess extends BLangAccessExpression implements FieldBasedAccessNode {
 
     public BLangIdentifier field;
-
     public FieldKind fieldKind;
     public BVarSymbol varSymbol;
+    public boolean except = true;
 
     @Override
     public BLangVariableReference getExpression() {
@@ -61,24 +61,6 @@ public class BLangFieldBasedAccess extends BLangAccessExpression implements Fiel
     @Override
     public NodeKind getKind() {
         return NodeKind.FIELD_BASED_ACCESS_EXPR;
-    }
-
-    /**
-     * @since 0.94
-     */
-    public static class BLangStructFieldAccessExpr extends BLangFieldBasedAccess {
-
-        public BLangStructFieldAccessExpr(DiagnosticPos pos, BLangVariableReference varRef, BVarSymbol fieldSymbol) {
-            this.pos = pos;
-            this.expr = varRef;
-            this.symbol = fieldSymbol;
-            this.varSymbol = fieldSymbol;
-        }
-
-        @Override
-        public void accept(BLangNodeVisitor visitor) {
-            visitor.visit(this);
-        }
     }
 
     /**

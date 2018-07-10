@@ -27,6 +27,7 @@ import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import { EVENTS } from '../constants';
 import DesignViewErrorBoundary from './DesignViewErrorBoundary';
 import DiagramMenu from './diagram-menu';
+import GraphicalEditor from '../graphical-editor/graphical-editor';
 
 class DesignView extends React.Component {
 
@@ -43,6 +44,8 @@ class DesignView extends React.Component {
         this.getOverlayContainer = this.getOverlayContainer.bind(this);
         this.setDiagramContainer = this.setDiagramContainer.bind(this);
         this.getDiagramContainer = this.getDiagramContainer.bind(this);
+        this.setGraphicalEditorContainer = this.setGraphicalEditorContainer.bind(this);
+        this.getGraphicalEditorContainer = this.getGraphicalEditorContainer.bind(this);
         this.setToolPaletteContainer = this.setToolPaletteContainer.bind(this);
         this.getToolPaletteContainer = this.getToolPaletteContainer.bind(this);
         this.props.commandProxy.on('go-to-node', (node) => {
@@ -60,6 +63,7 @@ class DesignView extends React.Component {
             designView: this,
             getOverlayContainer: this.getOverlayContainer,
             getDiagramContainer: this.getDiagramContainer,
+            getGraphicalEditorContainer: this.getGraphicalEditorContainer,
         };
     }
 
@@ -128,6 +132,14 @@ class DesignView extends React.Component {
         return this.diagramContainer;
     }
 
+    getGraphicalEditorContainer () {
+        return this.graphicalEditorContainer;
+    }
+
+    setGraphicalEditorContainer(ref) {
+        this.graphicalEditorContainer = ref;
+    }
+
     setOverlayContainer(ref) {
         this.overlayContainer = ref;
     }
@@ -183,6 +195,7 @@ class DesignView extends React.Component {
                         <div className='canvas-container'>
                             <div className='canvas-top-controls-container' />
                             <div className='html-overlay' ref={this.setOverlayContainer} />
+                            <div className='graphical-editor' ref={this.setGraphicalEditorContainer} />
                             <div className='diagram root' ref={this.setDiagramContainer} >
                                 {this.props.model &&
                                     <DesignViewErrorBoundary>
@@ -192,6 +205,11 @@ class DesignView extends React.Component {
                                             width={this.props.width}
                                             height={this.props.height}
                                             disabled={this.props.disabled}
+                                            fitToWidth={this.props.fitToWidth}
+                                        />
+                                        <GraphicalEditor
+                                            model={this.props.model}
+                                            mode={this.props.mode}
                                             fitToWidth={this.props.fitToWidth}
                                         />
                                     </DesignViewErrorBoundary>
@@ -247,6 +265,7 @@ DesignView.childContextTypes = {
     designView: PropTypes.instanceOf(DesignView).isRequired,
     getDiagramContainer: PropTypes.instanceOf(Object).isRequired,
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
+    getGraphicalEditorContainer: PropTypes.instanceOf(Object).isRequired,
     fitToWidth: PropTypes.bool,
 };
 

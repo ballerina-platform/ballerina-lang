@@ -78,28 +78,17 @@ public class BTable implements BRefType<Object>, BCollection {
         this.constraintType = constraintType;
     }
 
-    public BTable(BType type, BStruct configStruct) {
-        BStringArray primaryKeys = null;
-        BStringArray indexColumns = null;
-        BRefValueArray data = null;
-        if (configStruct != null) {
-            primaryKeys = (BStringArray) configStruct.getRefField(0);
-            indexColumns = (BStringArray) configStruct.getRefField(1);
-            data = (BRefValueArray) configStruct.getRefField(2);
-        }
+    public BTable(BType type, BStringArray indexColumns, BStringArray keyColumns, BRefValueArray dataRows) {
         //Create table with given constraints.
         BType constrainedType = ((BTableType) type).getConstrainedType();
-        if (constrainedType == null) {
-            throw new BallerinaException("table cannot be created without a constraint");
-        }
         this.tableProvider = TableProvider.getInstance();
-        this.tableName = tableProvider.createTable(constrainedType, primaryKeys, indexColumns);
+        this.tableName = tableProvider.createTable(constrainedType, keyColumns, indexColumns);
         this.constraintType = (BStructureType) constrainedType;
-        this.primaryKeys = primaryKeys;
+        this.primaryKeys = keyColumns;
         this.indices = indexColumns;
         //Insert initial data
-        if (data != null) {
-            insertInitialData(data);
+        if (dataRows != null) {
+            insertInitialData(dataRows);
         }
     }
 
@@ -134,7 +123,7 @@ public class BTable implements BRefType<Object>, BCollection {
         sb.append("data: ");
         StringJoiner sj = new StringJoiner(", ", "[", "]");
         while (hasNext(false)) {
-            BStruct struct = getNext();
+            BMap<?, ?> struct = getNext();
             sj.add(struct.stringValue());
         }
         sb.append(sj.toString());
@@ -193,11 +182,11 @@ public class BTable implements BRefType<Object>, BCollection {
         resetIterationHelperAttributes();
     }
 
-    public BStruct getNext() {
+    public BMap<String, BValue> getNext() {
         // Make next row the current row
         moveToNext();
         // Create BStruct from current row
-        return iterator.generateNext();
+        return (BMap<String, BValue>) iterator.generateNext();
     }
 
     /**
@@ -206,7 +195,7 @@ public class BTable implements BRefType<Object>, BCollection {
      * @param data The record to be inserted
      * @param context The context which represents the runtime state of the program that called "table.add"
      */
-    public void performAddOperation(BStruct data, Context context) {
+    public void performAddOperation(BMap<String, BValue> data, Context context) {
         try {
             this.addData(data, context);
             context.setReturnValues();
@@ -215,7 +204,7 @@ public class BTable implements BRefType<Object>, BCollection {
         }
     }
 
-    public void addData(BStruct data, Context context) {
+    public void addData(BMap<String, BValue> data, Context context) {
         if (data.getType() != this.constraintType) {
             throw new BallerinaException("incompatible types: record of type:" + data.getType().getName()
                     + " cannot be added to a table with type:" + this.constraintType.getName());
@@ -224,7 +213,7 @@ public class BTable implements BRefType<Object>, BCollection {
         reset(false);
     }
 
-    public void addData(BStruct data) {
+    public void addData(BMap<String, BValue> data) {
         addData(data, null);
     }
 
@@ -244,7 +233,7 @@ public class BTable implements BRefType<Object>, BCollection {
             }
             int deletedCount = 0;
             while (this.hasNext(false)) {
-                BStruct data = this.getNext();
+                BMap<String, BValue> data = this.getNext();
                 BValue[] args = { data };
                 BValue[] returns = BLangFunctions.invokeCallable(lambdaFunction.value().getFunctionInfo(), args);
                 if (((BBoolean) returns[0]).booleanValue()) {
@@ -330,10 +319,10 @@ public class BTable implements BRefType<Object>, BCollection {
     private void insertInitialData(BRefValueArray data) {
         int count = (int) data.size();
         for (int i = 0; i < count; i++) {
-            if (!(data.get(i) instanceof BStruct)) {
+            if (!(data.get(i) instanceof BMap)) {
                 throw new BallerinaException("initial data should be in struct type");
             }
-            addData((BStruct) data.get(i));
+            addData((BMap<String, BValue>) data.get(i));
         }
     }
 

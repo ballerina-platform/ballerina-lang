@@ -20,7 +20,7 @@
     <parent>
         <artifactId>composer-services-parent</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.975.1-SNAPSHOT</version>
+        <version>0.976.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -51,6 +51,11 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
     	    <artifactId>ballerina-to-swagger</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>swagger-to-ballerina-generator</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.langserver.completions.util.sorters;
 
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -38,7 +37,7 @@ class AssignmentStmtContextSorter extends VariableDefContextItemSorter {
      */
     @Override
     String getVariableType(LSServiceOperationContext ctx) {
-        String variableName = ctx.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY).getStart().getText();
+        String variableName = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getStart().getText();
         List<SymbolInfo> visibleSymbols = ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         SymbolInfo filteredSymbol = visibleSymbols.stream().filter(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;

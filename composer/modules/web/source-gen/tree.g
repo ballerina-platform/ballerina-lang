@@ -480,6 +480,7 @@ TypeConversionExpr
    ;
 
 TypeDefinition
+   : <notVisible?>
    : <isObjectType?>                                                          <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object { <typeNode.source> }                           ;
    | <isRecordType?> <isRecordKeywordAvailable?>                              <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> record { <typeNode.source> }                           ;
    | <isRecordType?>                                                          <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value>        { <typeNode.source> }                           ;
@@ -488,14 +489,13 @@ TypeDefinition
    ;
 
 ObjectType
-   : <noFieldsAvailable?>                                                                <initFunction.source> <functions>*
-   | <noPrivateFieldsAvailable?> public { <publicFields>* }                              <initFunction.source> <functions>*
-   | <noPublicFieldAvailable?>                              private { <privateFields>* } <initFunction.source> <functions>*
-   |                             public { <publicFields>* } private { <privateFields>* } <initFunction.source> <functions>*
+   : <fields>* <initFunction.source> <functions>*
    ;
 
 RecordType
-   : <fields>*
+   : <isRestFieldAvailable?> <fields>* <restFieldType.source> ...
+   | <sealed?>               <fields>*                      ! ...
+   |                         <fields>*
    ;
 
 TypedescExpression
@@ -515,7 +515,8 @@ TypeInitExpr
    ;
 
 UnaryExpr
-   : <operatorKind> <expression.source>
+   : <inTemplateLiteral?> {{ <operatorKind> <expression.source> }}
+   |                         <operatorKind> <expression.source>
    ;
 
 UnionTypeNode
@@ -525,7 +526,7 @@ UnionTypeNode
    ;
 
 UserDefinedType
-   : <anonStruct.source>
+   : <isAnonType?> <anonType.source>
    | <nullableOperatorAvailable?> <grouped?> ( <packageAlias.value> : <typeName.value> ? )
    | <nullableOperatorAvailable?>              <packageAlias.value> : <typeName.value> ?
    | <nullableOperatorAvailable?> <grouped?> (                        <typeName.value> ? )
@@ -545,25 +546,32 @@ ValueType
    ;
 
 Variable
-   : <noVisibleName?>                                                                                                                                           <typeNode.source>
-   | <endpoint?>                                                                                                                                       endpoint <typeNode.source>            <name.value> {   <initialExpression.source> ; }
-   | <endpoint?>                                                                                                                                       endpoint <typeNode.source>            <name.value> {                                }
-   | <serviceEndpoint?>                                                                                                                                endpoint                              <name.value>
-   | <defaultable?>      <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                          <typeNode.source>            <name.value> =   <initialExpression.source>
-   | <defaultable?>      <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                                                       <name.value> =   <initialExpression.source>
-   | <global?>           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> <const?const> <safeAssignment?>          <typeNode.source>            <name.value> =?  <initialExpression.source> ;
-   | <global?>           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> <const?const>                            <typeNode.source>            <name.value> =   <initialExpression.source> ;
-   | <global?>           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> <const?const>                            <typeNode.source>            <name.value>                                ;
-   | <global?>           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                          <typeNode.source>            <name.value>                                ;
-   | <endWithSemicolon?>                                                                                                             <safeAssignment?>          <typeNode.source>            <name.value> =? <initialExpression.source>  ;
-   | <endWithComma?>                                                                                                                 <safeAssignment?>          <typeNode.source>            <name.value> =? <initialExpression.source>  ,
-   | <endWithSemicolon?>                                                                                                                                        <typeNode.source>            <name.value> =  <initialExpression.source>  ;
-   | <endWithComma?>                                                                                                                                            <typeNode.source>            <name.value> =  <initialExpression.source>  ,
-   | <endWithSemicolon?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                          <typeNode.source> <rest?...> <name.value>                                ;
-   | <endWithComma?>     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                          <typeNode.source> <rest?...> <name.value>                                ,
-   |                                                                                                                                 <safeAssignment?>          <typeNode.source>            <name.value> =? <initialExpression.source>
-   |                                                                                                                                                            <typeNode.source>            <name.value> =  <initialExpression.source>
-   |                     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                          <typeNode.source> <rest?...> <name.value>
+   : <isAnonType?> <endWithSemicolon?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                     <const?const>     record    { <typeNode.source> }          <name.value>                                ;
+   | <isAnonType?> <endWithComma?>     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                     <const?const>     record    { <typeNode.source> }          <name.value>                                ,
+   | <isAnonType?>                     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                     <const?const>     record    { <typeNode.source> }          <name.value>
+   | <noVisibleName?>                                                                                                                                                  <typeNode.source>
+   | <endpoint?>                                                                                                                                           endpoint    <typeNode.source>            <name.value> {  <initialExpression.source> ; }
+   | <endpoint?>                                                                                                                                           endpoint    <typeNode.source>            <name.value> {                               }
+   | <serviceEndpoint?>                                                                                                                                    endpoint                                 <name.value>
+   | <defaultable?>      <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                                 <typeNode.source>            <name.value> =  <initialExpression.source>
+   | <defaultable?>      <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                                                              <name.value> =  <initialExpression.source>
+   | <global?>           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> <const?const>     <safeAssignment?>             <typeNode.source>            <name.value> =? <initialExpression.source> ;
+   | <global?>           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> <const?const>                                   <typeNode.source>            <name.value> =  <initialExpression.source> ;
+   | <global?>           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> <const?const>                                   <typeNode.source>            <name.value>                                ;
+   | <global?>           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                                 <typeNode.source>            <name.value>                                ;
+   | <endWithSemicolon?>                                                                                                                 <safeAssignment?>             <typeNode.source>            <name.value> =? <initialExpression.source>  ;
+   | <endWithComma?>                                                                                                                     <safeAssignment?>             <typeNode.source>            <name.value> =? <initialExpression.source>  ,
+   | <endWithSemicolon?> <inObject?>                                                                   <public?public> <private?private>                               <typeNode.source>            <name.value> =  <initialExpression.source>  ;
+   | <endWithComma?>     <inObject?>                                                                   <public?public> <private?private>                               <typeNode.source>            <name.value> =  <initialExpression.source>  ,
+   | <endWithSemicolon?> <inObject?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> <private?private>                   <typeNode.source> <rest?...> <name.value>                                ;
+   | <endWithComma?>     <inObject?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> <private?private>                   <typeNode.source> <rest?...> <name.value>                                ,
+   | <endWithSemicolon?>                                                                                                                                               <typeNode.source>            <name.value> =  <initialExpression.source>  ;
+   | <endWithComma?>                                                                                                                                                   <typeNode.source>            <name.value> =  <initialExpression.source>  ,
+   | <endWithSemicolon?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                                 <typeNode.source> <rest?...> <name.value>                                ;
+   | <endWithComma?>     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                                 <typeNode.source> <rest?...> <name.value>                                ,
+   |                                                                                                                                     <safeAssignment?>             <typeNode.source>            <name.value> =? <initialExpression.source>
+   |                                                                                                                                                                   <typeNode.source>            <name.value> =  <initialExpression.source>
+   |                     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public>                                                 <typeNode.source> <rest?...> <name.value>
    ;
 
 VariableDef

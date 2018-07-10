@@ -55,6 +55,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -142,6 +143,9 @@ public class TextDocumentFormatUtil {
             positionJson.addProperty("endLine", position.getEndLine());
             nodeJson.add("position", positionJson);
         }
+
+        // Add UUID for each node.
+        nodeJson.addProperty("id", UUID.randomUUID().toString());
 
         JsonArray type = getType(node);
         if (type != null) {

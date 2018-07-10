@@ -60,7 +60,6 @@ class CanvasDecorator extends React.Component {
                 <div ref={(x) => { setCanvasOverlay(x); }}>
                     {/* This space is used to render html elements over svg */ }
                 </div>
-                {(!fitToWidth) ? this.props.overlay : null }
                 <svg
                     className='svg-container'
                     width={svgSize.w}
@@ -98,7 +97,6 @@ CanvasDecorator.propTypes = {
     children: PropTypes.node.isRequired,
     dropTarget: PropTypes.instanceOf(Node).isRequired,
     annotations: PropTypes.arrayOf(PropTypes.element),
-    overlay: PropTypes.arrayOf(PropTypes.element),
     errorList: PropTypes.arrayOf(PropTypes.element),
 };
 

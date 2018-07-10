@@ -92,15 +92,15 @@ public class HoverProviderTest {
     @DataProvider(name = "hoverBuiltinFuncPosition")
     public Object[][] getBuiltinFunctionPositions() {
         return new Object[][]{
-                {new Position(41, 7), "builtin-function1.json"},
-                {new Position(42, 19), "builtin-function2.json"}
+                {new Position(45, 7), "builtin-function1.json"},
+                {new Position(46, 19), "builtin-function2.json"}
         };
     }
 
     @DataProvider(name = "hoverCurrentPackageFuncPosition")
     public Object[][] getCurrentPackageFunctionPositions() {
         return new Object[][]{
-                {new Position(43, 15), "currentPkg-function1.json"}
+                {new Position(47, 15), "currentPkg-function1.json"}
         };
     }
 
@@ -119,9 +119,9 @@ public class HoverProviderTest {
     @DataProvider(name = "hoverCurrentPackageRecordPosition")
     public Object[][] getCurrentPackageStructPositions() {
         return new Object[][]{
-                {new Position(44, 7), "currentPkg-record.json"},
-                {new Position(49, 19), "currentPkg-record.json"},
-                {new Position(50, 8), "currentPkg-record.json"}
+                {new Position(48, 7), "currentPkg-record.json"},
+                {new Position(53, 19), "currentPkg-record.json"},
+                {new Position(54, 8), "currentPkg-record.json"}
         };
     }
 

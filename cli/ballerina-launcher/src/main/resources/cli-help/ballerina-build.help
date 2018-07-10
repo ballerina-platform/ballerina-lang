@@ -3,7 +3,7 @@ NAME
     outputs
 
 SYNOPSIS
-    ballerina build [-o <output>] [-c] [--offline] 
+    ballerina build [-o <output>] [-c] [--offline] [--skiptests]
         <balfile | packagename> 
         
 DESCRIPTION
@@ -25,7 +25,10 @@ OPTIONS
           Builds a compiled package. 
 
      --offline
-          Builds offline without downloading dependencies. 
+          Builds offline without downloading dependencies.
+
+     --skiptests
+          Skips test compilation and execution.
 
      -r   Recursive mode. Operates as fast as lightning at the
           expense of a megabyte of virtual memory.
@@ -48,3 +51,8 @@ EXAMPLES
      $ ballerina build -o calculate math
      This will generate a calculate.balx output binary file and place 
      within target folder
+
+     Build hello package by skipping test execution
+     $ ballerina build hello --skiptests
+     This will generate a hello.balx output binary file without test
+     execution and place within target folder

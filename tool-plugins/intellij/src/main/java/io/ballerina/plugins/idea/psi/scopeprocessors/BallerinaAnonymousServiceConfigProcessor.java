@@ -74,7 +74,7 @@ public class BallerinaAnonymousServiceConfigProcessor extends BallerinaScopeProc
                 if (myResult != null) {
                     myResult.addElement(BallerinaCompletionUtils.createFieldLookupElement(identifier,
                             typeDefinition.getIdentifier(), fieldDefinition.getTypeName().getText(), defaultValue,
-                            ColonInsertHandler.INSTANCE_WITH_SPACE, true));
+                            ColonInsertHandler.INSTANCE_WITH_SPACE, true, false));
                 } else if (myElement.getText().equals(identifier.getText())) {
                     add(identifier);
                     if (!isCompletion()) {

@@ -52,8 +52,8 @@ public class ObjectTypeScopeResolver extends CursorPositionResolver {
         }
         BLangObjectTypeNode ownerObject = (BLangObjectTypeNode) treeVisitor.getBlockOwnerStack().peek();
         DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(nodePosition);
-        DiagnosticPos blockOwnerPos = CommonUtil
-                .toZeroBasedPosition((DiagnosticPos) treeVisitor.getBlockOwnerStack().peek().getPosition());
+        DiagnosticPos blockOwnerPos = CommonUtil.toZeroBasedPosition(
+                ((BLangObjectTypeNode) treeVisitor.getBlockOwnerStack().peek()).parent.getPosition());
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
         boolean isLastField = false;

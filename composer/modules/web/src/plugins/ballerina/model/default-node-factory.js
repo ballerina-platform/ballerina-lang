@@ -202,8 +202,12 @@ class DefaultNodeFactory {
         return getStaticDefaultNode('createJMSResource');
     }
 
-    createStruct(keepWhiteSpace) {
-        return getStaticDefaultNode('createStruct', keepWhiteSpace);
+    createRecord(keepWhiteSpace) {
+        return getStaticDefaultNode('createRecord', keepWhiteSpace);
+    }
+
+    createAnonRecord(){
+        return getStaticDefaultNode('createAnonRecord');
     }
 
     createTransformer() {
@@ -363,19 +367,19 @@ class DefaultNodeFactory {
                 endpoint ${'http:' + "Client"} ${args.name} {};
             `));
         }
-        const { endpoint, packageName, fullPackageName } = args;
+        const { endpoint, packageName } = args;
         let endpointPackageAlias = (packageName !== 'Current Package' && packageName !== '' &&
             packageName !== 'builtin') ? (packageName + ':') : '';
         endpointPackageAlias = endpointPackageAlias !== '' ? endpointPackageAlias.split(/[.]+/).pop() : '';
 
         return getNodeForFragment(FragmentUtils.createEndpointVarDefFragment(`
-            endpoint ${endpointPackageAlias + endpoint.getName()} ep {};
+            endpoint ${endpointPackageAlias + endpoint} ep {};
         `));
     }
 
     createConnectorActionInvocationAssignmentStatement(args) {
         let stmtString = '';
-        const { functionDef, packageName, fullPackageName, endpoint } = args;
+        const { functionDef, packageName, fullPackageName, endpoint, actionName } = args;
 
         if (functionDef && functionDef.getReturnParams().length > 0) {
             stmtString = 'var var1 = ';
@@ -405,9 +409,9 @@ class DefaultNodeFactory {
             node.setVariables(returnNode.getVariables());
         }
 
-        if (functionDef) {
+        if (actionName) {
             const pkgStr = packageName !== 'Current Package' ? packageName.split(/[.]+/).pop() : '';
-            node.getExpression().getName().setValue(functionDef.getName());
+            node.getExpression().getName().setValue(actionName);
             node.getExpression().setFullPackageName(fullPackageName);
             node.getExpression().getPackageAlias().setValue(pkgStr);
         }

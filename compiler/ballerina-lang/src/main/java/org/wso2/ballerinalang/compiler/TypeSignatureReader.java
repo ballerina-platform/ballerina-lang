@@ -38,10 +38,10 @@ public class TypeSignatureReader<T> {
         char typeChar = chars[index];
         switch (typeChar) {
             case 'I':
+            case 'W':
             case 'F':
             case 'S':
             case 'B':
-            case 'L':
             case 'Y':
             case 'A':
             case 'N':
@@ -70,13 +70,20 @@ public class TypeSignatureReader<T> {
                 String name = new String(Arrays.copyOfRange(chars, index, nameIndex + 1));
                 T type = getBTypeFromDescriptor(typeCreater, name);
                 typeStack.push(type);
-
-                index++;
                 return nameIndex + 1;
             case '[':
-                index = createBTypeFromSig(typeCreater, chars, index + 1, typeStack);
+                int endIndex = index + 1;
+                int j = index + 1;
+                while (chars[j] != ';') {
+                    endIndex++;
+                    j++;
+                }
+
+                int size = Integer.parseInt(String.valueOf(Arrays.copyOfRange(chars, index + 1, endIndex)));
+                index = createBTypeFromSig(typeCreater, chars, endIndex + 1, typeStack);
                 T elemType = typeStack.pop();
-                typeStack.push(typeCreater.getArrayType(elemType));
+                typeStack.push(typeCreater.getArrayType(elemType, size));
+
                 return index;
             case 'M':
             case 'H':
@@ -103,7 +110,7 @@ public class TypeSignatureReader<T> {
                     memberTypes.add(typeStack.pop());
                 }
 
-                typeStack.push(typeCreater.getCollenctionType(typeChar, memberTypes));
+                typeStack.push(typeCreater.getCollectionType(typeChar, memberTypes));
                 return index + 1;
             default:
                 throw new IllegalArgumentException("unsupported base type char: " + typeChar);
@@ -114,11 +121,11 @@ public class TypeSignatureReader<T> {
         char ch = desc.charAt(0);
         switch (ch) {
             case 'I':
+            case 'W':
             case 'F':
             case 'S':
             case 'B':
             case 'Y':
-            case 'L':
             case 'A':
             case 'N':
                 return typeCreater.getBasicType(ch);
@@ -159,8 +166,17 @@ public class TypeSignatureReader<T> {
                 constraintType = typeCreater.getRefType(ch, pkgPath, name);
                 return typeCreater.getConstrainedType(ch, constraintType);
             case '[':
-                T elemType = getBTypeFromDescriptor(typeCreater, desc.substring(1));
-                return typeCreater.getArrayType(elemType);
+                int index = 1;
+                char[] size = null;
+                if (desc.contains(";")) {
+                    index = desc.indexOf(";");
+                    size = new char[index - 1];
+                    desc.getChars(1, index, size, 0);
+                    index++;
+                }
+                T elemType = getBTypeFromDescriptor(typeCreater, desc.substring(index));
+                return typeCreater.getArrayType(elemType, Integer.parseInt(String.valueOf(size)));
+
             case 'U':
             case 'O':
             case 'P':

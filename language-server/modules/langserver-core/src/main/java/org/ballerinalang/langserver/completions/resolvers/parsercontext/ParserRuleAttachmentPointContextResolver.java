@@ -23,13 +23,14 @@ import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * annotation body context resolver for the completion items.
  */
 public class ParserRuleAttachmentPointContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         completionItems.add(populateCompletionItem(ItemResolverConstants.ANNOTATION,
                 ItemResolverConstants.KEYWORD_TYPE, ItemResolverConstants.ANNOTATION));

@@ -19,6 +19,7 @@ package org.ballerinalang.util;
 
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.DataIterator;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
@@ -28,17 +29,19 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -185,54 +188,54 @@ public class TableIterator implements DataIterator {
     }
 
     @Override
-    public BStruct generateNext() {
-        BStruct bStruct = new BStruct(type);
-        int longRegIndex = -1;
-        int doubleRegIndex = -1;
-        int stringRegIndex = -1;
-        int booleanRegIndex = -1;
-        int refRegIndex = -1;
-        int blobRegIndex = -1;
+    public BMap<String, BValue> generateNext() {
+        BMap<String, BValue> bStruct = new BMap<>(type);
         int index = 0;
         try {
             BField[] structFields = type.getFields();
             for (BField sf : structFields) {
                 BType type = sf.getFieldType();
+                String fieldName = sf.fieldName;
+                BValue value = null;
                 ++index;
                 switch (type.getTag()) {
                 case TypeTags.INT_TAG:
                     long iValue = rs.getInt(index);
-                    bStruct.setIntField(++longRegIndex, iValue);
+                    value = new BInteger(iValue);
                     break;
                 case TypeTags.STRING_TAG:
                     String sValue = rs.getString(index);
-                    bStruct.setStringField(++stringRegIndex, sValue);
+                    value = new BString(sValue);
                     break;
                 case TypeTags.FLOAT_TAG:
-                    double dalue = rs.getDouble(index);
-                    bStruct.setFloatField(++doubleRegIndex, dalue);
+                    double dValue = rs.getDouble(index);
+                    value = new BFloat(dValue);
                     break;
                 case TypeTags.BOOLEAN_TAG:
                     boolean boolValue = rs.getBoolean(index);
-                    bStruct.setBooleanField(++booleanRegIndex, boolValue ? 1 : 0);
+                    value = new BBoolean(boolValue);
                     break;
                 case TypeTags.JSON_TAG:
                     String jsonValue = rs.getString(index);
-                    bStruct.setRefField(++refRegIndex, new BJSON(jsonValue));
+                    value = new BJSON(jsonValue);
                     break;
                 case TypeTags.XML_TAG:
                     String xmlValue = rs.getString(index);
-                    bStruct.setRefField(++refRegIndex, new BXMLItem(xmlValue));
-                    break;
-                case TypeTags.BLOB_TAG:
-                    Blob blobValue = rs.getBlob(index);
-                    bStruct.setBlobField(++blobRegIndex, blobValue.getBytes(1L, (int) blobValue.length()));
+                    value = new BXMLItem(xmlValue);
                     break;
                 case TypeTags.ARRAY_TAG:
-                    Array arrayValue = rs.getArray(index);
-                    bStruct.setRefField(++refRegIndex, getDataArray(arrayValue));
+                    BType arrayElementType = ((BArrayType) type).getElementType();
+                    if (arrayElementType.getTag() == TypeTags.BYTE_TAG) {
+                        Blob blobValue = rs.getBlob(index);
+                        value = new BByteArray(blobValue.getBytes(1L, (int) blobValue.length()));
+                    } else {
+                        Array arrayValue = rs.getArray(index);
+                        value = getDataArray(arrayValue);
+                    }
                     break;
                 }
+                
+                bStruct.put(fieldName, value);
 
             }
         } catch (SQLException e) {
@@ -428,11 +431,13 @@ public class TableIterator implements DataIterator {
             case TypeTags.XML_TAG:
                 typeKind = TypeKind.XML;
                 break;
-            case TypeTags.BLOB_TAG:
-                typeKind = TypeKind.BLOB;
-                break;
             case TypeTags.ARRAY_TAG:
-                typeKind = TypeKind.ARRAY;
+                BType elementType = ((BArrayType) type).getElementType();
+                if (elementType.getTag() == TypeTags.BYTE_TAG) {
+                    typeKind = TypeKind.BLOB;
+                } else {
+                    typeKind = TypeKind.ARRAY;
+                }
                 break;
             }
             ColumnDefinition def = new ColumnDefinition(sf.fieldName, typeKind);

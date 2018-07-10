@@ -112,7 +112,7 @@ public class PackageFileReader {
         ZipFile zipFile = new ZipFile(libsPath.toFile());
         ZipEntry zipEntry =
                 zipFile.getEntry(USER_REPO_OBJ_DIRNAME + "/" + pkgName + BLANG_COMPILED_PACKAGE_FILE_SUFFIX);
-        InputStream is = zipFile.getInputStream(zipEntry);
+        InputStream is = new BufferedInputStream(zipFile.getInputStream(zipEntry));
         return is;
     }
 }

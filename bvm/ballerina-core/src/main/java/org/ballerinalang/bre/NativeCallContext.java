@@ -19,7 +19,7 @@ package org.ballerinalang.bre;
 
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -110,13 +110,13 @@ public class NativeCallContext implements Context {
     }
 
     @Override
-    public BStruct getError() {
+    public BMap<?, ?> getError() {
         return this.parentCtx.getError();
     }
 
     @Override
-    public void setError(BStruct error) {
-        this.parentCtx.setError(error);
+    public void setError(BMap<?, ?> error) {
+        this.parentCtx.setError((BMap<String, BValue>) error);
     }
 
     @Override
@@ -172,20 +172,6 @@ public class NativeCallContext implements Context {
         }
 
         return (workerLocal.intRegs[index] == 1);
-    }
-
-    @Override
-    public byte[] getBlobArgument(int index) {
-        if (index < 0) {
-            throw new ArgumentOutOfRangeException(index);
-        }
-
-        byte[] result = workerLocal.byteRegs[index];
-        if (result == null) {
-            throw new BallerinaException("argument " + index + " is null");
-        }
-
-        return result;
     }
 
     @Override

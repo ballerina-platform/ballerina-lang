@@ -147,6 +147,12 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
             abortItem.setInsertText(Snippet.ABORT.toString());
             abortItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
             completionItems.add(abortItem);
+
+            CompletionItem retryItem = new CompletionItem();
+            retryItem.setLabel(ItemResolverConstants.RETRY);
+            retryItem.setInsertText(Snippet.RETRY.toString());
+            retryItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
+            completionItems.add(retryItem);
         }
 
         // Populate Throw Statement template

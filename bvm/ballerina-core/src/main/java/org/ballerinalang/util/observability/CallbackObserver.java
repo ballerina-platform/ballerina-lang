@@ -19,7 +19,8 @@
 package org.ballerinalang.util.observability;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 
 /**
  * {@link CallbackObserver} represents the callback functionality
@@ -41,7 +42,7 @@ public class CallbackObserver implements CallableUnitCallback {
     }
 
     @Override
-    public void notifyFailure(BStruct error) {
+    public void notifyFailure(BMap<String, BValue> error) {
         observerContext.addProperty(ObservabilityConstants.PROPERTY_ERROR, Boolean.TRUE);
         observerContext.addProperty(ObservabilityConstants.PROPERTY_BSTRUCT_ERROR, error);
         ObservabilityUtils.stopObservation(observerContext);

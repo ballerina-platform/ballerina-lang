@@ -20,6 +20,7 @@ import _ from 'lodash';
 import Node from './tree/node';
 
 const isRetry = n => n.kind === 'Retry';
+const anonTypes = {};
 
 // TODO: Move this to a generic place.
 function requireAll(requireContext) {
@@ -204,6 +205,14 @@ class TreeBuilder {
         }
 
         if (node.kind === 'Variable') {
+            if (parentKind === 'ObjectType') {
+                node.inObject = true;
+            }
+
+            if (node.typeNode && node.typeNode.isAnonType) {
+                node.isAnonType = true;
+            }
+
             if (node.initialExpression && node.initialExpression.async) {
                 if (node.ws) {
                     for (let i = 0; i < node.ws.length; i++) {
@@ -359,6 +368,14 @@ class TreeBuilder {
         }
 
         if (node.kind === 'TypeDefinition' && node.typeNode) {
+            if (!node.ws) {
+                node.notVisible = true;
+            }
+
+            if (node.name && node.name.value.startsWith('$anonType$')) {
+                anonTypes[node.name.value] = node.typeNode;
+            }
+
             if (node.typeNode.kind === 'ObjectType') {
                 node.isObjectType = true;
             }
@@ -376,50 +393,18 @@ class TreeBuilder {
         }
 
         if (node.kind === 'ObjectType') {
-            node.publicFields = [];
-            node.privateFields = [];
-            let fields = node.fields;
-            let privateFieldBlockVisible = false;
-            let publicFieldBlockVisible = false;
-
-            for (let i = 0; i < fields.length; i++) {
-                if (fields[i].public) {
-                    node.publicFields.push(fields[i]);
-                } else {
-                    node.privateFields.push(fields[i]);
-                }
-            }
-
-            if (node.ws) {
-                for (let i = 0; i < node.ws.length; i++) {
-                    if (node.ws[i].text === 'public' && node.ws[i + 1].text === '{') {
-                        publicFieldBlockVisible = true;
-                    }
-
-                    if (node.ws[i].text === 'private' && node.ws[i + 1].text === '{') {
-                        privateFieldBlockVisible = true;
-                    }
-                }
-            }
-
-            if (node.privateFields.length <= 0 && !privateFieldBlockVisible) {
-                node.noPrivateFieldsAvailable = true;
-            }
-
-            if (node.publicFields.length <= 0 && !publicFieldBlockVisible) {
-                node.noPublicFieldAvailable = true;
-            }
-
-            if (fields.length <= 0 && node.noPrivateFieldsAvailable && node.noPublicFieldAvailable) {
-                node.noFieldsAvailable = true;
-            }
-
             if (node.initFunction) {
                 if (!node.initFunction.ws) {
                     node.initFunction.defaultConstructor = true;
                 } else {
                     node.initFunction.isConstructor = true;
                 }
+            }
+        }
+
+        if (node.kind === 'RecordType') {
+            if (node.restFieldType) {
+               node.isRestFieldAvailable = true;
             }
         }
 
@@ -551,18 +536,34 @@ class TreeBuilder {
             if (node.ws && node.nullable && _.find(node.ws, (ws) => ws.text === '?')) {
                 node.nullableOperatorAvailable = true;
             }
+
+            if (node.typeName && node.typeName.value && anonTypes[node.typeName.value]) {
+                node.isAnonType = true;
+                node.anonType = anonTypes[node.typeName.value];
+                delete anonTypes[node.typeName.value];
+            }
         }
 
         if (node.kind === 'ArrayType') {
             if (node.dimensions > 0 && node.ws) {
                 node.dimensionAsString = "";
+                let startingBracket;
+                let endingBracket;
+                let content = "";
+
                 for (let j = 0; j < node.ws.length; j++) {
                     if (node.ws[j].text === '[') {
-                        let startingBracket = node.ws[j];
-                        let endingBracket = node.ws[j + 1];
-
-                        node.dimensionAsString += startingBracket.ws + startingBracket.text +
+                        startingBracket = node.ws[j];
+                    } else if (node.ws[j].text === ']') {
+                        endingBracket = node.ws[j];
+                        node.dimensionAsString += startingBracket.text + content +
                             endingBracket.ws + endingBracket.text;
+
+                        content = "";
+                        startingBracket = null;
+                        endingBracket = null;
+                    } else if (startingBracket) {
+                        content += node.ws[j].ws + node.ws[j].text;
                     }
                 }
             }

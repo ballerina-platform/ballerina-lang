@@ -147,7 +147,7 @@ public class BallerinaEndpointFieldProcessor extends BallerinaScopeProcessorBase
                     // definition.
                     myResult.addElement(BallerinaCompletionUtils.createFieldLookupElement(
                             definitionIdentifier, ownerName, typeName, null, ColonInsertHandler.INSTANCE_WITH_SPACE,
-                            true));
+                            true, false));
                 } else if (myElement.getText().equals(definitionIdentifier.getText())) {
                     add(definitionIdentifier);
                 }

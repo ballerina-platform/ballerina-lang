@@ -68,7 +68,16 @@ const tools = [
         nodeFactoryMethod: DefaultNodeFactory.createTransaction,
         description: 'Series of data manipulation statements that must either'
         + ' fully complete or fully fail, leaving the system in a consistent state',
-    }, /*
+    },
+    {
+        id: 'foreach',
+        name: 'Foreach',
+        icon: 'foreach',
+        title: 'Foreach',
+        nodeFactoryMethod: DefaultNodeFactory.createForeach,
+        description: 'Provide a way to iterate',
+    },
+    /*
     {
         id: 'Fork',
         name: 'Fork',

@@ -101,6 +101,10 @@ function startServer(){
     args.push('-Dcomposer.public.path=' + composerPublicPath);
     args.push('-Dopen.browser=false');
     args.push('org.ballerinalang.composer.server.launcher.ServerLauncher');
+    args.push('--host');
+    args.push('localhost');
+    args.push('--port');
+    args.push('0');
 
     logger.info('Starting composer from ' + balHome);
 

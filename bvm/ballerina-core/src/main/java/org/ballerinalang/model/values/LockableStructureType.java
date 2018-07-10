@@ -42,10 +42,6 @@ public interface LockableStructureType extends StructureType {
 
     void unlockBooleanField(int index);
 
-    boolean lockBlobField(WorkerExecutionContext ctx, int index);
-
-    void unlockBlobField(int index);
-
     boolean lockRefField(WorkerExecutionContext ctx, int index);
 
     void unlockRefField(int index);

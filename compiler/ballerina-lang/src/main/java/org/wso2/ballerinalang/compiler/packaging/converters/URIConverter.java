@@ -28,10 +28,16 @@ public class URIConverter implements Converter<URI> {
     private static CacheRepo binaryRepo = new CacheRepo(RepoUtils.createAndGetHomeReposPath(),
                                                         ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME);
     private final URI base;
+    private boolean isBuild = true;
     private PrintStream outStream = System.err;
 
     public URIConverter(URI base) {
         this.base = base;
+    }
+
+    public URIConverter(URI base, boolean isBuild) {
+        this.base = base;
+        this.isBuild = isBuild;
     }
 
     /**
@@ -92,12 +98,13 @@ public class URIConverter implements Converter<URI> {
             EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
             executor.execute("packaging_pull/packaging_pull.balx", true, u.toString(), destDirPath.toString(),
                              fullPkgPath, File.separator, proxy.getHost(), proxy.getPort(), proxy.getUserName(),
-                             proxy.getPassword(), RepoUtils.getTerminalWidth(), supportedVersionRange);
-            
+                             proxy.getPassword(), RepoUtils.getTerminalWidth(), supportedVersionRange,
+                             String.valueOf(isBuild));
+
             Patten patten = binaryRepo.calculate(packageID);
             return patten.convertToSources(binaryRepo.getConverterInstance(), packageID);
         } catch (Exception e) {
-            outStream.println("Error occurred when pulling the remote artifact");
+            outStream.println(isBuild ? "    " : "" + "Error occurred when pulling the remote artifact");
         }
         return Stream.of();
     }
