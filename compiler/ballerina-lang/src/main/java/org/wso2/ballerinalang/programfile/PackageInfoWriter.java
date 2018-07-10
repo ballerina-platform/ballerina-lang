@@ -582,7 +582,6 @@ public class PackageInfoWriter {
                 attrDataOutStream.writeShort(docAttrInfo.paramDocInfoList.size());
                 for (ParameterDocumentInfo paramDocInfo : docAttrInfo.paramDocInfoList) {
                     attrDataOutStream.writeInt(paramDocInfo.nameCPIndex);
-                    attrDataOutStream.writeInt(paramDocInfo.typeSigCPIndex);
                     attrDataOutStream.writeInt(paramDocInfo.paramKindCPIndex);
                     attrDataOutStream.writeInt(paramDocInfo.descriptionCPIndex);
                 }
