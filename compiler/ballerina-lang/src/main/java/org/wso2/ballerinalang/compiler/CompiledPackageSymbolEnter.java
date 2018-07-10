@@ -626,6 +626,8 @@ public class CompiledPackageSymbolEnter {
             objectType.fields.add(structField);
         });
 
+        setDocumentation(varSymbol, attrData);
+
         this.env.unresolvedTypes.add(unresolvedFieldType);
     }
 
@@ -873,7 +875,6 @@ public class CompiledPackageSymbolEnter {
         int noOfParams = documentDataStream.readShort();
         for (int i = 0; i < noOfParams; i++) {
             String name = getUTF8CPEntryValue(documentDataStream);
-            documentDataStream.readInt();
             String paramKind = getUTF8CPEntryValue(documentDataStream);
             String paramDesc = getUTF8CPEntryValue(documentDataStream);
 

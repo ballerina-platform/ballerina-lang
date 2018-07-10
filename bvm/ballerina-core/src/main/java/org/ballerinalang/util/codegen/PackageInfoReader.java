@@ -1053,14 +1053,12 @@ public class PackageInfoReader {
         for (int i = 0; i < noOfParamInfoEntries; i++) {
             int nameCPIndex = dataInStream.readInt();
             String name = getUTF8EntryValue(nameCPIndex, constantPool);
-            int typeSigCPIndex = dataInStream.readInt();
-            String typeSig = getUTF8EntryValue(typeSigCPIndex, constantPool);
             int paramKindCPIndex = dataInStream.readInt();
             String paramKindValue = getUTF8EntryValue(paramKindCPIndex, constantPool);
             int paramDescCPIndex = dataInStream.readInt();
             String paramDesc = getUTF8EntryValue(paramDescCPIndex, constantPool);
-            ParameterDocumentInfo paramDocInfo = new ParameterDocumentInfo(nameCPIndex, name, typeSigCPIndex,
-                    typeSig, paramKindCPIndex, paramKindValue, paramDescCPIndex, paramDesc);
+            ParameterDocumentInfo paramDocInfo = new ParameterDocumentInfo(nameCPIndex, name,
+                    paramKindCPIndex, paramKindValue, paramDescCPIndex, paramDesc);
             docAttrInfo.paramDocInfoList.add(paramDocInfo);
         }
 
