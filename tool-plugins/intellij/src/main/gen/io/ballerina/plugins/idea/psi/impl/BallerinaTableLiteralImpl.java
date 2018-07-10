@@ -43,8 +43,32 @@ public class BallerinaTableLiteralImpl extends BallerinaCompositeElementImpl imp
 
   @Override
   @Nullable
-  public BallerinaTableInitialization getTableInitialization() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaTableInitialization.class);
+  public BallerinaTableColumnDefinition getTableColumnDefinition() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaTableColumnDefinition.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaTableDataArray getTableDataArray() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaTableDataArray.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getComma() {
+    return findChildByType(COMMA);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getLeftBrace() {
+    return findChildByType(LEFT_BRACE);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getRightBrace() {
+    return findChildByType(RIGHT_BRACE);
   }
 
   @Override

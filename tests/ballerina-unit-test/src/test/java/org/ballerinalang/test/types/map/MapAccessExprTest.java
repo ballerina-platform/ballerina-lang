@@ -155,7 +155,7 @@ public class MapAccessExprTest {
 
     @Test(description = "Map access negative scenarios")
     public void negativeTest() {
-        Assert.assertTrue(incorrectCompileResult.getDiagnostics().length == 2);
+        Assert.assertEquals(incorrectCompileResult.getDiagnostics().length, 2);
 
         // testMapAccessWithIndex
         Assert.assertEquals(incorrectCompileResult.getDiagnostics()[0].getMessage(),

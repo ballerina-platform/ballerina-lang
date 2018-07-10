@@ -38,7 +38,7 @@ const webpackHash = process.env.NODE_ENV === 'production'
             ? __webpack_hash__ : __webpack_hash__();
 
 self.MonacoEnvironment = {
-    getWorkerUrl: function (moduleId, label) {
+    getWorkerUrl (moduleId, label) {
       if (label === 'json') {
         return `./workers/json.worker.bundle.js`;
       }
@@ -52,7 +52,7 @@ self.MonacoEnvironment = {
         return `./workers/ts.worker.bundle.js`;
       }
       return `./workers/editor.worker.bundle.js`;
-    }
+    },
 };
 
 /**
@@ -117,6 +117,9 @@ class SourceEditor extends React.Component {
      * @inheritdoc
      */
     componentWillUnmount() {
+        if (this.didChangeHandler) {
+            this.didChangeHandler.dispose();
+        }
         this.props.commandProxy.off(WORKSPACE_EVENTS.FILE_CLOSED, this.onWorkspaceFileClose);
         this.props.commandProxy.off(GO_TO_POSITION, this.handleGoToPosition);
     }
@@ -142,7 +145,7 @@ class SourceEditor extends React.Component {
         this.preventChangeEvt = ignoreChangeEvt;
         this.getCurrentModel()
             .pushEditOperations([],
-                [{
+            [{
                     range: this.getCurrentModel().getFullModelRange(),
                     text: newContent,
                     forceMoveMarkers: true,
@@ -187,7 +190,7 @@ class SourceEditor extends React.Component {
                 .setContent(editorInstance.getValue(), changeEvent);
         },
         400);
-        modelForFile.onDidChangeContent(({ changes, isRedoing, isUndoing }) => {
+        this.didChangeHandler = modelForFile.onDidChangeContent(({ changes, isRedoing, isUndoing }) => {
             if (this.shouldIgnoreChangeEvt()) {
                 return;
             }

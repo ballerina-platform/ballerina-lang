@@ -34,16 +34,20 @@ public type Select object {
                         (function(StreamEvent o) returns string) groupbyFunction => groupbyFunction(event),
                         () => "DEFAULT"
                     };
+                    
                     Aggregator [] aggregatorArray;
-                    if(aggregatorMap.hasKey(groupbyKey)){
-                        aggregatorArray = aggregatorMap[groupbyKey];
-                    } else {
-                        int i = 0;
-                        foreach aggregator in aggregatorArr {
-                            aggregatorArray[i] = aggregator.clone();
-                            i++;
+                    match (aggregatorMap[groupbyKey]) {
+                        Aggregator [] value => {
+                            aggregatorArray = value;
                         }
-                        aggregatorMap[groupbyKey] = aggregatorArray;
+                        () => {
+                            int i = 0;
+                            foreach aggregator in aggregatorArr {
+                                aggregatorArray[i] = aggregator.clone();
+                                i++;
+                            }
+                            aggregatorMap[groupbyKey] = aggregatorArray;
+                        }
                     }
 
                     StreamEvent streamEvent = {eventType: event.eventType, timestamp: event.timestamp,

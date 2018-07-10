@@ -6,8 +6,8 @@ function mapAccessTest(int x, int y) returns (int) {
     testMap["second"] = y;
     testMap["third"] = x + y;
     testMap["forth"] = x - y;
-    xx = check <int> testMap["first"];
-    yy = check <int> testMap["second"];
+    xx = check <int> testMap.first;
+    yy = check <int> testMap.second;
 
     return xx + yy;
 }
@@ -24,7 +24,7 @@ function testArrayAccessAsIndexOfMapt() returns (string) {
     map namesMap = {fname:"Supun",lname:"Setunga"};
     string[] keys = ["fname","lname"];
     string key;
-    key = <string> namesMap[keys[0]];
+    key = namesMap[keys[0]] but { () => "", any a => <string> a};
     return key;
 }
 
@@ -43,7 +43,7 @@ function constructString(map m) returns (string) {
     string returnStr = "";
     while (i < len) {
         string key = keys[i];
-        string val = <string> m[key];
+        string val =  m[key] but { () => "", any a => <string> a};
         returnStr = returnStr + key + ":" + val + ", ";
         i = i + 1;
     }
@@ -114,10 +114,10 @@ function processConcurrent(map<int> intMap, int n) {
       string k;
       while (i < n) {
          intMap["X"] = 100;
-         j = intMap["X"];
+         j = intMap.X;
          k = <string> i;
          intMap[k] = i;
-         i = intMap[k];  
+         i = intMap[k] ?: 0;  
          _ = intMap.remove(k);
          i++;
       }
@@ -129,10 +129,10 @@ function processConcurrent(map<int> intMap, int n) {
       int n2 = n * 2;
       while (i < n2) {
          intMap["X"] = 200;
-         j = intMap["X"];
+         j = intMap.X;
          k = <string> i;
          intMap[k] = i;
-         i = intMap[k];
+         i = intMap[k] ?: 0;
          _ = intMap.remove(k);
          i++;
       }

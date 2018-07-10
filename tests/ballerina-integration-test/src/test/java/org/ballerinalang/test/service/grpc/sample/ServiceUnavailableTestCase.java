@@ -24,6 +24,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.context.Utils;
 import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -39,17 +40,18 @@ public class ServiceUnavailableTestCase extends IntegrationTestCase {
     
     @BeforeClass
     private void setup() throws Exception {
+        Utils.checkPortAvailability(9096);
         TestUtils.prepareBalo(this);
     }
 
     @Test(description = "Test invoking unavailable service. Connector error is expected with connection refused.")
     public void testUnavailableServiceInvoke() {
 
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary1_blocking_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unavailable_service_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BString request = new BString("WSO2");
         final String expectedMsg = "Error from Connector: Status{ code UNAVAILABLE, description null, cause " +
-                "Connection refused: localhost/127.0.0.1:9090}";
+                "Connection refused: localhost/127.0.0.1:9096}";
 
         BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);

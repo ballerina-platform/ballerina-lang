@@ -33,7 +33,7 @@ function testStructOfStruct () returns (string) {
     Department dpt = {employees:emps};
 
     string country;
-    country = <string> dpt.employees[0].adrs["country"];
+    country = <string> dpt.employees[0].adrs.country;
     return country;
 }
 

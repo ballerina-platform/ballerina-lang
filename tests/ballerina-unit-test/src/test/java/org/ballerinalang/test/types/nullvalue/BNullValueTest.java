@@ -181,7 +181,7 @@ public class BNullValueTest {
 
     @Test(description = "Test accessing an element in a null map constrained to any")
     void testNullMapAccess() {
-        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testNullMapAccess", new BValue[]{});
+        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testNullMapAccess");
         Assert.assertEquals(vals.length, 1);
         Assert.assertTrue(vals[0] instanceof BString);
         Assert.assertEquals(vals[0].stringValue(), null);
@@ -189,7 +189,7 @@ public class BNullValueTest {
 
     @Test(description = "Test accessing an element in a null map constrained to any with conversion")
     void testNullMapAccessWithConversion() {
-        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testNullMapAccessWithConversion", new BValue[]{});
+        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testNullMapAccessWithConversion");
         Assert.assertEquals(vals.length, 1);
         Assert.assertTrue(vals[0] instanceof BMap);
         String errorMsg = ((BMap<String, BValue>) vals[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();

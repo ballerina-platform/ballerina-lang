@@ -489,11 +489,28 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Check type compatibility
-        if (expType.tag == TypeTags.ARRAY && ((BArrayType) expType).state == BArrayState.OPEN_SEALED) {
-            dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_USAGE_OF_SEALED_TYPE, "can not infer array size");
+        if (expType.tag == TypeTags.ARRAY && isArrayOpenSealedType((BArrayType) expType)) {
+            dlog.error(varRefExpr.pos, DiagnosticCode.SEALED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
             return;
+
         }
         resultType = types.checkType(varRefExpr, actualType, expType);
+    }
+
+    /**
+     * This method will recursively check if a multidimensional array has at least one open sealed dimension.
+     *
+     * @param arrayType array to check if open sealed
+     * @return true if at least one dimension is open sealed
+     */
+    public boolean isArrayOpenSealedType(BArrayType arrayType) {
+        if (arrayType.state == BArrayState.OPEN_SEALED) {
+            return true;
+        }
+        if (arrayType.eType.tag == TypeTags.ARRAY) {
+            return isArrayOpenSealedType((BArrayType) arrayType.eType);
+        }
+        return false;
     }
 
     /**
@@ -518,14 +535,20 @@ public class TypeChecker extends BLangNodeVisitor {
         fieldAccessExpr.expr.lhsVar = fieldAccessExpr.lhsVar;
         BType varRefType = getTypeOfExprInFieldAccess(fieldAccessExpr.expr);
 
+        // Accessing all fields using * is only supported for XML.
         if (fieldAccessExpr.fieldKind == FieldKind.ALL && varRefType.tag != TypeTags.XML) {
             dlog.error(fieldAccessExpr.pos, DiagnosticCode.CANNOT_GET_ALL_FIELDS, varRefType);
         }
 
-        Name fieldName = names.fromIdNode(fieldAccessExpr.field);
-        if (!fieldAccessExpr.lhsVar) {
-            varRefType = getSafeType(varRefType, fieldAccessExpr.safeNavigate, fieldAccessExpr.pos);
+        // error lifting on lhs is not supported
+        if (fieldAccessExpr.lhsVar && fieldAccessExpr.safeNavigate) {
+            dlog.error(fieldAccessExpr.pos, DiagnosticCode.INVALID_ERROR_LIFTING_ON_LHS);
+            resultType = symTable.errType;
+            return;
         }
+
+        varRefType = getSafeType(varRefType, fieldAccessExpr);
+        Name fieldName = names.fromIdNode(fieldAccessExpr.field);
 
         // Get the effective types of the expression. If there are errors/nill propagating from parent
         // expressions, then the effective type will include those as well.
@@ -541,12 +564,12 @@ public class TypeChecker extends BLangNodeVisitor {
         checkExpr(indexBasedAccessExpr.expr, this.env, symTable.noType);
 
         BType varRefType = indexBasedAccessExpr.expr.type;
-        varRefType = getSafeType(varRefType, indexBasedAccessExpr.safeNavigate, indexBasedAccessExpr.pos);
+        varRefType = getSafeType(varRefType, indexBasedAccessExpr);
 
         BType actualType = checkIndexAccessExpr(indexBasedAccessExpr, varRefType);
         indexBasedAccessExpr.childType = actualType;
 
-        // Get the effective types of the expression. If there are errors/nill propagating from parent
+        // Get the effective types of the expression. If there are errors/nil propagating from parent
         // expressions, then the effective type will include those as well.
         actualType = getAccessExprFinalType(indexBasedAccessExpr, actualType);
 
@@ -582,7 +605,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BType varRefType = iExpr.expr.type;
-        varRefType = getSafeType(varRefType, iExpr.safeNavigate, iExpr.pos);
+        varRefType = getSafeType(varRefType, iExpr);
         switch (varRefType.tag) {
             case TypeTags.OBJECT:
             case TypeTags.RECORD:
@@ -1314,7 +1337,7 @@ public class TypeChecker extends BLangNodeVisitor {
             funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(iExpr.name),
                     structType.tsymbol);
             if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
-                dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_STRUCT, iExpr.name.value, structType);
+                dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_OBJECT, iExpr.name.value, structType);
                 resultType = symTable.errType;
                 return;
             }
@@ -1327,7 +1350,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (structType.tag == TypeTags.RECORD) {
                 BAttachedFunction initializerFunc = ((BRecordTypeSymbol) structType.tsymbol).initializerFunc;
                 if (initializerFunc != null && initializerFunc.funcName.value.equals(iExpr.name.value)) {
-                    dlog.error(iExpr.pos, DiagnosticCode.STRUCT_INITIALIZER_INVOKED, structType.tsymbol.toString());
+                    dlog.error(iExpr.pos, DiagnosticCode.RECORD_INITIALIZER_INVOKED, structType.tsymbol.toString());
                 }
             }
         }
@@ -1577,7 +1600,7 @@ public class TypeChecker extends BLangNodeVisitor {
             fieldName = names.fromIdNode(varRef.variableName);
         } else {
             // keys of the struct literal can only be a varRef (identifier)
-            dlog.error(keyExpr.pos, DiagnosticCode.INVALID_STRUCT_LITERAL_KEY);
+            dlog.error(keyExpr.pos, DiagnosticCode.INVALID_RECORD_LITERAL_KEY);
             return symTable.errType;
         }
 
@@ -1586,7 +1609,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 fieldName, recordType.tsymbol);
         if (fieldSymbol == symTable.notFoundSymbol) {
             if (((BRecordType) recordType).sealed) {
-                dlog.error(keyExpr.pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, recordType.tsymbol);
+                dlog.error(keyExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, fieldName,
+                        recordType.tsymbol.type.getKind().typeName(), recordType.tsymbol);
                 return symTable.errType;
             }
 
@@ -1656,7 +1680,8 @@ public class TypeChecker extends BLangNodeVisitor {
             fieldSymbol = symResolver.resolveObjectField(varReferExpr.pos, env, objFuncName, structType.tsymbol);
 
             if (fieldSymbol == symTable.notFoundSymbol) {
-                dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, structType.tsymbol);
+                dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, fieldName,
+                        structType.tsymbol.type.getKind().typeName(), structType.tsymbol);
                 return symTable.errType;
             }
 
@@ -1667,7 +1692,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // Assuming this method is only used for objects and records
         if (((BRecordType) structType).sealed) {
-            dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, structType.tsymbol);
+            dlog.error(varReferExpr.pos, DiagnosticCode.UNDEFINED_STRUCTURE_FIELD, fieldName,
+                    structType.tsymbol.type.getKind().typeName(), structType.tsymbol);
             return symTable.errType;
         }
 
@@ -1813,7 +1839,7 @@ public class TypeChecker extends BLangNodeVisitor {
             unionType.memberTypes.add(actualType);
         }
 
-        if (isNilable(accessExpr, actualType)) {
+        if (returnsNull(accessExpr)) {
             unionType.memberTypes.add(symTable.nilType);
             unionType.setNullable(true);
         }
@@ -1836,19 +1862,30 @@ public class TypeChecker extends BLangNodeVisitor {
         return unionType;
     }
 
-    private boolean isNilable(BLangAccessExpression accessExpr, BType actualType) {
+    private boolean returnsNull(BLangAccessExpression accessExpr) {
         BType parentType = accessExpr.expr.type;
         if (parentType.isNullable() && parentType.tag != TypeTags.JSON) {
             return true;
         }
 
-        // Check whether this is a map access by index. If so, null is a possible return type.
+        // Check whether this is a map access by index. If not, null is not a possible return type.
         if (parentType.tag != TypeTags.MAP) {
             return false;
         }
 
-        // TODO: make map access with index, returns nullable type
-        // return accessExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR;
+        // A map access with index, returns nullable type
+        if (accessExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR && accessExpr.expr.type.tag == TypeTags.MAP) {
+            BType constraintType = ((BMapType) accessExpr.expr.type).constraint;
+
+            // JSON and any is special cased here, since those are two union types, with null within them.
+            // Therefore return 'type' will not include null.
+            if (constraintType == null || constraintType.tag == TypeTags.ANY || constraintType.tag == TypeTags.JSON) {
+                return false;
+            }
+
+            return true;
+        }
+
         return false;
     }
 
@@ -1936,6 +1973,11 @@ public class TypeChecker extends BLangNodeVisitor {
                 indexExprType = checkExpr(indexExpr, this.env, symTable.stringType);
                 if (indexExprType.tag == TypeTags.STRING) {
                     actualType = ((BMapType) varRefType).getConstraint();
+
+                    // index based map access always returns a nillable type
+                    if (actualType.tag != TypeTags.ANY && actualType.tag != TypeTags.JSON) {
+                        actualType = new BUnionType(null, new LinkedHashSet<>(getTypesList(actualType)), true);
+                    }
                 }
                 break;
             case TypeTags.JSON:
@@ -1990,9 +2032,9 @@ public class TypeChecker extends BLangNodeVisitor {
         return actualType;
     }
 
-    private BType getSafeType(BType type, boolean safeNavigate, DiagnosticPos pos) {
-        if (safeNavigate && type == symTable.errStructType) {
-            dlog.error(pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
+    private BType getSafeType(BType type, BLangAccessExpression accessExpr) {
+        if (accessExpr.safeNavigate && type == symTable.errStructType) {
+            dlog.error(accessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
             return symTable.errType;
         }
 
@@ -2004,9 +2046,10 @@ public class TypeChecker extends BLangNodeVisitor {
         Set<BType> varRefMemberTypes = ((BUnionType) type).memberTypes;
         List<BType> lhsTypes;
 
-        if (safeNavigate) {
+        boolean nullable = false;
+        if (accessExpr.safeNavigate) {
             if (!varRefMemberTypes.contains(symTable.errStructType)) {
-                dlog.error(pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
+                dlog.error(accessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
                 return symTable.errType;
             }
 
@@ -2015,20 +2058,35 @@ public class TypeChecker extends BLangNodeVisitor {
             }).collect(Collectors.toList());
 
             if (lhsTypes.isEmpty()) {
-                dlog.error(pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
+                dlog.error(accessExpr.pos, DiagnosticCode.SAFE_NAVIGATION_NOT_REQUIRED, type);
                 return symTable.errType;
             }
         } else {
-            lhsTypes = varRefMemberTypes.stream().filter(memberType -> {
-                return memberType != symTable.nilType;
-            }).collect(Collectors.toList());
+            // If this is a field access in lhs, and the varRef is not a defaultable type,
+            // then do not remove nil.
+            if (accessExpr.lhsVar && !isDefaultable(type)) {
+                lhsTypes = new ArrayList<>(varRefMemberTypes);
+                nullable = true;
+            } else {
+                lhsTypes = varRefMemberTypes.stream().filter(memberType -> {
+                    return memberType != symTable.nilType;
+                }).collect(Collectors.toList());
+            }
         }
 
         if (lhsTypes.size() == 1) {
             return lhsTypes.get(0);
         }
 
-        return new BUnionType(null, new LinkedHashSet<>(lhsTypes), false);
+        return new BUnionType(null, new LinkedHashSet<>(lhsTypes), nullable);
+    }
+
+    private boolean isDefaultable(BType type) {
+        if (type.tag == TypeTags.JSON || type.tag == TypeTags.MAP) {
+            return true;
+        }
+
+        return false;
     }
 
     private List<BType> getTypesList(BType type) {

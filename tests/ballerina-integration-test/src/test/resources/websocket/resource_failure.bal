@@ -28,7 +28,7 @@ service<http:Service> simple bind { port: 9090 } {
     websocketProxy(endpoint httpEp, http:Request req, string path1, string path2) {
         endpoint http:WebSocketListener wsServiceEp;
         wsServiceEp = httpEp->acceptWebSocketUpgrade({ "X-some-header": "some-header-value" });
-        wsServiceEp.attributes["Query1"] = req.getQueryParams()["q1"];
+        wsServiceEp.attributes["Query1"] = req.getQueryParams().q1;
     }
 }
 @http:WebSocketServiceConfig {

@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaPrivateObjectFieldsImpl extends BallerinaCompositeElementImpl implements BallerinaPrivateObjectFields {
+public class BallerinaScopeClauseImpl extends BallerinaCompositeElementImpl implements BallerinaScopeClause {
 
-  public BallerinaPrivateObjectFieldsImpl(ASTNode node) {
+  public BallerinaScopeClauseImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitPrivateObjectFields(this);
+    visitor.visitScopeClause(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,8 +43,8 @@ public class BallerinaPrivateObjectFieldsImpl extends BallerinaCompositeElementI
 
   @Override
   @NotNull
-  public List<BallerinaFieldDefinition> getFieldDefinitionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaFieldDefinition.class);
+  public List<BallerinaStatement> getStatementList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaStatement.class);
   }
 
   @Override
@@ -60,9 +60,15 @@ public class BallerinaPrivateObjectFieldsImpl extends BallerinaCompositeElementI
   }
 
   @Override
+  @Nullable
+  public PsiElement getIdentifier() {
+    return findChildByType(IDENTIFIER);
+  }
+
+  @Override
   @NotNull
-  public PsiElement getPrivate() {
-    return notNullChild(findChildByType(PRIVATE));
+  public PsiElement getScope() {
+    return notNullChild(findChildByType(SCOPE));
   }
 
 }

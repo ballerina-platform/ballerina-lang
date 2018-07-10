@@ -188,9 +188,11 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             rs = stmt.getGeneratedKeys();
             /*The result set contains the auto generated keys. There can be multiple auto generated columns
             in a table.*/
-            BStringArray generatedKeys = null;
+            BStringArray generatedKeys;
             if (rs.next()) {
                 generatedKeys = getGeneratedKeys(rs);
+            } else {
+                generatedKeys = new BStringArray();
             }
             BRefValueArray tuple = new BRefValueArray(executeUpdateWithKeysTupleType);
             tuple.add(0, updatedCount);

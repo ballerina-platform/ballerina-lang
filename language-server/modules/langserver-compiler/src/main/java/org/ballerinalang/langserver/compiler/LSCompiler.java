@@ -20,6 +20,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.compiler.common.CustomErrorStrategyFactory;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
+import org.ballerinalang.langserver.compiler.workspace.ExtendedWorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProgramDirectory;
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProjectDirectory;
@@ -114,7 +115,18 @@ public class LSCompiler {
     public BallerinaFile compileContent(String content, CompilerPhase phase, boolean preserveWhitespace) {
         java.nio.file.Path filePath = createAndGetTempFile(UNTITLED_BAL);
         Optional<Lock> fileLock = documentManager.lockFile(filePath);
+
+        // If the Extended workspace document manager is use enable explicit mode.
+        ExtendedWorkspaceDocumentManagerImpl exDocManager = null;
+        if (documentManager instanceof  ExtendedWorkspaceDocumentManagerImpl) {
+            exDocManager = (ExtendedWorkspaceDocumentManagerImpl) documentManager;
+        }
+
         try {
+            if (null != exDocManager) {
+                exDocManager.enableExplicitMode(filePath);
+            }
+
             if (documentManager.isFileOpen(filePath)) {
                 documentManager.updateFile(filePath, content);
             } else {
@@ -126,6 +138,9 @@ public class LSCompiler {
             documentManager.closeFile(filePath);
             return ballerinaFile;
         } finally {
+            if (null != exDocManager) {
+                exDocManager.disableExplicitMode();
+            }
             fileLock.ifPresent(Lock::unlock);
         }
     }
@@ -358,34 +373,32 @@ public class LSCompiler {
         if (parentDir == null) {
             return null;
         }
-        String tmpParentDir = parentDir;
-
         Path pathWithDotBal = null;
         boolean pathWithDotBalExists = false;
 
         // Go to top till you find a project directory or ballerina home
-        while (!pathWithDotBalExists && tmpParentDir != null) {
-            pathWithDotBal = Paths.get(tmpParentDir, ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
+        while (!pathWithDotBalExists && parentDir != null) {
+            pathWithDotBal = Paths.get(parentDir, ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
             pathWithDotBalExists = Files.exists(pathWithDotBal, LinkOption.NOFOLLOW_LINKS);
             if (!pathWithDotBalExists) {
-                Path parentsParent = Paths.get(tmpParentDir).getParent();
-                tmpParentDir = (parentsParent != null) ? parentsParent.toString() : null;
+                Path parentsParent = Paths.get(parentDir).getParent();
+                parentDir = (parentsParent != null) ? parentsParent.toString() : null;
             }
         }
 
         boolean balHomeExists = Files.exists(balHomePath, LinkOption.NOFOLLOW_LINKS);
 
-        // Check if you find ballerina home if so return parent.
+        // Check if you find ballerina home if so return null.
         if (pathWithDotBalExists && balHomeExists && isSameFile(pathWithDotBal, balHomePath)) {
-            return parentDir;
+            return null;
         }
 
         // Else return the project directory.
         if (pathWithDotBalExists) {
-            return tmpParentDir;
-        } else {
-            // If no directory found return parent.
             return parentDir;
+        } else {
+            // If no directory found return null.
+            return null;
         }
     }
 

@@ -139,6 +139,36 @@ function testGeneratedKeyOnInsert(string jdbcUrl, string userName, string passwo
     return returnVal;
 }
 
+function testGeneratedKeyOnInsertEmptyResults(string jdbcUrl, string userName, string password) returns (int|string) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    int|string returnVal;
+
+    var x = testDB->updateWithGeneratedKeys("insert into CustomersNoKey (firstName,lastName,
+            registrationID,creditLimit,country) values ('Mary', 'Williams', 3, 5000.75, 'USA')", ());
+
+    match x {
+        (int, string[]) y => {
+            int a;
+            string[] b;
+            (a, b) = y;
+            returnVal = lengthof b;
+        }
+        error err1 => {
+            returnVal = err1.message;
+        }
+    }
+
+    testDB.stop();
+    return returnVal;
+}
+
+
 function testGeneratedKeyWithColumn(string jdbcUrl, string userName, string password) returns (string) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,

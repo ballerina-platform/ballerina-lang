@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaPublicObjectFieldsImpl extends BallerinaCompositeElementImpl implements BallerinaPublicObjectFields {
+public class BallerinaRecordRestFieldDefinitionImpl extends BallerinaCompositeElementImpl implements BallerinaRecordRestFieldDefinition {
 
-  public BallerinaPublicObjectFieldsImpl(ASTNode node) {
+  public BallerinaRecordRestFieldDefinitionImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitPublicObjectFields(this);
+    visitor.visitRecordRestFieldDefinition(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -42,27 +42,21 @@ public class BallerinaPublicObjectFieldsImpl extends BallerinaCompositeElementIm
   }
 
   @Override
-  @NotNull
-  public List<BallerinaFieldDefinition> getFieldDefinitionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaFieldDefinition.class);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getLeftBrace() {
-    return notNullChild(findChildByType(LEFT_BRACE));
+  @Nullable
+  public BallerinaSealedLiteral getSealedLiteral() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaSealedLiteral.class);
   }
 
   @Override
   @Nullable
-  public PsiElement getRightBrace() {
-    return findChildByType(RIGHT_BRACE);
+  public BallerinaTypeName getTypeName() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class);
   }
 
   @Override
-  @NotNull
-  public PsiElement getPublic() {
-    return notNullChild(findChildByType(PUBLIC));
+  @Nullable
+  public PsiElement getEllipsis() {
+    return findChildByType(ELLIPSIS);
   }
 
 }

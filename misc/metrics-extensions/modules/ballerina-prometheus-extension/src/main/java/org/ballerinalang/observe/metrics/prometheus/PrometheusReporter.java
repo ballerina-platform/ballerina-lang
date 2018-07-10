@@ -74,7 +74,6 @@ public class PrometheusReporter implements MetricReporter {
             String key = configKeys.next();
             config.put(key, ConfigRegistry.getInstance().getAsString(key));
         }
-        config.remove(ObservabilityConstants.CONFIG_TRACING_ENABLED);
         return config;
     }
 

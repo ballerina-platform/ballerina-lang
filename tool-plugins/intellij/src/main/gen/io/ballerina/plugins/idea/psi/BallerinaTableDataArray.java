@@ -21,18 +21,15 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaPrivateObjectFields extends BallerinaCompositeElement {
-
-  @NotNull
-  List<BallerinaFieldDefinition> getFieldDefinitionList();
+public interface BallerinaTableDataArray extends BallerinaCompositeElement {
 
   @Nullable
-  PsiElement getLeftBrace();
-
-  @Nullable
-  PsiElement getRightBrace();
+  BallerinaTableDataList getTableDataList();
 
   @NotNull
-  PsiElement getPrivate();
+  PsiElement getLeftBracket();
+
+  @NotNull
+  PsiElement getRightBracket();
 
 }

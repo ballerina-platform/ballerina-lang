@@ -18,7 +18,9 @@
 package org.ballerinalang.langserver.common.utils.completion;
 
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.TypeConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -90,24 +92,43 @@ public class BInvokableSymbolUtil {
         List<BVarSymbol> parameterDefs = bInvokableSymbol.getParameters();
         List<BVarSymbol> defaultParameterDefs = bInvokableSymbol.getDefaultableParameters();
 
-        for (int itr = 0; itr < parameterDefs.size(); itr++) {
-            signature.append(getParameterSignature(parameterDefs.get(itr), false));
-            insertText.append(getParameterInsertText(parameterDefs.get(itr), false, itr + 1));
+        if (bInvokableSymbol.kind == null
+                && (SymbolKind.RECORD.equals(bInvokableSymbol.owner.kind)
+                || SymbolKind.FUNCTION.equals(bInvokableSymbol.owner.kind))) {
+            List<String> funcArguments = CommonUtil.FunctionGenerator.getFuncArguments(bInvokableSymbol);
+            if (funcArguments != null) {
+                int funcArgumentsCount = funcArguments.size();
+                for (int itr = 0; itr < funcArgumentsCount; itr++) {
+                    String argument = funcArguments.get(itr);
+                    signature.append(argument);
+                    insertText.append("${").append(itr + 1).append(":");
+                    insertText.append(argument.split(" ")[1]).append("}");
 
-            if (!(itr == parameterDefs.size() - 1 && defaultParameterDefs.isEmpty())) {
-                signature.append(", ");
-                insertText.append(", ");
+                    if (!(itr == funcArgumentsCount - 1)) {
+                        signature.append(", ");
+                        insertText.append(", ");
+                    }
+                }
             }
-        }
+        } else {
+            for (int itr = 0; itr < parameterDefs.size(); itr++) {
+                signature.append(getParameterSignature(parameterDefs.get(itr), false));
+                insertText.append(getParameterInsertText(parameterDefs.get(itr), false, itr + 1));
 
-        for (int itr = 0; itr < defaultParameterDefs.size(); itr++) {
-            signature.append(getParameterSignature(defaultParameterDefs.get(itr), true));
-            insertText.append(getParameterInsertText(defaultParameterDefs.get(itr), true,
-                    defaultParameterDefs.size() + itr + 1));
+                if (!(itr == parameterDefs.size() - 1 && defaultParameterDefs.isEmpty())) {
+                    signature.append(", ");
+                    insertText.append(", ");
+                }
+            }
+            for (int itr = 0; itr < defaultParameterDefs.size(); itr++) {
+                signature.append(getParameterSignature(defaultParameterDefs.get(itr), true));
+                insertText.append(getParameterInsertText(defaultParameterDefs.get(itr), true,
+                                                         defaultParameterDefs.size() + itr + 1));
 
-            if (itr < defaultParameterDefs.size() - 1) {
-                signature.append(", ");
-                insertText.append(", ");
+                if (itr < defaultParameterDefs.size() - 1) {
+                    signature.append(", ");
+                    insertText.append(", ");
+                }
             }
         }
         signature.append(")");

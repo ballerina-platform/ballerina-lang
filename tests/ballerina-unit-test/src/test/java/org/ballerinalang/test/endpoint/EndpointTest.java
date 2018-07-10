@@ -82,7 +82,7 @@ public class EndpointTest {
     public void testAnonymousEndpointNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/test_anonymous_endpoint_negative.bal");
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
-        BAssertUtil.validateError(compileResult, 0, "undefined field 'confX' in struct 'DummyEndpointConfig'", 63, 39);
+        BAssertUtil.validateError(compileResult, 0, "undefined field 'confX' in record 'DummyEndpointConfig'", 63, 39);
     }
 
     @Test(description = "Test action positive")
@@ -102,6 +102,15 @@ public class EndpointTest {
         Assert.assertEquals(result[4].stringValue(), "elvis");
         Assert.assertEquals(result[5].stringValue(), "string6");
         Assert.assertEquals(result[6].stringValue(), "");
+    }
+
+    @Test(description = "Tests locking variables from different package within lock in workers")
+    public void testReferringEndpointInDifferentPkg() {
+        CompileResult compileResult = BCompileUtil.compile(this, "test-src/endpoint", "pkg.bc");
+
+        BValue[] result = BRunUtil.invoke(compileResult, "testCheck");
+        Assert.assertEquals(result.length, 1);
+        Assert.assertEquals(result[0].stringValue(), "{message:\"i1\", cause:null}");
     }
 
     @Test(description = "Test action negative")

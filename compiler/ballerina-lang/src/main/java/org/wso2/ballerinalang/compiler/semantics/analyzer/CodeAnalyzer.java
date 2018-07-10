@@ -523,6 +523,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 } else if ((exprType.tag == TypeTags.OBJECT || exprType.tag == TypeTags.RECORD)
                         && this.types.isAssignable(patternType, exprType)) {
                     pattern.matchedTypesIndirect.add(exprType);
+                } else if (exprType.tag == TypeTags.BYTE && patternType.tag == TypeTags.INT) {
+                    pattern.matchedTypesDirect.add(exprType);
+                    break;
                 } else {
                     // TODO Support other assignable types
                 }
@@ -1111,6 +1114,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 } else if ((exprType.tag == TypeTags.OBJECT || exprType.tag == TypeTags.RECORD)
                         && this.types.isAssignable(patternType, exprType)) {
                     pattern.matchedTypesIndirect.add(exprType);
+                } else if (exprType.tag == TypeTags.BYTE && patternType.tag == TypeTags.INT) {
+                    pattern.matchedTypesDirect.add(exprType);
+                    break;
                 } else {
                     // TODO Support other assignable types
                 }
