@@ -69,4 +69,4 @@ script:
 
 - ballerina test http-redirects
 
-#- ballerina test testerina-function-mocks
+- ballerina test testerina-function-mocks/testerina_function_mocks.bal
