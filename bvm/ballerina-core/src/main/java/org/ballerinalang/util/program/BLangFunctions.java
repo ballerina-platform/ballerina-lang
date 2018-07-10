@@ -273,7 +273,7 @@ public class BLangFunctions {
                     PersistenceStore.persistState(new State(runnableContext, instanceId));
                 }
                 if (interruptibleNativeCallableUnit.persistAfterOperation()) {
-                    PendingCheckpoints.addCheckpoint(instanceId, (runnableContext.ip + 1));
+                    PendingCheckpoints.add(instanceId, (runnableContext.ip + 1));
                 }
             }
             if (FunctionFlags.isAsync(flags)) {

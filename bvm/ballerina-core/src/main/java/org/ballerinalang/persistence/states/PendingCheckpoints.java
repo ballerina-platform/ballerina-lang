@@ -31,13 +31,13 @@ public class PendingCheckpoints {
 
     private static Map<String, List<Integer>> checkpoints = new HashMap<>();
 
-    public static void addCheckpoint(String instanceId, int ip) {
+    public static void add(String instanceId, int ip) {
         List<Integer> instanceCPs = checkpoints.computeIfAbsent(instanceId, k -> new ArrayList<>());
         instanceCPs.add(ip);
     }
 
-    public static boolean isCheckpoint(String instanceId, int ip) {
+    public static boolean checkAndRemove(String instanceId, int ip) {
         List<Integer> instanceCPs = checkpoints.get(instanceId);
-        return instanceCPs != null && instanceCPs.contains(ip);
+        return instanceCPs != null && instanceCPs.remove(ip) != null;
     }
 }

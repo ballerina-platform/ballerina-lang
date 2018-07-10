@@ -24,6 +24,10 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
 import org.ballerinalang.model.util.JsonGenerator;
+import org.ballerinalang.persistence.serializable.SerializableState;
+import org.ballerinalang.persistence.serializable.reftypes.Serializable;
+import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
+import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayOutputStream;
@@ -47,7 +51,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @since 0.8.0
  */
 @SuppressWarnings("rawtypes")
-public class BMap<K, V extends BValue> implements BRefType, BCollection {
+public class BMap<K, V extends BValue> implements BRefType, BCollection, Serializable {
 
     private LinkedHashMap<K, V> map;
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
@@ -341,6 +345,11 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection {
     @Override
     public BIterator newIterator() {
         return new BMapIterator<>(this);
+    }
+
+    @Override
+    public SerializableRefType serialize(SerializableState state) {
+        return new SerializableBMap<>(this, state);
     }
 
     /**

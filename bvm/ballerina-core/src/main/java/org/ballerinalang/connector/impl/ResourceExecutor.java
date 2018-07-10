@@ -27,8 +27,7 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.states.ActiveStates;
-import org.ballerinalang.persistence.states.FailedStates;
+import org.ballerinalang.persistence.states.RuntimeStates;
 import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.ResourceInfo;
@@ -79,7 +78,7 @@ public class ResourceExecutor {
                 if (correlate(instanceId, bValues)) {
                     return;
                 }
-                ActiveStates.add(new State(context, instanceId));
+                RuntimeStates.add(new State(context, instanceId));
                 context.interruptible = true;
             }
             context.globalProps.putAll(properties);
@@ -96,14 +95,11 @@ public class ResourceExecutor {
     }
 
     private static boolean correlate(String instanceId , BValue... bValues) {
-        List<State> stateList = ActiveStates.get(instanceId);
-        if (stateList != null && !stateList.isEmpty()) {
-            return injectConnection(stateList.get(0), bValues);
-        }
-        stateList = FailedStates.get(instanceId);
+        List<State> stateList = RuntimeStates.get(instanceId);
         if (stateList != null && !stateList.isEmpty()) {
             State state = stateList.get(0);
-            if (injectConnection(state, bValues)) {
+            boolean isConnected = injectConnection(state, bValues);
+            if (isConnected && state.getStatus().equals(State.Status.FAILED)) {
                 // start the context
                 WorkerExecutionContext failedContext = state.getContext();
                 failedContext.ip = state.getIp() - 1;
@@ -112,10 +108,10 @@ public class ResourceExecutor {
                 if (respCtx instanceof CallableWorkerResponseContext) {
                     ((CallableWorkerResponseContext) respCtx).setNotFulfilled();
                 }
-                FailedStates.remove(instanceId);
+                state.setStatus(State.Status.ACTIVE);
                 BLangScheduler.schedule(failedContext);
-                return true;
             }
+            return isConnected;
         }
         return false;
     }
@@ -142,14 +138,14 @@ public class ResourceExecutor {
                     BMap bMap = (BMap) refType;
                     if (bMap.getNativeData().containsKey(TRANSPORT_MESSAGE)) {
                         bMap.addNativeData(TRANSPORT_MESSAGE, transportMessage);
-                        bMap.addNativeData(MESSAGE_CORRELATED, "true");
+                        bMap.addNativeData(MESSAGE_CORRELATED, true);
                         correlated = true;
                     }
                     if (SERVICE_ENDPOINT.equals(bMap.getType().getName())) {
                         BMap connection = (BMap) bMap.get(Constants.CONNECTION);
                         if (connection.getNativeData().containsKey(TRANSPORT_MESSAGE)) {
                             connection.addNativeData(TRANSPORT_MESSAGE, transportMessage);
-                            connection.addNativeData(MESSAGE_CORRELATED, "true");
+                            connection.addNativeData(MESSAGE_CORRELATED, true);
                             if (connection.getNativeData(IS_METHOD_ACCESSED) != null) {
                                 connection.addNativeData(IS_METHOD_ACCESSED, null);
                             }

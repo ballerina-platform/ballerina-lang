@@ -15,32 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.persistence.states;
+package org.ballerinalang.persistence.serializable.reftypes;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.ballerinalang.persistence.serializable.SerializableState;
 
 /**
- * This is used to manage the active @{@link State}s of the system.
+ * Interface which is used to serialize the given object.
  *
  * @since 0.976.0
  */
-public class ActiveStates {
-
-    private static Map<String, List<State>> states = new HashMap<>();
-
-    public static void add(State state) {
-        List<State> stateList = states.computeIfAbsent(state.getInstanceId(), k -> new ArrayList<>());
-        stateList.add(state);
-    }
-
-    public static List<State> get(String instanceId) {
-        return states.get(instanceId);
-    }
-
-    public static void remove(String instanceId) {
-        states.remove(instanceId);
-    }
+public interface Serializable {
+    SerializableRefType serialize(SerializableState state);
 }
