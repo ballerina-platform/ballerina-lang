@@ -9,4 +9,4 @@ ballerina: initiating service(s) in 'ballerina-home/lib/balx/prometheus/reporter
 ballerina: started HTTP/WS endpoint 0.0.0.0:9797
 ballerina: started Prometheus HTTP endpoint 0.0.0.0:9797
 ballerina: initiating service(s) in 'tracing.bal'
-ballerina: started HTTP/WS endpoint 0.0.0.0:9090
+ballerina: started HTTP/WS endpoint 0.0.0.0:9234
