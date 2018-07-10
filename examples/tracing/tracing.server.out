@@ -1,0 +1,9 @@
+# To start the service, navigate to the directory that contains the
+# `.bal` file and use the `ballerina run` command.
+$ ballerina run tracer.bal
+ballerina: started publishing tracers to Jaeger on localhost:5775
+ballerina: initiating service(s) in '/Users/sinthu/Downloads/ballerina-runtime-0.980.0/lib/balx/prometheus/reporter.balx'
+ballerina: started HTTP/WS endpoint 0.0.0.0:9797
+ballerina: started Prometheus HTTP endpoint 0.0.0.0:9797
+ballerina: initiating service(s) in 'tracing.bal'
+ballerina: started HTTP/WS endpoint 0.0.0.0:9090
