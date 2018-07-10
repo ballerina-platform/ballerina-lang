@@ -3,7 +3,7 @@ import ballerina/log;
 import ballerina/runtime;
 import ballerina/observe;
 
-// Make sure you start the service with --observe, or tracing enabled.
+// Make sure you start the service with `--observe`, or tracing enabled.
 service<http:Service> hello bind { port: 9090 } {
 
     // Invoke all resources with arguments of server connector and request.

@@ -3,6 +3,7 @@ import ballerina/log;
 import ballerina/io;
 import ballerina/observe;
 
+// Make sure you start the service with `--observe`, or metrics enabled.
 @http:ServiceConfig { basePath: "/online-store-service" }
 service<http:Service> OnlineStoreService bind { port: 9090 } {
 
