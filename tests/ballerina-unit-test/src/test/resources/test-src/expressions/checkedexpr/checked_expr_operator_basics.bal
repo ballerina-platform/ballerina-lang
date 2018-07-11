@@ -171,3 +171,11 @@ function testCheckedExprAsFuncParam1() returns string | error  {
                 check foo(check foo("A"))) ,
                     check bar(check foo(check foo(check foo("M"))), "done"));
 }
+
+function testCheckInBinaryExpression() returns boolean {
+    string s = "Ballerina";
+    if (check s.matches("B.*") && check s.matches(".*a")) {
+        return true;
+    }
+    return false;
+}

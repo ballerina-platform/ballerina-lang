@@ -205,5 +205,12 @@ public class CheckedExpressionOperatorTest {
         Assert.assertEquals(returns[0].stringValue(), "((((S|S)|(S|S))|((S|S)|(S|S)))|(((S|S)|(S|S))|" +
                 "((S|S)|(S|S)))) ((A|A)|(A|A)) (((M|M)|(M|M))|((M|M)|(M|M))) done", "Invalid string value returned.");
     }
-}
 
+    @Test(description = "Test checked expressions in binary expression")
+    public void testCheckInBinaryExpression() {
+        BValue[] returns = BRunUtil.invoke(result, "testCheckInBinaryExpression", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+}
