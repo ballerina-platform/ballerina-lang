@@ -68,7 +68,7 @@ public class WebSocketSSLHandshakeSuccessfulTestCase {
     }
 
     private ListenerConfiguration getListenerConfiguration() {
-        ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
+        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setPort(WEBSOCKET_REMOTE_SERVER_PORT);
         String keyStoreFile = "/simple-test-config/wso2carbon.p12";
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(keyStoreFile));
@@ -125,7 +125,7 @@ public class WebSocketSSLHandshakeSuccessfulTestCase {
         webSocketConnection.pushText(testText);
         msgCountDownLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
 
-        Assert.assertEquals(clientConnectorListener.getReceivedTextToClient(), testText);
+        Assert.assertEquals(clientConnectorListener.getReceivedTextMessageToClient().getText(), testText);
     }
 
     @AfterClass

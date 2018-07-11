@@ -68,7 +68,7 @@ public class WebSocketSSLHandshakeFailureTestCase {
     }
 
     private ListenerConfiguration getListenerConfiguration() {
-        ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
+        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setPort(WEBSOCKET_REMOTE_SERVER_PORT);
         //set PKCS12 keystore to ballerina server.
         String keyStoreFile = "/simple-test-config/wso2carbon.p12";

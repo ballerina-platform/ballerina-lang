@@ -38,12 +38,17 @@ public class WebSocketServerHandshakeFunctionalityListener implements WebSocketC
     private static final Logger log = LoggerFactory.getLogger(WebSocketServerHandshakeFunctionalityListener.class);
 
     private WebSocketConnection currentWebSocketConnection;
+    private Throwable handshakeError;
     private CountDownLatch handshakeCompleteCountDownLatch;
 
     private static final String[] supportingSubProtocols = {"json", "xml"};
 
     public WebSocketConnection getCurrentWebSocketConnection() {
         return currentWebSocketConnection;
+    }
+
+    public Throwable getHandshakeError() {
+        return handshakeError;
     }
 
     public void setHandshakeCompleteCountDownLatch(CountDownLatch handshakeCompleteCountDownLatch) {
@@ -53,15 +58,17 @@ public class WebSocketServerHandshakeFunctionalityListener implements WebSocketC
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
         ServerHandshakeFuture handshakeFuture = null;
-        if (Boolean.valueOf(initMessage.getHttpCarbonRequest().getHeader("x-negotiate-sub-protocols"))) {
+        if (getBooleanValueOfHeader(initMessage, "x-negotiate-sub-protocols")) {
             handshakeFuture = initMessage.handshake(supportingSubProtocols, true);
-        } else if (Boolean.valueOf(initMessage.getHttpCarbonRequest().getHeader("x-send-custom-header"))) {
+        } else if (getBooleanValueOfHeader(initMessage, "x-send-custom-header")) {
             DefaultHttpHeaders httpHeaders = new DefaultHttpHeaders();
             httpHeaders.add("x-custom-header", "custom-header-value");
             handshakeFuture = initMessage.handshake(null, true, -1, httpHeaders);
-        } else if (Boolean.valueOf(initMessage.getHttpCarbonRequest().getHeader("x-set-connection-timeout"))) {
+        } else if (getBooleanValueOfHeader(initMessage, "x-set-connection-timeout")) {
             handshakeFuture = initMessage.handshake(null, true, 4000);
-        }  else if (Boolean.valueOf(initMessage.getHttpCarbonRequest().getHeader("x-wait-for-frame-read"))) {
+        }  else if (getBooleanValueOfHeader(initMessage, "x-wait-for-frame-read")) {
+            handshakeFuture = initMessage.handshake();
+        } else if (getBooleanValueOfHeader(initMessage, "x-handshake")) {
             handshakeFuture = initMessage.handshake();
         } else {
             initMessage.cancelHandshake(404, "Not Found").addListener(future -> {
@@ -76,17 +83,27 @@ public class WebSocketServerHandshakeFunctionalityListener implements WebSocketC
                 @Override
                 public void onSuccess(WebSocketConnection webSocketConnection) {
                     currentWebSocketConnection = webSocketConnection;
-                    if (handshakeCompleteCountDownLatch != null) {
-                        handshakeCompleteCountDownLatch.countDown();
-                        handshakeCompleteCountDownLatch = null;
-                    }
+                    completeHandshakeCountDown();
                 }
 
                 @Override
                 public void onError(Throwable t) {
+                    handshakeError = t;
                     log.error("Error in handshake: ", t);
+                    completeHandshakeCountDown();
                 }
             });
+        }
+    }
+
+    private Boolean getBooleanValueOfHeader(WebSocketInitMessage initMessage, String s) {
+        return Boolean.valueOf(initMessage.getHttpCarbonRequest().getHeader(s));
+    }
+
+    private void completeHandshakeCountDown() {
+        if (handshakeCompleteCountDownLatch != null) {
+            handshakeCompleteCountDownLatch.countDown();
+            handshakeCompleteCountDownLatch = null;
         }
     }
 

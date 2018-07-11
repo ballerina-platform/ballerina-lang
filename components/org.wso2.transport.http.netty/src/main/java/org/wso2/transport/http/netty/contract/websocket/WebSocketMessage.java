@@ -34,20 +34,6 @@ public interface WebSocketMessage {
     String getTarget();
 
     /**
-     * Retrieve the listener interface of the the incoming message.
-     *
-     * @return the listener interface.
-     */
-    String getListenerInterface();
-
-    /**
-     * Check whether the given connection is secured or not.
-     *
-     * @return true if the connection is secured.
-     */
-    boolean isSecureConnection();
-
-    /**
      * Check whether the message is coming from server connector or client connector.
      *
      * @return true if the message is coming from server connector else return false if the message is coming from
@@ -61,11 +47,4 @@ public interface WebSocketMessage {
      * @return the session of the connection.
      */
     WebSocketConnection getWebSocketConnection();
-
-    /**
-     * Retrieve the session ID.
-     *
-     * @return the session ID.
-     */
-    String getSessionID();
 }

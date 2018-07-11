@@ -16,6 +16,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketFrameType;
 import org.wso2.transport.http.netty.listener.MessageQueueHandler;
 
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
 /**
@@ -25,8 +26,9 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
 
     private final ChannelHandlerContext ctx;
     private final WebSocketInboundFrameHandler frameHandler;
-    private MessageQueueHandler messageQueueHandler;
     private final boolean secure;
+    private final InetSocketAddress localAddress;
+    private MessageQueueHandler messageQueueHandler;
     private WebSocketFrameType continuationFrameType;
     private boolean closeFrameSent;
     private int closeInitiatedStatusCode;
@@ -41,6 +43,7 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
         this.frameHandler = frameHandler;
         this.messageQueueHandler = messageQueueHandler;
         this.secure = secure;
+        this.localAddress = (InetSocketAddress) ctx.channel().localAddress();
         this.negotiatedSubProtocol = negotiatedSubProtocol;
     }
 
@@ -57,6 +60,16 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
     @Override
     public boolean isSecure() {
         return this.secure;
+    }
+
+    @Override
+    public String getHost() {
+        return localAddress.getHostName();
+    }
+
+    @Override
+    public int getPort() {
+        return localAddress.getPort();
     }
 
     @Override
@@ -124,22 +137,22 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
             if (finalFrame) {
                 continuationFrameType = null;
             }
-            return ctx.writeAndFlush(new ContinuationWebSocketFrame(finalFrame, 0, getNettyBuf(data)));
+            return ctx.writeAndFlush(new ContinuationWebSocketFrame(finalFrame, 0, getNettyByteBuf(data)));
         }
         if (!finalFrame) {
             continuationFrameType = WebSocketFrameType.BINARY;
         }
-        return ctx.writeAndFlush(new BinaryWebSocketFrame(finalFrame, 0, getNettyBuf(data)));
+        return ctx.writeAndFlush(new BinaryWebSocketFrame(finalFrame, 0, getNettyByteBuf(data)));
     }
 
     @Override
     public ChannelFuture ping(ByteBuffer data) {
-        return ctx.writeAndFlush(new PingWebSocketFrame(getNettyBuf(data)));
+        return ctx.writeAndFlush(new PingWebSocketFrame(getNettyByteBuf(data)));
     }
 
     @Override
     public ChannelFuture pong(ByteBuffer data) {
-        return ctx.writeAndFlush(new PongWebSocketFrame(getNettyBuf(data)));
+        return ctx.writeAndFlush(new PongWebSocketFrame(getNettyByteBuf(data)));
     }
 
     @Override
@@ -189,7 +202,7 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
         ctx.writeAndFlush(new CloseWebSocketFrame(statusCode, reason)).addListener(writeFuture -> {
             frameHandler.setCloseInitialized(true);
             Throwable writeCause = writeFuture.cause();
-            if (writeFuture.isSuccess() && writeCause != null) {
+            if (!writeFuture.isSuccess() && writeCause != null) {
                 closePromise.setFailure(writeCause);
                 ctx.close();
                 return;
@@ -211,7 +224,7 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
         return this.closeInitiatedStatusCode;
     }
 
-    private ByteBuf getNettyBuf(ByteBuffer buffer) {
+    private ByteBuf getNettyByteBuf(ByteBuffer buffer) {
         return Unpooled.wrappedBuffer(buffer);
     }
 }

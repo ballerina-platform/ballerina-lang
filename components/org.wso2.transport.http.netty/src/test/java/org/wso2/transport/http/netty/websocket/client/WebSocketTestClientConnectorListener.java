@@ -41,7 +41,7 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketTestClientConnectorListener.class);
 
-    private final Queue<String> textQueue = new LinkedList<>();
+    private final Queue<WebSocketTextMessage> textQueue = new LinkedList<>();
     private final Queue<WebSocketBinaryMessage> binaryMessageQueue = new LinkedList<>();
     private final Queue<Throwable> errorsQueue = new LinkedList<>();
     private static final String PING = "ping";
@@ -82,7 +82,7 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
                 errorsQueue.add(e);
             }
         }
-        textQueue.add(textMessage.getText());
+        textQueue.add(textMessage);
         countDownLatch();
     }
 
@@ -132,7 +132,7 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
      *
      * @return the latest text received to the client.
      */
-    public String getReceivedTextToClient() throws Throwable {
+    public WebSocketTextMessage getReceivedTextMessageToClient() throws Throwable {
         if (errorsQueue.isEmpty()) {
             return textQueue.remove();
         }

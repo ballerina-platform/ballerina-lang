@@ -25,26 +25,39 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class WebSocketServerCustomHeadersHandler extends ChannelDuplexHandler {
 
-    private boolean acknowledgedCustomHeader;
+    private final Map<String, String> returningCustomHeaders;
+
+    public WebSocketServerCustomHeadersHandler() {
+        this.returningCustomHeaders = new HashMap<>();
+    }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpRequest) {
             HttpRequest request = (HttpRequest) msg;
             HttpHeaders headers = request.headers();
-            acknowledgedCustomHeader = Boolean.valueOf(headers.get("x-ack-custom-header"));
+
+            String returnStr = "-return";
+            headers.forEach(header -> {
+                if (header.getKey().startsWith("x-custom-header-")) {
+                    returningCustomHeaders.put(header.getKey() + returnStr, header.getValue() + returnStr);
+                }
+            });
+
         }
         super.channelRead(ctx, msg);
     }
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-        if (msg instanceof HttpResponse && acknowledgedCustomHeader) {
+        if (msg instanceof HttpResponse) {
             HttpResponse response = (HttpResponse) msg;
-            response.headers().set("x-custom-header-return", "custom-header");
-            acknowledgedCustomHeader = false;
+            returningCustomHeaders.forEach((key, value) -> response.headers().set(key, value));
             super.write(ctx, response, promise);
             return;
         }

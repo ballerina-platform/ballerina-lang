@@ -19,10 +19,12 @@
 
 package org.wso2.transport.http.netty.listener;
 
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -73,35 +75,35 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
             if (containsUpgradeHeaders(httpRequest)) {
                 if (HttpMethod.GET == requestMethod) {
                     if (log.isDebugEnabled()) {
-                        log.debug("Upgrading the connection from Http to WebSocket for " +
-                                          "channel : " + ctx.channel());
+                        log.debug("Upgrading the connection from Http to WebSocket for channel : " + ctx.channel());
                     }
                     ChannelPipeline pipeline = ctx.pipeline();
                     pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
                     ChannelHandlerContext decoderCtx = pipeline.context(HttpRequestDecoder.class);
                     pipeline.addAfter(decoderCtx.name(), HTTP_OBJECT_AGGREGATOR,
-                            new HttpObjectAggregator(maxContentLength));
+                                      new HttpObjectAggregator(maxContentLength));
                     pipeline.addAfter(HTTP_OBJECT_AGGREGATOR, "handshake",
-                            new SimpleChannelInboundHandler<FullHttpRequest>() {
-                        @Override
-                        protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
-                            // Remove ourselves and do the actual handshake
-                            ctx.pipeline().remove(this);
-                            handleWebSocketHandshake(msg, ctx);
-                        }
+                                      new SimpleChannelInboundHandler<FullHttpRequest>() {
+                                          @Override
+                                          protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg)
+                                                  throws Exception {
+                                              // Remove ourselves and do the actual handshake
+                                              ctx.pipeline().remove(this);
+                                              handleWebSocketHandshake(msg, ctx);
+                                          }
 
-                        @Override
-                        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-                            // Remove ourselves and fail the handshake
-                            ctx.pipeline().remove(this);
-                            ctx.fireExceptionCaught(cause);
-                        }
+                                          @Override
+                                          public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+                                              // Remove ourselves and fail the handshake
+                                              ctx.pipeline().remove(this);
+                                              ctx.fireExceptionCaught(cause);
+                                          }
 
-                        @Override
-                        public void channelInactive(ChannelHandlerContext ctx) {
-                            ctx.fireChannelInactive();
-                        }
-                    });
+                                          @Override
+                                          public void channelInactive(ChannelHandlerContext ctx) {
+                                              ctx.fireChannelInactive();
+                                          }
+                                      });
                     decoderCtx.fireChannelRead(msg);
                 } else {
                     // According to spec since client must send a request with "GET" method, if method is not "GET"
@@ -121,6 +123,13 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
         ctx.close();
     }
 
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        ctx.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR))
+                .addListener(ChannelFutureListener.CLOSE);
+        log.error("Error during WebSocket server handshake", cause);
+    }
+
     /**
      * Check the basic headers needed for WebSocket upgrade are contained in the request.
      *
@@ -129,8 +138,8 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
      */
     private boolean containsUpgradeHeaders(HttpRequest httpRequest) {
         HttpHeaders headers = httpRequest.headers();
-        return headers.containsValue(HttpHeaderNames.CONNECTION, HttpHeaderValues.UPGRADE, true) &&
-                headers.containsValue(HttpHeaderNames.UPGRADE, HttpHeaderValues.WEBSOCKET, true);
+        return headers.containsValue(HttpHeaderNames.CONNECTION, HttpHeaderValues.UPGRADE, true) && headers
+                .containsValue(HttpHeaderNames.UPGRADE, HttpHeaderValues.WEBSOCKET, true);
     }
 
     /**
@@ -139,15 +148,12 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
      * @param fullHttpRequest {@link HttpRequest} of the request.
      */
     private void handleWebSocketHandshake(FullHttpRequest fullHttpRequest, ChannelHandlerContext ctx) throws Exception {
-        DefaultWebSocketInitMessage initMessage =
-                new DefaultWebSocketInitMessage(ctx, serverConnectorFuture, fullHttpRequest);
+        DefaultWebSocketInitMessage initMessage = new DefaultWebSocketInitMessage(ctx, serverConnectorFuture,
+                                                                                  fullHttpRequest);
 
         // Setting common properties for init message
         initMessage.setIsServerMessage(true);
         initMessage.setTarget(fullHttpRequest.uri());
-        initMessage.setListenerInterface(interfaceId);
-        initMessage.setIsSecureConnection(ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null);
-
         initMessage.setHttpCarbonRequest(setupHttpCarbonRequest(fullHttpRequest, ctx));
 
         ctx.channel().config().setAutoRead(false);

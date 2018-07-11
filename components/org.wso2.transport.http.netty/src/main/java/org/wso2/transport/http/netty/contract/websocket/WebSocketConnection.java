@@ -31,6 +31,20 @@ public interface WebSocketConnection {
     boolean isSecure();
 
     /**
+     * Retrieve the host of the connection.
+     *
+     * @return the host of the connection.
+     */
+    String getHost();
+
+    /**
+     * Retrieve the port of the connection.
+     *
+     * @return the port of the connection.
+     */
+    int getPort();
+
+    /**
      * Retrieve the negotiated sub-protocol during WebSocket handshake.
      *
      * @return the negotiated sub-protocol during WebSocket handshake

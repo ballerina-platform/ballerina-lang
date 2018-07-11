@@ -23,7 +23,6 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
@@ -32,8 +31,6 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
-
-import java.nio.ByteBuffer;
 
 /**
  * Simple WebSocket frame handler for testing
@@ -75,27 +72,19 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
                     ctx.writeAndFlush(new ContinuationWebSocketFrame(Unpooled.wrappedBuffer(new byte[]{1, 2, 3, 4})));
                     break;
                 default:
-                    ctx.channel().writeAndFlush(new TextWebSocketFrame(text));
+                    ctx.channel().writeAndFlush(frame.retain());
             }
-        } else if (frame instanceof BinaryWebSocketFrame) {
-            ByteBuffer receivedBuffer = frame.content().nioBuffer();
-            receivedBuffer.rewind();
-            ByteBuffer clonedBuffer = ByteBuffer.allocate(receivedBuffer.capacity());
-            clonedBuffer.put(receivedBuffer);
-            clonedBuffer.flip();
-            ctx.writeAndFlush(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(clonedBuffer)));
         } else if (frame instanceof CloseWebSocketFrame) {
             CloseWebSocketFrame closeFrame = (CloseWebSocketFrame) frame;
             ChannelFuture closeFuture;
             if (closeFrame.statusCode() == 1007) {
                 closeFuture = ctx.writeAndFlush(1008);
             } else {
-                closeFuture = ctx.writeAndFlush(closeFrame.statusCode());
+                closeFuture = ctx.writeAndFlush(closeFrame.retain());
             }
             closeFuture.addListener(future -> ctx.close());
         } else {
-            String message = "unsupported frame type: " + frame.getClass().getName();
-            throw new UnsupportedOperationException(message);
+            ctx.writeAndFlush(frame.retain());
         }
     }
 

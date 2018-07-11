@@ -26,12 +26,4 @@ public class WebSocketConnectorException extends Exception {
     public WebSocketConnectorException(String message) {
         super(message);
     }
-
-    public WebSocketConnectorException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public WebSocketConnectorException(Throwable cause) {
-        super(cause);
-    }
 }

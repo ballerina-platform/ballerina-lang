@@ -78,34 +78,12 @@ public class WebSocketClientConnectorConfig extends SslConfiguration {
         this.subProtocols = Arrays.asList(subProtocols);
     }
 
-    /**
-     * Add sub protocols.
-     *
-     * @param subProtocols a list of sub protocols.
-     */
-    public void setSubProtocols(List<String> subProtocols) {
-        if (subProtocols == null || subProtocols.size() == 0) {
-            this.subProtocols = null;
-            return;
-        }
-        this.subProtocols = subProtocols;
-    }
-
     public boolean isAutoRead() {
         return autoRead;
     }
 
     public void setAutoRead(boolean autoRead) {
         this.autoRead = autoRead;
-    }
-
-    /**
-     * Get sub protocols as a String array.
-     *
-     * @return a String list of sub protocols.
-     */
-    public List<String> getSubProtocols() {
-        return this.subProtocols;
     }
 
     /**
