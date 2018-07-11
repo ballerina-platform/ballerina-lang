@@ -493,9 +493,7 @@ ObjectType
    ;
 
 RecordType
-   : <isRestFieldAvailable?> <fields>* <restFieldType.source> ...
-   | <sealed?>               <fields>*                      ! ...
-   |                         <fields>*
+   : <fields>*
    ;
 
 TypedescExpression
@@ -515,8 +513,7 @@ TypeInitExpr
    ;
 
 UnaryExpr
-   : <inTemplateLiteral?> {{ <operatorKind> <expression.source> }}
-   |                         <operatorKind> <expression.source>
+   : <operatorKind> <expression.source>
    ;
 
 UnionTypeNode

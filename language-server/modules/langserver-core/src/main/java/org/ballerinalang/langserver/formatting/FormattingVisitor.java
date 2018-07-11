@@ -292,8 +292,7 @@ public class FormattingVisitor {
             if (parentKind.equals("VariableDef") || parentKind.equals("CompilationUnit")
                     || parentKind.equals("RecordType")) {
 
-                if (node.has("typeNode") &&
-                        !node.getAsJsonObject("typeNode").get("kind").getAsString().equals("ArrayType")) {
+                if (node.has("typeNode")) {
                     JsonObject typeNode = node.getAsJsonObject("typeNode");
                     typeNode.getAsJsonObject("position").addProperty("startColumn",
                             node.getAsJsonObject("position").get("startColumn").getAsInt());
@@ -354,20 +353,6 @@ public class FormattingVisitor {
                                 node.getAsJsonArray("ws").get(2).getAsJsonObject()
                                         .addProperty("ws", NEW_LINE);
                             }
-                        }
-                    }
-                } else if (node.has("typeNode")) {
-                    JsonObject typeNode = node.getAsJsonObject("typeNode");
-                    typeNode.getAsJsonObject("position").addProperty("startColumn",
-                            node.getAsJsonObject("position").get("startColumn").getAsInt());
-                    if (typeNode.has("ws")) {
-                        this.preserveHeight(typeNode.getAsJsonArray("ws"),
-                                this.getWhiteSpaces(node.getAsJsonObject("position")
-                                        .get("startColumn").getAsInt()));
-                        if (!this.isHeightAvailable(typeNode.getAsJsonArray("ws").get(0)
-                                .getAsJsonObject().get("ws").getAsString())) {
-                            typeNode.getAsJsonArray("ws").get(0).getAsJsonObject()
-                                    .addProperty("ws", EMPTY_SPACE);
                         }
                     }
                 }
@@ -640,27 +625,6 @@ public class FormattingVisitor {
             child.getAsJsonObject("position").addProperty("startColumn",
                     node.getAsJsonObject("position").get("startColumn").getAsInt()
                             + this.getWhiteSpaceCount(SPACE_TAB));
-        }
-
-        if (node.has("restFieldType") &&
-                node.get("restFieldType").getAsJsonObject().has("ws")) {
-            node.get("restFieldType").getAsJsonObject().getAsJsonObject("position").addProperty("startColumn",
-                    node.getAsJsonObject("position").get("startColumn").getAsInt()
-                            + this.getWhiteSpaceCount(SPACE_TAB));
-        }
-
-        if (node.has("sealed") &&
-                node.get("sealed").getAsBoolean() &&
-                node.has("ws")) {
-            JsonArray ws = node.getAsJsonArray("ws");
-            this.preserveHeight(ws, this.getWhiteSpaces(node.getAsJsonObject("position")
-                    .get("startColumn").getAsInt()) + SPACE_TAB);
-
-            if (!this.isHeightAvailable(ws.get(0).getAsJsonObject().get("ws").getAsString())) {
-                ws.get(0).getAsJsonObject().addProperty("ws", NEW_LINE
-                        + this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt())
-                        + SPACE_TAB);
-            }
         }
     }
 
