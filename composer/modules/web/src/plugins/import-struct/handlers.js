@@ -160,7 +160,8 @@ export function getHandlerDefinitions(plugin) {
                     }
 
                     const schema = GenerateSchema.json('json', JSON.parse(json));
-                    success = processJSONSchema(schema, topLevelNodes,  RecordNode, '', JSON.parse(json), removeDefaults);
+                    RecordNode.typeNode.fields = [];
+                    success = processJSONSchema(schema, topLevelNodes, RecordNode, '', JSON.parse(json), removeDefaults);
 
                     if (success) {
                         topLevelNodes.addTopLevelNodes(RecordNode);
