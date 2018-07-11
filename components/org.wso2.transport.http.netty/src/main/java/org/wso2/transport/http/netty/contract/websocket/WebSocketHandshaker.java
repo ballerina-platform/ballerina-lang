@@ -26,7 +26,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 /**
  * This Message is used to handle WebSocket handshake.
  */
-public interface WebSocketInitMessage extends WebSocketMessage {
+public interface WebSocketHandshaker extends WebSocketMessage {
 
     /**
      * Complete the handshake of a given request. There will not be a idle timeout for the connection if this
@@ -127,9 +127,9 @@ public interface WebSocketInitMessage extends WebSocketMessage {
     boolean isSecure();
 
     /**
-     * Retrieve the connection ID.
+     * Retrieve the Channel ID of the connection.
      *
-     * @return the connection ID.
+     * @return the channel ID of the connection.
      */
-    String getConnectionId();
+    String getChannelId();
 }

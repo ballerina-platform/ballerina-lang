@@ -25,7 +25,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 /**
@@ -36,7 +36,7 @@ public class WebSocketPassThroughClientConnectorListener implements WebSocketCon
     private static final Logger log = LoggerFactory.getLogger(WebSocketPassThroughClientConnectorListener.class);
 
     @Override
-    public void onMessage(WebSocketInitMessage initMessage) {
+    public void onHandshake(WebSocketHandshaker webSocketHandshaker) {
         throw new UnsupportedOperationException("Method is not supported");
     }
 

@@ -36,9 +36,9 @@ import io.netty.handler.timeout.IdleStateHandler;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultServerHandshakeFuture;
-import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketInboundFrameHandler;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketUtil;
 import org.wso2.transport.http.netty.listener.MessageQueueHandler;
@@ -48,24 +48,33 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Implementation of {@link WebSocketInitMessage}.
+ * Default implementation of {@link WebSocketHandshaker}.
  */
-public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage implements WebSocketInitMessage {
+public class DefaultWebSocketHandshaker implements WebSocketHandshaker {
 
     private final ChannelHandlerContext ctx;
     private final FullHttpRequest httpRequest;
     private final ServerConnectorFuture connectorFuture;
+    private final String target;
     private final boolean secureConnection;
+    private final boolean serverMessage;
     private boolean cancelled = false;
     private boolean handshakeStarted = false;
     private HttpCarbonRequest request;
 
-    public DefaultWebSocketInitMessage(ChannelHandlerContext ctx, ServerConnectorFuture connectorFuture,
-                                       FullHttpRequest httpRequest) {
+    public DefaultWebSocketHandshaker(ChannelHandlerContext ctx, ServerConnectorFuture connectorFuture,
+                                      FullHttpRequest httpRequest, String target, boolean serverMessage) {
         this.ctx = ctx;
         this.connectorFuture = connectorFuture;
         this.secureConnection = ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null;
         this.httpRequest = httpRequest;
+        this.target = target;
+        this.serverMessage = serverMessage;
+    }
+
+    @Override
+    public String getTarget() {
+        return this.target;
     }
 
     @Override
@@ -157,7 +166,17 @@ public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage impleme
     }
 
     @Override
-    public String getConnectionId() {
+    public boolean isServerMessage() {
+        return this.serverMessage;
+    }
+
+    @Override
+    public WebSocketConnection getWebSocketConnection() {
+        throw new IllegalStateException("Cannot get WebSocket connection without handshake completion");
+    }
+
+    @Override
+    public String getChannelId() {
         return WebSocketUtil.getChannelId(ctx);
     }
 

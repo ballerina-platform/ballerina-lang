@@ -51,7 +51,7 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
     }
 
     @Override
-    public String getId() {
+    public String getChannelId() {
         return this.id;
     }
 

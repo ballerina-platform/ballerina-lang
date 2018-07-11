@@ -28,7 +28,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 import java.util.concurrent.CountDownLatch;
@@ -56,29 +56,29 @@ public class WebSocketServerHandshakeFunctionalityListener implements WebSocketC
     }
 
     @Override
-    public void onMessage(WebSocketInitMessage initMessage) {
+    public void onHandshake(WebSocketHandshaker webSocketHandshaker) {
         ServerHandshakeFuture handshakeFuture = null;
-        if (getBooleanValueOfHeader(initMessage, "x-negotiate-sub-protocols")) {
-            handshakeFuture = initMessage.handshake(supportingSubProtocols, true);
-        } else if (getBooleanValueOfHeader(initMessage, "x-send-custom-header")) {
+        if (getBooleanValueOfHeader(webSocketHandshaker, "x-negotiate-sub-protocols")) {
+            handshakeFuture = webSocketHandshaker.handshake(supportingSubProtocols, true);
+        } else if (getBooleanValueOfHeader(webSocketHandshaker, "x-send-custom-header")) {
             DefaultHttpHeaders httpHeaders = new DefaultHttpHeaders();
             httpHeaders.add("x-custom-header", "custom-header-value");
-            handshakeFuture = initMessage.handshake(null, true, -1, httpHeaders);
-        } else if (getBooleanValueOfHeader(initMessage, "x-set-connection-timeout")) {
-            handshakeFuture = initMessage.handshake(null, true, 4000);
-        } else if (getBooleanValueOfHeader(initMessage, "x-wait-for-frame-read")) {
-            handshakeFuture = initMessage.handshake();
-        } else if (getBooleanValueOfHeader(initMessage, "x-handshake")) {
-            handshakeFuture = initMessage.handshake();
-        } else if (getBooleanValueOfHeader(initMessage, "x-cancel-and-handshake")) {
-            initMessage.cancelHandshake(404, "Not Found").addListener(future -> {
+            handshakeFuture = webSocketHandshaker.handshake(null, true, -1, httpHeaders);
+        } else if (getBooleanValueOfHeader(webSocketHandshaker, "x-set-connection-timeout")) {
+            handshakeFuture = webSocketHandshaker.handshake(null, true, 4000);
+        } else if (getBooleanValueOfHeader(webSocketHandshaker, "x-wait-for-frame-read")) {
+            handshakeFuture = webSocketHandshaker.handshake();
+        } else if (getBooleanValueOfHeader(webSocketHandshaker, "x-handshake")) {
+            handshakeFuture = webSocketHandshaker.handshake();
+        } else if (getBooleanValueOfHeader(webSocketHandshaker, "x-cancel-and-handshake")) {
+            webSocketHandshaker.cancelHandshake(404, "Not Found").addListener(future -> {
                 if (!future.isSuccess() && future.cause() != null) {
                     log.error("Error canceling handshake", future.cause());
                 }
             }).channel().close();
-            handshakeFuture = initMessage.handshake();
+            handshakeFuture = webSocketHandshaker.handshake();
         } else {
-            initMessage.cancelHandshake(404, "Not Found").addListener(future -> {
+            webSocketHandshaker.cancelHandshake(404, "Not Found").addListener(future -> {
                 if (!future.isSuccess() && future.cause() != null) {
                     log.error("Error canceling handshake", future.cause());
                 }
@@ -103,8 +103,8 @@ public class WebSocketServerHandshakeFunctionalityListener implements WebSocketC
         }
     }
 
-    private Boolean getBooleanValueOfHeader(WebSocketInitMessage initMessage, String s) {
-        return Boolean.valueOf(initMessage.getHttpCarbonRequest().getHeader(s));
+    private Boolean getBooleanValueOfHeader(WebSocketHandshaker webSocketHandshaker, String s) {
+        return Boolean.valueOf(webSocketHandshaker.getHttpCarbonRequest().getHeader(s));
     }
 
     private void completeHandshakeCountDown() {

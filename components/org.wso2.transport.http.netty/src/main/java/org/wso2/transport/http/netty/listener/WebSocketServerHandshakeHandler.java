@@ -40,8 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorException;
-import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketInitMessage;
+import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketHandshaker;
 import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
@@ -147,18 +146,16 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
      *
      * @param fullHttpRequest {@link HttpRequest} of the request.
      */
-    private void handleWebSocketHandshake(FullHttpRequest fullHttpRequest, ChannelHandlerContext ctx)
-            throws WebSocketConnectorException {
-        DefaultWebSocketInitMessage initMessage = new DefaultWebSocketInitMessage(ctx, serverConnectorFuture,
-                                                                                  fullHttpRequest);
+    private void handleWebSocketHandshake(FullHttpRequest fullHttpRequest, ChannelHandlerContext ctx) throws Exception {
+        DefaultWebSocketHandshaker webSocketHandshaker =
+                new DefaultWebSocketHandshaker(ctx, serverConnectorFuture, fullHttpRequest,
+                                               fullHttpRequest.uri(), true);
 
-        // Setting common properties for init message
-        initMessage.setIsServerMessage(true);
-        initMessage.setTarget(fullHttpRequest.uri());
-        initMessage.setHttpCarbonRequest(setupHttpCarbonRequest(fullHttpRequest, ctx));
+        // Setting common properties to handshaker
+        webSocketHandshaker.setHttpCarbonRequest(setupHttpCarbonRequest(fullHttpRequest, ctx));
 
         ctx.channel().config().setAutoRead(false);
-        serverConnectorFuture.notifyWebSocketListener(initMessage);
+        serverConnectorFuture.notifyWebSocketListener(webSocketHandshaker);
     }
 
     private HttpCarbonRequest setupHttpCarbonRequest(HttpRequest httpRequest, ChannelHandlerContext ctx) {
