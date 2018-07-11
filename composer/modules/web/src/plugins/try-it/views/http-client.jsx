@@ -57,13 +57,17 @@ class HttpClient extends React.Component {
      */
     constructor(props) {
         super(props);
+
+        const selectedServiceObj = this.getSelectedService(props);
+
         this.state = {
             httpMethod: 'GET',
             httpMethods: this.getHttpMethods(),
             baseUrls: [],
             baseUrl: '',
-            appendUrl: '',
-            contentType: '',
+            pathUrls: [],
+            appendUrl: selectedServiceObj.appendUrl,
+            contentType: selectedServiceObj.contentType,
             responseBody: '',
             responseCode: '',
             responseHeaders: '',
@@ -96,6 +100,7 @@ class HttpClient extends React.Component {
         this.onResourceSelected = this.onResourceSelected.bind(this);
         this.onChangeUrl = this.onChangeUrl.bind(this);
         this.headerKey = undefined;
+        this.handlePathAdditions = this.handlePathAdditions.bind(this);
     }
 
     /**
@@ -107,10 +112,12 @@ class HttpClient extends React.Component {
             .then((baseUrls) => {
                 this.setState({
                     baseUrls: baseUrls || [],
+                    baseUrl: baseUrls[0] || '',
                 });
             }).catch(() => {
             });
         this.onAddNewHeader(false);
+        this.renderPathsDropdown();
     }
 
     /**
@@ -119,12 +126,22 @@ class HttpClient extends React.Component {
      * @memberof HttpClient
      */
     componentWillReceiveProps(nextProps) {
-        if (nextProps.serviceNodes.length > 0) {
+        const selectedServiceObj = this.getSelectedService(nextProps);
+        this.setState({
+            selectedService: selectedServiceObj.selectedService,
+            selectedResource: selectedServiceObj.selectedResource,
+            appendUrl: selectedServiceObj.appendUrl,
+            contentType: selectedServiceObj.contentType,
+        });
+    }
+
+    getSelectedService(props) {
+        if (props.serviceNodes.length > 0) {
             let selectedService;
             let selectedResource;
             let selectedContentType = '';
-            if (nextProps.serviceNodes.length === 1) {
-                selectedService = nextProps.serviceNodes[0];
+            if (props.serviceNodes.length === 1) {
+                selectedService = props.serviceNodes[0];
                 if (selectedService.getResources().length === 1) {
                     selectedResource = selectedService.getResources()[0];
                     if (selectedResource.getConsumeTypes().length === 1) {
@@ -132,12 +149,12 @@ class HttpClient extends React.Component {
                     }
                 }
             }
-            this.setState({
+            return { 
                 selectedService,
                 selectedResource,
                 appendUrl: this.compileURL(selectedResource),
                 contentType: selectedContentType,
-            });
+            };
         }
     }
 
@@ -469,19 +486,15 @@ class HttpClient extends React.Component {
             });
         });
 
-        return (
-            <Select
-                search
-                allowAdditions
-                selection
-                placeholder='Select path'
-                options={urlItems}
-                value={this.state.appendUrl}
-                defaultValue={this.state.appendUrl}
-                onChange={this.onAppendUrlChange}
-                className='paths-dropdown'
-            />
-        );
+        this.setState({
+            pathUrls: urlItems,
+        });
+    }
+
+    handlePathAdditions(e, { value }) {
+        this.setState({
+            pathUrls: [{ text: value, value }, ...this.state.pathUrls],
+        });
     }
 
     /**
@@ -523,8 +536,6 @@ class HttpClient extends React.Component {
             const httpBaseUrl = `http://${this.state.baseUrl}`;
             const sendOrCancelButton = this.renderSendOrCancelButton();
 
-            // Getting service name views
-            const pathsDropdown = this.renderPathsDropdown();
             return (
                 <div
                     className='http-client-main-wrapper inverted'
@@ -556,9 +567,18 @@ class HttpClient extends React.Component {
                                         }
                                         onChange={this.onChangeUrl}
                                         value={this.state.baseUrl}
-                                        defaultValue={this.state.baseUrl}
                                     />
-                                    {pathsDropdown}
+                                    <Select
+                                        search
+                                        allowAdditions
+                                        selection
+                                        placeholder='Select path'
+                                        options={this.state.pathUrls}
+                                        value={this.state.appendUrl}
+                                        onChange={this.onAppendUrlChange}
+                                        onAddItem={this.handlePathAdditions}
+                                        className='paths-dropdown'
+                                    />
                                     {sendOrCancelButton}
                                     <Button
                                         title='Copy URL'

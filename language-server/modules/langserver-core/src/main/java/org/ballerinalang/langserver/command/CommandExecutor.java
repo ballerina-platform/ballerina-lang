@@ -17,10 +17,10 @@ package org.ballerinalang.langserver.command;
 
 import com.google.gson.internal.LinkedTreeMap;
 import org.ballerinalang.langserver.LSGlobalContext;
-import org.ballerinalang.langserver.command.CommandUtil.FunctionGenerator;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.CommonUtil.FunctionGenerator;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;

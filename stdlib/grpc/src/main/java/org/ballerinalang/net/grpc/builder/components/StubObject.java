@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.EMPTY_DATATYPE_NAME;
+import static org.ballerinalang.net.grpc.GrpcConstants.STRING;
 
 /**
  * Stub Object bean class.
@@ -55,6 +56,10 @@ public class StubObject {
             blockingFunctionsObj.setOutputComma(null);
             blockingFunctionsObj.setOutputDataType(null);
             blockingFunctionsObj.ignoreCast();
+            blockingFunctionsObj.setCheckOp(null);
+        }
+        if (STRING.equals(outputDataType)) {
+            blockingFunctionsObj.setCheckOp(null);
         }
         blockingFunctions.add(blockingFunctionsObj);
     }

@@ -22,7 +22,6 @@ import io.netty.channel.Channel;
 import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
@@ -363,9 +362,6 @@ public class Debugger {
                     break;
                 case TypeTags.BOOLEAN_TAG:
                     variableDTO.setBValue(new BBoolean(ctx.workerLocal.intRegs[l.getVariableIndex()] == 1));
-                    break;
-                case TypeTags.BLOB_TAG:
-                    variableDTO.setBValue(new BBlob(ctx.workerLocal.byteRegs[l.getVariableIndex()]));
                     break;
                 default:
                     variableDTO.setBValue(ctx.workerLocal.refRegs[l.getVariableIndex()]);

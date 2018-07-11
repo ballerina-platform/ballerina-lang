@@ -119,7 +119,7 @@ service<http:Service> echo11 bind testEP {
     }
     paramNeg (endpoint conn, http:Request req) {
         map<string> params = req.getQueryParams();
-        string bar = params.hasKey("foo") ? params["foo"] : "";
+        string bar = params["foo"] but { () => "" };
         json responseJson = {"echo125":bar};
 
         http:Response res = new;
@@ -292,7 +292,7 @@ service<http:Service> echo55 bind testEP {
     }
     echo5 (endpoint conn, http:Request req) {
         map<string> params = req.getQueryParams();
-        string foo = params.hasKey("foo") ? params["foo"] : "";
+        string foo = params["foo"] but {() => ""};
         json responseJson = {"echo55":"/foo/*"};
 
         http:Response res = new;

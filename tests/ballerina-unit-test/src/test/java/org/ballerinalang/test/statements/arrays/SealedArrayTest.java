@@ -182,7 +182,7 @@ public class SealedArrayTest {
         returnValues = BRunUtil.invoke(compileResult, "createByteDefaultSealedArray");
         Assert.assertFalse(
                 returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(returnValues[0].stringValue(), "['0', '0', '0', '0', '0']", "Length didn't match");
+        Assert.assertEquals(returnValues[0].stringValue(), "[0, 0, 0, 0, 0]", "Length didn't match");
         Assert.assertEquals(((BInteger) returnValues[1]).intValue(), 5, "Length didn't match");
     }
 
@@ -288,7 +288,7 @@ public class SealedArrayTest {
         BAssertUtil.validateError(
                 resultNegative, 5, "array index out of range: index: '5', size: '5'", 38, 18);
         BAssertUtil.validateError(
-                resultNegative, 6, "invalid usage of sealed keyword: 'right hand side array literal expected'", 39, 5);
+                resultNegative, 6, "invalid usage of sealed type: array not initialized", 39, 5);
         BAssertUtil.validateError(
                 resultNegative, 7, "incompatible types: expected 'int[3]', found 'int[]'", 46, 17);
         BAssertUtil.validateError(
@@ -296,9 +296,9 @@ public class SealedArrayTest {
         BAssertUtil.validateError(
                 resultNegative, 9, "incompatible types: expected 'string[2]', found 'string[]'", 52, 34);
         BAssertUtil.validateError(
-                resultNegative, 10, "invalid usage of array literal with type 'int|int[]|int[4]'", 63, 30);
+                resultNegative, 10, "ambiguous type 'int|int[]|int[4]'", 63, 30);
         BAssertUtil.validateError(
-                resultNegative, 11, "invalid usage of array literal with type 'int|int[]|int[4]|int[5]'", 65, 40);
+                resultNegative, 11, "ambiguous type 'int|int[]|int[4]|int[5]'", 65, 40);
         BAssertUtil.validateError(
                 resultNegative, 12, "unreachable pattern: preceding patterns are too" +
                         " general or the pattern ordering is not correct", 73, 9);
@@ -309,7 +309,7 @@ public class SealedArrayTest {
         BAssertUtil.validateError(
                 resultNegative, 15, "array index out of range: index: '4', size: '4'", 82, 8);
         BAssertUtil.validateError(
-                resultNegative, 16, "invalid usage of sealed keyword: 'can not infer array size'", 84, 24);
+                resultNegative, 16, "invalid usage of sealed type: can not infer array size", 84, 21);
         BAssertUtil.validateError(
                 resultNegative, 17, "incompatible types: expected 'json[3]', found 'json[]'", 86, 18);
     }

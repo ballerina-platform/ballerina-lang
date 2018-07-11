@@ -22,7 +22,7 @@ import ballerina/mb;
 import ballerina/log;
 
 // Create a simple queue receiver.
-mb:SimpleQueueReceiver receiver {
+endpoint mb:SimpleQueueReceiver receiver {
    host: "localhost",
    port: 5672,
    queueName: "MyQueue"

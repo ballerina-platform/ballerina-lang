@@ -53,5 +53,10 @@
     	    <artifactId>ballerina-to-swagger</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>swagger-to-ballerina-generator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

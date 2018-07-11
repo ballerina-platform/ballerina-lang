@@ -1,1 +1,1 @@
-{"id":"324","result":{"contents":[{"left":"**Description**\r\n```\r\nTest function to show current package works\r\n\r\n```\r\n**Param**\r\n```\r\ns: string parameter\r\nsd: int parameter\r\n\r\n```\r\n**Return**\r\n```\r\nreturn an int\r\n\r\n```\r\n"}]},"jsonrpc":"2.0"}
+{"id":"324","result":{"contents":[{"left":"**Description**\r\n\r\nTest function to show current package works\r\n\r\n**Param**\r\n- s:string parameter\r\n- sd:int parameter\r\n\r\n**Return**\r\n- :return an int\r\n\r\n"}]},"jsonrpc":"2.0"}

@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.test.types.tuples;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -25,17 +26,19 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Basic Test cases for tubles.
+ * Basic Test cases for tuples.
  *
  * @since 0.966.0
  */
 public class BasicTupleTest {
 
     private CompileResult result;
+    private CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/tuples/tuple_basic_test.bal");
+        resultNegative = BCompileUtil.compile("test-src/types/tuples/tuple_negative_test.bal");
     }
 
 
@@ -83,5 +86,21 @@ public class BasicTupleTest {
         returns = BRunUtil.invoke(result, "testIgnoredValue3");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "foo");
+    }
+
+    @Test(description = "Test negative scenarios of assigning tuple literals")
+    public void testNegativeTupleLiteralAssignments() {
+        BAssertUtil.validateError(
+                resultNegative, 0, "tuple and expression size does not match", 18, 25);
+        BAssertUtil.validateError(
+                resultNegative, 1, "tuple and expression size does not match", 19, 33);
+        BAssertUtil.validateError(
+                resultNegative, 2, "ambiguous type '(int,boolean,string)|(any,boolean,string)?'", 34, 63);
+        BAssertUtil.validateError(
+                resultNegative, 3, "ambiguous type '(Person,int)|(Employee,int)?'", 38, 47);
+        BAssertUtil.validateError(
+                resultNegative, 4, "invalid variable definition; can not infer the assignment type.", 44, 14);
+        BAssertUtil.validateError(
+                resultNegative, 5, "invalid usage of tuple literal with type 'any'", 45, 14);
     }
 }

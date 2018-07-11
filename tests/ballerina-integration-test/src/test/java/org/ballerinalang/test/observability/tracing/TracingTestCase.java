@@ -68,8 +68,7 @@ public class TracingTestCase {
     private void startBallerinaService(ServerInstance serverInstance, String serviceName)
             throws IOException, BallerinaTestException {
         String balFile = new File(RESOURCE_LOCATION + serviceName).getAbsolutePath();
-        serverInstance.setArguments(
-                new String[]{balFile, "--observe", "-e", "b7a.observability.tracing.name=BMockTracer"});
+        String configFile = new File(RESOURCE_LOCATION + "ballerina.conf").getAbsolutePath();
 
         copyFile(new File(System.getProperty(TEST_NATIVES_JAR)), new File(serverInstance.getServerHome()
                 + DEST_FUNCTIONS_JAR));
@@ -80,7 +79,7 @@ public class TracingTestCase {
                 new File(serverInstance.getServerHome()
                         + File.separator + "lib" + File.separator + "repo" + File.separator + "ballerina"));
 
-        serverInstance.startServer();
+        serverInstance.startBallerinaServerWithConfigPath(balFile, configFile);
     }
 
     @Test

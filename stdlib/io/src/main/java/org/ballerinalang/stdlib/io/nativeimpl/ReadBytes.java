@@ -21,6 +21,7 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
@@ -61,7 +62,8 @@ import java.util.Arrays;
 )
 public class ReadBytes implements NativeCallableUnit {
 
-    private static final BTupleType readTupleType = new BTupleType(Arrays.asList(BTypes.typeBlob, BTypes.typeInt));
+    private static final BTupleType readTupleType =
+            new BTupleType(Arrays.asList(new BArrayType(BTypes.typeByte), BTypes.typeInt));
 
     /**
      * Specifies the index which holds the number of bytes in ballerina.lo#readBytes.

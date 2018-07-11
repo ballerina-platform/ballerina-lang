@@ -395,7 +395,7 @@ public class ObjectInBaloTest {
         Assert.assertEquals(result.getErrorCount(), 3);
         BAssertUtil.validateError(result, 0, "variable 'pp' is not initialized", 3, 1);
         BAssertUtil.validateError(result, 1, "variable 'p' is not initialized", 6, 5);
-        BAssertUtil.validateError(result, 2, "undefined function 'attachInterface' in struct " +
+        BAssertUtil.validateError(result, 2, "undefined function 'attachInterface' in object " +
                 "'testorg/foo:v1:Architect'", 7, 13);
     }
 
@@ -408,9 +408,9 @@ public class ObjectInBaloTest {
                 12);
         BAssertUtil.validateError(result, 1, "cannot infer type of the object from 'testorg/foo:v1:Apartment?'", 12,
                 33);
-        BAssertUtil.validateError(result, 2, "invalid variable definition; can not infer the assignment type.",
+        BAssertUtil.validateError(result, 2, "cannot infer type of the object from 'other'", 13, 19);
+        BAssertUtil.validateError(result, 3, "invalid variable definition; can not infer the assignment type.",
                 13, 19);
-        BAssertUtil.validateError(result, 3, "cannot infer type of the object from 'other'", 13, 19);
         BAssertUtil.validateError(result, 4, "invalid usage of 'new' with type 'error'", 14, 21);
     }
 

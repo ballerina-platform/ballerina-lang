@@ -21,10 +21,16 @@ package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
+import org.ballerinalang.util.metrics.PercentileValue;
+import org.ballerinalang.util.metrics.Snapshot;
+import org.ballerinalang.util.metrics.StatisticConfig;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,5 +59,66 @@ public class Utils {
         PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BALLERINA_BUILTIN_PKG);
         StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
         return BLangVMStructs.createBStruct(errorStructInfo, message);
+    }
+
+    public static BRefValueArray createBSnapshots(Snapshot[] snapshots, Context context) {
+        if (snapshots != null && snapshots.length > 0) {
+            PackageInfo observePackage = context.getProgramFile().
+                    getPackageInfo(ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH);
+            StructureTypeInfo snapshotStructInfo = observePackage.
+                    getStructInfo(ObserveNativeImplConstants.SNAPSHOT);
+            StructureTypeInfo percentileStructInfo = observePackage.
+                    getStructInfo(ObserveNativeImplConstants.PERCENTILE_VALUE);
+
+            BRefValueArray bSnapshots = new BRefValueArray(observePackage.
+                    getTypeInfo(ObserveNativeImplConstants.SNAPSHOT).getType());
+            int index = 0;
+            for (Snapshot snapshot : snapshots) {
+                BRefValueArray bPercentiles = new BRefValueArray(observePackage.
+                        getTypeInfo(ObserveNativeImplConstants.PERCENTILE_VALUE).getType());
+                int percentileIndex = 0;
+                for (PercentileValue percentileValue : snapshot.getPercentileValues()) {
+                    BMap<String, BValue> bPercentileValue = BLangVMStructs.createBStruct(percentileStructInfo,
+                            percentileValue.getPercentile(),
+                            percentileValue.getValue());
+                    bPercentiles.add(percentileIndex, bPercentileValue);
+                    percentileIndex++;
+                }
+                BMap<String, BValue> aSnapshot = BLangVMStructs.createBStruct(snapshotStructInfo,
+                        snapshot.getTimeWindow().toMillis(), snapshot.getMean(), snapshot.getMax(),
+                        snapshot.getMin(), snapshot.getStdDev(), bPercentiles);
+                bSnapshots.add(index, aSnapshot);
+                index++;
+            }
+            return bSnapshots;
+        } else {
+            return null;
+        }
+    }
+
+    public static BRefValueArray createBStatisticConfig(StatisticConfig[] configs, Context context) {
+        PackageInfo observePackage = context.getProgramFile().
+                getPackageInfo(ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH);
+        StructureTypeInfo statisticConfigInfo = observePackage.
+                getStructInfo(ObserveNativeImplConstants.STATISTIC_CONFIG);
+        if (configs != null) {
+            BRefValueArray bStatsConfig = new BRefValueArray(statisticConfigInfo.getType());
+            int index = 0;
+            for (StatisticConfig config : configs) {
+                BRefValueArray bPercentiles = new BRefValueArray(BTypes.typeFloat);
+                int percentileIndex = 0;
+                for (Double percentile : config.getPercentiles()) {
+                    bPercentiles.add(percentileIndex, new BFloat(percentile));
+                    percentileIndex++;
+                }
+                BMap<String, BValue> aSnapshot = BLangVMStructs.createBStruct(statisticConfigInfo,
+                        bPercentiles, config.getTimeWindow(), config.getBuckets());
+                bStatsConfig.add(index, aSnapshot);
+                index++;
+            }
+            return bStatsConfig;
+        } else {
+            return new BRefValueArray(statisticConfigInfo.getType());
+        }
     }
 }

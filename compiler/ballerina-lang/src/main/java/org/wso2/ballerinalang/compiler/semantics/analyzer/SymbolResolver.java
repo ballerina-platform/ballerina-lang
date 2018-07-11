@@ -88,6 +88,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
+import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
+import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
 
 /**
  * @since 0.94
@@ -203,6 +205,10 @@ public class SymbolResolver extends BLangNodeVisitor {
             //found symbol is a type symbol.
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
             return false;
+        }
+        // ignore if this is added through compensations
+        if ((symbol.flags & Flags.COMPENSATE) == Flags.COMPENSATE) {
+            return true;
         }
         // We allow variable shadowing for xml namespaces. For all other types, we do not allow variable shadowing.
         if ((foundSym.getKind() == SymbolKind.XMLNS && symbol.getKind() != SymbolKind.XMLNS)
@@ -463,7 +469,8 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         if (env.enclEnv != null && env.enclInvokable != null) {
             BSymbol bSymbol = lookupClosureVarSymbol(env.enclEnv, name, expSymTag);
-            if (bSymbol != symTable.notFoundSymbol && !env.enclInvokable.flagSet.contains(Flag.ATTACHED)) {
+            if (bSymbol != symTable.notFoundSymbol && !env.enclInvokable.flagSet.contains(Flag.ATTACHED)
+                    && env.enclInvokable.flagSet.contains(Flag.LAMBDA)) {
                 ((BLangFunction) env.enclInvokable).closureVarSymbols.add((BVarSymbol) bSymbol);
             }
             return bSymbol;
@@ -592,13 +599,11 @@ public class SymbolResolver extends BLangNodeVisitor {
                 resultType = new BArrayType(resultType, arrayTypeSymbol);
             } else {
                 int size = arrayTypeNode.sizes[i];
-                if (arrayTypeNode.isOpenSealed && i == arrayTypeNode.dimensions - 1) {
-                    // Only first dimension is open sealed
-                    resultType = new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.OPEN_SEALED);
-                } else {
-                    resultType = size == -1 ? new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.UNSEALED) :
-                            new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.CLOSED_SEALED);
-                }
+                resultType = (size == UNSEALED_ARRAY_INDICATOR) ?
+                        new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.UNSEALED) :
+                        (size == OPEN_SEALED_ARRAY_INDICATOR) ?
+                                new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.OPEN_SEALED) :
+                                new BArrayType(resultType, arrayTypeSymbol, size, BArrayState.CLOSED_SEALED);
             }
             arrayTypeSymbol.type = resultType;
         }

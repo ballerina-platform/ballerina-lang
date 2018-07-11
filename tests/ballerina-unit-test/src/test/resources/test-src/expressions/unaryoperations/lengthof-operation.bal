@@ -47,7 +47,7 @@ function arrayLengthAccessTestMapInitializerCase (int x, int y) returns (int) {
     arr[2] = arr[0] + arr[1];
     map tempMap = {"length":(lengthof arr)};
     int length;
-    length =check <int> tempMap["length"];
+    length =check <int> tempMap.length;
     return length;
 }
 
@@ -161,11 +161,11 @@ function lengthOfString() returns (int, int, int) {
 
 function lengthOfBlob() returns (int, int) {
     string s1 = "Hello";
-	blob b1 = s1.toBlob("UTF-8");
+	byte[] b1 = s1.toByteArray("UTF-8");
     int l1 = lengthof b1;
     
     string s2 = "";
-    blob b2 = s2.toBlob("UTF-8");
+    byte[] b2 = s2.toByteArray("UTF-8");
     int l2 = lengthof b2;
     
     return (l1, l2);

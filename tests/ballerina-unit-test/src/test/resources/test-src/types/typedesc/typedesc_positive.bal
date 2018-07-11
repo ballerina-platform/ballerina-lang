@@ -3,7 +3,7 @@ function testBasicTypes() returns (typedesc, typedesc, typedesc, typedesc, typed
     typedesc b = string;
     typedesc c = float;
     typedesc d = boolean;
-    typedesc e = blob;
+    typedesc e = byte;
     return (a, b, c, d, e);
 }
 

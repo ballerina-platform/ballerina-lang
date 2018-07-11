@@ -131,6 +131,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -142,6 +143,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -223,6 +225,7 @@ import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -236,7 +239,6 @@ import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableInde
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.PACKAGE;
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.REG;
 import static org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangTypeLoad;
-import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BLOB_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BOOL_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BYTE_NEGATIVE_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.FLOAT_OFFSET;
@@ -280,6 +282,11 @@ public class CodeGenerator extends BLangNodeVisitor {
     private VariableIndex maxRegIndexes = new VariableIndex(REG);
 
     private List<RegIndex> regIndexList = new ArrayList<>();
+
+    /**
+     * This structure holds child scopes of a given scope.
+     */
+    private Map<String, Stack<String>> childScopesMap = new HashMap<>();
 
     private SymbolEnv env;
     // TODO Remove this dependency from the code generator
@@ -553,8 +560,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 return InstructionCodes.SRET;
             case TypeTags.BOOLEAN:
                 return InstructionCodes.BRET;
-            case TypeTags.BLOB:
-                return InstructionCodes.LRET;
             default:
                 return InstructionCodes.RRET;
         }
@@ -920,7 +925,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         BMapType mapType = (BMapType) mapKeyAccessExpr.expr.type;
         if (variableStore) {
             int opcode = getValueToRefTypeCastOpcode(mapType.constraint.tag);
-            if (opcode == InstructionCodes.NOP) {
+            if (opcode == InstructionCodes.NOP || !mapKeyAccessExpr.except) {
                 emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, mapKeyAccessExpr.regIndex);
             } else {
                 RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
@@ -931,7 +936,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             IntegerCPEntry exceptCPEntry = new IntegerCPEntry(mapKeyAccessExpr.except ? 1 : 0);
             Operand except = getOperand(currentPkgInfo.addCPEntry(exceptCPEntry));
             int opcode = getRefToValueTypeCastOpcode(mapType.constraint.tag);
-            if (opcode == InstructionCodes.NOP) {
+            if (opcode == InstructionCodes.NOP || !mapKeyAccessExpr.except) {
                 emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(mapKeyAccessExpr),
                         except);
             } else {
@@ -1314,6 +1319,65 @@ public class CodeGenerator extends BLangNodeVisitor {
                 bLangStatementExpression.expr.regIndex, bLangStatementExpression.regIndex);
     }
 
+    public void visit(BLangScope scopeNode) {
+        // add the child nodes to the map
+        childScopesMap.put(scopeNode.name.getValue(), scopeNode.childScopes);
+        visit(scopeNode.scopeBody);
+
+        // generating scope end instruction
+        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, currentPkgID);
+        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, Names.GEN_VAR_PREFIX + scopeNode.name.getValue());
+        FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
+        int funcRefCPIndex =  currentPkgInfo.addCPEntry(funcRefCPEntry);
+        int i = 0;
+        //functionRefCP, scopenameUTF8CP, nChild, children
+        Operand[] operands = new Operand[3 + scopeNode.childScopes.size()];
+        operands[i++] = getOperand(funcRefCPIndex);
+        int scopeNameCPIndex = addUTF8CPEntry(currentPkgInfo, scopeNode.getScopeName().getValue());
+        operands[i++] = getOperand(scopeNameCPIndex);
+
+        operands[i++] = getOperand(scopeNode.childScopes.size());
+
+        for (String child : scopeNode.childScopes) {
+            int childScopeNameIndex = addUTF8CPEntry(currentPkgInfo, child);
+            operands[i++] = getOperand(childScopeNameIndex);
+        }
+
+        Operand typeCPIndex = getTypeCPIndex(scopeNode.compensationFunction.function.symbol.type);
+        RegIndex nextIndex = calcAndGetExprRegIndex(scopeNode.compensationFunction);
+        Operand[] closureOperands = calcClosureOperands(scopeNode.compensationFunction.function, funcRefCPIndex,
+                nextIndex, typeCPIndex);
+
+        Operand[] finalOperands = new Operand[operands.length + closureOperands.length];
+        System.arraycopy(operands, 0, finalOperands, 0, operands.length);
+        System.arraycopy(closureOperands, 0, finalOperands, operands.length, closureOperands.length);
+
+        emit(InstructionCodes.SCOPE_END, finalOperands);
+    }
+
+    public void visit(BLangCompensate compensate) {
+        Operand jumpAddr = getOperand(nextIP());
+        //Add child function refs
+        Stack children = childScopesMap.get(compensate.scopeName.getValue());
+
+        int i = 0;
+        //scopeName, child count, children
+        Operand[] operands = new Operand[2 + children.size()];
+
+        int scopeNameCPIndex = addUTF8CPEntry(currentPkgInfo, compensate.invocation.name.value);
+        operands[i++] = getOperand(scopeNameCPIndex);
+
+        operands[i++] = getOperand(children.size());
+        while (children != null && !children.isEmpty()) {
+            String childName = (String) children.pop();
+            int childNameCP = currentPkgInfo.addCPEntry(new UTF8CPEntry(childName));
+            operands[i++] = getOperand(childNameCP);
+        }
+
+        emit(InstructionCodes.COMPENSATE, operands);
+        emit(InstructionCodes.LOOP_COMPENSATE, jumpAddr);
+    }
+
     // private methods
 
     private <T extends BLangNode, U extends SymbolEnv> T genNode(T t, U u) {
@@ -1365,9 +1429,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.BOOLEAN:
                 index = ++indexes.tBoolean;
                 break;
-            case TypeTags.BLOB:
-                index = ++indexes.tBlob;
-                break;
             default:
                 index = ++indexes.tRef;
                 break;
@@ -1391,9 +1452,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.BYTE:
             case TypeTags.BOOLEAN:
                 opcode = baseOpcode + BOOL_OFFSET;
-                break;
-            case TypeTags.BLOB:
-                opcode = baseOpcode + BLOB_OFFSET;
                 break;
             default:
                 opcode = baseOpcode + REF_OFFSET;
@@ -1425,9 +1483,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             case TypeTags.BOOLEAN:
                 opcode = baseOpcode + BOOL_OFFSET;
-                break;
-            case TypeTags.BLOB:
-                opcode = baseOpcode + BLOB_OFFSET;
                 break;
             default:
                 opcode = baseOpcode + REF_OFFSET;
@@ -1627,7 +1682,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         vIndexes.tFloat = that.tFloat;
         vIndexes.tString = that.tString;
         vIndexes.tBoolean = that.tBoolean;
-        vIndexes.tBlob = that.tBlob;
         vIndexes.tRef = that.tRef;
         return vIndexes;
     }
@@ -1641,14 +1695,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         codeAttributeInfo.maxDoubleLocalVars = lvIndexes.tFloat + 1;
         codeAttributeInfo.maxStringLocalVars = lvIndexes.tString + 1;
         codeAttributeInfo.maxIntLocalVars = lvIndexes.tBoolean + 1;
-        codeAttributeInfo.maxByteLocalVars = lvIndexes.tBlob + 1;
         codeAttributeInfo.maxRefLocalVars = lvIndexes.tRef + 1;
 
         codeAttributeInfo.maxLongRegs = codeAttributeInfo.maxLongLocalVars + maxRegIndexes.tInt + 1;
         codeAttributeInfo.maxDoubleRegs = codeAttributeInfo.maxDoubleLocalVars + maxRegIndexes.tFloat + 1;
         codeAttributeInfo.maxStringRegs = codeAttributeInfo.maxStringLocalVars + maxRegIndexes.tString + 1;
         codeAttributeInfo.maxIntRegs = codeAttributeInfo.maxIntLocalVars + maxRegIndexes.tBoolean + 1;
-        codeAttributeInfo.maxByteRegs = codeAttributeInfo.maxByteLocalVars + maxRegIndexes.tBlob + 1;
         codeAttributeInfo.maxRefRegs = codeAttributeInfo.maxRefLocalVars + maxRegIndexes.tRef + 1;
 
         // Update register indexes.
@@ -1669,9 +1721,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 case TypeTags.BOOLEAN:
                     regIndex.value = regIndex.value + codeAttributeInfo.maxIntLocalVars;
                     break;
-                case TypeTags.BLOB:
-                    regIndex.value = regIndex.value + codeAttributeInfo.maxByteLocalVars;
-                    break;
                 default:
                     regIndex.value = regIndex.value + codeAttributeInfo.maxRefLocalVars;
                     break;
@@ -1689,7 +1738,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         max.tFloat = (max.tFloat > current.tFloat) ? max.tFloat : current.tFloat;
         max.tString = (max.tString > current.tString) ? max.tString : current.tString;
         max.tBoolean = (max.tBoolean > current.tBoolean) ? max.tBoolean : current.tBoolean;
-        max.tBlob = (max.tBlob > current.tBlob) ? max.tBlob : current.tBlob;
         max.tRef = (max.tRef > current.tRef) ? max.tRef : current.tRef;
     }
 
@@ -1698,7 +1746,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         indexes.tFloat++;
         indexes.tString++;
         indexes.tBoolean++;
-        indexes.tBlob++;
         indexes.tRef++;
     }
 
@@ -1727,7 +1774,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         varCountAttribInfo.setMaxDoubleVars(fieldCount.tFloat);
         varCountAttribInfo.setMaxStringVars(fieldCount.tString);
         varCountAttribInfo.setMaxIntVars(fieldCount.tBoolean);
-        varCountAttribInfo.setMaxByteVars(fieldCount.tBlob);
         varCountAttribInfo.setMaxRefVars(fieldCount.tRef);
         attributeInfoPool.addAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE, varCountAttribInfo);
     }
@@ -1808,7 +1854,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         varCountAttribInfo.setMaxDoubleVars(fieldCount[FLOAT_OFFSET]);
         varCountAttribInfo.setMaxStringVars(fieldCount[STRING_OFFSET]);
         varCountAttribInfo.setMaxIntVars(fieldCount[BOOL_OFFSET]);
-        varCountAttribInfo.setMaxByteVars(fieldCount[BLOB_OFFSET]);
         varCountAttribInfo.setMaxRefVars(fieldCount[REF_OFFSET]);
         attributeInfoPool.addAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE, varCountAttribInfo);
     }
@@ -1838,10 +1883,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             case TypeTags.BOOLEAN:
                 defaultValue.booleanValue = (Boolean) literalExpr.value;
-                break;
-            case TypeTags.BLOB:
-                defaultValue.blobValue = (byte[]) literalExpr.value;
-                defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new BlobCPEntry(defaultValue.blobValue));
                 break;
             case TypeTags.NIL:
                 break;
@@ -1975,7 +2016,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Create variable count attribute info
         prepareIndexes(fieldIndexes);
         int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
-                fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tBlob, fieldIndexes.tRef};
+                fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tRef};
         addVariableCountAttributeInfo(currentPkgInfo, objInfo, fieldCount);
         fieldIndexes = new VariableIndex(FIELD);
 
@@ -2038,7 +2079,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Create variable count attribute info
         prepareIndexes(fieldIndexes);
         int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
-                fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tBlob, fieldIndexes.tRef};
+                fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tRef};
         addVariableCountAttributeInfo(currentPkgInfo, recordInfo, fieldCount);
         fieldIndexes = new VariableIndex(FIELD);
 
@@ -2296,7 +2337,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         int tFloat = -1;
         int tString = -1;
         int tBoolean = -1;
-        int tBlob = -1;
         int tRef = -1;
         Kind kind;
 
@@ -2310,8 +2350,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             result[1] = this.tFloat;
             result[2] = this.tString;
             result[3] = this.tBoolean;
-            result[4] = this.tBlob;
-            result[5] = this.tRef;
+            result[4] = this.tRef;
             return result;
         }
 
@@ -3531,9 +3570,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             case TypeTags.BOOLEAN:
                 opcode = InstructionCodes.B2ANY;
                 break;
-            case TypeTags.BLOB:
-                opcode = InstructionCodes.L2ANY;
-                break;
             default:
                 opcode = InstructionCodes.NOP;
                 break;
@@ -3558,9 +3594,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             case TypeTags.BOOLEAN:
                 opcode = InstructionCodes.ANY2B;
-                break;
-            case TypeTags.BLOB:
-                opcode = InstructionCodes.ANY2L;
                 break;
             default:
                 opcode = InstructionCodes.NOP;

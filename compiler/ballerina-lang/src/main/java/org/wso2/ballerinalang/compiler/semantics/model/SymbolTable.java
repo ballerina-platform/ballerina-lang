@@ -89,7 +89,6 @@ public class SymbolTable {
     public final BType floatType = new BType(TypeTags.FLOAT, null);
     public final BType stringType = new BType(TypeTags.STRING, null);
     public final BType booleanType = new BType(TypeTags.BOOLEAN, null);
-    public final BType blobType = new BType(TypeTags.BLOB, null);
     public final BType typeDesc = new BType(TypeTags.TYPEDESC, null);
     public final BType jsonType = new BJSONType(TypeTags.JSON, noType, null);
     public final BType xmlType = new BXMLType(TypeTags.XML, null);
@@ -139,7 +138,6 @@ public class SymbolTable {
         initializeType(floatType, TypeKind.FLOAT.typeName());
         initializeType(stringType, TypeKind.STRING.typeName());
         initializeType(booleanType, TypeKind.BOOLEAN.typeName());
-        initializeType(blobType, TypeKind.BLOB.typeName());
         initializeType(typeDesc, TypeKind.TYPEDESC.typeName());
         initializeType(jsonType, TypeKind.JSON.typeName());
         initializeType(xmlType, TypeKind.XML.typeName());
@@ -180,8 +178,6 @@ public class SymbolTable {
                 return stringType;
             case TypeTags.BOOLEAN:
                 return booleanType;
-            case TypeTags.BLOB:
-                return blobType;
             case TypeTags.JSON:
                 return jsonType;
             case TypeTags.XML:
@@ -248,14 +244,14 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.BITWISE_OR, intType, intType, intType, InstructionCodes.IOR);
         defineBinaryOperator(OperatorKind.BITWISE_XOR, byteType, byteType, byteType, InstructionCodes.BIXOR);
         defineBinaryOperator(OperatorKind.BITWISE_XOR, intType, intType, intType, InstructionCodes.IXOR);
-        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, intType, intType, intType, InstructionCodes.BISHL);
-        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, byteType, byteType, intType, InstructionCodes.BISHL);
-        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, intType, byteType, intType, InstructionCodes.BISHL);
-        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, byteType, intType, intType, InstructionCodes.BISHL);
-        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, intType, intType, intType, InstructionCodes.BISHR);
-        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, byteType, byteType, intType, InstructionCodes.BISHR);
-        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, intType, byteType, intType, InstructionCodes.BISHR);
-        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, byteType, intType, intType, InstructionCodes.BISHR);
+        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, intType, intType, intType, InstructionCodes.ILSHIFT);
+        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, intType, byteType, intType, InstructionCodes.ILSHIFT);
+        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, byteType, byteType, byteType, InstructionCodes.BILSHIFT);
+        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, byteType, intType, byteType, InstructionCodes.BILSHIFT);
+        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, intType, intType, intType, InstructionCodes.IRSHIFT);
+        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, intType, byteType, intType, InstructionCodes.IRSHIFT);
+        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, byteType, byteType, byteType, InstructionCodes.BIRSHIFT);
+        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, byteType, intType, byteType, InstructionCodes.BIRSHIFT);
 
         // Binary equality operators ==, !=
         defineBinaryOperator(OperatorKind.EQUAL, intType, intType, booleanType, InstructionCodes.IEQ);
@@ -344,7 +340,6 @@ public class SymbolTable {
         defineUnaryOperator(OperatorKind.LENGTHOF, xmlType, intType, InstructionCodes.LENGTHOF);
         defineUnaryOperator(OperatorKind.LENGTHOF, mapType, intType, InstructionCodes.LENGTHOF);
         defineUnaryOperator(OperatorKind.LENGTHOF, stringType, intType, InstructionCodes.LENGTHOF);
-        defineUnaryOperator(OperatorKind.LENGTHOF, blobType, intType, InstructionCodes.LENGTHOF);
 
         defineConversionOperators();
     }
@@ -361,7 +356,6 @@ public class SymbolTable {
         defineImplicitConversionOperator(stringType, anyType, true, InstructionCodes.S2ANY);
         defineImplicitConversionOperator(booleanType, jsonType, true, InstructionCodes.B2JSON);
         defineImplicitConversionOperator(booleanType, anyType, true, InstructionCodes.B2ANY);
-        defineImplicitConversionOperator(blobType, anyType, true, InstructionCodes.L2ANY);
         defineImplicitConversionOperator(typeDesc, anyType, true, InstructionCodes.NOP);
 
         // Define explicit conversion operators
@@ -370,7 +364,6 @@ public class SymbolTable {
         defineConversionOperator(anyType, floatType, false, InstructionCodes.CHECKCAST);
         defineConversionOperator(anyType, stringType, false, InstructionCodes.CHECKCAST);
         defineConversionOperator(anyType, booleanType, false, InstructionCodes.CHECKCAST);
-        defineConversionOperator(anyType, blobType, false, InstructionCodes.CHECKCAST);
         defineConversionOperator(anyType, typeDesc, false, InstructionCodes.ANY2TYPE);
         defineConversionOperator(anyType, jsonType, false, InstructionCodes.ANY2JSON);
         defineConversionOperator(anyType, xmlType, false, InstructionCodes.ANY2XML);

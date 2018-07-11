@@ -55,8 +55,8 @@ public class BallerinaObjectFunctionDefinitionImpl extends BallerinaCompositeEle
 
   @Override
   @Nullable
-  public BallerinaObjectCallableUnitSignature getObjectCallableUnitSignature() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaObjectCallableUnitSignature.class);
+  public BallerinaCallableUnitSignature getCallableUnitSignature() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaCallableUnitSignature.class);
   }
 
   @Override

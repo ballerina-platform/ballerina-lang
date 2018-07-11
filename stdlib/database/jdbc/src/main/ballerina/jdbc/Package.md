@@ -32,8 +32,8 @@ The full list of endpoint properties can be found listed under the `sql:PoolOpti
 This sample creates a table with two columns. One column is of type `int`, and the other is of type `varchar`. The CREATE statement is executed via the `update` operation of the endpoint.
 
 ```ballerina
-// Create the ‘Students’ table with fields ‘StudentID’ and ‘LastName’.
-var ret = testDB->update("CREATE TABLE IF NOT EXISTS Students(StudentID int, LastName varchar(255))");
+// Create the ‘Students’ table with fields ‘id’, 'name' and ‘age’.
+var ret = testDB->update("CREATE TABLE IF NOT EXISTS Students(id int AUTO_INCREMENT, name varchar(255), age int, PRIMARY KEY(id))");
 match ret {
     int retInt => io:println("Students table create status in DB: " + retInt);
     error err => io:println("Students table create failed: " + err.message);
@@ -47,7 +47,7 @@ This sample shows three examples of data insertion by executing an INSERT statem
 In the first example, query parameter values are passed directly into the query statement of the `update` operation:
 
 ```ballerina
-var ret1 = testDB->update("INSERT INTO Students(StudentID, LastName) values (1, 'john')");
+var ret1 = testDB->update("INSERT INTO Students(name, age) values ('john', 7)");
 match ret1 {
     int retInt => io:println("Inserted row count to Students table: " + retInt);
     error err => io:println("Insert to Students table failed: " + err.message);
@@ -57,9 +57,9 @@ match ret1 {
 In the second example, the parameter values, which are in local variables, are passed directly as parameters to the `update` operation. This direct parameter passing can be done for any primitive Ballerina type like string, int, float, or boolean. The sql type of the parameter is derived from the type of the Ballerina variable that is passed in. 
 
 ```ballerina
-int id = 2;
 string name = "Anne";
-var ret2 = testDB->update("INSERT INTO Students(StudentID, LastName) values (?, ?)", id, name);
+int age = 8;
+var ret2 = testDB->update("INSERT INTO Students(name, age) values (?, ?)", name, age);
 match ret2 {
     int retInt => io:println("Inserted row count to Students table: " + retInt);
     error err => io:println("Insert to Students table failed: " + err.message);
@@ -69,9 +69,9 @@ match ret2 {
 In the third example, parameter values are passed as an `sql:Parameter` to the `update` operation. Use `sql:Parameter` when you need to provide more details such as the exact SQL type of the parameter, or the parameter direction. The default parameter direction is "IN". For more details on parameters, see the `sql` package.
 
 ```ballerina
-sql:Parameter p1 = { sqlType: sql:TYPE_INTEGER, value: 3 };
-sql:Parameter p2 = { sqlType: sql:TYPE_VARCHAR, value: "James" };
-var ret3 = testDB->update("INSERT INTO Students(StudentID, LastName) values (?, ?)", p1, p2);
+sql:Parameter p1 = { sqlType: sql:TYPE_VARCHAR, value: "James" };
+sql:Parameter p2 = { sqlType: sql:TYPE_INTEGER, value: 10 };
+var ret3 = testDB->update("INSERT INTO Students(name, age) values (?, ?)", p1, p2);
 match ret3 {
     int retInt => io:println("Inserted row count to Students table: " + retInt);
     error err => io:println("Insert to Students table failed: " + err.message);
@@ -85,14 +85,14 @@ This example demonstrates inserting data while returning the auto-generated keys
 ```ballerina
 int age = 31;
 string name = "Kate";
-var ret0 = testDB->updateWithGeneratedKeys("INSERT INTO student(age, name) values (?, ?)", (), age, name);
+var ret0 = testDB->updateWithGeneratedKeys("INSERT INTO Students(name, age) values (?, ?)", (), name, age);
 match ret0 {
     (int, string[]) y => {
         var (count, ids) = y;
         io:println("Inserted row count: " + count);
         io:println("Generated key: " + ids[0]);
     }
-    error err => io:println("Insert to student table failed: " + err.message);
+    error err => io:println("Insert to Students table failed: " + err.message);
 }
 ```
 
@@ -102,40 +102,40 @@ This example demonstrates selecting data. First, a type is created to represent 
 
 ```ballerina
 // Define a type to represent the results set.
-type Student {
+type Student record {
     int id,
     string name,
 };
 
 // Select the data from the table.
-var selectRet = testDB->select("SELECT * FROM Students WHERE StudentID = 1", Student);
+var selectRet = testDB->select("SELECT * FROM Students WHERE id = 1", Student);
 table<Student> dt;
 match selectRet {
     table tableReturned => dt = tableReturned;
     error err => io:println("Select data from Students table failed: " + err.message);
 }
 
-// Access the returned table. 
-foreach record in dt {
-    io:println("Student:Name:" + record.name);
+// Access the returned table.
+foreach entry in dt {
+    io:println("Student:Name:" + entry.name);
 }
 ```
 
 To re-iterate the same table multiple times, set the `loadToMemory` argument to true within the `select` action.
 
 ```ballerina
-var selectRet = testDB->select("SELECT * FROM student", Student, loadToMemory = true);
+var selectRet = testDB->select("SELECT * FROM Students", Student, loadToMemory = true);
 table<Student> dt;
 match selectRet {
     table tableReturned => dt = tableReturned;
-    error err => io:println("Select data from student table failed: " + err.message);
+    error err => io:println("Select data from Students table failed: " + err.message);
 }
 
-foreach record in dt {
-    io:println("Student:" + record.id + "|" + record.name + "|" + record.age);
+foreach entry in dt {
+    io:println("Student:" + entry.id + "|" + entry.name + "|" + entry.age);
 }
-foreach record in dt {
-    io:println("Student:" + record.id + "|" + record.name + "|" + record.age);
+foreach entry in dt {
+    io:println("Student:" + entry.id + "|" + entry.name + "|" + entry.age);
 }
 ````
 
@@ -144,7 +144,7 @@ foreach record in dt {
 This example demonstrates modifying data by executing an UPDATE statement via the `update` operation of the endpoint.
 
 ```ballerina
-var ret4 = testDB->update("Update Students set LastName = 'Johnes' where StudentID = ?", 1);
+var ret4 = testDB->update("Update Students set name = 'Johnes' where id = ?", 1);
 match ret4 {
     int retInt => io:println("Updated row count in Students table: " + retInt);
     error err => io:println("Update in Students table failed: " + err.message);
@@ -157,17 +157,17 @@ This example demonstrates how to insert multiple records with a single INSERT st
 
 ```ballerina
 // Create the first batch of parameters.
-sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 5 };
-sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
+sql:Parameter para1 = { sqlType: sql:TYPE_VARCHAR, value: "Alex" };
+sql:Parameter para2 = { sqlType: sql:TYPE_INTEGER, value: 12 };
 sql:Parameter[] parameters1 = [para1, para2];
 
 // Create the second batch of parameters.
-sql:Parameter para3 = { sqlType: sql:TYPE_INTEGER, value: 6 };
-sql:Parameter para4 = { sqlType: sql:TYPE_VARCHAR, value: "Peter" };
+sql:Parameter para3 = { sqlType: sql:TYPE_VARCHAR, value: "Peter" };
+sql:Parameter para4 = { sqlType: sql:TYPE_INTEGER, value: 6 };
 sql:Parameter[] parameters2 = [para3, para4];
 
 // Do the batch update by passing the batches.
-var ret5 = testDB->batchUpdate("INSERT INTO Students(StudentID, LastName) values (?, ?)", parameters1, parameters2);
+var ret5 = testDB->batchUpdate("INSERT INTO Students(name, age) values (?, ?)", parameters1, parameters2);
 match ret5 {
     int[] counts => {
         io:println("Batch item 1 update counts: " + counts[0]);
@@ -184,9 +184,9 @@ The following examples demonstrate executing stored procedures via the `call` op
 The first example shows how to create and call a simple stored procedure that inserts data.
 ```ballerina
 // Create the stored procedure.
-var ret6 = testDB->update("CREATE PROCEDURE INSERTDATA (IN pID INT, IN pName VARCHAR(255))
+var ret6 = testDB->update("CREATE PROCEDURE INSERTDATA (IN pName VARCHAR(255), IN pAge INT)
                            BEGIN
-                              INSERT INTO Students(StudentID, LastName) values (pID, pName);
+                              INSERT INTO Students(name, age) values (pName, pAge);
                            END");
 match ret6 {
     int status => io:println("Stored proc creation status: " + status);
@@ -194,7 +194,7 @@ match ret6 {
 }
 
 // Call the stored procedure.
-var ret7 = testDB->call("{CALL INSERTDATA(?,?)}", (), 7, "George");
+var ret7 = testDB->call("{CALL INSERTDATA(?,?)}", (), "George", 15);
 match ret7 {
     ()|table[] => io:println("Call action successful");
     error err => io:println("Stored procedure call failed: " + err.message);
@@ -206,14 +206,14 @@ This next example shows how to create and call a stored procedure that accepts `
 // Create the stored procedure.
 var ret8 = testDB->update("CREATE PROCEDURE GETCOUNT (INOUT pID INT, OUT pCount INT)
                            BEGIN
-                                SELECT COUNT(*) INTO pID FROM Students WHERE StudentID = pID;
-                                SELECT COUNT(*) INTO pCount FROM Students WHERE StudentID = 2;
+                                SELECT COUNT(*) INTO pID FROM Students WHERE id = pID;
+                                SELECT COUNT(*) INTO pCount FROM Students WHERE id = 2;
                            END");
 match ret8 {
     int status => io:println("Stored proc creation status: " + status);
     error err => io:println("Stored procedure creation failed: " + err.message);
 }
-
+//
 // Call the stored procedure.
 sql:Parameter param1 = { sqlType: sql:TYPE_INTEGER, value: 3, direction: sql:DIRECTION_INOUT };
 sql:Parameter param2 = { sqlType: sql:TYPE_INTEGER, direction: sql:DIRECTION_OUT };
@@ -235,7 +235,7 @@ match ret9 {
 Use the `getProxyTable` action shown below to obtain a proxy for a database table that allows performing add/remove operations over the actual database table.
 
 ```ballerina
-var proxyRet = testDB->getProxyTable("student", Student);
+var proxyRet = testDB->getProxyTable("Students", Student);
 table<Student> tbProxy;
 match proxyRet {
     table tbReturned => tbProxy = tbReturned;
@@ -243,8 +243,8 @@ match proxyRet {
 }
 
 // Iterate through the table and retrieve the data records corresponding to each row.
-foreach record in tbProxy {
-    io:println("Student:" + record.id + "|" + record.name + "|" + record.age);
+foreach entry in tbProxy {
+    io:println("Student:" + entry.id + "|" + entry.name + "|" + entry.age);
 }
 
 // Add data to the database table through the proxied table.
@@ -258,9 +258,17 @@ match addRet {
 // Remove data from the database table through the proxied table by passing a
 // function pointer, which returns a boolean value evaluating whether a given record
 // should be removed or not.
-var rmRet = tbProxy.remove(isUnder20);
+var rmRet = tbProxy.remove(isUnder10);
 match rmRet {
     int count => io:println("Removed count: " + count);
     error err => io:println("Removing from table failed: " + err.message);
+}
+
+// Following is the function to which a pointer was passed when removing data through proxied table
+function isUnder10(Student s) returns boolean {
+    if (s.age < 10) {
+        return true;
+    }
+    return false;
 }
 ```

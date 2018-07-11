@@ -198,8 +198,8 @@ function CallerActions::publishUpdate(string topic, string|xml|json|byte[]|io:By
 
     match (headers) {
         map<string> headerMap => {
-            foreach key in headerMap.keys() {
-                request.setHeader(key, headerMap[key]);
+            foreach key, value in headerMap {
+                request.setHeader(key, value);
             }
         }
         () => {}
@@ -229,8 +229,8 @@ function CallerActions::notifyUpdate(string topic, map<string>? headers = ()) re
 
     match (headers) {
         map<string> headerMap => {
-            foreach key in headerMap.keys() {
-                request.setHeader(key, headerMap[key]);
+            foreach key, value in headerMap {
+                request.setHeader(key, value);
             }
         }
         () => {}

@@ -90,7 +90,6 @@ TYPE_BYTE       : 'byte' ;
 TYPE_FLOAT      : 'float' ;
 TYPE_BOOL       : 'boolean' ;
 TYPE_STRING     : 'string' ;
-TYPE_BLOB       : 'blob' ;
 TYPE_MAP        : 'map' ;
 TYPE_JSON       : 'json' ;
 TYPE_XML        : 'xml' ;
@@ -137,8 +136,10 @@ AWAIT       : 'await' ;
 BUT         : 'but' ;
 CHECK       : 'check' ;
 DONE        : 'done' ;
+SCOPE       : 'scope';
+COMPENSATION : 'compensation';
+COMPENSATE  : 'compensate' ;
 PRIMARYKEY  : 'primarykey' ;
-SEALED      : 'sealed' ;
 
 // Separators
 
@@ -211,35 +212,30 @@ DECREMENT      : '--' ;
 HALF_OPEN_RANGE   : '..<' ;
 
 DecimalIntegerLiteral
-    :   DecimalNumeral IntegerTypeSuffix?
+    :   DecimalNumeral
     ;
 
 HexIntegerLiteral
-    :   HexNumeral IntegerTypeSuffix?
+    :   HexNumeral
     ;
 
 OctalIntegerLiteral
-    :   OctalNumeral IntegerTypeSuffix?
+    :   OctalNumeral
     ;
 
 BinaryIntegerLiteral
-    :   BinaryNumeral IntegerTypeSuffix?
-    ;
-
-fragment
-IntegerTypeSuffix
-    :   [lL]
+    :   BinaryNumeral
     ;
 
 fragment
 DecimalNumeral
     :   '0'
-    |   NonZeroDigit (Digits? | Underscores Digits)
+    |   NonZeroDigit Digits?
     ;
 
 fragment
 Digits
-    :   Digit (DigitOrUnderscore* Digit)?
+    :   Digit+
     ;
 
 fragment
@@ -254,24 +250,13 @@ NonZeroDigit
     ;
 
 fragment
-DigitOrUnderscore
-    :   Digit
-    |   '_'
-    ;
-
-fragment
-Underscores
-    :   '_'+
-    ;
-
-fragment
 HexNumeral
     :   '0' [xX] HexDigits
     ;
 
 fragment
 HexDigits
-    :   HexDigit (HexDigitOrUnderscore* HexDigit)?
+    :   HexDigit+
     ;
 
 fragment
@@ -280,30 +265,18 @@ HexDigit
     ;
 
 fragment
-HexDigitOrUnderscore
-    :   HexDigit
-    |   '_'
-    ;
-
-fragment
 OctalNumeral
-    :   '0' Underscores? OctalDigits
+    :   '0' OctalDigits
     ;
 
 fragment
 OctalDigits
-    :   OctalDigit (OctalDigitOrUnderscore* OctalDigit)?
+    :   OctalDigit+
     ;
 
 fragment
 OctalDigit
     :   [0-7]
-    ;
-
-fragment
-OctalDigitOrUnderscore
-    :   OctalDigit
-    |   '_'
     ;
 
 fragment
@@ -313,18 +286,12 @@ BinaryNumeral
 
 fragment
 BinaryDigits
-    :   BinaryDigit (BinaryDigitOrUnderscore* BinaryDigit)?
+    :   BinaryDigit+
     ;
 
 fragment
 BinaryDigit
     :   [01]
-    ;
-
-fragment
-BinaryDigitOrUnderscore
-    :   BinaryDigit
-    |   '_'
     ;
 
 // §3.10.2 Floating-Point Literals
@@ -336,10 +303,10 @@ FloatingPointLiteral
 
 fragment
 DecimalFloatingPointLiteral
-    :   Digits '.' (Digits ExponentPart? FloatTypeSuffix? | Digits? ExponentPart FloatTypeSuffix? | Digits? ExponentPart? FloatTypeSuffix)
-    |   '.' Digits ExponentPart? FloatTypeSuffix?
-    |   Digits ExponentPart FloatTypeSuffix?
-    |   Digits FloatTypeSuffix
+    :   Digits '.' (Digits ExponentPart? | Digits? ExponentPart)
+    |   '.' Digits ExponentPart?
+    |   Digits ExponentPart
+    |   Digits
     ;
 
 fragment
@@ -363,13 +330,8 @@ Sign
     ;
 
 fragment
-FloatTypeSuffix
-    :   [fFdD]
-    ;
-
-fragment
 HexadecimalFloatingPointLiteral
-    :   HexSignificand BinaryExponent FloatTypeSuffix?
+    :   HexSignificand BinaryExponent
     ;
 
 fragment

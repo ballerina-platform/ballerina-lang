@@ -307,7 +307,7 @@ public class LauncherUtils {
      * @param configFilePath config file path
      * @param observeFlag    to indicate whether observability is enabled
      */
-    private static void loadConfigurations(Path sourceRootPath, Map<String, String> runtimeParams,
+    public static void loadConfigurations(Path sourceRootPath, Map<String, String> runtimeParams,
                                            String configFilePath, boolean observeFlag) {
         Path ballerinaConfPath = sourceRootPath.resolve("ballerina.conf");
         try {

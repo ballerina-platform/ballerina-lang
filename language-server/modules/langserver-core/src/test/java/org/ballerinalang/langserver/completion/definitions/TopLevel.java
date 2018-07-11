@@ -38,6 +38,10 @@ public class TopLevel extends CompletionTest {
                 {"endpointAttributeSuggestion2.json", "toplevel"},
                 {"endpointAttributeSuggestion3.json", "toplevel"},
                 {"endpointAttributeSuggestion4.json", "toplevel"},
+                {"recordTest1.json", "toplevel"},
+                {"recordTest2.json", "toplevel"},
+                {"objectTest1.json", "toplevel"},
+                {"objectTest2.json", "toplevel"},
         };
     }
 }

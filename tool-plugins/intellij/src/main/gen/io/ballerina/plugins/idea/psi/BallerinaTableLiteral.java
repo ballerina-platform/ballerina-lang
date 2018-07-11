@@ -24,7 +24,19 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaTableLiteral extends BallerinaCompositeElement {
 
   @Nullable
-  BallerinaTableInitialization getTableInitialization();
+  BallerinaTableColumnDefinition getTableColumnDefinition();
+
+  @Nullable
+  BallerinaTableDataArray getTableDataArray();
+
+  @Nullable
+  PsiElement getComma();
+
+  @Nullable
+  PsiElement getLeftBrace();
+
+  @Nullable
+  PsiElement getRightBrace();
 
   @NotNull
   PsiElement getTable();

@@ -39,13 +39,21 @@ public class OpenRecordNegativeTest {
     public void testInvalidRestField() {
         CompileResult result = BCompileUtil.compile("test-src/record/open_record_negative.bal");
 
-        Assert.assertEquals(result.getErrorCount(), 3);
+        Assert.assertEquals(result.getErrorCount(), 4);
 
         String expectedErrMsg = "incompatible types: expected 'string', ";
         BAssertUtil.validateError(result, 0, expectedErrMsg + "found 'int'", 8, 45);
         BAssertUtil.validateError(result, 1, expectedErrMsg + "found 'boolean'", 8, 57);
         BAssertUtil.validateError(result, 2, "invalid usage of record literal with type 'any'", 17, 36);
+        BAssertUtil.validateError(result, 3, "unknown type 'Animal'", 21, 5);
     }
 
+    @Test(description = "Test white space between the type name and ellipsis in rest descriptor")
+    public void testRestDescriptorSyntax() {
+        CompileResult result = BCompileUtil.compile("test-src/record/open_record_invalid_rest_desc.bal");
 
+        BAssertUtil.validateError(result, 0, "invalid record rest descriptor", 5, 12);
+        BAssertUtil.validateError(result, 1, "invalid record rest descriptor", 12, 14);
+        BAssertUtil.validateError(result, 2, "invalid record rest descriptor", 20, 5);
+    }
 }

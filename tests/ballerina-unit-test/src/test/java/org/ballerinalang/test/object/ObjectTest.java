@@ -424,7 +424,7 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 1, "variable 'ee' is not initialized", 3, 1);
         BAssertUtil.validateError(result, 2, "variable 'p' is not initialized", 6, 5);
         BAssertUtil.validateError(result, 3, "variable 'e' is not initialized", 7, 5);
-        BAssertUtil.validateError(result, 4, "undefined function 'attachInterface' in struct 'Person'", 8, 13);
+        BAssertUtil.validateError(result, 4, "undefined function 'attachInterface' in object 'Person'", 8, 13);
         BAssertUtil.validateError(result, 5, "object un-initializable field 'Person p' is " +
                 "not present as a constructor parameter", 25, 1);
     }
@@ -436,9 +436,9 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 0, "too many arguments in call to 'new()'", 23, 12);
         BAssertUtil.validateError(result, 1, "cannot infer type of the object from 'Person?'", 27, 12);
         BAssertUtil.validateError(result, 2, "cannot infer type of the object from 'Person?'", 31, 26);
-        BAssertUtil.validateError(result, 3, "invalid variable definition; can not infer the assignment type.",
+        BAssertUtil.validateError(result, 3, "cannot infer type of the object from 'other'", 32, 19);
+        BAssertUtil.validateError(result, 4, "invalid variable definition; can not infer the assignment type.",
                 32, 19);
-        BAssertUtil.validateError(result, 4, "cannot infer type of the object from 'other'", 32, 19);
         BAssertUtil.validateError(result, 5, "invalid usage of 'new' with type 'error'", 33, 21);
     }
 
@@ -548,6 +548,35 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 7, "cannot infer type of the object from 'Person?'", 23, 25);
         BAssertUtil.validateError(result, 8, "cannot infer type of the object from 'Person?'", 28, 14);
         BAssertUtil.validateError(result, 9, "cannot infer type of the object from 'Person?'", 29, 14);
+    }
+
+    @Test (description = "Negative test to test object visibility modifiers")
+    public void testObjectVisibilityModifiers() {
+        CompileResult result = BCompileUtil.compile(this, "test-src/object", "mod");
+        Assert.assertEquals(result.getErrorCount(), 14);
+        BAssertUtil.validateError(result, 0, "visibility modifiers not allowed in object " +
+                "attached function definition 'func1'", 11, 1);
+        BAssertUtil.validateError(result, 1, "object attached function definition must have a body 'func2'", 15, 1);
+        BAssertUtil.validateError(result, 2, "attempt to refer to non-accessible symbol 'name'", 47, 17);
+        BAssertUtil.validateError(result, 3, "undefined field 'name' in object 'mod:0.0.0:Employee'", 47, 17);
+        BAssertUtil.validateError(result, 4, "attempt to refer to non-accessible symbol 'Employee.getAge'", 51, 14);
+        BAssertUtil.validateError(result, 5, "undefined function 'getAge' in object 'mod:0.0.0:Employee'", 51, 14);
+        BAssertUtil.validateError(result, 6, "attempt to refer to non-accessible symbol 'name'", 58, 17);
+        BAssertUtil.validateError(result, 7, "undefined field 'name' in object 'pkg1:Employee'", 58, 17);
+        BAssertUtil.validateError(result, 8, "attempt to refer to non-accessible symbol 'email'", 59, 17);
+        BAssertUtil.validateError(result, 9, "undefined field 'email' in object 'pkg1:Employee'", 59, 17);
+        BAssertUtil.validateError(result, 10, "attempt to refer to non-accessible symbol 'Employee.getAge'", 62, 14);
+        BAssertUtil.validateError(result, 11, "undefined function 'getAge' in object 'pkg1:Employee'", 62, 14);
+        BAssertUtil.validateError(result, 12, "attempt to refer to non-accessible symbol " +
+                "'Employee.getEmail'", 63, 17);
+        BAssertUtil.validateError(result, 13, "undefined function 'getEmail' in object 'pkg1:Employee'", 63, 17);
+    }
+
+    @Test (description = "Negative test to test unknown object field type")
+    public void testUnknownObjectFieldType() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_undefined_field_type_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "unknown type 'Employee'", 3, 5);
     }
 
     @Test

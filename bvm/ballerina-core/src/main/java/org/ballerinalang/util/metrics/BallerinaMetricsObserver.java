@@ -21,10 +21,10 @@ import org.ballerinalang.util.observability.BallerinaObserver;
 import org.ballerinalang.util.observability.ObserverContext;
 
 import java.io.PrintStream;
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_ERROR;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
@@ -42,6 +42,21 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
     private static final PrintStream consoleError = System.err;
 
     private static final MetricRegistry metricRegistry = DefaultMetricRegistry.getInstance();
+
+    private static final StatisticConfig[] responseTimeStatisticConfigs = new StatisticConfig[]{
+            StatisticConfig.builder()
+                    .expiry(Duration.ofMinutes(1))
+                    .percentiles(StatisticConfig.DEFAULT.getPercentiles())
+                    .build(),
+            StatisticConfig.builder()
+                    .expiry(Duration.ofMinutes(5))
+                    .percentiles(StatisticConfig.DEFAULT.getPercentiles())
+                    .build(),
+            StatisticConfig.builder()
+                    .expiry(Duration.ofMinutes(15))
+                    .percentiles(StatisticConfig.DEFAULT.getPercentiles())
+                    .build()
+    };
 
     @Override
     public void startServerObservation(ObserverContext observerContext) {
@@ -105,8 +120,8 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
             Long startTime = (Long) observerContext.getProperty(PROPERTY_START_TIME);
             long duration = System.nanoTime() - startTime;
             getInprogressGauge(connectorName, mainTagSet).decrement();
-            metricRegistry.timer(new MetricId(connectorName + "_response_time", "Response Time",
-                    allTags)).record(duration, TimeUnit.NANOSECONDS);
+            metricRegistry.gauge(new MetricId(connectorName + "_response_time_seconds", "Response Time",
+                    allTags), responseTimeStatisticConfigs).setValue(duration / 1E9);
             metricRegistry.counter(new MetricId(connectorName + "_requests_total",
                     "Total number of requests", allTags)).increment();
             // Check HTTP status code

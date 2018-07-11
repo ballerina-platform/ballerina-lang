@@ -25,7 +25,6 @@ import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.WorkerInfo;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -39,7 +38,6 @@ public class StackFrame {
     double[] doubleRegs;
     String[] stringRegs;
     int[] intRegs;
-    byte[][] byteRegs;
     BRefType[] refRegs;
 
     // Return address of the caller
@@ -80,8 +78,6 @@ public class StackFrame {
         this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
         this.stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
         this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
-        this.byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
-        Arrays.fill(this.byteRegs, new byte[0]);
         this.refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
 
         this.retAddrs = retAddrs;
@@ -99,8 +95,6 @@ public class StackFrame {
         this.doubleRegs = new double[codeAttribInfo.getMaxDoubleRegs()];
         this.stringRegs = new String[codeAttribInfo.getMaxStringRegs()];
         this.intRegs = new int[codeAttribInfo.getMaxIntRegs()];
-        this.byteRegs = new byte[codeAttribInfo.getMaxByteRegs()][];
-        Arrays.fill(this.byteRegs, new byte[0]);
         this.refRegs = new BRefType[codeAttribInfo.getMaxRefRegs()];
 
         this.retAddrs = retAddrs;
@@ -124,10 +118,6 @@ public class StackFrame {
         return intRegs;
     }
 
-    public byte[][] getByteRegs() {
-        return byteRegs;
-    }
-
     public BRefType[] getRefRegs() {
         return refRegs;
     }
@@ -146,10 +136,6 @@ public class StackFrame {
 
     public void setIntRegs(int[] intRegs) {
         this.intRegs = intRegs;
-    }
-
-    public void setByteRegs(byte[][] byteRegs) {
-        this.byteRegs = byteRegs;
     }
 
     public void setRefRegs(BRefType[] refRegs) {
