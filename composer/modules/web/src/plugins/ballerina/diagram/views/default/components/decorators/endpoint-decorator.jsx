@@ -34,17 +34,8 @@ class EndpointNodeDecorator extends React.Component {
      */
     constructor(props) {
         super(props);
-        this.onDelete = this.onDelete.bind(this);
         this.getEndpointName = this.getEndpointName.bind(this);
         this.setEndpointName = this.setEndpointName.bind(this);
-    }
-
-    /**
-     * Removes self on delete button click.
-     * @returns {void}
-     */
-    onDelete() {
-        this.props.model.remove();
     }
 
     /**
@@ -107,7 +98,6 @@ class EndpointNodeDecorator extends React.Component {
                     className='connector'
                     icon={ImageUtil.getCodePoint('endpoint')}
                     editorOptions={this.editorOptions}
-                    onDelete={this.onDelete}
                 />
                 <HoverGroup model={this.props.model} region='actionBox'>
                     <rect

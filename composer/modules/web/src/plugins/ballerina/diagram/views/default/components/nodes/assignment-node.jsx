@@ -18,7 +18,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import StatementDecorator from '../decorators/statement-decorator';
-import ActiveArbiter from '../decorators/active-arbiter';
 
 /**
  * Assignment Statement Decorator.
@@ -67,7 +66,6 @@ AssignmentNode.propTypes = {
 };
 
 AssignmentNode.contextTypes = {
-    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
     designer: PropTypes.instanceOf(Object).isRequired,
 };
 
