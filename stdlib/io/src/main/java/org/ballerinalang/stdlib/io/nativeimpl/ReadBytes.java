@@ -21,10 +21,11 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -52,14 +53,15 @@ import java.util.Arrays;
         functionName = "read",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "ByteChannel", structPackage = "ballerina/io"),
         args = {@Argument(name = "nBytes", type = TypeKind.INT)},
-        returnType = {@ReturnType(type = TypeKind.BLOB),
+        returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
                 @ReturnType(type = TypeKind.INT),
                 @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},
         isPublic = true
 )
 public class ReadBytes implements NativeCallableUnit {
 
-    private static final BTupleType readTupleType = new BTupleType(Arrays.asList(BTypes.typeBlob, BTypes.typeInt));
+    private static final BTupleType readTupleType =
+            new BTupleType(Arrays.asList(new BArrayType(BTypes.typeByte), BTypes.typeInt));
 
     /**
      * Specifies the index which holds the number of bytes in ballerina.lo#readBytes.
@@ -88,7 +90,7 @@ public class ReadBytes implements NativeCallableUnit {
             context.setReturnValues(errorStruct);
         } else {
             Integer numberOfBytes = result.getResponse();
-            contentTuple.add(0, new BBlob(content));
+            contentTuple.add(0, new BByteArray(content));
             contentTuple.add(1, new BInteger(numberOfBytes));
             context.setReturnValues(contentTuple);
         }

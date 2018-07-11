@@ -3,3 +3,8 @@
 *******************************/
 
 @fontWeight     : 400;
+
+@labelGreyColor       : #616467;
+@labelGreyHoverColor  : #3c3c3c;
+@labelWhiteColor      : #fff;
+@labelWhiteHoverColor : #ccc;

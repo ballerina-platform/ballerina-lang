@@ -19,8 +19,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ImageUtil from '../../../../image-util';
 import './action-box.css';
-import Breakpoint from './breakpoint';
 import { withDragStateKnowledge } from '../../../../../drag-drop/util';
+import { Button } from 'semantic-ui-react';
 
 /**
  * React component for Actionbox
@@ -31,29 +31,6 @@ import { withDragStateKnowledge } from '../../../../../drag-drop/util';
 class ActionBox extends React.Component {
 
     /**
-     * Creates an instance of ActionBox.
-     * @param {any} props React properties.
-     *
-     * @memberof ActionBox
-     */
-    constructor(props) {
-        super(props);
-        this.state = { inGracePeriod: false };
-        this.isHiddenToHidden = true;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @param {Object} nextProps New properties.
-     *
-     * @memberof ActionBox
-     */
-    componentWillReceiveProps(nextProps) {
-        this.isHiddenToHidden = !(this.props.show || nextProps.show);
-    }
-
-    /**
      * Renders the view of action box.
      *
      * @returns {ReactElement} The view.
@@ -61,69 +38,28 @@ class ActionBox extends React.Component {
      * @memberof ActionBox
      */
     render() {
-        const bBox = this.props.bBox;
-        const numIcons = 2 - (this.props.isDefaultWorker ? 1 : 0);
-        const iconSize = 14;
-        const y = bBox.y + ((bBox.h - iconSize) / 2);
-        const horizontalGap = (bBox.w - (iconSize * numIcons)) / (numIcons + 1);
-        let className;
-        // hide action box when mouse moved away or when a drag-drop is happening
-        if (this.props.show === 'hidden' || this.props.dragState.isDragging) {
-            className = 'hide-action';
-        } else if (this.props.show === 'visible') {
-            className = 'show-action';
-        } else {
-            className = 'delayed-hide-action';
-        }
-
-        return (<g className={className}>
-            <rect
-                x={bBox.x}
-                y={bBox.y}
-                width={bBox.w}
-                height={bBox.h}
-                rx='0'
-                ry='0'
-                className='property-pane-action-button-wrapper'
-            />
-            { !this.props.isDefaultWorker &&
-            <text
-                width={iconSize}
-                height={iconSize}
-                x={bBox.x + horizontalGap}
-                y={y + iconSize}
-                fontFamily='font-ballerina'
-                fontSize={iconSize}
-                className={this.props.disableButtons.delete ? 'property-pane-action-button-delete-disabled'
-                    : 'property-pane-action-button-delete'}
-                onClick={this.props.disableButtons.delete ? () => {} : this.props.onDelete}
-            >{ImageUtil.getCodePoint('delete')}
-                <title>Delete</title> </text> }
-            <text
-                width={iconSize}
-                height={iconSize}
-                x={bBox.x + (iconSize * (numIcons - 1)) + (horizontalGap * numIcons)}
-                y={y + iconSize}
-                fontFamily='font-ballerina'
-                fontSize={iconSize}
-                className={this.props.disableButtons.jump ? 'property-pane-action-button-jump-disabled'
-                    : 'property-pane-action-button-jump'}
-                onClick={this.props.disableButtons.jump ? () => {} : this.props.onJumptoCodeLine}
-            >{ImageUtil.getCodePoint('code-view')}
-                <title>Jump to Source</title> </text>
-        </g>);
+        const iconSize = 25;
+        const style = {
+            position: 'absolute',
+            ...this.props.style,
+            left:  this.props.style.left - iconSize,
+        };
+        return (<div style={style}>
+            <Button.Group
+                className='lifeline icons'>
+                <Button
+                    onClick={this.props.disableButtons.delete ? () => {} : this.props.onDelete}
+                ><i className='fw'>{ImageUtil.getCodePoint('delete')}</i></Button>
+                <Button
+                    onClick={this.props.disableButtons.jump ? () => {} : this.props.onJumptoCodeLine}
+                ><i className='fw'>{ImageUtil.getCodePoint('code-view')}</i></Button>
+            </Button.Group>
+        </div>);
     }
 
 }
 
 ActionBox.propTypes = {
-    bBox: PropTypes.shape({
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        w: PropTypes.number.isRequired,
-        h: PropTypes.number.isRequired,
-    }).isRequired,
-    show: PropTypes.string,
     onDelete: PropTypes.func.isRequired,
     onJumptoCodeLine: PropTypes.func.isRequired,
     disableButtons: PropTypes.shape({
@@ -131,18 +67,15 @@ ActionBox.propTypes = {
         delete: PropTypes.bool,
         jump: PropTypes.bool,
     }).isRequired,
-    dragState: PropTypes.shape({
-        isDragging: PropTypes.bool.isRequired,
-    }).isRequired,
 };
 
 ActionBox.defaultProps = {
-    show: false,
     disableButtons: {
         debug: false,
         delete: false,
         jump: false,
     },
+    style: {},
 };
 
 

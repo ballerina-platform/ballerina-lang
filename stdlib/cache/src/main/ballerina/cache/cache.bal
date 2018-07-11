@@ -44,12 +44,10 @@ type CacheEntry record {
 documentation { Represents a cache. }
 public type Cache object {
 
-    private {
-        int capacity;
-        map<CacheEntry> entries;
-        int expiryTimeMillis;
-        float evictionFactor;
-    }
+    private int capacity;
+    map<CacheEntry> entries;
+    int expiryTimeMillis;
+    private float evictionFactor;
 
     public new(expiryTimeMillis = 900000, capacity = 100, evictionFactor = 0.25) {
         // Cache expiry time must be a positive value.
@@ -138,7 +136,7 @@ public type Cache object {
             return ();
         }
         // Get the requested cache entry from the map.
-        CacheEntry entry = self.entries[key];
+        CacheEntry entry = self.entries[key] but { () => {} };
 
         // Check whether the cache entry is already expired. Since the cache cleaning task runs in predefined intervals,
         // sometimes the cache entry might not have been removed at this point even though it is expired. So this check
@@ -185,8 +183,7 @@ public type Cache object {
         int[] timestamps = [];
         string[] keys = self.entries.keys();
         // Iterate through each key.
-        foreach key in keys {
-            CacheEntry entry = self.entries[key];
+        foreach key, entry in self.entries {
             // Check and add the key to the cacheKeysToBeRemoved if it matches the conditions.
             checkAndAdd(numberOfKeysToEvict, cacheKeysToBeRemoved, timestamps, key, entry.lastAccessedTime);
         }
@@ -203,8 +200,6 @@ documentation {
 function runCacheExpiry() returns error? {
     // Iterate through all caches.
     foreach currentCacheKey, currentCache in cacheMap {
-        // Ge the keys in the current cache.
-        string[] currentCacheEntriesKeys = currentCache.entries.keys();
 
         // Get the expiry time of the current cache
         int currentCacheExpiryTime = currentCache.expiryTimeMillis;
@@ -214,9 +209,7 @@ function runCacheExpiry() returns error? {
 
         int cachesToBeRemovedIndex = 0;
         // Iterate through all keys.
-        foreach key in currentCacheEntriesKeys {
-            // Get the corresponding entry from the cache.
-            CacheEntry entry = currentCache.entries[key];
+        foreach key, entry in currentCache.entries {
 
             // Get the current system time.
             int currentSystemTime = time:currentTime().time;

@@ -42,7 +42,7 @@ import org.ballerinalang.net.http.WebSocketServicesRegistry;
         orgName = "ballerina", packageName = "http",
         functionName = "register",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "NonListener",
-                structPackage = "ballerina/http"),
+                structPackage = "ballerina.http"),
         args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
         isPublic = true
 )

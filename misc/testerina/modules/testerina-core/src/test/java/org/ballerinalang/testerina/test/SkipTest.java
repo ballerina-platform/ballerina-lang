@@ -38,8 +38,7 @@ public class SkipTest {
     @Test
     public void tesSkipWhenDependsOnFunctionFails() {
         BTestRunner runner = new BTestRunner();
-        runner.runTest(sourceRoot, new Path[]{Paths.get("dependson-skip-test.bal")}, new
-            ArrayList<>());
+        runner.runTest(sourceRoot, new Path[]{Paths.get("dependson-skip-test.bal")}, new ArrayList<>());
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "skipped"), 2);
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 2);
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "failed"), 2);
@@ -48,8 +47,7 @@ public class SkipTest {
     @Test
     public void testSkipWhenBeforeFails() {
         BTestRunner runner = new BTestRunner();
-        runner.runTest(sourceRoot, new Path[]{Paths.get("skip-when-before-fails.bal")}, new
-            ArrayList<>());
+        runner.runTest(sourceRoot, new Path[]{Paths.get("skip-when-before-fails.bal")}, new ArrayList<>());
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "skipped"), 1);
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 1);
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "failed"), 1);
@@ -59,7 +57,7 @@ public class SkipTest {
     public void testSkipDependentsWhenBeforeFails() {
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("skip-dependents-when-before-fails.bal")}, new
-            ArrayList<>());
+                ArrayList<>());
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "skipped"), 2);
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 1);
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "failed"), 1);
@@ -68,8 +66,7 @@ public class SkipTest {
     @Test
     public void testSkipWhenBeforeSuiteFails() {
         BTestRunner runner = new BTestRunner();
-        runner.runTest(sourceRoot, new Path[]{Paths.get("skip-when-beforeSuite-fails.bal")}, new
-            ArrayList<>());
+        runner.runTest(sourceRoot, new Path[]{Paths.get("skip-when-beforeSuite-fails.bal")}, new ArrayList<>());
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "skipped"), 3);
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 0);
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "failed"), 0);

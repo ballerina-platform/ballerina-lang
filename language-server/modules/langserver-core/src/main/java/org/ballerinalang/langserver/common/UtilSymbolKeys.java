@@ -44,6 +44,10 @@ public class UtilSymbolKeys {
     public static final String ACTION_INVOCATION_SYMBOL_KEY = "->";
 
     public static final String EQUAL_SYMBOL_KEY = "=";
+
+    public static final String GT_SYMBOL_KEY = ">";
+
+    public static final String LT_SYMBOL_KEY = "<";
     // End non letter symbol keys
 
 

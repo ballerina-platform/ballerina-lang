@@ -24,10 +24,9 @@ import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBlob;
-import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -41,9 +40,9 @@ import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;
-import java.sql.Blob;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  * Includes utility methods required for table related operations.
@@ -108,13 +107,21 @@ public class TableUtils {
                 case TypeTags.JSON_TAG:
                     stmt.setString(index, constrainedType.get(fieldName).toString());
                     break;
-                case TypeTags.BLOB_TAG:
-                    byte[] blobData = ((BBlob) constrainedType.get(fieldName)).blobValue();
-                    stmt.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
-                    break;
                 case TypeTags.ARRAY_TAG:
-                    Object[] arrayData = getArrayData(constrainedType.get(fieldName));
-                    stmt.setObject(index, arrayData);
+                    boolean isBlobType =
+                            ((BArrayType) sf.getFieldType()).getElementType().getTag() == TypeTags.BYTE_TAG;
+                    if (isBlobType) {
+                        BValue value = constrainedType.get(fieldName);
+                        if (value != null) {
+                            byte[] blobData = ((BByteArray) constrainedType.get(fieldName)).getBytes();
+                            stmt.setBlob(index, new ByteArrayInputStream(blobData), blobData.length);
+                        } else {
+                            stmt.setNull(index, Types.BLOB);
+                        }
+                    } else {
+                        Object[] arrayData = getArrayData(constrainedType.get(fieldName));
+                        stmt.setObject(index, arrayData);
+                    }
                     break;
                 }
                 ++index;
@@ -159,13 +166,6 @@ public class TableUtils {
             arrayData = new Boolean[arrayLength];
             for (int i = 0; i < arrayLength; i++) {
                 arrayData[i] = ((BBooleanArray) value).get(i) > 0;
-            }
-            break;
-        case TypeTags.BLOB_TAG:
-            arrayLength = (int) ((BBlobArray) value).size();
-            arrayData = new Blob[arrayLength];
-            for (int i = 0; i < arrayLength; i++) {
-                arrayData[i] = ((BBlobArray) value).get(i);
             }
             break;
         default:

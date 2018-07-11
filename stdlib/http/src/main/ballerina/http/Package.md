@@ -61,15 +61,16 @@ Here `upgradeService` is a `WebSocketService`.
 
 **onPing and onPong resources**: Received ping and pong messages are dispatched to these resources respectively as a `blob`
 
-**onIdleTimeout**: This resource is dispatched when idle timeout is reached. idleTimeout has to be configured by the user.
+**onIdleTimeout**: This resource is dispatched when idle timeout is reached. idleTimeout has to be configured by the user in WebSocket service configuration.
 
 **onClose**: This resource is dispatched when a close message is received.
 
-**onError**: This resource is dispatched when an error occurred in a particular WebSocket connection. This will always be followed by a connection closure.
+**onError**: This resource is dispatched when an error occurs in the WebSocket connection. This will always be followed by a connection closure with an appropriate WebSocket close frame.
 
 See [WebSocket Basic Example](https://ballerina.io/learn/by-example/websocket-basic-sample.html), 
 [HTTP to WebSocket Upgrade Example](https://ballerina.io/learn/by-example/http-to-websocket-upgrade.html),
-[WebSocket Chat Application](https://ballerina.io/learn/by-example/websocket-chat-application.html)
+[WebSocket Chat Application](https://ballerina.io/learn/by-example/websocket-chat-application.html), 
+[WebSocket Proxy Server](https://ballerina.io/learn/by-example/websocket-proxy-server.html) 
 
 ### Logging
 
@@ -128,7 +129,7 @@ service helloWorld bind helloWorldEP {
    sayHello (endpoint caller, http:Request req, string name, string message) {
        http:Response res = new;
        // A util method that can be used to set string payload.
-       res.setPayload("Hello, World! I’m " + name + “. “ + message);
+       res.setPayload("Hello, World! I’m " + untaint name + ". " + untaint message);
        // Sends the response back to the client.
        caller->respond(res) but { error e => 
                             log:printError("Error sending response", err = e) };

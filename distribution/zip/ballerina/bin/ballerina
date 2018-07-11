@@ -157,10 +157,15 @@ if [ "$CMD" = "--java.debug" ]; then
   echo "Please start the remote debugging client to continue..."
 fi
 
-jdk_18=`$JAVA_HOME/bin/java -version 2>&1 | grep "[1.8|9|10]"`
-if [ "$jdk_18" = "" ]; then
-   echo "Error: Ballerina is supported only on JDK 1.8 and above"
-   exit 1
+JDK_18_OR_HIGHER=`$JAVA_HOME/bin/java -version 2>&1 | grep -e "1.8." -e "9." -e "10."`
+JDK_18=`echo $JDK_18_OR_HIGHER | grep -e "1.8."`
+if [ -n "$JDK_18_OR_HIGHER" ]; then
+    if [ "$JDK_18" = "" ]; then
+        JAVA_MODULES="--add-modules java.corba"
+    fi
+else
+    echo "Error: Ballerina is supported only on JDK 1.8 and above"
+    exit 1
 fi
 
 BALLERINA_XBOOTCLASSPATH=""
@@ -210,6 +215,7 @@ $JAVACMD \
 	-XX:+HeapDumpOnOutOfMemoryError \
 	-XX:HeapDumpPath="$BALLERINA_HOME/heap-dump.hprof" \
 	$JAVA_OPTS \
+	$JAVA_MODULES \
 	-classpath "$BALLERINA_CLASSPATH" \
 	-Dballerina.home=$BALLERINA_HOME \
 	-Dballerina.version=${project.version} \

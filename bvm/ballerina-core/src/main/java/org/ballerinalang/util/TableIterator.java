@@ -19,6 +19,7 @@ package org.ballerinalang.util;
 
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.DataIterator;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
@@ -26,9 +27,9 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -222,13 +223,15 @@ public class TableIterator implements DataIterator {
                     String xmlValue = rs.getString(index);
                     value = new BXMLItem(xmlValue);
                     break;
-                case TypeTags.BLOB_TAG:
-                    Blob blobValue = rs.getBlob(index);
-                    value = new BBlob(blobValue.getBytes(1L, (int) blobValue.length()));
-                    break;
                 case TypeTags.ARRAY_TAG:
-                    Array arrayValue = rs.getArray(index);
-                    value = getDataArray(arrayValue);
+                    BType arrayElementType = ((BArrayType) type).getElementType();
+                    if (arrayElementType.getTag() == TypeTags.BYTE_TAG) {
+                        Blob blobValue = rs.getBlob(index);
+                        value = new BByteArray(blobValue.getBytes(1L, (int) blobValue.length()));
+                    } else {
+                        Array arrayValue = rs.getArray(index);
+                        value = getDataArray(arrayValue);
+                    }
                     break;
                 }
                 
@@ -428,11 +431,13 @@ public class TableIterator implements DataIterator {
             case TypeTags.XML_TAG:
                 typeKind = TypeKind.XML;
                 break;
-            case TypeTags.BLOB_TAG:
-                typeKind = TypeKind.BLOB;
-                break;
             case TypeTags.ARRAY_TAG:
-                typeKind = TypeKind.ARRAY;
+                BType elementType = ((BArrayType) type).getElementType();
+                if (elementType.getTag() == TypeTags.BYTE_TAG) {
+                    typeKind = TypeKind.BLOB;
+                } else {
+                    typeKind = TypeKind.ARRAY;
+                }
                 break;
             }
             ColumnDefinition def = new ColumnDefinition(sf.fieldName, typeKind);

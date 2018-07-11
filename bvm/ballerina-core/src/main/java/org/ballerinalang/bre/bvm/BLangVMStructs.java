@@ -21,7 +21,6 @@ import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
@@ -132,11 +131,6 @@ public class BLangVMStructs {
                     } else if (value instanceof BBoolean) {
                         return (BBoolean) value;
                     }
-                }
-                break;
-            case TypeTags.BLOB_TAG:
-                if (value != null && value instanceof BBlob) {
-                    return (BBlob) value;
                 }
                 break;
             default:

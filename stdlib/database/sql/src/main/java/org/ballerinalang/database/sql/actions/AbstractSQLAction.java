@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.database.sql.actions;
 
-import com.sun.rowset.CachedRowSetImpl;
-
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.database.sql.Constants;
@@ -33,8 +31,6 @@ import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBlob;
-import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BByte;
@@ -85,8 +81,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.TimeZone;
-
 import javax.sql.rowset.CachedRowSet;
+import javax.sql.rowset.RowSetProvider;
 
 import static org.ballerinalang.database.sql.Constants.PARAMETER_DIRECTION_FIELD;
 import static org.ballerinalang.database.sql.Constants.PARAMETER_RECORD_TYPE_FIELD;
@@ -129,7 +125,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             TableResourceManager rm = new TableResourceManager(conn, stmt);
             List<ColumnDefinition> columnDefinitions = SQLDatasourceUtils.getColumnDefinitions(rs);
             if (loadSQLTableToMemory) {
-                CachedRowSet cachedRowSet = new CachedRowSetImpl();
+                CachedRowSet cachedRowSet = RowSetProvider.newFactory().createCachedRowSet();
                 cachedRowSet.populate(rs);
                 rs = cachedRowSet;
                 rm.gracefullyReleaseResources(isInTransaction);
@@ -192,9 +188,11 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             rs = stmt.getGeneratedKeys();
             /*The result set contains the auto generated keys. There can be multiple auto generated columns
             in a table.*/
-            BStringArray generatedKeys = null;
+            BStringArray generatedKeys;
             if (rs.next()) {
                 generatedKeys = getGeneratedKeys(rs);
+            } else {
+                generatedKeys = new BStringArray();
             }
             BRefValueArray tuple = new BRefValueArray(executeUpdateWithKeysTupleType);
             tuple.add(0, updatedCount);
@@ -389,8 +387,9 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 if (paramValue != null) {
                     String sqlType = getSQLType(paramValue);
                     BValue value = paramValue.get(PARAMETER_VALUE_FIELD);
-                    if (value != null && value.getType().getTag() == TypeTags.ARRAY_TAG && !Constants.SQLDataTypes.ARRAY
-                            .equalsIgnoreCase(sqlType)) {
+                    if (value != null && (value.getType().getTag() == TypeTags.ARRAY_TAG
+                            && ((BArrayType) value.getType()).getElementType().getTag() != TypeTags.BYTE_TAG)
+                            && !Constants.SQLDataTypes.ARRAY.equalsIgnoreCase(sqlType)) {
                         count = (int) ((BNewArray) value).size();
                     } else {
                         count = 1;
@@ -547,13 +546,14 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 BValue value = paramStruct.get(PARAMETER_VALUE_FIELD);
                 int direction = getParameterDirection(paramStruct);
                 //If the parameter is an array and sql type is not "array" then treat it as an array of parameters
-                if (value != null && value.getType().getTag() == TypeTags.ARRAY_TAG && !Constants.SQLDataTypes.ARRAY
-                        .equalsIgnoreCase(sqlType)) {
+                if (value != null && (value.getType().getTag() == TypeTags.ARRAY_TAG
+                        && ((BArrayType) value.getType()).getElementType().getTag() != TypeTags.BYTE_TAG)
+                        && !Constants.SQLDataTypes.ARRAY.equalsIgnoreCase(sqlType)) {
                     int arrayLength = (int) ((BNewArray) value).size();
-                    int typeTag = ((BArrayType) value.getType()).getElementType().getTag();
+                    int typeTagOfArrayElement = ((BArrayType) value.getType()).getElementType().getTag();
                     for (int i = 0; i < arrayLength; i++) {
                         BValue paramValue;
-                        switch (typeTag) {
+                        switch (typeTagOfArrayElement) {
                         case TypeTags.INT_TAG:
                             paramValue = new BInteger(((BIntArray) value).get(i));
                             break;
@@ -569,9 +569,20 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                         case TypeTags.BOOLEAN_TAG:
                             paramValue = new BBoolean(((BBooleanArray) value).get(i) > 0);
                             break;
-                        case TypeTags.BLOB_TAG:
-                            paramValue = new BBlob(((BBlobArray) value).get(i));
-                            break;
+                        // The value parameter of the struct is an array of arrays. Only possibility that should be
+                        // supported is, this being an array of byte arrays (blob)
+                        // eg: [blob1, blob2, blob3] == [byteArray1, byteArray2, byteArray3]
+                        case TypeTags.ARRAY_TAG:
+                            BValue array = ((BRefValueArray) value).get(i);
+                            // array cannot be null because the type tag is not union
+                            if (((BArrayType) array.getType()).getElementType().getTag() == TypeTags.BYTE_TAG) {
+                                paramValue = array;
+                                break;
+                            } else {
+                                throw new BallerinaException("unsupported array type for parameter index: " + index
+                                        + ". Array element type being an array is supported only when the inner array"
+                                        + " element type is BYTE");
+                            }
                         default:
                             throw new BallerinaException("unsupported array type for parameter index " + index);
                         }

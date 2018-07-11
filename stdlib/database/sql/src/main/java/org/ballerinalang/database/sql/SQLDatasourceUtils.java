@@ -28,10 +28,9 @@ import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBlob;
-import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -602,8 +601,8 @@ public class SQLDatasourceUtils {
 
     private static byte[] getByteArray(BValue value) {
         byte[] val = null;
-        if (value instanceof BBlob) {
-            val = ((BBlob) value).blobValue();
+        if (value instanceof BByteArray) {
+            val = ((BByteArray) value).getBytes();
         } else if (value instanceof BString) {
             val = getBytesFromBase64String(value.stringValue());
         }
@@ -753,13 +752,18 @@ public class SQLDatasourceUtils {
                 arrayData[i] = ((BBooleanArray) value).get(i) > 0;
             }
             return new Object[] { arrayData, Constants.SQLDataTypes.BOOLEAN };
-        case TypeTags.BLOB_TAG:
-            arrayLength = (int) ((BBlobArray) value).size();
-            arrayData = new Blob[arrayLength];
-            for (int i = 0; i < arrayLength; i++) {
-                arrayData[i] = ((BBlobArray) value).get(i);
+        case TypeTags.ARRAY_TAG:
+            BType elementType = ((BArrayType) ((BArrayType) value.getType()).getElementType()).getElementType();
+            if (elementType.getTag() == TypeTags.BYTE_TAG) {
+                arrayLength = (int) ((BByteArray) value).size();
+                arrayData = new Blob[arrayLength];
+                for (int i = 0; i < arrayLength; i++) {
+                    arrayData[i] = ((BByteArray) value).get(i);
+                }
+                return new Object[] { arrayData, Constants.SQLDataTypes.BLOB };
+            } else {
+                throw new BallerinaException("unsupported data type for array parameter");
             }
-            return new Object[] { arrayData, Constants.SQLDataTypes.BLOB };
         default:
             throw new BallerinaException("unsupported data type for array parameter");
         }
@@ -822,9 +826,14 @@ public class SQLDatasourceUtils {
             case TypeTags.BOOLEAN_TAG:
                 structData[i] = ((BBoolean) bValue).booleanValue();
                 break;
-            case TypeTags.BLOB_TAG:
-                structData[i] = ((BBlob) bValue).blobValue();
-                break;
+            case TypeTags.ARRAY_TAG:
+                BType elementType = ((BArrayType) field.getFieldType()).getElementType();
+                if (elementType.getTag() == TypeTags.BYTE_TAG) {
+                    structData[i] = ((BByteArray) bValue).getBytes();
+                    break;
+                } else {
+                    throw new BallerinaException("unsupported data type for struct parameter: " + structuredSQLType);
+                }
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
                 Object structValue = bValue;
@@ -978,8 +987,6 @@ public class SQLDatasourceUtils {
             return Constants.SQLDataTypes.DOUBLE;
         case TypeTags.BOOLEAN_TAG:
             return Constants.SQLDataTypes.BOOLEAN;
-        case TypeTags.BLOB_TAG:
-            return Constants.SQLDataTypes.BLOB;
         default:
             throw new BallerinaException(
                     "unsupported data type as direct value for sql operation, use sql:Parameter: " + value.getName());
@@ -1057,6 +1064,9 @@ public class SQLDatasourceUtils {
         } else if (value instanceof Timestamp) {
             calendar.setTimeInMillis(value.getTime());
             type = "datetime";
+        } else if (value instanceof Date) {
+            calendar.setTime(value);
+            type = "date";
         } else {
             calendar.setTime(value);
             type = "time";

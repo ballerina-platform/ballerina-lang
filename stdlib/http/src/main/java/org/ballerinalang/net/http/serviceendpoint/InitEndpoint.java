@@ -20,7 +20,6 @@ package org.ballerinalang.net.http.serviceendpoint;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -31,11 +30,9 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.net.http.WebSocketServicesRegistry;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
@@ -62,7 +59,7 @@ import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
                              structPackage = "ballerina/http"),
         isPublic = true
 )
-public class InitEndpoint extends BlockingNativeCallableUnit {
+public class InitEndpoint extends AbstractHttpNativeFunction {
 
     private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
 
@@ -79,10 +76,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             serviceEndpoint.addNativeData(HttpConstants.HTTP_SERVER_CONNECTOR, httpServerConnector);
 
             //Adding service registries to native data
-            WebSocketServicesRegistry webSocketServicesRegistry = new WebSocketServicesRegistry();
-            HTTPServicesRegistry httpServicesRegistry = new HTTPServicesRegistry(webSocketServicesRegistry);
-            serviceEndpoint.addNativeData(HttpConstants.HTTP_SERVICE_REGISTRY, httpServicesRegistry);
-            serviceEndpoint.addNativeData(HttpConstants.WS_SERVICE_REGISTRY, webSocketServicesRegistry);
+            resetRegistry(serviceEndpoint);
 
             context.setReturnValues((BValue) null);
         } catch (Throwable throwable) {

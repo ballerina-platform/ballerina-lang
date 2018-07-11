@@ -23,6 +23,7 @@ import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.util.observability.ObservabilityUtils;
 
 /**
  * Native function ballerina.log:printTrace.
@@ -39,10 +40,11 @@ public class LogTrace extends AbstractLogFunction {
 
     public void execute(Context ctx) {
         String pkg = getPackagePath(ctx);
-
+        String logMessage = getLogMessage(ctx, 0);
         if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.TRACE.value()) {
-            getLogger(pkg).trace(getLogMessage(ctx, 0));
+            getLogger(pkg).trace(logMessage);
         }
+        ObservabilityUtils.logMessageToActiveSpan(ctx, BLogLevel.TRACE.name(), logMessage, false);
         ctx.setReturnValues();
     }
 }

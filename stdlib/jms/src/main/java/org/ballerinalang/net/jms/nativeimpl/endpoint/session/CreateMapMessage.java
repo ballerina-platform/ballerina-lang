@@ -24,14 +24,13 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -78,20 +77,20 @@ public class CreateMapMessage extends AbstractBlockinAction {
                 Constants.JMS_MESSAGE_STRUCT_NAME);
         try {
             jmsMessage = session.createMapMessage();
-            Map<String, BValueType> contentMap = content.getMap();
+            Map<String, BValue> contentMap = content.getMap();
 
             contentMap.forEach((key, value) -> {
                 try {
                     if (value instanceof BString) {
                         jmsMessage.setString(key, value.stringValue());
                     } else if (value instanceof BBoolean) {
-                        jmsMessage.setBoolean(key, value.booleanValue());
-                    } else if (value instanceof BBlob) {
-                        jmsMessage.setBytes(key, value.blobValue());
+                        jmsMessage.setBoolean(key, ((BBoolean) value).booleanValue());
+                    } else if (value instanceof BByteArray) {
+                        jmsMessage.setBytes(key, ((BByteArray) value).getBytes());
                     } else if (value instanceof BInteger) {
-                        jmsMessage.setLong(key, value.intValue());
+                        jmsMessage.setLong(key, ((BInteger) value).intValue());
                     } else if (value instanceof BFloat) {
-                        jmsMessage.setDouble(key, value.floatValue());
+                        jmsMessage.setDouble(key, ((BFloat) value).floatValue());
                     } else {
                         LOGGER.error("Couldn't set invalid data type to MapMessage : " + value.getType().getName());
                     }

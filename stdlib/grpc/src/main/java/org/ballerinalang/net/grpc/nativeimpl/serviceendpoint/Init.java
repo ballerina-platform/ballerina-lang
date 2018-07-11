@@ -15,10 +15,8 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
-import io.netty.handler.ssl.SslContext;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -31,11 +29,15 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.GrpcConstants;
-import org.ballerinalang.net.grpc.GrpcServicesBuilder;
-import org.ballerinalang.net.grpc.ssl.SSLHandlerFactory;
+import org.ballerinalang.net.grpc.MessageUtils;
+import org.ballerinalang.net.grpc.ServicesRegistry;
+import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
+import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
+import org.wso2.transport.http.netty.contract.ServerConnector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,8 +47,24 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_BUILDER;
+import static org.ballerinalang.net.grpc.GrpcConstants.SERVER_CONNECTOR;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
+import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_REGISTRY_BUILDER;
+import static org.ballerinalang.net.http.HttpConstants.ENABLE;
+import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_STORE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STORE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
+import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
+import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_VERSION;
+import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_CACHE_SIZE;
+import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD;
+import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_CIPHERS;
+import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION;
+import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_SSL_VERIFY_CLIENT;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
 /**
@@ -64,26 +82,27 @@ import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)},
         isPublic = true
 )
-public class Init extends BlockingNativeCallableUnit {
+public class Init extends AbstractGrpcNativeFunction {
     private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
     
     @Override
     public void execute(Context context) {
+        try {
+            Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+            BMap<String, BValue> endpointConfigStruct = (BMap<String, BValue>) context.getRefArgument(1);
+            Struct serviceEndpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
+            ListenerConfiguration configuration = getListenerConfig(serviceEndpointConfig);
+            ServerConnector httpServerConnector =
+                    HttpConnectionManager.getInstance().createHttpServerConnector(configuration);
 
-        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        BMap<String, BValue> endpointConfigStruct = (BMap<String, BValue>) context.getRefArgument(1);
-        Struct serviceEndpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
-        ListenerConfiguration configuration = getListenerConfig(serviceEndpointConfig);
-        io.grpc.ServerBuilder serverBuilder;
-        if (configuration.getSSLConfig() != null) {
-            SslContext sslCtx = new SSLHandlerFactory(configuration.getSSLConfig())
-                    .createHttp2TLSContextForServer();
-            serverBuilder = GrpcServicesBuilder.initService(configuration, sslCtx);
-        } else {
-            serverBuilder = GrpcServicesBuilder.initService(configuration, null);
+            ServicesRegistry.Builder grpcServicesRegistryBuilder = new ServicesRegistry.Builder();
+            serviceEndpoint.addNativeData(SERVER_CONNECTOR, httpServerConnector);
+            serviceEndpoint.addNativeData(SERVICE_REGISTRY_BUILDER, grpcServicesRegistryBuilder);
+            context.setReturnValues();
+        } catch (Exception ex) {
+            BMap<String, BValue> errorStruct = MessageUtils.getConnectorError(context, ex);
+            context.setReturnValues(errorStruct);
         }
-        serviceEndpoint.addNativeData(SERVICE_BUILDER, serverBuilder);
-        context.setReturnValues();
     }
     
     private ListenerConfiguration getListenerConfig(Struct endpointConfig) {
@@ -106,47 +125,44 @@ public class Init extends BlockingNativeCallableUnit {
         listenerConfiguration.setPort(Math.toIntExact(port));
         
         if (sslConfig != null) {
-            return setSslConfig(sslConfig, listenerConfiguration);
+            setSslConfig(sslConfig, listenerConfiguration);
         }
         
         listenerConfiguration.setServerHeader(getServerName());
-        
+        listenerConfiguration.setVersion(String.valueOf(Constants.HTTP_2_0));
+
         return listenerConfiguration;
     }
     
-    private ListenerConfiguration setSslConfig(Struct sslConfig, ListenerConfiguration listenerConfiguration) {
+    private void setSslConfig(Struct sslConfig, ListenerConfiguration listenerConfiguration) {
         listenerConfiguration.setScheme(GrpcConstants.PROTOCOL_HTTPS);
-        Struct trustStore = sslConfig.getStructField(GrpcConstants.ENDPOINT_CONFIG_TRUST_STORE);
-        Struct keyStore = sslConfig.getStructField(GrpcConstants.ENDPOINT_CONFIG_KEY_STORE);
-        Struct protocols = sslConfig.getStructField(GrpcConstants.ENDPOINT_CONFIG_PROTOCOLS);
-        Struct validateCert = sslConfig.getStructField(GrpcConstants.ENDPOINT_CONFIG_VALIDATE_CERT);
-        Struct ocspStapling = sslConfig.getStructField(GrpcConstants.ENDPOINT_CONFIG_OCSP_STAPLING);
+        Struct trustStore = sslConfig.getStructField(ENDPOINT_CONFIG_TRUST_STORE);
+        Struct keyStore = sslConfig.getStructField(ENDPOINT_CONFIG_KEY_STORE);
+        Struct protocols = sslConfig.getStructField(ENDPOINT_CONFIG_PROTOCOLS);
+        Struct validateCert = sslConfig.getStructField(ENDPOINT_CONFIG_VALIDATE_CERT);
+        Struct ocspStapling = sslConfig.getStructField(ENDPOINT_CONFIG_OCSP_STAPLING);
         
         if (keyStore != null) {
-            String keyStoreFile = keyStore.getStringField(GrpcConstants.FILE_PATH);
-            String keyStorePassword = keyStore.getStringField(GrpcConstants.PASSWORD);
+            String keyStoreFile = keyStore.getStringField(FILE_PATH);
+            String keyStorePassword = keyStore.getStringField(PASSWORD);
             if (StringUtils.isBlank(keyStoreFile)) {
-                //TODO get from language pack, and add location
                 throw new BallerinaConnectorException("Keystore location must be provided for secure connection");
             }
             if (StringUtils.isBlank(keyStorePassword)) {
-                //TODO get from language pack, and add location
                 throw new BallerinaConnectorException("Keystore password value must be provided for secure connection");
             }
             listenerConfiguration.setKeyStoreFile(keyStoreFile);
             listenerConfiguration.setKeyStorePass(keyStorePassword);
         }
-        String sslVerifyClient = sslConfig.getStringField(GrpcConstants.SSL_CONFIG_SSL_VERIFY_CLIENT);
+        String sslVerifyClient = sslConfig.getStringField(SSL_CONFIG_SSL_VERIFY_CLIENT);
         listenerConfiguration.setVerifyClient(sslVerifyClient);
         if (trustStore != null) {
-            String trustStoreFile = trustStore.getStringField(GrpcConstants.FILE_PATH);
-            String trustStorePassword = trustStore.getStringField(GrpcConstants.PASSWORD);
+            String trustStoreFile = trustStore.getStringField(FILE_PATH);
+            String trustStorePassword = trustStore.getStringField(PASSWORD);
             if (StringUtils.isBlank(trustStoreFile) && StringUtils.isNotBlank(sslVerifyClient)) {
-                //TODO get from language pack, and add location
                 throw new BallerinaException("Truststore location must be provided to enable Mutual SSL");
             }
             if (StringUtils.isBlank(trustStorePassword) && StringUtils.isNotBlank(sslVerifyClient)) {
-                //TODO get from language pack, and add location
                 throw new BallerinaException("Truststore password value must be provided to enable Mutual SSL");
             }
             listenerConfiguration.setTrustStoreFile(trustStoreFile);
@@ -156,8 +172,8 @@ public class Init extends BlockingNativeCallableUnit {
         Parameter serverParameters;
         if (protocols != null) {
             List<Value> sslEnabledProtocolsValueList = Arrays
-                    .asList(protocols.getArrayField(GrpcConstants.ENABLED_PROTOCOLS));
-            if (sslEnabledProtocolsValueList.size() > 0) {
+                    .asList(protocols.getArrayField(ENABLED_PROTOCOLS));
+            if (!sslEnabledProtocolsValueList.isEmpty()) {
                 String sslEnabledProtocols = sslEnabledProtocolsValueList.stream().map(Value::getStringValue)
                         .collect(Collectors.joining(",", "", ""));
                 serverParameters = new Parameter(GrpcConstants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS,
@@ -165,23 +181,23 @@ public class Init extends BlockingNativeCallableUnit {
                 serverParamList.add(serverParameters);
             }
             
-            String sslProtocol = protocols.getStringField(GrpcConstants.PROTOCOL_VERSION);
+            String sslProtocol = protocols.getStringField(PROTOCOL_VERSION);
             if (StringUtils.isNotBlank(sslProtocol)) {
                 listenerConfiguration.setSSLProtocol(sslProtocol);
             }
         }
         
-        List<Value> ciphersValueList = Arrays.asList(sslConfig.getArrayField(GrpcConstants.SSL_CONFIG_CIPHERS));
-        if (ciphersValueList.size() > 0) {
+        List<Value> ciphersValueList = Arrays.asList(sslConfig.getArrayField(SSL_CONFIG_CIPHERS));
+        if (!ciphersValueList.isEmpty()) {
             String ciphers = ciphersValueList.stream().map(Value::getStringValue)
                     .collect(Collectors.joining(",", "", ""));
             serverParameters = new Parameter(GrpcConstants.CIPHERS, ciphers);
             serverParamList.add(serverParameters);
         }
         if (validateCert != null) {
-            boolean validateCertificateEnabled = validateCert.getBooleanField(GrpcConstants.ENABLE);
-            long cacheSize = validateCert.getIntField(GrpcConstants.SSL_CONFIG_CACHE_SIZE);
-            long cacheValidationPeriod = validateCert.getIntField(GrpcConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);
+            boolean validateCertificateEnabled = validateCert.getBooleanField(ENABLE);
+            long cacheSize = validateCert.getIntField(SSL_CONFIG_CACHE_SIZE);
+            long cacheValidationPeriod = validateCert.getIntField(SSL_CONFIG_CACHE_VALIDITY_PERIOD);
             listenerConfiguration.setValidateCertEnabled(validateCertificateEnabled);
             if (validateCertificateEnabled) {
                 if (cacheSize != 0) {
@@ -193,10 +209,10 @@ public class Init extends BlockingNativeCallableUnit {
             }
         }
         if (ocspStapling != null) {
-            boolean ocspStaplingEnabled = ocspStapling.getBooleanField(GrpcConstants.ENABLE);
+            boolean ocspStaplingEnabled = ocspStapling.getBooleanField(ENABLE);
             listenerConfiguration.setOcspStaplingEnabled(ocspStaplingEnabled);
-            long cacheSize = ocspStapling.getIntField(GrpcConstants.SSL_CONFIG_CACHE_SIZE);
-            long cacheValidationPeriod = ocspStapling.getIntField(GrpcConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);
+            long cacheSize = ocspStapling.getIntField(SSL_CONFIG_CACHE_SIZE);
+            long cacheValidationPeriod = ocspStapling.getIntField(SSL_CONFIG_CACHE_VALIDITY_PERIOD);
             listenerConfiguration.setValidateCertEnabled(ocspStaplingEnabled);
             if (ocspStaplingEnabled) {
                 if (cacheSize != 0) {
@@ -209,8 +225,8 @@ public class Init extends BlockingNativeCallableUnit {
         }
         listenerConfiguration.setTLSStoreType(GrpcConstants.PKCS_STORE_TYPE);
         String serverEnableSessionCreation = String.valueOf(sslConfig
-                .getBooleanField(GrpcConstants.SSL_CONFIG_ENABLE_SESSION_CREATION));
-        Parameter enableSessionCreationParam = new Parameter(GrpcConstants.SSL_CONFIG_ENABLE_SESSION_CREATION,
+                .getBooleanField(SSL_CONFIG_ENABLE_SESSION_CREATION));
+        Parameter enableSessionCreationParam = new Parameter(SSL_CONFIG_ENABLE_SESSION_CREATION,
                 serverEnableSessionCreation);
         serverParamList.add(enableSessionCreationParam);
         if (!serverParamList.isEmpty()) {
@@ -219,11 +235,9 @@ public class Init extends BlockingNativeCallableUnit {
         
         listenerConfiguration
                 .setId(getListenerInterface(listenerConfiguration.getHost(), listenerConfiguration.getPort()));
-        
-        return listenerConfiguration;
     }
     
-    public static String getListenerInterface(String host, int port) {
+    private static String getListenerInterface(String host, int port) {
         host = host != null ? host : "0.0.0.0";
         return host + ":" + port;
     }

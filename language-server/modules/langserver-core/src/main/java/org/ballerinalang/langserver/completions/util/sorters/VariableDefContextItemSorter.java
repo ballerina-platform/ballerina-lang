@@ -45,9 +45,7 @@ public class VariableDefContextItemSorter extends CompletionItemSorter {
                 .map(Token::getText)
                 .collect(Collectors.toList());
 
-        if (!poppedTokens.contains("=")) {
-            completionItems.clear();
-        } else {
+        if (poppedTokens.contains("=")) {
             completionItems.forEach(completionItem -> {
                 if (completionItem.getDetail().equals(ItemResolverConstants.FUNCTION_TYPE)) {
                     String label = completionItem.getLabel();
@@ -72,6 +70,10 @@ public class VariableDefContextItemSorter extends CompletionItemSorter {
      * @return      {@link String} type of the variable
      */
     String getVariableType(LSServiceOperationContext ctx) {
-        return ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).start.getText();
+        List<String> poppedTokens = ctx.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY)
+                .stream()
+                .map(Token::getText)
+                .collect(Collectors.toList());
+        return poppedTokens.get(0);
     }
 }

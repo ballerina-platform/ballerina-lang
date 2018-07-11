@@ -22,7 +22,7 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -141,10 +141,8 @@ public class Utils {
     @SuppressWarnings("unchecked")
     public static void encode(Context context, BValue input, String charset, boolean isMimeSpecific) {
         switch (input.getType().getTag()) {
-            case TypeTags.BLOB_TAG:
-                if (input instanceof BBlob) {
-                    encodeBlob(context, (BBlob) input, isMimeSpecific);
-                }
+            case TypeTags.ARRAY_TAG:
+                encodeBlob(context, ((BByteArray) input).getBytes(), isMimeSpecific);
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
@@ -172,10 +170,8 @@ public class Utils {
     @SuppressWarnings("unchecked")
     public static void decode(Context context, BValue encodedInput, String charset, boolean isMimeSpecific) {
         switch (encodedInput.getType().getTag()) {
-            case TypeTags.BLOB_TAG:
-                if (encodedInput instanceof BBlob) {
-                    decodeBlob(context, (BBlob) encodedInput, isMimeSpecific);
-                }
+            case TypeTags.ARRAY_TAG:
+                decodeBlob(context, ((BByteArray) encodedInput).getBytes(), isMimeSpecific);
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
@@ -330,23 +326,6 @@ public class Utils {
      * @param bytes          Represent the blob that needs to be encoded
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
      */
-    private static void encodeBlob(Context context, BBlob bytes, boolean isMimeSpecific) {
-        byte[] encodedContent;
-        if (isMimeSpecific) {
-            encodedContent = Base64.getMimeEncoder().encode(bytes.blobValue());
-        } else {
-            encodedContent = Base64.getEncoder().encode(bytes.blobValue());
-        }
-        context.setReturnValues(new BBlob(encodedContent));
-    }
-
-    /**
-     * Encode a given blob using Base64 encoding scheme.
-     *
-     * @param context        Represent a ballerina context
-     * @param bytes          Represent the blob that needs to be encoded
-     * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
-     */
     public static void encodeBlob(Context context, byte[] bytes, boolean isMimeSpecific) {
         byte[] encodedContent;
         if (isMimeSpecific) {
@@ -354,25 +333,9 @@ public class Utils {
         } else {
             encodedContent = Base64.getEncoder().encode(bytes);
         }
-        context.setReturnValues(new BBlob(encodedContent));
+        context.setReturnValues(new BByteArray(encodedContent));
     }
 
-    /**
-     * Decode a given blob using Base64 encoding scheme.
-     *
-     * @param context        Represent a ballerina context
-     * @param encodedContent Represent the blob that needs to be decoded
-     * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
-     */
-    private static void decodeBlob(Context context, BBlob encodedContent, boolean isMimeSpecific) {
-        byte[] decodedContent;
-        if (isMimeSpecific) {
-            decodedContent = Base64.getMimeDecoder().decode(encodedContent.blobValue());
-        } else {
-            decodedContent = Base64.getDecoder().decode(encodedContent.blobValue());
-        }
-        context.setReturnValues(new BBlob(decodedContent));
-    }
 
     /**
      * Decode a given blob using Base64 encoding scheme.
@@ -388,6 +351,6 @@ public class Utils {
         } else {
             decodedContent = Base64.getDecoder().decode(encodedContent);
         }
-        context.setReturnValues(new BBlob(decodedContent));
+        context.setReturnValues(new BByteArray(decodedContent));
     }
 }

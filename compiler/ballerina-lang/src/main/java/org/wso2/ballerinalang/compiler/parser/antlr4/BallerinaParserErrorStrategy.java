@@ -68,6 +68,8 @@ public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
         DiagnosticPos pos = getPosition(getMissingSymbol(parser));
         if (parser.getContext() instanceof BallerinaParser.ShiftExprPredicateContext) {
             dlog.error(pos, DiagnosticCode.INVALID_SHIFT_OPERATOR);
+        } else if (parser.getContext() instanceof BallerinaParser.RestDescriptorPredicateContext) {
+            dlog.error(pos, DiagnosticCode.INVALID_RECORD_REST_DESCRIPTOR);
         } else {
             dlog.error(pos, DiagnosticCode.FAILED_PREDICATE, e.getMessage());
         }

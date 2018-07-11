@@ -32,9 +32,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 
-import static org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT;
-import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
-import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_IO;
+import static org.ballerinalang.mime.util.MimeConstants.BYTE_CHANNEL_STRUCT;
+import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_IO;
 
 /**
  * Get the entity body as a byte channel.
@@ -64,7 +64,7 @@ public class GetByteChannel extends BlockingNativeCallableUnit {
                 if (EntityBodyHandler.getMessageDataSource(entityStruct) != null) {
                     context.setReturnValues(MimeUtil.createError(context,
                             "Byte channel is not available but payload can be obtain either as xml, " +
-                                    "json, string or blob type"));
+                                    "json, string or byte[] type"));
                 } else if (EntityBodyHandler.getBodyPartArray(entityStruct) != null && EntityBodyHandler.
                         getBodyPartArray(entityStruct).size() != 0) {
                     context.setReturnValues(MimeUtil.createError(context,

@@ -218,9 +218,6 @@ public class StructImpl extends AnnotatableNode implements Struct {
             case TypeTags.BOOLEAN_TAG:
                 structField.index = ++currentIndex[3];
                 break;
-            case TypeTags.BLOB_TAG:
-                structField.index = ++currentIndex[4];
-                break;
             default:
                 structField.index = ++currentIndex[5];
         }

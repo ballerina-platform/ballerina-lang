@@ -32,9 +32,10 @@ class Item extends React.Component {
                 className='interaction-menu-item'
                 onClick={() => {
                     this.props.callback(this.props.data);
-                    if (this.props.closeMenu) {
+                    if (this.context && typeof this.context.menuCloseCallback === 'function') {
                         this.context.menuCloseCallback();
                     }
+
                 }}
             >{this.props.icon !== '' && <i className={'button-icon ' + this.props.icon} />}{this.props.label}</a>);
     }
@@ -48,15 +49,15 @@ Item.propTypes = {
     closeMenu: PropTypes.bool,
 };
 
+Item.contextTypes = {
+    menuCloseCallback: PropTypes.func,
+};
+
 Item.defaultProps = {
     callback: () => {},
     data: {},
     icon: '',
     closeMenu: true,
-};
-
-Item.contextTypes = {
-    menuCloseCallback: PropTypes.func,
 };
 
 export default Item;

@@ -48,13 +48,13 @@ service<http:Service> test bind {port:9090} {
                foreach part in bodyParts {
                     content = content + " -- " + handleContent(part);
                }
-               response.setPayload(content);
+               response.setPayload(untaint content);
            }
            // If there is an error while getting the body parts, set the response code as 500 and 
            //set the error message as the response message.
           error err => {
               response.statusCode = 500;
-              response.setPayload(err.message);
+              response.setPayload(untaint err.message);
           }
        }
        client -> respond(response) but { error e => log:printError("Error in responding", err = e) };

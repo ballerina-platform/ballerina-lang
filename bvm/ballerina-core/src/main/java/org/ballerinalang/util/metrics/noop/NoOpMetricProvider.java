@@ -18,12 +18,11 @@
 package org.ballerinalang.util.metrics.noop;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.util.metrics.CallbackGauge;
 import org.ballerinalang.util.metrics.Counter;
 import org.ballerinalang.util.metrics.Gauge;
 import org.ballerinalang.util.metrics.MetricId;
-import org.ballerinalang.util.metrics.Summary;
-import org.ballerinalang.util.metrics.Timer;
+import org.ballerinalang.util.metrics.PolledGauge;
+import org.ballerinalang.util.metrics.StatisticConfig;
 import org.ballerinalang.util.metrics.spi.MetricProvider;
 
 import java.util.function.ToDoubleFunction;
@@ -40,7 +39,7 @@ public class NoOpMetricProvider implements MetricProvider {
     }
 
     @Override
-    public void initialize() {
+    public void init() {
         // Do nothing
     }
 
@@ -50,23 +49,13 @@ public class NoOpMetricProvider implements MetricProvider {
     }
 
     @Override
-    public Gauge newGauge(MetricId metricId) {
+    public Gauge newGauge(MetricId metricId, StatisticConfig... statisticConfigs) {
         return new NoOpGauge(metricId);
     }
 
     @Override
-    public <T> CallbackGauge newCallbackGauge(MetricId metricId, T obj, ToDoubleFunction<T> toDoubleFunction) {
-        return new NoOpCallbackGauge(metricId);
-    }
-
-    @Override
-    public Summary newSummary(MetricId metricId) {
-        return new NoOpSummary(metricId);
-    }
-
-    @Override
-    public Timer newTimer(MetricId metricId) {
-        return new NoOpTimer(metricId);
+    public <T> PolledGauge newPolledGauge(MetricId metricId, T obj, ToDoubleFunction<T> toDoubleFunction) {
+        return new NoOpPolledGauge(metricId);
     }
 
 }

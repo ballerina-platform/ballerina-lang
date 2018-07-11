@@ -24,6 +24,7 @@ import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.http.HttpConstants;
 
 /**
  * Get the ID of the connection.
@@ -44,6 +45,8 @@ public class Stop extends AbstractHttpNativeFunction {
     public void execute(Context context) {
         Struct serverEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         getServerConnector(serverEndpoint).stop();
+        serverEndpoint.addNativeData(HttpConstants.CONNECTOR_STARTED, false);
+        resetRegistry(serverEndpoint);
         context.setReturnValues();
     }
 }

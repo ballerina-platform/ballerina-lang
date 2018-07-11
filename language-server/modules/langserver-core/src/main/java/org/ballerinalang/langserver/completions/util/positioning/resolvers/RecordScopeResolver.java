@@ -54,7 +54,8 @@ public class RecordScopeResolver extends CursorPositionResolver {
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
         DiagnosticPos nodePos = CommonUtil.toZeroBasedPosition(node.getPosition());
-        DiagnosticPos ownerPos = CommonUtil.toZeroBasedPosition((DiagnosticPos) recordNode.getPosition());
+        DiagnosticPos ownerPos = CommonUtil
+                .toZeroBasedPosition(((BLangRecordTypeNode) recordNode).parent.getPosition());
         int ownerEndLine = ownerPos.getEndLine();
         int ownerEndCol = ownerPos.getEndColumn();
         int nodeStartLine = nodePos.getStartLine();
