@@ -2556,7 +2556,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // function LEFT_PARENTHESIS (ParameterTypeNameList | ParameterList)? RIGHT_PARENTHESIS ReturnParameter?
+  // function LEFT_PARENTHESIS (ParameterList | ParameterTypeNameList)? RIGHT_PARENTHESIS ReturnParameter?
   public static boolean FunctionTypeName(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionTypeName")) return false;
     if (!nextTokenIs(b, FUNCTION)) return false;
@@ -2571,20 +2571,20 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r || p;
   }
 
-  // (ParameterTypeNameList | ParameterList)?
+  // (ParameterList | ParameterTypeNameList)?
   private static boolean FunctionTypeName_2(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionTypeName_2")) return false;
     FunctionTypeName_2_0(b, l + 1);
     return true;
   }
 
-  // ParameterTypeNameList | ParameterList
+  // ParameterList | ParameterTypeNameList
   private static boolean FunctionTypeName_2_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionTypeName_2_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = ParameterTypeNameList(b, l + 1);
-    if (!r) r = ParameterList(b, l + 1);
+    r = ParameterList(b, l + 1);
+    if (!r) r = ParameterTypeNameList(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -8010,17 +8010,16 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // <<isNotARestParameter>>TypeName identifier
+  // <<isNotARestParameter>> TypeName identifier
   public static boolean parameterWithType(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "parameterWithType")) return false;
-    boolean r, p;
+    boolean r;
     Marker m = enter_section_(b, l, _NONE_, PARAMETER_WITH_TYPE, "<parameter with type>");
     r = isNotARestParameter(b, l + 1);
     r = r && TypeName(b, l + 1, -1);
-    p = r; // pin = 2
     r = r && consumeToken(b, IDENTIFIER);
-    exit_section_(b, l, m, r, p, null);
-    return r || p;
+    exit_section_(b, l, m, r, false, null);
+    return r;
   }
 
   /* ********************************************************** */

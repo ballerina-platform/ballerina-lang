@@ -38,6 +38,14 @@ IntelliJ Platfom.
 
 Please refer the [Getting Started](getting-started) section.
 
+## Semantic Analyzing
+
+Ballerina IDEA plugin provides semantic analyzing capabilities through Ballerina SDK. But this feature is disabled by default due to performance related reasons.
+
+You can enable this in `Settings -> Languages & Frameworks -> Ballerina -> Semantic Analyzer`.
+
+![alt text](getting-started/features/images/SemanticAnalyzing.png)
+
 ## How to contribute
 Pull requests are highly encouraged and we recommend you to create a GitHub issue to discuss the issue or feature that you are contributing to.
 

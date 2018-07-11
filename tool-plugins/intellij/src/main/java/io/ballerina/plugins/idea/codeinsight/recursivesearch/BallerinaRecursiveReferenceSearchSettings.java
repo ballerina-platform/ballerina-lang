@@ -35,7 +35,7 @@ public class BallerinaRecursiveReferenceSearchSettings implements
         PersistentStateComponent<BallerinaRecursiveReferenceSearchSettings> {
 
     @Attribute
-    private boolean myUseRecursiveReferenceSearch = false;
+    private boolean myUseRecursiveReferenceSearch = true;
 
     public static BallerinaRecursiveReferenceSearchSettings getInstance() {
         return ServiceManager.getService(BallerinaRecursiveReferenceSearchSettings.class);
