@@ -443,13 +443,6 @@ public class BallerinaParserService implements ComposerService {
                 nodeJson.addProperty(jsonName, (Boolean) prop);
             } else if (prop instanceof Enum) {
                 nodeJson.addProperty(jsonName, StringUtils.lowerCase(((Enum) prop).name()));
-            } else if (prop instanceof int[]) {
-                int[] intArray = ((int[]) prop);
-                JsonArray intArrayPropJson = new JsonArray();
-                nodeJson.add(jsonName, intArrayPropJson);
-                for (int intProp : intArray) {
-                    intArrayPropJson.add(intProp);
-                }
             } else if (prop != null) {
                 nodeJson.addProperty(jsonName, prop.toString());
                 String message = "Node " + node.getClass().getSimpleName() +
