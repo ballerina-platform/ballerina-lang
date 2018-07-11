@@ -11,7 +11,7 @@ Running tests
 I'm the mock function!
 Function mocking test
 
-	  ✔ testAssertIntEquals
+	  [pass] testAssertIntEquals
 
 	  1 passing
 	  0 failing
