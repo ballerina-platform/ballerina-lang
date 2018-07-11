@@ -5,7 +5,7 @@ import ballerina/observe;
 
 // Make sure you start the service with `--observe`, or metrics enabled.
 @http:ServiceConfig { basePath: "/online-store-service" }
-service<http:Service> OnlineStoreService bind { port: 9090 } {
+service<http:Service> onlineStoreService bind { port: 9090 } {
 
     //Create a counter as a global varaible in the service with optional field description.
     observe:Counter globalCounter = new("total_orders", desc = "Total quantity required");
