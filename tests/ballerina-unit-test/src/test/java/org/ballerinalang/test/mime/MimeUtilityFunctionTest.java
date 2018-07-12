@@ -246,7 +246,7 @@ public class MimeUtilityFunctionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetJsonMultipleTimes", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
-                "{\"concatContent\":[{\"code\":\"123\"},{\"code\":\"123\"},{\"code\":\"123\"}]}");
+                "{\"concatContent\":[{\"code\":\"123\"}, {\"code\":\"123\"}, {\"code\":\"123\"}]}");
     }
 
     @Test(description = "Set xml data to entity and get the content back from entity as xml")
@@ -476,7 +476,7 @@ public class MimeUtilityFunctionTest {
             Assert.assertEquals(returns.length, 1);
             Assert.assertNotNull(returns[0]);
             Assert.assertTrue(returns[0].stringValue().contains("Error occurred while extracting json " +
-                    "data from entity: failed to create json: empty JSON document"));
+                    "data from entity: empty JSON document"));
         } catch (IOException e) {
             log.error("Error occurred in testTempFileDeletion", e.getMessage());
         }

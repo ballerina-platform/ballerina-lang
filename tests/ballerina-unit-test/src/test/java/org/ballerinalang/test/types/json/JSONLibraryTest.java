@@ -93,20 +93,20 @@ public class JSONLibraryTest {
 
     @Test
     public void testBasicJsonObjectGenValues() throws IOException {
-        String json = "{\"a\":\"abc\",\"b\":1,\"c\":3.14,\"d\":true,\"e\":false,\"f\":null,"
-                + "\"g\":{\"1\":\"a\",\"2\":\"b\"},\"h\":[\"A\",20,30,\"D\"]}";
+        String json = "{\"a\":\"abc\", \"b\":1, \"c\":3.14, \"d\":true, \"e\":false, \"f\":null, "
+                + "\"g\":{\"1\":\"a\", \"2\":\"b\"}, \"h\":[\"A\", 20, 30, \"D\"]}";
         BValue node = JsonParser.parse(json);
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         JsonGenerator gen = new JsonGenerator(byteOut);
         gen.serialize(node);
         gen.flush();
-        Assert.assertEquals(json, new String(byteOut.toByteArray()));
+        Assert.assertEquals(new String(byteOut.toByteArray()), json);
     }
 
     @Test
     public void testJsonEscapeChars() throws IOException {
-        String json = "[{\"a\":\"abc\\\"\",\"x\":\"1\\b\\f\",\"c\":3.14,\"d\":true,\"e\":false,\"f\":null,\"g\":"
-                + "{\"1\\n2\":\"a\\r\",\"2\":\"b\"},\"h\":[\"A\\tB\",20,30,\"D\\\\\"]}]";
+        String json = "[{\"a\":\"abc\\\"\", \"x\":\"1\\b\\f\", \"c\":3.14, \"d\":true, \"e\":false, \"f\":null, \"g\":"
+                + "{\"1\\n2\":\"a\\r\", \"2\":\"b\"}, \"h\":[\"A\\tB\", 20, 30, \"D\\\\\"]}]";
         BValue node = JsonParser.parse(json);
         String result = node.toString();
         Assert.assertEquals(result, json);
@@ -114,9 +114,9 @@ public class JSONLibraryTest {
 
     @Test
     public void testJsonUnicodeChars() throws IOException {
-        String json = "{\"firstName\":\"Will\",\"lastName\":\"Smith\",\"info\":\"\\u2600\","
+        String json = "{\"firstName\":\"Will\", \"lastName\":\"Smith\", \"info\":\"\\u2600\", "
                 + "\"info2\":\"A\\u2655\\u2665\\u266A\\u266aB\"}";
-        String json2 = "{\"firstName\":\"Will\",\"lastName\":\"Smith\",\"info\":\"\u2600\","
+        String json2 = "{\"firstName\":\"Will\", \"lastName\":\"Smith\", \"info\":\"\u2600\", "
                 + "\"info2\":\"A\u2655\u2665\u266A\u266aB\"}";
         BMap<String, BValue> node = (BMap<String, BValue>) JsonParser.parse(json);
         Assert.assertEquals(node.get("info").stringValue(), "☀");
@@ -318,14 +318,14 @@ public class JSONLibraryTest {
                 "  }\n" +
                 "]";
         BValue node = JsonParser.parse(json);
-        Assert.assertEquals(node.toString().length(), 7599);
+        Assert.assertEquals(node.toString().length(), 7829);
     }
 
     @Test
     public void testSingleQuoteInArrayElements() throws IOException {
         String json = "{'fruits':['apple', 'orange', \"grapes\"]}";
         BValue node = JsonParser.parse(json);
-        Assert.assertEquals(node.toString(), "{\"fruits\":[\"apple\",\"orange\",\"grapes\"]}");
+        Assert.assertEquals(node.toString(), "{\"fruits\":[\"apple\", \"orange\", \"grapes\"]}");
     }
 
     @Test(expectedExceptions = { BallerinaException.class },
@@ -333,6 +333,6 @@ public class JSONLibraryTest {
     public void testMismatchQuotes() throws IOException {
         String json = "{'fruits':[\"apple', 'orange', \"grapes\"]}";
         BValue node = JsonParser.parse(json);
-        Assert.assertEquals(node.toString(), "{\"fruits\":[\"apple\",\"orange\",\"grapes\"]}");
+        Assert.assertEquals(node.toString(), "{\"fruits\":[\"apple\", \"orange\", \"grapes\"]}");
     }
 }

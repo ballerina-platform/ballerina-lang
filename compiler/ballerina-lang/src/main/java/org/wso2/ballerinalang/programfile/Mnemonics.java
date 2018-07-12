@@ -150,7 +150,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.I2S] = "i2s";
         mnemonics[InstructionCodes.I2B] = "i2b";
         mnemonics[InstructionCodes.I2ANY] = "i2any";
-        mnemonics[InstructionCodes.I2JSON] = "i2json";
         mnemonics[InstructionCodes.I2BI] = "i2bi";
         mnemonics[InstructionCodes.BI2I] = "bi2i";
         mnemonics[InstructionCodes.BI2ANY] = "bi2any";
@@ -158,12 +157,10 @@ public class Mnemonics {
         mnemonics[InstructionCodes.F2S] = "f2s";
         mnemonics[InstructionCodes.F2B] = "f2b";
         mnemonics[InstructionCodes.F2ANY] = "f2any";
-        mnemonics[InstructionCodes.F2JSON] = "f2json";
         mnemonics[InstructionCodes.S2I] = "s2i";
         mnemonics[InstructionCodes.S2F] = "s2f";
         mnemonics[InstructionCodes.S2B] = "s2b";
         mnemonics[InstructionCodes.S2ANY] = "s2any";
-        mnemonics[InstructionCodes.S2JSON] = "s2json";
         mnemonics[InstructionCodes.B2I] = "b2i";
         mnemonics[InstructionCodes.B2F] = "b2f";
         mnemonics[InstructionCodes.B2S] = "b2s";
@@ -190,13 +187,12 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ANY2TYPE] = "any2type";
         mnemonics[InstructionCodes.ANY2T] = "any2t";
         mnemonics[InstructionCodes.ANY2MAP] = "any2map";
-        mnemonics[InstructionCodes.NULL2JSON] = "null2json";
         mnemonics[InstructionCodes.CHECKCAST] = "checkcast";
         mnemonics[InstructionCodes.DT2JSON] = "dt2json";
         mnemonics[InstructionCodes.DT2XML] = "dt2xml";
         mnemonics[InstructionCodes.MAP2JSON] = "map2json";
         mnemonics[InstructionCodes.JSON2MAP] = "json2map";
-        mnemonics[InstructionCodes.CHECK_CONVERSION] = "checkconversion";
+        mnemonics[InstructionCodes.O2JSON] = "o2json";
 
         // Transactions
         mnemonics[InstructionCodes.TR_BEGIN] = "tr_begin";

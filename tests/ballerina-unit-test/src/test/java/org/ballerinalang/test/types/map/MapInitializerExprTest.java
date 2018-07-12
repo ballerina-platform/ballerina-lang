@@ -87,7 +87,7 @@ public class MapInitializerExprTest {
 
         BValue info = outerMap.get("info");
         Assert.assertTrue(info instanceof BMap);
-        Assert.assertEquals(info.stringValue(), "{\"city\":\"Colombo\",\"country\":\"SriLanka\"}");
+        Assert.assertEquals(info.stringValue(), "{\"city\":\"Colombo\", \"country\":\"SriLanka\"}");
     }
     
     @Test

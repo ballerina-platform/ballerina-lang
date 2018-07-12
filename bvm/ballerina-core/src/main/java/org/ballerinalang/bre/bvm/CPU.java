@@ -67,7 +67,6 @@ import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.runtime.Constants;
-import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.AttachedFunctionInfo;
 import org.ballerinalang.util.codegen.ErrorTableEntry;
@@ -118,7 +117,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.StringJoiner;
 import java.util.UUID;
 import java.util.stream.LongStream;
 
@@ -131,6 +129,7 @@ import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
  *
  * @since 0.965.0
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class CPU {
 
     public static void traceCode(Instruction[] code) {
@@ -156,7 +155,6 @@ public class CPU {
         }
     }
 
-    @SuppressWarnings("rawtypes")
     private static void tryExec(WorkerExecutionContext ctx) {
         BLangScheduler.workerRunning(ctx);
 
@@ -516,7 +514,6 @@ public class CPU {
                     case InstructionCodes.ANY2T:
                     case InstructionCodes.ANY2C:
                     case InstructionCodes.ANY2DT:
-                    case InstructionCodes.NULL2JSON:
                     case InstructionCodes.CHECKCAST:
                     case InstructionCodes.B2JSON:
                     case InstructionCodes.JSON2I:
@@ -525,7 +522,7 @@ public class CPU {
                     case InstructionCodes.JSON2B:
                     case InstructionCodes.NULL2S:
                     case InstructionCodes.IS_ASSIGNABLE:
-                    case InstructionCodes.CHECK_CONVERSION:
+                    case InstructionCodes.O2JSON:
                         execTypeCastOpcodes(ctx, sf, opcode, operands);
                         break;
     
@@ -533,16 +530,13 @@ public class CPU {
                     case InstructionCodes.I2S:
                     case InstructionCodes.I2B:
                     case InstructionCodes.I2BI:
-                    case InstructionCodes.I2JSON:
                     case InstructionCodes.BI2I:
                     case InstructionCodes.F2I:
                     case InstructionCodes.F2S:
                     case InstructionCodes.F2B:
-                    case InstructionCodes.F2JSON:
                     case InstructionCodes.S2I:
                     case InstructionCodes.S2F:
                     case InstructionCodes.S2B:
-                    case InstructionCodes.S2JSON:
                     case InstructionCodes.B2I:
                     case InstructionCodes.B2F:
                     case InstructionCodes.B2S:
@@ -576,16 +570,10 @@ public class CPU {
                         j = operands[1];
     
                         BValue value = sf.refRegs[i];
-    
                         if (value == null) {
                             handleNullRefError(ctx);
                             break;
                         }
-    
-//                        if (value.getType().getTag() == TypeTags.JSON_TAG) {
-//                            sf.longRegs[j] = ((BJSON) value).value().size();
-//                            break;
-//                        }
     
                         sf.longRegs[j] = ((BNewArray) value).size();
                         break;
@@ -826,7 +814,7 @@ public class CPU {
                     break;
                 }
                 default:
-                    sf.refRegs[refIndex] = ((BRefType) closure.value());
+                    sf.refRegs[refIndex] = ((BRefType<?>) closure.value());
                     newArgRegs[argRegIndex++] = refIndex++;
             }
         }
@@ -879,7 +867,7 @@ public class CPU {
                 break;
             }
             default:
-                sf.refRegs[refIndex] = ((BRefType) closure.value());
+                sf.refRegs[refIndex] = ((BRefType<?>) closure.value());
                 newArgRegs[argRegIndex++] = refIndex++;
             }
         }
@@ -953,7 +941,7 @@ public class CPU {
             if (sf.refRegs == null) {
                 sf.refRegs = new BRefType[0];
             }
-            BRefType[] newRefRegs = new BRefType[sf.refRegs.length +
+            BRefType<?>[] newRefRegs = new BRefType[sf.refRegs.length +
                     fp.getAdditionalIndexCount(BTypes.typeAny.getTag())];
             System.arraycopy(sf.refRegs, 0, newRefRegs, 0, sf.refRegs.length);
             refIndex = sf.refRegs.length;
@@ -1130,7 +1118,6 @@ public class CPU {
         sf.refRegs[k] = new BIntArray(LongStream.rangeClosed(sf.longRegs[i], sf.longRegs[j]).toArray());
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     private static void execLoadOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
         int i;
         int j;
@@ -1144,7 +1131,6 @@ public class CPU {
         BStringArray bStringArray;
         BBooleanArray bBooleanArray;
         BRefValueArray bArray;
-        BMap<String, BValue> structureType;
         BMap<String, BRefType> bMap;
         switch (opcode) {
             case InstructionCodes.IMOVE:
@@ -1278,11 +1264,6 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-//                bMap = (BJSON) sf.refRegs[i];
-//                if (jsonVal == null) {
-//                    handleNullRefError(ctx);
-//                    break;
-//                }
 
                 try {
                     sf.refRegs[k] = JSONUtils.getArrayElement(sf.refRegs[i], sf.longRegs[j]);
@@ -1344,12 +1325,6 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-//                jsonVal = (BJSON) sf.refRegs[i];
-//                if (jsonVal == null) {
-//                    sf.refRegs[k] = null;
-//                    break;
-//                }
-
                 sf.refRegs[k] = JSONUtils.getElement(sf.refRegs[i], sf.stringRegs[j]);
                 break;
             default:
@@ -1357,13 +1332,11 @@ public class CPU {
         }
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     private static void execStoreOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
         int i;
         int j;
         int k;
         int pkgIndex;
-        int fieldIndex;
 
         BIntArray bIntArray;
         BByteArray bByteArray;
@@ -1371,7 +1344,6 @@ public class CPU {
         BStringArray bStringArray;
         BBooleanArray bBooleanArray;
         BRefValueArray bArray;
-        BMap<String, BValue> structureType;
         BMap<String, BRefType> bMap;
         switch (opcode) {
             case InstructionCodes.IASTORE:
@@ -1480,11 +1452,6 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-//                jsonVal = (BJSON) sf.refRegs[i];
-//                if (jsonVal == null) {
-//                    handleNullRefError(ctx);
-//                    break;
-//                }
 
                 try {
                     JSONUtils.setArrayElement(sf.refRegs[i], sf.longRegs[j], sf.refRegs[k]);
@@ -1551,11 +1518,6 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-//                jsonVal = (BJSON) sf.refRegs[i];
-//                if (jsonVal == null) {
-//                    handleNullRefError(ctx);
-//                    break;
-//                }
                 JSONUtils.setElement(sf.refRegs[i], sf.stringRegs[j], sf.refRegs[k]);
                 break;
             default:
@@ -1563,7 +1525,6 @@ public class CPU {
         }
     }
 
-    @SuppressWarnings("rawtypes")
     private static void execBinaryOpCodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
         int i;
         int j;
@@ -1840,7 +1801,6 @@ public class CPU {
         }
     }
 
-    @SuppressWarnings("rawtypes")
     private static void execXMLOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
         int i;
         int j;
@@ -1989,7 +1949,6 @@ public class CPU {
         }
     }
 
-    @SuppressWarnings("rawtypes")
     private static void execTypeCastOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode, int[] operands) {
         int i;
         int j;
@@ -2079,14 +2038,7 @@ public class CPU {
                 bRefTypeValue = sf.refRegs[i];
 
                 if (checkCast(bRefTypeValue, typeRefCPEntry.getType())) {
-                    /* if the value is a JSON and target is a (boxed) value type, then even though
-                     * they should be assignable, we can't use the same ref value, but rather, the BJSON
-                     * should be converted to the respective boxed value types */
-//                    if (bRefTypeValue instanceof BJSON && BTypes.isValueType(typeRefCPEntry.getType())) {
-//                        sf.refRegs[j] = ((BJSON) bRefTypeValue).getPrimitiveBoxedValue();
-//                    } else {
                         sf.refRegs[j] = bRefTypeValue;
-//                    }
                 } else {
                     handleTypeCastError(ctx, sf, j, bRefTypeValue != null ? bRefTypeValue.getType() : BTypes.typeNull,
                             typeRefCPEntry.getType());
@@ -2104,15 +2056,10 @@ public class CPU {
                     sf.intRegs[j] = 0;
                 }
                 break;
-            case InstructionCodes.NULL2JSON:
-                // FIXME: Remove this if possible
-                j = operands[1];
-                sf.refRegs[j] = null;
-                break;
             case InstructionCodes.B2JSON:
                 i = operands[0];
                 j = operands[1];
-                sf.refRegs[j] = new BBoolean(sf.intRegs[i] == 0);
+                sf.refRegs[j] = new BBoolean(sf.intRegs[i] == 1);
                 break;
             case InstructionCodes.JSON2I:
                 castJSONToInt(ctx, operands, sf);
@@ -2136,18 +2083,19 @@ public class CPU {
             case InstructionCodes.JSON2ARRAY:
                 convertJSONToArray(ctx, operands, sf);
                 break;
-            case InstructionCodes.CHECK_CONVERSION:
+            case InstructionCodes.O2JSON:
                 i = operands[0];
-                j = operands[1];
+                cpIndex = operands[1];
+                j = operands[2];
+                BJSONType targetType = (BJSONType) ((TypeRefCPEntry) ctx.constPool[cpIndex]).getType();
                 bRefTypeValue = sf.refRegs[i];
-                sf.refRegs[j] = JSONUtils.convertUnionTypeToJSON(bRefTypeValue);
+                sf.refRegs[j] = JSONUtils.convertUnionTypeToJSON(bRefTypeValue, targetType);
                 break;
             default:
                 throw new UnsupportedOperationException();
         }
     }
 
-    @SuppressWarnings("rawtypes")
     private static void execTypeConversionOpcodes(WorkerExecutionContext ctx, WorkerData sf, int opcode,
                                                   int[] operands) {
         int i;
@@ -2160,7 +2108,7 @@ public class CPU {
             case InstructionCodes.I2F:
                 i = operands[0];
                 j = operands[1];
-                sf.doubleRegs[j] = (double) sf.longRegs[i];
+                sf.doubleRegs[j] = sf.longRegs[i];
                 break;
             case InstructionCodes.I2S:
                 i = operands[0];
@@ -2181,12 +2129,6 @@ public class CPU {
                     handleTypeConversionError(ctx, sf, j, TypeConstants.INT_TNAME, TypeConstants.BYTE_TNAME);
                 }
                 break;
-            case InstructionCodes.I2JSON:
-                // FIXME: replace with I2ANY
-                i = operands[0];
-                j = operands[1];
-                sf.refRegs[j] = new BInteger(sf.longRegs[i]);
-                break;
             case InstructionCodes.BI2I:
                 i = operands[0];
                 j = operands[1];
@@ -2206,12 +2148,6 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 sf.intRegs[j] = sf.doubleRegs[i] != 0.0 ? 1 : 0;
-                break;
-            case InstructionCodes.F2JSON:
-                // FIXME: replace with F2ANY
-                i = operands[0];
-                j = operands[1];
-                sf.refRegs[j] = new BFloat(sf.doubleRegs[i]);
                 break;
             case InstructionCodes.S2I:
                 i = operands[0];
@@ -2249,13 +2185,6 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 sf.intRegs[j] = Boolean.parseBoolean(sf.stringRegs[i]) ? 1 : 0;
-                break;
-            case InstructionCodes.S2JSON:
-                // FIXME: Replace with S2ANY
-                i = operands[0];
-                j = operands[1];
-                str = StringEscapeUtils.escapeJson(sf.stringRegs[i]);
-                sf.refRegs[j] = new BString("\"" + str + "\"");
                 break;
             case InstructionCodes.B2I:
                 i = operands[0];
@@ -2382,19 +2311,24 @@ public class CPU {
 
     private static void execIteratorOperation(WorkerExecutionContext ctx, WorkerData sf, Instruction instruction) {
         int i, j;
-        BCollection collection;
+        BValue collection;
         BIterator iterator;
         InstructionIteratorNext nextInstruction;
         switch (instruction.getOpcode()) {
             case InstructionCodes.ITR_NEW:
                 i = instruction.getOperands()[0];   // collection
                 j = instruction.getOperands()[1];   // iterator variable (ref) index.
-                collection = (BCollection) sf.refRegs[i];
+
+                collection = sf.refRegs[i];
                 if (collection == null) {
                     handleNullRefError(ctx);
                     return;
+                } else if (!(collection instanceof BCollection)) {
+                    sf.refRegs[j] = null;
+                    break;
                 }
-                sf.refRegs[j] = collection.newIterator();
+
+                sf.refRegs[j] = ((BCollection) collection).newIterator();
                 break;
             case InstructionCodes.ITR_HAS_NEXT:
                 i = instruction.getOperands()[0];   // iterator
@@ -2418,7 +2352,6 @@ public class CPU {
         }
     }
 
-    @SuppressWarnings("rawtypes")
     private static void copyValuesToRegistries(int[] typeTags, int[] targetReg, BValue[] values, WorkerData sf) {
         for (int i = 0; i < typeTags.length; i++) {
             BValue source = values[i];
@@ -2657,7 +2590,6 @@ public class CPU {
         debugger.notifyDebugHit(ctx, currentExecLine, ctx.getDebugContext().getWorkerId());
     }
 
-    @SuppressWarnings("rawtypes")
     private static void handleAnyToRefTypeCast(WorkerExecutionContext ctx, WorkerData sf, int[] operands,
                                                BType targetType) {
         int i = operands[0];
@@ -2860,7 +2792,6 @@ public class CPU {
         return BLangFunctions.invokeCallable(concreteFuncInfo, ctx, argRegs, retRegs, false, flags);
     }
 
-    @SuppressWarnings("rawtypes")
     private static void handleWorkerSend(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
                                          BType type, int reg) {
         BRefType val = extractValue(ctx.workerLocal, type, reg);
@@ -2872,7 +2803,6 @@ public class CPU {
         return ctx.respCtx.getWorkerDataChannel(name);
     }
 
-    @SuppressWarnings("rawtypes")
     private static BRefType extractValue(WorkerData data, BType type, int reg) {
         BRefType result;
         switch (type.getTag()) {
@@ -2903,7 +2833,6 @@ public class CPU {
                 forkJoinIns.timeoutRegIndex, forkJoinIns.timeoutBlockAddr, forkJoinIns.timeoutVarRegIndex);
     }
 
-    @SuppressWarnings("rawtypes")
     private static boolean handleWorkerReceive(WorkerExecutionContext ctx, WorkerDataChannelInfo workerDataChannelInfo,
                                                BType type, int reg) {
         WorkerDataChannel.WorkerResult passedInValue = getWorkerChannel(
@@ -2917,7 +2846,6 @@ public class CPU {
         }
     }
 
-    @SuppressWarnings("rawtypes")
     public static void copyArgValueForWorkerReceive(WorkerData currentSF, int regIndex, BType paramType,
                                                      BRefType passedInValue) {
         switch (paramType.getTag()) {
@@ -2937,7 +2865,7 @@ public class CPU {
                 currentSF.intRegs[regIndex] = (((BBoolean) passedInValue).booleanValue()) ? 1 : 0;
                 break;
             default:
-                currentSF.refRegs[regIndex] = (BRefType) passedInValue;
+                currentSF.refRegs[regIndex] = passedInValue;
         }
     }
 
@@ -3413,7 +3341,6 @@ public class CPU {
 
         // Casting to an unconstrained JSON
         if (targetConstrainedType == null) {
-            // ideally we should't reach here. This is checked from typeChecker
             return true;
         }
 
@@ -3431,7 +3358,8 @@ public class CPU {
             return true;
         }
 
-        if (json.getType().getTag() != TypeTags.MAP_TAG) {
+        // Return false if the JSON is not a json-object
+        if (json.getType().getTag() != TypeTags.JSON_TAG) {
             return false;
         }
 
@@ -3443,7 +3371,8 @@ public class CPU {
                 return false;
             }
 
-            if (!checkJSONCast(jsonObject.get(fieldName), sourceType, tFields[i].getFieldType())) {
+            BValue fieldVal = jsonObject.get(fieldName);
+            if (!checkJSONCast(fieldVal, fieldVal.getType(), tFields[i].getFieldType())) {
                 return false;
             }
         }
@@ -3482,12 +3411,12 @@ public class CPU {
                 }
                 return true;
             case TypeTags.JSON_TAG:
-                // If target type is not constrained, any JSON is assignable.
-                if (((BJSONType) targetType).getConstrainedType() == null) {
+                // If JSON is unconstrained, any JSON value is compatible
+                if (((BJSONType) targetType).getConstrainedType() == null &&
+                        getElementType(sourceType).getTag() == TypeTags.JSON_TAG) {
                     return true;
-                }
-
-                if (sourceType.getTag() != TypeTags.JSON_TAG) {
+                } else if (sourceType.getTag() != TypeTags.JSON_TAG) {
+                    // If JSON is constrained, only JSON objects are compatible
                     return false;
                 }
                 return checkJSONEquivalency(json, (BJSONType) sourceType, (BJSONType) targetType);
@@ -3517,7 +3446,7 @@ public class CPU {
         }
 
         try {
-            sf.refRegs[j] = JSONUtils.convertStructToJSON(bStruct, targetType);
+            sf.refRegs[j] = JSONUtils.convertMapToJSON(bStruct, targetType);
         } catch (Exception e) {
             String errorMsg = "cannot convert '" + bStruct.getType() + "' to type '" + targetType + "': " +
                     e.getMessage();
@@ -3557,7 +3486,7 @@ public class CPU {
         }
 
         try {
-            sf.refRegs[j] = (BRefType<?>) JSONUtils.convertJSON(json, targetType);
+            sf.refRegs[j] = JSONUtils.convertJSON(json, targetType);
         } catch (Exception e) {
             String errorMsg = "cannot convert '" + json.getType() + "' to type '" + targetType + "': " +
                     e.getMessage();
@@ -3565,7 +3494,6 @@ public class CPU {
         }
     }
     
-    @SuppressWarnings("unchecked")
     private static void convertMapToJSON(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
         int i = operands[0];
         int cpIndex = operands[1];
@@ -3608,7 +3536,6 @@ public class CPU {
         }
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     private static void convertMapToStruct(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
         int i = operands[0];
         int cpIndex = operands[1];
@@ -3750,7 +3677,6 @@ public class CPU {
         return null;
     }
 
-    @SuppressWarnings("rawtypes")
     private static void calculateLength(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
         int i = operands[0];
         int cpIndex = operands[1];
@@ -3777,15 +3703,11 @@ public class CPU {
         if (typeTag == TypeTags.XML_TAG) {
             sf.longRegs[j] = ((BXML) entity).length();
             return;
-//        } else if (entity instanceof BJSON) {
-//            if (JSONUtils.isJSONArray((BJSON) entity)) {
-//                sf.longRegs[j] = JSONUtils.getJSONArrayLength((BJSON) sf.refRegs[i]);
-//            } else {
-//                sf.longRegs[j] = -1;
-//            }
-//            return;
         } else if (typeTag == TypeTags.MAP_TAG) {
             sf.longRegs[j] = ((BMap) entity).size();
+            return;
+        } else if (!(entity instanceof BNewArray)) {
+            sf.longRegs[j] = -1;
             return;
         }
 

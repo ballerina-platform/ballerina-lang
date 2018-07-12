@@ -110,7 +110,7 @@ public class IdentifierLiteralTest {
         BValue[] returns = BRunUtil.invoke(result, "useILAsrefType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BMap.class);
-        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"James\",\"age\":30}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"James\", \"age\":30}");
     }
 
     @Test(description = "Test using identifier literals in arrays and array indexes")

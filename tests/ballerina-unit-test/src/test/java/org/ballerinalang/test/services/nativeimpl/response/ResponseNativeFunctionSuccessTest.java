@@ -268,7 +268,8 @@ public class ResponseNativeFunctionSuccessTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
 
         Assert.assertNotNull(responseMsg, "Response message not found");
-        Assert.assertEquals(JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream()).stringValue(), value);
+        BValue json = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertEquals(json.stringValue(), value);
     }
 
     @Test

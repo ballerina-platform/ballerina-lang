@@ -17,9 +17,11 @@
  */
 package org.ballerinalang.model;
 
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonGenerator;
@@ -81,7 +83,7 @@ public class TableJSONDataSource implements JSONDataSource {
 
         @Override
         public BRefType<?> transform(BTable df) throws IOException {
-            BMap<String, BRefType<?>> objNode = new BMap<>();
+            BMap<String, BRefType<?>> objNode = new BMap<>(BTypes.typeJSON);
             BStructureType structType = df.getStructType();
             BField[] structFields = null;
             if (structType != null) {
@@ -104,11 +106,11 @@ public class TableJSONDataSource implements JSONDataSource {
 
     }
 
-    private static void constructJsonData(BTable df, BMap<String, BRefType<?>> jsonObject, String name, TypeKind type, int index,
-            BField[] structFields) {
+    private static void constructJsonData(BTable df, BMap<String, BRefType<?>> jsonObject, String name, TypeKind type,
+                                          int index, BField[] structFields) {
         switch (type) {
             case STRING:
-                jsonObject.put(name, new BString(df.getString(index)));
+                jsonObject.put(name, getBString(df.getString(index)));
                 break;
             case INT:
                 jsonObject.put(name, new BInteger(df.getInt(index)));
@@ -120,7 +122,7 @@ public class TableJSONDataSource implements JSONDataSource {
                 jsonObject.put(name, new BBoolean(df.getBoolean(index)));
                 break;
             case BLOB:
-                jsonObject.put(name, new BString(df.getBlob(index)));
+                jsonObject.put(name, getBString(df.getBlob(index)));
                 break;
             case ARRAY:
                 jsonObject.put(name, getDataArray(df, index));
@@ -133,10 +135,10 @@ public class TableJSONDataSource implements JSONDataSource {
                 jsonObject.put(name, getStructData(df.getStruct(index), structFields, index));
                 break;
             case XML:
-                jsonObject.put(name, new BString(df.getString(index)));
+                jsonObject.put(name, getBString(df.getString(index)));
                 break;
             default:
-                jsonObject.put(name, new BString(df.getString(index)));
+                jsonObject.put(name, getBString(df.getString(index)));
             break;
         }
     }
@@ -144,7 +146,7 @@ public class TableJSONDataSource implements JSONDataSource {
     private static BRefType<?> getStructData(Object[] data, BField[] structFields, int index) {
         try {
             if (structFields == null) {
-                BRefValueArray jsonArray = new BRefValueArray();
+                BRefValueArray jsonArray = new BRefValueArray(new BArrayType(BTypes.typeJSON));
                 if (data != null) {
                     for (Object value : data) {
                         if (value instanceof String) {
@@ -217,7 +219,7 @@ public class TableJSONDataSource implements JSONDataSource {
     private static BRefType<?> getDataArray(BTable df, int columnIndex) {
         Object[] dataArray = df.getArray(columnIndex);
         int length = dataArray.length;
-        BRefValueArray jsonArray = new BRefValueArray();
+        BRefValueArray jsonArray = new BRefValueArray(new BArrayType(BTypes.typeJSON));
         if (length > 0) {
             Object obj = dataArray[0];
             if (obj instanceof String) {
@@ -257,6 +259,10 @@ public class TableJSONDataSource implements JSONDataSource {
         return  jsonArray;
     }
 
+    private static BString getBString(String str) {
+        return str != null ? new BString(str) : null;
+    }
+
     /**
      * This represents the logic that will transform the current entry of a
      * data table to a {@link JsonNode}.
@@ -273,5 +279,4 @@ public class TableJSONDataSource implements JSONDataSource {
         BRefType<?> transform(BTable table) throws IOException;
 
     }
-
 }

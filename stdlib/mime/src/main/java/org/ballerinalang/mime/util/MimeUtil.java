@@ -25,18 +25,23 @@ import io.netty.util.internal.PlatformDependent;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BMapType;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.activation.MimeType;
@@ -56,6 +61,8 @@ import static org.ballerinalang.mime.util.MimeConstants.DEFAULT_SUB_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.DISPOSITION_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.DOUBLE_QUOTE;
 import static org.ballerinalang.mime.util.MimeConstants.FORM_DATA_PARAM;
+import static org.ballerinalang.mime.util.MimeConstants.JSON_SUFFIX;
+import static org.ballerinalang.mime.util.MimeConstants.JSON_TYPE_IDENTIFIER;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
@@ -434,5 +441,36 @@ public class MimeUtil {
      */
     public static BMap<String, BValue> createError(Context context, String errMsg) {
         return BLangVMErrors.createError(context, errMsg);
+    }
+
+    public static boolean isJSONContentType(BMap<String, BValue> entityStruct) {
+        String baseType;
+        try {
+            baseType = HeaderUtil.getBaseType(entityStruct);
+            if (baseType == null) {
+                return false;
+            }
+            return baseType.toLowerCase(Locale.getDefault()).endsWith(JSON_TYPE_IDENTIFIER) ||
+                    baseType.toLowerCase(Locale.getDefault()).endsWith(JSON_SUFFIX);
+        } catch (MimeTypeParseException e) {
+            throw new BallerinaException("Error while parsing Content-Type value: " + e.getMessage());
+        }
+    }
+
+    public static boolean isJSONCompatible(BType type) {
+        switch (type.getTag()) {
+            case TypeTags.INT:
+            case TypeTags.FLOAT:
+            case TypeTags.STRING:
+            case TypeTags.BOOLEAN:
+            case TypeTags.JSON:
+                return true;
+            case TypeTags.ARRAY:
+                return isJSONCompatible(((BArrayType) type).getElementType());
+            case TypeTags.MAP:
+                return isJSONCompatible(((BMapType) type).getConstrainedType());
+            default:
+                return false;
+        }
     }
 }

@@ -116,7 +116,7 @@ public class TypeCastExprTest {
     public void testStringToJSON() {
         BValue[] args = {new BString("{\"name\":\"chanaka\"}")};
         BValue[] returns = BRunUtil.invoke(result, "testStringToJson", args);
-        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "{\"name\":\"chanaka\"}";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }

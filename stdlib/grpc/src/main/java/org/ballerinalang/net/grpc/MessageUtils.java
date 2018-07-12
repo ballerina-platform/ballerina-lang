@@ -169,7 +169,7 @@ public class MessageUtils {
      * @param error          error message struct
      */
     static void handleFailure(StreamObserver streamObserver, BMap<String, BValue> error) {
-        String errorMsg = error.getMessageAsString();
+        String errorMsg = error.stringValue();
         LOG.error(errorMsg);
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
         if (streamObserver != null) {

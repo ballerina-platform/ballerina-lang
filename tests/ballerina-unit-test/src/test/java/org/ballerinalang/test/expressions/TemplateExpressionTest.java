@@ -87,7 +87,7 @@ public class TemplateExpressionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMultipleVariablesInJSONInit", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BMap.class);
-        String expected = "{\"name\":{\"first_name\":\"Chanaka\",\"last_name\":\"Fernando\"}}";
+        String expected = "{\"name\":{\"first_name\":\"Chanaka\", \"last_name\":\"Fernando\"}}";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
@@ -96,7 +96,7 @@ public class TemplateExpressionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testArrayVariableAccessInJSONInit");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BMap.class);
-        String expected = "{\"strIndex0\":\"value0\",\"intIndex2\":2,\"strIndex2\":\"value2\"}";
+        String expected = "{\"strIndex0\":\"value0\", \"intIndex2\":2, \"strIndex2\":\"value2\"}";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
@@ -105,7 +105,7 @@ public class TemplateExpressionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMapVariableAccessInJSONInit");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BMap.class);
-        String expected = "{\"val1\":\"value0\",\"val2\":1}";
+        String expected = "{\"val1\":\"value0\", \"val2\":1}";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
@@ -114,8 +114,8 @@ public class TemplateExpressionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testBooleanIntegerValuesAsStringsInJSONInit");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BMap.class);
-        String expected = "{\"intStrIndex0\":\"0\",\"intStrIndex1\":\"1\","
-                + "\"boolStrIndex0\":\"true\",\"boolStrIndex1\":\"false\"}";
+        String expected = "{\"intStrIndex0\":\"0\", \"intStrIndex1\":\"1\", "
+                + "\"boolStrIndex0\":\"true\", \"boolStrIndex1\":\"false\"}";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 }

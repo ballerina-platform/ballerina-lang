@@ -20,8 +20,12 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.util.JsonGenerator;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.StringJoiner;
 
@@ -30,7 +34,7 @@ import java.util.StringJoiner;
  */
 public class BRefValueArray extends BNewArray {
 
-    private BRefType<?>[] values;
+    BRefType<?>[] values;
 
     public BRefValueArray(BRefType<?>[] values, BType type) {
         this.values = values;
@@ -46,7 +50,7 @@ public class BRefValueArray extends BNewArray {
                 this.size = maxArraySize = arrayType.getSize();
             }
             values = (BRefType[]) newArrayInstance(BRefType.class);
-            Arrays.fill(values, type.getZeroValue());
+            Arrays.fill(values, arrayType.getElementType().getZeroValue());
         } else {
             values = (BRefType[]) newArrayInstance(BRefType.class);
             Arrays.fill(values, type.getEmptyValue());
@@ -63,9 +67,7 @@ public class BRefValueArray extends BNewArray {
     }
 
     public void append(BRefType<?> value) {
-        int index = values.length;
-        prepareForAdd(index, values.length);
-        values[index] = value;
+        add(size, value);
     }
 
     public BRefType<?> get(long index) {
@@ -89,15 +91,20 @@ public class BRefValueArray extends BNewArray {
         refValueArray.size = this.size;
         return refValueArray;
     }
-    
+
     @Override
     public String stringValue() {
+        if (getElementType(arrayType).getTag() == TypeTags.JSON_TAG) {
+            return getJSONString();
+        }
+
         StringJoiner sj;
         if (arrayType != null && (arrayType.getTag() == TypeTags.TUPLE_TAG)) {
             sj = new StringJoiner(", ", "(", ")");
         } else {
             sj = new StringJoiner(", ", "[", "]");
         }
+
         for (int i = 0; i < size; i++) {
             sj.add(values[i] == null ? "null" : values[i].stringValue());
         }
@@ -111,5 +118,30 @@ public class BRefValueArray extends BNewArray {
 
     public BRefType<?>[] getValues() {
         return values;
+    }
+    
+    @Override
+    public String toString() {
+        return stringValue();
+    }
+
+    private String getJSONString() {
+        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+        JsonGenerator gen = new JsonGenerator(byteOut);
+        try {
+            gen.serialize(this);
+            gen.flush();
+        } catch (IOException e) {
+            throw new BallerinaException("Error in converting JSON to a string: " + e.getMessage(), e);
+        }
+        return new String(byteOut.toByteArray());
+    }
+
+    private BType getElementType(BType type) {
+        if (type.getTag() != TypeTags.ARRAY_TAG) {
+            return type;
+        }
+
+        return getElementType(((BArrayType) type).getElementType());
     }
 }

@@ -175,8 +175,8 @@ public class DataBindingTest {
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Key").stringValue(), "{'name':'WSO2', 'team':'ballerina'}"
-                , "Key variable not set properly.");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Key").stringValue(),
+                "{'name':'WSO2', 'team':'ballerina'}", "Key variable not set properly.");
     }
 
     @Test(description = "Test data binding without a payload", expectedExceptions = BallerinaConnectorException.class,
@@ -201,7 +201,7 @@ public class DataBindingTest {
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = ".*failed to create json: unrecognized token 'ballerina'.*")
+            expectedExceptionsMessageRegExp = ".*Error in reading payload : unrecognized token 'ballerina'.*")
     public void testDataBindingIncompatibleStructPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body6", "POST", "ballerina");
@@ -216,10 +216,8 @@ public class DataBindingTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_EP, requestMsg);
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Key").stringValue(), "null"
-                , "Key variable not set properly.");
-        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Team").stringValue(), "null"
-                , "Team variable not set properly.");
+        Assert.assertNull(((BMap<String, BValue>) bJson).get("Key"), "Key variable not set properly.");
+        Assert.assertNull(((BMap<String, BValue>) bJson).get("Team"), "Team variable not set properly.");
     }
 
     //TODO following two test cases doesn't throw error anymore. json to struct conversion doesn't do field validation.

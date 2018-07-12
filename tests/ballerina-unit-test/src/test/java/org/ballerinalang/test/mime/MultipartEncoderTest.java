@@ -33,8 +33,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.runtime.message.BlobDataSource;
-import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -51,6 +49,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import javax.activation.MimeTypeParseException;
@@ -184,7 +183,11 @@ public class MultipartEncoderTest {
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(3));
         BByteArray blobDataSource = EntityBodyHandler.constructBlobDataSource(bodyPart);
         Assert.assertNotNull(blobDataSource);
-        Assert.assertEquals(blobDataSource.stringValue(), "Ballerina binary file part");
+
+        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        blobDataSource.serialize(outStream);
+        Assert.assertEquals(new String(outStream.toByteArray(), StandardCharsets.UTF_8),
+                "Ballerina binary file part");
     }
 
     @Test(description = "Test whether the body part builds the ContentDisposition struct properly for " +

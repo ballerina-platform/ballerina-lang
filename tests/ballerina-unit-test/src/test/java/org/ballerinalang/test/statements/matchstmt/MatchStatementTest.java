@@ -119,7 +119,7 @@ public class MatchStatementTest {
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "json int| null matched");
 
-        jsonValue = JsonParser.parse("string value");
+        jsonValue = JsonParser.parse("\"string value\"");
         returns = BRunUtil.invoke(result, "testMatchStatementBasics9", new BValue[]{jsonValue});
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);

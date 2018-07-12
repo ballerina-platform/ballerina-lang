@@ -311,7 +311,8 @@ public class UriTemplateBestMatchTest {
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo125").stringValue(), "" , "param value is not null");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("echo125").stringValue(), "", 
+                "param value is not null");
     }
 
     @Test(description = "Test suitable method with URL. /echo13?foo=1 ")
@@ -501,8 +502,8 @@ public class UriTemplateBestMatchTest {
         Assert.assertNotNull(response, "Response message not found.");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
 
-        Assert.assertEquals(((BMap<String, BValue>) bJson).get("message").stringValue(), "Wildcard Params Resource is invoked."
-                , "Request dispatched to wrong resource");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("message").stringValue(),
+                "Wildcard Params Resource is invoked.", "Request dispatched to wrong resource");
     }
 
     @Test(description = "Test whether requests get dispatch to the best matching resource.")
@@ -514,8 +515,8 @@ public class UriTemplateBestMatchTest {
         Assert.assertNotNull(response, "Response message not found.");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
 
-        Assert.assertEquals(((BMap<String, BValue>) bJson).get("message").stringValue(), "Path Params Resource is invoked."
-                , "Request dispatched to wrong resource");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("message").stringValue(),
+                "Path Params Resource is invoked.", "Request dispatched to wrong resource");
     }
 
     @Test(description = "Test best match with path param different lengths.")

@@ -158,15 +158,12 @@ public interface InstructionCodes {
     int I2F = 130;
     int I2S = 131;
     int I2B = 132;
-    int I2JSON = 133;
     int F2I = 134;
     int F2S = 135;
     int F2B = 136;
-    int F2JSON = 137;
     int S2I = 138;
     int S2F = 139;
     int S2B = 140;
-    int S2JSON = 141;
     int B2I = 142;
     int B2F = 143;
     int B2S = 144;
@@ -211,7 +208,6 @@ public interface InstructionCodes {
     int ANY2T = 179;
     int ANY2C = 180;
     int CHECKCAST = 181;
-    int NULL2JSON = 182;
 
     int ANY2TYPE = 183;
     int NULL2S = 185;
@@ -233,7 +229,7 @@ public interface InstructionCodes {
     int JSON2MAP = 195;
 
     int IS_ASSIGNABLE = 196;
-    int CHECK_CONVERSION = 197;
+    int O2JSON = 197;
     
     int ARRAY2JSON = 198;
     int JSON2ARRAY = 199;

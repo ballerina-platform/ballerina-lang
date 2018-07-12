@@ -343,7 +343,8 @@ public class IOTest {
 
         BValue[] returns = BRunUtil.invokeStateful(characterInputOutputProgramFile, "readJson");
         Assert.assertNotNull(returns[0].stringValue());
-        Assert.assertEquals(returns[0].stringValue(), readFileContent(resourceToRead), "JSON content mismatch.");
+        Assert.assertEquals(returns[0].stringValue().replace(", ", ","), readFileContent(resourceToRead),
+                "JSON content mismatch.");
 
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "close");
     }

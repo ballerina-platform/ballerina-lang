@@ -18,6 +18,7 @@
 package org.ballerinalang.model.util;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
@@ -37,13 +38,15 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.Charset;
-import java.util.Stack;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 /**
  * This class represents a JSON parser.
  * 
  * @since 0.95.5
  */
+@SuppressWarnings("unchecked")
 public class JsonParser {
 
     private static ThreadLocal<StateMachine> tlStateMachine = new ThreadLocal<StateMachine>() {
@@ -168,8 +171,8 @@ public class JsonParser {
                 new StringValueUnicodeHexProcessingState();
         
         private BRefType<?> currentJsonNode;
-        private Stack<BRefType<?>> nodesStack;
-        private Stack<String> fieldNames;
+        private Deque<BRefType<?>> nodesStack;
+        private Deque<String> fieldNames;
         
         private StringBuilder hexBuilder = new StringBuilder(4);
         private char[] charBuff = new char[1024];
@@ -185,8 +188,8 @@ public class JsonParser {
             this.currentJsonNode = null;
             this.line = 1;
             this.column = 0;
-            this.nodesStack = new Stack<>();
-            this.fieldNames = new Stack<>();
+            this.nodesStack = new ArrayDeque<>();
+            this.fieldNames = new ArrayDeque<>();
         }
         
         private static boolean isWhitespace(char ch) {
@@ -249,8 +252,8 @@ public class JsonParser {
         private State finalizeObject() {
             if (!this.nodesStack.isEmpty()) {
                 BRefType<?> parentNode = this.nodesStack.pop();
-                if (parentNode.getType().getTag() == TypeTags.MAP_TAG) {
-                    ((BMap) parentNode).put(fieldNames.pop(), currentJsonNode);
+                if (parentNode.getType().getTag() == TypeTags.JSON_TAG) {
+                    ((BMap<String, BValue>) parentNode).put(fieldNames.pop(), currentJsonNode);
                     currentJsonNode = parentNode;
                     return FIELD_END_STATE;
                 } else {
@@ -264,7 +267,7 @@ public class JsonParser {
         }
         
         private State initNewObject() {
-            if (!this.nodesStack.isEmpty()) {
+            if (currentJsonNode != null) {
                 this.nodesStack.push(currentJsonNode);
             }
             currentJsonNode = new BMap<String, BRefType<?>>(BTypes.typeJSON);
@@ -272,10 +275,10 @@ public class JsonParser {
         }
         
         private State initNewArray() {
-            if (!this.nodesStack.isEmpty()) {
+            if (currentJsonNode != null) {
                 this.nodesStack.push(currentJsonNode);
             }
-            currentJsonNode = new BRefValueArray(BTypes.typeJSON);
+            currentJsonNode = new BRefValueArray(new BArrayType(BTypes.typeJSON));
             return FIRST_ARRAY_ELEMENT_READY_STATE;
         }
         
@@ -617,7 +620,7 @@ public class JsonParser {
                     ch = buff[i];
                     sm.processLocation(ch);
                     if (ch == sm.currentQuoteChar) {
-                        ((BMap) sm.currentJsonNode).put(sm.fieldNames.pop(), new BString(sm.value()));
+                        ((BMap<String, BValue>) sm.currentJsonNode).put(sm.fieldNames.pop(), new BString(sm.value()));
                         state = FIELD_END_STATE;
                     } else if (ch == REV_SOL) { 
                         state = STRING_FIELD_ESC_CHAR_PROCESSING_STATE;
@@ -796,8 +799,9 @@ public class JsonParser {
                         ((BRefValueArray) this.currentJsonNode).append(new BFloat(doubleValue));
                         break;
                     case FIELD:
-                        ((BMap) this.currentJsonNode).put(this.fieldNames.pop(), new BFloat(doubleValue));
-                        break;
+                            ((BMap<String, BValue>) this.currentJsonNode).put(this.fieldNames.pop(),
+                                    new BFloat(doubleValue));
+                            break;
                     case VALUE:
                         currentJsonNode = new BFloat(doubleValue);
                         break;
@@ -815,7 +819,7 @@ public class JsonParser {
                         ((BRefValueArray) this.currentJsonNode).append(new BBoolean(true));
                         break;
                     case FIELD:
-                        ((BMap) this.currentJsonNode).put(this.fieldNames.pop(), new BBoolean(true));
+                        ((BMap<String, BValue>) this.currentJsonNode).put(this.fieldNames.pop(), new BBoolean(true));
                         break;
                     case VALUE:
                         currentJsonNode = new BBoolean(true);
@@ -829,7 +833,7 @@ public class JsonParser {
                         ((BRefValueArray) this.currentJsonNode).append(new BBoolean(false));
                         break;
                     case FIELD:
-                        ((BMap) this.currentJsonNode).put(this.fieldNames.pop(), new BBoolean(false));
+                        ((BMap<String, BValue>) this.currentJsonNode).put(this.fieldNames.pop(), new BBoolean(false));
                         break;
                     case VALUE:
                         currentJsonNode = new BBoolean(false);
@@ -843,7 +847,7 @@ public class JsonParser {
                         ((BRefValueArray) this.currentJsonNode).append(null);
                         break;
                     case FIELD:
-                        ((BMap) this.currentJsonNode).put(this.fieldNames.pop(), null);
+                        ((BMap<String, BValue>) this.currentJsonNode).put(this.fieldNames.pop(), null);
                         break;
                     case VALUE:
                         currentJsonNode = null;
@@ -859,8 +863,9 @@ public class JsonParser {
                             ((BRefValueArray) this.currentJsonNode).append(new BInteger(longValue));
                             break;
                         case FIELD:
-                            ((BMap) this.currentJsonNode).put(this.fieldNames.pop(), new BInteger(longValue));
-                            break;
+                                ((BMap<String, BValue>) this.currentJsonNode).put(this.fieldNames.pop(),
+                                        new BInteger(longValue));
+                                break;
                         case VALUE:
                             currentJsonNode = new BInteger(longValue);
                             break;

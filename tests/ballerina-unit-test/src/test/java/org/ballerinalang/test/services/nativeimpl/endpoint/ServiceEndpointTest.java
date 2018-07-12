@@ -70,7 +70,7 @@ public class ServiceEndpointTest {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
         String expectedHost = ((InetSocketAddress) cMsg.getProperty(LOCAL_ADDRESS)).getHostName();
         String expectedPort = "9090";
-        String expectedMessage = "{\"local\":{\"host\":\"" + expectedHost + "\",\"port\":9090}}";
+        String expectedMessage = "{\"local\":{\"host\":\"" + expectedHost + "\", \"port\":9090}}";
 
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
 

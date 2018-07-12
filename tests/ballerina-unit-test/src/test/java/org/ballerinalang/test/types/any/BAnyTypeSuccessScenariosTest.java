@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BStreamingJSON;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -65,10 +66,10 @@ public class BAnyTypeSuccessScenariosTest {
 
     @Test(description = "Test any type as a return value with actual table returning")
     public void testInputAnyAsTable() {
-        BValue[] returns = BRunUtil.invoke(result, "inputAnyAsTableTest");
+        BValue[] returns = BRunUtil.invokeFunction(result, "inputAnyAsTableTest");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BMap.class);
-        Assert.assertEquals(returns[0].stringValue(), "[{\"id\":1,\"name\":\"Jane\"},{\"id\":2,\"name\":\"Anne\"}]");
+        Assert.assertSame(returns[0].getClass(), BStreamingJSON.class);
+        Assert.assertEquals(returns[0].stringValue(), "[{\"id\":1, \"name\":\"Jane\"}, {\"id\":2, \"name\":\"Anne\"}]");
     }
 
 //TODO fix below scenario - basically need to rewrite the tree in method visit(ReturnStmt returnStmt) in

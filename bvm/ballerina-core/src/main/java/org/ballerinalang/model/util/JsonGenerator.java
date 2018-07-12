@@ -22,7 +22,6 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
 
@@ -96,7 +95,7 @@ public class JsonGenerator {
     private void processStartLevel() throws IOException {
         if (!this.fieldActive) {
             if (this.getLevelInit(this.currentLevel)) {
-                this.writer.write(',');
+                this.writer.write(", ");
             } else {
                 this.setLevelInit(this.currentLevel, true);
             }
@@ -114,7 +113,7 @@ public class JsonGenerator {
     
     private void processFieldInit() throws IOException {
         if (this.getLevelInit(this.currentLevel)) {
-            this.writer.write(',');
+            this.writer.write(", ");
         } else {
             this.setLevelInit(this.currentLevel, true);
         }
@@ -127,7 +126,7 @@ public class JsonGenerator {
             return;
         }
         if (this.getLevelInit(this.currentLevel)) {
-            this.writer.write(',');
+            this.writer.write(", ");
         } else {
             this.setLevelInit(this.currentLevel, true);
         }
@@ -266,7 +265,7 @@ public class JsonGenerator {
     public void flush() throws IOException {
         this.writer.flush();
     }
-    
+
     public void serialize(BValue json) throws IOException {
         if (json == null) {
             this.writeNull();
@@ -276,8 +275,9 @@ public class JsonGenerator {
         switch (json.getType().getTag()) {
             case TypeTags.ARRAY_TAG:
                 this.writeStartArray();
-                for (BRefType<?> value : ((BRefValueArray) json).getValues()) {
-                    this.serialize(value);
+                BRefValueArray jsonArray = (BRefValueArray) json;
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    this.serialize(jsonArray.get(i));
                 }
                 this.writeEndArray();
                 break;
@@ -305,7 +305,7 @@ public class JsonGenerator {
             default:
                 break;
         }
-  }
+    }
 
     /**
      * This represents a JSON data source implementation, which should be used for custom JSON

@@ -60,7 +60,7 @@ public class WebSubSubscriptionChangeTestCase extends IntegrationTestCase {
     private static final String UNSUBSCRIPTION_INTENT_VERIFICATION_LOG = "ballerina: Intent Verification agreed - Mode "
             + "[unsubscribe], Topic [http://www.websubpubtopic.com]";
     private static final String INTERNAL_HUB_NOTIFICATION_LOG = "WebSub Notification Received: "
-            + "{\"action\":\"publish\",\"mode\":\"internal-hub\"}";
+            + "{\"action\":\"publish\", \"mode\":\"internal-hub\"}";
 
     private LogLeecher subscriptionIntentVerificationLogLeecher = new LogLeecher(SUBSCRIPTION_INTENT_VERIFICATION_LOG);
     private LogLeecher unsubscriptionIntentVerificationLogLeecher = new LogLeecher(

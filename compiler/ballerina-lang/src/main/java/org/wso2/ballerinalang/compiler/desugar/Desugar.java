@@ -2912,7 +2912,7 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.JSON:
                 if (accessExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR &&
                         ((BLangIndexBasedAccess) accessExpr).indexExpr.type.tag == TypeTags.INT) {
-                    return new BLangJSONArrayLiteral(new ArrayList<>(), fieldType);
+                    return new BLangJSONArrayLiteral(new ArrayList<>(), new BArrayType(fieldType));
                 }
                 return new BLangJSONLiteral(new ArrayList<>(), fieldType);
             case TypeTags.MAP:

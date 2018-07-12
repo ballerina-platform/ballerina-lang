@@ -31,7 +31,6 @@ import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -141,9 +140,7 @@ public class ServiceTest {
 
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        StringDataSource stringDataSource = new StringDataSource(responseMsgPayload);
-        Assert.assertNotNull(stringDataSource);
-        Assert.assertEquals(stringDataSource.getValue(), "constant path test");
+        Assert.assertEquals(responseMsgPayload, "constant path test");
     }
 
     @Test(description = "Test getString after setting string")
@@ -204,7 +201,8 @@ public class ServiceTest {
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
         Assert.assertTrue(bJson instanceof BMap);
-        Assert.assertTrue(((BMap<String, BValue>) bJson).get("Team").stringValue().isEmpty(), "Team variable not set properly.");
+        Assert.assertTrue(((BMap<String, BValue>) bJson).get("Team").stringValue().isEmpty(),
+                "Team variable not set properly.");
     }
 
     @Test(description = "Test GetFormParams empty responseMsgPayloads")

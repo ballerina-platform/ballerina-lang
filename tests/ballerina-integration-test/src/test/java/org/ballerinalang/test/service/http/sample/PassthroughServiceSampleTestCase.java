@@ -36,7 +36,7 @@ import java.io.IOException;
  * ballerina_home/samples/passthroughService/passthroughService.bal.
  */
 public class PassthroughServiceSampleTestCase extends IntegrationTestCase {
-    private final String responseMessage = "{\"exchange\":\"nyse\",\"name\":\"IBM\",\"value\":\"127.50\"}";
+    private final String responseMessage = "{\"exchange\":\"nyse\", \"name\":\"IBM\", \"value\":\"127.50\"}";
 
     private ServerInstance ballerinaServer;
 

@@ -1224,6 +1224,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 opcode == InstructionCodes.MAP2JSON ||
                 opcode == InstructionCodes.JSON2MAP ||
                 opcode == InstructionCodes.JSON2ARRAY ||
+                opcode == InstructionCodes.O2JSON ||
                 opcode == InstructionCodes.CHECKCAST) {
             Operand typeCPIndex = getTypeCPIndex(convExpr.targetType);
             emit(opcode, convExpr.expr.regIndex, typeCPIndex, convExprRegIndex);

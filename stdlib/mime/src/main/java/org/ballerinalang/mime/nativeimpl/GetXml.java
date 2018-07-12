@@ -31,7 +31,6 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.runtime.message.MessageDataSource;
 
 import java.util.Locale;
 

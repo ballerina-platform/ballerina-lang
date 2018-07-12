@@ -32,12 +32,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import java.util.Locale;
-
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
-import static org.ballerinalang.mime.util.MimeConstants.JSON_SUFFIX;
-import static org.ballerinalang.mime.util.MimeConstants.JSON_TYPE_IDENTIFIER;
 
 /**
  * Get the entity body in JSON form.
@@ -59,15 +55,14 @@ public class GetJson extends BlockingNativeCallableUnit {
         try {
             BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
             String baseType = HeaderUtil.getBaseType(entityStruct);
-            if (baseType != null && (baseType.toLowerCase(Locale.getDefault()).endsWith(JSON_TYPE_IDENTIFIER) ||
-                    baseType.toLowerCase(Locale.getDefault()).endsWith(JSON_SUFFIX))) {
+            if (MimeUtil.isJSONContentType(entityStruct)) {
                 BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
                 if (dataSource != null) {
-                    // FIXME
-                    if (dataSource instanceof BRefType<?>) {
+                    // If the value is a JSON compatible type, then return it as is.
+                    if (MimeUtil.isJSONCompatible(dataSource.getType())) {
                         result = (BRefType<?>) dataSource;
                     } else {
-                        // else, build the JSON from the string representation of the payload.
+                        // Else, build the JSON from the string representation of the payload.
                         result = JsonParser.parse(dataSource.stringValue());
                     }
                 } else {

@@ -115,7 +115,7 @@ public class GlobalVarFunctionInBaloTest {
         Assert.assertSame(returns[0].getClass(), BMap.class);
         Assert.assertSame(returns[1].getClass(), BFloat.class);
 
-        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"James\",\"age\":30}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"James\", \"age\":30}");
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 3432.3423);
     }
 

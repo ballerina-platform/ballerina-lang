@@ -34,6 +34,8 @@ import org.apache.axiom.om.impl.dom.TextImpl;
 import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
 import org.apache.axiom.om.util.StAXParserConfiguration;
 import org.ballerinalang.model.TableOMDataSource;
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -356,7 +358,7 @@ public class XMLUtils {
             //Process xml sequence
             BXMLSequence xmlSequence = (BXMLSequence) xml;
             if (xmlSequence.isEmpty().booleanValue()) {
-                return new BRefValueArray();
+                return new BRefValueArray(new BArrayType(BTypes.typeJSON));
             }
             json = traverseXMLSequence(xmlSequence, attributePrefix, preserveNamespaces);
 
@@ -394,8 +396,8 @@ public class XMLUtils {
                     String childKeyValue = getElementKey(omChildElement, preserveNamespaces);
                     if (iteratorChild.hasNext()) {
                         //The child element itself has more child elements
-                        BMap<String, BRefType<?>> nodeIntermediate = (BMap<String, BRefType<?>>) traverseXMLElement(omChildElement, attributePrefix,
-                                preserveNamespaces);
+                        BMap<String, BRefType<?>> nodeIntermediate =
+                                traverseXMLElement(omChildElement, attributePrefix, preserveNamespaces);
                         addToRootMap(rootMap, childKeyValue, nodeIntermediate.get(childKeyValue));
                     } else {
                         //The child element is a single element with no child elements
@@ -421,8 +423,8 @@ public class XMLUtils {
             //Process the single element
             if (attributeMap.size() > 0) {
                 //Element has attributes or namespaces
-                BMap<String, BRefType<?>> attrObject = processAttributeAndNamespaces(null, attributeMap, attributePrefix,
-                        omElement.getText());
+                BMap<String, BRefType<?>> attrObject =
+                        processAttributeAndNamespaces(null, attributeMap, attributePrefix, omElement.getText());
                 rootNode.put(keyValue, attrObject);
             } else {
                 rootNode.put(keyValue, new BString(omElement.getText()));
@@ -460,7 +462,7 @@ public class XMLUtils {
             textArrayNode = processTextArray(textArray);
         }
 
-        BMap<String, BRefType<?>> jsonNode = new BMap<>();
+        BMap<String, BRefType<?>> jsonNode = new BMap<>(BTypes.typeJSON);
         if (childArray.size() > 0) {
             processChildelements(jsonNode, childArray, attributePrefix, preserveNamespaces);
             if (textArrayNode != null) {
@@ -477,15 +479,15 @@ public class XMLUtils {
     }
 
     /**
-     * Process xml child elements and create JSON node from them.
+     * Process XML child elements and create JSON node from them.
      *
      * @param root JSON root object to which children are added
-     * @param childArray List of child xml elements
+     * @param childArray List of child XML elements
      * @param attributePrefix Prefix to use in attributes
      * @param preserveNamespaces preserve the namespaces when converting
      */
-    private static void processChildelements(BMap<String, BRefType<?>> root, ArrayList<OMElement> childArray, String attributePrefix,
-            boolean preserveNamespaces) {
+    private static void processChildelements(BMap<String, BRefType<?>> root, ArrayList<OMElement> childArray,
+                                             String attributePrefix, boolean preserveNamespaces) {
         LinkedHashMap<String, ArrayList<OMElement>> rootMap = new LinkedHashMap<>();
         //Check child elements and group them from the key. XML sequences contain multiple child elements with same key
         for (OMElement element : childArray) {
@@ -501,14 +503,15 @@ public class XMLUtils {
                     OMElement element = elementList.get(0);
                     if (element.getChildElements().hasNext()) {
                         //If the element it self has child elements traverse through them
-                        BMap<String, BRefType<?>> node = traverseXMLElement(element, attributePrefix, preserveNamespaces);
+                        BMap<String, BRefType<?>> node =
+                                traverseXMLElement(element, attributePrefix, preserveNamespaces);
                         root.put(nodeKey, node.get(nodeKey));
                     } else {
                         root.put(nodeKey, new BString(elementList.get(0).getText()));
                     }
                 } else {
                     //Child elements with similar keys are put into an array
-                    BRefValueArray arrayNode = new BRefValueArray();
+                    BRefValueArray arrayNode = new BRefValueArray(new BArrayType(BTypes.typeJSON));
                     for (OMElement element : elementList) {
                         arrayNode.append(new BString(element.getText()));
                     }
@@ -519,12 +522,13 @@ public class XMLUtils {
     }
 
     /**
-     * Add the child json nodes in the parent node.
+     * Add the child JSON nodes in the parent node.
      *
      * @param root JSON root object to which child nodes are added
      * @param rootMap List of child JSON nodes
      */
-    private static void processRootNodes(BMap<String, BRefType<?>> root, LinkedHashMap<String, ArrayList<BRefType<?>>> rootMap) {
+    private static void processRootNodes(BMap<String, BRefType<?>> root,
+                                         LinkedHashMap<String, ArrayList<BRefType<?>>> rootMap) {
         for (Map.Entry<String, ArrayList<BRefType<?>>> entry : rootMap.entrySet()) {
             String key = entry.getKey();
             ArrayList<BRefType<?>> elementList = entry.getValue();
@@ -533,7 +537,7 @@ public class XMLUtils {
                 root.put(key, elementList.get(0));
             } else {
                 // When there are multiple nodes with the same key they are set into an array
-                BRefValueArray arrayNode = new BRefValueArray();
+                BRefValueArray arrayNode = new BRefValueArray(new BArrayType(BTypes.typeJSON));
                 for (BRefType<?> node : elementList) {
                     arrayNode.append(node);
                 }
@@ -613,7 +617,7 @@ public class XMLUtils {
      */
     private static BRefValueArray processTextArray(ArrayList<OMText> childArray) {
         //Create array based on xml text elements
-        BRefValueArray arrayNode = new BRefValueArray();
+        BRefValueArray arrayNode = new BRefValueArray(new BArrayType(BTypes.typeJSON));
         for (OMText element : childArray) {
             arrayNode.append(new BString(element.getText()));
         }
@@ -647,7 +651,8 @@ public class XMLUtils {
      * @param key Key of the JSON nodes
      * @param node JSON node to be added
      */
-    private static void addToRootMap(LinkedHashMap<String, ArrayList<BRefType<?>>> rootMap, String key, BRefType<?> node) {
+    private static void addToRootMap(LinkedHashMap<String, ArrayList<BRefType<?>>> rootMap, String key,
+                                     BRefType<?> node) {
         rootMap.putIfAbsent(key, new ArrayList<>());
         rootMap.get(key).add(node);
     }

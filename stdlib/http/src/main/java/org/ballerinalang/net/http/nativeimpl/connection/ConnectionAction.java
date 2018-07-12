@@ -20,8 +20,10 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
@@ -110,7 +112,14 @@ public abstract class ConnectionAction implements NativeCallableUnit {
                                           OutputStream messageOutputStream) {
         try {
             if (outboundMessageSource != null) {
-                outboundMessageSource.serialize(messageOutputStream);
+                if (MimeUtil.isJSONContentType(entityStruct) &&
+                        MimeUtil.isJSONCompatible(outboundMessageSource.getType())) {
+                    JsonGenerator gen = new JsonGenerator(messageOutputStream);
+                    gen.serialize(outboundMessageSource);
+                    gen.flush();
+                } else {
+                    outboundMessageSource.serialize(messageOutputStream);
+                }
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
             } else { //When the entity body is a byte channel
                 EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);

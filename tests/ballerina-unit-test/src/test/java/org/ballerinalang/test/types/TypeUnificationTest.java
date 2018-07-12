@@ -114,6 +114,6 @@ public class TypeUnificationTest {
     public void testSetValueToJsonInStruct() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetValueToJsonInStruct");
         Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].stringValue(), "{\"status\":\"widowed\",\"retired\":true}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"status\":\"widowed\", \"retired\":true}");
     }
 }

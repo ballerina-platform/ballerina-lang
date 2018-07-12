@@ -84,7 +84,7 @@ public class JSONTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(compileResult, "remove", args);
 
-        final String expected = "{\"state\":\"CA\",\"age\":20}";
+        final String expected = "{\"state\":\"CA\", \"age\":20}";
         Assert.assertEquals(getJsonAsString(returns[0]), expected);
     }
 
@@ -94,7 +94,7 @@ public class JSONTest {
         BValue[] args = {JsonParser.parse(json1)};
         BValue[] returns = BRunUtil.invoke(compileResult, "toString", args);
 
-        final String expected = "{\"name\":{\"fname\":\"Jack\",\"lname\":\"Taylor\"},\"state\":\"CA\",\"age\":20}";
+        final String expected = "{\"name\":{\"fname\":\"Jack\", \"lname\":\"Taylor\"}, \"state\":\"CA\", \"age\":20}";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
@@ -141,18 +141,18 @@ public class JSONTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);
 
         Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.JSON_TAG);
         Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"supun\"}");
     }
 
     @Test(description = "Get JSON array from a string")
     public void testParseArray() {
         BValue[] args = {new BString("[\"supun\", 45, true, null]")};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testParse", args);
 
         Assert.assertTrue(returns[0] instanceof BRefValueArray);
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
-        Assert.assertEquals(returns[0].stringValue(), "[\"supun\",45,true,null]");
+        Assert.assertEquals(returns[0].stringValue(), "[\"supun\", 45, true, null]");
     }
 
     @Test(description = "Get complex JSON from a string")
@@ -162,9 +162,9 @@ public class JSONTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);
 
         Assert.assertTrue(returns[0] instanceof BMap);
-        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
-        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"supun\",\"address\":{\"street\":\"Palm Grove\"}," +
-                "\"marks\":[78,45,87]}");
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.JSON_TAG);
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"supun\", \"address\":{\"street\":\"Palm Grove\"}, " +
+                "\"marks\":[78, 45, 87]}");
     }
 
     @Test(description = "Get JSON from a malformed string")
@@ -464,9 +464,9 @@ public class JSONTest {
 
     @Test
     public void testJSONArrayToJsonAssignment() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJSONArrayToJsonAssignment");
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testJSONArrayToJsonAssignment");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "[{\"a\":\"b\"},{\"c\":\"d\"}]");
+        Assert.assertEquals(returns[0].stringValue(), "[{\"a\":\"b\"}, {\"c\":\"d\"}]");
     }
 
     @Test

@@ -19,6 +19,7 @@
 package org.ballerinalang.mime.util;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.util.JsonParser;
@@ -31,9 +32,6 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.runtime.message.BlobDataSource;
-import org.ballerinalang.runtime.message.MessageDataSource;
-import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.stdlib.io.channels.TempFileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;

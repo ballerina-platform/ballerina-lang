@@ -42,8 +42,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 
 /**
@@ -159,10 +159,10 @@ public class TableLiteralTest {
 
     @Test(priority = 1)
     public void testToJson() {
-        BValue[] returns = BRunUtil.invoke(result, "testToJson");
-        Assert.assertEquals((returns[0]).stringValue(), "[{\"id\":1,\"age\":30,\"salary\":300.5,\"name\":\"jane\","
-                + "\"married\":true},{\"id\":2,\"age\":20,\"salary\":200.5,\"name\":\"martin\",\"married\":true},"
-                + "{\"id\":3,\"age\":32,\"salary\":100.5,\"name\":\"john\",\"married\":false}]");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testToJson");
+        Assert.assertEquals((returns[0]).stringValue(), "[{\"id\":1, \"age\":30, \"salary\":300.5, \"name\":\"jane\", "
+                + "\"married\":true}, {\"id\":2, \"age\":20, \"salary\":200.5, \"name\":\"martin\", \"married\":true}, "
+                + "{\"id\":3, \"age\":32, \"salary\":100.5, \"name\":\"john\", \"married\":false}]");
     }
 
     @Test(priority = 1)
@@ -177,11 +177,11 @@ public class TableLiteralTest {
 
     @Test(priority = 1)
     public void testTableWithAllDataToJson() {
-        BValue[] returns = BRunUtil.invoke(result, "testTableWithAllDataToJson");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testTableWithAllDataToJson");
         Assert.assertTrue(returns[0] instanceof BRefValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "[{\"id\":1,\"jsonData\":{\"name\":\"apple\",\"color\":\"red\","
-                + "\"price\":30.3},\"xmlData\":\"<book>The Lost World</book>\"},{\"id\":2,\""
-                + "jsonData\":{\"name\":\"apple\",\"color\":\"red\",\"price\":30.3},"
+        Assert.assertEquals(returns[0].stringValue(), "[{\"id\":1, \"jsonData\":{\"name\":\"apple\", " +
+                "\"color\":\"red\", \"price\":30.3}, \"xmlData\":\"<book>The Lost World</book>\"}, {\"id\":2, \""
+                + "jsonData\":{\"name\":\"apple\", \"color\":\"red\", \"price\":30.3}, "
                 + "\"xmlData\":\"<book>The Lost World</book>\"}]");
     }
 
@@ -189,9 +189,9 @@ public class TableLiteralTest {
     public void testTableWithAllDataToXml() {
         BValue[] returns = BRunUtil.invoke(result, "testTableWithAllDataToXml");
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<results><result><id>1</id><jsonData>{\"name\":\"apple\","
-                + "\"color\":\"red\",\"price\":30.3}</jsonData><xmlData>&lt;book&gt;The Lost World&lt;"
-                + "/book&gt;</xmlData></result><result><id>2</id><jsonData>{\"name\":\"apple\",\"color\":\"red\","
+        Assert.assertEquals(returns[0].stringValue(), "<results><result><id>1</id><jsonData>{\"name\":\"apple\", "
+                + "\"color\":\"red\", \"price\":30.3}</jsonData><xmlData>&lt;book&gt;The Lost World&lt;"
+                + "/book&gt;</xmlData></result><result><id>2</id><jsonData>{\"name\":\"apple\", \"color\":\"red\", "
                 + "\"price\":30.3}</jsonData><xmlData>&lt;book&gt;The Lost World&lt;/book&gt;</xmlData></result>"
                 + "</results>");
     }
@@ -201,7 +201,7 @@ public class TableLiteralTest {
         BValue[] returns = BRunUtil.invoke(result, "testTableWithAllDataToStruct");
         Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertTrue(returns[1] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"apple\",\"color\":\"red\",\"price\":30.3}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"apple\", \"color\":\"red\", \"price\":30.3}");
         Assert.assertEquals(returns[1].stringValue(), "<book>The Lost World</book>");
     }
 
@@ -213,8 +213,8 @@ public class TableLiteralTest {
 
     @Test(priority = 1)
     public void testTableWithBlobDataToJson() {
-        BValue[] returns = BRunUtil.invoke(result, "testTableWithBlobDataToJson");
-        Assert.assertEquals((returns[0]).stringValue(), "[{\"id\":1,\"blobData\":\"Sample Text\"}]");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testTableWithBlobDataToJson");
+        Assert.assertEquals((returns[0]).stringValue(), "[{\"id\":1, \"blobData\":\"Sample Text\"}]");
     }
 
     @Test(priority = 1)
@@ -226,9 +226,9 @@ public class TableLiteralTest {
 
     @Test(priority = 1)
     public void testStructWithDefaultDataToJson() {
-        BValue[] returns = BRunUtil.invoke(result, "testStructWithDefaultDataToJson");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testStructWithDefaultDataToJson");
         Assert.assertEquals((returns[0]).stringValue(),
-                "[{\"id\":1,\"age\":0,\"salary\":0.0,\"name\":\"\"," + "\"married\":false}]");
+                "[{\"id\":1, \"age\":0, \"salary\":0.0, \"name\":\"\", " + "\"married\":false}]");
     }
 
     @Test(priority = 1)
@@ -250,12 +250,12 @@ public class TableLiteralTest {
 
     @Test(priority = 1)
     public void testTableWithArrayDataToJson() {
-        BValue[] returns = BRunUtil.invoke(result, "testTableWithArrayDataToJson");
-        Assert.assertEquals((returns[0]).stringValue(), "[{\"id\":1,\"intArrData\":[1,2,3],"
-                + "\"floatArrData\":[11.1,22.2,33.3],\"stringArrData\":[\"Hello\",\"World\"],"
-                + "\"booleanArrData\":[true,false,true]},"
-                + "{\"id\":2,\"intArrData\":[10,20,30],\"floatArrData\":[111.1,222.2,333.3],"
-                + "\"stringArrData\":[\"Hello\",\"World\",\"test\"],\"booleanArrData\":[false,false,true]}]");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testTableWithArrayDataToJson");
+        Assert.assertEquals((returns[0]).stringValue(), "[{\"id\":1, \"intArrData\":[1, 2, 3], "
+                + "\"floatArrData\":[11.1, 22.2, 33.3], \"stringArrData\":[\"Hello\", \"World\"], "
+                + "\"booleanArrData\":[true, false, true]}, "
+                + "{\"id\":2, \"intArrData\":[10, 20, 30], \"floatArrData\":[111.1, 222.2, 333.3], "
+                + "\"stringArrData\":[\"Hello\", \"World\", \"test\"], \"booleanArrData\":[false, false, true]}]");
     }
 
     @Test(priority = 1)
@@ -295,7 +295,7 @@ public class TableLiteralTest {
         BValue[] returns = BRunUtil.invoke(result, "testTableRemoveSuccess");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
         Assert.assertEquals((returns[1]).stringValue(),
-                "[{\"id\":1,\"age\":35,\"salary\":300.5," + "\"name\":\"jane\",\"married\":true}]");
+                "[{\"id\":1, \"age\":35, \"salary\":300.5, \"name\":\"jane\", \"married\":true}]");
     }
 
     @Test(priority = 1)
@@ -303,27 +303,29 @@ public class TableLiteralTest {
         BValue[] returns = BRunUtil.invoke(result, "testTableRemoveSuccessMultipleMatch");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
         Assert.assertEquals((returns[1]).stringValue(),
-                "[{\"id\":2,\"age\":20,\"salary\":200.5," + "\"name\":\"martin\",\"married\":true}]");
+                "[{\"id\":2, \"age\":20, \"salary\":200.5, \"name\":\"martin\", \"married\":true}]");
     }
 
     @Test(priority = 1)
     public void testTableRemoveFailed() {
         BValue[] returns = BRunUtil.invoke(result, "testTableRemoveFailed");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-        Assert.assertEquals((returns[1]).stringValue(), "[{\"id\":1,\"age\":35,\"salary\":300.5,"
-                + "\"name\":\"jane\",\"married\":true},{\"id\":2,\"age\":40,\"salary\":200.5,"
-                + "\"name\":\"martin\",\"married\":true},{\"id\":3,\"age\":42,\"salary\":100.5,"
-                + "\"name\":\"john\",\"married\":false}]");
+        Assert.assertEquals((returns[1]).stringValue(), "[{\"id\":1, \"age\":35, \"salary\":300.5, "
+                + "\"name\":\"jane\", \"married\":true}, {\"id\":2, \"age\":40, \"salary\":200.5, "
+                + "\"name\":\"martin\", \"married\":true}, {\"id\":3, \"age\":42, \"salary\":100.5, "
+                + "\"name\":\"john\", \"married\":false}]");
     }
 
     @Test(priority = 1)
     public void testTableAddAndAccess() {
         BValue[] returns = BRunUtil.invoke(result, "testTableAddAndAccess");
-        Assert.assertEquals((returns[0]).stringValue(), "[{\"id\":1,\"age\":35,\"salary\":300.5,\"name\":\"jane\","
-                + "\"married\":true},{\"id\":2,\"age\":40,\"salary\":200.5,\"name\":\"martin\",\"married\":true}]");
-        Assert.assertEquals((returns[1]).stringValue(), "[{\"id\":1,\"age\":35,\"salary\":300.5,\"name\":\"jane\","
-                + "\"married\":true},{\"id\":2,\"age\":40,\"salary\":200.5,\"name\":\"martin\",\"married\":true},"
-                + "{\"id\":3,\"age\":42,\"salary\":100.5,\"name\":\"john\",\"married\":false}]");
+        Assert.assertEquals((returns[0]).stringValue(),
+                "[{\"id\":1, \"age\":35, \"salary\":300.5, \"name\":\"jane\", \"married\":true}, " +
+                "{\"id\":2, \"age\":40, \"salary\":200.5, \"name\":\"martin\", \"married\":true}]");
+        Assert.assertEquals((returns[1]).stringValue(),
+                "[{\"id\":1, \"age\":35, \"salary\":300.5, \"name\":\"jane\", \"married\":true}, {\"id\":2, " +
+                "\"age\":40, \"salary\":200.5, \"name\":\"martin\", \"married\":true}, {\"id\":3, \"age\":42, " +
+                "\"salary\":100.5, \"name\":\"john\", \"married\":false}]");
     }
 
     @Test(priority = 1,
