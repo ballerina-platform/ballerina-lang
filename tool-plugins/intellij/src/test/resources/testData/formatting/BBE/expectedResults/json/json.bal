@@ -52,14 +52,14 @@ function main(string... args) {
 
     // Create a Nested JSON object.
     json p2 = {
-        fname: "Peter",
-        lname: "Stallone",
-        "age": age,
-        address: {
-            line: "20 Palm Grove",
-            city: "Colombo 03",
-            country: "Sri Lanka"
-        }
+         fname: "Peter",
+         lname: "Stallone",
+         "age": age,
+         address: {
+             line: "20 Palm Grove",
+             city: "Colombo 03",
+             country: "Sri Lanka"
+         }
     };
     io:println(p2);
 

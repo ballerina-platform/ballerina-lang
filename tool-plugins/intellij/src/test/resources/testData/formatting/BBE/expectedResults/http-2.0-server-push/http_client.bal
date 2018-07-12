@@ -22,7 +22,7 @@ function main(string... args) {
         }
         error resultantErr => {
             log:printError("Error occurred while submitting a request",
-                err = resultantErr);
+                            err = resultantErr);
             return;
         }
     }
@@ -43,7 +43,7 @@ function main(string... args) {
             }
             error resultantErr => {
                 log:printError("Error occurred while fetching a push promise",
-                    err = resultantErr);
+                                err = resultantErr);
                 return;
             }
         }
@@ -74,7 +74,7 @@ function main(string... args) {
         }
         error resultantErr => {
             log:printError("Error occurred while fetching response",
-                err = resultantErr);
+                            err = resultantErr);
             return;
         }
     }
@@ -82,9 +82,9 @@ function main(string... args) {
     var responsePayload = response.getJsonPayload();
     match responsePayload {
         json resultantJsonPayload =>
-        log:printInfo("Response : " + resultantJsonPayload.toString());
+              log:printInfo("Response : " + resultantJsonPayload.toString());
         error e =>
-        log:printError("Expected response payload not received", err = e);
+              log:printError("Expected response payload not received", err = e);
     }
 
     // Fetch required promise responses.
@@ -97,18 +97,18 @@ function main(string... args) {
             }
             error resultantErr => {
                 log:printError("Error occurred while fetching promised response",
-                    err = resultantErr);
+                                err = resultantErr);
                 return;
             }
         }
         var promisedPayload = promisedResponse.getJsonPayload();
         match promisedPayload {
             json promisedJsonPayload =>
-            log:printInfo("Promised resource : " +
-                    promisedJsonPayload.toString());
+                       log:printInfo("Promised resource : " +
+                                      promisedJsonPayload.toString());
             error e =>
-            log:printError("Expected promised response payload not received",
-                err = e);
+                  log:printError("Expected promised response payload not received",
+                                  err = e);
         }
     }
 

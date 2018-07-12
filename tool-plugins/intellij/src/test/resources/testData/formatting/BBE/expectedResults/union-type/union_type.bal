@@ -15,7 +15,7 @@ type KeyNotFoundError record {
 // This function returns either a `string` or a `KeyNotFoundError`.
 function getValue(string key) returns string|KeyNotFoundError {
     if (key == "") {
-        KeyNotFoundError err = { message: "key '" + key + "' not found", key: key };
+        KeyNotFoundError err = {message: "key '" + key + "' not found", key: key};
         return err;
     } else {
         return "this is a value";

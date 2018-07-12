@@ -25,7 +25,7 @@ service websubSubscriber bind websubEP {
     onNotification(websub:Notification notification) {
         match (notification.getPayloadAsString()) {
             string payloadAsString => log:printInfo("WebSub Notification Received: "
-                    + payloadAsString);
+                                                        + payloadAsString);
             error e => log:printError("Error retrieving payload as string", err = e);
         }
     }

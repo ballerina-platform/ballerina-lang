@@ -1,3 +1,0 @@
-// In Ballerina, services represent collections of network accessible entry points.
-// Resources represent one such entry point.
-// How a resource is exposed over a network protocol depends on the listener that binds the service.

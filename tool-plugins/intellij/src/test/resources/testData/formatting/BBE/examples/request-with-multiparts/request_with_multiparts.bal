@@ -34,7 +34,7 @@ service<http:Service> multipartDemoService bind {port: 9090} {
                     handleContent(part);
                     i = i + 1;
                 }
-                response.setBodyParts(bodyParts);
+                response.setBodyParts(untaint bodyParts);
             }
         }
         caller->respond(response) but {

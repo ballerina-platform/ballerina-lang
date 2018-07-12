@@ -17,7 +17,10 @@ endpoint http:Client backendClientEP {
             timeWindowMillis: 10000,
             // The granularity at which the time window slides.
             // This is measured in milliseconds.
-            bucketSizeMillis: 2000
+            bucketSizeMillis: 2000,
+            // Minimum number of requests in a `RollingWindow`
+            // that will; trip the circuit.
+            requestVolumeThreshold: 0
         },
         // The threshold for request failures.
         // When this threshold exceeds, the circuit trips.
@@ -71,7 +74,7 @@ service<http:Service> circuitbreaker bind { port: 9090 } {
 
 public int counter = 1;
 
-// This sample service is used to mock connection timeouts and service outages.
+// This sample service is used to mock connection timeouts and service outages. 
 // Mock a service outage by stopping/starting this service.
 // This should run separately from the `circuitBreakerDemo` service.
 
@@ -83,17 +86,16 @@ service<http:Service> helloWorld bind { port: 8080 } {
     }
     sayHello(endpoint caller, http:Request req) {
         if (counter % 5 == 0) {
+            counter = counter + 1;
             // Delay the response by 5000 milliseconds to
             // mimic the network level delays.
             runtime:sleep(5000);
-
-            counter = counter + 1;
             http:Response res = new;
             res.setPayload("Hello World!!!");
             caller->respond(res) but {
-                error e => log:printError(
-                               "Error sending response from mock service", err = e)
-            };
+                    error e => log:printError(
+                        "Error sending response from mock service", err = e)
+                    };
         } else if (counter % 5 == 3) {
             counter = counter + 1;
             http:Response res = new;
@@ -101,17 +103,17 @@ service<http:Service> helloWorld bind { port: 8080 } {
             res.setPayload(
                    "Internal error occurred while processing the request.");
             caller->respond(res) but {
-                error e => log:printError(
-                               "Error sending response from mock service", err = e)
-            };
+                        error e => log:printError(
+                            "Error sending response from mock service", err = e)
+                        };
         } else {
             counter = counter + 1;
             http:Response res = new;
             res.setPayload("Hello World!!!");
             caller->respond(res) but {
-                error e => log:printError(
-                               "Error sending response from mock service", err = e)
-            };
+                        error e => log:printError(
+                            "Error sending response from mock service", err = e)
+                        };
         }
     }
 }

@@ -40,7 +40,7 @@ service<http:Service> actionService bind { port: 9090 } {
 
         //POST action with blob as payload.
         string textVal = "Sample Text";
-        blob binaryValue = textVal.toBlob("UTF-8");
+        byte[] binaryValue = textVal.toByteArray("UTF-8");
         response = clientEP->post("/echo", binaryValue);
         handleResponse(response);
 
@@ -49,8 +49,9 @@ service<http:Service> actionService bind { port: 9090 } {
         io:ByteChannel byteChannel = io:openFile("./files/logo.png",
             permission);
 
-        //POST action with byte channel as payload.
-        response = check clientEP->post("/image", byteChannel);
+        //POST action with byte channel as payload. Xince the file path is static
+        //`untaint` is used to denote that the byte channel is trusted .
+        response = check clientEP->post("/image", untaint byteChannel);
         handleResponse(response);
 
         //Create a json body part.
@@ -93,31 +94,31 @@ service<http:Service> backEndService bind { port: 9091 } {
 
             if (mime:TEXT_PLAIN == baseType) {
                 string textValue = check req.getTextPayload();
-                client->respond(textValue) but {
+                client->respond(untaint textValue) but {
                     error err => log:printError(err.message, err = err)
                 };
 
             } else if (mime:APPLICATION_XML == baseType) {
                 xml xmlValue = check req.getXmlPayload();
-                client->respond(xmlValue) but {
+                client->respond(untaint xmlValue) but {
                     error err => log:printError(err.message, err = err)
                 };
 
             } else if (mime:APPLICATION_JSON == baseType) {
                 json jsonValue = check req.getJsonPayload();
-                client->respond(jsonValue) but {
+                client->respond(untaint jsonValue) but {
                     error err => log:printError(err.message, err = err)
                 };
 
             } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
-                blob blobValue = check req.getBinaryPayload();
-                client->respond(blobValue) but {
+                byte[] blobValue = check req.getBinaryPayload();
+                client->respond(untaint blobValue) but {
                     error err => log:printError(err.message, err = err)
                 };
 
             } else if (mime:MULTIPART_FORM_DATA == baseType) {
                 mime:Entity[] bodyParts = check req.getBodyParts();
-                client->respond(bodyParts) but {
+                client->respond(untaint bodyParts) but {
                     error err => log:printError(err.message, err = err)
                 };
             }
@@ -133,9 +134,9 @@ service<http:Service> backEndService bind { port: 9091 } {
         path: "/image"
     }
     sendByteChannel(endpoint client, http:Request req) {
-        blob bytes = check req.getBinaryPayload();
+        byte[] bytes = check req.getBinaryPayload();
         http:Response response = new;
-        response.setBinaryPayload(bytes, contentType = mime:IMAGE_PNG);
+        response.setBinaryPayload(untaint bytes, contentType = mime:IMAGE_PNG);
         client->respond(response) but {
             error err => log:printError(err.message, err = err)
         };
@@ -159,7 +160,7 @@ function handleResponse(http:Response|error returnValue) {
 
                 } else if (mime:APPLICATION_JSON == baseType) {
                     json jsonData = check response.getJsonPayload();
-                    log:printInfo("Json data: " + jsonData.toString());
+                    log:printInfo("Json data: " +  jsonData.toString());
 
                 } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
                     log:printInfo("Response contains binary data: " +

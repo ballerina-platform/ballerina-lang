@@ -23,7 +23,17 @@ service<http:Service> hello bind { port: 9090 } {
         json details = orderDetails.Details;
 
         http:Response res = new;
-        res.setPayload(details);
+        // Perform data validation for orderDetails.
+        if (!check orderDetails.Details.ID.toString().matches("\\d+")) {
+            res.statusCode = 400;
+            res.setPayload("Order Details ID containts invalid data");
+        } else if (!check orderDetails.Details.Name.toString().matches("[a-zA-Z]+")) {
+            res.statusCode = 400;
+            res.setPayload("Order Details Name containts invalid data");
+        } else {
+            // Since there is no validation error, mark the details as trusted data and set to the response.
+            res.setPayload(untaint details);
+        }
         caller->respond(res) but { error e => log:printError(respErr, err = e) };
     }
 
@@ -38,24 +48,37 @@ service<http:Service> hello bind { port: 9090 } {
         xml city = store.selectDescendants("{http://www.test.com}city");
 
         http:Response res = new;
-        res.setPayload(city);
+        // Perform data validation for input data.
+        if (!check city.getTextValue().matches("\\d+")) {
+            res.statusCode = 400;
+            res.setPayload("City containts invalid data");
+        } else {
+            // Since there is no validation error, mark the city as trusted data and set to the response.
+            res.setPayload(untaint city);
+        }
         caller->respond(res) but { error e => log:printError(respErr, err = e) };
     }
 
-    //Bind the JSON payload to a custom struct. The payload's content should match the struct.
+    //Bind the JSON payload to a custom record. The payload's content should match the record.
     @http:ResourceConfig {
         methods: ["POST"],
         body: "student",
         consumes: ["application/json"]
     }
     bindStruct(endpoint caller, http:Request req, Student student) {
-        //Access the fields of the struct 'Student'.
+        //Access the fields of the record 'Student'.
         string name = student.Name;
-
         int grade = student.Grade;
 
         http:Response res = new;
-        res.setPayload({ Name: name, Grade: grade });
+        // Perform data validation for input data.
+        if (!check student.Name.matches("[a-zA-Z]+")) {
+            res.statusCode = 400;
+            res.setPayload("Student name contains invalid data");
+        } else {
+            // Since there is no validation error, mark the inputs as trusted data and set to the response.
+            res.setPayload({ Name: untaint name, Grade: untaint grade });
+        }
         caller->respond(res) but { error e => log:printError(respErr, err = e) };
     }
 }

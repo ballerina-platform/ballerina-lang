@@ -1,4 +1,4 @@
-# Note how the update published after unsubscription is not received by the subscriber_service.
+# Note how the update published after unsubscription is not received by the subscriber service.
 $ ballerina run subscriber_service.bal
 ballerina: initiating service(s) in 'subscriber_service.bal'
 ballerina: started HTTP/WS endpoint 0.0.0.0:8181

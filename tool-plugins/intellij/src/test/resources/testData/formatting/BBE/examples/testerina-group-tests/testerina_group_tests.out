@@ -3,69 +3,51 @@
 #Note that you need to have the ballerina-tools distribution 
 #installed in order to run this command. 
 $ ballerina test testerina_group_tests.bal --groups g1,g2
----------------------------------------------------------------------------
-    T E S T S
----------------------------------------------------------------------------
----------------------------------------------------------------------------
-Running Tests of Package: .
----------------------------------------------------------------------------
+Compiling tests
+    testerina_group_tests.bal
+
+Running tests
+     testerina_group_tests.bal
 I'm in test belonging to g1 and g2!
 I'm in test belonging to g1!
 
-Tests run: 2, Passed: 2, Failures: 0, Skipped: 0 - in TestSuite
+	  ✔ testFunction2
+	  ✔ testFunction1
 
-
----------------------------------------------------------------------------
-Results:
-
-Tests run: 2, Passed: 2, Failures: 0, Skipped: 0
----------------------------------------------------------------------------
-Summary:
-................................................................... SUCCESS
----------------------------------------------------------------------------
+	  2 passing
+	  0 failing
+	  0 skipped
 
 
 $ ballerina test testerina_group_tests.bal --groups g1
----------------------------------------------------------------------------
-    T E S T S
----------------------------------------------------------------------------
----------------------------------------------------------------------------
-Running Tests of Package: .
----------------------------------------------------------------------------
+Compiling tests
+    testerina_group_tests.bal
+
+Running tests
+    testerina_group_tests.bal
 I'm in test belonging to g1 and g2!
-
-Tests run: 1, Passed: 1, Failures: 0, Skipped: 0 - in TestSuite
-
-
----------------------------------------------------------------------------
-Results:
-
-Tests run: 1, Passed: 1, Failures: 0, Skipped: 0
----------------------------------------------------------------------------
-Summary:
-
-
-................................................................... SUCCESS
----------------------------------------------------------------------------
-
-$ ballerina test testerina_group_tests.bal --disable-groups g2
-
----------------------------------------------------------------------------
-    T E S T S
----------------------------------------------------------------------------
----------------------------------------------------------------------------
-Running Tests of Package: .
----------------------------------------------------------------------------
-I'm the ungrouped test.
 I'm in test belonging to g1!
 
-Tests run: 2, Passed: 2, Failures: 0, Skipped: 0 - in TestSuite
+	  ✔ testFunction2
+	  ✔ testFunction1
 
----------------------------------------------------------------------------
-Results:
+	  2 passing
+	  0 failing
+	  0 skipped
 
-Tests run: 2, Passed: 2, Failures: 0, Skipped: 0
----------------------------------------------------------------------------
-Summary:
-................................................................... SUCCESS
----------------------------------------------------------------------------
+
+$ ballerina test testerina_group_tests.bal --disable-groups g2
+Compiling tests
+    testerina_group_tests.bal
+
+Running tests
+    testerina_group_tests.bal
+I'm the ungrouped test
+I'm in test belonging to g1!
+
+	  ✔ testFunction3
+	  ✔ testFunction1
+
+	  2 passing
+	  0 failing
+	  0 skipped

@@ -1,4 +1,0 @@
-// Streaming rules can be used within services to process incoming requests in the background.
-// In this example, the incoming requests are fed into a global stream. If the number of requests from
-// the same host is greater than six within five seconds, a log is printed. This example can be extended to make
-// decisions based on the output of the streaming rules.

@@ -4,8 +4,8 @@ import ballerina/grpc;
 
 // The server endpoint configuration.
 endpoint grpc:Listener listener {
-    host: "localhost",
-    port: 9090
+    host:"localhost",
+    port:9090
 };
 
 service HelloWorld bind listener {
@@ -14,16 +14,16 @@ service HelloWorld bind listener {
         io:println("name: " + name);
         string message = "Hello " + name;
         // Reads custom headers in request message.
-        io:println(headers.get("Keep-Alive"));
+        io:println(headers.get("client_header_key"));
 
         // Writes custom headers to response message.
         grpc:Headers resHeader = new;
-        resHeader.setEntry("Host", "ballerina.io");
+        resHeader.setEntry("server_header_key", "Response Header value");
 
         // Sends response message with headers.
         error? err = caller->send(message, headers = resHeader);
         io:println(err.message but { () => "Server send response : " +
-                message });
+                                                                    message });
 
         // Sends `completed` notification to caller.
         _ = caller->complete();

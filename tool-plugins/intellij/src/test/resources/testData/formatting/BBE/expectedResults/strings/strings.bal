@@ -1,3 +1,4 @@
+import ballerina/internal;
 import ballerina/io;
 
 function main(string... args) {
@@ -12,7 +13,7 @@ function main(string... args) {
 
     //This compares two strings ignoring the case. It returns 'true' if the strings are equal, or 'false' if they are not equal.
     boolean isEqual =
-        statement.equalsIgnoreCase("lion in town. catch the lion ");
+            statement.equalsIgnoreCase("lion in town. catch the lion ");
     io:println("EqualsIgnoreCase: " + isEqual);
 
     //This returns a new string that is a substring of the specified string. You must provide the original string,
@@ -62,7 +63,7 @@ function main(string... args) {
 
     //This checks whether the given string starts with the specified prefix.
     boolean hasPrefix = statement.hasPrefix("Lion");
-    io:println("HasPreffix: " + hasPrefix);
+    io:println("HasPrefix: " + hasPrefix);
 
     //This returns an unescaped string by omitting the escape characters of the original string.
     string s9 = statement.unescape();
@@ -74,12 +75,12 @@ function main(string... args) {
     io:println("Split: " + array[1]);
     io:println("Split: " + array[2]);
 
-    //This converts a string to a BLOB.
-    blob blobValue = statement.toBlob("UTF-8");
+    //This converts a string to a byte array.
+    byte[] bytes = statement.toByteArray("UTF-8");
 
-    //This converts a value of the 'BLOB' type to a string.
-    string s10 = blobValue.toString("UTF-8");
-    io:println("Blob: " + s10);
+    //This converts a value of the byte array to a string.
+    string s10 = internal:byteArrayToString(bytes, "UTF-8");
+    io:println("Bytes: " + s10);
 
     //This formats a string according to the given format arguments.
     string s11 = io:sprintf("%s %f", array[0], value);

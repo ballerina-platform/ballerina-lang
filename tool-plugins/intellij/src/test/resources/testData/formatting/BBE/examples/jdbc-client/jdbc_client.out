@@ -25,11 +25,11 @@ Batch 2 update counts: 1
 
 The call operation - With IN params
 Stored procedure with IN param creation status: 0
-Call action with IN params successful
+Call operation with IN params successful
 
 The call operation - With INOUT/OUT params
 Stored procedure with INOUT/OUT param creation status: 0
-Call action with INOUT and OUT params successful
+Call operation with INOUT and OUT params successful
 Student ID of the person with age = 25: 3
 Student count with age = 27: 1
 

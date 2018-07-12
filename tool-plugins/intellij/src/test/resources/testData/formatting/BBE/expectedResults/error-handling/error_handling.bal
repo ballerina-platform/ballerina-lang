@@ -5,8 +5,7 @@ function getAccountBalance(int accountID) returns (int|error) {
     // Create an instance of the error record and return it.
     // The logic used here is a sample to demonstrate the concept of error handling.
     if (accountID < 100) {
-        error err = { message: "Account with ID: " + accountID +
-            " is not found" };
+        error err = { message: "Account with ID: " + accountID + " is not found" };
         return err;
     } else {
         return 600;

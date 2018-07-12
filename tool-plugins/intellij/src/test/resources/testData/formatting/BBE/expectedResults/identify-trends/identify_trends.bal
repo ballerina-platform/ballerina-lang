@@ -30,10 +30,10 @@ int index;
 function deployPeakTempDetectionRules() {
     forever {
         from every tempStream as e1, tempStream
-        where e1.temp <= temp [1..] as e2,
+            where e1.temp <= temp [1..] as e2,
         tempStream where e2[e2.length - 1].temp > temp as e3
         select e1.temp as initialTemp,
-        e2[e2.length - 1].temp as peakTemp
+            e2[e2.length - 1].temp as peakTemp
         => (TempDiffInfo[] tempDiffInfos) {
         // If the sequence is matched, the data is pushed/published to the output stream.
             tempDiffInfoStream.publish(tempDiffInfos);
@@ -92,8 +92,8 @@ function main(string... args) {
 // The function that prints the peak temperature readings.
 function printInitalAndPeakTemp(TempDiffInfo tempDiff) {
     io:println("printInitalAndPeakTemp function is invoked. " +
-            "InitialTemp : " + tempDiff.initialTemp +
-            " and Peak temp : " + tempDiff.peakTemp);
+                    "InitialTemp : " + tempDiff.initialTemp +
+                        " and Peak temp : " + tempDiff.peakTemp);
     addToGlobalTempDiffArray(tempDiff);
 }
 

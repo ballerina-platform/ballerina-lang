@@ -73,9 +73,9 @@ service echo bind backendEP {
 
         outResponse.setPayload("echo Resource is invoked");
         caller->respond(outResponse) but {
-            error e => log:printError(
-                           "Error sending response from mock service", err = e)
-        };
+                    error e => log:printError(
+                        "Error sending response from mock service", err = e)
+                    };
     }
 }
 
@@ -92,8 +92,8 @@ service mock bind backendEP {
         http:Response outResponse = new;
         outResponse.setPayload("Mock Resource is Invoked.");
         caller->respond(outResponse) but {
-            error e => log:printError(
-                           "Error sending response from mock service", err = e)
-        };
+                    error e => log:printError(
+                        "Error sending response from mock service", err = e)
+                    };
     }
 }

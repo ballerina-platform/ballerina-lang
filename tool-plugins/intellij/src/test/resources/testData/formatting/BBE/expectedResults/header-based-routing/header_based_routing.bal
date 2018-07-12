@@ -6,7 +6,8 @@ endpoint http:Client locationEP {
 };
 
 endpoint http:Client weatherEP {
-    url: "http://samples.openweathermap.org"
+    url: "http://samples.openweathermap.org",
+    followRedirects: { enabled: true, maxCount: 5 }
 };
 
 //Service is invoked using `basePath` value "/hbr".
@@ -41,13 +42,13 @@ service<http:Service> headerBasedRouting bind { port: 9090 } {
         if (nameString == "location") {
             //`post()` represent the POST action of HTTP connector. Route payload to relevant service.
             response = locationEP->post("/v2/5adddd66300000bd2a4b2912",
-                newRequest);
+                                        newRequest);
 
         } else {
             //`get()` action can be used to make http GET call.
             response =
-            weatherEP->get("/data/2.5/weather?lat=35&lon=139&appid=b1b1",
-                message = newRequest);
+                weatherEP->get("/data/2.5/weather?lat=35&lon=139&appid=b1b1",
+                                message = newRequest);
 
         }
 
@@ -55,8 +56,8 @@ service<http:Service> headerBasedRouting bind { port: 9090 } {
             http:Response clientResponse => {
                 //`respond()` sends back the inbound clientResponse to the caller if no any error is found.
                 caller->respond(clientResponse)
-                but { error e => log:printError(
-                                     "Error sending response", err = e) };
+                    but { error e => log:printError(
+                                 "Error sending response", err = e) };
 
             }
             error err => {
@@ -64,8 +65,8 @@ service<http:Service> headerBasedRouting bind { port: 9090 } {
                 errorResponse.statusCode = 500;
                 errorResponse.setPayload(err.message);
                 caller->respond(errorResponse)
-                but { error e => log:printError(
-                                     "Error sending response", err = e) };
+                    but { error e => log:printError(
+                                 "Error sending response", err = e) };
             }
         }
     }

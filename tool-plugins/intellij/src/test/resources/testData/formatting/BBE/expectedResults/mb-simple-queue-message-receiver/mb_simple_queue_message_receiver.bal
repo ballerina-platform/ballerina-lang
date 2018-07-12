@@ -16,7 +16,7 @@ service<mb:Consumer> mbListener bind receiver {
         match (message.getTextMessageContent()) {
             string messageText => log:printInfo("Message : " + messageText);
             error e => log:printError("Error occurred while reading message",
-                err = e);
+                                      err = e);
         }
     }
 }

@@ -17,8 +17,8 @@ type Teacher record {
 };
 
 function testAggregationQuery(
-             stream<StatusCount> filteredStatusCountStream,
-             stream<Teacher> teacherStream) {
+    stream<StatusCount> filteredStatusCountStream,
+    stream<Teacher> teacherStream) {
     // Create a forever statement block with an appropriate streaming query.
     // Write a query to filter teachers who are older than 18 years, wait for the stream to collect three teacher
     // objects, group the 3 teachers based on their marital status, and then obtain the 
@@ -36,22 +36,22 @@ function testAggregationQuery(
 }
 
 function main(string... args) {
-    // Create a stream that is constrained by the `StatusCount` struct type.
+    // Create a stream that is constrained by the `StatusCount` record type.
     stream<StatusCount> filteredStatusCountStream;
 
-    // Create a stream that is constrained by the `Teacher` struct type.
+    // Create a stream that is constrained by the `Teacher` record type.
     stream<Teacher> teacherStream;
 
     //Invoke the method that contains the forever streaming statement.
     testAggregationQuery(filteredStatusCountStream, teacherStream);
 
     // Create sample events, and send the events to the `teacherStream` input stream.
-    Teacher t1 = { name: "Sam", age: 25, status: "single",
-        batch: "LK2014", school: "Hampden High School" };
-    Teacher t2 = { name: "Jordan", age: 33, status: "single",
-        batch: "LK1998", school: "Columbia High School" };
-    Teacher t3 = { name: "Morgan", age: 45, status: "married",
-        batch: "LK1988", school: "Central High School" };
+    Teacher t1 = {name: "Sam", age: 25, status: "single",
+        batch: "LK2014", school: "Hampden High School"};
+    Teacher t2 = {name: "Jordan", age: 33, status: "single",
+        batch: "LK1998", school: "Columbia High School"};
+    Teacher t3 = {name: "Morgan", age: 45, status: "married",
+        batch: "LK1988", school: "Central High School"};
 
     // Subscribe the `filteredStatusCountStream` stream to the `printStatusCount` function. Each time the stream
     // receives an event, call the `printStatusCount` function.

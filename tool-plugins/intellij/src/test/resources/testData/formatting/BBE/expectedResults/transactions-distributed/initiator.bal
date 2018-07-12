@@ -19,11 +19,11 @@ service<http:Service> InitiatorService bind { port: 8080 } {
 
         // When the transaction statement starts, a distributed transaction context is created.
         transaction with oncommit = printCommit,
-        onabort = printAbort {
+                         onabort = printAbort {
 
-        // Print the current transaction ID
+            // Print the current transaction ID
             log:printInfo("Started transaction: " +
-                    transactions:getCurrentTransactionId());
+                             transactions:getCurrentTransactionId());
 
             // When a participant is called, the transaction context is propagated, and that participant
             // gets infected and joins the distributed transaction.
@@ -35,18 +35,18 @@ service<http:Service> InitiatorService bind { port: 8080 } {
                 abort;
             }
 
-        // As soon as the transaction block ends, the `2-phase commit
-        // coordination` protocol will run. All participants are prepared
-        // and depending on the joint outcome, either a `notify commit` or
-        // `notify abort` will be sent to the participants.
+            // As soon as the transaction block ends, the `2-phase commit
+            // coordination` protocol will run. All participants are prepared
+            // and depending on the joint outcome, either a `notify commit` or
+            // `notify abort` will be sent to the participants.
         }
 
         var result = conn->respond(res);
         match result {
             error e =>
-            log:printError("Could not send response back to client", err = e);
+               log:printError("Could not send response back to client", err = e);
             () =>
-            log:printInfo("Sent response back to client");
+               log:printInfo("Sent response back to client");
         }
     }
 }

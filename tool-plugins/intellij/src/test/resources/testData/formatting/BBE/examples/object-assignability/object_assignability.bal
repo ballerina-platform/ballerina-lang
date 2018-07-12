@@ -2,10 +2,8 @@ import ballerina/io;
 
 // Defines an object called 'Person' with public fields and attached function.
 public type Person object {
-    public {
-        int age,
-        string name,
-    }
+    public int age,
+    public string name,
 
     public function getName() returns string {
         return name;
@@ -14,11 +12,9 @@ public type Person object {
 
 // Defines an object called 'Employee' with public fields and attached functions.
 public type Employee object {
-    public {
-        int age,
-        string name,
-        string address,
-    }
+    public int age,
+    public string name,
+    public string address,
 
     public new(age, name, address) {
 

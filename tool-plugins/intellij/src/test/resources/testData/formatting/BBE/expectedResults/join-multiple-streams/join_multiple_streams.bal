@@ -37,7 +37,7 @@ function initRealtimeProductionAlert() {
         join rawMaterialStream window time(10000) as r
         on r.name == p.name
         select r.name, sum(r.amount) as totalRawMaterial,
-        sum(p.amount) as totalConsumption
+                sum(p.amount) as totalConsumption
         group by r.name
         having ((totalRawMaterial - totalConsumption) * 100.0 /
                 totalRawMaterial) > 5
@@ -53,7 +53,7 @@ function printMaterialUsageAlert(MaterialUsage materialUsage) {
 
     float materialUsageDifference = (materialUsage.totalRawMaterial -
             materialUsage.totalConsumption) * 100.0 /
-        (materialUsage.totalRawMaterial);
+                (materialUsage.totalRawMaterial);
 
     io:println("ALERT!! : Material usage is higher than the expected"
             + " limit for material : " + materialUsage.name +
@@ -85,15 +85,15 @@ service productMaterialService bind productMaterialListener {
                 rawMaterialStream.publish(productMaterial);
 
                 http:Response res = new;
-                res.setJsonPayload({ "message": "Raw material request"
-                        + " successfully received" });
+                res.setJsonPayload({"message": "Raw material request"
+                                        + " successfully received"});
                 _ = outboundEP->respond(res);
 
             }
             error err => {
                 http:Response res = new;
                 res.statusCode = 500;
-                res.setPayload(err.message);
+                res.setPayload(untaint err.message);
                 _ = outboundEP->respond(res);
             }
         }
@@ -112,15 +112,15 @@ service productMaterialService bind productMaterialListener {
                 productionInputStream.publish(productMaterial);
 
                 http:Response res = new;
-                res.setJsonPayload({ "message": "Production input " +
-                        "request successfully received" });
+                res.setJsonPayload({"message": "Production input " +
+                                    "request successfully received"});
                 _ = outboundEP->respond(res);
 
             }
             error err => {
                 http:Response res = new;
                 res.statusCode = 500;
-                res.setPayload(err.message);
+                res.setPayload(untaint err.message);
                 _ = outboundEP->respond(res);
             }
         }

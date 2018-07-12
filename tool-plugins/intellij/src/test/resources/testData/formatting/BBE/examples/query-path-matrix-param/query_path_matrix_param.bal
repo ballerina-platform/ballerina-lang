@@ -29,7 +29,7 @@ service<http:Service> sample bind { port: 9090 } {
         json responseJson = { "pathParam": foo, "queryParam": bar, "matrix": matrixJson };
         http:Response res = new;
         // A util method to set the JSON payload to the response message.
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         // Send a response to the client.
         caller->respond(res) but { error e => log:printError("Error when responding", err = e) };
     }

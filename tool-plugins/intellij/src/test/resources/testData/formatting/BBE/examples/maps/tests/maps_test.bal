@@ -28,12 +28,13 @@ function testFunc() {
     map map4 = { "line1": "No. 20", "line2": "Palm Grove", "city": "Colombo 03", "country": "Sri Lanka" };
     string index = "100892N";
 
-    test:assertEquals(map1, outputs[0]);
-    test:assertEquals(out1, outputs[1]);
-    test:assertEquals(out2, outputs[2]);
-    test:assertEquals(map2, outputs[3]);
-    test:assertEquals(map3, outputs[4]);
-    test:assertEquals(out3, outputs[5]);
-    test:assertEquals(map4, outputs[6]);
-    test:assertEquals(index, outputs[7]);
+    test:assertEquals(outputs[0], map1);
+    test:assertEquals(outputs[1], out1);
+    test:assertEquals(outputs[2], out2);
+    test:assertEquals(outputs[3], map2);
+    test:assertEquals(outputs[4], map3);
+    test:assertEquals(outputs[5], out3);
+    test:assertEquals(outputs[6], map4);
+    test:assertEquals(outputs[7], index);
+    test:assertEquals(outputs[8], index);
 }

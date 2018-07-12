@@ -13,6 +13,11 @@ function main(string... args) {
     float f = 20.0;
     io:println(f);
 
+    // The `byte` type represents the set of 8-bit unsigned integers.
+    // The implicit initial value of the `byte` type is `0`. Value space for `byte` is 0-255 both inclusive.
+    byte c = 23;
+    io:println(c);
+
     // The `string` type represents the set of sequences of Unicode code points.
     // The implicit initial value of the `string` type is `""` (empty string).
     string s = "Ballerina";
@@ -22,9 +27,4 @@ function main(string... args) {
     // The implicit initial value of the `boolean` type is `false`.
     boolean b = true;
     io:println(b);
-
-    // The `blob` type represents the set of sequences with zero or more 8-bit bytes.
-    // The implicit initial value of the `blob` type is an empty sequence.
-    blob bl = s.toBlob("UTF-8");
-    io:println(bl);
 }

@@ -1,3 +1,0 @@
-# To run the service, put the code in  `grpc_secured_unary.bal`
-# and use the "ballerina run" command.
-$ ballerina run grpc_secured_unary.bal

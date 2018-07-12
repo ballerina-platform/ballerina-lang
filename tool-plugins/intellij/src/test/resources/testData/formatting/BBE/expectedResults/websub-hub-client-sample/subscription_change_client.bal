@@ -44,8 +44,8 @@ function main(string... args) {
     match (response) {
         websub:SubscriptionChangeResponse subscriptionChangeResponse => {
             io:println("Unsubscription Request successful at Hub ["
-                    + subscriptionChangeResponse.hub
-                    + "] for Topic [" + subscriptionChangeResponse.topic + "]");
+                + subscriptionChangeResponse.hub
+                + "] for Topic [" + subscriptionChangeResponse.topic + "]");
         }
         error e => {
             io:println("Error occurred with Unsubscription Request: ", e);

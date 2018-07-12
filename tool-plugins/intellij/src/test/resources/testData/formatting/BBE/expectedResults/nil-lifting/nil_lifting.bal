@@ -21,9 +21,9 @@ function getPerson(string name) returns person? {
     if (name == "") {
         return ();
     } else {
-        person p = { name: name, addr:
-        { line01: "61 brandon stree", city: "Santa Clara",
-            state: "CA", zipcode: "95134" } };
+        person p = {name: name, addr:
+                            {line01: "61 brandon stree", city: "Santa Clara",
+                                state: "CA", zipcode: "95134"}};
         return p;
     }
 }

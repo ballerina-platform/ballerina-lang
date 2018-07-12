@@ -5,8 +5,8 @@ function close(io:CharacterChannel characterChannel) {
     // Close the character channel when done
     characterChannel.close() but {
         error e =>
-        log:printError("Error occurred while closing character stream",
-            err = e)
+          log:printError("Error occurred while closing character stream",
+                          err = e)
     };
 }
 

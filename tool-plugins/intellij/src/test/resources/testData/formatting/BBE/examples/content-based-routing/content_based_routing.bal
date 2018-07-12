@@ -60,7 +60,7 @@ service<http:Service> contentBasedRouting bind { port: 9090 } {
             error err => {
                 http:Response res = new;
                 res.statusCode = 500;
-                res.setPayload(err.message);
+                res.setPayload(untaint err.message);
                 outboundEP->respond(res) but { error e =>
                     log:printError("Error sending response", err = e) };
             }

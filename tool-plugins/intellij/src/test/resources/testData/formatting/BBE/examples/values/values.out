@@ -1,6 +1,6 @@
 $ ballerina run values.bal
 10
 20.0
+23
 Ballerina
 true
-Ballerina

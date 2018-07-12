@@ -1,8 +1,10 @@
 $ ballerina run records.bal
 {name:"", age:0, parent:null, status:""}
-{name:"Jack", age:20, parent:{name:"", age:0, parent:null, status:""}, status:""}
+{name:"Jack", age:10, parent:{name:"", age:0, parent:null, status:""}, status:""}
 Jack
 Jack
 0
-{name:"Peter", age:25, parent:null, status:""}
-{name:"Jack", age:20, parent:{name:"Peter", age:25, parent:null, status:""}, status:""}
+{name:"Peter", age:35, parent:null, status:""}
+{name:"Jack", age:10, parent:{name:"Peter", age:35, parent:null, status:""}, status:""}
+{name:"Peter", age:35, parent:null, status:"", occupation:"Ballerina Developer"}
+{name:"RnD", employees:[{name:"Peter", age:35, parent:null, status:"", occupation:"Ballerina Developer"}]}

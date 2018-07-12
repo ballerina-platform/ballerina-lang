@@ -25,28 +25,28 @@ service<http:WebSocketService> SimpleProxyService bind { port: 9090 } {
         //When creating client endpoint, if `readyOnClient` flag is set to false client endpoint does not start reading frames automatically.
         //So `ready` action of endpoint should be called separately when ready to accept messsages.
         wsClientEp->ready()
-        but { error e => log:printError(
-                             "Error calling ready on client", err = e) };
+            but { error e => log:printError(
+                     "Error calling ready on client", err = e) };
     }
 
     //This resource is triggered when a new text frame is received from a client.
     onText(endpoint caller, string text, boolean finalFrame) {
 
         endpoint http:WebSocketClient clientEp =
-        getAssociatedClientEndpoint(caller);
+                        getAssociatedClientEndpoint(caller);
         clientEp->pushText(text, final = finalFrame)
-        but { error e => log:printError(
-                             "Error occurred when sending text message", err = e) };
+            but { error e => log:printError(
+                     "Error occurred when sending text message", err = e) };
     }
 
     //This resource is triggered when a new binary frame is received from a client.
-    onBinary(endpoint caller, blob data, boolean finalFrame) {
+    onBinary(endpoint caller, byte[] data, boolean finalFrame) {
 
         endpoint http:WebSocketClient clientEp =
-        getAssociatedClientEndpoint(caller);
+                        getAssociatedClientEndpoint(caller);
         clientEp->pushBinary(data, final = finalFrame)
-        but { error e => log:printError(
-                             "Error occurred when sending binary message", err = e) };
+            but { error e => log:printError(
+                     "Error occurred when sending binary message", err = e) };
     }
 
     //This resource is triggered when an error occurs in the connection.
@@ -56,20 +56,20 @@ service<http:WebSocketService> SimpleProxyService bind { port: 9090 } {
         getAssociatedClientEndpoint(caller);
         clientEp->close(1011, "Unexpected condition")
         but { error e => log:printError(
-                             "Error occurred when closing the connection", err = e) };
+                     "Error occurred when closing the connection", err = e) };
         _ = caller.attributes.remove(ASSOCIATED_CONNECTION);
         log:printError("Unexpected error hense closing the connection",
-            err = err);
+                        err = err);
     }
 
     //This resource is triggered when a client connection is closed from the client side.
     onClose(endpoint caller, int statusCode, string reason) {
 
         endpoint http:WebSocketClient clientEp =
-        getAssociatedClientEndpoint(caller);
+                        getAssociatedClientEndpoint(caller);
         clientEp->close(statusCode, reason)
-        but { error e => log:printError(
-                             "Error occurred when closing the connection", err = e) };
+            but { error e => log:printError(
+                     "Error occurred when closing the connection", err = e) };
         _ = caller.attributes.remove(ASSOCIATED_CONNECTION);
     }
 }
@@ -81,57 +81,57 @@ service<http:WebSocketClientService> ClientService {
     onText(endpoint caller, string text, boolean finalFrame) {
 
         endpoint http:WebSocketListener serverEp =
-        getAssociatedServerEndpoint(caller);
+                        getAssociatedServerEndpoint(caller);
         serverEp->pushText(text, final = finalFrame)
-        but { error e => log:printError(
-                             "Error occurred when sending text message", err = e) };
+            but { error e => log:printError(
+                     "Error occurred when sending text message", err = e) };
     }
 
     //This resource is triggered when a new binary frame is received from the remote backend.
-    onBinary(endpoint caller, blob data, boolean finalFrame) {
+    onBinary(endpoint caller, byte[] data, boolean finalFrame) {
 
         endpoint http:WebSocketListener serverEp =
-        getAssociatedServerEndpoint(caller);
+                        getAssociatedServerEndpoint(caller);
         serverEp->pushBinary(data, final = finalFrame)
-        but { error e => log:printError(
-                             "Error occurred when sending binary message", err = e) };
+            but { error e => log:printError(
+                     "Error occurred when sending binary message", err = e) };
     }
 
     //This resource is triggered when an error occurs in the connection.
     onError(endpoint caller, error err) {
 
         endpoint http:WebSocketListener serverEp =
-        getAssociatedServerEndpoint(caller);
+                        getAssociatedServerEndpoint(caller);
         serverEp->close(1011, "Unexpected condition")
         but { error e => log:printError(
-                             "Error occurred when closing the connection", err = e) };
+                     "Error occurred when closing the connection", err = e) };
         _ = caller.attributes.remove(ASSOCIATED_CONNECTION);
         log:printError("Unexpected error hense closing the connection",
-            err = err);
+                        err = err);
     }
 
     //This resource is triggered when a client connection is closed by the remote backend.
     onClose(endpoint caller, int statusCode, string reason) {
 
         endpoint http:WebSocketListener serverEp =
-        getAssociatedServerEndpoint(caller);
+                        getAssociatedServerEndpoint(caller);
         serverEp->close(statusCode, reason)
-        but { error e => log:printError(
-                             "Error occurred when closing the connection", err = e) };
+            but { error e => log:printError(
+                     "Error occurred when closing the connection", err = e) };
         _ = caller.attributes.remove(ASSOCIATED_CONNECTION);
     }
 }
 
 function getAssociatedClientEndpoint(http:WebSocketListener ep)
-             returns (http:WebSocketClient) {
+                                        returns (http:WebSocketClient) {
     http:WebSocketClient client =
-    check <http:WebSocketClient>ep.attributes[ASSOCIATED_CONNECTION];
+            check <http:WebSocketClient>ep.attributes[ASSOCIATED_CONNECTION];
     return client;
 }
 
 function getAssociatedServerEndpoint(http:WebSocketClient ep)
-             returns (http:WebSocketListener) {
+                                        returns (http:WebSocketListener) {
     http:WebSocketListener wsEndpoint =
-    check <http:WebSocketListener>ep.attributes[ASSOCIATED_CONNECTION];
+            check <http:WebSocketListener>ep.attributes[ASSOCIATED_CONNECTION];
     return wsEndpoint;
 }

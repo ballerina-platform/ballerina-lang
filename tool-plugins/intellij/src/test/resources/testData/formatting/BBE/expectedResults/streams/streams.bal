@@ -61,7 +61,7 @@ function main(string... args) {
 // This function accepts `Employee` events and is used to subscribe to a stream. 
 function printEmployeeName(Employee employee) {
     io:println("Employee event received for Employee Name: "
-            + employee.name);
+                    + employee.name);
 }
 
 // This function accepts `float` events and is used to subscribe to a stream. 

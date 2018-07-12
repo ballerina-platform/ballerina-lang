@@ -18,7 +18,7 @@ function testFunc() {
     // Checking whether the server is started.
     test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
-    json response1 = { "Outbound request content": "Lenght-20" };
+    json response1 = { "Outbound request content": "Length-20" };
 
     // Sending a GET request to the specified endpoint.
     var response = httpEndpoint->get("/chunkingSample");

@@ -2,13 +2,13 @@ import ballerina/io;
 
 // The 'test' function acts as a variable function pointer in the 'main' function
 function test(int x, string s) returns (float) {
-    int y = check <int>s;
+    int y = check <int> s;
     float f = x * 1.0 * y;
     return f;
 }
 
 // Function pointer as a parameter.
-function foo(int x, function (int, string) returns (float) bar)
+function foo(int x, function (int, string) returns (float) bar) 
              returns (float) {
     return x * bar(10, "2");
 }

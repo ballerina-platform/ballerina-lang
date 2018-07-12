@@ -7,12 +7,12 @@ type KeyNotFoundError record {
 };
 
 // The values of this map are constrained to the values of the optional string type.
-map<string?> values = { "key1": "value1", "key2": () };
+map<string?> values = {"key1": "value1", "key2": ()};
 
 // This function returns either a `string`, a `KeyNotFoundError` or nil.
 function getValue(string key) returns string?|KeyNotFoundError {
     if (!values.hasKey(key)) {
-        KeyNotFoundError err = { message: "key '" + key + "' not found", key: key };
+        KeyNotFoundError err = {message: "key '" + key + "' not found", key: key};
         return err;
     } else {
         return values[key];

@@ -29,7 +29,7 @@ endpoint http:Listener helloWorldEP {
     // is returned as the configuration value. The default values of these
     // optional configurations are the default values of the return types of
     // the functions.
-    port: config:getAsInt("hello.http.port", default = 9095),
+    port:config: getAsInt("hello.http.port", default = 9095),
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -51,7 +51,7 @@ service helloWorld bind helloWorldEP {
         http:Response res = new;
         res.setPayload("Hello World!");
         caller->respond(res)
-        but { error e =>
-        log:printError("Failed to respond to the caller", err = e) };
+                but { error e =>
+                    log:printError("Failed to respond to the caller", err = e) };
     }
 }

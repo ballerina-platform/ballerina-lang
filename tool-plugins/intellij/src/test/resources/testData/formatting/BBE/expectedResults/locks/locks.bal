@@ -10,7 +10,7 @@ function main(string... args) {
 function process() {
     worker w1 {
         // Lock the shared variable and increment the counter.
-        foreach i in 1...1000 {
+        foreach i in 1 ... 1000 {
             lock {
                 // Lock the shared variable and increment the counter.
                 counter = counter + 1;
@@ -18,7 +18,7 @@ function process() {
         }
     }
     worker w2 {
-        foreach i in 1...1000 {
+        foreach i in 1 ... 1000 {
             lock {
                 // Lock the shared variable and increment the counter.
                 counter = counter + 1;
@@ -26,7 +26,7 @@ function process() {
         }
     }
     worker w3 {
-        foreach i in 1...1000 {
+        foreach i in 1 ... 1000 {
             lock {
                 // Lock the shared variable and increment the counter.
                 counter = counter + 1;
@@ -34,7 +34,7 @@ function process() {
         }
     }
     worker w4 {
-        foreach i in 1...1000 {
+        foreach i in 1 ... 1000 {
             lock {
                 // Lock the shared variable and increment the counter.
                 counter = counter + 1;

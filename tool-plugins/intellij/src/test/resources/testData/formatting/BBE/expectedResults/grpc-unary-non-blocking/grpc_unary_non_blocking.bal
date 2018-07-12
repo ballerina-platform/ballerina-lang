@@ -18,7 +18,7 @@ service HelloWorld bind ep {
         error? err = caller->send(message);
 
         io:println(err.message but { () => "Server send response : " +
-                message });
+                                                                    message });
         // Send the `completed` notification to the caller.
         _ = caller->complete();
     }

@@ -2,7 +2,7 @@
 # Publisher starts up the hub and registers the topic, and the subscriber
 # service representing the callback is started up.
 
-# Note the port specified as a configuration, the hub service will be started up
+# Note the port specified as a parameter, the hub service will be started up
 # on the default port if not specified as a parameter or a configuration.
 $ ballerina run publisher.bal
 Starting up the Ballerina Hub Service

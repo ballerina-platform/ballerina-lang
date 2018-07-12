@@ -3,27 +3,19 @@
 #Note that you need to have the ballerina-tools distribution 
 #installed in order to run this command. 
 $ ballerina test testerina_before_and_after_suite.bal
----------------------------------------------------------------------------
-    T E S T S
----------------------------------------------------------------------------
----------------------------------------------------------------------------
-Running Tests of Package: .
----------------------------------------------------------------------------
+Compiling tests
+    testerina_before_and_after_suite.bal
+
+Running tests
+    testerina_before_and_after_suite.bal
 I'm the before suite function!
-I'm in test function 1!
 I'm in test function 2!
+I'm in test function 1!
 I'm the after suite function!
 
-Tests run: 2, Passed: 2, Failures: 0, Skipped: 0 - in TestSuite
+	  ✔ testFunction2
+	  ✔ testFunction1
 
-
----------------------------------------------------------------------------
-Results:
-
-Tests run: 2, Passed: 2, Failures: 0, Skipped: 0
----------------------------------------------------------------------------
-Summary:
-
-
-................................................................... SUCCESS
----------------------------------------------------------------------------
+	  2 passing
+	  0 failing
+	  0 skipped

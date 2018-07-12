@@ -67,9 +67,9 @@ service mock1 bind backendEP {
         http:Response outResponse = new;
         outResponse.setPayload("Mock1 Resource is invoked.");
         caller->respond(outResponse) but {
-            error e => log:printError(
+                        error e => log:printError(
                            "Error sending response from mock service", err = e)
-        };
+                        };
     }
 }
 
@@ -82,9 +82,9 @@ service mock2 bind backendEP {
         http:Response outResponse = new;
         outResponse.setPayload("Mock2 Resource is Invoked.");
         caller->respond(outResponse) but {
-            error e => log:printError(
+                        error e => log:printError(
                            "Error sending response from mock service", err = e)
-        };
+                        };
     }
 }
 
@@ -97,8 +97,8 @@ service mock3 bind backendEP {
         http:Response outResponse = new;
         outResponse.setPayload("Mock3 Resource is Invoked.");
         caller->respond(outResponse) but {
-            error e => log:printError(
+                        error e => log:printError(
                            "Error sending response from mock service", err = e)
-        };
+                        };
     }
 }

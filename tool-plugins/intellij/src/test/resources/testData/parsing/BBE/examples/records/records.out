@@ -1,8 +1,0 @@
-$ ballerina run records.bal
-{name:"", age:0, parent:null, status:""}
-{name:"Jack", age:20, parent:{name:"", age:0, parent:null, status:""}, status:""}
-Jack
-Jack
-0
-{name:"Peter", age:25, parent:null, status:""}
-{name:"Jack", age:20, parent:{name:"Peter", age:25, parent:null, status:""}, status:""}

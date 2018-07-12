@@ -1,6 +1,0 @@
-// The protobuf tool generates the client and client stub using .proto definition via the 3.4.0 protoc compiler.
-// This sample demonstrates how to run the protobuf tool.
-// The Protobuf tool supports the following command line options:
-// * --input : The path of the .proto file. This is a mandatory parameter.
-// * --output : The file location in which the ballerina client and the client stub must be generated. This is an optional parameter.
-// If no value is specified for this parameter, the ballerina client and the client stub are generated in the current location.

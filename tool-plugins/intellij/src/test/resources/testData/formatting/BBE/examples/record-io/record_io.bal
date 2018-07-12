@@ -46,7 +46,7 @@ function main(string... args) {
     //The record separator of the text file
     //is a new line, and the field separator is a pipe (|).
     io:DelimitedTextRecordChannel dstRecordChannel =
-        getFileRecordChannel(dstFileName, io:WRITE, "UTF-8", "\n", "|");
+        getFileRecordChannel(dstFileName, io:WRITE, "UTF-8", "\r\n", "|");
     try {
         io:println("Start processing the CSV file from " + srcFileName +
                    " to the text file in " + dstFileName);

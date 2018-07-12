@@ -10,12 +10,12 @@ function main(string... args) {
     // Specify a time with the required year, month, date,
     // time, and timezone information.
     time:Time timeCreated = time:createTime(2017, 3, 28, 23, 42, 45, 554,
-        "America/Panama");
+                                            "America/Panama");
     io:println("Created Time: " + timeCreated.toString());
     // This retrieves the time for a given string representation
     // based on the specified string format.
     time:Time t1 = time:parse("2017-06-26T09:46:22.444-0500",
-        "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+                              "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     io:println("Parsed Time: " + t1.toString());
     // You can retrieve the string representation of the time via the 'toString' or the 'format' function.
     // This fetches the ISO 8601 formatted string of a given time.
@@ -65,7 +65,7 @@ function main(string... args) {
     io:println("After subtract duration: " + tmSub.toString());
     // This converts the time to a different timezone.
     time:Time t2 = time:createTime(2017, 3, 28, 23, 42, 45, 554,
-        "America/Panama");
+                                   "America/Panama");
     io:println("Before convert zone: " + t2.toString());
     time:Time t3 = t2.toTimezone("Asia/Colombo");
     io:println("After convert zone:" + t3.toString());

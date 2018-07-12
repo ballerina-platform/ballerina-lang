@@ -38,8 +38,7 @@ function main(string... args) {
     var response = await f3;
     match response {
         http:Response resp => {
-            io:println("HTTP Response: ",
-                       untaint resp.getJsonPayload());
+            io:println(untaint resp.getJsonPayload());
         }
         error err => { io:println(err.message); }
     }

@@ -9,8 +9,8 @@ function main(string... args) {
 
     string name = <string>m["name"];
     string era = <string>m["era"];
-    io:println("[default worker] before fork-join: value of name is [",
-        name, "] value of era is [", era, "]");
+    io:println("[default worker] before fork-join: value of name is [", 
+                name, "] value of era is [", era, "]");
 
     // Declare the fork-join statement.
     fork {
@@ -45,24 +45,24 @@ function main(string... args) {
         string q = <string>results["W2"];
 
         // Print the values received from workers within the `join` block.
+        io:println("[default worker] within join: " + 
+                    "value of integer variable from W1 is [", p, "]");
         io:println("[default worker] within join: " +
-                "value of integer variable from W1 is [", p, "]");
+                    "value of string variable from W1 is [", l, "]");
         io:println("[default worker] within join: " +
-                "value of string variable from W1 is [", l, "]");
-        io:println("[default worker] within join: " +
-                "value of string variable from W2 is [", q, "]");
+                    "value of string variable from W2 is [", q, "]");
     }
     // Print the values after the fork-join statement to check the values of the variables.
     // The value type variables have not changed since they are passed in as a copy of the original variable.
-    io:println("[default worker] after fork-join: " +
-            "value of integer variable is [", i, "] ",
-        "value of string variable is [", s, "]");
+    io:println("[default worker] after fork-join: " + 
+               "value of integer variable is [", i, "] ",
+               "value of string variable is [", s, "]");
     // The reference type variables' internal content has got updated since they are passed in
     // as a reference to the workers.
     name = <string>m["name"];
     era = <string>m["era"];
 
-    io:println("[default worker] after fork-join: " +
-            "value of name is [", name,
-        "] value of era is [", era, "]");
+    io:println("[default worker] after fork-join: " + 
+               "value of name is [", name,
+               "] value of era is [", era, "]");
 }

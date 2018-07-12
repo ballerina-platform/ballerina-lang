@@ -16,8 +16,8 @@ function getFileRecordChannel(string filePath, io:Mode permission,
     // Convert the `character channel` to a `record channel`
     //to read the content as records.
     io:DelimitedTextRecordChannel delimitedRecordChannel = new(characterChannel,
-        rs = rs,
-        fs = fs);
+                                                               rs = rs,
+                                                               fs = fs);
     return delimitedRecordChannel;
 }
 
@@ -31,7 +31,7 @@ function process(io:DelimitedTextRecordChannel srcRecordChannel,
         // Read the records.
         string[] records = check srcRecordChannel.getNext();
         // Write the records.
-        var result = check dstRecordChannel.write(records);
+        var result =check dstRecordChannel.write(records);
     }
 }
 
@@ -46,22 +46,22 @@ function main(string... args) {
     //The record separator of the text file
     //is a new line, and the field separator is a pipe (|).
     io:DelimitedTextRecordChannel dstRecordChannel =
-        getFileRecordChannel(dstFileName, io:WRITE, "UTF-8", "\n", "|");
+        getFileRecordChannel(dstFileName, io:WRITE, "UTF-8", "\r\n", "|");
     try {
         io:println("Start processing the CSV file from " + srcFileName +
-                " to the text file in " + dstFileName);
+                   " to the text file in " + dstFileName);
         process(srcRecordChannel, dstRecordChannel);
         io:println("Processing completed. The processed file is located in ",
-            dstFileName);
+                   dstFileName);
     } catch (error e) {
         log:printError("An error occurred while processing the records: ",
-            err = e);
+                        err = e);
     } finally {
         //Close the text record channel.
         match srcRecordChannel.close() {
             error sourceCloseError => {
                 log:printError("Error occured while closing the channel: ",
-                    err = sourceCloseError);
+                                err = sourceCloseError);
             }
             () => {
                 io:println("Source channel closed successfully.");
@@ -70,7 +70,7 @@ function main(string... args) {
         match dstRecordChannel.close() {
             error destinationCloseError => {
                 log:printError("Error occured while closing the channel: ",
-                    err = destinationCloseError);
+                                err = destinationCloseError);
             }
             () => {
                 io:println("Destination channel closed successfully.");

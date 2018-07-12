@@ -1,24 +1,21 @@
-import ballerina/mysql;
+import ballerina/jdbc;
 import ballerina/io;
 
-// Create an endpoint for MySQL database. Change the DB details before running the sample.
-endpoint mysql:Client testDB {
-    host: "localhost",
-    port: 3306,
-    name: "testdb",
+// Create an endpoint for H2 database. Change the DB details before running the sample.
+endpoint jdbc:Client testDB {
+    url: "jdbc:h2:file:./local-transactions/Testdb",
     username: "root",
     password: "root",
     poolOptions: { maximumPoolSize: 5 }
 };
 
 function main(string... args) {
-
     // Create the tables required for the transaction.
-    var ret = testDB->update("CREATE TABLE CUSTOMER (ID INT, NAME
+    var ret = testDB->update("CREATE TABLE CUSTOMER (ID INTEGER, NAME
                               VARCHAR(30))");
     handleUpdate(ret, "Create CUSTOMER table");
 
-    ret = testDB->update("CREATE TABLE SALARY (ID INT, MON_SALARY FLOAT)");
+    ret = testDB->update("CREATE TABLE SALARY (ID INTEGER, MON_SALARY FLOAT)");
     handleUpdate(ret, "Create SALARY table");
 
     // Here is the transaction block. Any transacted action within the transaction block

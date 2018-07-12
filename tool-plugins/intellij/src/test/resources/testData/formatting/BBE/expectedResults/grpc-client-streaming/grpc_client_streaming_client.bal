@@ -11,7 +11,7 @@ function main(string... args) {
     endpoint grpc:Client ep;
     // Execute the unary non-blocking call that registers a server message listener.
     var res = helloWorldEp->lotsOfGreetings
-    (HelloWorldMessageListener);
+                                        (HelloWorldMessageListener);
 
     match res {
         error err => {
@@ -30,7 +30,7 @@ function main(string... args) {
     foreach greet in greets {
         error? connErr = ep->send(greet + " " + name);
         io:println(connErr.message but { () => "send greeting: " +
-                greet + " " + name });
+                                                greet + " " + name });
     }
 
     // Once all the messages are sent, the server notifies the caller with a `complete` message.

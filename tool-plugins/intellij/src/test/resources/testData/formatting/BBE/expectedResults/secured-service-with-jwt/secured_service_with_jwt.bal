@@ -3,8 +3,8 @@ import ballerina/http;
 // Create a JWT authentication provider with the relevant configuration
 // parameters. 
 http:AuthProvider jwtAuthProvider = {
-    scheme: "jwt",
-    issuer: "ballerina",
+    scheme:"jwt",
+    issuer:"ballerina",
     audience: "ballerina.io",
     certificateAlias: "ballerina",
     trustStore: {
@@ -18,7 +18,7 @@ http:AuthProvider jwtAuthProvider = {
 // at the service and resource levels.
 endpoint http:SecureListener ep {
     port: 9090,
-    authProviders: [jwtAuthProvider],
+    authProviders:[jwtAuthProvider],
     // The secure hello world sample uses https.
     secureSocket: {
         keyStore: {

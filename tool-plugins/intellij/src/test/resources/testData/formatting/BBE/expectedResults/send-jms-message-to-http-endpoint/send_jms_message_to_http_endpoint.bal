@@ -4,11 +4,11 @@ import ballerina/log;
 
 // Create a simple queue receiver.
 endpoint jms:SimpleQueueReceiver consumerEndpoint {
-    initialContextFactory: "bmbInitialContextFactory",
-    providerUrl: "amqp://admin:admin@carbon/carbon"
-        + "?brokerlist='tcp://localhost:5672'",
-    acknowledgementMode: "AUTO_ACKNOWLEDGE",
-    queueName: "MyQueue"
+    initialContextFactory:"bmbInitialContextFactory",
+    providerUrl:"amqp://admin:admin@carbon/carbon"
+                + "?brokerlist='tcp://localhost:5672'",
+    acknowledgementMode:"AUTO_ACKNOWLEDGE",
+    queueName:"MyQueue"
 };
 
 // Bind the created JMS consumer to the listener service.
@@ -19,11 +19,11 @@ service<jms:Consumer> jmsListener bind consumerEndpoint {
         match (message.getTextMessageContent()) {
             string textContent => {
                 log:printInfo("Message received from broker. Payload: "
-                        + textContent);
+                              + textContent);
 
-                forwardToBakend(textContent);
+                forwardToBakend(untaint textContent);
             }
-            error e => log:printError("Error while reading message", err = e);
+            error e => log:printError("Error while reading message", err=e);
         }
     }
 }
@@ -43,13 +43,13 @@ function forwardToBakend(string textContent) {
         http:Response response => {
             match (response.getTextPayload()) {
                 string responseMessage =>
-                log:printInfo("Response from backend service: "
-                        + responseMessage);
+                   log:printInfo("Response from backend service: "
+                                 + responseMessage);
                 error e =>
-                log:printError("Error while reading response", err = e);
+                    log:printError("Error while reading response", err=e);
             }
         }
-        error e => log:printError("Error while sending payload", err = e);
+        error e => log:printError("Error while sending payload", err=e);
     }
 }
 
@@ -66,17 +66,17 @@ service<http:Service> backend bind { port: 9090 } {
         match (req.getTextPayload()) {
             string stringPayload => {
                 log:printInfo("Message received from backend service. "
-                        + "Payload: " + stringPayload);
+                              + "Payload: " + stringPayload);
 
                 // A util method that can be used to set string payload.
                 res.setPayload("Message Received.");
                 // Sends the response back to the client.
                 conn->respond(res) but {
                     error e => log:printError("Error occurred while"
-                            + "acknowledging message", err = e)
+                                              + "acknowledging message", err=e)
                 };
             }
-            error e => log:printError("Error while reading payload", err = e);
+            error e => log:printError("Error while reading payload", err=e);
         }
     }
 }

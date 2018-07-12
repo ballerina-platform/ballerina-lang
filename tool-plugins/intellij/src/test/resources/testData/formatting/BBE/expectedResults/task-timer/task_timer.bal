@@ -18,8 +18,8 @@ function main(string... args) {
     // Schedule a timer task, which initially runs 500ms from now.
     //After that, it runs every 1000ms.
     timer = new task:Timer(onTriggerFunction, onErrorFunction,
-        1000, delay = 500);
-
+                           1000, delay = 500);
+    
     // Start the timer.
     timer.start();
 
@@ -38,9 +38,9 @@ function cleanup() returns error? {
         error e = { message: "Cleanup error" };
         return e;
     }
-
+    
     if (count >= 10) {
-
+        
         // This is how you stop a timer.
         timer.stop();
         io:println("Stopped timer");

@@ -12,7 +12,7 @@ endpoint grpc:Listener listener {
     name: "lotsOfGreetings",
     clientStreaming: true
 }
-service<grpc:Service> HelloWorld bind listener {
+service HelloWorld bind listener {
 
     //This resource is triggered when a new caller connection is initialized.
     onOpen(endpoint caller) {
@@ -28,7 +28,7 @@ service<grpc:Service> HelloWorld bind listener {
     onError(endpoint caller, error err) {
         if (err != ()) {
             io:println("Something unexpected happens at server : "
-                    + err.message);
+                                                                + err.message);
         }
     }
 

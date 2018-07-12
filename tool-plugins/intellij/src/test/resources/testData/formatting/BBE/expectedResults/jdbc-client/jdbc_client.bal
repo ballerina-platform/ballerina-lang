@@ -19,15 +19,15 @@ type Student record {
 };
 
 function main(string... args) {
-    // Creates a table using the update action. If the DDL
-    // statement execution is successful, the `update` action returns 0.
+    // Creates a table using the update operation. If the DDL
+    // statement execution is successful, the `update` operation returns 0.
     io:println("The update operation - Creating a table:");
     var ret = testDB->update("CREATE TABLE student(id INT AUTO_INCREMENT,
                          age INT, name VARCHAR(255), PRIMARY KEY (id))");
     handleUpdate(ret, "Create student table");
 
-    // Inserts data to the table using the update action. If the DML statement execution
-    // is successful, the `update` action returns the updated row count.
+    // Inserts data to the table using the update operation. If the DML statement execution
+    // is successful, the `update` operation returns the updated row count.
     // The query parameters are given in the query statement it self.
     io:println("\nThe update operation - Inserting data to a table");
     ret = testDB->update("INSERT INTO student(age, name) values
@@ -39,7 +39,7 @@ function main(string... args) {
     int age = 24;
     string name = "Anne";
     ret = testDB->update("INSERT INTO student(age, name) values (?, ?)",
-        age, name);
+                         age, name);
     handleUpdate(ret, "Insert to student table with variable parameters");
 
     // The query parameters are given as sql:Parameters for the update operation.
@@ -47,27 +47,27 @@ function main(string... args) {
     sql:Parameter p1 = { sqlType: sql:TYPE_INTEGER, value: 25 };
     sql:Parameter p2 = { sqlType: sql:TYPE_VARCHAR, value: "James" };
     ret = testDB->update("INSERT INTO student(age, name) values (?, ?)",
-        p1, p2);
+                          p1, p2);
     handleUpdate(ret, "Insert to student table with sql:parameter values");
 
 
-    // Update data in the table using the update action.
+    // Update data in the table using the update operation.
     io:println("\nThe Update operation - Update data in a table");
     ret = testDB->update("Update student set name = 'Jones' where age = ?",
-        23);
+                         23);
     handleUpdate(ret, "Update a row in student table");
 
-    // Delete data in a table using the update action.
+    // Delete data in a table using the update operation.
     io:println("\nThe Update operation - Delete data from table");
     ret = testDB->update("DELETE FROM student where age = ?", 24);
     handleUpdate(ret, "Delete a row from student table");
 
     // Column values generated during the update can be retrieved using the
-    // `updateWithGeneratedKeys` action. If the table has several auto
+    // `updateWithGeneratedKeys` operation. If the table has several auto
     // generated columns other than the auto incremented key, those column
     // names should be given as an array. The values of the auto incremented
     // column and the auto generated columns are returned as a string array.
-    // Similar to the `update` action, the inserted row count is also returned.
+    // Similar to the `update` operation, the inserted row count is also returned.
     io:println("\nThe updateWithGeneratedKeys operation - Inserting data");
     age = 31;
     name = "Kate";
@@ -82,7 +82,7 @@ function main(string... args) {
         error e => io:println("Insert to table failed: " + e.message);
     }
 
-    // A batch of data can be inserted using the `batchUpdate` action. The number
+    // A batch of data can be inserted using the `batchUpdate` operation. The number
     // of inserted rows for each insert in the batch is returned as an array.
     io:println("\nThe batchUpdate operation - Inserting a batch of data");
     sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 27 };
@@ -102,7 +102,7 @@ function main(string... args) {
             io:println("Batch 1 update counts: " + counts[0]);
             io:println("Batch 2 update counts: " + counts[1]);
         }
-        error e => io:println("Batch update action failed: " + e.message);
+        error e => io:println("Batch update operation failed: " + e.message);
     }
 
     // Call operiation is used to invoke a stored procedure. Here stored procedure
@@ -119,9 +119,9 @@ function main(string... args) {
     // Invoke the stored procedure with IN type parameters.
     var retCall = testDB->call("{CALL INSERTDATA(?,?)}", (), 19, "George");
     match retCall {
-        ()|table[] => io:println("Call action with IN params successful");
+        ()|table[] => io:println("Call operation with IN params successful");
         error e => io:println("Stored procedure call failed: "
-                + e.message);
+                              + e.message);
     }
 
     // Here stored procedure with OUT and INOUT parameters is invoked.
@@ -144,18 +144,18 @@ function main(string... args) {
     retCall = testDB->call("{CALL GETCOUNT(?,?)}", (), param1, param2);
     match retCall {
         ()|table[] => {
-            io:println("Call action with INOUT and OUT params successful");
+            io:println("Call operation with INOUT and OUT params successful");
             io:print("Student ID of the person with age = 25: ");
             io:println(param1.value);
             io:print("Student count with age = 27: ");
             io:println(param2.value);
         }
         error e => io:println("Stored procedure call failed: "
-                + e.message);
+                                + e.message);
     }
 
     // A proxy for a database table that allows performing add/remove operations over
-    // the actual database table, can be obtained by `getProxyTable` action.
+    // the actual database table, can be obtained by `getProxyTable` operation.
     io:println("\nThe getProxyTable operation - Get a proxy for a table");
     var proxyRet = testDB->getProxyTable("student", Student);
     table<Student> tbProxy;
@@ -188,7 +188,7 @@ function main(string... args) {
         error e => io:println("Removing from table failed: " + e.message);
     }
 
-    // Select data using the `select` action. The `select` action returns a table.
+    // Select data using the `select` operation. The `select` operation returns a table.
     // See the `table` ballerina example for more details on how to access data.
     io:println("\nThe select operation - Select data from a table");
     var selectRet = testDB->select("SELECT * FROM student", Student);
@@ -196,7 +196,7 @@ function main(string... args) {
     match selectRet {
         table tableReturned => dt = tableReturned;
         error e => io:println("Select data from student table failed: "
-                + e.message);
+                               + e.message);
     }
     // Conversion from type 'table' to either JSON or XML results in data streaming.
     // When a service client makes a request, the result is streamed to the service
@@ -214,14 +214,14 @@ function main(string... args) {
     }
 
     // Re-iteration of the result is possible only if `loadToMemory` named argument
-    // is set to `true` in `select` action.
+    // is set to `true` in `select` operation.
     io:println("\nThe select operation - By loading table to memory");
     selectRet = testDB->select("SELECT * FROM student", Student,
         loadToMemory = true);
     match selectRet {
         table tableReturned => dt = tableReturned;
         error e => io:println("Select data from student table failed: "
-                + e.message);
+                               + e.message);
     }
 
     // Iterating data first time.

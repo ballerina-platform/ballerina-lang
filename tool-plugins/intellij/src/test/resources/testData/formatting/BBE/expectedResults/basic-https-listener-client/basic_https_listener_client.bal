@@ -1,6 +1,9 @@
 import ballerina/http;
 import ballerina/log;
 
+// helloWorldEP listener endpoint is configured to communicate through https.
+// It is configured to listen on port 9095. As this is an https Listener,
+// it is required to give the PKCS12 keystore file location and it's password.
 endpoint http:Listener helloWorldEP {
     port: 9095,
     secureSocket: {
@@ -24,10 +27,13 @@ service helloWorld bind helloWorldEP {
         http:Response res = new;
         res.setPayload("Hello World!");
         caller->respond(res) but {
-            error e => log:printError("Failed to respond", err = e) };
+                    error e => log:printError("Failed to respond", err = e) };
     }
 }
 
+// This is a client endpoint configured to connect to the above https service.
+// As this is a 1-way SSL connection, the client needs to provide
+// trust store file path and it's password.
 endpoint http:Client clientEP {
     url: "https://localhost:9095",
     secureSocket: {
@@ -37,10 +43,7 @@ endpoint http:Client clientEP {
         }
     }
 };
-// The Ballerina client can be used to connect to the created HTTPS listener.
-// You have to run the service before running this main function. As this is a
-// 1-way SSL connection, the client needs to provide values for
-// `trustStoreFile` and `trustStorePassword`.
+// You have to run the service before running this main function.
 function main(string... args) {
     // Sends an outbound request.
     var resp = clientEP->get("/hello/");

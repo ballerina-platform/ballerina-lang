@@ -32,7 +32,7 @@ service<http:Service> HTTPStreamingService bind { port: 9090 } {
                 match resp.getTextPayload() {
                     string payload => {
                         //Set the response payload.
-                        res.setTextPayload(payload);
+                        res.setTextPayload(untaint payload);
 
                     }
                     error err => {
@@ -41,13 +41,11 @@ service<http:Service> HTTPStreamingService bind { port: 9090 } {
                     }
                 }
             }
-            error err => {
-                log:printError(err.message, err = err);
-                setError(res, err.message);
-            }
+            error err => { log:printError(err.message, err = err);
+            setError(res, err.message);}
         }
         caller->respond(res) but { error e => log:printError(
-                                                  "Error sending response", err = e) };
+                                  "Error sending response", err = e) };
     }
 
     @http:ResourceConfig {
@@ -90,7 +88,7 @@ service<http:Service> HTTPStreamingService bind { port: 9090 } {
             }
         }
         caller->respond(response) but { error e => log:printError(
-                                                       "Error sending response", err = e) };
+                                        "Error sending response", err = e) };
     }
 }
 
@@ -98,7 +96,7 @@ service<http:Service> HTTPStreamingService bind { port: 9090 } {
 // to the specified file permission.
 //(i.e., whether the file should be opened for read or write)."}
 function getFileChannel(string filePath, io:Mode permission)
-             returns (io:ByteChannel) {
+    returns (io:ByteChannel) {
     // Here is how the ByteChannel is retrieved from the file.
     io:ByteChannel channel = io:openFile(filePath, permission);
     return channel;
@@ -106,12 +104,12 @@ function getFileChannel(string filePath, io:Mode permission)
 
 // This function reads a specified number of bytes from the given channel.
 function readBytes(io:ByteChannel channel, int numberOfBytes)
-             returns (blob, int) {
+    returns (byte[], int) {
 
     // Here is how the bytes are read from the channel.
     var result = channel.read(numberOfBytes);
     match result {
-        (blob, int) content => {
+        (byte[], int) content => {
             return content;
         }
         error readError => {
@@ -121,8 +119,8 @@ function readBytes(io:ByteChannel channel, int numberOfBytes)
 }
 
 // This function writes a byte content with the given offset to a channel.
-function writeBytes(io:ByteChannel channel, blob content, int startOffset = 0)
-             returns (int) {
+function writeBytes(io:ByteChannel channel, byte[] content, int startOffset = 0)
+    returns (int) {
 
     // Here is how the bytes are written to the channel.
     var result = channel.write(content, startOffset);
@@ -142,11 +140,11 @@ function copy(io:ByteChannel src, io:ByteChannel dst) {
     // Specifies the number of bytes that should be read from a
     //single read operation.
     int bytesChunk = 10000;
-
+    
     int numberOfBytesWritten = 0;
     int readCount = 0;
     int offset = 0;
-    blob readContent;
+    byte[] readContent;
     boolean doneCopying = false;
     try {
         // Here is how to read all the content from
@@ -165,6 +163,6 @@ function copy(io:ByteChannel src, io:ByteChannel dst) {
 }
 
 function setError(http:Response response, string message) {
-    response.setPayload(message);
+    response.setPayload(untaint message);
     response.statusCode = 500;
 }

@@ -1,4 +1,0 @@
-# To run the program, navigate to the directory that contains the
-# `.bal` file and use the `ballerina run` command.
-$ ballerina run hello_world_client.bal
-INFO  [] - Hello World

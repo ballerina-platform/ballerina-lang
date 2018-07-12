@@ -18,16 +18,18 @@ service<http:Service> httpService bind { port: 9090 } {
         match payload {
             error err => {
                 log:printError("Error sending message", err = err);
-                resp.setPayload(err.message);
+                resp.setPayload(untaint err.message);
                 resp.statusCode = 500;
             }
             string val => {
-                io:println(payload);
-                resp.setPayload("I received\n");
+                io:println(val);
+                resp.setPayload(string `Http POST received: {{untaint val}}\n`);
             }
         }
 
-        caller->respond(resp) but { error e => log:printError("Error in responding", err = e) };
+        caller->respond(resp) but {
+            error e => log:printError("Error in responding", err = e)
+        };
     }
 
 
@@ -60,7 +62,9 @@ service<http:WebSocketService> wsService {
 
     onText(endpoint caller, string text) {
         io:println(text);
-        caller->pushText(text) but { error e => log:printError("Error sending message", err = e) };
+        caller->pushText(text) but {
+            error e => log:printError("Error sending message", err = e)
+        };
     }
 
     onIdleTimeout(endpoint caller) {

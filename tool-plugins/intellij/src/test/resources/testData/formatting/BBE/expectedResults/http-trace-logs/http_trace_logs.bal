@@ -16,9 +16,10 @@ service<http:Service> helloWorld bind { port: 9090 } {
         var resp = clientEP->forward("/200", req);
         match resp {
             http:Response response =>
-            caller->respond(response) but {
-                error e => log:printError("Failed to respond to caller", err = e)
-            };
+                    caller->respond(response)
+                            but { error e =>
+                                    log:printError(
+                                        "Failed to respond to caller", err = e) };
 
             error e => log:printError("Faild to fulfill request", err = e);
         }

@@ -53,7 +53,7 @@ function main(string... args) {
     int sum;
     // A closed integer range in the foreach statement represents an incremental integer value range from the start
     // expression (1) to the end expression (endValue) inclusively.
-    foreach i in 1...endValue {
+    foreach i in 1 ... endValue {
         sum = sum + i;
     }
     io:println("summation from 1 to " + endValue + " is " + sum);
@@ -62,7 +62,7 @@ function main(string... args) {
     sum = 0;
     // A half open integer range in the foreach statement represents an incremental integer value range from the start
     // expression (1) inclusively, to the end expression (endValue) exclusively.
-    foreach i in 1..<endValue {
+    foreach i in 1 ..< endValue {
         sum = sum + i;
     }
     io:println("summation from 1 to " + endValue + " excluding " + endValue + " is " + sum);

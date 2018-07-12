@@ -19,7 +19,7 @@ service HelloWorld bind ep {
         foreach greet in greets {
             error? err = caller->send(greet + " " + name);
             io:println(err.message but { () => "send reply: " + greet + " " +
-                    name });
+                                                                        name });
         }
 
         // Once all the messages are sent, the server notifies the caller with a `complete` message.

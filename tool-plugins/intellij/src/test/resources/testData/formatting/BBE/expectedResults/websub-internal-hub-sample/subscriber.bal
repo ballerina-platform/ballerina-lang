@@ -15,7 +15,7 @@ endpoint websub:Listener websubEP {
     subscribeOnStartUp: true,
     topic: "http://websubpubtopic.com",
     hub: "https://localhost:9191/websub/hub",
-    leaseSeconds: 3600000,
+    leaseSeconds: 36000,
     secret: "Kslk30SNF2AChs2"
 }
 service websubSubscriber bind websubEP {
@@ -33,10 +33,10 @@ service websubSubscriber bind websubEP {
         } else {
             log:printWarn("Intent verification denied for subscription request");
         }
-        caller->respond(response) but {
+        caller->respond(untaint response) but {
             error e =>
-            log:printError("Error responding to intent verification request",
-                err = e)
+                log:printError("Error responding to intent verification request",
+                               err = e)
         };
     }
 
@@ -44,7 +44,7 @@ service websubSubscriber bind websubEP {
     onNotification(websub:Notification notification) {
         match (notification.getPayloadAsString()) {
             string payloadAsString => log:printInfo("WebSub Notification Received: "
-                    + payloadAsString);
+                                                        + payloadAsString);
             error e => log:printError("Error retrieving payload as string", err = e);
         }
     }

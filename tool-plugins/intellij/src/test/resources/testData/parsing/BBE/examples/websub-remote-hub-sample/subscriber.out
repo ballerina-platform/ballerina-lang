@@ -1,7 +1,0 @@
-$ ballerina run subscriber.bal
-ballerina: initiating service(s) in 'subscriber.bal'
-ballerina: started HTTP/WS endpoint 0.0.0.0:8181
-2018-04-26 22:20:45,790 INFO  [ballerina.websub] - Subscription Request successful at Hub[https://localhost:9191/websub/hub], for Topic[http://websubpubtopic.com], with Callback [http://localhost:8181/websub]
-2018-04-26 22:20:45,887 INFO  [ballerina.websub] - Intent Verification agreed - Mode [subscribe], Topic [http://websubpubtopic.com], Lease Seconds [86400]
-2018-04-26 22:20:45,888 INFO  [] - Intent verified for subscription request
-2018-04-26 22:20:53,456 INFO  [] - WebSub Notification Received: {"action":"publish","mode":"remote-hub"}

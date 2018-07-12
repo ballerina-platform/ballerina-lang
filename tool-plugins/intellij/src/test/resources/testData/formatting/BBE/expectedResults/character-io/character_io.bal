@@ -67,9 +67,9 @@ function process(io:CharacterChannel sourceChannel,
 
 function main(string... args) {
     var sourceChannel = getFileCharacterChannel("./files/sample.txt",
-        io:READ, "UTF-8");
+                                                io:READ, "UTF-8");
     var destinationChannel = getFileCharacterChannel("./files/sampleResponse.txt",
-        io:WRITE, "UTF-8");
+                                                     io:WRITE, "UTF-8");
     try {
         io:println("Started to process the file.");
         process(sourceChannel, destinationChannel);
@@ -81,7 +81,7 @@ function main(string... args) {
         match sourceChannel.close() {
             error sourceCloseError => {
                 io:println("Error occured while closing the channel: " +
-                        sourceCloseError.message);
+                            sourceCloseError.message);
             }
             () => {
                 io:println("Source channel closed successfully.");
@@ -90,7 +90,7 @@ function main(string... args) {
         match destinationChannel.close() {
             error destinationCloseError => {
                 io:println("Error occured while closing the channel: " +
-                        destinationCloseError.message);
+                            destinationCloseError.message);
             }
             () => {
                 io:println("Destination channel closed successfully.");

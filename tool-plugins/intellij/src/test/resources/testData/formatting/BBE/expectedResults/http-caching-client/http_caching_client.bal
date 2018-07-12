@@ -32,7 +32,7 @@ service<http:Service> cachingProxy bind { port: 9090 } {
                 // returned. In this example, the received response is
                 // forwarded to the client through the outbound endpoint.
                 caller->respond(res) but {
-                    error e => log:printError(
+                                error e => log:printError(
                                    "Failed to respond to the caller", err = e) };
             }
             error err => {
@@ -42,7 +42,7 @@ service<http:Service> cachingProxy bind { port: 9090 } {
                 res.statusCode = 500;
                 res.setPayload(err.message);
                 caller->respond(res) but {
-                    error e => log:printError(
+                                error e => log:printError(
                                    "Failed to respond to the caller", err = e) };
             }
         }
@@ -90,7 +90,7 @@ service<http:Service> helloWorld bind { port: 8080 } {
         // header, a `cache-control` header will be set using the directives set
         // in the `cacheControl` object.
         caller->respond(res) but {
-            error e => log:printError(
+                        error e => log:printError(
                            "Failed to respond to the caller", err = e) };
     }
 }

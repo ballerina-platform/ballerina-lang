@@ -10,7 +10,7 @@ function main(string... args) {
 
     // Execute the unary non-blocking call that registers the server message listener.
     error? result = helloWorldEp->lotsOfReplies("Sam",
-        HelloWorldMessageListener);
+                                                    HelloWorldMessageListener);
 
     match result {
         error err => {

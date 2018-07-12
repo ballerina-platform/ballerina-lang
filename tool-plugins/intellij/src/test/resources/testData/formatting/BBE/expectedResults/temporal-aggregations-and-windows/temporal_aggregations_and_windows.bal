@@ -27,13 +27,13 @@ function initRealtimeRequestCounter() {
     // The processing happens asynchronously each time the `requestStream` receives an event.
     forever {
         from requestStream
-        window timeBatch(5000)
+        window timeBatch(10000)
         select host, count(host) as count
         group by host
         having count > 6
         => (RequestCount[] counts) {
         // `counts` is the output of the streaming rules and is published to the `requestCountStream`.
-        // The `select` clause should match the structure of the `RequestCount` struct.
+        // The `select` clause should match the structure of the `RequestCount` record.
             requestCountStream.publish(counts);
         }
     }
@@ -42,7 +42,7 @@ function initRealtimeRequestCounter() {
 // Define the `printRequestCount` function.
 function printRequestCount(RequestCount reqCount) {
     io:println("ALERT!! : Received more than 6 requests from the " +
-            "host within 5 seconds : " + reqCount.host);
+                        "host within 10 seconds : " + reqCount.host);
 }
 
 endpoint http:Listener ep {
@@ -63,13 +63,13 @@ service requestService bind ep {
         path: "/requests"
     }
     requests(endpoint conn, http:Request req) {
-        string hostName = untaint req.getHeader("Host");
+        string hostName = untaint conn.remote.host;
         ClientRequest clientRequest = { host: hostName };
         requestStream.publish(clientRequest);
 
         http:Response res = new;
         res.setJsonPayload("{'message' : 'request successfully " +
-                "received'}");
+                                "received'}");
         _ = conn->respond(res);
     }
 }

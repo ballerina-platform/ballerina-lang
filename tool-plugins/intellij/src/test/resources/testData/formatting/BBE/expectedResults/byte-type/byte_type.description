@@ -1,0 +1,3 @@
+//Byte is 8 bit and it is just shorthand for 0|1|2|...|255 in ballerina.
+//Along with general byte array type, there is also a special syntax for defining base64 based array of bytes.
+//This example demonstrates how byte and byte array can be used with ballerina programs.

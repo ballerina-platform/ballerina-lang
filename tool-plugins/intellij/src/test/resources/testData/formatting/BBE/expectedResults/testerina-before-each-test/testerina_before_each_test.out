@@ -3,11 +3,11 @@
 #Note that you need to have the ballerina-tools distribution 
 #installed in order to run this command. 
 $ ballerina test testerina_before_each_test.bal
-    T E S T S
----------------------------------------------------------------------------
----------------------------------------------------------------------------
-Running Tests of Package: .
----------------------------------------------------------------------------
+Compiling tests
+    testerina_before_each_test.bal
+
+Running tests
+    testerina_before_each_test.bal
 I'm the before function!
 I'm in test function 3!
 I'm the before function!
@@ -15,16 +15,10 @@ I'm in test function 2!
 I'm the before function!
 I'm in test function 1!
 
-Tests run: 3, Passed: 3, Failures: 0, Skipped: 0 - in TestSuite
+	  ✔ testFunction3
+	  ✔ testFunction2
+	  ✔ testFunction1
 
-
----------------------------------------------------------------------------
-Results:
-
-Tests run: 3, Passed: 3, Failures: 0, Skipped: 0
----------------------------------------------------------------------------
-Summary:
-
-
-................................................................... SUCCESS
----------------------------------------------------------------------------
+	  3 passing
+	  0 failing
+	  0 skipped

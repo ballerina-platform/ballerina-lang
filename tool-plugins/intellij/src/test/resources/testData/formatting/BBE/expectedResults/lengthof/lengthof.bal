@@ -31,7 +31,7 @@ function main(string... args) {
 
     // This creates a string.
     string myStr = "My name is Peter Parker";
-
+    
     // This prints the length of the string.
     length = lengthof myStr;
     io:println("String size: ", length);
@@ -43,10 +43,4 @@ function main(string... args) {
                   </book>`;
     length = lengthof x1.*.elements();
     io:println("XML child elements size: ", length);
-
-    // This creates a `blob` value.
-    blob bl = myStr.toBlob("UTF-8");
-    // Print the length of the `blob` value.
-    length = lengthof bl;
-    io:println("BLOB size: ", length);
 }

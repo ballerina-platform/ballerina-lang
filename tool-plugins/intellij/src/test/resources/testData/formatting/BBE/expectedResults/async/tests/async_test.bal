@@ -20,16 +20,16 @@ function testFunc() {
     main();
     //TODO fix following commented assertions
     //test:assertEquals("737100", outputs[0]);
-    test:assertEquals(false, outputs[1]);
-    test:assertEquals(false, outputs[2]);
-    test:assertEquals(true, outputs[3]);
+    test:assertEquals(outputs[1], false);
+    test:assertEquals(outputs[2], false);
+    test:assertEquals(outputs[3], true);
     //test:assertEquals(16810815, a[4]);
-    test:assertEquals(true, outputs[5]);
-    test:assertEquals(true, outputs[6]);
-    test:assertEquals(100, outputs[7]);
-    test:assertEquals(false, outputs[8]);
-    //json j = check <json>outputs[10];
-    //json j2 = { "test": "123" };
-    //test:assertTrue(j.args == j2);
+    test:assertEquals(outputs[5], true);
+    test:assertEquals(outputs[6], true);
+    test:assertEquals(outputs[7], 100);
+    test:assertEquals(outputs[8], false);
+    json j = check <json>outputs[9];
+    json j2 = {"test":"123"};
+    test:assertEquals(j.args, j2);
     test:assertEquals(true, outputs[10]);
 }

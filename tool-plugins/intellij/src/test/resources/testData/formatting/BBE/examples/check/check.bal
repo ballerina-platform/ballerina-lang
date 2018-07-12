@@ -24,7 +24,7 @@ function getAddress(Person p) returns (Address|error) {
 function validateAddress(Person person) returns (boolean|error) {
     // The `getAddress(person)!city` expression produces a value which is union type of `string|error`.
     // The `check` operation validates the above expression and if it evaluates to a string, the check expression produces a string.
-    // If the expression evaluates to an error, the `check` operation immediately exits the enlosing function with that error.
+    // If the expression evaluates to an error, the `check` operation immediately exits the enclosing function with that error.
     // The enclosing function's return type has `error` as an alternative.
     string city = check getAddress(person)!city;
     // If the check fails, this line will not be printed.

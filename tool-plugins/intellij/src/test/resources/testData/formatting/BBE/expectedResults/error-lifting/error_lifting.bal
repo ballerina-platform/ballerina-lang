@@ -15,7 +15,7 @@ function main(string... args) {
 
     // Navigate the fields, by lifting the error. 
     // Using the `!` operator stops the navigation if the value returned is `error`, and then
-    // assigns that to the `code` variable.
+    // assigns that to the `statusCode1` variable.
     int|error statusCode1 = firstResponse!status!code;
     io:println("The status code: ", statusCode1);
 

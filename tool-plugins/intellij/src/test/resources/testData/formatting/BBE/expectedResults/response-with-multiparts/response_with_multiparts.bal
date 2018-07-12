@@ -117,14 +117,14 @@ function handleNestedParts(mime:Entity parentPart) {
 //vary based on your requirement.
 function handleContent(mime:Entity bodyPart) {
     mime:MediaType mediaType = check
-    mime:getMediaType(bodyPart.getContentType());
+                        mime:getMediaType(bodyPart.getContentType());
     string baseType = mediaType.getBaseType();
     if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
         // Extract xml data from body part and print.
         var payload = bodyPart.getXml();
         match payload {
             error err =>
-            log:printError("Error in getting xml payload :" + err.message);
+                log:printError("Error in getting xml payload :" + err.message);
             xml xmlContent => log:printInfo(<string>xmlContent);
         }
     } else if (mime:APPLICATION_JSON == baseType) {
@@ -132,7 +132,7 @@ function handleContent(mime:Entity bodyPart) {
         var payload = bodyPart.getJson();
         match payload {
             error err => log:printError("Error in getting json payload :"
-                    + err.message);
+                        + err.message);
             json jsonContent => log:printInfo(jsonContent.toString());
         }
     } else if (mime:TEXT_PLAIN == baseType) {
@@ -140,7 +140,7 @@ function handleContent(mime:Entity bodyPart) {
         var payload = bodyPart.getText();
         match payload {
             error err => log:printError("Error in getting string payload :"
-                    + err.message);
+                        + err.message);
             string textContent => log:printInfo(textContent);
         }
     } else if (mime:APPLICATION_PDF == baseType) {
@@ -164,8 +164,8 @@ function handleContent(mime:Entity bodyPart) {
                             err = e) };
                     destinationChannel.close() but {
                         error e =>
-                        log:printError("Error closing destinationChannel",
-                            err = e)
+                            log:printError("Error closing destinationChannel",
+                                err = e)
                     };
                 }
             }
@@ -177,7 +177,7 @@ function handleContent(mime:Entity bodyPart) {
 // to the specified file permission
 //(i.e., whether the file should be opened for read or write)."}
 function getFileChannel(string filePath, io:Mode permission)
-             returns (io:ByteChannel) {
+    returns (io:ByteChannel) {
     // Here is how the ByteChannel is retrieved from the file.
     io:ByteChannel channel = io:openFile(filePath, permission);
     return channel;
@@ -185,12 +185,12 @@ function getFileChannel(string filePath, io:Mode permission)
 
 // This function reads a specified number of bytes from the given channel.
 function readBytes(io:ByteChannel channel, int numberOfBytes)
-             returns (blob, int) {
+    returns (byte[], int) {
 
     // Here is how the bytes are read from the channel.
     var result = channel.read(numberOfBytes);
     match result {
-        (blob, int) content => {
+        (byte[], int) content => {
             return content;
         }
         error readError => {
@@ -200,8 +200,8 @@ function readBytes(io:ByteChannel channel, int numberOfBytes)
 }
 
 // This function writes a byte content with the given offset to a channel.
-function writeBytes(io:ByteChannel channel, blob content, int startOffset = 0)
-             returns (int) {
+function writeBytes(io:ByteChannel channel, byte[] content, int startOffset = 0)
+    returns (int) {
 
     // Here is how the bytes are written to the channel.
     var result = channel.write(content, startOffset);
@@ -224,7 +224,7 @@ function copy(io:ByteChannel src, io:ByteChannel dst) {
     int numberOfBytesWritten = 0;
     int readCount = 0;
     int offset = 0;
-    blob readContent;
+    byte[] readContent;
     boolean doneCopying = false;
     try {
         // Here is how to read all the content from

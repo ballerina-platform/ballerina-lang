@@ -6,9 +6,9 @@ endpoint http:Client clientEP {
     url: "http://localhost:9090"
 };
 
-@http:ServiceConfig { basePath: "/multiparts" }
+@http:ServiceConfig {basePath: "/multiparts"}
 // Binding the listener to the service.
-service<http:Service> multipartDemoService bind { port: 9090 } {
+service<http:Service> multipartDemoService bind {port: 9090} {
 
     @http:ResourceConfig {
         methods: ["POST"],
@@ -34,7 +34,7 @@ service<http:Service> multipartDemoService bind { port: 9090 } {
                     handleContent(part);
                     i = i + 1;
                 }
-                response.setBodyParts(bodyParts);
+                response.setBodyParts(untaint bodyParts);
             }
         }
         caller->respond(response) but {
@@ -51,7 +51,7 @@ service<http:Service> multipartDemoService bind { port: 9090 } {
         mime:Entity jsonBodyPart = new;
         jsonBodyPart.setContentDisposition(
                         getContentDispositionForFormData("json part"));
-        jsonBodyPart.setJson({ "name": "wso2" });
+        jsonBodyPart.setJson({"name": "wso2"});
 
         //Create an xml body part as a file upload.
         mime:Entity xmlFilePart = new;
@@ -61,7 +61,7 @@ service<http:Service> multipartDemoService bind { port: 9090 } {
         // If your file is located outside, please
         // give the absolute file path instead.
         xmlFilePart.setFileAsEntityBody("./files/test.xml",
-            contentType = mime:APPLICATION_XML);
+                                        contentType = mime:APPLICATION_XML);
 
         // Create an array to hold all the body parts.
         mime:Entity[] bodyParts = [jsonBodyPart, xmlFilePart];
@@ -85,9 +85,8 @@ service<http:Service> multipartDemoService bind { port: 9090 } {
                     error e => log:printError("Error sending response", err = e)
                 };
             }
-            http:Response returnResult => {
-                caller->respond(returnResult) but {
-                    error e => log:printError("Error sending response", err = e) };
+            http:Response returnResult => {caller->respond(returnResult) but {
+                error e => log:printError("Error sending response", err = e) };
             }
         }
     }
@@ -128,7 +127,7 @@ function handleContent(mime:Entity bodyPart) {
 }
 
 function getContentDispositionForFormData(string partName)
-             returns (mime:ContentDisposition) {
+                                    returns (mime:ContentDisposition) {
     mime:ContentDisposition contentDisposition = new;
     contentDisposition.name = partName;
     contentDisposition.disposition = "form-data";

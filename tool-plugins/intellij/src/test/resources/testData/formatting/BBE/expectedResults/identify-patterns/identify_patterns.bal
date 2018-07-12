@@ -30,13 +30,13 @@ stream<RoomKeyAction> regulatorActionStream;
 function deployRegulatorActionDecisionRules() {
     forever {
         from every regulatorStateChangeStream
-        where userAction == "on" as e1
+            where userAction == "on" as e1
         followed by roomKeyStream
-        where e1.roomNo == roomNo && userAction == "removed" as e2
+            where e1.roomNo == roomNo && userAction == "removed" as e2
         || regulatorStateChangeStream
-        where e1.roomNo == roomNo && userAction == "off" as e3
+            where e1.roomNo == roomNo && userAction == "off" as e3
         select e1.roomNo as roomNo,
-        e2 == null ? "none" : "stop" as userAction
+            e2 == null ? "none" : "stop" as userAction
         having userAction != "none"
         => (RoomKeyAction[] keyAction) {
             regulatorActionStream.publish(keyAction);
@@ -58,7 +58,7 @@ function main(string... args) {
 
     // A sample event that represents the user action on the door of the room. 'removed' indicates that the owner has left the room.
     RoomKeyAction roomKeyAction = { roomNo: 2,
-        userAction: "removed" };
+                                        userAction: "removed" };
 
     // The `RegulatorActionStream` subscribes to the `alertRoomAction` function. Whenever the
     // 'RegulatorActionStream' stream receives a valid event, this function is called.

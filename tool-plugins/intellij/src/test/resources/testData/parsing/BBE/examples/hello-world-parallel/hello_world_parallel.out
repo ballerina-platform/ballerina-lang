@@ -1,6 +1,0 @@
-# At the command line, navigate to the directory that contains the
-# `.bal` file and use the `ballerina run` command.
-$ ballerina run hello_world_parallel.bal
-Hello, World! #m
-Hello, World! #k
-Hello, World! #n

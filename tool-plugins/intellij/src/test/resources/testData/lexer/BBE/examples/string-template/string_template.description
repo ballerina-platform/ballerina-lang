@@ -1,3 +1,0 @@
-// String templates are string literals that allow embedded expressions.
-// The placeholders for expressions are indicated by two open and close curly braces `{{}}`.
-// You can enclose a string literal with the keyword `string` and two back-tick characters.

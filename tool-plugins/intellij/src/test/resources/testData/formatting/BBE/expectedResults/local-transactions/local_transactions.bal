@@ -1,24 +1,21 @@
-import ballerina/mysql;
+import ballerina/jdbc;
 import ballerina/io;
 
-// Create an endpoint for MySQL database. Change the DB details before running the sample.
-endpoint mysql:Client testDB {
-    host: "localhost",
-    port: 3306,
-    name: "testdb",
+// Create an endpoint for H2 database. Change the DB details before running the sample.
+endpoint jdbc:Client testDB {
+    url: "jdbc:h2:file:./local-transactions/Testdb",
     username: "root",
     password: "root",
     poolOptions: { maximumPoolSize: 5 }
 };
 
 function main(string... args) {
-
     // Create the tables required for the transaction.
-    var ret = testDB->update("CREATE TABLE CUSTOMER (ID INT, NAME
+    var ret = testDB->update("CREATE TABLE CUSTOMER (ID INTEGER, NAME
                               VARCHAR(30))");
     handleUpdate(ret, "Create CUSTOMER table");
 
-    ret = testDB->update("CREATE TABLE SALARY (ID INT, MON_SALARY FLOAT)");
+    ret = testDB->update("CREATE TABLE SALARY (ID INTEGER, MON_SALARY FLOAT)");
     handleUpdate(ret, "Create SALARY table");
 
     // Here is the transaction block. Any transacted action within the transaction block
@@ -32,7 +29,7 @@ function main(string... args) {
     // Two functions can be registered with `oncommit` and `onabort`. Those functions will be
     // executed at the end when the transaction is either aborted or committed.
     transaction with retries = 4, oncommit = onCommitFunction,
-    onabort = onAbortFunction {
+                                  onabort = onAbortFunction {
     // This is the first action participant in the transaction.
         var result = testDB->update("INSERT INTO CUSTOMER(ID,NAME)
                                      VALUES (1, 'Anne')");
@@ -58,9 +55,9 @@ function main(string... args) {
     // The end curly bracket marks the end of the transaction, and the transaction will
     // be committed or rolled back at this point.
     } onretry {
-    // The `onretry` block will be executed whenever the transaction is retried until it
-    // reaches the retry count. A transaction could be retried if it fails due to an
-    // exception or throw statement, or from an explicit retry statement.
+        // The `onretry` block will be executed whenever the transaction is retried until it
+        // reaches the retry count. A transaction could be retried if it fails due to an
+        // exception or throw statement, or from an explicit retry statement.
         io:println("Retrying transaction");
     }
 

@@ -6,13 +6,13 @@ import ballerina/io;
 // two defaultable parameters. They are optional parameters with a default 
 // value of 20 and 0.02 respectively. Defaultable parameters must always be
 // defined after the required parameters.
-function printSalaryDetails(int baseSalary,
-                            int annualIncrement = 20,
+function printSalaryDetails(int baseSalary, 
+                            int annualIncrement = 20, 
                             float bonusRate = 0.02) {
 
-    io:println("Base Salary: ", baseSalary,
-        " | Annual Increment: ", annualIncrement,
-        " | Bonus Rate: ", bonusRate);
+    io:println("Base Salary: ", baseSalary, 
+                " | Annual Increment: ", annualIncrement,
+                " | Bonus Rate: ", bonusRate);
 }
 
 function main(string... args) {

@@ -12,10 +12,10 @@ function main(string... args) {
 
     // Register a topic at the hub.
     var registrationResponse =
-    websubHubClientEP->registerTopic("http://websubpubtopic.com");
+                websubHubClientEP->registerTopic("http://websubpubtopic.com");
     match (registrationResponse) {
         error webSubError => io:println("Error occurred registering topic: "
-                + webSubError.message);
+                                        + webSubError.message);
         () => io:println("Topic registration successful!");
     }
 
@@ -25,11 +25,11 @@ function main(string... args) {
     // Publish updates to the remote hub.
     io:println("Publishing update to remote Hub");
     var publishResponse =
-    websubHubClientEP->publishUpdate("http://websubpubtopic.com",
-        { "action": "publish", "mode": "remote-hub" });
+        websubHubClientEP->publishUpdate("http://websubpubtopic.com",
+                                { "action": "publish", "mode": "remote-hub" });
     match (publishResponse) {
         error webSubError => io:println("Error notifying hub: "
-                + webSubError.message);
+                                                        + webSubError.message);
         () => io:println("Update notification successful!");
     }
 

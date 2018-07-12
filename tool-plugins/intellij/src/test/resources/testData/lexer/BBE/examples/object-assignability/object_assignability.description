@@ -1,3 +1,0 @@
-// In Ballerina, objects are assignable if they are structurally equivalent. There are rules that need to
-// be satisfied in order for objects to be structurally equivalent. The basic one is the right-side object
-// type should have at least the same fields (in the same order) and functions as the left-side object type.

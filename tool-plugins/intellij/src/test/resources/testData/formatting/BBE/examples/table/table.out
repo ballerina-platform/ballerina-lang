@@ -1,8 +1,7 @@
 $ ballerina run table.bal
-Adding to table successful
-Adding to table successful
-Adding to table successful
-Adding to table successful
+Table Information: table<Employee> {index: [], primaryKey: ["id"], data: [{id:1, name:"Mary", salary:300.5}, {id:2, name:"John", salary:200.5}, {id:3, name:"Jim", salary:330.5}]}
+Adding record to table successful
+Adding record to table successful
 Table Information: table<Employee> {index: [], primaryKey: ["id"], data: [{id:1, name:"Jane", salary:300.5}, {id:2, name:"Anne", salary:100.5}, {id:3, name:"John", salary:400.5}, {id:4, name:"Peter", salary:150.0}]}
 Using foreach:
 Name: Jane
@@ -21,3 +20,4 @@ Deleted row count: 2
 After Delete: table<Employee> {index: [], primaryKey: ["id"], data: [{id:1, name:"Jane", salary:300.5}, {id:3, name:"John", salary:400.5}]}
 JSON: [{"id":1,"name":"Jane","salary":300.5},{"id":3,"name":"John","salary":400.5}]
 XML: <results><result><id>1</id><name>Jane</name><salary>300.5</salary></result><result><id>3</id><name>John</name><salary>400.5</salary></result></results>
+

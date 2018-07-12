@@ -10,7 +10,7 @@ function main(string... args) {
 
     // Writes custom headers to request message.
     grpc:Headers headers = new;
-    headers.setEntry("Keep-Alive", "300");
+    headers.setEntry("client_header_key", "Request Header Value");
 
     // Executes unary blocking call with headers.
     var unionResp = helloWorldBlockingEp->hello("WSO2", headers = headers);
@@ -23,8 +23,8 @@ function main(string... args) {
             (result, resHeaders) = payload;
             io:println("Client Got Response : ");
             io:println(result);
-            string headerValue = resHeaders.get("Host") ?: "none";
-            io:println("Headers: " + headerValue);
+            string headerValue = resHeaders.get("server_header_key") ?: "none";
+            io:println("Headers: " + headerValue );
         }
         error err => {
             io:println("Error from Connector: " + err.message);

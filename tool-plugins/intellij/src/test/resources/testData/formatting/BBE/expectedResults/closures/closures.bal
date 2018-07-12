@@ -6,7 +6,7 @@ int globalA = 5;
 // variables.
 function basicClosure() returns (function (int) returns int) {
     int a = 3;
-    var foo = (int b) => int {
+    var foo =  (int b) => int {
         int c = 34;
         if (b == 3) {
             c = c + b + a + globalA;
@@ -37,7 +37,7 @@ function multilevelClosure() returns (function (int) returns int) {
 // Example showing how function pointers are passed around with closures
 // and inner scope lambdas access the outer scope variables.
 function functionPointers(int a) returns
-                                         (function (int) returns (function (int) returns int)) {
+                    (function (int) returns (function (int) returns int)) {
     return (int b) => (function (int) returns int) {
         return (int c) => int {
             return a + b + c;

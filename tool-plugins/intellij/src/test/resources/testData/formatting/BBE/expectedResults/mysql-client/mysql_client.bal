@@ -14,26 +14,26 @@ endpoint mysql:Client testDB {
 
 function main(string... args) {
 
-    // Creates a table using the update action.
+    // Creates a table using the update operation.
     io:println("The update operation - Creating a table:");
     var ret = testDB->update("CREATE TABLE student(id INT AUTO_INCREMENT,
                           age INT, name VARCHAR(255), PRIMARY KEY (id))");
     handleUpdate(ret, "Create student table");
 
-    // Inserts data to the table using the update action.
+    // Inserts data to the table using the update operation.
     io:println("\nThe update operation - Inserting data to a table");
     ret = testDB->update("INSERT INTO student(age, name)
                           values (23, 'john')");
     handleUpdate(ret, "Insert to student table with no parameters");
 
-    // Select data using the `select` action.
+    // Select data using the `select` operation.
     io:println("\nThe select operation - Select data from a table");
     var selectRet = testDB->select("SELECT * FROM student", ());
     table dt;
     match selectRet {
         table tableReturned => dt = tableReturned;
         error e => io:println("Select data from student table failed: "
-                + e.message);
+                               + e.message);
     }
     // Convert a table to JSON.
     io:println("\nConvert the table into json");

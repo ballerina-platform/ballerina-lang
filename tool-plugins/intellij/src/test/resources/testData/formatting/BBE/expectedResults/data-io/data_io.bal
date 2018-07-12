@@ -11,7 +11,7 @@ public type Person record {
 //Serialize record into binary
 function serialize(Person p, io:ByteChannel channel) {
     io:DataChannel dc = new io:DataChannel(channel);
-    var length = lengthof p.name.toBlob("UTF-8");
+    var length = lengthof p.name.toByteArray("UTF-8");
     var lengthResult = dc.writeInt32(length);
     var nameResult = dc.writeString(p.name, "UTF-8");
     var ageResult = dc.writeInt16(p.age);
@@ -79,7 +79,7 @@ function readRecordFromFile(string path) returns Person {
 }
 
 function main(string...args) {
-    Person wPerson = { name: "Ballerina", age: 21, income: 1543.12, isMarried: true };
+    Person wPerson = {name:"Ballerina", age:21, income:1543.12, isMarried:true};
     //Write record to file
     writeRecordToFile(wPerson, "./files/person.bin");
     io:println("Person record successfully written to file");

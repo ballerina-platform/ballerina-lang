@@ -2,7 +2,7 @@ import ballerina/io;
 
 function main(string... args) {
     map words = { a: "ant", b: "bear", c: "cat", d: "dear",
-        e: "elephant" };
+                  e: "elephant" };
     // The count operation returns the number of elements in any collection type.
     io:println("Total words count: " + words.count());
 
@@ -17,8 +17,8 @@ function main(string... args) {
     // The average operation returns the average of the int/float collection. Other support operations are max(), min(),
     // and sum().
     float avg = numbers.filter((int i) => boolean {
-            return i >= 0;
-        }).average();
+                                  return i >= 0;
+                              }).average();
     io:println("Average of positive numbers: " + avg);
 
     io:println("\nExecution Order:-");
@@ -36,6 +36,6 @@ function main(string... args) {
 }
 
 function toUpper(any value) returns string {
-    var word = <string>value;
+    var word = <string> value;
     return word.toUpper();
 }

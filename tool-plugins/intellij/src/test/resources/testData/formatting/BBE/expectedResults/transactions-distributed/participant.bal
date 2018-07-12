@@ -21,21 +21,21 @@ service<http:Service> ParticipantService bind { port: 8889 } {
         // At the beginning of the transaction statement, since a transaction
         // context has been received, this service will register with the
         // initiator as a participant.
-        transaction with oncommit = printParticipantCommit,
-        onabort = printParticipantAbort {
-
-        // Print the current transaction ID
+        transaction with oncommit = printParticipantCommit, 
+                         onabort = printParticipantAbort {
+        
+            // Print the current transaction ID
             log:printInfo("Joined transaction: " +
-                    transactions:getCurrentTransactionId());
-
+                           transactions:getCurrentTransactionId());
+            
             var updateReq = untaint req.getJsonPayload();
             match updateReq {
                 json updateReqJson => {
-                    string msg =
+                    string msg = 
                         io:sprintf("Update stock quote request received.
                                     symbol:%j, price:%j",
-                            updateReqJson.symbol,
-                            updateReqJson.price);
+                                    updateReqJson.symbol,
+                                    updateReqJson.price);
                     log:printInfo(msg);
 
                     json jsonRes = { "message": "updating stock" };
@@ -52,10 +52,10 @@ service<http:Service> ParticipantService bind { port: 8889 } {
             var result = conn->respond(res);
             match result {
                 error e =>
-                log:printError("Could not send response back to initiator",
-                    err = e);
-                () =>
-                log:printInfo("Sent response back to initiator");
+                     log:printError("Could not send response back to initiator",
+                                     err = e);
+                () => 
+                   log:printInfo("Sent response back to initiator");
             }
         }
     }

@@ -1,5 +1,0 @@
-To run the match.bal to execute this example, place this file in a specific location and issue this command.
-$ ballerina run match.bal
-value: value1
-value is ()
-key 'key3' not found

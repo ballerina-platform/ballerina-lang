@@ -3,7 +3,7 @@ import ballerina/log;
 
 // Create an endpoint for the client.
 endpoint http:Client clientEP {
-    url: "http://www.mocky.io"
+    url:"http://www.mocky.io"
 };
 
 function main(string... args) {
