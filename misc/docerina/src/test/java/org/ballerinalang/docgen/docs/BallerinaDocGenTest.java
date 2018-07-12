@@ -93,14 +93,14 @@ public class BallerinaDocGenTest {
             SourceDirectory srcDirectory = new FileSystemProjectDirectory(Paths.get(path));
             List<String> sourcePackageNames = srcDirectory.getSourcePackageNames();
             BallerinaDocGenerator.generateApiDocs(path, testResourceRoot + File.separator + "api-docs", null, false,
-                    true, sourcePackageNames.toArray(new String[sourcePackageNames.size()]));
+                    sourcePackageNames.toArray(new String[0]));
             Map<String, PackageDoc> docsMap = BallerinaDocDataHolder.getInstance().getPackageMap();
             Assert.assertNotNull(docsMap);
             // this folder has 3 bal files. 2 bal files out of those are in same package.
             Assert.assertEquals(docsMap.size(), 2);
             // assert package names
-            Assert.assertEquals(docsMap.containsKey("a.b"), true);
-            Assert.assertEquals(docsMap.containsKey("a.b.c"), true);
+            Assert.assertTrue(docsMap.containsKey("a.b"));
+            Assert.assertTrue(docsMap.containsKey("a.b.c"));
         } catch (IOException e) {
             Assert.fail();
         } finally {
@@ -119,7 +119,7 @@ public class BallerinaDocGenTest {
 
             Assert.assertEquals(BallerinaDocDataHolder.getInstance().getPackageMap().size(), 1);
             // assert package names
-            Assert.assertEquals(BallerinaDocDataHolder.getInstance().getPackageMap().containsKey("a.b"), true);
+            Assert.assertTrue(BallerinaDocDataHolder.getInstance().getPackageMap().containsKey("a.b"));
         } catch (IOException e) {
             Assert.fail();
         } finally {
