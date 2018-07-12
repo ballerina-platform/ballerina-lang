@@ -32,6 +32,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -55,6 +57,8 @@ import org.wso2.ballerinalang.programfile.InstructionCodes;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 
@@ -92,6 +96,7 @@ public class HttpFiltersDesugar {
     private static final String ORG_NAME = "ballerina";
     private static final String PACKAGE_NAME = "http";
     private static final String ENDPOINT_TYPE_NAME = "Listener";
+    private static final String ORG_SEPARATOR = "/";
 
     private static final int ENDPOINT_PARAM_NUM = 0;
     private static final int REQUEST_PARAM_NUM = 1;
@@ -149,7 +154,7 @@ public class HttpFiltersDesugar {
      * @param env          the symbol environment.
      */
     private BLangVariable addFilterContextCreation(BLangResource resourceNode, SymbolEnv env) {
-        BLangIdentifier pkgAlias = ASTBuilderUtil.createIdentifier(resourceNode.pos, "http");
+        BLangIdentifier pkgAlias = ASTBuilderUtil.createIdentifier(resourceNode.pos, getPackageAlias(env));
         BLangUserDefinedType filterContextUserDefinedType = new BLangUserDefinedType(
                 pkgAlias, ASTBuilderUtil.createIdentifier(resourceNode.pos, "FilterContext"));
         BType filterContextType = symResolver.resolveTypeNode(filterContextUserDefinedType, env);
@@ -199,6 +204,21 @@ public class HttpFiltersDesugar {
         filterContextVar.typeNode = filterContextUserDefinedType;
         resourceNode.body.stmts.add(0, ASTBuilderUtil.createVariableDef(resourceNode.pos, filterContextVar));
         return filterContextVar;
+    }
+
+    /**
+     * Get the alias name of the http import
+     *
+     * @param env the symbol environment.
+     * @return the alias name.
+     */
+    private String getPackageAlias(SymbolEnv env) {
+        AtomicReference<String> aliasName = new AtomicReference<>(PACKAGE_NAME);
+        Optional<BLangImportPackage> importPackage = ((BLangPackage) env.enclEnv.node).imports.stream()
+                .filter(imports -> imports.symbol.pkgID.toString().equals(ORG_NAME + ORG_SEPARATOR + PACKAGE_NAME))
+                .findFirst();
+        importPackage.ifPresent(importStmt -> aliasName.set(importStmt.alias.getValue()));
+        return aliasName.get();
     }
 
     /**
