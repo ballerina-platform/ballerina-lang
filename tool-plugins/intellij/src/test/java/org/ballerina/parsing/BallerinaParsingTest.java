@@ -92,7 +92,7 @@ public class BallerinaParsingTest extends ParsingTestCase {
         }
     }
 
-    protected void doTest(File resource, boolean checkResult) {
+    private void doTest(File resource, boolean checkResult) {
 
         try {
             String name = resource.getName().replace("." + myFileExt, EMPTY_STRING);

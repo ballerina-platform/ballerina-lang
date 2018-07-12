@@ -40,30 +40,26 @@ public class BallerinaFormattingTest extends BallerinaCodeInsightFixtureTestCase
         return "src/test/resources/testData/formatting/BBE";
     }
 
-    protected String getExpectedResultsRelativePath(String relativeDataPath) {
-        return relativeDataPath.replace("examples", "expectedResults");
-    }
-
     //this test validates the formatting for the ballerina-by-examples
-    public void testForBBE() throws RuntimeException {
+    public void testBBE() throws RuntimeException {
         //This flag is used to include/filter BBE testerina files for the formatting testing
         boolean includeTests = false;
         Path path = Paths.get(getTestDataPath());
-        doTestDirectory(path, includeTests);
+        doTestBBEDirectory(path, includeTests);
     }
 
-    private void doTestDirectory(Path path, boolean includeTests) throws RuntimeException {
+    private void doTestBBEDirectory(Path path, boolean includeTests) throws RuntimeException {
         try {
             File resource = path.toFile();
             if (!resource.exists()) {
                 return;
             } else if (resource.isFile() && resource.getName().endsWith(".bal")) {
-                doTest(resource, null);
+                doTestBBEFile(resource, null);
                 //if the resource is a directory, recursively test the sub directories/files accordingly
             } else if (resource.isDirectory() && (includeTests || !resource.getName().contains("tests"))) {
                 DirectoryStream<Path> ds = Files.newDirectoryStream(path);
                 for (Path subPath : ds) {
-                    doTestDirectory(subPath, includeTests);
+                    doTestBBEDirectory(subPath, includeTests);
                 }
                 ds.close();
             }
@@ -72,7 +68,7 @@ public class BallerinaFormattingTest extends BallerinaCodeInsightFixtureTestCase
         }
     }
 
-    private void doTest(File resource, @Nullable Character c) {
+    private void doTestBBEFile(File resource, @Nullable Character c) {
         String relativeFilePath = resource.getPath().replace(getTestDataPath(), EMPTY_STRING);
         myFixture.configureByFile(relativeFilePath);
         if (c == null) {
@@ -82,7 +78,7 @@ public class BallerinaFormattingTest extends BallerinaCodeInsightFixtureTestCase
         } else {
             myFixture.type(c);
         }
-        myFixture.checkResultByFile(relativeFilePath, getExpectedResultsRelativePath(relativeFilePath), true);
+        myFixture.checkResultByFile(relativeFilePath, relativeFilePath.replace("examples", "expectedResults"), true);
         // To debug - Comment the above line and uncomment these lines and add expected result.
         // String result = "";
         // myFixture.checkResult(result);
