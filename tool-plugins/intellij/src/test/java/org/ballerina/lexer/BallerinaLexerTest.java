@@ -25,6 +25,7 @@ import io.ballerina.plugins.idea.lexer.BallerinaLexerAdapter;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -38,8 +39,9 @@ import static io.netty.util.internal.StringUtil.EMPTY_STRING;
  */
 public class BallerinaLexerTest extends LexerTestCase {
 
-    private final String testDataPath =  "src/test/resources/testData/lexer/BBE";
-    private final String expectedResultsPath  = "src/test/resources/testData/lexer/BBE";
+    private final String testDataPath = "../../composer/modules/integration-tests/src/test/resources/ballerina"
+            + "-examples/examples/";
+    private final String expectedResultsPath = "src/test/resources/testData/lexer/BBE/expectedResults/";
 
     private String getTestDataDirectoryPath() {
         return testDataPath;
@@ -50,10 +52,13 @@ public class BallerinaLexerTest extends LexerTestCase {
     }
 
     //this test validates the lexer token generation the ballerina-by-examples
-    public void testForBBE() throws RuntimeException {
+    public void testForBBE() throws RuntimeException, FileNotFoundException {
         //This flag is used to include/filter BBE testerina files in lexer testing
         boolean includeTests = false;
         Path path = Paths.get(getTestDataDirectoryPath());
+        if (!path.toFile().exists()) {
+            throw new FileNotFoundException(path.toString());
+        }
         doTestDirectory(path, includeTests);
     }
 
