@@ -77,8 +77,7 @@ public class LaunchManager {
     }
 
     public void pushLogToClient(String logLine) {
-        pushMessageToClient(launchSession, LauncherConstants.OUTPUT,
-                LauncherConstants.TRACE, logLine);
+        pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.TRACE, logLine);
     }
 
     private void run(Command command) {
@@ -106,7 +105,6 @@ public class LaunchManager {
 
             command.setProgram(program);
 
-
             pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STARTED, LauncherConstants.INFO,
                     String.format(LauncherConstants.RUN_MESSAGE, command.getFileName()));
 
@@ -117,34 +115,20 @@ public class LaunchManager {
                 pushMessageToClient(launchSession, debugMessage);
             }
 
-            new Thread(new Runnable() {
-                public void run() {
-                    LogParser.getLogParserInstance().startListener(launchManagerInstance);
-                }
-            }).start();
+            new Thread(() -> LogParser.getLogParserInstance().startListener(launchManagerInstance)).start();
 
             // start a new thread to stream command output.
-            Runnable output = new Runnable() {
-                public void run() {
-                    LaunchManager.this.streamOutput();
-                }
-            };
+            Runnable output = LaunchManager.this::streamOutput;
             (new Thread(output)).start();
-            Runnable error = new Runnable() {
-                public void run() {
-                    LaunchManager.this.streamError();
-                }
-            };
-            (new Thread(error)).start();
 
+            Runnable error = LaunchManager.this::streamError;
+            (new Thread(error)).start();
         } catch (IOException e) {
             pushMessageToClient(launchSession, LauncherConstants.EXIT, LauncherConstants.ERROR, e.getMessage());
         }
-
-
     }
 
-    public void streamOutput() {
+    private void streamOutput() {
         try (InputStream inputStream = this.command.getProgram().getInputStream()) {
             while (this.command != null && this.command.getProgram().isAlive()) {
                 String output = consumeStreamOutput(inputStream);
@@ -163,6 +147,7 @@ public class LaunchManager {
                         // This is to handle local service run use case.
                         if (line.startsWith(LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL)
                                 && getServerStartedURL() == null) {
+                            // This is to handle local service run use case.
                             this.updatePort(line);
                             pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);
                         } else {
@@ -179,7 +164,7 @@ public class LaunchManager {
         }
     }
 
-    public void streamError() {
+    private void streamError() {
         try (InputStream inputStream = this.command.getProgram().getErrorStream()) {
             while (this.command != null && this.command.getProgram().isAlive()) {
                 String output = consumeStreamOutput(inputStream);
@@ -197,7 +182,7 @@ public class LaunchManager {
         }
     }
 
-    public void pushMessageToProcess(String[] input) {
+    private void pushMessageToProcess(String[] input) {
         if (input.length > 0 && this.command != null && this.command.getProgram().isAlive()) {
             try {
                 PrintWriter pw = new PrintWriter(this.command.getProgram().getOutputStream());
@@ -359,8 +344,7 @@ public class LaunchManager {
     private String getPort(String line) {
         String hostPort = StringUtils.substringAfterLast(line,
                 LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL).trim();
-        String port = StringUtils.substringAfterLast(hostPort, ":");
-        return port;
+        return StringUtils.substringAfterLast(hostPort, ":");
     }
 
     /**
