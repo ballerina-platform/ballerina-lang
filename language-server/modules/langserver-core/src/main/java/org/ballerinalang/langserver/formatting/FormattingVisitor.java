@@ -484,17 +484,26 @@ public class FormattingVisitor {
             }
 
             if (node.has("parameters")) {
-                for (int i = 0; i < node.getAsJsonArray("parameters").size(); i++) {
-                    if (node.getAsJsonArray("parameters")
-                            .get(i).getAsJsonObject().has("typeNode")) {
+                JsonArray parameters = node.getAsJsonArray("parameters");
+
+                for (int i = 0; i < parameters.size(); i++) {
+                    if (parameters.get(i).getAsJsonObject().has("typeNode")) {
                         if (i == 0) {
-                            node.getAsJsonArray("parameters").get(i)
-                                    .getAsJsonObject().get("typeNode").getAsJsonObject().get("ws")
-                                    .getAsJsonObject().addProperty("ws", EMPTY_SPACE);
+                            parameters.get(i).getAsJsonObject()
+                                    .getAsJsonObject("position").addProperty("startColumn",
+                                    node.getAsJsonObject("position").get("startColumn").getAsInt());
+                            parameters.get(i).getAsJsonObject().get("typeNode")
+                                    .getAsJsonObject().getAsJsonObject("position").addProperty("startColumn",
+                                    node.getAsJsonObject("position").get("startColumn").getAsInt());
                         } else {
-                            node.getAsJsonArray("parameters").get(i)
-                                    .getAsJsonObject().get("typeNode").getAsJsonObject().get("ws")
-                                    .getAsJsonObject().addProperty("ws", SINGLE_SPACE);
+                            parameters.get(i).getAsJsonObject()
+                                    .getAsJsonObject("position").addProperty("startColumn",
+                                    node.getAsJsonObject("position").get("startColumn").getAsInt() +
+                                            this.getWhiteSpaceCount(SINGLE_SPACE));
+                            parameters.get(i).getAsJsonObject().get("typeNode")
+                                    .getAsJsonObject().getAsJsonObject("position").addProperty("startColumn",
+                                    node.getAsJsonObject("position").get("startColumn").getAsInt() +
+                                            this.getWhiteSpaceCount(SINGLE_SPACE));
                         }
                     }
                 }
@@ -525,6 +534,36 @@ public class FormattingVisitor {
                             .addProperty("startColumn", node.getAsJsonObject("position").get("startColumn")
                                     .getAsInt());
                 }
+            }
+
+            if (node.has("restParameters")) {
+                node.getAsJsonObject("restParameters").getAsJsonObject("position").addProperty("startColumn",
+                        node.getAsJsonObject("position").get("startColumn").getAsInt());
+
+                if (node.getAsJsonObject("restParameters").has("typeNode") && node
+                        .getAsJsonObject("restParameters").getAsJsonObject().get("typeNode")
+                        .getAsJsonObject().has("elementType")) {
+                    if (node.has("parameters") &&
+                            (node.getAsJsonArray("parameters").size() > 0)) {
+                        node.getAsJsonObject("restParameters").getAsJsonObject().get("typeNode")
+                                .getAsJsonObject().get("elementType").getAsJsonObject().getAsJsonObject("position")
+                                .addProperty("startColumn", node.getAsJsonObject("position")
+                                        .get("startColumn").getAsInt() + this.getWhiteSpaceCount(SINGLE_SPACE));
+                    } else {
+                        node.getAsJsonObject("restParameters").getAsJsonObject().get("typeNode")
+                                .getAsJsonObject().get("elementType").getAsJsonObject().getAsJsonObject("position")
+                                .addProperty("startColumn", node.getAsJsonObject("position")
+                                        .get("startColumn").getAsInt() + this.getWhiteSpaceCount(EMPTY_SPACE));
+                    }
+                }
+            }
+
+            if (node.has("returnTypeNode") &&
+                    node.has("hasReturns") &&
+                    node.get("hasReturns").getAsBoolean()) {
+                node.getAsJsonObject("returnTypeNode").getAsJsonObject("position").addProperty("startColumn",
+                        node.getAsJsonObject("position").get("startColumn").getAsInt() +
+                                this.getWhiteSpaceCount(SINGLE_SPACE));
             }
         }
     }
@@ -564,14 +603,26 @@ public class FormattingVisitor {
                 JsonArray parameters = node.getAsJsonArray("parameters");
                 for (int i = 0; i < parameters.size(); i++) {
                     if (parameters.get(i).getAsJsonObject().has("typeNode")) {
+                        parameters.get(i).getAsJsonObject().get("typeNode")
+                                .getAsJsonObject().getAsJsonObject("position").addProperty("startColumn",
+                                node.getAsJsonObject("position").get("startColumn").getAsInt());
+
                         if (i == 0) {
-                            parameters.get(i).getAsJsonObject().get("typeNode").getAsJsonObject()
-                                    .getAsJsonArray("ws").get(0)
-                                    .getAsJsonObject().addProperty("ws", EMPTY_SPACE);
+                            parameters.get(i).getAsJsonObject().getAsJsonObject("position")
+                                    .addProperty("startColumn", node.getAsJsonObject("position")
+                                            .get("startColumn").getAsInt());
+                            parameters.get(i).getAsJsonObject().get("typeNode")
+                                    .getAsJsonObject().getAsJsonObject("position").addProperty("startColumn",
+                                    node.getAsJsonObject("position").get("startColumn").getAsInt());
                         } else {
-                            parameters.get(i).getAsJsonObject().get("typeNode").getAsJsonObject()
-                                    .getAsJsonArray("ws").get(0)
-                                    .getAsJsonObject().addProperty("ws", SINGLE_SPACE);
+                            parameters.get(i).getAsJsonObject().getAsJsonObject("position")
+                                    .addProperty("startColumn", node.getAsJsonObject("position")
+                                            .get("startColumn").getAsInt() +
+                                            this.getWhiteSpaceCount(SINGLE_SPACE));
+                            parameters.get(i).getAsJsonObject().get("typeNode")
+                                    .getAsJsonObject().getAsJsonObject("position").addProperty("startColumn",
+                                    node.getAsJsonObject("position").get("startColumn").getAsInt() +
+                                            this.getWhiteSpaceCount(SINGLE_SPACE));
                         }
                     }
                 }

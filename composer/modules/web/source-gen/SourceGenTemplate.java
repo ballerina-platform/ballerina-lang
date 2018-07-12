@@ -732,7 +732,7 @@ public class SourceGen {
             }
         }
 
-        if (kind.equals("Literal") && parentKind.equals("StringTemplateLiteral")) {
+        if (kind.equals("Literal") && !parentKind.equals("StringTemplateLiteral")) {
             if (node.has("ws")
                     && node.getAsJsonArray("ws").size() == 1
                     && node.getAsJsonArray("ws").get(0).getAsJsonObject().has("text")) {
