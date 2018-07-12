@@ -17,7 +17,6 @@
 package org.ballerinalang.composer.service.ballerina.launcher.service;
 
 import com.google.gson.Gson;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.composer.server.core.ServerConfig;
 import org.ballerinalang.composer.service.ballerina.launcher.service.dto.CommandDTO;
@@ -27,11 +26,11 @@ import org.ballerinalang.composer.service.ballerina.launcher.service.util.LogPar
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.HashSet;
 import javax.websocket.Session;
 
@@ -52,7 +51,7 @@ public class LaunchManager {
 
     private Session launchSession;
 
-    private Command command;
+    private volatile Command command;
 
     private HashSet<String> ports = new HashSet<String>();
 
@@ -146,61 +145,82 @@ public class LaunchManager {
     }
 
     public void streamOutput() {
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new InputStreamReader(this.command.getProgram().getInputStream(), Charset
-                    .defaultCharset()));
-            String line = "";
-            while ((line = reader.readLine()) != null) {
-                // improve "server connector started" log message to have the service URL in it.
-                // This is to handle the cloud use case.
-                if (line.startsWith(LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_CLOUD)
-                        && getServerStartedURL() != null) {
-                    this.updatePort(getServerStartedURL());
-                    line = LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_CLOUD + " "
-                            + getServerStartedURL();
-                }
+        try (InputStream inputStream = this.command.getProgram().getInputStream()) {
+            while (this.command != null && this.command.getProgram().isAlive()) {
+                String output = consumeStreamOutput(inputStream);
+                if (!output.isEmpty()) {
+                    String[] lines = output.split(System.lineSeparator());
+                    for (String line : lines) {
+                        // improve "server connector started" log message to have the service URL in it.
+                        // This is to handle the cloud use case.
+                        if (line.startsWith(LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_CLOUD)
+                                && getServerStartedURL() != null) {
+                            this.updatePort(getServerStartedURL());
+                            line = LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_CLOUD + " "
+                                    + getServerStartedURL();
+                        }
 
-                // This is to handle local service run use case.
-                if (line.startsWith(LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL)
-                        && getServerStartedURL() == null) {
-                    this.updatePort(line);
-                    pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);
-                } else {
-                    pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);
+                        // This is to handle local service run use case.
+                        if (line.startsWith(LauncherConstants.SERVER_CONNECTOR_STARTED_AT_HTTP_LOCAL)
+                                && getServerStartedURL() == null) {
+                            this.updatePort(line);
+                            pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);
+                        } else {
+                            pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);
+                        }
+                    }
                 }
-
             }
             pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STOPPED, LauncherConstants.INFO,
-                    LauncherConstants.END_MESSAGE);
+                                LauncherConstants.END_MESSAGE);
             LogParser.getLogParserInstance().stopListner();
         } catch (IOException e) {
             logger.error("Error while sending output stream to client.", e);
-        } finally {
-            if (reader != null) {
-                IOUtils.closeQuietly(reader);
-            }
         }
     }
 
     public void streamError() {
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new InputStreamReader(
-                    this.command.getProgram().getErrorStream(), Charset.defaultCharset()));
-            String line = "";
-            while ((line = reader.readLine()) != null) {
-                if (this.command.isErrorOutputEnabled()) {
-                    pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.ERROR, line);
+        try (InputStream inputStream = this.command.getProgram().getErrorStream()) {
+            while (this.command != null && this.command.getProgram().isAlive()) {
+                String output = consumeStreamOutput(inputStream);
+                if (!output.isEmpty()) {
+                    String[] lines = output.split(System.lineSeparator());
+                    for (String line : lines) {
+                        if (this.command.isErrorOutputEnabled()) {
+                            pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.ERROR, line);
+                        }
+                    }
                 }
             }
         } catch (IOException e) {
             logger.error("Error while sending error stream to client.", e);
-        } finally {
-            if (reader != null) {
-                IOUtils.closeQuietly(reader);
+        }
+    }
+
+    public void pushMessageToProcess(String[] input) {
+        if (input.length > 0 && this.command != null && this.command.getProgram().isAlive()) {
+            try {
+                PrintWriter pw = new PrintWriter(this.command.getProgram().getOutputStream());
+                pw.println(input[0]);
+                pw.flush();
+            } catch (Exception e) {
+                logger.error("Error while sending input stream to client.", e);
             }
         }
+    }
+
+    private String consumeStreamOutput(InputStream inputStream) throws IOException {
+        StringWriter outputWriter = new StringWriter();
+        boolean stop = false;
+        while (!stop) {
+            int rv;
+            if (inputStream.available() > 0 && (rv = inputStream.read()) != -1) {
+                outputWriter.write(rv);
+            } else {
+                stop = true;
+            }
+        }
+        return outputWriter.toString();
     }
 
     /**
@@ -208,29 +228,33 @@ public class LaunchManager {
      */
     public void stopProcess() {
         int pid = -1;
-        if (this.command != null && this.command.getProgram().isAlive()) {
-            //shutdown error streaming to prevent kill message displaying to user.
-            this.command.setErrorOutputEnabled(false);
+        try {
+            if (this.command != null && this.command.getProgram().isAlive()) {
+                //shutdown error streaming to prevent kill message displaying to user.
+                this.command.setErrorOutputEnabled(false);
 
-            String os = getOperatingSystem();
-            if (os == null) {
-                logger.error("unsupported operating system");
-                pushMessageToClient(launchSession, LauncherConstants.UNSUPPORTED_OPERATING_SYSTEM,
-                        LauncherConstants.ERROR, LauncherConstants.TERMINATE_MESSAGE);
-                return;
-            }
-            Terminator terminator = new TerminatorFactory().getTerminator(os, this.command);
-            if (terminator == null) {
-                logger.error("unsupported operating system");
-                pushMessageToClient(launchSession, LauncherConstants.UNSUPPORTED_OPERATING_SYSTEM,
-                        LauncherConstants.ERROR, LauncherConstants.TERMINATE_MESSAGE);
-                return;
-            }
+                String os = getOperatingSystem();
+                if (os == null) {
+                    logger.error("unsupported operating system");
+                    pushMessageToClient(launchSession, LauncherConstants.UNSUPPORTED_OPERATING_SYSTEM,
+                                        LauncherConstants.ERROR, LauncherConstants.TERMINATE_MESSAGE);
+                    return;
+                }
+                Terminator terminator = new TerminatorFactory().getTerminator(os, this.command);
+                if (terminator == null) {
+                    logger.error("unsupported operating system");
+                    pushMessageToClient(launchSession, LauncherConstants.UNSUPPORTED_OPERATING_SYSTEM,
+                                        LauncherConstants.ERROR, LauncherConstants.TERMINATE_MESSAGE);
+                    return;
+                }
 
-            terminator.terminate();
-            LogParser.getLogParserInstance().stopListner();
-            pushMessageToClient(launchSession, LauncherConstants.EXECUTION_TERMINATED, LauncherConstants.INFO,
-                    LauncherConstants.TERMINATE_MESSAGE);
+                terminator.terminate();
+                LogParser.getLogParserInstance().stopListner();
+                pushMessageToClient(launchSession, LauncherConstants.EXECUTION_TERMINATED, LauncherConstants.INFO,
+                                    LauncherConstants.TERMINATE_MESSAGE);
+            }
+        } finally {
+            this.command = null;
         }
     }
 
@@ -278,6 +302,9 @@ public class LaunchManager {
                 break;
             case LauncherConstants.TERMINATE:
                 stopProcess();
+                break;
+            case LauncherConstants.INPUT:
+                pushMessageToProcess(command.getCommandArgs());
                 break;
             case LauncherConstants.PING:
                 message = new MessageDTO();
