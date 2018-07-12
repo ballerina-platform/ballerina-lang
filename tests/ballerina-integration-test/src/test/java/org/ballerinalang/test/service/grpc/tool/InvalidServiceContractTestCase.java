@@ -42,8 +42,8 @@ public class InvalidServiceContractTestCase {
     @BeforeClass
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
-        resourceDir = Paths.get(InvalidServiceContractTestCase.class.getProtectionDomain().getCodeSource().getLocation()
-                .toURI().getPath());
+        resourceDir = Paths.get(new File(InvalidServiceContractTestCase.class.getProtectionDomain().getCodeSource()
+                .getLocation().toURI().getPath()).getAbsolutePath());
     }
 
     @Test
