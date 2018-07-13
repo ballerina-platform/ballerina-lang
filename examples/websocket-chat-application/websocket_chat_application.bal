@@ -47,8 +47,8 @@ service<http:WebSocketService> chatApp {
     // broadcast that the user has joined the chat.
     onOpen(endpoint caller) {
         string msg;
-        msg = getAttributeStr(caller, NAME) + " with age"
-            + getAttributeStr(caller, AGE) + " connected to chat";
+        msg = getAttributeStr(caller, NAME) + " with age "
+                    + getAttributeStr(caller, AGE) + " connected to chat";
         broadcast(msg);
         connectionsMap[caller.id] = caller;
     }
@@ -63,7 +63,7 @@ service<http:WebSocketService> chatApp {
     // Broadcast that a user has left the chat once a user leaves the chat.
     onClose(endpoint caller, int statusCode, string reason) {
         _ = connectionsMap.remove(caller.id);
-        string msg = getAttributeStr(caller, NAME) + "left the chat";
+        string msg = getAttributeStr(caller, NAME) + " left the chat";
         broadcast(msg);
     }
 }
