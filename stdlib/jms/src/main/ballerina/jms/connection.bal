@@ -14,40 +14,37 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation { Represents JMS Connection
-    F{{config}} Used to store configurations related to a JMS connection
-}
+# Represents JMS Connection
+#
+# + config - Used to store configurations related to a JMS connection
 public type Connection object {
 
     public ConnectionConfiguration config;
 
-    documentation { JMS connection constructor
-    }
+    # JMS connection constructor
     public new(config) {
         createConnection();
     }
 
     native function createConnection();
 
-    documentation { Starts (or restarts) a connection's delivery of incoming messages.
-         A call to start on a connection that has already been started is ignored.
-    }
+    # Starts (or restarts) a connection's delivery of incoming messages.
+    # A call to start on a connection that has already been started is ignored.
     public native function start();
 
-    documentation { Temporarily stops a connection's delivery of incoming messages.
-        Delivery can be restarted using the connection's start method.
-    }
+    # Temporarily stops a connection's delivery of incoming messages.
+    # Delivery can be restarted using the connection's start method.
     public native function stop();
 };
 
-documentation { Configurations related to a JMS connection
-    F{{initialContextFactory}} JMS provider specific inital context factory
-    F{{providerUrl}} JMS provider specific provider URL used to configure a connection
-    F{{connectionFactoryName}} JMS connection factory to be used in creating JMS connections
-    F{{username}} Username for the JMS connection
-    F{{password}} Password for the JMS connection
-    F{{properties}} Additional properties use in initializing the initial context
-}
+# Configurations related to a JMS connection
+#
+# + initialContextFactory - JMS provider specific inital context factory
+# + providerUrl - JMS provider specific provider URL used to configure a connection
+# + connectionFactoryName - JMS connection factory to be used in creating JMS connections
+# + username - Username for the JMS connection
+# + password - Password for the JMS connection
+# + properties - Additional properties use in initializing the initial context
 public type ConnectionConfiguration record {
     string initialContextFactory = "wso2mbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
