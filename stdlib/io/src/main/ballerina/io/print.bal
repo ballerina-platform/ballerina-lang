@@ -14,20 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Prints 'any' value to the STDOUT.
-}
+# Prints 'any' value to the STDOUT.
 public native function print(any... a);
 
-documentation {
-    Prints an any value to the STDOUT in a new line.
-}
+# Prints an any value to the STDOUT in a new line.
 public native function println(any... a);
 
-documentation {
-    Returns a formatted string using the specified format string and arguments.
-
-    P{{format}} Represent the format of the string which should be returned
-    R{{}} Formatted string
-}
+# Returns a formatted string using the specified format string and arguments.
+#
+# + format - Represent the format of the string which should be returned
+# + return - Formatted string
 public native function sprintf(string format, any... args) returns (string);
