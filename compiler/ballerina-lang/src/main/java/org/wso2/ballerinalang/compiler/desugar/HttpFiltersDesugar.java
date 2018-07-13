@@ -203,7 +203,7 @@ public class HttpFiltersDesugar {
     }
 
     /**
-     * Get the alias name of the http import
+     * Get the alias name of the http import.
      *
      * @param env the symbol environment.
      * @return the alias name.
