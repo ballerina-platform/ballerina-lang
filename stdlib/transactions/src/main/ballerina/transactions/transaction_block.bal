@@ -14,22 +14,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    When a transaction block in Ballerina code begins, it will call this function to begin a transaction.
-    If this is a new transaction (transactionId == () ), then this instance will become the initiator and will
-    create a new transaction context.
-    If the participant and initiator are in the same process, this transaction block will register with the local
-    initiator via a local function call.
-    If the participant and initiator are in different processes, this transaction block will register with the remote
-    initiator via a network call.
-
-    P{{transactionId}} - Globally unique transaction ID. If this is a new transaction which is initiated, then this
-                         will be null.
-                         If this is a participant in an existing transaction, then it will have a value.
-    P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
-    P{{registerAtUrl}} - The URL of the initiator
-    P{{coordinationType}} - Coordination type of this transaction
-}
+# When a transaction block in Ballerina code begins, it will call this function to begin a transaction.
+# If this is a new transaction (transactionId == () ), then this instance will become the initiator and will
+# create a new transaction context.
+# If the participant and initiator are in the same process, this transaction block will register with the local
+# initiator via a local function call.
+# If the participant and initiator are in different processes, this transaction block will register with the remote
+# initiator via a network call.
+#
+# + transactionId - Globally unique transaction ID. If this is a new transaction which is initiated, then this
+#                   will be null.
+#                   If this is a participant in an existing transaction, then it will have a value.
+# + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
+# + registerAtUrl - The URL of the initiator
+# + coordinationType - Coordination type of this transaction
 function beginTransaction(string? transactionId, int transactionBlockId, string registerAtUrl,
                           string coordinationType) returns TransactionContext|error {
     match transactionId {
@@ -52,12 +50,10 @@ function beginTransaction(string? transactionId, int transactionBlockId, string 
     }
 }
 
-documentation {
-    When an abort statement is executed, this function gets called.
-
-    P{{transactionId}} - Globally unique transaction ID.
-    P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
-}
+# When an abort statement is executed, this function gets called.
+#
+# + transactionId - Globally unique transaction ID.
+# + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 function abortTransaction(string transactionId, int transactionBlockId) returns error? {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     match (participatedTransactions[participatedTxnId]) {
@@ -78,15 +74,13 @@ function abortTransaction(string transactionId, int transactionBlockId) returns 
     }
 }
 
-documentation {
-    When a transaction block in Ballerina code ends, it will call this function to end a transaction.
-    Ending a transaction by a participant has no effect because it is the initiator who can decide whether to
-    commit or abort a transaction.
-    Depending on the state of the transaction, the initiator decides to commit or abort the transaction.
-
-    P{{transactionId}} - Globally unique transaction ID.
-    P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
-}
+# When a transaction block in Ballerina code ends, it will call this function to end a transaction.
+# Ending a transaction by a participant has no effect because it is the initiator who can decide whether to
+# commit or abort a transaction.
+# Depending on the state of the transaction, the initiator decides to commit or abort the transaction.
+#
+# + transactionId - Globally unique transaction ID.
+# + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 function endTransaction(string transactionId, int transactionBlockId) returns string|error {
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     if (!initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
@@ -116,12 +110,10 @@ function endTransaction(string transactionId, int transactionBlockId) returns st
     }
 }
 
-documentation {
-    Checks whether this instance is an initiator. Returns true if initiator.
-
-    P{{transactionId}} - Globally unique transaction ID.
-    P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
-}
+# Checks whether this instance is an initiator. Returns true if initiator.
+#
+# + transactionId - Globally unique transaction ID.
+# + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 function isInitiator(string transactionId, int transactionBlockId) returns boolean {
     if (initiatedTransactions.hasKey(transactionId)) {
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
@@ -132,33 +124,25 @@ function isInitiator(string transactionId, int transactionBlockId) returns boole
     return false;
 }
 
-documentation {
-    Prepare local resource managers.
-
-    P{{transactionId}} - Globally unique transaction ID.
-    P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
-}
+# Prepare local resource managers.
+#
+# + transactionId - Globally unique transaction ID.
+# + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 native function prepareResourceManagers(string transactionId, int transactionBlockId) returns boolean;
 
-documentation {
-    Commit local resource managers.
-
-    P{{transactionId}} - Globally unique transaction ID.
-    P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
-}
+# Commit local resource managers.
+#
+# + transactionId - Globally unique transaction ID.
+# + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 native function commitResourceManagers(string transactionId, int transactionBlockId) returns boolean;
 
-documentation {
-    Abort local resource managers.
-
-    P{{transactionId}} - Globally unique transaction ID.
-    P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
-}
+# Abort local resource managers.
+#
+# + transactionId - Globally unique transaction ID.
+# + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 native function abortResourceManagers(string transactionId, int transactionBlockId) returns boolean;
 
-documentation {
-    Get the current transaction id. This function is useful for user code to save state against a transaction ID,
-    so that when the `oncommit` or `onabort` functions registered for a transaction can retrieve that state using the
-    transaction  that is passed in to those functions.
-}
+# Get the current transaction id. This function is useful for user code to save state against a transaction ID,
+# so that when the `oncommit` or `onabort` functions registered for a transaction can retrieve that state using the
+# transaction  that is passed in to those functions.
 public native function getCurrentTransactionId() returns string;
