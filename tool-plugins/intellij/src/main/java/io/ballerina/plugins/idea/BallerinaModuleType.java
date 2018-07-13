@@ -60,9 +60,10 @@ public class BallerinaModuleType extends ModuleType<BallerinaModuleBuilder> {
         return "Ballerina modules are used for developing <b>Ballerina</b> applications.";
     }
 
+    @Nullable
     @Override
     public Icon getBigIcon() {
-        return null;
+        return BallerinaIcons.ICON;
     }
 
     @Nullable
