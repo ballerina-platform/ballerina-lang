@@ -1050,6 +1050,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitChannelType(BallerinaParser.ChannelTypeContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        String typeName = ctx.getChild(0).getText();
+        this.pkgBuilder.addConstraintTypeWithTypeName(getCurrentPos(ctx), getWS(ctx), typeName);
+    }
+
+    @Override
     public void exitEndpointType(BallerinaParser.EndpointTypeContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -1547,6 +1557,22 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.addWorkerReceiveStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
+    }
+
+    @Override
+    public void exitChannelReceiveStatement(BallerinaParser.ChannelReceiveStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.addChannelReceiveStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
+    }
+
+    @Override
+    public void exitChannelSendStatement(BallerinaParser.ChannelSendStatementContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.addChannelReceiveStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
     }
 
     /**

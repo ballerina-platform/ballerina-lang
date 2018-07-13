@@ -158,6 +158,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangChannelReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
@@ -542,6 +543,7 @@ public class BLangPackageBuilder {
 
         addType(constrainedType);
     }
+
 
     void addConstraintTypeWithTypeName(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
         Set<Whitespace> refTypeWS = removeNthFromLast(ws, 2);
@@ -3294,5 +3296,15 @@ public class BLangPackageBuilder {
 
     void startOnCompensationBlock() {
         startFunctionDef();
+    }
+
+    void addChannelReceiveStmt(DiagnosticPos currentPos, Set<Whitespace> ws, String channelName) {
+        BLangChannelReceive channelReceiveNode = (BLangChannelReceive) TreeBuilder.createChannelReceiveNode();
+        channelReceiveNode.setChannelName(this.createIdentifier(channelName));
+        channelReceiveNode.setKey((BLangExpression) exprNodeStack.pop());
+        channelReceiveNode.setReceiverExpr((BLangExpression) exprNodeStack.pop());
+        channelReceiveNode.pos = currentPos;
+        channelReceiveNode.addWS(ws);
+        addStmtToCurrentBlock(channelReceiveNode);
     }
 }

@@ -140,6 +140,11 @@ annotationDefinition
 
 globalVariableDefinition
     :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
+    |   channelType Identifier SEMICOLON
+    ;
+
+channelType
+    : CHANNEL (LT typeName GT)
     ;
 
 attachmentPoint
@@ -285,6 +290,8 @@ statement
     |   doneStatement
     |   scopeStatement
     |   compensateStatement
+    |   channelReceiveStatement
+    |   channelSendStatement
     ;
 
 variableDefinitionStatement
@@ -491,6 +498,14 @@ triggerWorker
 // below left Identifier is of type WORKER and the right Identifier is of type message
 workerReply
     :   expression LARROW Identifier SEMICOLON
+    ;
+
+channelReceiveStatement
+    : expression LARROW Identifier COMMA expression SEMICOLON
+    ;
+
+channelSendStatement
+    : expression (COMMA expression)? RARROW Identifier SEMICOLON
     ;
 
 variableReference

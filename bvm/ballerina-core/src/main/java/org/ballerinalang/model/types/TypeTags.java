@@ -52,4 +52,5 @@ public class TypeTags {
     public static final int FINITE_TYPE_TAG = 31;
     public static final int OBJECT_TYPE_TAG = 32;
     public static final int RECORD_TYPE_TAG = 33;
+    public static final int CHANNEL_TAG = 34;
 }

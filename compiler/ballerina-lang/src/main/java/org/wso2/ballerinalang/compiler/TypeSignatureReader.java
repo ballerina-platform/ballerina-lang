@@ -134,6 +134,7 @@ public class TypeSignatureReader<T> {
                 return typeCreater.getBuiltinRefType(typeName);
             case 'M':
             case 'H':
+            case 'Q':
                 T constraintType = getBTypeFromDescriptor(typeCreater, desc.substring(1));
                 return typeCreater.getConstrainedType(ch, constraintType);
             case 'C':
@@ -189,7 +190,7 @@ public class TypeSignatureReader<T> {
     }
 
     public int createFunctionType(TypeCreater<T> typeCreater, char[] chars, int index, Stack<T> typeStack) {
-        // Skip the first parenthesis
+        // Skip the first parenthesis9
         index++;
 
         // Read function parameters
