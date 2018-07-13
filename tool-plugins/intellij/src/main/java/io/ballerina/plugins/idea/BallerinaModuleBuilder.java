@@ -79,12 +79,12 @@ public class BallerinaModuleBuilder extends JavaModuleBuilder implements SourceP
         new File(ballerinaCacheRoot).mkdirs();
         String ballerinaTomlFile = getContentEntryPath() + File.separator + "Ballerina.toml";
         File tomlFile = new File(ballerinaTomlFile);
-        String helloWorldServiceFile = getContentEntryPath() + File.separator + "hello_service.bal";
-        File serviceFile = new File(helloWorldServiceFile);
+        String helloServiceFile = getContentEntryPath() + File.separator + "hello_service.bal";
+        File balFile = new File(helloServiceFile);
         try {
             tomlFile.createNewFile();
-            serviceFile.createNewFile();
-            writeContent(serviceFile.toPath(), SERVICE_CONTENT);
+            balFile.createNewFile();
+            writeContent(balFile.toPath(), SERVICE_CONTENT);
             // Todo - Add some content to the toml file?
         } catch (IOException e) {
             LOG.debug(e);
