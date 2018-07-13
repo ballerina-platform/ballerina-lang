@@ -78,7 +78,7 @@ public class BallerinaDocCmd implements BLauncherCmd {
     @Parameter(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @Parameter(names = {"--help", "-h"}, hidden = true)
+    @Parameter(names = {"--offline"}, hidden = true)
     private boolean offline;
 
     @Override
