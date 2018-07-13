@@ -1,2 +1,0 @@
-// JSON array literals are written exactly the same way as Ballerina arrays.
-// JSON array values must be of type string, number, object, array, boolean, or null.

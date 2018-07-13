@@ -1,2 +1,0 @@
-// This sample demonstrates how XML content can be read from a file and written
-// to a file using character channel `readXml()` and `writeXml()` of the I/O API.

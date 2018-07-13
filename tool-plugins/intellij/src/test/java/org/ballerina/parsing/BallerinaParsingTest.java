@@ -37,8 +37,8 @@ import static io.netty.util.internal.StringUtil.EMPTY_STRING;
  */
 public class BallerinaParsingTest extends ParsingTestCase {
 
-    private final String testDataPath = "../../composer/modules/integration-tests/src/test/resources/ballerina"
-            + "-examples/examples";
+    private final String testDataPath =
+            "../../composer/modules/integration-tests/src/test/resources/ballerina" + "-examples/examples";
     private final String expectedResultsPath = "src/test/resources/testData/parsing/BBE/expectedResults";
 
     public BallerinaParsingTest() {

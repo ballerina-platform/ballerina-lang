@@ -1,2 +1,0 @@
-// This sample demonstrates how to read JSON content from a file and write JSON content
-// to a file using character channel `readJson()` and `writeJson()` of the I/O API.

@@ -1,3 +1,0 @@
-#Send a request to the action service
-curl -X GET http://localhost:9090/actionService/messageUsage
-

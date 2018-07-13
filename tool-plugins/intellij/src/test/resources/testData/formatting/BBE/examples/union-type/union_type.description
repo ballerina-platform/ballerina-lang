@@ -1,6 +1,0 @@
-// The union types are types of which the set of values is the union of the value spaces of its component types.
-// e.g., You can use a variable of a union type to store a `string` or an `int`,
-// but there is only one type of value at any given time.
-// Syntactically, you can define a union type with component types separated by "|" (vertical bar).
-// If `()` is in the value space of a union type, then the implicit initial value for the union type is `()`.
-// If not, the union type does not have an implicit initial value.

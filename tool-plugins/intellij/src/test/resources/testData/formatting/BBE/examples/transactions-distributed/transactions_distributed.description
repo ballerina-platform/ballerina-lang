@@ -1,4 +1,0 @@
-// To improve the reliability of microservice-based applications, a series of microservice invocations can be bound
-// into a single unit of work. The underlying mechanisms are that of `infection` and `agreement` protocols. This example
-// demonstrates the Ballerina distributed transactions protocol in action.
-

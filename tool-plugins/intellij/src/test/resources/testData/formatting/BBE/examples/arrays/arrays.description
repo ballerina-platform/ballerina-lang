@@ -1,6 +1,0 @@
-// Arrays in Ballerina are mutable lists of values of dynamic length where each member of the list is
-// specified with the same type. The implicit initial value of an array is the array with a length of `0`.
-//
-// A Sealed Array in Ballerina is a list of values of fixed length, where each member value of the list is
-// specified with the same type.
-// The size of the sealed array should be specified at the point of declaration and can not be changed afterwards.

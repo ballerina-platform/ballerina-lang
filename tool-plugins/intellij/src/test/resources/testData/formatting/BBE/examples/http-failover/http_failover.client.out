@@ -1,9 +1,0 @@
-# To invoke the Failover Service, use following curl command.
-$ curl -v http://localhost:9090/fo
-# The `FailoverClient` endpoint is configured with three target services.The first two targets are configured to mimic
-# failure backends. If one target service goes down, the failover client automatically calls the other targets.
-# Once you invoke the Failover demo service, the Failover client fails over the request to the configured
-# target endpoints. In this example, the third target is configured to give a successful request and the following 
-# response is given when the failover demo service is invoked.
-# Server response:
-Mock Resource is Invoked.

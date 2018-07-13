@@ -1,6 +1,0 @@
-#At the command line, navigate to the directory that contains the 
-#`.bal` file and run the `ballerina run` command. 
-$ ballerina run send_jms_message_to_http_endpoint.bal
-ballerina: initiating service(s) in 'send_jms_message_to_http_endpoint.bal'
-2018-06-14 15:43:04,283 INFO  [ballerina/jms] - Message receiver created for queue MyQueue
-ballerina: started HTTP/WS endpoint 0.0.0.0:9090

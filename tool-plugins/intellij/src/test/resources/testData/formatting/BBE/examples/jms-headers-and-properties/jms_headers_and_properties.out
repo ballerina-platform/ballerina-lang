@@ -1,8 +1,0 @@
-# Start Ballerina message broker by executing either the 'broker' or the 'broker.bat' command.
-$ broker
-
-# At the command line, navigate to the directory that contains the
-# `jms_headers_and_properties.bal` file and run the `ballerina run` command.
-$ ballerina run jms_headers_and_properties.bal
-ballerina: initiating service(s) in 'jms_headers_and_properties.bal'
-2018-06-14 15:14:30,739 INFO  [ballerina/jms] - Message receiver created for queue MyQueue

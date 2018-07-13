@@ -1,3 +1,0 @@
-// Ballerina supports writing RESTful services according to the JAX-RS specification. 
-// You can use `BasePath`, `Path`, and HTTP verb annotations such as `POST` and `GET` to
-// constrain your service in a RESTful manner.

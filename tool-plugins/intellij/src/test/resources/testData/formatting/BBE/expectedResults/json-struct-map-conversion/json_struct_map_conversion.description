@@ -1,3 +1,0 @@
-// Ballerina structs, maps, and JSON objects are used to hold records.
-// Records are collections of fields, and each field value is accessed by a key.
-// Converting from one type to another is very useful in certain situations.

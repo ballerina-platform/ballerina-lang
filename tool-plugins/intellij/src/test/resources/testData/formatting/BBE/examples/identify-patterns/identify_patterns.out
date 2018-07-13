@@ -1,5 +1,0 @@
-# At the command line, navigate to the directory that contains the
-# `identify_patterns.bal` file and run the `ballerina run` command.
-$ ballerina run identify_patterns.bal
-alertRoomAction function invoked for Room : 2 and the action : stop
-alertRoomAction function invoked for Room : 2 and the action : stop

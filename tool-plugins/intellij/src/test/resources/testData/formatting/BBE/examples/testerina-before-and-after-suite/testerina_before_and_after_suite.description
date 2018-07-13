@@ -1,4 +1,0 @@
-// The `BeforeSuite` feature allows you to execute a function before executing a test suite.
-// A package is considered as a suite in testerina. This capability can be used for
-// setting up prerequisites before executing a test suite.
-// Similarly, the `AfterSuite` annotation can be used to execute a function after a test suite.

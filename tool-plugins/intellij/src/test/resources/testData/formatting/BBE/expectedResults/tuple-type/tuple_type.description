@@ -1,5 +1,0 @@
-// A tuple is an immutable list of two or more values of fixed length.
-// A tuple type is described by specifying the type for each member in the list.
-// A tuple type has an implicit initial value if all the member types have an implicit default value.
-// As a result, the implicit initial value for the tuple type is the tuple of those implicit initial values.
-// If one or more member types do not have implicit default values, the tuple type does not have an implicit initial value.

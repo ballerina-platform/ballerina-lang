@@ -1,6 +1,0 @@
-# Start Ballerina message broker by executing either the 'broker' or the 'broker.bat' command.
-$ broker
-
-# Navigate to the directory that contains the'jms_simple_queue_message_producer.bal' file and issue the
-# 'ballerina run' command.
-$ ballerina run jms_simple_queue_message_producer.bal

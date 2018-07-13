@@ -1,1 +1,0 @@
-// The `Directory Listener` is used to listen to a directory in the local file system and notify when new files are created in the directory or when the existing files are deleted or modified.

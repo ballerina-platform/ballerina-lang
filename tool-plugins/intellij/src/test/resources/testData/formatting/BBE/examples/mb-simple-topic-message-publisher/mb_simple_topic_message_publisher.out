@@ -1,6 +1,0 @@
-# Start Ballerina message broker by executing either the 'broker' or the 'broker.bat' command.
-$ broker
-
-# At the command line, navigate to the directory that contains the
-# `.bal` file and run the `ballerina run` command.
-$ ballerina run mb_simple_topic_message_publisher.bal

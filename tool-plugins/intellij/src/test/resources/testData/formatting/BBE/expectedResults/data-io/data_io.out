@@ -1,6 +1,0 @@
-#At the command line, navigate to the directory that contains the 
-#`.bal` file and run the `ballerina run` command. 
-$ ballerina run data_io.bal
-Person record successfully written to file
-Reading person record from file
-{name:"Ballerina", age:21, income:1543.12, isMarried:true}

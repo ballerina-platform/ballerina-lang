@@ -1,6 +1,0 @@
-# At the command line, navigate to the directory that contains the
-# `.bal` file and use the `ballerina run` command.
-$ ballerina run packages.bal
-3.141592653589793
-
-
