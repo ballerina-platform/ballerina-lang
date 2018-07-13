@@ -14,61 +14,45 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Provides actions to read/write header values in gRPC request/response message.
-}
+# Provides actions to read/write header values in gRPC request/response message.
 public type Headers object {
 
-    documentation {
-        Check whether the requested header exists.
-
-        P{{headerName}} - The header name.
-        R{{}} - Returns true if header exists, false otherwise.
-    }
+    # Check whether the requested header exists.
+    #
+    # + headerName - The header name.
+    # + return - Returns true if header exists, false otherwise.
     public native function exists(string headerName) returns boolean;
 
-    documentation {
-        Returns the header value with the specified header name. If there are more than one header value for the
-        specified header name, the first value is returned.
-
-        P{{headerName}} - The header name.
-        R{{}} - Returns first header value if exists, nil otherwise.
-    }
+    # Returns the header value with the specified header name. If there are more than one header value for the
+    # specified header name, the first value is returned.
+    #
+    # + headerName - The header name.
+    # + return - Returns first header value if exists, nil otherwise.
     public native function get(string headerName) returns string?;
 
-    documentation {
-        Gets all transport headers with the specified header name.
-
-        P{{headerName}} - The header name.
-        R{{}} - Returns header value array.
-    }
+    # Gets all transport headers with the specified header name.
+    #
+    # + headerName - The header name.
+    # + return - Returns header value array.
     public native function getAll(string headerName) returns string[];
 
-    documentation {
-        Sets the value of a transport header.
-
-        P{{headerName}} - The header name.
-        P{{headerValue}} - The header value.
-    }
+    # Sets the value of a transport header.
+    #
+    # + headerName - The header name.
+    # + headerValue - The header value.
     public native function setEntry(string headerName, string headerValue);
 
-    documentation {
-        Adds the specified key/value pair as an HTTP header to the request.
-
-        P{{headerName}} - The header name.
-        P{{headerValue}} - The header value.
-    }
+    # Adds the specified key/value pair as an HTTP header to the request.
+    #
+    # + headerName - The header name.
+    # + headerValue - The header value.
     public native function addEntry(string headerName, string headerValue);
 
-    documentation {
-        Removes a transport header from the request.
-
-        P{{headerName}} - The header name.
-    }
+    # Removes a transport header from the request.
+    #
+    # + headerName - The header name.
     public native function remove(string headerName);
 
-    documentation {
-        Removes all transport headers from the message.
-    }
+    # Removes all transport headers from the message.
     public native function removeAll();
 };
