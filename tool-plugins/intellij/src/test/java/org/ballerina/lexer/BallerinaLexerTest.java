@@ -65,17 +65,17 @@ public class BallerinaLexerTest extends LexerTestCase {
     private void doTestDirectory(Path path, boolean includeTests) throws RuntimeException {
         try {
             File resource = path.toFile();
-            if (!resource.exists()) {
-                return;
-            } else if (resource.isFile() && resource.getName().endsWith(".bal")) {
-                doTestFile(resource);
-                //if the resource is a directory, recursively test the sub directories/files accordingly
-            } else if (resource.isDirectory() && (includeTests || !resource.getName().contains("tests"))) {
-                DirectoryStream<Path> ds = Files.newDirectoryStream(path);
-                for (Path subPath : ds) {
-                    doTestDirectory(subPath, includeTests);
+            if (resource.exists()) {
+                if (resource.isFile() && resource.getName().endsWith(".bal")) {
+                    doTestFile(resource);
+                    //if the resource is a directory, recursively test the sub directories/files accordingly
+                } else if (resource.isDirectory() && (includeTests || !resource.getName().contains("tests"))) {
+                    DirectoryStream<Path> ds = Files.newDirectoryStream(path);
+                    for (Path subPath : ds) {
+                        doTestDirectory(subPath, includeTests);
+                    }
+                    ds.close();
                 }
-                ds.close();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
