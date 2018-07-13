@@ -45,6 +45,7 @@ Alternatively, you can install Ballerina from the source using the following ins
 
 #### Prerequisites
 
+* [Oracle JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or [OpenJDK 8](http://openjdk.java.net/install/)
 * [Maven 3.5.0 or later](https://maven.apache.org/download.cgi)
 * [Node (v8.9.x or latest LTS release) + npm (v5.6.0 or later)](https://nodejs.org/en/download/)
 * [Docker](https://www.docker.com/get-docker)
