@@ -159,7 +159,7 @@ class RightCtrl extends React.Component {
                     return importNode.orgName.value === orgName
                         && importNode.packageName[0].value === pkgName; // TODO: improve to support multipart pkgNames
                 });
-                if (!importFound && `${orgName}/${pkgName}` !== 'ballerina/builtin') {
+                if (!importFound) {
                     const importNodeCode = `\nimport ${orgName}/${pkgName};`;
                     const fragment = FragmentUtils.createTopLevelNodeFragment(importNodeCode);
                     const newImportNode = FragmentUtils.parseFragment(fragment);

@@ -1667,15 +1667,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.initFunction, pretty, l, replaceLambda)
                  + join(node.functions, pretty, replaceLambda, l, w, '');
         case 'RecordType':
-            if (node.isRestFieldAvailable && node.fields && node.restFieldType) {
-                return join(node.fields, pretty, replaceLambda, l, w, '')
-                 + getSourceOf(node.restFieldType, pretty, l, replaceLambda) + w() + '...';
-            } else if (node.sealed && node.fields) {
-                return join(node.fields, pretty, replaceLambda, l, w, '') + w() + '!'
-                 + w() + '...';
-            } else {
-                return join(node.fields, pretty, replaceLambda, l, w, '');
-            }
+            return join(node.fields, pretty, replaceLambda, l, w, '');
         case 'TypedescExpression':
             return getSourceOf(node.typeNode, pretty, l, replaceLambda);
         case 'TypeofExpression':
@@ -1699,13 +1691,8 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.expressions, pretty, replaceLambda, l, w, '', ',') + w() + ')';
             }
         case 'UnaryExpr':
-            if (node.inTemplateLiteral && node.operatorKind && node.expression) {
-                return w() + '{{' + w() + node.operatorKind + b(' ')
-                 + getSourceOf(node.expression, pretty, l, replaceLambda) + w() + '}}';
-            } else {
-                return w() + node.operatorKind + b(' ')
+            return w() + node.operatorKind + b(' ')
                  + getSourceOf(node.expression, pretty, l, replaceLambda);
-            }
         case 'UnionTypeNode':
             if (node.emptyParantheses) {
                 return w() + '(' + w() + ')';

@@ -3369,21 +3369,7 @@ public class SourceGen {
                  + join(node.getAsJsonArray("functions"), pretty, replaceLambda, "", null, false, sourceGenParams);
         }
         public String getSourceForRecordType(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
-            if (node.get("isRestFieldAvailable") != null
-                         && node.get("isRestFieldAvailable") .getAsBoolean() && node.get("fields") != null
-                         && node.get("restFieldType") != null) {
-                return join(node.getAsJsonArray("fields"), pretty, replaceLambda, "", null, false, sourceGenParams)
-                 + a("", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("restFieldType"), pretty, replaceLambda) + w("", sourceGenParams) + "..."
-                 + a("", sourceGenParams.isShouldIndent());
-            } else if (node.get("sealed") != null && node.get("sealed") .getAsBoolean()
-                         && node.get("fields") != null) {
-                return join(node.getAsJsonArray("fields"), pretty, replaceLambda, "", null, false, sourceGenParams) + w("", sourceGenParams) + "!"
-                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
-                 + "..." + a("", sourceGenParams.isShouldIndent());
-            } else {
-                return join(node.getAsJsonArray("fields"), pretty, replaceLambda, "", null, false, sourceGenParams);
-            }
+            return join(node.getAsJsonArray("fields"), pretty, replaceLambda, "", null, false, sourceGenParams);
         }
         public String getSourceForTypedescExpression(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
             return a("", sourceGenParams.isShouldIndent())
@@ -3434,21 +3420,10 @@ public class SourceGen {
             }
         }
         public String getSourceForUnaryExpr(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
-            if (node.get("inTemplateLiteral") != null
-                         && node.get("inTemplateLiteral") .getAsBoolean() && node.get("operatorKind") != null
-                         && node.get("expression") != null) {
-                return w("", sourceGenParams) + "{{"
-                 + a("", sourceGenParams.isShouldIndent()) + w("", sourceGenParams)
-                 + node.get("operatorKind").getAsString() + a("", sourceGenParams.isShouldIndent())
-                 + a(" ", sourceGenParams.isShouldIndent())
-                 + getSourceOf(node.getAsJsonObject("expression"), pretty, replaceLambda) + w("", sourceGenParams)
-                 + "}}" + a("", sourceGenParams.isShouldIndent());
-            } else {
-                return w("", sourceGenParams) + node.get("operatorKind").getAsString()
+            return w("", sourceGenParams) + node.get("operatorKind").getAsString()
                  + a("", sourceGenParams.isShouldIndent())
                  + a(" ", sourceGenParams.isShouldIndent())
                  + getSourceOf(node.getAsJsonObject("expression"), pretty, replaceLambda);
-            }
         }
         public String getSourceForUnionTypeNode(JsonObject node, boolean pretty, boolean replaceLambda, SourceGenParams sourceGenParams) {
             if (node.get("emptyParantheses") != null
@@ -5046,12 +5021,6 @@ public class SourceGen {
             }
         }
 
-        if (kind.equals("RecordType")) {
-            if (node.has("restFieldType")) {
-                node.addProperty("isRestFieldAvailable", true);
-            }
-        }
-
         if (kind.equals("TypeInitExpr")) {
             if (node.getAsJsonArray("expressions").size() <= 0) {
                 node.addProperty("noExpressionAvailable", true);
@@ -5232,30 +5201,16 @@ public class SourceGen {
         }
 
         if (kind.equals("ArrayType")) {
-            if (node.has("dimensions") &&
-                    node.get("dimensions").getAsInt() > 0 &&
-                    node.has("ws")) {
+            if (node.getAsJsonArray("dimensions").size() > 0 && node.has("ws")) {
                 String dimensionAsString = "";
-                JsonObject startingBracket = null;
-                JsonObject endingBracket = null;
-                StringBuilder content = new StringBuilder();
+
                 JsonArray ws = node.getAsJsonArray("ws");
                 for (int j = 0; j < ws.size(); j++) {
                     if (ws.get(j).getAsJsonObject().get("text").getAsString().equals("[")) {
-                        startingBracket = ws.get(j).getAsJsonObject();
-                    } else if (ws.get(j).getAsJsonObject().get("text").getAsString().equals("]")) {
-                        endingBracket = ws.get(j).getAsJsonObject();
-
-                        dimensionAsString += startingBracket.get("text").getAsString() + content.toString()
-                                + endingBracket.get("ws").getAsString()
-                                + endingBracket.get("text").getAsString();
-
-                        startingBracket = null;
-                        endingBracket = null;
-                        content = new StringBuilder();
-                    } else if (startingBracket != null) {
-                        content.append(ws.get(j).getAsJsonObject().get("ws").getAsString())
-                                .append(ws.get(j).getAsJsonObject().get("text").getAsString());
+                        JsonObject startingBracket = ws.get(j).getAsJsonObject();
+                        JsonObject endingBracket = ws.get(j + 1).getAsJsonObject();
+                        dimensionAsString += startingBracket.get("ws").getAsString() + startingBracket.get("text").getAsString()
+                                + endingBracket.get("ws").getAsString() + endingBracket.get("text").getAsString();
                     }
                 }
 
