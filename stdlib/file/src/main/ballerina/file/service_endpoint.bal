@@ -19,6 +19,7 @@
 /// Direcotry Listener Endpoint ///
 ///////////////////////////////////
 # Represents directory listener endpoint where used to listen to a directory in the local file system.
+#
 # + config - Represents necessary configurations that need to configure
 public type Listener object {
     private ListenerEndpointConfiguration config;
@@ -38,6 +39,7 @@ public type Listener object {
 };
 
 # Represents configurations that required for directory listener.
+#
 # + path - Directory path which need to listen
 # + recursive - Recursively monitor all sub folders or not in the given direcotry path
 public type ListenerEndpointConfiguration record {

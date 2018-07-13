@@ -15,6 +15,7 @@
 // under the License.
 
 # Represents an event which will trigger when there is a changes to listining direcotry.
+#
 # + name - Absolute file URI for triggerd event
 # + operation - Triggered event action. This can be create, delete or modify
 public type FileEvent record {
