@@ -122,7 +122,7 @@ public type LoadBalancerActions object {
 
     # + path - Resource path
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
-                     or `mime:Entity[]`
+    #             or `mime:Entity[]`
     # + return - The response or an `error` if failed to fulfill the request
     public function get(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message = ()) returns Response|error;

@@ -177,8 +177,7 @@ public type Response object {
     #
     # + payload - The `xml` payload
     # + contentType - The content type of the payload. Set this to override the default `content-type` header value
-                         for `xml`
-    }
+    #                 for `xml`
     public function setXmlPayload(xml payload, string contentType = "application/xml");
 
     # Sets a `string` as the payload.
