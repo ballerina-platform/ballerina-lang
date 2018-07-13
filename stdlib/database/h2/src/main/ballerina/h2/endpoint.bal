@@ -16,18 +16,16 @@
 
 import ballerina/sql;
 
-documentation {
-    The Client endpoint configuration for h2 databases.
-
-    F{{host}} The host name of the database to connect (in case of server based DB)
-    F{{path}} The path of the database connection (in case of file based DB)
-    F{{port}} The port of the database to connect (in case of server based DB)
-    F{{name}} The name of the database to connect
-    F{{username}} Username for the database connection
-    F{{password}} Password for the database connection
-    F{{poolOptions}} Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
-    F{{dbOptions}} A map of DB specific properties
-}
+# The Client endpoint configuration for h2 databases.
+#
+# + host - The host name of the database to connect (in case of server based DB)
+# + path - The path of the database connection (in case of file based DB)
+# + port - The port of the database to connect (in case of server based DB)
+# + name - The name of the database to connect
+# + username - Username for the database connection
+# + password - Password for the database connection
+# + poolOptions - Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
+# + dbOptions - A map of DB specific properties
 public type ClientEndpointConfiguration record {
     string host,
     string path,
@@ -40,35 +38,26 @@ public type ClientEndpointConfiguration record {
 };
 
 
-documentation {
-    Represents an H2 client endpoint.
-
-    F{{config}} The configurations associated with the SQL endpoint
-}
-
+# Represents an H2 client endpoint.
+#
+# + config - The configurations associated with the SQL endpoint
 public type Client object {
     private ClientEndpointConfiguration config;
     private sql:CallerActions h2Client;
 
-    documentation {
-        Gets called when the endpoint is being initialized during the package initialization.
-
-        P{{c}} The ClientEndpointConfiguration of the endpoint
-    }
+    # Gets called when the endpoint is being initialized during the package initialization.
+    #
+    # + c - The ClientEndpointConfiguration of the endpoint
     function init(ClientEndpointConfiguration c) {
         self.h2Client = createClient(c);
     }
 
-    documentation {
-        Returns the connector that the client code uses.
-    }
+    # Returns the connector that the client code uses.
     public function getCallerActions() returns sql:CallerActions {
         return self.h2Client;
     }
 
-    documentation {
-        Stops the JDBC client.
-    }
+    # Stops the JDBC client.
     public function stop() {
         sql:close(self.h2Client);
     }
