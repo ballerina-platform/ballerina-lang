@@ -78,6 +78,9 @@ public class BallerinaDocCmd implements BLauncherCmd {
     @Parameter(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
+    @Parameter(names = {"--help", "-h"}, hidden = true)
+    private boolean offline;
+
     @Override
     public void execute() {
         if (helpFlag) {
@@ -108,7 +111,7 @@ public class BallerinaDocCmd implements BLauncherCmd {
 
         String[] sources = argList.toArray(new String[argList.size()]);
         BallerinaDocGenerator.generateApiDocs(sourceRootPath.toString(), outputDir, packageFilter, nativeSource,
-                sources);
+                offline, sources);
     }
 
     @Override
