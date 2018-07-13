@@ -15,352 +15,266 @@
 // under the License.
 
 
-documentation {
-    The ratio of the circumference of a circle to its diameter.
-}
+# The ratio of the circumference of a circle to its diameter.
 @final public float PI = 3.141592653589793;
 
-documentation {
-    The base of the natural logarithms.
-}
+# The base of the natural logarithms.
 @final public float E = 2.718281828459045;
 
-documentation {
-    Returns Euler's number, that is 'e' raised to the power of exponent.
-
-    P{{val}} Exponent value to raise
-    R{{}} Exp value
-}
+# Returns Euler's number, that is 'e' raised to the power of exponent.
+#
+# + val - Exponent value to raise
+# + return - Exp value
 public native function exp(float val) returns (float);
 
-documentation {
-    Returns the value of the 'a' raised to the power of 'b'.
-
-    P{{a}} The base value
-    P{{b}} The exponent value
-    R{{}} Result value
-}
+# Returns the value of the 'a' raised to the power of 'b'.
+#
+# + a - The base value
+# + b - The exponent value
+# + return - Result value
 public native function pow(float a, float b) returns (float);
 
-documentation {
-    Returns a random number between 0.0 and 1.0.
-
-    R{{}} Random value
-}
+# Returns a random number between 0.0 and 1.0.
+#
+# + return - Random value
 public native function random() returns (float);
 
-documentation {
-    Returns a random number between given start(inclusive) and end(exclusive) values.
-
-    P{{startRange}} Range start value
-    P{{endRange}} Range end value
-    R{{}} Random value
-}
+# Returns a random number between given start(inclusive) and end(exclusive) values.
+#
+# + startRange - Range start value
+# + endRange - Range end value
+# + return - Random value
 public native function randomInRange(int startRange, int endRange) returns (int);
 
-documentation {
-    Returns rounded positive square root of the given value.
-
-    P{{val}} Value to get square root
-    R{{}} Square root value
-}
+# Returns rounded positive square root of the given value.
+#
+# + val - Value to get square root
+# + return - Square root value
 public native function sqrt(float val) returns (float);
 
-documentation {
-    Returns the absolute value of a float value.
-
-    P{{val}} Value to get absolute value
-    R{{}} Absolute value
-}
+# Returns the absolute value of a float value.
+#
+# + val - Value to get absolute value
+# + return - Absolute value
 public native function absFloat(float val) returns (float);
 
-documentation {
-    Returns the absolute value of an int value.
-
-    P{{val}} Value to get the absolute value
-    R{{}} bsolute value
-}
+# Returns the absolute value of an int value.
+#
+# + val - Value to get the absolute value
+# + return - Absolute value
 public native function absInt(int val) returns (int);
 
-documentation {
-    Returns the arc cosine of a value; the returned angle is in the range 0.0 through pi.
-
-    P{{val}} Value to get the arc cosine
-    R{{}} rc cosine value
-}
+# Returns the arc cosine of a value; the returned angle is in the range 0.0 through pi.
+#
+# + val - Value to get the arc cosine
+# + return - Arc cosine value
 public native function acos(float val) returns (float);
 
-documentation {
-    Returns the arc sine of a value.
-
-    P{{val}} Value to get the arc sine
-    R{{}} rc sine value
-}
+# Returns the arc sine of a value.
+#
+# + val - Value to get the arc sine
+# + return - Arc sine value
 public native function asin(float val) returns (float);
 
-documentation {
-    Returns the arc tangent of a value.
-
-    P{{val}} Value to get the arc tangent
-    R{{}} rc tangent value
-}
+# Returns the arc tangent of a value.
+#
+# + val - Value to get the arc tangent
+# + return - Arc tangent value
 public native function atan(float val) returns (float);
 
-documentation {
-    Returns the angle theta from the conversion of rectangular coordinates (a, b) to polar coordinates (r, theta).
-
-    P{{a}} The ordinate coordinate
-    P{{b}} The abscissa coordinate
-    R{{}} he result
-}
+# Returns the angle theta from the conversion of rectangular coordinates (a, b) to polar coordinates (r, theta).
+#
+# + a - The ordinate coordinate
+# + b - The abscissa coordinate
+# + return - The result
 public native function atan2(float a, float b) returns (float);
 
-documentation {
-    Returns the cube root of a float value.
-
-    P{{val}} Value to get the cube root
-    R{{}} ube root value
-}
+# Returns the cube root of a float value.
+#
+# + val - Value to get the cube root
+# + return - Cube root value
 public native function cbrt(float val) returns (float);
 
-documentation {
-    Returns the smallest (closest to negative infinity) double value that is greater than orequal to the argument and
-    is equal to a mathematical integer.
+# Returns the smallest (closest to negative infinity) double value that is greater than orequal to the argument and
+#    is equal to a mathematical integer.
 
-    P{{val}} Value to get the ceil
-    R{{}} he result
-}
+# + val - Value to get the ceil
+# + return - The result
 public native function ceil(float val) returns (float);
 
-documentation {
-    Returns the first floating-point argument with the sign of the second floating-point argument.
-
-    P{{a}} The parameter providing the magnitude of the result
-    P{{b}} The parameter providing the sign of the result
-    R{{}} he result
-}
+# Returns the first floating-point argument with the sign of the second floating-point argument.
+#
+# + a - The parameter providing the magnitude of the result
+# + b - The parameter providing the sign of the result
+# + return - The result
 public native function copySign(float a, float b) returns (float);
 
-documentation {
-    Returns the trigonometric cosine of an angle.
-
-    P{{val}} Value to get the trigonometric cosine
-    R{{}} he result
-}
+# Returns the trigonometric cosine of an angle.
+#
+# + val - Value to get the trigonometric cosine
+# + return - The result
 public native function cos(float val) returns (float);
 
-documentation {
-    Returns the hyperbolic cosine of a float value.
-
-    P{{val}} The number whose hyperbolic cosine is to be returned
-    R{{}} he hyperbolic cosine of given float value
-}
+# Returns the hyperbolic cosine of a float value.
+#
+# + val - The number whose hyperbolic cosine is to be returned
+# + return - The hyperbolic cosine of given float value
 public native function cosh(float val) returns (float);
 
-documentation {
-    Returns (e to the power of x) -1.
-
-    P{{val}} The exponent to raise e to in the computation
-    R{{}} he result
-}
+# Returns (e to the power of x) -1.
+#
+# + val - The exponent to raise e to in the computation
+# + return - The result
 public native function expm1(float val) returns (float);
 
-documentation {
-    Returns the largest (closest to positive infinity) float value that is less than or equal to the argument and is
-    equal to a mathematical integer.
+# Returns the largest (closest to positive infinity) float value that is less than or equal to the argument and is
+#    equal to a mathematical integer.
 
-    P{{val}} A float value
-    R{{}} he result
-}
+# + val - A float value
+# + return - The result
 public native function floor(float val) returns (float);
 
-documentation {
-    Returns the largest (closest to positive infinity) int value that is less than or equal to the algebraic quotient.
-
-    P{{a}} The dividend
-    P{{b}} The divisor
-    R{{}} he result
-}
+# Returns the largest (closest to positive infinity) int value that is less than or equal to the algebraic quotient.
+#
+# + a - The dividend
+# + b - The divisor
+# + return - The result
 public native function floorDiv(int a, int b) returns (int);
 
-documentation {
-    Returns the floor modulus of the long arguments.
-
-    P{{a}} The dividend
-    P{{b}} The divisor
-    R{{}} he result
-}
+# Returns the floor modulus of the long arguments.
+#
+# + a - The dividend
+# + b - The divisor
+# + return - The result
 public native function floorMod(int a, int b) returns (int);
 
-documentation {
-    Returns the unbiased exponent used in the representation of a float.
-
-    P{{val}} Float value
-    R{{}} he unbiased exponent of the argument
-    }
+# Returns the unbiased exponent used in the representation of a float.
+#
+# + val - Float value
+# + return - The unbiased exponent of the argument
 public native function getExponent(float val) returns (int);
 
-documentation {
-    Returns sqrt(a squared +b squared) without intermediate overflow or underflow.
-
-    P{{a}} Float value
-    P{{b}} Float value
-    R{{}} he result
-}
+# Returns sqrt(a squared +b squared) without intermediate overflow or underflow.
+#
+# + a - Float value
+# + b - Float value
+# + return - The result
 public native function hypot(float a, float b) returns (float);
 
-documentation {
-    Computes the remainder operation on two arguments as prescribed by the IEEE 754 standard.
-
-    P{{a}} The dividend
-    P{{b}} The divisor
-    R{{}} he remainder when a is divided by b
-}
+# Computes the remainder operation on two arguments as prescribed by the IEEE 754 standard.
+#
+# + a - The dividend
+# + b - The divisor
+# + return - The remainder when a is divided by b
 public native function IEEEremainder(float a, float b) returns (float);
 
-documentation {
-    Returns the natural logarithm (base e) of a float value.
-
-    P{{val}} A float value
-    R{{}} he result
-}
+# Returns the natural logarithm (base e) of a float value.
+#
+# + val - A float value
+# + return - The result
 public native function log(float val) returns (float);
 
-documentation {
-    Returns the base 10 logarithm of a float value.
-
-    P{{val}} A float value
-    R{{}} he base 10 logarithm of a given float value
-}
+# Returns the base 10 logarithm of a float value.
+#
+# + val - A float value
+# + return - The base 10 logarithm of a given float value
 public native function log10(float val) returns (float);
 
-documentation {
-    Returns the natural logarithm of the sum of the argument and 1.
-
-    P{{val}} A float value
-    R{{}} he natural log of x + 1
-}
+# Returns the natural logarithm of the sum of the argument and 1.
+#
+# + val - A float value
+# + return - The natural log of x + 1
 public native function log1p(float val) returns (float);
 
-documentation {
-    Returns the negation of the argument.
-
-    P{{val}} The value to negate
-    R{{}} he result
-}
+# Returns the negation of the argument.
+#
+# + val - The value to negate
+# + return - The result
 public native function negateExact(int val) returns (int);
 
-documentation {
-    Returns the floating-point number adjacent to the first argument in the direction of the second argument.
-
-    P{{a}} Starting floating-point value
-    P{{b}} Value indicating which of start's neighbors or start should be returned
-    R{{}} he result
-}
+# Returns the floating-point number adjacent to the first argument in the direction of the second argument.
+#
+# + a - Starting floating-point value
+# + b - Value indicating which of start's neighbors or start should be returned
+# + return - The result
 public native function nextAfter(float a, float b) returns (float);
 
-documentation {
-    Returns the adjacent floating-point value closer to negative infinity.
-
-    P{{val}} Starting floating-point value
-    R{{}} he result
-}
+# Returns the adjacent floating-point value closer to negative infinity.
+#
+# + val - Starting floating-point value
+# + return - The result
 public native function nextDown(float val) returns (float);
 
-documentation {
-    Returns the adjacent floating-point value closer to positive infinity.
-
-    P{{val}} Starting floating-point value
-    R{{}} he result
-}
+# Returns the adjacent floating-point value closer to positive infinity.
+#
+# + val - Starting floating-point value
+# + return - The result
 public native function nextUp(float val) returns (float);
 
-documentation {
-    Returns the double value that is closest in value to the argument and is equal to a mathematical integer.
-
-    P{{val}} A float value
-    R{{}} he result
-}
+# Returns the double value that is closest in value to the argument and is equal to a mathematical integer.
+#
+# + val - A float value
+# + return - The result
 public native function rint(float val) returns (float);
 
-documentation {
-    Returns the closest int to the argument, with ties rounding to positive infinity.
-
-    P{{val}} A floating-point value to be rounded to an integer
-    R{{}} he value of the argument rounded to the nearest int value
-}
+# Returns the closest int to the argument, with ties rounding to positive infinity.
+#
+# + val - A floating-point value to be rounded to an integer
+# + return - The value of the argument rounded to the nearest int value
 public native function round(float val) returns (int);
 
-documentation {
-    Returns a × (2 to the power of b) rounded as if performed by a single correctly rounded floating-point
-    multiply to a member of the float value set.
-
-    P{{a}} Number to be scaled by a power of two
-    P{{b}} Power of 2 used to scale a
-    R{{}} he result
-}
+# Returns a × (2 to the power of b) rounded as if performed by a single correctly rounded floating-point
+# multiply to a member of the float value set.
+#
+# + a - Number to be scaled by a power of two
+# + b - Power of 2 used to scale a
+# + return - The result
 public native function scalb(float a, int b) returns (float);
 
-documentation {
-    Returns the signum function of the argument.
-
-    P{{val}} The floating-point value whose signum is to be returned
-    R{{}} he signum function of the argument
-}
+# Returns the signum function of the argument.
+#
+# + val - The floating-point value whose signum is to be returned
+# + return - The signum function of the argument
 public native function signum(float val) returns (float);
 
-documentation {
-    Returns the trigonometric sine of an angle.
-
-    P{{val}} An angle, in radians
-    R{{}} he sine of the argument
-}
+# Returns the trigonometric sine of an angle.
+#
+# + val - An angle, in radians
+# + return - The sine of the argument
 public native function sin(float val) returns (float);
 
-documentation {
-    Returns the hyperbolic sine of a float value.
-
-    P{{val}} The number whose hyperbolic sine is to be returned
-    R{{}} he hyperbolic sine of a given float
-}
+# Returns the hyperbolic sine of a float value.
+#
+# + val - The number whose hyperbolic sine is to be returned
+# + return - The hyperbolic sine of a given float
 public native function sinh(float val) returns (float);
 
-documentation {
-    Returns the trigonometric tangent of an angle.
-
-    P{{val}} An angle, in radians
-    R{{}} he tangent of the argument
-}
+# Returns the trigonometric tangent of an angle.
+#
+# + val - An angle, in radians
+# + return - The tangent of the argument
 public native function tan(float val) returns (float);
 
-documentation {
-    Returns the hyperbolic tangent of a double value.
-
-    P{{val}} The number whose hyperbolic tangent is to be returned
-    R{{}} he hyperbolic tangent of x
-}
+# Returns the hyperbolic tangent of a double value.
+#
+# + val - The number whose hyperbolic tangent is to be returned
+# + return - The hyperbolic tangent of x
 public native function tanh(float val) returns (float);
 
-documentation {
-    Converts an angle measured in radians to an approximately equivalent angle measured in degrees.
-
-    P{{val}} An angle, in radians
-    R{{}} he measurement of the angle angrad in degrees
-}
+# Converts an angle measured in radians to an approximately equivalent angle measured in degrees.
+#
+# + val - An angle, in radians
+# + return - The measurement of the angle angrad in degrees
 public native function toDegrees(float val) returns (float);
 
-documentation {
-    Converts an angle measured in degrees to an approximately equivalent angle measured in radians.
-
-    P{{val}} An angle, in degrees
-    R{{}} he measurement of the angle angdeg in radians
-}
+# Converts an angle measured in degrees to an approximately equivalent angle measured in radians.
+#
+# + val - An angle, in degrees
+# + return - The measurement of the angle angdeg in radians
 public native function toRadians(float val) returns (float);
 
-documentation {
-    Returns the size of an ulp of the argument.
-
-    P{{val}} The floating-point value whose ulp is to be returned
-    R{{}} he size of an ulp of the argument
-}
+# Returns the size of an ulp of the argument.
+#
+# + val - The floating-point value whose ulp is to be returned
+# + return - The size of an ulp of the argument
 public native function ulp(float val) returns (float);
