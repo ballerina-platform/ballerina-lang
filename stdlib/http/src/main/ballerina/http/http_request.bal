@@ -18,17 +18,15 @@ import ballerina/file;
 import ballerina/io;
 import ballerina/mime;
 
-documentation {
-    Represents an HTTP request.
-
-    F{{rawPath}} Resource path of the request URL
-    F{{method}} The HTTP request method
-    F{{httpVersion}} The HTTP version supported by the client
-    F{{userAgent}} The user-agent. This value is used when setting the `user-agent` header
-    F{{extraPathInfo}} Additional information associated with the URL provided by the client
-    F{{cacheControl}} The cache-control directives for the request. This needs to be explicitly initialized if intending
-                      on utilizing HTTP caching.
-}
+# Represents an HTTP request.
+#
+# + rawPath - Resource path of the request URL
+# + method - The HTTP request method
+# + httpVersion - The HTTP version supported by the client
+# + userAgent - The user-agent. This value is used when setting the `user-agent` header
+# + extraPathInfo - Additional information associated with the URL provided by the client
+# + cacheControl - The cache-control directives for the request. This needs to be explicitly initialized if intending
+#                  on utilizing HTTP caching.
 public type Request object {
 
     public string rawPath;
@@ -46,258 +44,194 @@ public type Request object {
         self.entity = createNewEntity();
     }
 
-    documentation {
-        Create a new `Entity` and link it with the request.
-
-        R{{}} Newly created `Entity` that has been set to the request
-    }
+    # Create a new `Entity` and link it with the request.
+    #
+    # + return - Newly created `Entity` that has been set to the request
     native function createNewEntity() returns mime:Entity;
 
-    documentation {
-        Sets the provided `Entity` to the request.
-
-        P{{e}} The `Entity` to be set to the request
-    }
+    # Sets the provided `Entity` to the request.
+    #
+    # + e - The `Entity` to be set to the request
     public native function setEntity(mime:Entity e);
 
-    documentation {
-        Gets the query parameters of the request, as a map.
-
-        R{{}} String map of query params
-    }
+    # Gets the query parameters of the request, as a map.
+    #
+    # + return - String map of query params
     public native function getQueryParams() returns map<string>;
 
-    documentation {
-        Gets the matrix parameters of the request.
-
-        P{{path}} Path to the location of matrix parameters
-        R{{}} A map of matrix paramters which can be found for the given path
-    }
+    # Gets the matrix parameters of the request.
+    #
+    # + path - Path to the location of matrix parameters
+    # + return - A map of matrix paramters which can be found for the given path
     public native function getMatrixParams(string path) returns map;
 
-    documentation {
-        Gets the `Entity` associated with the request.
-
-        R{{}} The `Entity` of the request. An `error` is returned, if entity construction fails
-    }
+    # Gets the `Entity` associated with the request.
+    #
+    # + return - The `Entity` of the request. An `error` is returned, if entity construction fails
     public native function getEntity() returns mime:Entity|error;
 
     //Gets the `Entity` from the request without the body. This function is exposed only to be used internally.
     native function getEntityWithoutBody() returns mime:Entity;
 
-    documentation {
-        Checks whether the requested header key exists in the header map.
-
-        P{{headerName}} The header name
-        R{{}} Returns true if the specified header key exists
-    }
+    # Checks whether the requested header key exists in the header map.
+    #
+    # + headerName - The header name
+    # + return - Returns true if the specified header key exists
     public function hasHeader(string headerName) returns boolean;
 
-    documentation {
-        Returns the value of the specified header. If the specified header key maps to multiple values, the first of
-        these values is returned.
-
-        P{{headerName}} The header name
-        R{{}} The first header value for the specified header name. An exception is thrown if no header is found. Use
-              `hasHeader()` beforehand to check the existence of header.
-    }
+    # Returns the value of the specified header. If the specified header key maps to multiple values, the first of
+    # these values is returned.
+    #
+    # + headerName - The header name
+    # + return - The first header value for the specified header name. An exception is thrown if no header is found. Use
+    #            `hasHeader()` beforehand to check the existence of header.
     public function getHeader(string headerName) returns string;
 
-    documentation {
-        Gets all the header values to which the specified header key maps to.
-
-        P{{headerName}} The header name
-        R{{}} The header values the specified header key maps to. An exception is thrown if no header is found. Use
-              `hasHeader()` beforehand to check the existence of header.
-    }
+    # Gets all the header values to which the specified header key maps to.
+    #
+    # + headerName - The header name
+    # + return - The header values the specified header key maps to. An exception is thrown if no header is found. Use
+    #            `hasHeader()` beforehand to check the existence of header.
     public function getHeaders(string headerName) returns (string[]);
 
-    documentation {
-        Sets the specified header to the request. If a mapping already exists for the specified header key, the existing
-        header value is replaced with the specfied header value.
-
-        P{{headerName}} The header name
-        P{{headerValue}} The header value
-    }
+    # Sets the specified header to the request. If a mapping already exists for the specified header key, the existing
+    # header value is replaced with the specfied header value.
+    #
+    # + headerName - The header name
+    # + headerValue - The header value
     public function setHeader(string headerName, string headerValue);
 
-    documentation {
-        Adds the specified header to the request. Existing header values are not replaced.
-
-        P{{headerName}} The header name
-        P{{headerValue}} The header value
-    }
+    # Adds the specified header to the request. Existing header values are not replaced.
+    #
+    # + headerName - The header name
+    # + headerValue - The header value
     public function addHeader(string headerName, string headerValue);
 
-    documentation {
-        Removes the specified header from the request.
-
-        P{{key}} The header name
-    }
+    # Removes the specified header from the request.
+    #
+    # + key - The header name
     public function removeHeader(string key);
 
-    documentation {
-        Removes all the headers from the request.
-    }
+    # Removes all the headers from the request.
     public function removeAllHeaders();
 
-    documentation {
-        Gets all the names of the headers of the request.
-
-        R{{}} An array of all the header names
-    }
+    # Gets all the names of the headers of the request.
+    #
+    # + return - An array of all the header names
     public function getHeaderNames() returns string[];
 
-    documentation {
-        Checks whether the client expects a `100-continue` response.
-
-        R{{}} Returns true if the client expects a `100-continue` response
-    }
+    # Checks whether the client expects a `100-continue` response.
+    #
+    # + return - Returns true if the client expects a `100-continue` response
     public function expects100Continue() returns boolean;
 
-    documentation {
-        Sets the `content-type` header to the request.
-
-        P{{contentType}} Content type value to be set as the `content-type` header
-    }
+    # Sets the `content-type` header to the request.
+    #
+    # + contentType - Content type value to be set as the `content-type` header
     public function setContentType(string contentType);
 
-    documentation {
-        Gets the type of the payload of the request (i.e: the `content-type` header value).
-
-        R{{}} Returns the `content-type` header value as a string
-    }
+    # Gets the type of the payload of the request (i.e: the `content-type` header value).
+    #
+    # + return - Returns the `content-type` header value as a string
     public function getContentType() returns string;
 
-    documentation {
-        Extracts `json` payload from the request. If the content type is not JSON, an `error` is returned.
-
-        R{{}} The `json` payload or `error` in case of errors
-    }
+    # Extracts `json` payload from the request. If the content type is not JSON, an `error` is returned.
+    #
+    # + return - The `json` payload or `error` in case of errors
     public function getJsonPayload() returns json|error;
 
-    documentation {
-        Extracts `xml` payload from the request. If the content type is not XML, an `error` is returned.
-
-        R{{}} The `xml` payload or `error` in case of errors
-    }
+    # Extracts `xml` payload from the request. If the content type is not XML, an `error` is returned.
+    #
+    # + return - The `xml` payload or `error` in case of errors
     public function getXmlPayload() returns xml|error;
 
-    documentation {
-        Extracts `text` payload from the request. If the content type is not of type text, an `error` is returned.
-
-        R{{}} The `text` payload or `error` in case of errors
-    }
+    # Extracts `text` payload from the request. If the content type is not of type text, an `error` is returned.
+    #
+    # + return - The `text` payload or `error` in case of errors
     public function getTextPayload() returns string|error;
 
-    documentation {
-        Gets the request payload as a `string`. Content type is not checked during payload construction which
-        makes this different from `getTextPayload()` function.
-
-        R{{}} The string representation of the message payload or `error` in case of errors
-    }
+    # Gets the request payload as a `string`. Content type is not checked during payload construction which
+    # makes this different from `getTextPayload()` function.
+    #
+    # + return - The string representation of the message payload or `error` in case of errors
     public function getPayloadAsString() returns string|error;
 
-    documentation {
-        Gets the request payload as a `ByteChannel` except in the case of multiparts. To retrieve multiparts, use
-        `getBodyParts()`.
-
-        R{{}} A byte channel from which the message payload can be read or `error` in case of errors
-    }
+    # Gets the request payload as a `ByteChannel` except in the case of multiparts. To retrieve multiparts, use
+    # `getBodyParts()`.
+    #
+    # + return - A byte channel from which the message payload can be read or `error` in case of errors
     public function getByteChannel() returns io:ByteChannel|error;
 
-    documentation {
-        Gets the request payload as a `byte[]`.
-
-        R{{}} The byte[] representation of the message payload or `error` in case of errors
-    }
+    # Gets the request payload as a `byte[]`.
+    #
+    # + return - The byte[] representation of the message payload or `error` in case of errors
     public function getBinaryPayload() returns byte[]|error;
 
-    documentation {
-        Gets the form parameters from the HTTP request as a `map`.
-
-        R{{}} The map of form params or `error` in case of errors
-    }
+    # Gets the form parameters from the HTTP request as a `map`.
+    #
+    # + return - The map of form params or `error` in case of errors
     public function getFormParams() returns map<string>|error;
 
-    documentation {
-        Extracts body parts from the request. If the content type is not a composite media type, an error
-        is returned.
+    # Extracts body parts from the request. If the content type is not a composite media type, an error
+    # is returned.
 
-        R{{}} Returns the body parts as an array of entities or an `error` if there were any errors in
-              constructing the body parts from the request
-    }
+    # + return - Returns the body parts as an array of entities or an `error` if there were any errors in
+    #            constructing the body parts from the request
     public function getBodyParts() returns mime:Entity[]|error;
 
-    documentation {
-        Sets a `json` as the payload.
-
-        P{{payload}} The `json` payload
-        P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
-                         for `json`
-    }
+    # Sets a `json` as the payload.
+    #
+    # + payload - The `json` payload
+    # + contentType - The content type of the payload. Set this to override the default `content-type` header value
+    #                 for `json`
     public function setJsonPayload(json payload, string contentType = "application/json");
 
-    documentation {
-        Sets an `xml` as the payload.
-
-        P{{payload}} The `xml` payload
-        P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
-                         for `xml`
-    }
+    # Sets an `xml` as the payload.
+    #
+    # + payload - The `xml` payload
+    # + contentType - The content type of the payload. Set this to override the default `content-type` header value
+    #                 for `xml`
     public function setXmlPayload(xml payload, string contentType = "application/xml");
 
-    documentation {
-        Sets a `string` as the payload.
-
-        P{{payload}} The `string` payload
-        P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
-                         for `string`
-    }
+    # Sets a `string` as the payload.
+    #
+    # + payload - The `string` payload
+    # + contentType - The content type of the payload. Set this to override the default `content-type` header value
+    #                 for `string`
     public function setTextPayload(string payload, string contentType = "text/plain");
 
-    documentation {
-        Sets a `byte[]` as the payload.
-
-        P{{payload}} The `byte[]` payload
-        P{{contentType}} The content type of the payload. Set this to override the default `content-type` header value
-                         for `byte[]`
-    }
+    # Sets a `byte[]` as the payload.
+    #
+    # + payload - The `byte[]` payload
+    # + contentType - The content type of the payload. Set this to override the default `content-type` header value
+    #                 for `byte[]`
     public function setBinaryPayload(byte[] payload, string contentType = "application/octet-stream");
 
-    documentation {
-        Set multiparts as the payload.
-
-        P{{bodyParts}} The entities which make up the message body
-        P{{contentType}} The content type of the top level message. Set this to override the default
-                         `content-type` header value
-    }
+    # Set multiparts as the payload.
+    #
+    # + bodyParts - The entities which make up the message body
+    # + contentType - The content type of the top level message. Set this to override the default
+    #                 `content-type` header value
     public function setBodyParts(mime:Entity[] bodyParts, string contentType = "multipart/form-data");
 
-    documentation {
-        Sets the content of the specified file as the entity body of the request.
-
-        P{{filePath}} Path to the file to be set as the payload
-        P{{contentType}} The content type of the specified file. Set this to override the default `content-type`
-                         header value
-    }
+    # Sets the content of the specified file as the entity body of the request.
+    #
+    # + filePath - Path to the file to be set as the payload
+    # + contentType - The content type of the specified file. Set this to override the default `content-type`
+    #                 header value
     public function setFileAsPayload(string filePath, string contentType = "application/octet-stream");
 
-    documentation {
-        Sets a `ByteChannel` as the payload.
-
-        P{{payload}} A `ByteChannel` through which the message payload can be read
-        P{{contentType}} The content type of the payload. Set this to override the default `content-type`
-                         header value
-    }
+    # Sets a `ByteChannel` as the payload.
+    #
+    # + payload - A `ByteChannel` through which the message payload can be read
+    # + contentType - The content type of the payload. Set this to override the default `content-type`
+    #                 header value
     public function setByteChannel(io:ByteChannel payload, string contentType = "application/octet-stream");
 
-    documentation {
-        Sets the request payload.
-
-        P{{payload}} Payload can be of type `string`, `xml`, `json`, `byte[]`, `ByteChannel` or `Entity[]` (i.e: a set
-                     of body parts)
-    }
+    # Sets the request payload.
+    #
+    # + payload - Payload can be of type `string`, `xml`, `json`, `byte[]`, `ByteChannel` or `Entity[]` (i.e: a set
+    #             of body parts)
     public function setPayload(string|xml|json|byte[]|io:ByteChannel|mime:Entity[] payload);
 
     // For use within the package. Takes the Cache-Control header and parses it to a RequestCacheControl object.

@@ -14,99 +14,85 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Defines the possible values for the chunking configuration in HTTP services and clients.
-
-    `AUTO`: If the payload is less than 8KB, content-length header is set in the outbound request/response,
-            otherwise chunking header is set in the outbound request/response
-    `ALWAYS`: Always set chunking header in the response
-    `NEVER`: Never set the chunking header even if the payload is larger than 8KB in the outbound request/response
-}
+# Defines the possible values for the chunking configuration in HTTP services and clients.
+#
+# `AUTO`: If the payload is less than 8KB, content-length header is set in the outbound request/response,
+#         otherwise chunking header is set in the outbound request/response
+# `ALWAYS`: Always set chunking header in the response
+# `NEVER`: Never set the chunking header even if the payload is larger than 8KB in the outbound request/response
 public type Chunking "AUTO" | "ALWAYS" | "NEVER";
 
-documentation {If the payload is less than 8KB, content-length header is set in the outbound request/response,
-              otherwise chunking header is set in the outbound request/response.}
+# If the payload is less than 8KB, content-length header is set in the outbound request/response,
+# otherwise chunking header is set in the outbound request/response.}
 @final public Chunking CHUNKING_AUTO = "AUTO";
 
-documentation {Always set chunking header in the response.}
+# Always set chunking header in the response.
 @final public Chunking CHUNKING_ALWAYS = "ALWAYS";
 
-documentation {Never set the chunking header even if the payload is larger than 8KB in the outbound request/response.}
+# Never set the chunking header even if the payload is larger than 8KB in the outbound request/response.
 @final public Chunking CHUNKING_NEVER = "NEVER";
 
-documentation {
-    Options to compress using gzip or deflate.
-
-    `AUTO`: When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the
-            outbound request/response accept-encoding option
-    `ALWAYS`: Always set accept-encoding in outbound request/response
-    `NEVER`: Never set accept-encoding header in outbound request/response
-}
+# Options to compress using gzip or deflate.
+#
+# `AUTO`: When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the
+#         outbound request/response accept-encoding option
+# `ALWAYS`: Always set accept-encoding in outbound request/response
+# `NEVER`: Never set accept-encoding header in outbound request/response
 public type Compression "AUTO" | "ALWAYS" | "NEVER";
 
-documentation {When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the
-               outbound request/response accept-encoding option.}
+# When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the
+# outbound request/response accept-encoding option.
 @final public Compression COMPRESSION_AUTO = "AUTO";
 
-documentation {Always set accept-encoding in outbound request/response.}
+# Always set accept-encoding in outbound request/response.
 @final public Compression COMPRESSION_ALWAYS = "ALWAYS";
 
-documentation {Never set accept-encoding header in outbound request/response.}
+# Never set accept-encoding header in outbound request/response.
 @final public Compression COMPRESSION_NEVER = "NEVER";
 
-documentation {
-    A record for providing trust store related configurations.
-
-    F{{path}} Path to the trust store file
-    F{{password}} Trust store password
-}
+# A record for providing trust store related configurations.
+#
+# + path - Path to the trust store file
+# + password - Trust store password
 public type TrustStore record {
     string path,
     string password,
 };
 
-documentation {
-    A record for providing key store related configurations.
-
-    F{{path}} Path to the key store file
-    F{{password}} Key store password
-}
+# A record for providing key store related configurations.
+#
+# + path - Path to the key store file
+# + password - Key store password
 public type KeyStore record {
     string path,
     string password,
 };
 
-documentation {
-    A record for configuring SSL/TLS protocol and version to be used.
-
-    F{{name}} SSL Protocol to be used (e.g.: TLS1.2)
-    F{{versions}} SSL/TLS protocols to be enabled (e.g.: TLSv1,TLSv1.1,TLSv1.2)
-}
+# A record for configuring SSL/TLS protocol and version to be used.
+#
+# + name - SSL Protocol to be used (e.g.: TLS1.2)
+# + versions - SSL/TLS protocols to be enabled (e.g.: TLSv1,TLSv1.1,TLSv1.2)
 public type Protocols record {
     string name,
     string[] versions,
 };
 
-documentation {
-    A record for providing configurations for certificate revocation status checks.
-
-    F{{enable}} The status of `validateCertEnabled`
-    F{{cacheSize}} Maximum size of the cache
-    F{{cacheValidityPeriod}} The time period for which a cache entry is valid
-}
+# A record for providing configurations for certificate revocation status checks.
+#
+# + enable - The status of `validateCertEnabled`
+# + cacheSize - Maximum size of the cache
+# + cacheValidityPeriod - The time period for which a cache entry is valid
 public type ValidateCert record {
     boolean enable,
     int cacheSize,
     int cacheValidityPeriod,
 };
 
-documentation {
-    A record for providing configurations for certificate revocation status checks.
-
-    F{{enable}} The status of OCSP stapling
-    F{{cacheSize}} Maximum size of the cache
-    F{{cacheValidityPeriod}} The time period for which a cache entry is valid
-}
+# A record for providing configurations for certificate revocation status checks.
+#
+# + enable - The status of OCSP stapling
+# + cacheSize - Maximum size of the cache
+# + cacheValidityPeriod - The time period for which a cache entry is valid
 public type ServiceOcspStapling record {
     boolean enable,
     int cacheSize,
@@ -117,12 +103,10 @@ public type ServiceOcspStapling record {
 /// Native implementations ///
 //////////////////////////////
 
-documentation {
-    Parses the given header value to extract its value and parameter map.
-
-    P{{headerValue}} The header value
-    R{{}} Returns a tuple containing the value and its parameter map
-}
+# Parses the given header value to extract its value and parameter map.
+#
+# + headerValue - The header value
+# + return - Returns a tuple containing the value and its parameter map
 //TODO: Make the error nillable
 public native function parseHeader (string headerValue) returns (string, map)|error;
 
