@@ -1,7 +1,12 @@
 ## Package overview
 The `ballerina/time` package provides implementations related to time, date, time zones, and durations. 
 
-The package has two main types as [Time](time.html#Time) and [Timezone](time.html#Timezone). The type `Time` represents a time associated with a given time zone. It has `time` and `zone` as attributes. The type `Timezone` represents the time zone associated with a given time. It has `zoneId` and `zoneOffset` as attributes.
+The package has two main types as [Time](time.html#Time) and [Timezone](time.html#Timezone). The type `Time` represents a time associated with a given time zone. It has `time` and `zone` as attributes. The type `Timezone` represents the time zone associated with a given time. It has `zoneId` and `zoneOffset` as attributes. A `zoneId` can be one of the following:
+
+* If `zoneId` equals 'Z', the result is UTC.
+* If `zoneId` equals 'GMT', 'UTC' or 'UT', it is equivalent to UTC.
+* If `zoneId` starts with '+' or '-', the ID is parsed as an offset. Offset can be specified in one of the following ways. +h, +hh, +hh:mm, -hh:mm, +hhmm, -hhmm, +hh:mm:ss, -hh:mm:ss, +hhmmss, -hhmmss
+* Also `zoneId` can be a region-based zone ID. The format is '{area}/{city}' eg: "America/Panama". The zones are based on IANA Time Zone Database (TZDB) supplied data.
 
 ## Samples
 

@@ -20,7 +20,7 @@ import _ from 'lodash';
 import defaultWS from './../../../../source-gen/default-ws';
 
 const TAB = "\t";
-const SPACE_TAB = "    ";
+const SPACE_TAB = "   ";
 const BETWEEN_BLOCK_SPACE = "\r\n\r\n";
 const SINGLE_SPACE = " ";
 const NEW_LINE = "\r\n";
@@ -563,7 +563,9 @@ class FormattingUtil {
         let serviceIndex = this.findIndex(node);
 
         if (!this.isHeightAvailable(node.ws[0].ws)) {
-            node.ws[0].ws = serviceIndex > 0 ? BETWEEN_BLOCK_SPACE : EMPTY_SPACE;
+            node.ws[0].ws = serviceIndex > 0
+                ? BETWEEN_BLOCK_SPACE
+                : EMPTY_SPACE;
         } else if (!this.isNewLine(node.ws[0].ws[0]) && serviceIndex !== 0) {
             node.ws[0].ws = NEW_LINE + node.ws[0].ws;
         }
@@ -670,7 +672,7 @@ class FormattingUtil {
 
         if (node.parent.kind === 'VariableDef' || node.parent.kind === "CompilationUnit" ||
             node.parent.kind === 'RecordType') {
-            if (node.typeNode && node.typeNode.kind !== 'ArrayType') {
+            if (node.typeNode) {
                 node.typeNode.position.startColumn = node.position.startColumn;
                 if (node.typeNode.ws) {
                     this.preserveHeight(node.typeNode.ws, this.getWhiteSpaces(node.position.startColumn));
@@ -706,14 +708,6 @@ class FormattingUtil {
                         if (!this.isHeightAvailable(node.ws[2].ws)) {
                             node.ws[2].ws = NEW_LINE;
                         }
-                    }
-                }
-            } else if(node.typeNode) {
-                node.typeNode.position.startColumn = node.position.startColumn;
-                if (node.typeNode.ws) {
-                    this.preserveHeight(node.typeNode.ws, this.getWhiteSpaces(node.position.startColumn));
-                    if (!this.isHeightAvailable(node.typeNode.ws[0].ws)) {
-                        node.typeNode.ws[0].ws = EMPTY_SPACE;
                     }
                 }
             }
