@@ -17,15 +17,10 @@
  */
 package org.ballerinalang.connector.impl;
 
-import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.states.RuntimeStates;
 import org.ballerinalang.persistence.states.State;
@@ -36,13 +31,8 @@ import org.ballerinalang.util.program.BLangFunctions;
 import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
-import java.util.List;
 import java.util.Map;
-
-import static org.ballerinalang.runtime.Constants.IS_METHOD_ACCESSED;
-import static org.ballerinalang.runtime.Constants.MESSAGE_CORRELATED;
-import static org.ballerinalang.runtime.Constants.SERVICE_ENDPOINT;
-import static org.ballerinalang.runtime.Constants.TRANSPORT_MESSAGE;
+import java.util.UUID;
 
 /**
  * {@code ResourceExecutor} This provides the implementation to execute resources within Ballerina.
@@ -71,14 +61,15 @@ public class ResourceExecutor {
         }
         ResourceInfo resourceInfo = resource.getResourceInfo();
         if (properties != null) {
-            Object o = properties.get(Constants.INSTANCE_ID);
+            Object o = properties.get(Constants.IS_INTERRUPTIBLE);
             if (o != null) {
-                String instanceId = o.toString();
-                if (correlate(instanceId, bValues)) {
-                    return;
+                boolean isInterruptible = (boolean) o;
+                if (isInterruptible) {
+                    String stateId = UUID.randomUUID().toString();
+                    properties.put(Constants.STATE_ID, stateId);
+                    RuntimeStates.add(new State(context, stateId));
+                    context.interruptible = true;
                 }
-                RuntimeStates.add(new State(context, instanceId));
-                context.interruptible = true;
             }
             context.globalProps.putAll(properties);
             if (properties.get(Constants.GLOBAL_TRANSACTION_ID) != null) {
@@ -89,78 +80,5 @@ public class ResourceExecutor {
         }
         BLangVMUtils.setServiceInfo(context, resourceInfo.getServiceInfo());
         BLangFunctions.invokeServiceCallable(resourceInfo, context, observerContext, bValues, responseCallback);
-    }
-
-    private static boolean correlate(String instanceId , BValue... bValues) {
-        List<State> stateList = RuntimeStates.get(instanceId);
-        if (stateList != null && !stateList.isEmpty()) {
-            State state = stateList.get(0);
-            boolean isConnected = injectConnection(state, bValues);
-            if (isConnected && state.getStatus().equals(State.Status.FAILED)) {
-                // start the context
-                WorkerExecutionContext failedContext = state.getContext();
-                failedContext.ip = state.getIp() - 1;
-                failedContext.runInCaller = false;
-                WorkerResponseContext respCtx = failedContext.respCtx;
-                if (respCtx instanceof CallableWorkerResponseContext) {
-                    ((CallableWorkerResponseContext) respCtx).setNotFulfilled();
-                }
-                state.setStatus(State.Status.ACTIVE);
-                BLangScheduler.schedule(failedContext);
-            }
-            return isConnected;
-        }
-        return false;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static boolean injectConnection(State state, BValue... bValues) {
-        boolean correlated = false;
-        Object transportMessage = null;
-        for (BValue bValue : bValues) {
-            if (bValue instanceof BMap) {
-                BMap bArg = (BMap) bValue;
-                if (bArg.getNativeData(TRANSPORT_MESSAGE) != null) {
-                    transportMessage = bArg.getNativeData(TRANSPORT_MESSAGE);
-                    break;
-                }
-            }
-        }
-        if (transportMessage != null) {
-            WorkerExecutionContext savedContext = state.getContext();
-            WorkerExecutionContext rootContext = getRootContext(savedContext);
-            BRefType<?>[] refRegs = rootContext.workerLocal.refRegs;
-            for (BRefType refType : refRegs) {
-                if (refType instanceof BMap) {
-                    BMap bMap = (BMap) refType;
-                    if (bMap.getNativeData().containsKey(TRANSPORT_MESSAGE)) {
-                        bMap.addNativeData(TRANSPORT_MESSAGE, transportMessage);
-                        bMap.addNativeData(MESSAGE_CORRELATED, true);
-                        correlated = true;
-                    }
-                    if (SERVICE_ENDPOINT.equals(bMap.getType().getName())) {
-                        BMap connection = (BMap) bMap.get(Constants.CONNECTION);
-                        if (connection.getNativeData().containsKey(TRANSPORT_MESSAGE)) {
-                            connection.addNativeData(TRANSPORT_MESSAGE, transportMessage);
-                            connection.addNativeData(MESSAGE_CORRELATED, true);
-                            if (connection.getNativeData(IS_METHOD_ACCESSED) != null) {
-                                connection.addNativeData(IS_METHOD_ACCESSED, null);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return correlated;
-    }
-
-    private static WorkerExecutionContext getRootContext(WorkerExecutionContext context) {
-        if (context == null) {
-            return null;
-        } else if (context.isRootContext()) {
-            return context;
-        } else {
-            return getRootContext(context.parent);
-        }
     }
 }

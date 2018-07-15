@@ -145,17 +145,17 @@ public class SerializableState {
     public Object serialize(Object o) {
         if (o == null || PersistenceUtils.isSerializable(o)) {
             return o;
-        } else if (o instanceof Serializable) {
-            return addRefType((Serializable) o);
         } else {
-            return null;
+            if (o instanceof Serializable) {
+                return addRefType((Serializable) o);
+            } else {
+                return null;
+            }
         }
     }
 
     public Object deserialize(Object o, ProgramFile programFile) {
-        if (!(o instanceof SerializedKey)) {
-            return o;
-        } else {
+        if (o instanceof SerializedKey) {
             SerializedKey key = (SerializedKey) o;
             if (PersistenceUtils.getTempRefType(key.key) != null) {
                 return PersistenceUtils.getTempRefType(key.key);
@@ -165,6 +165,8 @@ public class SerializableState {
                 PersistenceUtils.addTempRefType(key.key, refType);
                 return refType;
             }
+        } else {
+            return o;
         }
     }
 

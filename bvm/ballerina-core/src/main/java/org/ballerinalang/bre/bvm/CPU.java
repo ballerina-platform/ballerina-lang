@@ -193,8 +193,7 @@ public class CPU {
                 int[] operands = instruction.getOperands();
                 ctx.ip++;
                 if (ctx.interruptible) {
-                    Object o = ctx.globalProps.get(Constants.INSTANCE_ID);
-                    String instanceId = o.toString();
+                    String instanceId = (String) ctx.globalProps.get(Constants.STATE_ID);
                     if (PendingCheckpoints.checkAndRemove(instanceId, ctx.ip)) {
                         if (ctx.callableUnitInfo.getPkgPath().equals(".")) {
                             PersistenceStore.persistState(new State(ctx, instanceId));

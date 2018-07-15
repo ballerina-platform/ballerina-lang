@@ -55,7 +55,7 @@ public class BLangProgramRunner {
         BLangFunctions.invokePackageStartFunctions(programFile);
     }
 
-    public static void runSavedStates(ProgramFile programFile) {
+    public static void resumeStates(ProgramFile programFile) {
         new Thread(new RecoveryTask(programFile)).start();
     }
 

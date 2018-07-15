@@ -114,7 +114,7 @@ public class LauncherUtils {
         } else {
             runMain(programFile, args);
         }
-        BLangProgramRunner.runSavedStates(programFile);
+        BLangProgramRunner.resumeStates(programFile);
         listeners.forEach(listener -> listener.afterRunProgram(runServicesOrNoMainEP));
     }
 

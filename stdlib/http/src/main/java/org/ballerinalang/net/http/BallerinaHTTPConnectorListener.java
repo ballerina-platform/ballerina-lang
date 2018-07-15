@@ -36,7 +36,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.ballerinalang.net.http.HttpConstants.HTTP_MESSAGE_ID;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
 import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER_CONNECTOR_HTTP;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
@@ -95,7 +94,9 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
     protected void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage inboundMessage,
                                                               HttpResource httpResource) {
         boolean isTransactionInfectable = httpResource.isTransactionInfectable();
-        Map<String, Object> properties = collectRequestProperties(inboundMessage, isTransactionInfectable);
+        boolean isInterruptible = httpResource.isInterruptible();
+        Map<String, Object> properties = collectRequestProperties(inboundMessage, isTransactionInfectable,
+                                                                  isInterruptible);
         BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, inboundMessage, endpointConfig);
         Resource balResource = httpResource.getBalResource();
 
@@ -111,13 +112,6 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         });
 
         CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);
-        if (httpResource.isInterruptible()) {
-            String messageId = inboundMessage.getHeader(HTTP_MESSAGE_ID);
-            if (messageId != null) {
-                properties.put(Constants.INSTANCE_ID, httpResource.getParentService().getName() + "_" +
-                        httpResource.getBalResource().getName() + "_" + messageId);
-            }
-        }
         //TODO handle BallerinaConnectorException
         Executor.submit(balResource, callback, properties, observerContext.orElse(null), signatureParams);
     }
@@ -126,7 +120,8 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         return inboundMessage.getProperty(HTTP_RESOURCE) != null;
     }
 
-    private Map<String, Object> collectRequestProperties(HTTPCarbonMessage inboundMessage, boolean isInfectable) {
+    private Map<String, Object> collectRequestProperties(HTTPCarbonMessage inboundMessage, boolean isInfectable,
+                                                         boolean isInterruptible) {
         Map<String, Object> properties = new HashMap<>();
         if (inboundMessage.getProperty(HttpConstants.SRC_HANDLER) != null) {
             Object srcHandler = inboundMessage.getProperty(HttpConstants.SRC_HANDLER);
@@ -148,6 +143,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         properties.put(HttpConstants.ORIGIN_HOST, inboundMessage.getHeader(HttpConstants.ORIGIN_HOST));
         properties.put(HttpConstants.POOLED_BYTE_BUFFER_FACTORY,
                        inboundMessage.getHeader(HttpConstants.POOLED_BYTE_BUFFER_FACTORY));
+        properties.put(Constants.IS_INTERRUPTIBLE, isInterruptible);
         return properties;
     }
 

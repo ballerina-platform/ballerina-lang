@@ -28,7 +28,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.persistence.PersistenceUtils;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -170,9 +169,6 @@ public abstract class ConnectionAction implements NativeCallableUnit {
                 }
             }
             this.dataContext.notifyOutboundResponseStatus(httpConnectorError);
-            if (dataContext.context.getParentWorkerExecutionContext().interruptible) {
-                PersistenceUtils.handleErrorState(dataContext.context.getParentWorkerExecutionContext());
-            }
         }
     }
 }

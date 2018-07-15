@@ -18,6 +18,7 @@
 package org.ballerinalang.persistence.serializable.reftypes.impl;
 
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.persistence.serializable.SerializableState;
@@ -56,21 +57,21 @@ public class SerializableBRefArray implements SerializableRefType {
         PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
         BRefType[] bRefTypes = new BRefType[values.size()];
         for (int i = 0; i < values.size(); i++) {
-            Object deserialize = state.deserialize(values, programFile);
+            Object deserialize = state.deserialize(values.get(i), programFile);
             if (deserialize instanceof BRefType) {
                 bRefTypes[i] = (BRefType) deserialize;
             } else {
                 bRefTypes[i] = null;
             }
         }
+        BType type = null;
         if (packageInfo != null) {
             StructureTypeInfo structInfo = packageInfo.getStructInfo(structName);
             if (structInfo == null) {
                 throw new BallerinaException(structName + " not found in package " + pkgPath);
             }
-            return new BRefValueArray(bRefTypes, new BArrayType(structInfo.getType()));
-        } else {
-            return new BRefValueArray(bRefTypes, null);
+            type = new BArrayType(structInfo.getType());
         }
+        return new BRefValueArray(bRefTypes, type);
     }
 }

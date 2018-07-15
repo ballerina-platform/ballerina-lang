@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Util class with helper methods for persistence functionality.
@@ -49,11 +50,11 @@ public class PersistenceUtils {
 
     private static List<String> serializableClasses = new ArrayList<>();
 
-    private static Map<String, BRefType> tempRefTypes = new HashMap<>();
+    private static Map<String, BRefType> tempRefTypes = new ConcurrentHashMap<>();
 
-    private static Map<String, WorkerExecutionContext> tempContexts = new HashMap<>();
+    private static Map<String, WorkerExecutionContext> tempContexts = new ConcurrentHashMap<>();
 
-    private static Map<String, CallableWorkerResponseContext> tempRespContexts = new HashMap<>();
+    private static Map<String, CallableWorkerResponseContext> tempRespContexts = new ConcurrentHashMap<>();
 
     private static Gson gson;
 
@@ -97,26 +98,11 @@ public class PersistenceUtils {
         return serializableClasses.contains(o.getClass().getName());
     }
 
-    public static WorkerExecutionContext getMainPackageContext(WorkerExecutionContext context) {
-        if (context.callableUnitInfo.getPkgPath().equals(".")) {
-            return context;
-        }
-        return getMainPackageContext(context.parent);
-    }
-
     public static void handleErrorState(WorkerExecutionContext parentCtx) {
-        Object o = parentCtx.globalProps.get(Constants.INSTANCE_ID);
-        if (o != null) {
-            String instanceId = o.toString();
-            List<State> stateList = RuntimeStates.get(instanceId);
-            if (stateList != null && !stateList.isEmpty()) {
-                State state = stateList.get(0);
-                if (state != null) {
-                    state.setIp(parentCtx.ip);
-                    state.setStatus(State.Status.FAILED);
-                    state.setContext(parentCtx);
-                }
-            }
+        String instanceId = (String) parentCtx.globalProps.get(Constants.STATE_ID);
+        List<State> stateList = RuntimeStates.get(instanceId);
+        if (stateList == null || stateList.isEmpty()) {
+            return;
         }
     }
 

@@ -33,23 +33,14 @@ public class Constants {
     public static final String GLOBAL_TRANSACTION_ID = "globalTransactionId";
     public static final String TRANSACTION_URL = "transactionUrl";
 
-    // Native data constants
-    public static final String TRANSPORT_MESSAGE = "transport_message";
-    public static final String MESSAGE_CORRELATED = "message_correlated";
-    public static final String IS_METHOD_ACCESSED = "isMethodAccessed";
-    public static final String CONNECTION = "conn";
-
-    // Service Endpoint
-    public static final String SERVICE_ENDPOINT = "Listener";
-
     // Instance id key
-    public static final String INSTANCE_ID = "b7a.instance.id";
+    public static final String STATE_ID = "b7a.state.id";
+    public static final String IS_INTERRUPTIBLE = "b7a.state.interruptible";
 
     // Serialization related Constants
-    public static final String OBJECT_CLASS = "objectClass";
-    public static final String CLASS_NAME = "className";
+    public static final String NAME = "name";
     public static final String DATA = "data";
-    public static final String NULL = "NULL";
+    public static final String NULL = "null";
 
     // Default worker name
     public static final String DEFAULT = "default";

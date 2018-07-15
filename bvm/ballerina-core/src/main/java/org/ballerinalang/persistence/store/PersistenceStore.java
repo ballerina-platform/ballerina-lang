@@ -64,7 +64,7 @@ public class PersistenceStore {
                 ResourceInfo resourceInfo = (ResourceInfo) context.callableUnitInfo;
                 BLangVMUtils.setServiceInfo(context, resourceInfo.getServiceInfo());
             }
-            State state = new State(context, context.globalProps.get(Constants.INSTANCE_ID).toString());
+            State state = new State(context, context.globalProps.get(Constants.STATE_ID).toString());
             // have to decrement ip as CPU class increments it as soon as instruction is fetched
             context.ip--;
             state.setIp(context.ip);
