@@ -40,7 +40,7 @@ public class RefTypeAdaptor implements JsonSerializer<SerializableRefType>, Json
     @Override
     public JsonElement serialize(SerializableRefType src, Type typeOfSrc, JsonSerializationContext context) {
         JsonObject result = new JsonObject();
-        result.add(Constants.CLASS_NAME, new JsonPrimitive(src.getClass().getName()));
+        result.add(Constants.NAME, new JsonPrimitive(src.getClass().getName()));
         result.add(Constants.DATA, context.serialize(src, src.getClass()));
         return result;
     }
@@ -48,7 +48,7 @@ public class RefTypeAdaptor implements JsonSerializer<SerializableRefType>, Json
     @Override
     public SerializableRefType deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
         JsonObject jsonObject = json.getAsJsonObject();
-        String type = jsonObject.get(Constants.CLASS_NAME).getAsString();
+        String type = jsonObject.get(Constants.NAME).getAsString();
         JsonElement element = jsonObject.get(Constants.DATA);
         try {
             return context.deserialize(element, Class.forName(type));

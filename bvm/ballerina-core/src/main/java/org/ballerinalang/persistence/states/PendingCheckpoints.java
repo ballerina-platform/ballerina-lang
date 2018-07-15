@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.persistence.states;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Manages the check points of given execution.
@@ -29,15 +29,15 @@ import java.util.Map;
  */
 public class PendingCheckpoints {
 
-    private static Map<String, List<Integer>> checkpoints = new HashMap<>();
+    private static Map<String, HashSet<Integer>> checkpoints = new HashMap<>();
 
     public static void add(String instanceId, int ip) {
-        List<Integer> instanceCPs = checkpoints.computeIfAbsent(instanceId, k -> new ArrayList<>());
+        Set<Integer> instanceCPs = checkpoints.computeIfAbsent(instanceId, k -> new HashSet<>());
         instanceCPs.add(ip);
     }
 
-    public static boolean checkAndRemove(String instanceId, int ip) {
-        List<Integer> instanceCPs = checkpoints.get(instanceId);
-        return instanceCPs != null && instanceCPs.remove(ip) != null;
+    public static boolean checkAndRemove(String instanceId, Integer ip) {
+        HashSet<Integer> instanceCPs = checkpoints.get(instanceId);
+        return instanceCPs != null && instanceCPs.remove(ip);
     }
 }

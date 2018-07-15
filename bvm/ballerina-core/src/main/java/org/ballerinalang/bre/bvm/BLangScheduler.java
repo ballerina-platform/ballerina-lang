@@ -155,18 +155,16 @@ public class BLangScheduler {
     }
     
     public static void workerDone(WorkerExecutionContext ctx) {
+
         schedulerStats.stateTransition(ctx, WorkerState.DONE);
         ctx.state = WorkerState.DONE;
         if (ctx.interruptible && ctx.parent != null && ctx.parent.parent == null) {
-            Object o = ctx.globalProps.get(Constants.INSTANCE_ID);
+            Object o = ctx.globalProps.get(Constants.STATE_ID);
             String instanceId = o.toString();
             List<State> stateList = RuntimeStates.get(instanceId);
             if (stateList != null && !stateList.isEmpty()) {
-                State state = stateList.get(0);
-                if (state.getStatus().equals(State.Status.ACTIVE)) {
-                    RuntimeStates.remove(instanceId);
-                    PersistenceStore.removeStates(instanceId);
-                }
+                RuntimeStates.remove(instanceId);
+                PersistenceStore.removeStates(instanceId);
             }
         }
         workerCountDown();

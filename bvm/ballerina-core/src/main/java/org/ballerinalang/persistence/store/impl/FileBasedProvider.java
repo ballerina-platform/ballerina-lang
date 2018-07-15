@@ -26,9 +26,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * This class implements @{@link StorageProvider} for persist @{@link State}s as files.
@@ -61,13 +61,8 @@ public class FileBasedProvider implements StorageProvider {
             return;
         }
         File[] stateFiles = baseDir.listFiles();
-        String instancePrefix = instanceId + "_";
-        if (Objects.nonNull(stateFiles)) {
-            for (File stateFile : stateFiles) {
-                if (stateFile.getName().startsWith(instancePrefix)) {
-                    stateFile.delete();
-                }
-            }
+        if (stateFiles != null) {
+            Arrays.stream(stateFiles).filter(file -> file.getName().startsWith(instanceId)).forEach(File::delete);
         }
     }
 
@@ -80,14 +75,14 @@ public class FileBasedProvider implements StorageProvider {
         }
         File[] stateFiles = baseDir.listFiles();
         if (stateFiles != null) {
-            for (File stateFile : stateFiles) {
+            Arrays.stream(stateFiles).forEach(file -> {
                 try {
-                    String jsonState = FileUtils.readFileToString(stateFile);
+                    String jsonState = FileUtils.readFileToString(file);
                     states.add(jsonState);
                 } catch (IOException e) {
                     throw new BallerinaException("Failed to retrieve states.", e);
                 }
-            }
+            });
         }
         return states;
     }

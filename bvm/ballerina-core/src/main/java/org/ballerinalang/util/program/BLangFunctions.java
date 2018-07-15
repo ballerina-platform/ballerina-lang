@@ -40,7 +40,6 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BCallableFuture;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.PersistenceUtils;
 import org.ballerinalang.persistence.states.PendingCheckpoints;
 import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.persistence.store.PersistenceStore;
@@ -266,9 +265,8 @@ public class BLangFunctions {
             if (parentCtx.interruptible && nativeCallable instanceof InterruptibleNativeCallableUnit) {
                 InterruptibleNativeCallableUnit interruptibleNativeCallableUnit
                         = (InterruptibleNativeCallableUnit) nativeCallable;
-                Object o = parentCtx.globalProps.get(Constants.INSTANCE_ID);
-                String instanceId = o.toString();
-                WorkerExecutionContext runnableContext = PersistenceUtils.getMainPackageContext(parentCtx);
+                String instanceId = (String) parentCtx.globalProps.get(Constants.STATE_ID);
+                WorkerExecutionContext runnableContext = getMainPackageContext(parentCtx);
                 if (interruptibleNativeCallableUnit.persistBeforeOperation()) {
                     PersistenceStore.persistState(new State(runnableContext, instanceId));
                 }
@@ -425,11 +423,6 @@ public class BLangFunctions {
             return BLangVMUtils.handleNativeInvocationError(parentCtx,
                     BLangVMErrors.createNullRefException(parentCtx));
         } catch (Throwable e) {
-            if (parentCtx.interruptible) {
-                PersistenceUtils.handleErrorState(parentCtx);
-                BLangScheduler.workerCountDown();
-                return null;
-            }
             return BLangVMUtils.handleNativeInvocationError(parentCtx,
                     BLangVMErrors.createError(parentCtx, e.getMessage()));
         }
@@ -634,7 +627,14 @@ public class BLangFunctions {
                 callableUnitInfo.attachedToType.toString(), callableUnitInfo.getName(), parentCtx);
         return observerContext.orElse(null);
     }
-    
+
+    private static WorkerExecutionContext getMainPackageContext(WorkerExecutionContext context) {
+        if (context.callableUnitInfo.getPkgPath().equals(".")) {
+            return context;
+        }
+        return getMainPackageContext(context.parent);
+    }
+
     /**
      * Callback handler to check for callable response availability.
      */

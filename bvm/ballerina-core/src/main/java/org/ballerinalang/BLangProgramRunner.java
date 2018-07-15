@@ -55,21 +55,9 @@ public class BLangProgramRunner {
         BLangFunctions.invokePackageStartFunctions(programFile);
     }
 
-    public static void runSavedStates(ProgramFile programFile) {
-
-        new Thread(new RecoveryTask(programFile)).start();
-
-//        Debugger debugger = new Debugger(programFile);
-//        initDebugger(programFile, debugger);
-//        List<State> states = PersistenceStore.getInstance().getStates(programFile);
-//        if (states == null) {
-//            return;
-//        }
-//        for (State state : states) {
-//            WorkerExecutionContext context = state.getContext();
-//            BLangScheduler.schedule(context);
-//        }
-    }
+        public static void resumeStates (ProgramFile programFile){
+            new Thread(new RecoveryTask(programFile)).start();
+        }
 
     public static void runMain(ProgramFile programFile, String[] args) {
         if (!programFile.isMainEPAvailable()) {

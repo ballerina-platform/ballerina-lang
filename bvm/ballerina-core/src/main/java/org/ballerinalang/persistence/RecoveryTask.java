@@ -23,7 +23,6 @@ import org.ballerinalang.persistence.states.RuntimeStates;
 import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.debugger.Debugger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,14 +45,12 @@ public class RecoveryTask implements Runnable {
 
     @Override
     public void run() {
-        Debugger debugger = new Debugger(programFile);
-        initDebugger(programFile, debugger);
         List<State> states = PersistenceStore.getStates(programFile);
         if (states == null) {
             return;
         }
         logger.debug("RecoveryTask: Starting saved states.");
-        for (State state : states) {
+        states.forEach(state -> {
             WorkerExecutionContext context = state.getContext();
             // As we don't have any running context at this point, none of the contexts can run in caller.
             // Even though sync functions run in caller under normal conditions, we have to override
@@ -61,17 +58,6 @@ public class RecoveryTask implements Runnable {
             context.runInCaller = false;
             BLangScheduler.schedule(context);
             RuntimeStates.add(state);
-        }
-    }
-
-    private void initDebugger(ProgramFile programFile, Debugger debugger) {
-        if (programFile.getDebugger() != null) {
-            return;
-        }
-        programFile.setDebugger(debugger);
-        if (debugger.isDebugEnabled()) {
-            debugger.init();
-            debugger.waitTillDebuggeeResponds();
-        }
+        });
     }
 }

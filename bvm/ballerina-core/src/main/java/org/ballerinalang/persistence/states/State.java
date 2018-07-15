@@ -32,8 +32,6 @@ public class State {
 
     private int ip;
 
-    private Status status = Status.ACTIVE;
-
     public State(WorkerExecutionContext context, String instanceId) {
         this.context = context;
         this.instanceId = instanceId;
@@ -57,20 +55,5 @@ public class State {
 
     public String getInstanceId() {
         return instanceId;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    /**
-     * Enum used to represent status of the instance.
-     */
-    public enum Status {
-        ACTIVE, FAILED
     }
 }
