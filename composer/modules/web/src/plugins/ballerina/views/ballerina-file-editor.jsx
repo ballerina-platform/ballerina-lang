@@ -139,7 +139,7 @@ class BallerinaFileEditor extends React.Component {
         this.onModeChange = this.onModeChange.bind(this);
         this.sourceEditorRef = undefined;
     }
-    
+
     /**
      * @override
      * @memberof Diagram
