@@ -282,24 +282,28 @@ class EditorPlugin extends Plugin {
      */
     onTabClose(targetEditor) {
         const { appContext: { command: { dispatch } } } = this;
-        if (targetEditor.isDirty) {
-            dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
-                id: DIALOG_IDS.DIRTY_CLOSE_CONFIRM,
-                additionalProps: {
-                    file: targetEditor.file,
-                    onConfirm: () => {
-                        this.closeTab(targetEditor);
+        if(targetEditor.isDirty){
+            if(targetEditor.file.content === '' && targetEditor.file.name === 'untitled'){
+                this.closeTab(targetEditor);
+            } else {
+                dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
+                    id: DIALOG_IDS.DIRTY_CLOSE_CONFIRM,
+                    additionalProps: {
+                        file: targetEditor.file,
+                        onConfirm: () => {
+                            this.closeTab(targetEditor);
+                        },
+                        onSave: () => {
+                            dispatch(WORKSPACE_COMMANDS.SAVE_FILE, {
+                                file: targetEditor.file,
+                                onSaveSuccess: () => {
+                                    this.closeTab(targetEditor);
+                                },
+                            });
+                        },
                     },
-                    onSave: () => {
-                        dispatch(WORKSPACE_COMMANDS.SAVE_FILE, {
-                            file: targetEditor.file,
-                            onSaveSuccess: () => {
-                                this.closeTab(targetEditor);
-                            },
-                        });
-                    },
-                },
-            });
+                });
+            }
         } else {
             this.closeTab(targetEditor);
         }

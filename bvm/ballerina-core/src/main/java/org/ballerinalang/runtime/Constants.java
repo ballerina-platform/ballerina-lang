@@ -44,4 +44,7 @@ public class Constants {
 
     // Default worker name
     public static final String DEFAULT = "default";
+
+    public static final String COMPENSATION_TABLE = "COMPENSATION_TABLE";
+
 }

@@ -59,6 +59,9 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     // json object model associated with this JSONType object
     private JsonNode value;
 
+    // size of sealed json array
+    public int size = -1;
+
     /**
      * Initialize a {@link BJSON} from a {@link JsonNode} object.
      *
@@ -108,6 +111,27 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
         } catch (Throwable t) {
             handleJsonException(t);
         } 
+    }
+    /**
+     * Initialize a {@link BJSON} from a string, with a specified schema.
+     * JSON will not be validated against the given schema.
+     *
+     * @param jsonString JSON String
+     * @param size the size that seals the json array
+     */
+    public BJSON(String jsonString, int size) {
+        if (jsonString == null) {
+            this.value = new JsonNode(Type.NULL);
+            type = BTypes.typeNull;
+            return;
+        }
+        this.size = size;
+        try {
+            this.value = JsonParser.parse(jsonString);
+            setType();
+        } catch (Throwable t) {
+            handleJsonException(t);
+        }
     }
 
     /**

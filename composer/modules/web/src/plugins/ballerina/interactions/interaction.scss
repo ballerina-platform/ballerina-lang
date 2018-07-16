@@ -136,10 +136,11 @@
     
 }
 
-.suggest-list{
-    overflow-y: scroll;
-    overflow-x: hidden;
+.suggestions-search-wrapper{
+    overflow-y: auto;
     max-height: 400px;
+    width: 211px;
+    overflow-x: hidden;
 }
 
 .interaction-menu-area:hover .interaction-menu-item, .interaction-menu-area-clicked .interaction-menu-item {
@@ -189,7 +190,6 @@
 
 .connector-list {
     overflow-y: hidden;
-    height: 60px;
 	transition-property: all;
 	transition-duration: 0.4s;
 	transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
@@ -234,7 +234,7 @@
 }
 
 .connector-select input{
-    width:214px;
+    width:200px;
     margin: 5px;
     background-color: #fff;
     border: 1px solid #ddd;

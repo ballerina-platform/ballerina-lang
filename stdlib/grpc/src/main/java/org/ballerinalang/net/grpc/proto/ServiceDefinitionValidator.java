@@ -82,7 +82,6 @@ public class ServiceDefinitionValidator {
         } else if (count == 1) {
             boolean isNameExists = false;
             boolean clientStreaming = false;
-
             for (BLangRecordLiteral.BLangRecordKeyValue keyValue : annVals) {
                 switch (((BLangSimpleVarRef) (keyValue.key).expr).variableName
                         .getValue()) {
@@ -104,7 +103,6 @@ public class ServiceDefinitionValidator {
     private static boolean validateResource(ServiceNode serviceNode, DiagnosticLog dlog) {
         List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
         ServiceConfiguration serviceConfig = getServiceConfiguration(serviceNode);
-
         if (serviceConfig.getRpcEndpoint() != null && (serviceConfig.isClientStreaming())) {
             if (resources.size() != 4) {
                 dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
@@ -115,7 +113,6 @@ public class ServiceDefinitionValidator {
             boolean onOpenExists = false;
             boolean onErrorExists = false;
             boolean onCompleteExists = false;
-
             for (BLangResource resourceNode : resources) {
                 switch (resourceNode.getName().getValue()) {
                     case ON_OPEN_RESOURCE:
@@ -137,7 +134,6 @@ public class ServiceDefinitionValidator {
                     return false;
                 }
             }
-
             if (onMessageExists && onOpenExists && onErrorExists && onCompleteExists) {
                 return true;
             } else {
@@ -166,7 +162,6 @@ public class ServiceDefinitionValidator {
                         break;
                 }
             }
-
             if (onMessageExists && onErrorExists && onCompleteExists) {
                 dlog.logDiagnostic(Diagnostic.Kind.NOTE, serviceNode.getPosition(), "Service : " + serviceNode
                         .getName().getValue() + " is considered as client message listener.");
@@ -189,12 +184,10 @@ public class ServiceDefinitionValidator {
     private static boolean validateResourceSignature(List<BLangVariable> signatureParams, DiagnosticLog dlog,
                                                      DiagnosticPos pos) {
         final int nParams = signatureParams.size();
-
         if (nParams < COMPULSORY_PARAM_COUNT) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "resource signature parameter count should be >= 1");
             return false;
         }
-
         if (!isValidResourceParam(signatureParams.get(0), ENDPOINT_TYPE)) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "first parameter should be of type " + ENDPOINT_TYPE);
             return false;

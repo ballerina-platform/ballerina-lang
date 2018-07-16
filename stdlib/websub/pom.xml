@@ -28,7 +28,7 @@
     <artifactId>ballerina-websub</artifactId>
     <packaging>jar</packaging>
     <name>Ballerina - WebSub</name>
-    <url>http://ballerinalang.org</url>
+    <url>http://ballerina.io</url>
 
     <dependencies>
         <dependency>
@@ -133,7 +133,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
                 <executions>
                     <execution>
                         <id>gen-balo</id>
@@ -212,7 +211,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.5.2</version>
                 <executions>
                     <execution>
                         <id>distribution</id>

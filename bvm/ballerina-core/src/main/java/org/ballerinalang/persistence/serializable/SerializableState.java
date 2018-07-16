@@ -21,7 +21,8 @@ import com.google.gson.Gson;
 import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.persistence.PersistenceUtils;
+import org.ballerinalang.persistence.Deserializer;
+import org.ballerinalang.persistence.Serializer;
 import org.ballerinalang.persistence.serializable.reftypes.Serializable;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -54,7 +55,7 @@ public class SerializableState {
     }
 
     public static SerializableState deserialize(String json) {
-        Gson gson = PersistenceUtils.getGson();
+        Gson gson = Serializer.getGson();
         return gson.fromJson(json, SerializableState.class);
     }
 
@@ -68,13 +69,13 @@ public class SerializableState {
     }
 
     public String serialize() {
-        Gson gson = PersistenceUtils.getGson();
+        Gson gson = Serializer.getGson();
         return gson.toJson(this);
     }
 
-    public WorkerExecutionContext getExecutionContext(ProgramFile programFile) {
+    public WorkerExecutionContext getExecutionContext(ProgramFile programFile, Deserializer deserializer) {
         SerializableContext serializableContext = sContexts.get(currentContextKey);
-        return serializableContext.getWorkerExecutionContext(programFile, this);
+        return serializableContext.getWorkerExecutionContext(programFile, this, deserializer);
     }
 
     public String addContext(WorkerExecutionContext context) {
@@ -89,9 +90,9 @@ public class SerializableState {
         return contextKey;
     }
 
-    public WorkerExecutionContext getContext(String contextKey, ProgramFile programFile) {
+    public WorkerExecutionContext getContext(String contextKey, ProgramFile programFile, Deserializer deserializer) {
         SerializableContext serializableContext = sContexts.get(contextKey);
-        return serializableContext.getWorkerExecutionContext(programFile, this);
+        return serializableContext.getWorkerExecutionContext(programFile, this, deserializer);
     }
 
     public String addRespContext(CallableWorkerResponseContext responseContext) {
@@ -106,14 +107,16 @@ public class SerializableState {
         return key;
     }
 
-    public CallableWorkerResponseContext getResponseContext(
-            String respCtxKey, ProgramFile programFile, CallableUnitInfo callableUnitInfo) {
-        CallableWorkerResponseContext responseContext = PersistenceUtils.getTempRespContexts().get(respCtxKey);
+    public CallableWorkerResponseContext getResponseContext(String respCtxKey, ProgramFile programFile,
+                                                            CallableUnitInfo callableUnitInfo,
+                                                            Deserializer deserializer) {
+        CallableWorkerResponseContext responseContext = deserializer.getTempRespContexts().get(respCtxKey);
         if (responseContext == null) {
             SerializableRespContext serializableRespContext = sRespContexts.get(respCtxKey);
             responseContext =
-                    serializableRespContext.getResponseContext(programFile, callableUnitInfo, this);
-            PersistenceUtils.getTempRespContexts().put(respCtxKey, responseContext);
+                    serializableRespContext.getResponseContext(programFile, callableUnitInfo,
+                                                               this, deserializer);
+            deserializer.getTempRespContexts().put(respCtxKey, responseContext);
         }
         return responseContext;
     }
@@ -130,20 +133,21 @@ public class SerializableState {
         return refFields;
     }
 
-    public BRefType[] deserializeRefFields(List<Object> sRefFields, ProgramFile programFile) {
+    public BRefType[] deserializeRefFields(List<Object> sRefFields, ProgramFile programFile,
+                                           Deserializer deserializer) {
         if (sRefFields == null) {
             return null;
         }
         BRefType[] bRefFields = new BRefType[sRefFields.size()];
         for (int i = 0; i < sRefFields.size(); i++) {
             Object s = sRefFields.get(i);
-            bRefFields[i] = (BRefType) deserialize(s, programFile);
+            bRefFields[i] = (BRefType) deserialize(s, programFile, deserializer);
         }
         return bRefFields;
     }
 
     public Object serialize(Object o) {
-        if (o == null || PersistenceUtils.isSerializable(o)) {
+        if (o == null || Serializer.isSerializable(o)) {
             return o;
         } else {
             if (o instanceof Serializable) {
@@ -154,15 +158,16 @@ public class SerializableState {
         }
     }
 
-    public Object deserialize(Object o, ProgramFile programFile) {
+    public Object deserialize(Object o, ProgramFile programFile, Deserializer deserializer) {
         if (o instanceof SerializedKey) {
             SerializedKey key = (SerializedKey) o;
-            if (PersistenceUtils.getTempRefType(key.key) != null) {
-                return PersistenceUtils.getTempRefType(key.key);
+            BRefType bRefType = deserializer.getTempRefTypes().get(key.key);
+            if (bRefType != null) {
+                return bRefType;
             } else {
                 SerializableRefType sRefType = sRefTypes.get(key.key);
-                BRefType refType = sRefType.getBRefType(programFile, this);
-                PersistenceUtils.addTempRefType(key.key, refType);
+                BRefType refType = sRefType.getBRefType(programFile, this, deserializer);
+                deserializer.getTempRefTypes().put(key.key, refType);
                 return refType;
             }
         } else {

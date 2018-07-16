@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
@@ -40,6 +41,8 @@ import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
  * @since 0.95.2
  */
 public class BuilderUtils {
+    private static PrintStream outStream = System.out;
+
     public static void compileWithTestsAndWrite(Path sourceRootPath,
                                                 String packagePath,
                                                 String targetPath,
@@ -60,6 +63,7 @@ public class BuilderUtils {
         BLangPackage bLangPackage = compiler.build(packagePath);
 
         if (skiptests) {
+            outStream.println();
             compiler.write(bLangPackage, packagePath);
         } else {
             Utils.testWithBuild(sourceRootPath, Collections.singletonList(packagePath));
@@ -81,6 +85,7 @@ public class BuilderUtils {
         List<BLangPackage> packages = compiler.build();
 
         if (skiptests) {
+            outStream.println();
             compiler.write(packages);
         } else {
             Utils.testWithBuild(sourceRootPath, null);

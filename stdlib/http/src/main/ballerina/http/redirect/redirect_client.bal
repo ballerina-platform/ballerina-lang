@@ -31,13 +31,12 @@ documentation {
     F{{currentRedirectCount}}  Current redirect count of the HTTP client
 }
 public type RedirectClient object {
-    public {
-        string serviceUri;
-        ClientEndpointConfig config;
-        FollowRedirects redirectConfig;
-        CallerActions httpClient;
-        int currentRedirectCount = 0;
-    }
+
+    public string serviceUri;
+    public ClientEndpointConfig config;
+    public FollowRedirects redirectConfig;
+    public CallerActions httpClient;
+    public int currentRedirectCount = 0;
 
     documentation {
         Create a redirect client with the given configurations.
@@ -60,10 +59,10 @@ public type RedirectClient object {
 
         P{{path}} Resource path
         P{{message}} An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
-                     `blob`, `io:ByteChannel` or `mime:Entity[]`
+                     `byte[]`, `io:ByteChannel` or `mime:Entity[]`
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function get(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message = ()) returns Response|error {
         Request request = buildRequest(message);
         return performRedirectIfEligible(self, path, request, HTTP_GET);
@@ -74,11 +73,11 @@ public type RedirectClient object {
        by this `post()` function.
 
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
                      `io:ByteChannel` or `mime:Entity[]`
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function post(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message) returns Response|error {
         Request request = buildRequest(message);
         return performRedirectIfEligible(self, path, request, HTTP_POST);
@@ -90,10 +89,10 @@ public type RedirectClient object {
 
         P{{path}} Resource path
         P{{message}} An optional HTTP outbound request message or or any payload of type `string`, `xml`, `json`,
-                     `blob`, `io:ByteChannel` or `mime:Entity[]`
+                     `byte[]`, `io:ByteChannel` or `mime:Entity[]`
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function head(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message = ()) returns Response|error {
         Request request = buildRequest(message);
         return performRedirectIfEligible(self, path, request, HTTP_HEAD);
@@ -104,11 +103,11 @@ public type RedirectClient object {
         by this `put()` function.
 
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
                      `io:ByteChannel` or `mime:Entity[]`
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function put(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                         message) returns Response|error {
         Request request = buildRequest(message);
         return performRedirectIfEligible(self, path, request, HTTP_PUT);
@@ -130,11 +129,11 @@ public type RedirectClient object {
         only for HTTP methods.
 
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
                      `io:ByteChannel` or `mime:Entity[]`
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function execute(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                             message) returns Response|error {
         Request request = buildRequest(message);
         //Redirection is performed only for HTTP methods
@@ -150,11 +149,11 @@ public type RedirectClient object {
         by this `patch()` function.
 
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
                      `io:ByteChannel` or `mime:Entity[]`
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function patch(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                             message) returns Response|error {
         Request request = buildRequest(message);
         return performRedirectIfEligible(self, path, request, HTTP_PATCH);
@@ -165,11 +164,11 @@ public type RedirectClient object {
         by this `delete()` function.
 
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
                      `io:ByteChannel` or `mime:Entity[]`
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function delete(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                             message) returns Response|error {
         Request request = buildRequest(message);
         return performRedirectIfEligible(self, path, request, HTTP_DELETE);
@@ -181,10 +180,10 @@ public type RedirectClient object {
 
         P{{path}} Resource path
         P{{message}} An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
-                     `blob`, `io:ByteChannel` or `mime:Entity[]`
+                     `byte[]`, `io:ByteChannel` or `mime:Entity[]`
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function options(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                             message = ()) returns Response|error {
         Request request = buildRequest(message);
         return performRedirectIfEligible(self, path, request, HTTP_OPTIONS);
@@ -197,11 +196,11 @@ public type RedirectClient object {
 
         P{{httpVerb}} The HTTP verb value
         P{{path}} The resource path
-        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
                      `io:ByteChannel` or `mime:Entity[]`
         R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
     }
-    public function submit(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                 message) returns HttpFuture|error {
         Request request = buildRequest(message);
         return self.httpClient.submit(httpVerb, path, request);
@@ -388,7 +387,7 @@ function getRedirectMethod(HttpOperation httpVerb, Response response) returns Ht
 
 function createRedirectRequest(int statusCode, Request request) returns Request {
     Request redirectRequest = new;
-    string[] headerNames = request.getHeaderNames();
+    string[] headerNames = untaint request.getHeaderNames();
     foreach headerName in headerNames {
         string[] headerValues = request.getHeaders(headerName);
         foreach (headerValue in headerValues) {

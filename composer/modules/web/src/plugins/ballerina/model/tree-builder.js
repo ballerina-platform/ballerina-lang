@@ -205,6 +205,9 @@ class TreeBuilder {
         }
 
         if (node.kind === 'Variable') {
+            if (parentKind === 'ObjectType') {
+                node.inObject = true;
+            }
 
             if (node.typeNode && node.typeNode.isAnonType) {
                 node.isAnonType = true;
@@ -390,44 +393,6 @@ class TreeBuilder {
         }
 
         if (node.kind === 'ObjectType') {
-            node.publicFields = [];
-            node.privateFields = [];
-            let fields = node.fields;
-            let privateFieldBlockVisible = false;
-            let publicFieldBlockVisible = false;
-
-            for (let i = 0; i < fields.length; i++) {
-                if (fields[i].public) {
-                    node.publicFields.push(fields[i]);
-                } else {
-                    node.privateFields.push(fields[i]);
-                }
-            }
-
-            if (node.ws) {
-                for (let i = 0; i < node.ws.length; i++) {
-                    if (node.ws[i].text === 'public' && node.ws[i + 1].text === '{') {
-                        publicFieldBlockVisible = true;
-                    }
-
-                    if (node.ws[i].text === 'private' && node.ws[i + 1].text === '{') {
-                        privateFieldBlockVisible = true;
-                    }
-                }
-            }
-
-            if (node.privateFields.length <= 0 && !privateFieldBlockVisible) {
-                node.noPrivateFieldsAvailable = true;
-            }
-
-            if (node.publicFields.length <= 0 && !publicFieldBlockVisible) {
-                node.noPublicFieldAvailable = true;
-            }
-
-            if (fields.length <= 0 && node.noPrivateFieldsAvailable && node.noPublicFieldAvailable) {
-                node.noFieldsAvailable = true;
-            }
-
             if (node.initFunction) {
                 if (!node.initFunction.ws) {
                     node.initFunction.defaultConstructor = true;

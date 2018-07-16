@@ -18,6 +18,7 @@
 package org.ballerinalang.persistence.serializable.reftypes;
 
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.persistence.Deserializer;
 import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.util.codegen.ProgramFile;
 
@@ -27,5 +28,5 @@ import org.ballerinalang.util.codegen.ProgramFile;
  * @since 0.976.0
  */
 public interface SerializableRefType {
-    BRefType getBRefType(ProgramFile programFile, SerializableState state);
+    BRefType getBRefType(ProgramFile programFile, SerializableState state, Deserializer deserializer);
 }

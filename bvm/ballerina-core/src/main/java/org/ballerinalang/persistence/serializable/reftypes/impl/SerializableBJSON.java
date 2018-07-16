@@ -19,6 +19,7 @@ package org.ballerinalang.persistence.serializable.reftypes.impl;
 
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.persistence.Deserializer;
 import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -41,7 +42,7 @@ public class SerializableBJSON implements SerializableRefType {
     }
 
     @Override
-    public BRefType getBRefType(ProgramFile programFile, SerializableState state) {
+    public BRefType getBRefType(ProgramFile programFile, SerializableState state, Deserializer deserializer) {
         if (jsonContent == null) {
             throw new BallerinaException("JSON content is null.");
         }

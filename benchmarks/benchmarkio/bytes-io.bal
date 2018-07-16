@@ -29,7 +29,7 @@ public function benchmarkWriteBytes() {
     io:ByteChannel channel;
     channel = io:openFile("benchmarkio/resources/test.txt", "w");
     string text = "This file is used for io testing.";
-    blob content = text.toBlob("UTF-8");
+    byte[] content = text.toByteArray("UTF-8");
     var result = channel.write(content, 0);
     var results = channel.close();
 }

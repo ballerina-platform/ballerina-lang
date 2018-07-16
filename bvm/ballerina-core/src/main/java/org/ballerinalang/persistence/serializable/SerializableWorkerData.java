@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License, 
- * Version 2.0 (the "License"); you may not use this file except 
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,6 +17,7 @@
 package org.ballerinalang.persistence.serializable;
 
 import org.ballerinalang.bre.bvm.WorkerData;
+import org.ballerinalang.persistence.Deserializer;
 import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.ArrayList;
@@ -49,14 +50,14 @@ public class SerializableWorkerData {
         refFields = state.serializeRefFields(workerData.refRegs);
     }
 
-    public WorkerData getWorkerData(ProgramFile programFile, SerializableState state) {
+    public WorkerData getWorkerData(ProgramFile programFile, SerializableState state, Deserializer deserializer) {
         WorkerData workerData = new WorkerData();
         workerData.longRegs = longRegs;
         workerData.doubleRegs = doubleRegs;
         workerData.stringRegs = stringRegs;
         workerData.intRegs = intRegs;
         workerData.byteRegs = byteRegs;
-        workerData.refRegs = state.deserializeRefFields(refFields, programFile);
+        workerData.refRegs = state.deserializeRefFields(refFields, programFile, deserializer);
         return workerData;
     }
 }

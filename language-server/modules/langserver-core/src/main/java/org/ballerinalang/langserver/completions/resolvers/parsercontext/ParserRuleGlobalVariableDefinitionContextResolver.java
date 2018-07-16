@@ -20,7 +20,9 @@ package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
+import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.List;
 
@@ -30,7 +32,8 @@ import java.util.List;
 public class ParserRuleGlobalVariableDefinitionContextResolver extends AbstractItemResolver {
     @Override
     public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
-        // currently we are returning a empty List
-        return this.getVariableDefinitionCompletionItems(completionContext);
+        return CompletionItemResolver
+                .getResolverByClass(BallerinaParser.VariableDefinitionStatementContext.class)
+                .resolveItems(completionContext);
     }
 }

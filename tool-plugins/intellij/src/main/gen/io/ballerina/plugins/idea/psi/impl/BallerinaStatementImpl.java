@@ -61,6 +61,12 @@ public class BallerinaStatementImpl extends BallerinaCompositeElementImpl implem
 
   @Override
   @Nullable
+  public BallerinaCompensateStatement getCompensateStatement() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaCompensateStatement.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaCompoundAssignmentStatement getCompoundAssignmentStatement() {
     return PsiTreeUtil.getChildOfType(this, BallerinaCompoundAssignmentStatement.class);
   }
@@ -135,6 +141,12 @@ public class BallerinaStatementImpl extends BallerinaCompositeElementImpl implem
   @Nullable
   public BallerinaReturnStatement getReturnStatement() {
     return PsiTreeUtil.getChildOfType(this, BallerinaReturnStatement.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaScopeStatement getScopeStatement() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaScopeStatement.class);
   }
 
   @Override

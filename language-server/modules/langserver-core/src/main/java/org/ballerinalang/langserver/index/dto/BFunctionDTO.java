@@ -31,6 +31,20 @@ public class BFunctionDTO {
     private String name;
     
     private CompletionItem completionItem;
+    
+    private boolean isPrivate;
+    
+    private boolean isAttached;
+
+    public BFunctionDTO(int packageId, int objectId, String name, CompletionItem completionItem, boolean isPrivate,
+                        boolean isAttached) {
+        this.packageId = packageId;
+        this.objectId = objectId;
+        this.name = name;
+        this.isPrivate = isPrivate;
+        this.isAttached = isAttached;
+        this.completionItem = completionItem;
+    }
 
     public BFunctionDTO(int packageId, int objectId, String name, CompletionItem completionItem) {
         this.packageId = packageId;
@@ -53,5 +67,13 @@ public class BFunctionDTO {
 
     public CompletionItem getCompletionItem() {
         return completionItem;
+    }
+
+    public boolean isPrivate() {
+        return isPrivate;
+    }
+
+    public boolean isAttached() {
+        return isAttached;
     }
 }

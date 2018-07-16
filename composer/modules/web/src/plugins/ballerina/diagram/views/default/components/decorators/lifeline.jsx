@@ -176,7 +176,7 @@ class LifeLine extends React.Component {
                 fontWeight='400'
                 className={`${lineClass} life-line-title`}
             >{identifier}</text>
-            <HoverGroup model={this.props.model} region='main'>
+            <HoverGroup model={this.props.model} region='actionBox'>
                 <rect
                     x={bBox.x}
                     y={bBox.y}
@@ -185,15 +185,6 @@ class LifeLine extends React.Component {
                     className='invisible-rect'
                 />
             </HoverGroup>
-            {this.props.onDelete &&
-                <ActionBox
-                    show={this.state.active}
-                    bBox={actionBbox}
-                    onDelete={() => this.onDelete()}
-                    onJumptoCodeLine={() => this.onJumptoCodeLine()}
-                    isDefaultWorker={isDefaultWorker}
-                />
-            }
             {(!TreeUtils.isForkJoin(this.props.model.parent) &&
                 (isDefaultWorker || TreeUtils.isWorker(this.props.model))) &&
                 <ArrowDecorator

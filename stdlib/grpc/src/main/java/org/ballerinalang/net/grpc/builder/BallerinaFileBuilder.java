@@ -18,8 +18,8 @@
 package org.ballerinalang.net.grpc.builder;
 
 import com.google.protobuf.DescriptorProtos;
-import io.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.MessageUtils;
+import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.builder.components.ActionBuilder;
 import org.ballerinalang.net.grpc.builder.components.ClientBuilder;
 import org.ballerinalang.net.grpc.builder.components.ClientStruct;
@@ -35,7 +35,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
@@ -171,44 +170,29 @@ public class BallerinaFileBuilder {
             ClientStruct sampleClient = new ClientStruct(isStreamingContains, isUnaryContains
                     , fileDescriptorSet.getService(SERVICE_INDEX).getName(), packageName);
             if (this.balOutPath == null) {
-                String path = balOutPathGenerator(packageName + PACKAGE_SEPARATOR + fileDescriptorSet
-                        .getService(SERVICE_INDEX).getName());
-                writeBallerina(clientStubBal, DEFAULT_SKELETON_DIR,
-                        SKELETON_TEMPLATE_NAME, path + STUB_FILE_PREFIX);
-                writeBallerina(sampleClient, DEFAULT_SAMPLE_DIR,
-                        SAMPLE_TEMPLATE_NAME, path + SAMPLE_FILE_PREFIX);
-            } else {
-                String path = this.balOutPath + FILE_SEPARATOR + fileDescriptorSet
-                        .getService(SERVICE_INDEX).getName();
-                writeBallerina(clientStubBal, DEFAULT_SKELETON_DIR,
-                        SKELETON_TEMPLATE_NAME, path + STUB_FILE_PREFIX);
-                File sampleFile = new File(path + SAMPLE_FILE_PREFIX);
-                if (!sampleFile.isFile()) {
-                    Files.createFile(Paths.get(sampleFile.getAbsolutePath()));
-                }
-                writeBallerina(sampleClient, DEFAULT_SAMPLE_DIR,
-                        SAMPLE_TEMPLATE_NAME, path + SAMPLE_FILE_PREFIX);
+                this.balOutPath = packageName.replace(PACKAGE_SEPARATOR, FILE_SEPARATOR);
             }
+            String stubFilePath = generateClientStubFile(this.balOutPath, fileDescriptorSet.getService
+                    (SERVICE_INDEX).getName() + STUB_FILE_PREFIX);
+            writeBallerina(clientStubBal, DEFAULT_SKELETON_DIR, SKELETON_TEMPLATE_NAME, stubFilePath);
+            String clientFilePath = generateClientStubFile(this.balOutPath, fileDescriptorSet.getService
+                    (SERVICE_INDEX).getName() + SAMPLE_FILE_PREFIX);
+            writeBallerina(sampleClient, DEFAULT_SAMPLE_DIR, SAMPLE_TEMPLATE_NAME, clientFilePath);
         } catch (IOException e) {
             throw new BalGenerationException("Error while generating .bal file.", e);
         }
     }
     
-    private String balOutPathGenerator(String packageName) throws IOException {
-        String pathString = packageName.replace(PACKAGE_SEPARATOR, FILE_SEPARATOR);
-        File stubFile = new File(pathString + STUB_FILE_PREFIX);
-        File sampleFile = new File(pathString + SAMPLE_FILE_PREFIX);
-        Path path = Paths.get(stubFile.getAbsolutePath()).getParent();
-        if (path != null) {
-            Files.createDirectories(path);
+    private String generateClientStubFile(String outputDir, String fileName) throws IOException {
+        if (outputDir != null) {
+            Files.createDirectories(Paths.get(outputDir));
         }
-        if (!stubFile.isFile()) {
-            Files.createFile(Paths.get(stubFile.getAbsolutePath()));
+
+        File file = new File(outputDir + FILE_SEPARATOR + fileName);
+        if (!file.isFile()) {
+            Files.createFile(Paths.get(file.getAbsolutePath()));
         }
-        if (!sampleFile.isFile()) {
-            Files.createFile(Paths.get(sampleFile.getAbsolutePath()));
-        }
-        return pathString;
+        return file.getAbsolutePath();
     }
     
     public void setRootDescriptor(byte[] rootDescriptor) {

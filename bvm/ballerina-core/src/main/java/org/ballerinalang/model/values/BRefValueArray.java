@@ -17,12 +17,14 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.reftypes.Serializable;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBRefArray;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 import java.util.Arrays;
 import java.util.StringJoiner;
@@ -32,20 +34,27 @@ import java.util.StringJoiner;
  */
 public class BRefValueArray extends BNewArray implements Serializable {
 
-    private BType arrayType;
-
     private BRefType[] values;
 
     public BRefValueArray(BRefType[] values, BType type) {
         this.values = values;
-        this.arrayType = type;
+        super.arrayType = type;
         this.size = values.length;
     }
 
     public BRefValueArray(BType type) {
-        this.arrayType = type;
-        values = (BRefType[]) newArrayInstance(BRefType.class);
-        Arrays.fill(values, type.getEmptyValue());
+        super.arrayType = type;
+        if (type.getTag() == TypeTags.ARRAY_TAG) {
+            BArrayType arrayType = (BArrayType) type;
+            if (arrayType.getState() == BArrayState.CLOSED_SEALED) {
+                this.size = maxArraySize = arrayType.getSize();
+            }
+            values = (BRefType[]) newArrayInstance(BRefType.class);
+            Arrays.fill(values, type.getZeroValue());
+        } else {
+            values = (BRefType[]) newArrayInstance(BRefType.class);
+            Arrays.fill(values, type.getEmptyValue());
+        }
     }
 
     public BRefValueArray() {

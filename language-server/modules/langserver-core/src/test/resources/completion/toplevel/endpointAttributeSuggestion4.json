@@ -6,6 +6,13 @@
   "source": "toplevel/source/endpointAttributeSuggestion4.bal",
   "items": [
     {
+      "label":"requestVolumeThreshold",
+      "detail":"Field",
+      "sortText":"120",
+      "insertText":"requestVolumeThreshold: ${1:0}",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"timeWindowMillis",
       "detail":"Field",
       "sortText":"120",
@@ -21,8 +28,9 @@
     },
     {
       "label":"Add All Attributes",
+      "detail":"none",
       "sortText":"110",
-      "insertText":"timeWindowMillis: 0,\nbucketSizeMillis: 0"
+      "insertText":"requestVolumeThreshold: 0,\ntimeWindowMillis: 0,\nbucketSizeMillis: 0"
     }
   ]
 }

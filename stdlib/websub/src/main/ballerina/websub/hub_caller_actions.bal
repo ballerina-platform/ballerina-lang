@@ -28,14 +28,10 @@ documentation {
 }
 public type CallerActions object {
 
-    public {
-        string hubUrl;
-    }
+    public string hubUrl;
 
-    private {
-        http:Client httpClientEndpoint;
-        http:FollowRedirects? followRedirects;
-    }
+    private http:Client httpClientEndpoint;
+    private http:FollowRedirects? followRedirects;
 
     new (hubUrl, httpClientEndpoint, followRedirects) {}
 
@@ -88,7 +84,7 @@ public type CallerActions object {
         P{{headers}} The headers, if any, that need to be set
         R{{}} `error` if an error occurred with the update
     }
-    public function publishUpdate(string topic, string|xml|json|blob|io:ByteChannel payload, string? contentType = (),
+    public function publishUpdate(string topic, string|xml|json|byte[]|io:ByteChannel payload, string? contentType = (),
                                   string? secret = (), string signatureMethod = "sha256", map<string>? headers = ())
         returns error?;
 
@@ -103,7 +99,7 @@ public type CallerActions object {
     public function notifyUpdate(string topic, map<string>? headers = ()) returns error?;
 };
 
-public function CallerActions::subscribe(SubscriptionChangeRequest subscriptionRequest)
+function CallerActions::subscribe(SubscriptionChangeRequest subscriptionRequest)
     returns @tainted SubscriptionChangeResponse|error {
 
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
@@ -114,7 +110,7 @@ public function CallerActions::subscribe(SubscriptionChangeRequest subscriptionR
                               redirectCount);
 }
 
-public function CallerActions::unsubscribe(SubscriptionChangeRequest unsubscriptionRequest)
+function CallerActions::unsubscribe(SubscriptionChangeRequest unsubscriptionRequest)
     returns @tainted SubscriptionChangeResponse|error {
 
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
@@ -125,7 +121,7 @@ public function CallerActions::unsubscribe(SubscriptionChangeRequest unsubscript
                               redirectCount);
 }
 
-public function CallerActions::registerTopic(string topic, string? secret = ()) returns error? {
+function CallerActions::registerTopic(string topic, string? secret = ()) returns error? {
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_REGISTER, topic, secret = secret);
     var registrationResponse = httpClientEndpoint->post("", request);
@@ -146,7 +142,7 @@ public function CallerActions::registerTopic(string topic, string? secret = ()) 
     }
 }
 
-public function CallerActions::unregisterTopic(string topic, string? secret = ()) returns error? {
+function CallerActions::unregisterTopic(string topic, string? secret = ()) returns error? {
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_UNREGISTER, topic, secret = secret);
     var unregistrationResponse = httpClientEndpoint->post("", request);
@@ -167,7 +163,7 @@ public function CallerActions::unregisterTopic(string topic, string? secret = ()
     }
 }
 
-public function CallerActions::publishUpdate(string topic, string|xml|json|blob|io:ByteChannel payload,
+function CallerActions::publishUpdate(string topic, string|xml|json|byte[]|io:ByteChannel payload,
                                              string? contentType = (), string? secret = (),
                                              string signatureMethod = "sha256", map<string>? headers = ())
         returns error? {
@@ -202,8 +198,8 @@ public function CallerActions::publishUpdate(string topic, string|xml|json|blob|
 
     match (headers) {
         map<string> headerMap => {
-            foreach key in headerMap.keys() {
-                request.setHeader(key, headerMap[key]);
+            foreach key, value in headerMap {
+                request.setHeader(key, value);
             }
         }
         () => {}
@@ -226,15 +222,15 @@ public function CallerActions::publishUpdate(string topic, string|xml|json|blob|
     }
 }
 
-public function CallerActions::notifyUpdate(string topic, map<string>? headers = ()) returns error? {
+function CallerActions::notifyUpdate(string topic, map<string>? headers = ()) returns error? {
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = new;
     string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
 
     match (headers) {
         map<string> headerMap => {
-            foreach key in headerMap.keys() {
-                request.setHeader(key, headerMap[key]);
+            foreach key, value in headerMap {
+                request.setHeader(key, value);
             }
         }
         () => {}

@@ -29,6 +29,7 @@ import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.ballerinalang.util.program.BLangVMUtils;
+import org.ballerinalang.util.program.CompensationTable;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 import java.util.Map;
@@ -78,6 +79,8 @@ public class ResourceExecutor {
                         properties.get(Constants.TRANSACTION_URL).toString(), "2pc"));
             }
         }
+        //required for tracking compensations
+        context.globalProps.put(Constants.COMPENSATION_TABLE, CompensationTable.getInstance());
         BLangVMUtils.setServiceInfo(context, resourceInfo.getServiceInfo());
         BLangFunctions.invokeServiceCallable(resourceInfo, context, observerContext, bValues, responseCallback);
     }

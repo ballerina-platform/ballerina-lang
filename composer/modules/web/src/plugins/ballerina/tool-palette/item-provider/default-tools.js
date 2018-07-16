@@ -73,7 +73,7 @@ const tools = [
         name: 'Struct',
         icon: 'struct',
         title: 'Struct',
-        nodeFactoryMethod: DefaultNodeFactory.createStruct,
+        nodeFactoryMethod: DefaultNodeFactory.createRecord,
         description: 'User-defined record type',
     },
     {

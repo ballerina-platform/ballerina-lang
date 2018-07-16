@@ -30,7 +30,7 @@ public interface BallerinaObjectFunctionDefinition extends BallerinaCompositeEle
   BallerinaCallableUnitBody getCallableUnitBody();
 
   @Nullable
-  BallerinaObjectCallableUnitSignature getObjectCallableUnitSignature();
+  BallerinaCallableUnitSignature getCallableUnitSignature();
 
   @Nullable
   BallerinaDeprecatedAttachment getDeprecatedAttachment();

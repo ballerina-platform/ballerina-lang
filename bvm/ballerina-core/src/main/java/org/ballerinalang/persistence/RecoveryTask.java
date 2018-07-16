@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 /**
- * This is the task which is used to recover persisted states during startup.
+ * This is used to recover persisted states during startup.
  *
  * @since 0.976.0
  */

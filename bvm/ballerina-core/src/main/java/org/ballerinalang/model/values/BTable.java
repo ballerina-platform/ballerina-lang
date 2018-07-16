@@ -49,10 +49,6 @@ public class BTable implements BRefType<Object>, BCollection {
     private BStringArray indices;
     private boolean tableClosed;
 
-    private static final String TABLE_CONFIG_PRIMARY_KEY_FIELD = "primaryKey";
-    private static final String TABLE_CONFIG_INDEX_FIELD = "index";
-    private static final String TABLE_CONFIG_DATA_FIELD = "data";
-
     public BTable() {
         this.iterator = null;
         this.tableProvider = null;
@@ -82,28 +78,17 @@ public class BTable implements BRefType<Object>, BCollection {
         this.constraintType = constraintType;
     }
 
-    public BTable(BType type, BMap<String, BValue> configStruct) {
-        BStringArray primaryKeys = null;
-        BStringArray indexColumns = null;
-        BRefValueArray data = null;
-        if (configStruct != null) {
-            primaryKeys = (BStringArray) configStruct.get(TABLE_CONFIG_PRIMARY_KEY_FIELD);
-            indexColumns = (BStringArray) configStruct.get(TABLE_CONFIG_INDEX_FIELD);
-            data = (BRefValueArray) configStruct.get(TABLE_CONFIG_DATA_FIELD);
-        }
+    public BTable(BType type, BStringArray indexColumns, BStringArray keyColumns, BRefValueArray dataRows) {
         //Create table with given constraints.
         BType constrainedType = ((BTableType) type).getConstrainedType();
-        if (constrainedType == null) {
-            throw new BallerinaException("table cannot be created without a constraint");
-        }
         this.tableProvider = TableProvider.getInstance();
-        this.tableName = tableProvider.createTable(constrainedType, primaryKeys, indexColumns);
+        this.tableName = tableProvider.createTable(constrainedType, keyColumns, indexColumns);
         this.constraintType = (BStructureType) constrainedType;
-        this.primaryKeys = primaryKeys;
+        this.primaryKeys = keyColumns;
         this.indices = indexColumns;
         //Insert initial data
-        if (data != null) {
-            insertInitialData(data);
+        if (dataRows != null) {
+            insertInitialData(dataRows);
         }
     }
 

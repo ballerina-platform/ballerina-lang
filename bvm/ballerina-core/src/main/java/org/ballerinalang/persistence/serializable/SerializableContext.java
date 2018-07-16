@@ -22,7 +22,7 @@ import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerState;
-import org.ballerinalang.persistence.PersistenceUtils;
+import org.ballerinalang.persistence.Deserializer;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -43,35 +43,35 @@ import static org.ballerinalang.util.program.BLangVMUtils.SERVICE_INFO_KEY;
  */
 public class SerializableContext {
 
-    public String contextKey;
+    private String contextKey;
 
     public String parent;
 
-    public String respContextKey;
+    private String respContextKey;
 
     public WorkerState state = WorkerState.CREATED;
 
     public HashMap<String, Object> globalProps = new HashMap<>();
 
-    public HashMap<String, Object> localProps = new HashMap<>();
+    private HashMap<String, Object> localProps = new HashMap<>();
 
     public int ip;
 
     public SerializableWorkerData workerLocal;
 
-    public SerializableWorkerData workerResult;
+    private SerializableWorkerData workerResult;
 
     public int[] retRegIndexes;
 
-    public boolean runInCaller;
+    private boolean runInCaller;
 
     public boolean interruptible;
 
-    public String enclosingServiceName;
+    private String enclosingServiceName;
 
-    public String callableUnitName;
+    private String callableUnitName;
 
-    public String callableUnitPkgPath;
+    private String callableUnitPkgPath;
 
     public String workerName;
 
@@ -116,22 +116,23 @@ public class SerializableContext {
         }
     }
 
-    public WorkerExecutionContext getWorkerExecutionContext(ProgramFile programFile, SerializableState state) {
+    public WorkerExecutionContext getWorkerExecutionContext(ProgramFile programFile, SerializableState state,
+                                                            Deserializer deserializer) {
 
-        if (PersistenceUtils.getTempContexts().containsKey(contextKey)) {
-            return PersistenceUtils.getTempContexts().get(contextKey);
+        if (deserializer.getTempContexts().containsKey(contextKey)) {
+            return deserializer.getTempContexts().get(contextKey);
         }
         CallableUnitInfo callableUnitInfo = null;
         WorkerInfo workerInfo = null;
         WorkerData workerLocalData = null;
         WorkerData workerResultData = null;
 
-        Map<String, Object> tempGlobalProps = prepareProps(globalProps, state, programFile);
+        Map<String, Object> tempGlobalProps = prepareProps(globalProps, state, programFile, deserializer);
         if (workerLocal != null) {
-            workerLocalData = workerLocal.getWorkerData(programFile, state);
+            workerLocalData = workerLocal.getWorkerData(programFile, state, deserializer);
         }
         if (workerResult != null) {
-            workerResultData = workerResult.getWorkerData(programFile, state);
+            workerResultData = workerResult.getWorkerData(programFile, state, deserializer);
         }
 
         if (callableUnitPkgPath != null) {
@@ -166,27 +167,27 @@ public class SerializableContext {
             workerExecutionContext.workerLocal = workerLocalData;
             workerExecutionContext.workerResult = workerResultData;
         } else {
-            WorkerExecutionContext parentCtx = state.getContext(parent, programFile);
+            WorkerExecutionContext parentCtx = state.getContext(parent, programFile, deserializer);
             CallableWorkerResponseContext respCtx =
-                    state.getResponseContext(respContextKey, programFile, callableUnitInfo);
+                    state.getResponseContext(respContextKey, programFile, callableUnitInfo, deserializer);
             workerExecutionContext = new WorkerExecutionContext(
                     parentCtx, respCtx, callableUnitInfo, workerInfo, workerLocalData, workerResultData, retRegIndexes,
                     runInCaller);
         }
         workerExecutionContext.globalProps = tempGlobalProps;
-        workerExecutionContext.localProps = prepareProps(localProps, state, programFile);
+        workerExecutionContext.localProps = prepareProps(localProps, state, programFile, deserializer);
         workerExecutionContext.ip = ip;
         workerExecutionContext.interruptible = interruptible;
-        PersistenceUtils.getTempContexts().put(contextKey, workerExecutionContext);
+        deserializer.getTempContexts().put(contextKey, workerExecutionContext);
         return workerExecutionContext;
     }
 
     private Map<String, Object> prepareProps(HashMap<String, Object> properties, SerializableState state,
-                                             ProgramFile programFile) {
+                                             ProgramFile programFile, Deserializer deserializer) {
         Map<String, Object> props = new HashMap<>();
         if (properties != null) {
             properties.forEach((s, o) -> {
-                Object deserialize = state.deserialize(o, programFile);
+                Object deserialize = state.deserialize(o, programFile, deserializer);
                 props.put(s, deserialize);
             });
         }
@@ -215,33 +216,5 @@ public class SerializableContext {
 
     public WorkerState getState() {
         return state;
-    }
-
-    public void setState(WorkerState state) {
-        this.state = state;
-    }
-
-    public int getIp() {
-        return ip;
-    }
-
-    public void setIp(int ip) {
-        this.ip = ip;
-    }
-
-    public SerializableWorkerData getWorkerLocal() {
-        return workerLocal;
-    }
-
-    public void setWorkerLocal(SerializableWorkerData workerLocal) {
-        this.workerLocal = workerLocal;
-    }
-
-    public int[] getRetRegIndexes() {
-        return retRegIndexes;
-    }
-
-    public void setRetRegIndexes(int[] retRegIndexes) {
-        this.retRegIndexes = retRegIndexes;
     }
 }

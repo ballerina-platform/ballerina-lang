@@ -54,6 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -265,8 +266,32 @@ public class Types {
             return checkStructEquivalency(source, target);
         }
 
+        if (source.tag == TypeTags.TUPLE || target.tag == TypeTags.TUPLE) {
+            return isTupleTypeAssignable(source, target);
+        }
+
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target);
+    }
+
+    private boolean isTupleTypeAssignable(BType source, BType target) {
+        if (source.tag != TypeTags.TUPLE || target.tag != TypeTags.TUPLE) {
+            return false;
+        }
+
+        BTupleType lhsTupleType = (BTupleType) target;
+        BTupleType rhsTupleType = (BTupleType) source;
+
+        if (lhsTupleType.tupleTypes.size() != rhsTupleType.tupleTypes.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < lhsTupleType.tupleTypes.size(); i++) {
+            if (!isAssignable(rhsTupleType.tupleTypes.get(i), lhsTupleType.tupleTypes.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public boolean isArrayTypesAssignable(BType source, BType target) {
@@ -274,7 +299,11 @@ public class Types {
             // Both types are array types
             BArrayType lhsArrayType = (BArrayType) target;
             BArrayType rhsArrayType = (BArrayType) source;
-            return isArrayTypesAssignable(rhsArrayType.eType, lhsArrayType.eType);
+            if (lhsArrayType.state == BArrayState.UNSEALED) {
+                return isArrayTypesAssignable(rhsArrayType.eType, lhsArrayType.eType);
+            }
+            return checkSealedArraySizeEquality(rhsArrayType, lhsArrayType)
+                    && isArrayTypesAssignable(rhsArrayType.eType, lhsArrayType.eType);
 
         } else if (source.tag == TypeTags.ARRAY) {
             // Only the right-hand side is an array type
@@ -332,19 +361,27 @@ public class Types {
     public boolean checkArrayEquality(BType source, BType target) {
         if (target.tag == TypeTags.ARRAY && source.tag == TypeTags.ARRAY) {
             // Both types are array types
-            BArrayType lhrArrayType = (BArrayType) target;
+            BArrayType lhsArrayType = (BArrayType) target;
             BArrayType rhsArrayType = (BArrayType) source;
-            return checkArrayEquality(lhrArrayType.eType, rhsArrayType.eType);
-
+            if (lhsArrayType.state == BArrayState.UNSEALED) {
+                return checkArrayEquality(lhsArrayType.eType, rhsArrayType.eType);
+            }
+            return checkSealedArraySizeEquality(rhsArrayType, lhsArrayType)
+                    && isArrayTypesAssignable(rhsArrayType.eType, lhsArrayType.eType);
         }
 
         // Now one or both types are not array types and they have to be equal
         return isSameType(source, target);
     }
 
+    public boolean checkSealedArraySizeEquality(BArrayType rhsArrayType, BArrayType lhsArrayType) {
+        return lhsArrayType.size == rhsArrayType.size;
+    }
+
     public boolean checkStructEquivalency(BType rhsType, BType lhsType) {
-        if ((rhsType.tag != TypeTags.OBJECT && rhsType.tag != TypeTags.RECORD)
-                || (lhsType.tag != TypeTags.OBJECT && lhsType.tag != TypeTags.RECORD)) {
+        // For equivalency, both lhs and rhs types should be of the same type. Allowed types: objects and records.
+        if ((rhsType.tag != TypeTags.OBJECT || lhsType.tag != TypeTags.OBJECT)
+                && (rhsType.tag != TypeTags.RECORD || lhsType.tag != TypeTags.RECORD)) {
             return false;
         }
 
@@ -504,6 +541,10 @@ public class Types {
             }
         }
 
+        if (type.tag == TypeTags.RECORD && !((BRecordType) type).sealed) {
+            return checkStructFieldToJSONCompatibility(type, ((BRecordType) type).restFieldType);
+        }
+
         return true;
     }
 
@@ -628,6 +669,11 @@ public class Types {
                 return false;
             }
         }
+
+        if (type.tag == TypeTags.RECORD && !((BRecordType) type).sealed) {
+            return checkStructFieldToJSONConvertibility(type, ((BRecordType) type).restFieldType);
+        }
+
         return true;
     }
 
