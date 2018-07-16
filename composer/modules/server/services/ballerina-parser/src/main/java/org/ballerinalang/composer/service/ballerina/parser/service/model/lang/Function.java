@@ -27,7 +27,11 @@ import java.util.Objects;
 public class Function {
     private String name = null;
 
+    private Integer packageId = null;
+
     private String description = null;
+
+    private Integer boundObjectId = null;
 
     private List<AnnotationAttachment> annotations = new ArrayList<>();
 

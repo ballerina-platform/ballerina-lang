@@ -44,6 +44,7 @@ public class Utils {
      * @param port    The port that needs to be checked
      * @param timeout The timeout waiting for the port to open
      * @param verbose if verbose is set to true,
+     * @param hostName The hostname that needs to be checked
      * @throws RuntimeException if the port is not opened within the timeout
      */
     public static void waitForPort(int port, long timeout, boolean verbose, String hostName)
@@ -125,7 +126,7 @@ public class Utils {
      * Check whether the provided port is open.
      *
      * @param port The port that needs to be checked
-     * @return true if the <code>port</code> is open & false otherwise
+     * @return true if the port is open and false otherwise
      */
     public static boolean isPortOpen(int port) {
         Socket socket = null;
@@ -157,7 +158,8 @@ public class Utils {
      *
      * @param sourceFilePath - zip file need to extract
      * @param extractedDir   - destination path given file to extract
-     * @throws IOException
+     * @throws IOException if an i/o exception occurs when extracting the file
+     * @throws BallerinaTestException if ballerina test exception occurs when extracting the file
      */
     public static void extractFile(String sourceFilePath, String extractedDir) throws IOException,
             BallerinaTestException {

@@ -32,10 +32,12 @@ public class TracingLaunchListener implements LaunchListener {
 
     @Override
     public void beforeRunProgram(boolean service) {
-        ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-        if (configRegistry.getAsBoolean(CONFIG_TRACING_ENABLED)) {
-            ObservabilityUtils.addObserver(new BallerinaTracingObserver());
-            TracersStore.getInstance().loadTracers();
+        if (!TracersStore.getInstance().isInitialized()) {
+            ConfigRegistry configRegistry = ConfigRegistry.getInstance();
+            if (configRegistry.getAsBoolean(CONFIG_TRACING_ENABLED)) {
+                ObservabilityUtils.addObserver(new BallerinaTracingObserver());
+                TracersStore.getInstance().loadTracers();
+            }
         }
     }
 

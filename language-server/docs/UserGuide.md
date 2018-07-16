@@ -1,7 +1,7 @@
 # Language Server User Guide
 Ballerina Language Server provides code intelligence for ballerina file editing. It supports editor features such as diagnostics, auto-completion, go-to-definition, code refactoring and more. A list of currently supported features  can be found below. 
 
-Currently the Ballerina Language Server has been integrated to Ballerina [VSCode plugin](https://marketplace.visualstudio.com/items?itemName=WSO2.Ballerina) and Ballerina Composer. All the examples are given below using VSCode if you are using a different editor the trigger keys can be different.
+Currently the Ballerina Language Server has been integrated to Ballerina [VSCode plugin](https://marketplace.visualstudio.com/items?itemName=ballerina.ballerina) and Ballerina Composer. All the examples are given below using VSCode if you are using a different editor the trigger keys can be different.
 
 - <a href="#CodeDiagnostics">Code Diagnostics</a>
 - <a href="#SuggestionsAndAutoCompletion">Suggestions and Auto Completion</a>
@@ -208,4 +208,4 @@ Following top level node types are supported for documentation.
 ## Known Issues
 Below you can find a list of known issues and possible workarounds to get over the particular issues.
 
-- [Issue Tracker](https://github.com/ballerina-platform/ballerina-lang/issues?q=is%3Aopen+is%3Aissue+label%3Acomponent%2FLanguageServer+label%3A%22L1%2FL2+for+May%22)
+- [Issue Tracker](https://github.com/ballerina-platform/ballerina-lang/issues?q=is%3Aopen+is%3Aissue+label%3AComponent%2FLanguageServer)

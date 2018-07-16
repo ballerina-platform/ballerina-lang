@@ -25,6 +25,8 @@ import { Button, Icon } from 'semantic-ui-react';
 import SwaggerEditorBundle from 'swagger-editor-dist/swagger-editor-bundle';
 import ServiceNode from 'plugins/ballerina/model/tree/service-node';
 import { getSwaggerDefinition, getServiceDefinition } from 'api-client/api-client';
+import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
+import { DIALOGS as DIALOG_IDS } from '../constants';
 import TreeBuilder from './../model/tree-builder';
 import { SPLIT_VIEW } from './constants';
 import SwaggerUtil from '../swagger-util/swagger-util';
@@ -143,6 +145,10 @@ class SwaggerView extends React.Component {
         } else if (!this.hasSwaggerErrors()) {
             this.updateService();
             this.context.editor.setActiveView(SPLIT_VIEW);
+        } else if (this.hasSwaggerErrors()) { 
+            this.props.commandProxy.dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
+                id: DIALOG_IDS.INVALID_SWAGGER_DIALOG,
+            });
         }
         this.props.resetSwaggerViewFun();
         /* this.context.astRoot.trigger('tree-modified', {
