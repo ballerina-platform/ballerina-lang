@@ -119,7 +119,7 @@ public class LSPackageCache {
                 this.packageMap.entrySet().forEach(entry -> {
                     String alias = packageID.getName().toString();
                     if (entry.getKey().contains(alias + ":") || entry.getKey().contains(alias)) {
-                        this.packageMap.remove(PackageCache.getCacheID(packageID));
+                        this.packageMap.remove(entry.getKey());
                     }
                 });
             }
