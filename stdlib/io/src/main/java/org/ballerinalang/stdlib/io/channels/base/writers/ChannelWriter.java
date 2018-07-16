@@ -30,9 +30,9 @@ import java.nio.channels.NonWritableChannelException;
 /**
  * Writes bytes to a given channel asynchronously.
  */
-public class AsyncWriter implements Writer {
+public class ChannelWriter implements Writer {
 
-    private static final Logger log = LoggerFactory.getLogger(AsyncWriter.class);
+    private static final Logger log = LoggerFactory.getLogger(ChannelWriter.class);
 
     /**
      * {@inheritDoc}

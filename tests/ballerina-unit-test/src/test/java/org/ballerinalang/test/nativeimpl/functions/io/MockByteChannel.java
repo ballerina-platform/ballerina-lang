@@ -18,8 +18,8 @@
 package org.ballerinalang.test.nativeimpl.functions.io;
 
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.channels.base.readers.AsyncReader;
-import org.ballerinalang.stdlib.io.channels.base.writers.AsyncWriter;
+import org.ballerinalang.stdlib.io.channels.base.readers.ChannelReader;
+import org.ballerinalang.stdlib.io.channels.base.writers.ChannelWriter;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 
 import java.nio.channels.ByteChannel;
@@ -30,12 +30,8 @@ import java.nio.channels.WritableByteChannel;
  */
 public class MockByteChannel extends Channel {
 
-/*    public MockByteChannel(ByteChannel channel, int fixedBufferSize) {
-        super(channel, new BlockingReader(), new BlockingWriter(), fixedBufferSize);
-    }*/
-
     public MockByteChannel(ByteChannel channel) {
-        super(channel, new AsyncReader(), new AsyncWriter());
+        super(channel, new ChannelReader(), new ChannelWriter());
     }
 
     /**
