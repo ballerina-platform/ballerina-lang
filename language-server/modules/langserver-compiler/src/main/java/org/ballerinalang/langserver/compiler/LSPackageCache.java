@@ -114,8 +114,14 @@ public class LSPackageCache {
         }
 
         public void remove(PackageID packageID) {
+            // TODO: Revisit cache update/ compiler context reuse process
             if (packageID != null) {
-                this.packageMap.remove(PackageCache.getCacheID(packageID));
+                this.packageMap.entrySet().forEach(entry -> {
+                    String alias = packageID.getName().toString();
+                    if (entry.getKey().contains(alias + ":") || entry.getKey().contains(alias)) {
+                        this.packageMap.remove(PackageCache.getCacheID(packageID));
+                    }
+                });
             }
         }
         
