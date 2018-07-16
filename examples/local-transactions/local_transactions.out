@@ -1,13 +1,13 @@
 # At the command line, navigate to the directory that contains the
 # `.bal` file and run the `ballerina run` command.
-ballerina: started HTTP/WS endpoint 172.17.0.1:38479
 $ ballerina run local_transactions.bal
+ballerina: started HTTP/WS endpoint 192.168.1.4:43171
 Create CUSTOMER table status: 0
 Create SALARY table status: 0
-2018-04-25 14:38:49,970 INFO  [ballerina.transactions] - Created transaction: 69f66416-e509-4206-b53d-254c8bcdcb05
+2018-07-08 10:56:16,329 INFO  [ballerina/transactions] - Created transaction: d2f9d72c-0be0-470c-962e-133ed84a4330
 Inserted count: 1
-2018-04-25 14:38:49,976 INFO  [ballerina.transactions] - Running 2-phase commit for transaction: 69f66416-e509-4206-b53d-254c8bcdcb05:1
-Transaction: 69f66416-e509-4206-b53d-254c8bcdcb05:1 committed
+2018-07-08 10:56:16,334 INFO  [ballerina/transactions] - Running 2-phase commit for transaction: d2f9d72c-0be0-470c-962e-133ed84a4330:1
+Transaction: d2f9d72c-0be0-470c-962e-133ed84a4330:1 committed
 Drop table CUSTOMER status: 0
 Drop table SALARY status: 0
-ballerina: stopped HTTP/WS endpoint 172.17.0.1:38479
+ballerina: stopped HTTP/WS endpoint 192.168.1.4:43171

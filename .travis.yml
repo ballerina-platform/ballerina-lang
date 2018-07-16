@@ -43,7 +43,7 @@ script:
 
 - ballerina init
 
-- ballerina test --exclude-packages proto-to-ballerina,swagger-to-ballerina,taint-checking,websub-hub-client-sample,websub-remote-hub-sample,config-api,secured-service-with-basic-auth,secured-service-with-jwt,http-disable-chunking,http-failover,http-filters,http-forwarded-extension,http-load-balancer,http-retry,join-multiple-streams,http-1.1-to-2.0-protocol-switch,http-redirects,testerina-function-mocks
+- ballerina test --exclude-packages proto-to-ballerina,swagger-to-ballerina,taint-checking,websub-hub-client-sample,websub-remote-hub-sample,config-api,secured-service-with-basic-auth,secured-service-with-jwt,http-disable-chunking,http-failover,http-filters,http-forwarded-extension,http-load-balancer,http-retry,join-multiple-streams,http-1.1-to-2.0-protocol-switch,http-redirects,testerina-function-mocks,counter-metrics,gauge-metrics
 
 - ballerina build config-api --skiptests
 
@@ -67,6 +67,6 @@ script:
 
 - ballerina test http-1.1-to-2.0-protocol-switch
 
-#- ballerina test http-redirects
+- ballerina test http-redirects
 
-#- ballerina test testerina-function-mocks
+- ballerina test testerina-function-mocks/testerina_function_mocks.bal

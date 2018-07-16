@@ -31,15 +31,11 @@ service<http:WebSocketService> basic bind { port: 9090 } {
                 error e => log:printError("Error sending ping", err = e)
             };
         } else if (text == "closeMe") {
-            caller->close(1001, "You asked me to close the connection") but {
-                error e => log:printError(
-                               "Error occurred when closing the connection",
-                               err = e)
-            };
+            _ = caller->close(1001, "You asked me to close the connection");
         } else {
             caller->pushText("You said: " + text) but {
                 error e => log:printError("Error occurred when sending text",
-                err = e)
+                    err = e)
             };
         }
     }
