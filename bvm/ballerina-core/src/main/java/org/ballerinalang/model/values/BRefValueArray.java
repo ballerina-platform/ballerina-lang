@@ -159,6 +159,7 @@ public class BRefValueArray extends BNewArray implements Serializable {
 
         return getElementType(((BArrayType) type).getElementType());
     }
+
     @Override
     public SerializableRefType serialize(SerializableState state) {
         return new SerializableBRefArray(this, state);

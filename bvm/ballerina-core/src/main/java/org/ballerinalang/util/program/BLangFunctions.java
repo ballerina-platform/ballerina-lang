@@ -451,13 +451,13 @@ public class BLangFunctions {
     private static void handleError(WorkerExecutionContext ctx) {
         throw new BLangRuntimeException("error: " + BLangVMErrors.getPrintableStackTrace(ctx.getError()));
     }
-
-    private static WorkerExecutionContext executeWorker(WorkerResponseContext respCtx, WorkerExecutionContext parentCtx,
-            int[] argRegs, CallableUnitInfo callableUnitInfo, WorkerInfo workerInfo, WorkerDataIndex wdi,
-            WorkerData initWorkerLocalData, CodeAttributeInfo initWorkerCAI, boolean runInCaller,
-            ObserverContext observerContext) {
-        WorkerData workerLocal = BLangVMUtils
-                .createWorkerDataForLocal(workerInfo, parentCtx, argRegs, callableUnitInfo.getParamTypes());
+    
+    private static WorkerExecutionContext executeWorker(WorkerResponseContext respCtx, 
+            WorkerExecutionContext parentCtx, int[] argRegs, CallableUnitInfo callableUnitInfo, 
+            WorkerInfo workerInfo, WorkerDataIndex wdi, WorkerData initWorkerLocalData, 
+            CodeAttributeInfo initWorkerCAI, boolean runInCaller, ObserverContext observerContext) {
+        WorkerData workerLocal = BLangVMUtils.createWorkerDataForLocal(workerInfo, parentCtx, argRegs,
+                callableUnitInfo.getParamTypes());
         if (initWorkerLocalData != null) {
             BLangVMUtils.mergeInitWorkertData(initWorkerLocalData, workerLocal, initWorkerCAI);
         }

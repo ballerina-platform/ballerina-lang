@@ -17,6 +17,7 @@
 package org.ballerinalang.persistence.serializable;
 
 import org.ballerinalang.bre.bvm.WorkerData;
+import org.ballerinalang.persistence.Deserializer;
 import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.ArrayList;
@@ -41,7 +42,6 @@ public class SerializableWorkerData {
     private ArrayList<Object> refFields;
 
     public SerializableWorkerData(WorkerData workerData, SerializableState state) {
-        byteRegs = workerData.byteRegs;
         doubleRegs = workerData.doubleRegs;
         intRegs = workerData.intRegs;
         longRegs = workerData.longRegs;
@@ -49,14 +49,13 @@ public class SerializableWorkerData {
         refFields = state.serializeRefFields(workerData.refRegs);
     }
 
-    public WorkerData getWorkerData(ProgramFile programFile, SerializableState state) {
+    public WorkerData getWorkerData(ProgramFile programFile, SerializableState state, Deserializer deserializer) {
         WorkerData workerData = new WorkerData();
         workerData.longRegs = longRegs;
         workerData.doubleRegs = doubleRegs;
         workerData.stringRegs = stringRegs;
         workerData.intRegs = intRegs;
-        workerData.byteRegs = byteRegs;
-        workerData.refRegs = state.deserializeRefFields(refFields, programFile);
+        workerData.refRegs = state.deserializeRefFields(refFields, programFile, deserializer);
         return workerData;
     }
 }

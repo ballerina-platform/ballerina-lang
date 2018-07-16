@@ -22,6 +22,7 @@ import com.google.gson.GsonBuilder;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.persistence.Deserializer;
 import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -59,7 +60,7 @@ public class SerializableBMap<K, V extends BValue> implements SerializableRefTyp
 
     @Override
     @SuppressWarnings("unchecked")
-    public BRefType getBRefType(ProgramFile programFile, SerializableState state) {
+    public BRefType getBRefType(ProgramFile programFile, SerializableState state, Deserializer deserializer) {
         PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
         BMap<K, V> bMap;
         if (packageInfo != null) {
@@ -72,10 +73,10 @@ public class SerializableBMap<K, V extends BValue> implements SerializableRefTyp
             bMap = new BMap<>();
         }
         nativeData.forEach((s, o) -> {
-            bMap.addNativeData(s, state.deserialize(o, programFile));
+            bMap.addNativeData(s, state.deserialize(o, programFile, deserializer));
         });
         map.forEach((k, v) -> {
-            bMap.put(k, (V) state.deserialize(v, programFile));
+            bMap.put(k, (V) state.deserialize(v, programFile, deserializer));
         });
         return bMap;
     }

@@ -21,6 +21,7 @@ import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.persistence.Deserializer;
 import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -53,11 +54,11 @@ public class SerializableBRefArray implements SerializableRefType {
     }
 
     @Override
-    public BRefType getBRefType(ProgramFile programFile, SerializableState state) {
+    public BRefType getBRefType(ProgramFile programFile, SerializableState state, Deserializer deserializer) {
         PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
         BRefType[] bRefTypes = new BRefType[values.size()];
         for (int i = 0; i < values.size(); i++) {
-            Object deserialize = state.deserialize(values.get(i), programFile);
+            Object deserialize = state.deserialize(values.get(i), programFile, deserializer);
             if (deserialize instanceof BRefType) {
                 bRefTypes[i] = (BRefType) deserialize;
             } else {

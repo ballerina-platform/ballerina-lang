@@ -32,7 +32,6 @@ public class Constants {
     // Transaction constants
     public static final String GLOBAL_TRANSACTION_ID = "globalTransactionId";
     public static final String TRANSACTION_URL = "transactionUrl";
-    public static final String COMPENSATION_TABLE = "COMPENSATION_TABLE";
 
     // Instance id key
     public static final String STATE_ID = "b7a.state.id";
@@ -45,4 +44,6 @@ public class Constants {
 
     // Default worker name
     public static final String DEFAULT = "default";
+
+    public static final String COMPENSATION_TABLE = "COMPENSATION_TABLE";
 }

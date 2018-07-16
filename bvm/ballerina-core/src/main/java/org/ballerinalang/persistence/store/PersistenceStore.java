@@ -19,7 +19,7 @@
 package org.ballerinalang.persistence.store;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.persistence.PersistenceUtils;
+import org.ballerinalang.persistence.Deserializer;
 import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.persistence.store.impl.FileBasedProvider;
@@ -35,7 +35,6 @@ import java.util.List;
  * Representation of store which will be used to persist @{@link State}s in given storage.
  *
  * @since 0.976.0
- *
  */
 public class PersistenceStore {
 
@@ -55,11 +54,11 @@ public class PersistenceStore {
 
     public static List<State> getStates(ProgramFile programFile) {
         List<State> states = new LinkedList<>();
-
         List<String> serializedStates = storageProvider.getAllSerializedStates();
+        Deserializer deserializer = new Deserializer();
         for (String serializedState : serializedStates) {
             SerializableState sState = SerializableState.deserialize(serializedState);
-            WorkerExecutionContext context = sState.getExecutionContext(programFile);
+            WorkerExecutionContext context = sState.getExecutionContext(programFile, deserializer);
             if (context.callableUnitInfo instanceof ResourceInfo) {
                 ResourceInfo resourceInfo = (ResourceInfo) context.callableUnitInfo;
                 BLangVMUtils.setServiceInfo(context, resourceInfo.getServiceInfo());
@@ -70,9 +69,7 @@ public class PersistenceStore {
             state.setIp(context.ip);
             states.add(state);
         }
-        PersistenceUtils.getTempRefTypes().remove("s_");
-        PersistenceUtils.getTempContexts().clear();
-        PersistenceUtils.getTempRespContexts().clear();
+        deserializer.cleanUpDeserializer();
         return states;
     }
 }
