@@ -641,9 +641,6 @@ class BallerinaFileEditor extends React.Component {
             && !_.isNil(this.state.swaggerViewTargetService)
             && this.state.activeView === SWAGGER_VIEW);
 
-
-        
-
         const showLoadingOverlay = !this.skipLoadingOverlay && this.state.parsePending;
 
         const sourceWidth = (this.state.activeView === SOURCE_VIEW) ? this.props.width :
