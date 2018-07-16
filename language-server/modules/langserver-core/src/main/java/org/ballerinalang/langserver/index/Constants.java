@@ -90,4 +90,10 @@ public class Constants {
     static final String GET_ALL_PACKAGES = "SELECT * FROM bLangPackage";
 
     static final String GET_ALL_ENDPOINTS = "SELECT * FROM bLangObject WHERE type = 1";
+
+    static final String GET_ALL_ACTIONS = "SELECT p.ID, o.ID, f.NAME  " +
+            "FROM BLANGOBJECT as o " +
+            "JOIN BLANGPACKAGE as p ON p.ID = o.PACKAGEID " +
+            "JOIN BLANGFUNCTION as f ON f.OBJECTID   = o.ACTIONHOLDERID  " +
+            "WHERE o.TYPE  = 1 AND p.NAME LIKE ? AND o.NAME LIKE ?";
 }

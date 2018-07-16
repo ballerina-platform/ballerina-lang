@@ -48,12 +48,12 @@ class DiagramMenu extends React.Component {
                     { this.props.mode === 'action' &&
                     <Menu.Item onClick={() => { this.props.onModeChange({ mode: 'default', fitToWidth: false }); }}
                         className='menu-button ui button'>
-                        <Icon name='fw fw-contract' title='Collapse Code' />
+                        <Icon name='fw fw-expand' title='Expand Code' />
                     </Menu.Item>}
                     { this.props.mode === 'default' &&
                     <Menu.Item onClick={() => { this.props.onModeChange({ mode: 'action', fitToWidth: false }); }}
                         className='menu-button ui button'>
-                        <Icon name='fw fw-expand' title='Expand Code' />
+                        <Icon name='fw fw-collapse' title='Collapse Code' />
                     </Menu.Item>}
                 </Menu.Menu>
                 }

@@ -1064,6 +1064,9 @@ public class SQLDatasourceUtils {
         } else if (value instanceof Timestamp) {
             calendar.setTimeInMillis(value.getTime());
             type = "datetime";
+        } else if (value instanceof Date) {
+            calendar.setTime(value);
+            type = "date";
         } else {
             calendar.setTime(value);
             type = "time";

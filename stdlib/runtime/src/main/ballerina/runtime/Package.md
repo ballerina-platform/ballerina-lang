@@ -11,7 +11,7 @@ The Invocation Context comprises of a unique ID, a `UserPrincipal` instance that
 ### Errors
 
 The runtime package includes the `NullReferenceException` and `IllegalStateException` error types. These two error 
-types wrap the `error` type defined in the `ballerina/builtin` package. Furthermore, there are utility methods to 
+types wrap the `error` type defined in the `ballerina/runtime` package. Furthermore, there are utility methods to 
 retrieve the current call stack and the particular call stack frame for an error. 
 
 Additionally, the runtime package also contains utility methods to halt a `worker` (sleep) for a given period of time

@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BRecordTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.OtherTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.PackageIDDTO;
+import org.eclipse.lsp4j.CompletionItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -494,5 +495,40 @@ public class LSIndexQueryProcessor {
             logger.error("Error getting the Generated Keys: [" + e.getMessage() + "]");
         }
         return generatedKeys;
+    }
+
+    /**
+     * Get all actions of a given endpoint.
+     * @param pkgName           Package name of the endpoint
+     * @param type              Type name of the endpoint
+     * @return                  List of Endpoints
+     * @throws SQLException     Exception while query
+     */
+    public List<BFunctionDTO> getActions(String pkgName, String type) throws SQLException {
+        List<BFunctionDTO> packages = new ArrayList<>();
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        try {
+            statement = connection.prepareStatement(Constants.GET_ALL_ACTIONS);
+            statement.setString(1, pkgName);
+            statement.setString(2, type);
+            resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                packages.add(new BFunctionDTO(
+                        Integer.parseInt(resultSet.getString(1)),
+                        Integer.parseInt(resultSet.getString(2)),
+                        resultSet.getString(3),
+                        new CompletionItem() // put an empty completion for now.
+                ));
+            }
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+            if (resultSet != null) {
+                resultSet.close();
+            }
+        }
+        return packages;
     }
 }

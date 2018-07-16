@@ -1300,7 +1300,7 @@ public class TableTest {
             long datetimeReturnedEpoch = dfTimestamp.parse(datetimeReturned).getTime();
             Assert.assertEquals(datetimeReturnedEpoch, timestampInserted);
         } catch (ParseException e) {
-            //Ignore
+            Assert.fail("Parsing the returned date/time/timestamp value has failed", e);
         }
     }
 

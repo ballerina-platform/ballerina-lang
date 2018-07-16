@@ -115,28 +115,32 @@ public class LSCompiler {
     public BallerinaFile compileContent(String content, CompilerPhase phase, boolean preserveWhitespace) {
         java.nio.file.Path filePath = createAndGetTempFile(UNTITLED_BAL);
         Optional<Lock> fileLock = documentManager.lockFile(filePath);
+
+        // If the Extended workspace document manager is use enable explicit mode.
+        ExtendedWorkspaceDocumentManagerImpl exDocManager = null;
+        if (documentManager instanceof  ExtendedWorkspaceDocumentManagerImpl) {
+            exDocManager = (ExtendedWorkspaceDocumentManagerImpl) documentManager;
+        }
+
         try {
+            if (null != exDocManager) {
+                exDocManager.enableExplicitMode(filePath);
+            }
+
             if (documentManager.isFileOpen(filePath)) {
                 documentManager.updateFile(filePath, content);
             } else {
                 documentManager.openFile(filePath, content);
             }
-            if (documentManager instanceof  ExtendedWorkspaceDocumentManagerImpl) {
-                ExtendedWorkspaceDocumentManagerImpl exDocManager =
-                        (ExtendedWorkspaceDocumentManagerImpl) documentManager;
-                exDocManager.enableExplicitMode(filePath);
-            }
-            BallerinaFile ballerinaFile = LSCompiler.compile(filePath, phase, documentManager, preserveWhitespace);
 
-            if (documentManager instanceof  ExtendedWorkspaceDocumentManagerImpl) {
-                ExtendedWorkspaceDocumentManagerImpl exDocManager =
-                        (ExtendedWorkspaceDocumentManagerImpl) documentManager;
-                exDocManager.enableExplicitMode(filePath);
-            }
+            BallerinaFile ballerinaFile = LSCompiler.compile(filePath, phase, documentManager, preserveWhitespace);
 
             documentManager.closeFile(filePath);
             return ballerinaFile;
         } finally {
+            if (null != exDocManager) {
+                exDocManager.disableExplicitMode();
+            }
             fileLock.ifPresent(Lock::unlock);
         }
     }

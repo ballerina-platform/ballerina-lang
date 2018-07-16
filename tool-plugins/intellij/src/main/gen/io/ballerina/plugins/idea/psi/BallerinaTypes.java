@@ -317,7 +317,6 @@ public interface BallerinaTypes {
   IElementType BIND = new BallerinaTokenType("bind");
   IElementType BITAND = new BallerinaTokenType("BITAND");
   IElementType BITXOR = new BallerinaTokenType("BITXOR");
-  IElementType BLOB = new BallerinaTokenType("blob");
   IElementType BOOLEAN = new BallerinaTokenType("boolean");
   IElementType BOOLEAN_LITERAL = new BallerinaTokenType("BOOLEAN_LITERAL");
   IElementType BREAK = new BallerinaTokenType("break");
