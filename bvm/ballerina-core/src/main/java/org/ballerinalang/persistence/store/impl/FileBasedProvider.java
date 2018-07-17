@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.persistence.store.impl;
 
-import org.apache.commons.io.FileUtils;
 import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.persistence.store.StorageProvider;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -26,9 +25,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * This class implements @{@link StorageProvider} for persist @{@link State}s as files.
@@ -41,28 +43,29 @@ public class FileBasedProvider implements StorageProvider {
     private static final Logger log = LoggerFactory.getLogger(FileBasedProvider.class);
 
     @Override
-    public void persistState(String instanceId, String workerName, String stateString) {
+    public void persistState(String instanceId, String stateString) {
         File baseDir = new File(BASE_PATH);
         if (!baseDir.exists()) {
             baseDir.mkdir();
         }
-        File stateFile = new File(baseDir, instanceId + "_" + workerName + ".json");
         try {
-            FileUtils.write(stateFile, stateString);
+            Files.write(Paths.get(baseDir.getPath() + File.separator + instanceId + ".json"),
+                        stateString.getBytes());
         } catch (IOException e) {
-            log.error("Error while persisting state for instance id: {}", instanceId + "_" + workerName, e);
+            log.error("Error while persisting the state for instance id: {}", instanceId, e);
         }
     }
 
     @Override
-    public void removeStates(String instanceId) {
+    public void removeActiveState(String instanceId) {
         File baseDir = new File(BASE_PATH);
         if (!baseDir.exists()) {
             return;
         }
-        File[] stateFiles = baseDir.listFiles();
-        if (stateFiles != null) {
-            Arrays.stream(stateFiles).filter(file -> file.getName().startsWith(instanceId)).forEach(File::delete);
+        try {
+            Files.delete(Paths.get(baseDir.getPath() + File.separator + instanceId + ".json"));
+        } catch (IOException e) {
+            log.error("Error while removing the state for instance id: {}", instanceId, e);
         }
     }
 
@@ -73,16 +76,16 @@ public class FileBasedProvider implements StorageProvider {
         if (!baseDir.exists()) {
             return states;
         }
-        File[] stateFiles = baseDir.listFiles();
-        if (stateFiles != null) {
-            Arrays.stream(stateFiles).forEach(file -> {
+        try (Stream<Path> stream = Files.list(Paths.get(BASE_PATH))) {
+            stream.forEach(path -> {
                 try {
-                    String jsonState = FileUtils.readFileToString(file);
-                    states.add(jsonState);
+                    states.add(new String(Files.readAllBytes(path)));
                 } catch (IOException e) {
-                    throw new BallerinaException("Failed to retrieve states.", e);
+                    throw new BallerinaException("Error occurred while reading state from file path: " + path, e);
                 }
             });
+        } catch (IOException e) {
+            throw new BallerinaException("Failed to retrieve states.", e);
         }
         return states;
     }

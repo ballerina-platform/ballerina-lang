@@ -178,7 +178,6 @@
                 <include>io.ballerina.messaging:broker-auth</include>
                 <include>io.ballerina.messaging:broker-rest-runner</include>
                 <include>io.ballerina.messaging:broker-coordination</include>
-                <include>com.google.code.gson:gson</include>
                 <include>org.wso2.carbon.metrics:org.wso2.carbon.metrics.core</include>
                 <include>io.netty:netty-tcnative-boringssl-static</include>
 
@@ -211,7 +210,7 @@
                 <include>org.wso2.securevault:org.wso2.securevault:jar</include>
 
                 <!-- Check-pointing dependencies -->
-                <include>commons-io:commons-io:jar</include>
+                <include>com.google.code.gson:gson</include>
 
             </includes>
         </dependencySet>

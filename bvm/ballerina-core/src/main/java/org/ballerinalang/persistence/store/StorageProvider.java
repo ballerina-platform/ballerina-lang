@@ -25,13 +25,12 @@ import java.util.List;
  * Representation of storage provider which will be used to persist @{@link State}s.
  *
  * @since 0.976.0
- *
  */
 public interface StorageProvider {
 
-    void persistState(String instanceId, String workerName, String stateString);
+    void persistState(String instanceId, String stateString);
 
-    void removeStates(String instanceId);
+    void removeActiveState(String instanceId);
 
     List<String> getAllSerializedStates();
 }
