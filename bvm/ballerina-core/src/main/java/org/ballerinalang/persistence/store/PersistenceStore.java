@@ -32,7 +32,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Representation of store which will be used to persist @{@link State}s in given storage.
+ * This class is used to persist @{@link State}s in given storage.
  *
  * @since 0.976.0
  */

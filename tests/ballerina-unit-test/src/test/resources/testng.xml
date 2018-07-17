@@ -99,4 +99,9 @@ under the License.
             <class name="org.ballerinalang.test.observe.CounterTest"/>
         </classes>
     </test>
+    <test name="ballerina-checkpointing-test-suite" preserve-order="true" parallel="false">
+        <classes >
+            <class name="org.ballerinalang.test.checkpointing.SerializationTest"/>
+        </classes>
+    </test>
 </suite>

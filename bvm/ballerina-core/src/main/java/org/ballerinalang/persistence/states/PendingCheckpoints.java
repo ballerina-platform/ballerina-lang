@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Manages the check points of given execution.
+ * Manages the check points of the executions.
  *
  * @since 0.976.0
  */
