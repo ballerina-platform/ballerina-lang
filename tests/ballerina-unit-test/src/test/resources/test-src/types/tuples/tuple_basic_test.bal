@@ -111,3 +111,8 @@ function testIndexBasedAccess () returns (string, int, boolean) {
     x[2] = "def";
     return (x[2], x[1], x[0]);
 }
+
+function testDefaultValuesInTuples () returns (string, int, boolean, float) {
+    (boolean, int, string, float) x;
+    return (x[2], x[1], x[0], x[3]);
+}

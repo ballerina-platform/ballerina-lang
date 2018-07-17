@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -96,6 +97,15 @@ public class BasicTupleTest {
         Assert.assertEquals(returns[0].stringValue(), "def");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 4);
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
+    }
+
+    @Test(description = "Test default values for tuple type")
+    public void testDefaultValuesInTuples() {
+        BValue[] returns = BRunUtil.invoke(result, "testDefaultValuesInTuples");
+        Assert.assertEquals(returns[0].stringValue(), "");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
+        Assert.assertEquals(((BFloat) returns[3]).intValue(), 0);
     }
 
     @Test(description = "Test negative scenarios of assigning tuple literals")

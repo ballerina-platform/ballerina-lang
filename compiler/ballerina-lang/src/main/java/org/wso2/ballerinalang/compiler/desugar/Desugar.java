@@ -2401,6 +2401,10 @@ public class Desugar extends BLangNodeVisitor {
                 array.exprs = new ArrayList<>();
                 array.type = type;
                 return rewriteExpr(array);
+            case TypeTags.TUPLE:
+                BLangBracedOrTupleExpr tuple = new BLangBracedOrTupleExpr();
+                tuple.type = type;
+                return rewriteExpr(tuple);
             default:
                 break;
         }
