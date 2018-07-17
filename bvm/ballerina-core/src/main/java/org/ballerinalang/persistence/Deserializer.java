@@ -40,7 +40,7 @@ public class Deserializer {
     private Map<String, CallableWorkerResponseContext> tempRespContexts = new ConcurrentHashMap<>();
 
     public void cleanUpDeserializer() {
-        tempRefTypes.remove("s_");
+        tempRefTypes.clear();
         tempContexts.clear();
         tempRespContexts.clear();
     }

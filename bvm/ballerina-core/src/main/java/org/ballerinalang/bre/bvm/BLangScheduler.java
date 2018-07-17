@@ -101,6 +101,17 @@ public class BLangScheduler {
             workersDoneSemaphore.release();
         }
     }
+
+    private static void handleInterruptibleState(WorkerExecutionContext ctx) {
+        if (ctx.interruptible && ctx.parent != null && ctx.parent.parent == null) {
+            String instanceId = (String) ctx.globalProps.get(Constants.STATE_ID);
+            List<State> stateList = RuntimeStates.get(instanceId);
+            if (stateList != null && !stateList.isEmpty()) {
+                RuntimeStates.remove(instanceId);
+                PersistenceStore.removeStates(instanceId);
+            }
+        }
+    }
     
     public static WorkerExecutionContext schedule(WorkerExecutionContext ctx, boolean runInCaller) {
         workerReady(ctx);
@@ -158,15 +169,7 @@ public class BLangScheduler {
 
         schedulerStats.stateTransition(ctx, WorkerState.DONE);
         ctx.state = WorkerState.DONE;
-        if (ctx.interruptible && ctx.parent != null && ctx.parent.parent == null) {
-            Object o = ctx.globalProps.get(Constants.STATE_ID);
-            String instanceId = o.toString();
-            List<State> stateList = RuntimeStates.get(instanceId);
-            if (stateList != null && !stateList.isEmpty()) {
-                RuntimeStates.remove(instanceId);
-                PersistenceStore.removeStates(instanceId);
-            }
-        }
+        handleInterruptibleState(ctx);
         workerCountDown();
     }
     
@@ -198,6 +201,7 @@ public class BLangScheduler {
     public static void workerExcepted(WorkerExecutionContext ctx) {
         schedulerStats.stateTransition(ctx, WorkerState.EXCEPTED);
         ctx.state = WorkerState.EXCEPTED;
+        handleInterruptibleState(ctx);
         workerCountDown();
     }
     
