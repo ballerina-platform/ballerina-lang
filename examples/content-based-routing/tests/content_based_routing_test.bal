@@ -5,7 +5,7 @@ import ballerina/test;
 boolean serviceStarted;
 
 function startService() {
-    serviceStarted = test:startServices("content-based-routing");
+    //serviceStarted = test:startServices("content-based-routing");
 }
 
 @test:Config {
@@ -16,7 +16,7 @@ function testFunc() {
     // Invoking the main function
     endpoint http:Client httpEndpoint { url: "http://localhost:9090" };
     // Chck whether the server is started
-    test:assertTrue(serviceStarted, msg = "Unable to start the service");
+    //test:assertTrue(serviceStarted, msg = "Unable to start the service");
     json payload = { name: "sanFrancisco" };
     json payload2 = { name: "london" };
 
@@ -62,5 +62,5 @@ function testFunc() {
 }
 
 function stopService() {
-    test:stopServices("content-based-routing");
+    //test:stopServices("content-based-routing");
 }
