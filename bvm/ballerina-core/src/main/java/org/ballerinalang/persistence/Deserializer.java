@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Deserializer {
 
-    // This temporary data structures will be used to temporary store deserialize objects to manage sharable objects.
+    // These temporary data structures will be used to temporary store deserialize objects to manage sharable objects.
     private Map<String, BRefType> tempRefTypes = new ConcurrentHashMap<>();
 
     private Map<String, WorkerExecutionContext> tempContexts = new ConcurrentHashMap<>();
