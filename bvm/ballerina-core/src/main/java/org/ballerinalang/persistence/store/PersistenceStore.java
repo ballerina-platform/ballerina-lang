@@ -44,12 +44,11 @@ public class PersistenceStore {
         SerializableState sState = new SerializableState(state.getContext());
         sState.setInstanceId(state.getInstanceId());
         String stateString = sState.serialize();
-        String workerName = state.getContext().workerInfo.getWorkerName();
-        storageProvider.persistState(state.getInstanceId(), workerName, stateString);
+        storageProvider.persistState(state.getInstanceId(), stateString);
     }
 
     public static void removeStates(String instanceId) {
-        storageProvider.removeStates(instanceId);
+        storageProvider.removeActiveState(instanceId);
     }
 
     public static List<State> getStates(ProgramFile programFile) {
@@ -63,7 +62,7 @@ public class PersistenceStore {
                 ResourceInfo resourceInfo = (ResourceInfo) context.callableUnitInfo;
                 BLangVMUtils.setServiceInfo(context, resourceInfo.getServiceInfo());
             }
-            State state = new State(context, context.globalProps.get(Constants.STATE_ID).toString());
+            State state = new State(context, (String) context.globalProps.get(Constants.STATE_ID));
             // have to decrement ip as CPU class increments it as soon as instruction is fetched
             context.ip--;
             state.setIp(context.ip);
@@ -71,5 +70,9 @@ public class PersistenceStore {
         }
         deserializer.cleanUpDeserializer();
         return states;
+    }
+
+    public static void setStorageProvider(StorageProvider storageProvider) {
+        PersistenceStore.storageProvider = storageProvider;
     }
 }
