@@ -102,7 +102,7 @@ public class BLangScheduler {
         }
     }
 
-    private static void handleInterruptibleState(WorkerExecutionContext ctx) {
+    private static void removeInterruptibleState(WorkerExecutionContext ctx) {
         if (ctx.interruptible && ctx.parent != null && ctx.parent.parent == null) {
             String instanceId = (String) ctx.globalProps.get(Constants.STATE_ID);
             List<State> stateList = RuntimeStates.get(instanceId);
@@ -169,7 +169,7 @@ public class BLangScheduler {
 
         schedulerStats.stateTransition(ctx, WorkerState.DONE);
         ctx.state = WorkerState.DONE;
-        handleInterruptibleState(ctx);
+        removeInterruptibleState(ctx);
         workerCountDown();
     }
     
@@ -201,7 +201,7 @@ public class BLangScheduler {
     public static void workerExcepted(WorkerExecutionContext ctx) {
         schedulerStats.stateTransition(ctx, WorkerState.EXCEPTED);
         ctx.state = WorkerState.EXCEPTED;
-        handleInterruptibleState(ctx);
+        removeInterruptibleState(ctx);
         workerCountDown();
     }
     

@@ -175,9 +175,9 @@
                 <include>com.h2database:h2</include>
                 <include>io.ballerina.messaging:broker-core</include>
                 <include>io.ballerina.messaging:broker-common</include>
-                <include>io.ballerina.messaging:broker-auth</include>
                 <include>io.ballerina.messaging:broker-rest-runner</include>
                 <include>io.ballerina.messaging:broker-coordination</include>
+                <include>io.ballerina.messaging:broker-auth</include>
                 <include>org.wso2.carbon.metrics:org.wso2.carbon.metrics.core</include>
                 <include>io.netty:netty-tcnative-boringssl-static</include>
 
