@@ -1326,7 +1326,8 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // generating scope end instruction
         int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, currentPkgID);
-        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, Names.GEN_VAR_PREFIX + scopeNode.name.getValue());
+        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo,
+                scopeNode.getCompensationFunction().function.name.getValue());
         FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
         int funcRefCPIndex =  currentPkgInfo.addCPEntry(funcRefCPEntry);
         int i = 0;
@@ -1364,7 +1365,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         //scopeName, child count, children
         Operand[] operands = new Operand[2 + children.size()];
 
-        int scopeNameCPIndex = addUTF8CPEntry(currentPkgInfo, compensate.invocation.name.value);
+        int scopeNameCPIndex = addUTF8CPEntry(currentPkgInfo, compensate.getScopeName().getValue());
         operands[i++] = getOperand(scopeNameCPIndex);
 
         operands[i++] = getOperand(children.size());
