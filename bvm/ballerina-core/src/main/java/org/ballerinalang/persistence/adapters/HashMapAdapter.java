@@ -46,10 +46,10 @@ public class HashMapAdapter implements JsonSerializer<HashMap<String, Object>>,
             Object v = map.get(key);
             JsonObject wrapper = new JsonObject();
             if (v != null) {
-                wrapper.add(Constants.NAME, new JsonPrimitive(v.getClass().getName()));
+                wrapper.add(Constants.TYPE, new JsonPrimitive(v.getClass().getName()));
                 wrapper.add(Constants.DATA, context.serialize(v, v.getClass()));
             } else {
-                wrapper.add(Constants.NAME, new JsonPrimitive(Constants.NULL));
+                wrapper.add(Constants.TYPE, new JsonPrimitive(Constants.NULL));
             }
             result.add(key, wrapper);
         }
@@ -64,7 +64,7 @@ public class HashMapAdapter implements JsonSerializer<HashMap<String, Object>>,
             for (Map.Entry<String, JsonElement> entry : entries) {
                 String key = entry.getKey();
                 JsonObject wrapper = entry.getValue().getAsJsonObject();
-                String className = wrapper.get(Constants.NAME).getAsString();
+                String className = wrapper.get(Constants.TYPE).getAsString();
                 if (Constants.NULL.equals(className)) {
                     map.put(key, null);
                 } else {
