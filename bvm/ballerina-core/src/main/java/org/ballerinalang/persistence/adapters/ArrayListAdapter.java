@@ -43,10 +43,10 @@ public class ArrayListAdapter implements JsonSerializer<ArrayList<Object>>, Json
         for (Object o : list) {
             JsonObject wrapper = new JsonObject();
             if (o != null) {
-                wrapper.add(Constants.NAME, new JsonPrimitive(o.getClass().getName()));
+                wrapper.add(Constants.TYPE, new JsonPrimitive(o.getClass().getName()));
                 wrapper.add(Constants.DATA, context.serialize(o, o.getClass()));
             } else {
-                wrapper.add(Constants.NAME, new JsonPrimitive(Constants.NULL));
+                wrapper.add(Constants.TYPE, new JsonPrimitive(Constants.NULL));
             }
             result.add(wrapper);
         }
@@ -59,7 +59,7 @@ public class ArrayListAdapter implements JsonSerializer<ArrayList<Object>>, Json
         try {
             for (int i = 0; i < jsonObject.size(); i++) {
                 JsonObject wrapper = jsonObject.get(i).getAsJsonObject();
-                String className = wrapper.get(Constants.NAME).getAsString();
+                String className = wrapper.get(Constants.TYPE).getAsString();
                 if (className.equals(Constants.NULL)) {
                     list.add(i, null);
                 } else {
