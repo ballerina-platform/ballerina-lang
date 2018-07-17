@@ -26,7 +26,7 @@ public interface BallerinaParameterWithType extends BallerinaCompositeElement {
   @NotNull
   BallerinaTypeName getTypeName();
 
-  @Nullable
+  @NotNull
   PsiElement getIdentifier();
 
 }

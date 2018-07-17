@@ -124,12 +124,11 @@ public class EndpointDesugar {
         if (serviceSymbol.boundEndpoints.isEmpty()) {
             return;
         }
-        final BSymbol enclosingSymbol = pkgEnv.enclPkg.symbol;
         final BSymbol varSymbol = pkgEnv.enclPkg.startFunction.symbol;
         final BLangBlockStmt startBlock = pkgEnv.enclPkg.startFunction.body;
         serviceSymbol.boundEndpoints.forEach(endpointVarSymbol -> {
             final BLangBlockStmt generateCode = generateServiceRegistered(endpointVarSymbol, service, pkgEnv,
-                    enclosingSymbol, varSymbol);
+                    endpointVarSymbol.owner, varSymbol);
             ASTBuilderUtil.prependStatements(generateCode, startBlock);
         });
     }
