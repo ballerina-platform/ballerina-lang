@@ -83,7 +83,7 @@ public class SerializableContext {
     public SerializableContext(String contextKey, WorkerExecutionContext ctx, SerializableState state) {
         this.contextKey = contextKey;
         ip = ctx.ip;
-        populateProps(globalProps, ctx.globalProps, state);
+        populateProps(state.globalProps, ctx.globalProps, state);
         populateProps(localProps, ctx.localProps, state);
         retRegIndexes = ctx.retRegIndexes;
         runInCaller = ctx.runInCaller;
@@ -127,7 +127,7 @@ public class SerializableContext {
         WorkerData workerLocalData = null;
         WorkerData workerResultData = null;
 
-        Map<String, Object> tempGlobalProps = prepareProps(globalProps, state, programFile, deserializer);
+        Map<String, Object> tempGlobalProps = prepareProps(state.globalProps, state, programFile, deserializer);
         if (workerLocal != null) {
             workerLocalData = workerLocal.getWorkerData(programFile, state, deserializer);
         }
