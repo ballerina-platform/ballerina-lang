@@ -342,3 +342,8 @@ function testFuncPtrAsRecordField() returns string {
 
     return p.fullName();
 }
+
+type EmptyRecord record {
+
+
+};

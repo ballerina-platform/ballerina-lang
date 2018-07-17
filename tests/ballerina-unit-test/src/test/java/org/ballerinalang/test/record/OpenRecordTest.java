@@ -32,6 +32,10 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+
+import java.util.Optional;
 
 /**
  * Test cases for user defined open record types in Ballerina.
@@ -377,4 +381,25 @@ public class OpenRecordTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testFuncPtrAsRecordField");
         Assert.assertEquals(returns[0].stringValue(), "Doe, John");
     }
+
+    @Test(description = "Test fix for empty record Diagnostic Position")
+    public void testEmptyRecordDiagnosticPos() {
+        BLangPackage packageNode = (BLangPackage) compileResult.getAST();
+
+        Optional<BLangTypeDefinition> recordContainer = packageNode.getTypeDefinitions()
+                .stream()
+                .filter(def -> def.getName().getValue().equals("EmptyRecord"))
+                .findAny();
+
+        Assert.assertTrue(recordContainer.isPresent());
+        BLangTypeDefinition emptyRecord = recordContainer.get();
+
+        Assert.assertNotNull(emptyRecord);
+
+        Assert.assertEquals(emptyRecord.typeNode.pos.sLine, 346);
+        Assert.assertEquals(emptyRecord.typeNode.pos.eLine, 349);
+        Assert.assertEquals(emptyRecord.typeNode.pos.sCol, 18);
+        Assert.assertEquals(emptyRecord.typeNode.pos.eCol, 1);
+    }
+
 }
