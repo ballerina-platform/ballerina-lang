@@ -19,6 +19,7 @@ import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.model.Whitespace;
@@ -79,7 +80,7 @@ public class HoverUtil {
                                     && symbolNameComponents[symbolNameComponents.length - 1]
                                     .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY));
                         })
-                        .map(entry -> (BInvokableSymbol) entry.getValue().symbol).findFirst().orElseGet(null);
+                        .map(entry -> (BInvokableSymbol) entry.getValue().symbol).findFirst().orElse(null);
 
                 if (bInvokableSymbol == null) {
                     // Check within the attached functions of the objects
@@ -88,7 +89,7 @@ public class HoverUtil {
                             .map(entry -> (BObjectTypeSymbol) entry.getValue().symbol)
                             .collect(Collectors.toList());
                     bInvokableSymbol = getMatchingObjectFunction(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY),
-                            objectTypeSymbols);
+                            objectTypeSymbols, hoverContext);
                 }
 
                 filteredBSymbol = bInvokableSymbol;
@@ -102,7 +103,7 @@ public class HoverUtil {
                                 && entry.getValue().symbol.getName().getValue()
                                 .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .map(entry -> (BTypeSymbol) entry.getValue().symbol)
-                        .findFirst().orElseGet(null);
+                        .findFirst().orElse(null);
                 break;
             }
             case ContextConstants.ENDPOINT: {
@@ -111,7 +112,7 @@ public class HoverUtil {
                                 && entry.getValue().symbol.getName().getValue()
                                 .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .map(entry -> (BEndpointVarSymbol) entry.getValue().symbol)
-                        .findFirst().orElseGet(null);
+                        .findFirst().orElse(null);
                 break;
             }
             case ContextConstants.VARIABLE: {
@@ -120,7 +121,7 @@ public class HoverUtil {
                                 && entry.getValue().symbol.getName().getValue()
                                 .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .map(entry -> (BVarSymbol) entry.getValue().symbol)
-                        .findFirst().orElseGet(null);
+                        .findFirst().orElse(null);
                 break;
             }
             default:
@@ -296,12 +297,14 @@ public class HoverUtil {
      * @param objects                       objects to be searched
      * @return {@link BInvokableSymbol}     matching function | null
      */
-    private static BInvokableSymbol getMatchingObjectFunction(String name, List<BObjectTypeSymbol> objects) {
+    private static BInvokableSymbol getMatchingObjectFunction(String name, List<BObjectTypeSymbol> objects,
+                                                              LSContext ctx) {
         BInvokableSymbol bInvokableSymbol = null;
         outOfLoop:
         for (BObjectTypeSymbol objectTypeSymbol : objects) {
             for (BAttachedFunction attachedFunc : objectTypeSymbol.attachedFuncs) {
-                if (attachedFunc.funcName.getValue().equals(name)) {
+                if (attachedFunc.funcName.getValue().equals(name)
+                        && objectTypeSymbol.getName().getValue().equals(ctx.get(NodeContextKeys.NODE_OWNER_KEY))) {
                     bInvokableSymbol = attachedFunc.symbol;
                     break outOfLoop;
                 }

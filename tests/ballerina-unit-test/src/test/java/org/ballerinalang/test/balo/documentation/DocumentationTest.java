@@ -63,5 +63,40 @@ public class DocumentationTest {
                 .replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING), " read or write mode\n");
         Assert.assertEquals(functionSymbol.documentation.attributes.get(1).description
                 .replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING), " success or not\n");
+
+        BSymbol personSymbol = testOrgPackage.scope.lookup(new Name("Person")).symbol;
+
+        Assert.assertNotNull(personSymbol.documentation);
+        Assert.assertEquals(personSymbol.documentation.description.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
+                "\n" + "    Represents a Person type in ballerina.\n");
+        Assert.assertEquals(personSymbol.documentation.attributes.size(), 0);
+
+
+        BSymbol personNameSymbol = personSymbol.scope.lookup(new Name("name")).symbol;
+
+        Assert.assertNotNull(personNameSymbol.documentation);
+        Assert.assertEquals(personNameSymbol.documentation.description.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
+                "\n" + "        This is the name of the person.\n    ");
+        Assert.assertEquals(personNameSymbol.documentation.attributes.size(), 0);
+
+
+        BSymbol getNameFuncSymbol = personSymbol.scope.lookup(new Name("Person.getName")).symbol;
+
+        Assert.assertNotNull(getNameFuncSymbol.documentation);
+        Assert.assertEquals(getNameFuncSymbol.documentation.description.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
+                "\n" + "        get the users name.\n        ");
+        Assert.assertEquals(getNameFuncSymbol.documentation.attributes.size(), 1);
+        Assert.assertEquals(getNameFuncSymbol.documentation.attributes.get(0).description
+                .replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING), " integer value\n    ");
+
+
+        BSymbol isMaleFuncSymbol = personSymbol.scope.lookup(new Name("Person.isMale")).symbol;
+
+        Assert.assertNotNull(isMaleFuncSymbol.documentation);
+        Assert.assertEquals(isMaleFuncSymbol.documentation.description.replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
+                "\n" + "        Indecate whether this is a male or female.\n        ");
+        Assert.assertEquals(isMaleFuncSymbol.documentation.attributes.size(), 1);
+        Assert.assertEquals(isMaleFuncSymbol.documentation.attributes.get(0).description
+                .replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING), " True if male\n    ");
     }
 }

@@ -38,6 +38,7 @@ export const EVENTS = {
     FILE_UPDATED: 'file-updated',
     FILE_SAVED: 'file-saved',
     FILE_CLOSED: 'file-closed',
+    FILE_PATH_CHANGED: 'file-path-changed',
     DIRTY_STATE_CHANGE: 'dirty-state-change',
     CONTENT_MODIFIED: 'content-modified',
 };
