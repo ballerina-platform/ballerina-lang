@@ -140,7 +140,15 @@ function startServer(){
             win.on('close', (evt) => {
                 if (process.platform === 'darwin' && !app.quitting) {
                     evt.preventDefault();
-                    win.hide();
+                    if (win.isFullScreen()) {
+                        win.once('leave-full-screen', function () {
+                            win.hide();
+                        })
+                        win.setFullScreen(false);
+                    }
+                    else{
+                        win.hide();
+                    }
                 }
             });
         } else {
