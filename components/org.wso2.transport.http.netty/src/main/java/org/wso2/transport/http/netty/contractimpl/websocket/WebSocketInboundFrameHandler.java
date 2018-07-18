@@ -45,7 +45,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketFrameType;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketCloseMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketControlMessage;
-import org.wso2.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
 import org.wso2.transport.http.netty.listener.MessageQueueHandler;
 
 /**
@@ -150,11 +149,6 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (!(msg instanceof WebSocketFrame)) {
-            log.error("Expecting WebSocketFrame. Unknown type.");
-            throw new UnknownWebSocketFrameTypeException("Expecting WebSocketFrame. Unknown type.");
-        }
-
         // If the continuation of frames are not following the protocol, netty handles them internally.
         // Hence those situations are not handled here.
         if (msg instanceof TextWebSocketFrame) {

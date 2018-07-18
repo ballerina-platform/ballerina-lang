@@ -86,6 +86,7 @@
             <class name="org.wso2.transport.http.netty.websocket.passthrough.WebSocketPassThroughTestCase"/>
             <class name="org.wso2.transport.http.netty.websocket.ssl.WebSocketSSLHandshakeSuccessfulTestCase"/>
             <class name="org.wso2.transport.http.netty.websocket.ssl.WebSocketSSLHandshakeFailureTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.WebSocketUnitTestCase"/>
         </classes>
     </test>
     <test name="HTTP2 Tests" parallel="false">

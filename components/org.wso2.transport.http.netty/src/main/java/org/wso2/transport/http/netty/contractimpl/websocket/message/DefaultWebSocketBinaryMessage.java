@@ -48,11 +48,8 @@ public class DefaultWebSocketBinaryMessage extends DefaultWebSocketMessage imple
         if (buffer.hasArray()) {
             bytes = buffer.array();
         } else {
-            int remaining = buffer.remaining();
-            bytes = new byte[remaining];
-            for (int i = 0; i < remaining; i++) {
-                bytes[i] = buffer.get();
-            }
+            bytes = new byte[buffer.remaining()];
+            buffer.get(bytes);
         }
         return bytes;
     }

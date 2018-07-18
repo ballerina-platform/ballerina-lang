@@ -34,9 +34,6 @@ public class DefaultClientHandshakeFuture extends DefaultWebSocketConnectorFutur
     private ClientHandshakeListener clientHandshakeListener;
     private HttpCarbonResponse response;
 
-    public DefaultClientHandshakeFuture() {
-    }
-
     @Override
     public void setClientHandshakeListener(ClientHandshakeListener clientHandshakeListener) {
         this.clientHandshakeListener = clientHandshakeListener;
@@ -66,6 +63,4 @@ public class DefaultClientHandshakeFuture extends DefaultWebSocketConnectorFutur
         }
         clientHandshakeListener.onError(throwable, response);
     }
-
-
 }
