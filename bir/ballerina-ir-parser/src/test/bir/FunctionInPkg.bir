@@ -1,0 +1,6 @@
+package {
+  function "my-func"(){
+     bb0 {
+     }
+  }
+}
