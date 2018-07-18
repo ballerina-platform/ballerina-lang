@@ -92,6 +92,7 @@ public class HttpFiltersDesugar {
     private static final String ORG_NAME = "ballerina";
     private static final String PACKAGE_NAME = "http";
     private static final String ENDPOINT_TYPE_NAME = "Listener";
+    private static final String ORG_SEPARATOR = "/";
 
     private static final int ENDPOINT_PARAM_NUM = 0;
     private static final int REQUEST_PARAM_NUM = 1;
@@ -99,8 +100,7 @@ public class HttpFiltersDesugar {
     private static final int FILTER_CONTEXT_FIELD_INDEX = 1;
     private static final int ENDPOINT_CONFIG_INDEX = 4;
     private static final int FILTERS_CONFIG_INDEX = 6;
-
-
+    
     private static final CompilerContext.Key<HttpFiltersDesugar> HTTP_FILTERS_DESUGAR_KEY =
             new CompilerContext.Key<>();
 
@@ -150,7 +150,7 @@ public class HttpFiltersDesugar {
      * @param env          the symbol environment.
      */
     private BLangVariable addFilterContextCreation(BLangResource resourceNode, SymbolEnv env) {
-        BLangIdentifier pkgAlias = ASTBuilderUtil.createIdentifier(resourceNode.pos, "http");
+        BLangIdentifier pkgAlias = ASTBuilderUtil.createIdentifier(resourceNode.pos, getPackageAlias(env));
         BLangUserDefinedType filterContextUserDefinedType = new BLangUserDefinedType(
                 pkgAlias, ASTBuilderUtil.createIdentifier(resourceNode.pos, "FilterContext"));
         BType filterContextType = symResolver.resolveTypeNode(filterContextUserDefinedType, env);
@@ -200,6 +200,18 @@ public class HttpFiltersDesugar {
         filterContextVar.typeNode = filterContextUserDefinedType;
         resourceNode.body.stmts.add(0, ASTBuilderUtil.createVariableDef(resourceNode.pos, filterContextVar));
         return filterContextVar;
+    }
+
+    /**
+     * Get the alias name of the http import.
+     *
+     * @param env the symbol environment.
+     * @return the alias name.
+     */
+    private String getPackageAlias(SymbolEnv env) {
+        return env.enclPkg.imports.stream()
+                .filter(imports -> imports.symbol.pkgID.toString().equals(ORG_NAME + ORG_SEPARATOR + PACKAGE_NAME))
+                .map(importPackage -> importPackage.alias.value).findFirst().orElse(PACKAGE_NAME);
     }
 
     /**

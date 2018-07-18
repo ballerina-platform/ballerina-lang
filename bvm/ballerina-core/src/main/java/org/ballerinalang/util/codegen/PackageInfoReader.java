@@ -46,9 +46,11 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.NativeUnitLoader;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
+import org.ballerinalang.util.codegen.Instruction.InstructionCompensate;
 import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
+import org.ballerinalang.util.codegen.Instruction.InstructionScopeEnd;
 import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
@@ -97,6 +99,7 @@ import static org.ballerinalang.util.BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.INIT_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.START_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.STOP_FUNCTION_SUFFIX;
+import static org.ballerinalang.util.codegen.InstructionCodes.COMPENSATE;
 
 /**
  * Reads a Ballerina {@code PackageInfo} structure from a file.
@@ -1050,14 +1053,14 @@ public class PackageInfoReader {
         for (int i = 0; i < noOfParamInfoEntries; i++) {
             int nameCPIndex = dataInStream.readInt();
             String name = getUTF8EntryValue(nameCPIndex, constantPool);
-            int typeSigCPIndex = dataInStream.readInt();
-            String typeSig = getUTF8EntryValue(typeSigCPIndex, constantPool);
+            //TODO remove below line ASAP, adding dummy value as we can't change binary file right now
+            dataInStream.readInt();
             int paramKindCPIndex = dataInStream.readInt();
             String paramKindValue = getUTF8EntryValue(paramKindCPIndex, constantPool);
             int paramDescCPIndex = dataInStream.readInt();
             String paramDesc = getUTF8EntryValue(paramDescCPIndex, constantPool);
-            ParameterDocumentInfo paramDocInfo = new ParameterDocumentInfo(nameCPIndex, name, typeSigCPIndex,
-                    typeSig, paramKindCPIndex, paramKindValue, paramDescCPIndex, paramDesc);
+            ParameterDocumentInfo paramDocInfo = new ParameterDocumentInfo(nameCPIndex, name,
+                    paramKindCPIndex, paramKindValue, paramDescCPIndex, paramDesc);
             docAttrInfo.paramDocInfoList.add(paramDocInfo);
         }
 
@@ -1143,6 +1146,7 @@ public class PackageInfoReader {
                 case InstructionCodes.THROW:
                 case InstructionCodes.ERRSTORE:
                 case InstructionCodes.NEWXMLSEQ:
+                case InstructionCodes.LOOP_COMPENSATE:
                     i = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i));
                     break;
@@ -1297,8 +1301,10 @@ public class PackageInfoReader {
                 case InstructionCodes.BIOR:
                 case InstructionCodes.IXOR:
                 case InstructionCodes.BIXOR:
-                case InstructionCodes.BISHL:
-                case InstructionCodes.BISHR:
+                case InstructionCodes.BILSHIFT:
+                case InstructionCodes.BIRSHIFT:
+                case InstructionCodes.IRSHIFT:
+                case InstructionCodes.ILSHIFT:
                 case InstructionCodes.XMLATTRLOAD:
                 case InstructionCodes.XMLATTRSTORE:
                 case InstructionCodes.S2QNAME:
@@ -1396,6 +1402,16 @@ public class PackageInfoReader {
 
                     packageInfo.addInstruction(InstructionFactory.get(opcode, funcRefCPIndex, funcCallCPIndex));
                     break;
+                case InstructionCodes.SCOPE_END:
+                    FunctionRefCPEntry funcCP = ((FunctionRefCPEntry) packageInfo.getCPEntry(codeStream.readInt()));
+                    FunctionInfo scopeFunction = funcCP.getFunctionInfo();
+                    String scopeName = ((UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt())).getValue();
+                    Instruction scopeInstruction = new InstructionScopeEnd(opcode, scopeFunction,
+                            getChildScopesList(codeStream, packageInfo), scopeName, funcCP);
+                    int[] pointerOperands = getFunctionPointerLoadOperands(codeStream);
+                    scopeInstruction.operands = pointerOperands;
+                    packageInfo.addInstruction(scopeInstruction);
+                    break;
                 case InstructionCodes.WRKSEND:
                 case InstructionCodes.WRKRECEIVE:
                     int channelRefCPIndex = codeStream.readInt();
@@ -1446,6 +1462,16 @@ public class PackageInfoReader {
                     }
                     packageInfo.addInstruction(new InstructionLock(opcode, varTypes, pkgRefs, varRegs));
                     break;
+                case COMPENSATE:
+                    int nameIndex = codeStream.readInt();
+                    String name = ((UTF8CPEntry) packageInfo.getCPEntry(nameIndex)).getValue();
+                    int childCount = codeStream.readInt();
+                    ArrayList<String> childScopeMap = new ArrayList<>();
+                    for (int count = 0; count < childCount; count++) {
+                        childScopeMap.add(((UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt())).getValue());
+                    }
+                    packageInfo.addInstruction(new InstructionCompensate(opcode, name, childScopeMap));
+                    break;
                 default:
                     throw new ProgramFileFormatException("unknown opcode " + opcode +
                             " in package " + packageInfo.getPkgPath());
@@ -1455,6 +1481,10 @@ public class PackageInfoReader {
 
     private void readFunctionPointerLoadInstruction(PackageInfo packageInfo, DataInputStream codeStream, int opcode)
             throws IOException {
+        packageInfo.addInstruction(InstructionFactory.get(opcode, getFunctionPointerLoadOperands(codeStream)));
+    }
+
+    private int[] getFunctionPointerLoadOperands(DataInputStream codeStream) throws IOException {
         int h;
         int i;
         int j;
@@ -1480,7 +1510,8 @@ public class PackageInfoReader {
                 operands[x + 4] = codeStream.readInt();
             }
         }
-        packageInfo.addInstruction(InstructionFactory.get(opcode, operands));
+
+        return operands;
     }
 
     void resolveCPEntries(PackageInfo currentPackageInfo) {
@@ -1824,5 +1855,16 @@ public class PackageInfoReader {
             }
             return new BFunctionType(funcParams.toArray(new BType[funcParams.size()]), returnTypes);
         }
+    }
+
+    private ArrayList<String> getChildScopesList(DataInputStream codeStream, PackageInfo packageInfo)
+            throws IOException {
+        int childCount = codeStream.readInt();
+        ArrayList<String> children = new ArrayList<>(childCount);
+        for (int i = 0; i < childCount; i++) {
+            children.add(((UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt())).getValue());
+        }
+
+        return children;
     }
 }

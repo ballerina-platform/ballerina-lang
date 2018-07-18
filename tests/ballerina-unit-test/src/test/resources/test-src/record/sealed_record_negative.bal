@@ -1,5 +1,21 @@
-type Person sealed record {
-    string name,
+type PersonA record {
+    string fname,
+    string lname,
     int age,
-    string...
+    ! ...
+};
+
+type PersonB record {
+    string fname,
+    string lname,
+    int age,
+    !   ...
+};
+
+type PersonC record {
+    string fname,
+    string lname,
+    int age,
+    !
+    ...
 };

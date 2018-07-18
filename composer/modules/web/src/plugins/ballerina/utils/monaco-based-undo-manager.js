@@ -38,8 +38,9 @@ class MonacoBasedUndoManager extends EventChannel {
      * @returns {boolean} true if has undoable operations
      */
     hasUndo() {
-        return this.sourceEditor.getCurrentModel()._commandManager.past.length > 0
-                || this.sourceEditor.getCurrentModel()._commandManager.currentStackElement !== undefined;
+        const currentModel = this.sourceEditor.getCurrentModel();
+        return currentModel && (currentModel._commandManager.past.length > 0
+                || currentModel._commandManager.currentStackElement !== undefined);
     }
 
     /**
@@ -53,7 +54,8 @@ class MonacoBasedUndoManager extends EventChannel {
      * @returns {boolean} true if has redoable operations
      */
     hasRedo() {
-        return this.sourceEditor.getCurrentModel()._commandManager.future.length > 0;
+        const currentModel = this.sourceEditor.getCurrentModel();
+        return currentModel && currentModel._commandManager.future.length > 0;
     }
 
     /**

@@ -107,8 +107,15 @@ fieldDefinition
     ;
 
 recordRestFieldDefinition
-    : typeName ELLIPSIS
+    :   typeName restDescriptorPredicate ELLIPSIS
+    |   sealedLiteral
     ;
+
+sealedLiteral
+    :   NOT restDescriptorPredicate ELLIPSIS
+    ;
+
+restDescriptorPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
 objectParameterList
     :   (objectParameter | objectDefaultableParameter) (COMMA (objectParameter | objectDefaultableParameter))* (COMMA restParameter)?
@@ -132,7 +139,7 @@ annotationDefinition
     ;
 
 globalVariableDefinition
-    :   (PUBLIC)? (typeName | sealedType) Identifier (ASSIGN expression )? SEMICOLON
+    :   (PUBLIC)? typeName Identifier (ASSIGN expression )? SEMICOLON
     ;
 
 attachmentPoint
@@ -180,19 +187,15 @@ finiteTypeUnit
     |   typeName
     ;
 
-sealedType
-    :   SEALED typeName                                                             # sealedTypeName
-    ;
-
 typeName
-    :   simpleTypeName                                                      # simpleTypeNameLabel
-    |   typeName (LEFT_BRACKET integerLiteral? RIGHT_BRACKET)+              # arrayTypeNameLabel
-    |   typeName (PIPE typeName)+                                           # unionTypeNameLabel
-    |   typeName QUESTION_MARK                                              # nullableTypeNameLabel
-    |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
-    |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeNameLabel
-    |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                            # objectTypeNameLabel
-    |   SEALED? RECORD LEFT_BRACE recordFieldDefinitionList RIGHT_BRACE     # recordTypeNameLabel
+    :   simpleTypeName                                                                          # simpleTypeNameLabel
+    |   typeName (LEFT_BRACKET (integerLiteral | sealedLiteral)? RIGHT_BRACKET)+                # arrayTypeNameLabel
+    |   typeName (PIPE typeName)+                                                               # unionTypeNameLabel
+    |   typeName QUESTION_MARK                                                                  # nullableTypeNameLabel
+    |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                                             # groupTypeNameLabel
+    |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS                           # tupleTypeNameLabel
+    |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                                                # objectTypeNameLabel
+    |   RECORD LEFT_BRACE recordFieldDefinitionList RIGHT_BRACE                                 # recordTypeNameLabel
     ;
 
 recordFieldDefinitionList
@@ -280,10 +283,12 @@ statement
     |   foreverStatement
     |   streamingQueryStatement
     |   doneStatement
+    |   scopeStatement
+    |   compensateStatement
     ;
 
 variableDefinitionStatement
-    :   (typeName | sealedType) Identifier (ASSIGN expression)? SEMICOLON
+    :   typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
 recordLiteral
@@ -409,6 +414,22 @@ continueStatement
 
 breakStatement
     :   BREAK SEMICOLON
+    ;
+
+scopeStatement
+    :   scopeClause compensationClause
+    ;
+
+scopeClause
+    : SCOPE Identifier LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
+compensationClause
+    : COMPENSATION callableUnitBody
+    ;
+
+compensateStatement
+    :  COMPENSATE Identifier SEMICOLON
     ;
 
 // typeName is only message

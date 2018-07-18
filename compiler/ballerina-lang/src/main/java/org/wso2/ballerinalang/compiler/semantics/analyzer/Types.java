@@ -222,10 +222,6 @@ public class Types {
             return isAssignable(((BStreamType) source).constraint, ((BStreamType) target).constraint);
         }
 
-        if (target.tag == TypeTags.INT && source.tag == TypeTags.BYTE) {
-            return true;
-        }
-
         BSymbol symbol = symResolver.resolveImplicitConversionOp(source, target);
         if (symbol != symTable.notFoundSymbol) {
             return true;
@@ -270,8 +266,32 @@ public class Types {
             return checkStructEquivalency(source, target);
         }
 
+        if (source.tag == TypeTags.TUPLE || target.tag == TypeTags.TUPLE) {
+            return isTupleTypeAssignable(source, target);
+        }
+
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target);
+    }
+
+    private boolean isTupleTypeAssignable(BType source, BType target) {
+        if (source.tag != TypeTags.TUPLE || target.tag != TypeTags.TUPLE) {
+            return false;
+        }
+
+        BTupleType lhsTupleType = (BTupleType) target;
+        BTupleType rhsTupleType = (BTupleType) source;
+
+        if (lhsTupleType.tupleTypes.size() != rhsTupleType.tupleTypes.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < lhsTupleType.tupleTypes.size(); i++) {
+            if (!isAssignable(rhsTupleType.tupleTypes.get(i), lhsTupleType.tupleTypes.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public boolean isArrayTypesAssignable(BType source, BType target) {

@@ -38,7 +38,7 @@ const webpackHash = process.env.NODE_ENV === 'production'
             ? __webpack_hash__ : __webpack_hash__();
 
 self.MonacoEnvironment = {
-    getWorkerUrl: function (moduleId, label) {
+    getWorkerUrl (moduleId, label) {
       if (label === 'json') {
         return `./workers/json.worker.bundle.js`;
       }
@@ -52,7 +52,7 @@ self.MonacoEnvironment = {
         return `./workers/ts.worker.bundle.js`;
       }
       return `./workers/editor.worker.bundle.js`;
-    }
+    },
 };
 
 /**
@@ -117,6 +117,9 @@ class SourceEditor extends React.Component {
      * @inheritdoc
      */
     componentWillUnmount() {
+        if (this.didChangeHandler) {
+            this.didChangeHandler.dispose();
+        }
         this.props.commandProxy.off(WORKSPACE_EVENTS.FILE_CLOSED, this.onWorkspaceFileClose);
         this.props.commandProxy.off(GO_TO_POSITION, this.handleGoToPosition);
     }
@@ -142,7 +145,7 @@ class SourceEditor extends React.Component {
         this.preventChangeEvt = ignoreChangeEvt;
         this.getCurrentModel()
             .pushEditOperations([],
-                [{
+            [{
                     range: this.getCurrentModel().getFullModelRange(),
                     text: newContent,
                     forceMoveMarkers: true,
@@ -170,33 +173,42 @@ class SourceEditor extends React.Component {
         monaco.languages.register({ id: BAL_LANGUAGE });
         monaco.languages.setMonarchTokensProvider(BAL_LANGUAGE, Grammar);
         monaco.languages.setLanguageConfiguration(BAL_LANGUAGE, BAL_LANG_CONFIG);
-        const uri = monaco.Uri.parse(this.props.file.toURI());
-        let modelForFile = monaco.editor.getModel(uri);
-        if (!modelForFile) {
-            modelForFile = monaco.editor.createModel(this.props.file.content, BAL_LANGUAGE, uri);
-        }
-        const debouncedSetContent = _.debounce(() => {
-            const changeEvent = {
-                type: CHANGE_EVT_TYPES.SOURCE_MODIFIED,
-                title: 'Modify source',
-                data: {
-                    sourceEditor: this,
-                },
-            };
-            this.props.file
-                .setContent(editorInstance.getValue(), changeEvent);
-        },
-        400);
-        modelForFile.onDidChangeContent(({ changes, isRedoing, isUndoing }) => {
-            if (this.shouldIgnoreChangeEvt()) {
-                return;
+        const updateEditorModel = () => {
+            const uri = monaco.Uri.parse(this.props.file.toURI());
+            let modelForFile = monaco.editor.getModel(uri);
+            if (!modelForFile) {
+                modelForFile = monaco.editor.createModel(this.props.file.content, BAL_LANGUAGE, uri);
             }
-            debouncedSetContent();
+            const debouncedSetContent = _.debounce(() => {
+                const changeEvent = {
+                    type: CHANGE_EVT_TYPES.SOURCE_MODIFIED,
+                    title: 'Modify source',
+                    data: {
+                        sourceEditor: this,
+                    },
+                };
+                this.props.file
+                    .setContent(editorInstance.getValue(), changeEvent);
+            },
+            400);
+            this.didChangeHandler = modelForFile.onDidChangeContent(({ changes, isRedoing, isUndoing }) => {
+                if (this.shouldIgnoreChangeEvt()) {
+                    return;
+                }
+                debouncedSetContent();
+            });
+            editorInstance.setModel(modelForFile);
+            return modelForFile;
+        };
+        let modelForFile = updateEditorModel();
+        this.props.file.on(WORKSPACE_EVENTS.FILE_PATH_CHANGED, () => {
+            const newModelForFile = updateEditorModel();
+            modelForFile.dispose();
+            modelForFile = newModelForFile;
         });
-        // this.props.file.on(CONTENT_MODIFIED, this.onFileContentChanged);
-        editorInstance.setModel(modelForFile);
         this.props.commandProxy.on(WORKSPACE_EVENTS.FILE_CLOSED, this.onWorkspaceFileClose);
         this.props.commandProxy.on(GO_TO_POSITION, this.handleGoToPosition);
+    
         const getLangServerConnection = this.props.ballerinaPlugin.getLangServerConnection();
         getLangServerConnection
             .then((connection) => {
@@ -211,7 +223,7 @@ class SourceEditor extends React.Component {
                         e.event.preventDefault();
                         connection.sendRequest('textDocument/definition', {
                             textDocument: {
-                                uri: uri.toString(),
+                                uri: this.props.file.toURI().toString(),
                             },
                             position: {
                                 line: e.target.position.lineNumber - 1,

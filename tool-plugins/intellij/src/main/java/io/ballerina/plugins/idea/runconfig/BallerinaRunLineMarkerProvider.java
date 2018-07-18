@@ -53,7 +53,11 @@ public class BallerinaRunLineMarkerProvider extends RunLineMarkerContributor {
                 return null;
             }
             // Check whether the element is an identifier of a function node.
-            boolean isMain = BallerinaRunUtil.isMainFunction((BallerinaFunctionDefinition) superParent.getParent());
+            PsiElement superParentParent = superParent.getParent();
+            if (!(superParentParent instanceof BallerinaFunctionDefinition)) {
+                return null;
+            }
+            boolean isMain = BallerinaRunUtil.isMainFunction((BallerinaFunctionDefinition) superParentParent);
             if (!isMain) {
                 return null;
             }

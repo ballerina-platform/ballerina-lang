@@ -13,7 +13,7 @@ function testConstrainedMapValueTypeNegative () returns (string) {
 function testConstrainedMapValueTypeIndexBasedPositive () returns (string) {
     map<string> testMap;
     testMap["name"] = "kevin";
-    string val = testMap["name"];
+    string val = testMap["name"] but { () => ""};
     return val;
 }
 
@@ -27,16 +27,16 @@ function testConstrainedMapValueTypeIndexBasedNegative () returns (string|()) {
 function testConstrainedMapStructTypePositive () returns ((string, int)) {
     map<Person> testMap;
     Person jack = {name:"Jack", age:25};
-    testMap["item"] = jack;
-    Person val = testMap["item"];
+    testMap.item = jack;
+    Person val = testMap.item;
     return (val.name, val.age);
 }
 
 function testConstrainedMapStructTypeNegative () returns (Person) {
     map<Person> testMap;
     Person jack = {name:"Jack", age:25};
-    testMap["item"] = jack;
-    Person val = testMap["item-not"];
+    testMap.item = jack;
+    Person val = testMap.^"item-not";
     return val;
 }
 
@@ -50,9 +50,9 @@ function testConstrainedMapValueTypeAssignWithFieldAccessPositive () returns ((s
 function testConstrainedMapConstrainedWithConstrainedMap () returns ((string, string)) {
     map<map<string>> testMap;
     map<string> sMap = {name:"kevin"};
-    sMap["sname"] = "ratnasekera";
+    sMap.sname = "ratnasekera";
     testMap.item = sMap;
-    map<string> rSMap = testMap["item"];
+    map<string> rSMap = testMap.item;
     string name_r = rSMap.name;
     string sname_r = rSMap.sname;
     return (name_r, sname_r);
@@ -64,7 +64,7 @@ function testConstrainedMapConstrainedWithConstrainedJson () returns ((string, i
     jP.name = "Jack";
     jP.age = 25;
     testMap.item = jP;
-    json<Person> rJP = testMap["item"];
+    json<Person> rJP = testMap.item;
     string j_name = check < string > rJP.name;
     int j_age = check < int > rJP.age;
     return (j_name, j_age);
@@ -82,8 +82,8 @@ function testConstrainedMapIntTypePositive () returns ((int, int)) {
     map<int> testMap;
     testMap["item_1"] = 36;
     testMap["item_2"] = 63;
-    int item_1 = testMap["item_1"];
-    int item_2 = testMap["item_2"];
+    int item_1 = testMap.item_1;
+    int item_2 = testMap.item_2;
     return (item_1, item_2);
 }
 
@@ -91,8 +91,8 @@ function testConstrainedMapIntTypeNegative () returns ((int, int)) {
     map<int> testMap;
     testMap["item_1"] = 36;
     testMap["item_2"] = 63;
-    int item_1 = testMap["item_1"];
-    int item_2 = testMap["item_2"];
+    int item_1 = testMap["item_1_n"] but { () => 0 };
+    int item_2 = testMap["item_2_n"] but { () => 0 };
     return (item_1, item_2);
 }
 
@@ -101,8 +101,8 @@ function testConstrainedMapFloatTypePositive () returns ((float, float)) {
     map<float> testMap;
     testMap["item_1"] = 3.6;
     testMap["item_2"] = 6.3;
-    float item_1 = testMap["item_1"];
-    float item_2 = testMap["item_2"];
+    float item_1 = testMap.item_1;
+    float item_2 = testMap.item_2;
     dummy = 9.6;
     return (item_1, item_2);
 }
@@ -112,8 +112,8 @@ function testConstrainedMapFloatTypeNegative () returns ((float, float)) {
     map<float> testMap;
     testMap["item_1"] = 3.6;
     testMap["item_2"] = 6.3;
-    float item_1 = testMap["item_1"];
-    float item_2 = testMap["item_2"];
+    float item_1 = testMap["item_1_n"] but { () => 0.0 };
+    float item_2 = testMap["item_2_n"] but { () => 0.0 };
     dummy = 9.6;
     return (item_1, item_2);
 }
@@ -122,8 +122,8 @@ function testConstrainedMapBooleanTypePositive () returns ((boolean, boolean)) {
     map<boolean> testMap;
     testMap["item_1"] = true;
     testMap["item_2"] = false;
-    boolean item_1 = testMap["item_1"];
-    boolean item_2 = testMap["item_2"];
+    boolean item_1 = testMap.item_1;
+    boolean item_2 = testMap.item_2;
     return (item_1, item_2);
 }
 
@@ -131,8 +131,8 @@ function testConstrainedMapBooleanTypeNegative () returns ((boolean, boolean)) {
     map<boolean> testMap;
     testMap["item_1"] = true;
     testMap["item_2"] = false;
-    boolean item_1 = testMap["item_1"];
-    boolean item_2 = testMap["item_2"];
+    boolean item_1 = testMap["item_1_n"] but { () => false };
+    boolean item_2 = testMap["item_2_n"] but { () => false };
     return (item_1, item_2);
 }
 
@@ -144,8 +144,8 @@ function testConstrainedMapBlobTypePositive () returns (byte[], byte[]) {
     byte[] bitem_2 = sitem_2.toByteArray("UTF-8");
     testMap["item_1"] = bitem_1;
     testMap["item_2"] = bitem_2;
-    byte[] item_1 = testMap["item_1"];
-    byte[] item_2 = testMap["item_2"];
+    byte[] item_1 = testMap.item_1;
+    byte[] item_2 = testMap.item_2;
     return (item_1, item_2);
 }
 
@@ -157,8 +157,19 @@ function testConstrainedMapBlobTypeNegative () returns (byte[], byte[]) {
     byte[] bitem_2 = sitem_2.toByteArray("UTF-8");
     testMap["item_1"] = bitem_1;
     testMap["item_2"] = bitem_2;
-    byte[] item_1 = testMap["item_1"];
-    byte[] item_2 = testMap["item_2"];
+    
+    byte[] item_1;
+    match (testMap["item_1"]) {
+       byte[] b => {item_1 = b;}
+       () => {}
+    }
+    
+    byte[] item_2;
+    match (testMap["item_2"]) {
+       byte[] b => {item_2 = b;}
+       () => {}
+    }
+    
     return (item_1, item_2);
 }
 
@@ -197,7 +208,7 @@ function testConstrainedMapRefTypeCast () returns ((string, int)) {
     map m = getGenericMap(testMap);
     map<Person> castMap;
     castMap = check < map<Person> > m;
-    Person p = castMap["item"];
+    Person p = castMap.item;
     return (p.name, p.age);
 }
 
@@ -257,15 +268,17 @@ function updateGenericMapWithNullValue (map m) returns (map) {
     return m;
 }
 
-type Person sealed record {
+type Person record {
     string name,
     int age,
-    string address;
+    string address,
+    !...
 };
 
-type Employee sealed record {
+type Employee record {
     string name,
-    int age;
+    int age,
+    !...
 };
 
 function testStructConstrainedMapRuntimeCast () returns ((string, int)) {
@@ -274,7 +287,7 @@ function testStructConstrainedMapRuntimeCast () returns ((string, int)) {
     testMap["item"] = jack;
     map m = getGenericMap(testMap);
     map<Employee> castMap = check < map<Employee> > m;
-    Employee p = castMap["item"];
+    Employee p = castMap.item;
     return (p.name, p.age);
 }
 
@@ -283,7 +296,7 @@ function testStructConstrainedMapStaticCast () returns ((string, int)) {
     Person jack = {name:"Jack", age:25, address:"Usa"};
     testMap["item"] = jack;
     map<Employee> castMap = <map<Employee>>testMap;
-    Employee p = castMap["item"];
+    Employee p = castMap.item;
     return (p.name, p.age);
 }
 
@@ -294,7 +307,7 @@ function testStructEquivalentMapUpdate () returns ((string, int)) {
     testMap["item"] = jack;
     map<Employee> m = updateEquivalentMap(testMap);
     map<Employee> castMap = <map<Employee>>m;
-    Employee p = castMap["item"];
+    Employee p = castMap.item;
     return (p.name, p.age);
 }
 
@@ -312,7 +325,7 @@ function testStructEquivalentMapAccess () returns ((string, int)) {
 }
 
 function equivalentMapAccess (map<Employee> m) returns ((string, int)) {
-    Employee b = m["item"];
+    Employee b = m.item;
     return (b.name, b.age);
 }
 
@@ -322,7 +335,7 @@ function testStructMapUpdate () returns ((string, int)) {
     testMap["item"] = jack;
     map m = updateStructMap(testMap);
     map<Employee> castMap = check < map<Employee> > m;
-    Employee p = castMap["update"];
+    Employee p = castMap.update;
     return (p.name, p.age);
 }
 
@@ -377,9 +390,10 @@ function testAnyMapToRefTypeRuntimeCast () returns (map<Employee>|error) {
     }
 }
 
-type Student sealed record {
-     int index,
-    int age;
+type Student record {
+    int index,
+    int age,
+    !...
 };
 
 function testMapToStructConversion () returns ((int, int)) {
@@ -431,7 +445,7 @@ function testMapOfElementTypeArray () returns ((string, string)) {
     string[] s2 = ["Kollupitiya", "Ja-Ela"];
     testMap["a1"] = s1;
     testMap["a2"] = s2;
-    string[] r2 = testMap["a2"];
+    string[] r2 = testMap.a2;
     return (r2[0], r2[1]);
 }
 
@@ -441,12 +455,12 @@ function testMapOfElementTypeRefArray () returns ((string, int)) {
     Employee[] e1 = [];
     e1[0] = jack;
     testMap["e1"] = e1;
-    Employee[] r2 = testMap["e1"];
+    Employee[] r2 = testMap.e1;
     Employee jackR = r2[0];
     return (jackR.name, jackR.age);
 }
 
-type PersonComplex sealed record {
+type PersonComplex record {
      string name,
     int age,
     PersonComplex? parent,
@@ -455,7 +469,8 @@ type PersonComplex sealed record {
     int[] marks,
     any a,
     float score,
-    boolean alive;
+    boolean alive,
+        !...
 };
 
 function testJsonToStructConversionStructWithConstrainedMap () returns (string, string) {
@@ -481,10 +496,10 @@ function testJsonToStructConversionStructWithConstrainedMap () returns (string, 
              };
     PersonComplex p = check < PersonComplex > j;
     map<string> ms = p.address;
-    return (ms["city"], ms["country"]);
+    return (ms.city, ms.country);
 }
 
-type PersonComplexTwo sealed record {
+type PersonComplexTwo record {
     string name,
     int age,
     PersonComplexTwo? parent,
@@ -493,7 +508,8 @@ type PersonComplexTwo sealed record {
     int[] marks,
     any a,
     float score,
-    boolean alive;
+    boolean alive,
+        !...
 };
 
 function testJsonToStructConversionStructWithConstrainedMapNegative () returns (PersonComplexTwo|error) {
@@ -532,7 +548,7 @@ function testJsonToStructConversionStructWithConstrainedMapNegative () returns (
 function testConstrainedUnionRetrieveString () returns (string) {
     map<string> testMap;
     testMap["name"] = "kevin";
-    string|int s = testMap["name"];
+    string|int s = testMap.name;
     match s {
         string k => return k;
         int l => return "default";
@@ -542,99 +558,103 @@ function testConstrainedUnionRetrieveString () returns (string) {
 function testConstrainedUnionRetrieveInt () returns (int) {
     map<int> testMap;
     testMap["id"] = 3;
-    string|int id = testMap["id"];
+    string|int id = testMap.id;
     match id {
         string k => return 0;
         int l => return l;
     }
 }
 
-function testConstrainedMapWithIncrementOperator () returns (int) {
+function testConstrainedMapWithIncrementOperator () returns (int?) {
     map<int> testMap;
     testMap["count"] = 1000;
-    testMap["count"]++;
-    testMap["count"]++;
-    testMap["count"]++;
-    testMap["count"]--;
+    testMap.count++;
+    testMap.count++;
+    testMap.count++;
+    testMap.count--;
     int i = 5;
-    int j = testMap["count"];
-    testMap["count"]++;
+    int j = testMap.count;
+    testMap.count++;
     return testMap["count"];
 }
 
 function testConstrainedMapWithCompoundAssignment () returns (int) {
     map<int> testMap;
     testMap["count"] = 1000;
-    testMap["count"] += 25000;
-    testMap["count"] /= 1000;
-    int j = testMap["count"];
-    testMap["count"] *= 2;
-    return testMap["count"];
+    testMap.count += 25000;
+    testMap.count /= 1000;
+    int j = testMap.count;
+    testMap.count *= 2;
+    return testMap.count;
 }
 
-function testMapConstrainedEquivalentMapInsert () returns (string, int) {
+function testMapConstrainedEquivalentMapInsert () returns (string?, int?) {
     map<Employee> emp;
     Person jack = {name:"Jack", age:25, address:"Usa"};
     emp["jack"] = jack;
     return (emp["jack"].name, emp["jack"].age);
 }
 
-type Transaction sealed record {
+type Transaction record {
     string transactionId,
     string coordinationType,
     map<Participant> participants,
-    Protocol[] coordinatorProtocols;
+    Protocol[] coordinatorProtocols,
+    !...
 };
 
-type Participant sealed record {
+type Participant record {
     string participantId,
-    Protocol[] participantProtocols;
+    Protocol[] participantProtocols,
+    !...
 };
 
-type Protocol sealed record {
+type Protocol record {
     string name,
     string url,
     int transactionBlockId,
     (function (string transactionId,
                int transactionBlockId,
-               string protocolAction) returns boolean)|() protocolFn;
+               string protocolAction) returns boolean)|() protocolFn,
+    !...
 };
 
-type TwoPhaseCommitTransaction sealed record {
+type TwoPhaseCommitTransaction record {
     string transactionId,
     string coordinationType,
     map<Participant> participants,
     Protocol[] coordinatorProtocols,
-    boolean possibleMixedOutcome;
+    boolean possibleMixedOutcome,
+    !...
 };
 
-function testRuntimeStructEquivalencyWithNestedConstrainedMaps () returns (string) {
+function testRuntimeStructEquivalencyWithNestedConstrainedMaps () returns (string?) {
     map<Transaction> initiatedTransactions;
     TwoPhaseCommitTransaction tpc = {transactionId:"TR-ID", coordinationType:"2pc"};
     initiatedTransactions["Foo"] = tpc;
     return initiatedTransactions["Foo"].transactionId;
 }
 
-function testMapConstrainedToUnion () returns (string|int) {
+function testMapConstrainedToUnion () returns (string|int?) {
     map<string|int> testMap;
     testMap["test"] = "test-value";
     return testMap["test"];
 }
 
-function testMapConstrainedToUnionCaseTwo () returns (string|int) {
+function testMapConstrainedToUnionCaseTwo () returns (string|int?) {
     map<string|int> testMap;
     testMap["test"] = 2;
     return testMap["test"];
 }
 
-function testMapConstrainedToUnionCaseThree () returns (string|int) {
+function testMapConstrainedToUnionCaseThree () returns (string|int?) {
     map<string|int> testMap;
-    return testMap["non-existing-key"];
+    return testMap.^"non-existing-key";
 }
 
 function testMapConstrainedStringNonExistingKeyRetrieve () returns (string?) {
     map<string> testMap;
-    return testMap["nonexist-key"];
+    return testMap.^"nonexist-key";
 }
 
 function testMapConstrainedToNullableUnion () returns (string?) {

@@ -67,6 +67,8 @@ public interface InstructionCodes {
     int MAPLOAD = 47;
     int JSONLOAD = 48;
 
+    int COMPENSATE = 49;
+
     int BIASTORE = 50;
     int IASTORE = 51;
     int FASTORE = 52;
@@ -92,6 +94,10 @@ public interface InstructionCodes {
     int IADD = 76;
     int FADD = 77;
     int SADD = 78;
+
+    int SCOPE_END = 79;
+    int LOOP_COMPENSATE = 80;
+
     int XMLADD = 81;
     int ISUB = 82;
     int FSUB = 83;
@@ -176,11 +182,13 @@ public interface InstructionCodes {
     int MAP2T = 154;
     int JSON2T = 155;
 
-    int BISHL = 156;
-    int BISHR = 157;
+    int S2XML = 156;
+    int XML2S = 157;
 
-    int S2XML = 158;
-    int XML2S = 159;
+    int BILSHIFT = 158;
+    int BIRSHIFT = 159;
+    int ILSHIFT = 160;
+    int IRSHIFT = 161;
 
     // Type cast
     int I2ANY = 162;

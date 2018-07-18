@@ -52,7 +52,8 @@ public class BallerinaModuleBuilder extends JavaModuleBuilder implements SourceP
     public List<Pair<String, String>> getSourcePaths() {
         String ballerinaCacheRoot = getContentEntryPath() + File.separator + ".ballerina";
         new File(ballerinaCacheRoot).mkdirs();
-        String ballerinaTomlFile = getContentEntryPath() + File.separator + "Ballerina.toml";
+        String ballerinaTomlFile = getContentEntryPath() + File.separator +
+                BallerinaConstants.BALLERINA_CONFIG_FILE_NAME;
         File file = new File(ballerinaTomlFile);
         try {
             file.createNewFile();

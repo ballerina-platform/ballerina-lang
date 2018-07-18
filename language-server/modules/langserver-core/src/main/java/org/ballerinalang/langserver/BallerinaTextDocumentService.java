@@ -38,6 +38,7 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.definition.util.DefinitionUtil;
+import org.ballerinalang.langserver.formatting.FormattingUtil;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
 import org.ballerinalang.langserver.references.util.ReferenceUtil;
 import org.ballerinalang.langserver.rename.RenameUtil;
@@ -399,25 +400,36 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
         return CompletableFuture.supplyAsync(() -> {
             String textEditContent = null;
+            TextEdit textEdit = new TextEdit();
+            try {
+                LSServiceOperationContext formatContext = new LSServiceOperationContext();
+                formatContext.put(DocumentServiceKeys.FILE_URI_KEY, params.getTextDocument().getUri());
 
-            LSServiceOperationContext formatContext = new LSServiceOperationContext();
-            formatContext.put(DocumentServiceKeys.FILE_URI_KEY, params.getTextDocument().getUri());
+                LSDocument document = new LSDocument(params.getTextDocument().getUri());
+                String fileContent = documentManager.getFileContent(CommonUtil.getPath(document));
+                String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
+                int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"),
+                        fileContent.lastIndexOf("\r"));
+                int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
+                int totalLines = contentComponents.length;
 
-            LSDocument document = new LSDocument(params.getTextDocument().getUri());
-            String fileContent = documentManager.getFileContent(CommonUtil.getPath(document));
-            String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
-            int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
-            int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
-            int totalLines = contentComponents.length;
-
-            Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
-            // Source generation for given ast.
-            JsonObject ast = TextDocumentFormatUtil.getAST(params, documentManager, formatContext);
-            SourceGen sourceGen = new SourceGen(0);
-            sourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
-            textEditContent = sourceGen.getSourceOf(ast.getAsJsonObject("model"), true, false);
-            TextEdit textEdit = new TextEdit(range, textEditContent);
-            return Collections.singletonList(textEdit);
+                Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
+                // Source generation for given ast.
+                JsonObject ast = TextDocumentFormatUtil.getAST(params, documentManager, formatContext);
+                SourceGen sourceGen = new SourceGen(0);
+                sourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
+                FormattingUtil formattingUtil = new FormattingUtil();
+                formattingUtil.accept(ast.getAsJsonObject("model"));
+                textEditContent = sourceGen.getSourceOf(ast.getAsJsonObject("model"), false, false);
+                textEdit = new TextEdit(range, textEditContent);
+                return Collections.singletonList(textEdit);
+            } catch (Exception e) {
+                if (CommonUtil.LS_DEBUG_ENABLED) {
+                    String msg = e.getMessage();
+                    logger.error("Error while formatting" + ((msg != null) ? ": " + msg : ""), e);
+                }
+                return Collections.singletonList(textEdit);
+            }
         });
     }
 

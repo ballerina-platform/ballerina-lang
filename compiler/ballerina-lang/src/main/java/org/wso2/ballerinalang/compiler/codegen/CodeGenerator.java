@@ -21,6 +21,8 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.DocAttachment;
+import org.ballerinalang.model.elements.DocAttachment.DocAttribute;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -54,7 +56,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -78,7 +79,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJ
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
@@ -131,6 +131,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -142,6 +143,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -223,6 +225,7 @@ import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -279,6 +282,11 @@ public class CodeGenerator extends BLangNodeVisitor {
     private VariableIndex maxRegIndexes = new VariableIndex(REG);
 
     private List<RegIndex> regIndexList = new ArrayList<>();
+
+    /**
+     * This structure holds child scopes of a given scope.
+     */
+    private Map<String, Stack<String>> childScopesMap = new HashMap<>();
 
     private SymbolEnv env;
     // TODO Remove this dependency from the code generator
@@ -917,7 +925,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         BMapType mapType = (BMapType) mapKeyAccessExpr.expr.type;
         if (variableStore) {
             int opcode = getValueToRefTypeCastOpcode(mapType.constraint.tag);
-            if (opcode == InstructionCodes.NOP) {
+            if (opcode == InstructionCodes.NOP || !mapKeyAccessExpr.except) {
                 emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, mapKeyAccessExpr.regIndex);
             } else {
                 RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
@@ -928,7 +936,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             IntegerCPEntry exceptCPEntry = new IntegerCPEntry(mapKeyAccessExpr.except ? 1 : 0);
             Operand except = getOperand(currentPkgInfo.addCPEntry(exceptCPEntry));
             int opcode = getRefToValueTypeCastOpcode(mapType.constraint.tag);
-            if (opcode == InstructionCodes.NOP) {
+            if (opcode == InstructionCodes.NOP || !mapKeyAccessExpr.except) {
                 emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(mapKeyAccessExpr),
                         except);
             } else {
@@ -1309,6 +1317,65 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(bLangStatementExpression.expr, this.env);
         emit(getOpcode(bLangStatementExpression.expr.type.tag, InstructionCodes.IMOVE),
                 bLangStatementExpression.expr.regIndex, bLangStatementExpression.regIndex);
+    }
+
+    public void visit(BLangScope scopeNode) {
+        // add the child nodes to the map
+        childScopesMap.put(scopeNode.name.getValue(), scopeNode.childScopes);
+        visit(scopeNode.scopeBody);
+
+        // generating scope end instruction
+        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, currentPkgID);
+        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, Names.GEN_VAR_PREFIX + scopeNode.name.getValue());
+        FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
+        int funcRefCPIndex =  currentPkgInfo.addCPEntry(funcRefCPEntry);
+        int i = 0;
+        //functionRefCP, scopenameUTF8CP, nChild, children
+        Operand[] operands = new Operand[3 + scopeNode.childScopes.size()];
+        operands[i++] = getOperand(funcRefCPIndex);
+        int scopeNameCPIndex = addUTF8CPEntry(currentPkgInfo, scopeNode.getScopeName().getValue());
+        operands[i++] = getOperand(scopeNameCPIndex);
+
+        operands[i++] = getOperand(scopeNode.childScopes.size());
+
+        for (String child : scopeNode.childScopes) {
+            int childScopeNameIndex = addUTF8CPEntry(currentPkgInfo, child);
+            operands[i++] = getOperand(childScopeNameIndex);
+        }
+
+        Operand typeCPIndex = getTypeCPIndex(scopeNode.compensationFunction.function.symbol.type);
+        RegIndex nextIndex = calcAndGetExprRegIndex(scopeNode.compensationFunction);
+        Operand[] closureOperands = calcClosureOperands(scopeNode.compensationFunction.function, funcRefCPIndex,
+                nextIndex, typeCPIndex);
+
+        Operand[] finalOperands = new Operand[operands.length + closureOperands.length];
+        System.arraycopy(operands, 0, finalOperands, 0, operands.length);
+        System.arraycopy(closureOperands, 0, finalOperands, operands.length, closureOperands.length);
+
+        emit(InstructionCodes.SCOPE_END, finalOperands);
+    }
+
+    public void visit(BLangCompensate compensate) {
+        Operand jumpAddr = getOperand(nextIP());
+        //Add child function refs
+        Stack children = childScopesMap.get(compensate.scopeName.getValue());
+
+        int i = 0;
+        //scopeName, child count, children
+        Operand[] operands = new Operand[2 + children.size()];
+
+        int scopeNameCPIndex = addUTF8CPEntry(currentPkgInfo, compensate.invocation.name.value);
+        operands[i++] = getOperand(scopeNameCPIndex);
+
+        operands[i++] = getOperand(children.size());
+        while (children != null && !children.isEmpty()) {
+            String childName = (String) children.pop();
+            int childNameCP = currentPkgInfo.addCPEntry(new UTF8CPEntry(childName));
+            operands[i++] = getOperand(childNameCP);
+        }
+
+        emit(InstructionCodes.COMPENSATE, operands);
+        emit(InstructionCodes.LOOP_COMPENSATE, jumpAddr);
     }
 
     // private methods
@@ -1856,7 +1923,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // TODO Populate annotation attribute
 
         // Add documentation attributes
-        addDocumentAttachmentAttrInfo(varNode.docAttachments, pkgVarInfo);
+        addDocAttachmentAttrInfo(varNode.symbol.documentation, pkgVarInfo);
     }
 
     public void visit(BLangTypeDefinition typeDefinition) {
@@ -1887,7 +1954,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (typeDefinition.symbol.isLabel) {
             createLabelTypeTypeDef(typeDefinition, typeDefInfo);
             // Add documentation attributes
-            addDocumentAttachmentAttrInfo(typeDefinition.docAttachments, typeDefInfo);
+            addDocAttachmentAttrInfo(typeDefinition.symbol.documentation, typeDefInfo);
 
             currentPkgInfo.addTypeDefInfo(typeDefSymbol.name.value, typeDefInfo);
             return;
@@ -1908,7 +1975,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
         }
         // Add documentation attributes
-        addDocumentAttachmentAttrInfo(typeDefinition.docAttachments, typeDefInfo);
+        addDocAttachmentAttrInfo(typeDefinition.symbol.documentation, typeDefInfo);
 
         currentPkgInfo.addTypeDefInfo(typeDefSymbol.name.value, typeDefInfo);
     }
@@ -1943,7 +2010,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             objInfo.fieldInfoEntries.add(objFieldInfo);
 
             // Add documentation attributes
-            addDocumentAttachmentAttrInfo(objField.docAttachments, objFieldInfo);
+            addDocAttachmentAttrInfo(objField.symbol.documentation, objFieldInfo);
         }
 
         // Create variable count attribute info
@@ -2006,7 +2073,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             recordInfo.fieldInfoEntries.add(recordFieldInfo);
 
             // Add documentation attributes
-            addDocumentAttachmentAttrInfo(recordField.docAttachments, recordFieldInfo);
+            addDocAttachmentAttrInfo(recordField.symbol.documentation, recordFieldInfo);
         }
 
         // Create variable count attribute info
@@ -2076,7 +2143,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         addParameterAttributeInfo(funcNode, funcInfo);
 
         // Add documentation attributes
-        addDocumentAttachmentAttrInfo(funcNode.docAttachments, funcInfo);
+        addDocAttachmentAttrInfo(funcNode.symbol.documentation, funcInfo);
 
         this.currentPkgInfo.functionInfoMap.put(funcSymbol.name.value, funcInfo);
     }
@@ -2136,7 +2203,7 @@ public class CodeGenerator extends BLangNodeVisitor {
             serviceNode.resources.forEach(res -> createResourceInfoEntry(res, serviceInfo));
 
             // Add documentation attributes
-            addDocumentAttachmentAttrInfo(serviceNode.docAttachments, serviceInfo);
+            addDocAttachmentAttrInfo(serviceNode.symbol.documentation, serviceInfo);
         }
     }
 
@@ -2158,7 +2225,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         serviceInfo.resourceInfoMap.put(resourceNode.name.getValue(), resourceInfo);
 
         // Add documentation attributes
-        addDocumentAttachmentAttrInfo(resourceNode.docAttachments, resourceInfo);
+        addDocAttachmentAttrInfo(resourceNode.symbol.documentation, resourceInfo);
     }
 
     private void addWorkerInfoEntry(BLangWorker worker, CallableUnitInfo callableUnitInfo) {
@@ -3432,23 +3499,20 @@ public class CodeGenerator extends BLangNodeVisitor {
         return getOperand(currentPkgInfo.addCPEntry(typeRefCPEntry));
     }
 
-    private void addDocumentAttachmentAttrInfo(List<BLangDocumentation> docNodeList, AttributeInfoPool attrInfoPool) {
-        docNodeList.forEach(docNode -> addDocumentAttachmentAttrInfo(docNode, attrInfoPool));
-    }
-
-
-    private void addDocumentAttachmentAttrInfo(BLangDocumentation docNode, AttributeInfoPool attrInfoPool) {
+    private void addDocAttachmentAttrInfo(DocAttachment docAttachment, AttributeInfoPool attrInfoPool) {
+        if (docAttachment == null) {
+            return;
+        }
         int docAttrIndex = addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.DOCUMENT_ATTACHMENT_ATTRIBUTE.value());
-        int descCPIndex = addUTF8CPEntry(currentPkgInfo, docNode.documentationText);
+        int descCPIndex = addUTF8CPEntry(currentPkgInfo, docAttachment.description);
         DocumentationAttributeInfo docAttributeInfo = new DocumentationAttributeInfo(docAttrIndex, descCPIndex);
 
-        for (BLangDocumentationAttribute paramDocNode : docNode.attributes) {
-            int nameCPIndex = addUTF8CPEntry(currentPkgInfo, paramDocNode.documentationField.value);
-            int typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, paramDocNode.type.getDesc());
-            int paramKindCPIndex = addUTF8CPEntry(currentPkgInfo, paramDocNode.docTag.getValue());
-            int descriptionCPIndex = addUTF8CPEntry(currentPkgInfo, paramDocNode.documentationText);
-            ParameterDocumentInfo paramDocInfo = new ParameterDocumentInfo(
-                    nameCPIndex, typeSigCPIndex, paramKindCPIndex, descriptionCPIndex);
+        for (DocAttribute docAttribute : docAttachment.attributes) {
+            int nameCPIndex = addUTF8CPEntry(currentPkgInfo, docAttribute.name);
+            int paramKindCPIndex = addUTF8CPEntry(currentPkgInfo, docAttribute.docTag.getValue());
+            int descriptionCPIndex = addUTF8CPEntry(currentPkgInfo, docAttribute.description);
+            ParameterDocumentInfo paramDocInfo = new ParameterDocumentInfo(nameCPIndex, paramKindCPIndex,
+                    descriptionCPIndex);
             docAttributeInfo.paramDocInfoList.add(paramDocInfo);
         }
 

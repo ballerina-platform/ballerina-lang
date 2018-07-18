@@ -40,41 +40,41 @@ public class StructNegativeTest {
     @Test
     public void testStructNegative() {
         // test duplicate struct definitions
-        BAssertUtil.validateError(result, 0, "redeclared symbol 'Department'", 6, 1);
+        BAssertUtil.validateError(result, 0, "redeclared symbol 'Department'", 7, 6);
 
         // test struct with duplicate fields
-        BAssertUtil.validateError(result, 1, "redeclared symbol 'id'", 14, 5);
+        BAssertUtil.validateError(result, 1, "redeclared symbol 'id'", 16, 5);
 
         // test undeclared struct init
-        BAssertUtil.validateError(result, 2, "unknown type 'Department123'", 18, 5);
+        BAssertUtil.validateError(result, 2, "unknown type 'Department123'", 21, 5);
 
-        BAssertUtil.validateError(result, 3, "invalid literal for type 'other'", 18, 26);
+        BAssertUtil.validateError(result, 3, "invalid literal for type 'other'", 21, 26);
 
         // test undeclared struct access
-        BAssertUtil.validateError(result, 4, "undefined symbol 'dpt1'", 23, 5);
+        BAssertUtil.validateError(result, 4, "undefined symbol 'dpt1'", 26, 5);
 
         // test undeclared struct-field access
-        BAssertUtil.validateError(result, 5, "undefined field 'id' in struct 'Department'", 29, 5);
+        BAssertUtil.validateError(result, 5, "undefined field 'id' in record 'Department'", 32, 5);
 
         // test undeclared field init
-        BAssertUtil.validateError(result, 6, "undefined field 'age' in struct 'Department'", 34, 37);
+        BAssertUtil.validateError(result, 6, "undefined field 'age' in record 'Department'", 37, 37);
 
         // test field init with mismatching type
-        BAssertUtil.validateError(result, 7, "incompatible types: expected 'string', found 'int'", 39, 31);
+        BAssertUtil.validateError(result, 7, "incompatible types: expected 'string', found 'int'", 42, 31);
     }
 
     @Test
     public void testInvalidStructLiteralKey() {
         CompileResult result = BCompileUtil.compile("test-src/structs/invalid-struct-literal-key-negative.bal");
         // test struct init with invalid field name
-        BAssertUtil.validateError(result, 0, "invalid key: only identifiers are allowed for struct literal keys", 12,
+        BAssertUtil.validateError(result, 0, "invalid key: only identifiers are allowed for record literal keys", 12,
                 23);
     }
 
     @Test
     public void testExpressionAsStructLiteralKey() {
         CompileResult result = BCompileUtil.compile("test-src/structs/expression-as-struct-literal-key-negative.bal");
-        BAssertUtil.validateError(result, 0, "invalid key: only identifiers are allowed for struct literal keys", 7,
+        BAssertUtil.validateError(result, 0, "invalid key: only identifiers are allowed for record literal keys", 7,
                 21);
     }
 

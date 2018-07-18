@@ -122,7 +122,7 @@ class Node extends EventChannel {
         for (const childName in this) {
             if (childName !== 'parent' && childName !== 'position' && childName !== 'ws') {
                 if (newTree === undefined || newTree[childName] === undefined) {
-                    console.warn(`could not find ${childName} in newTree`, newTree);
+                    // console.warn(`could not find ${childName} in newTree`, newTree);
                 } else {
                     const child = this[childName];
                     const child2 = newTree[childName];
@@ -427,7 +427,14 @@ class Node extends EventChannel {
      * @memberof Node
      */
     clearWS() {
-        // TODO:remove clearWS properly
+        this.accept({
+            beginVisit: (node) => {
+                delete node.ws;
+            },
+            endVisit: (node) => {
+                // do nothing.
+            },
+        });
     }
 
     /**

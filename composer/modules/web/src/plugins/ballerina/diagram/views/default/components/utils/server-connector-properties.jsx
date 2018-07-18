@@ -57,7 +57,7 @@ class ServerConnectorProperties extends React.Component {
             protocolClassName = 'protocol-rect-clicked';
         }
         return (
-            <g id='serviceDefProps' onClick={this.handleShowModal}>
+            <g id='serviceDefProps'>
                 <text
                     x={bBox.x + 50 + (bBox.typeName.w / 2)}
                     y={bBox.y - 15}

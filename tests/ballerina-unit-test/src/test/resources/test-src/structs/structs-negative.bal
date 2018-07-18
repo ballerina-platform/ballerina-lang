@@ -1,17 +1,20 @@
-type Department sealed record {
+type Department record {
     string dptName;
     boolean y;
+    !...
 };
 
-type Department sealed record {
+type Department record {
     string name;
     int[] a1;
+    !...
 };
 
-type Department2 sealed record {
+type Department2 record {
     string dptName;
     int id;
     string id;
+    !...
 };
 
 function testUndeclaredStructInit () {

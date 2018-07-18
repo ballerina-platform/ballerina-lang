@@ -9,3 +9,35 @@ public function open (string accessMode) returns (boolean) {
     return true;
 }
 
+documentation {
+    Represents a Person type in ballerina.
+}
+public type Person object {
+    documentation {
+        This is the name of the person.
+    }
+    private string name;
+
+    documentation {
+        get the users name.
+        P{{val}} integer value
+    }
+    function getName(int val) {
+
+    }
+
+    documentation {
+        Indecate whether this is a male or female.
+        R{{}} True if male
+    }
+    public function isMale() returns boolean;
+};
+
+documentation {
+    male implementation
+
+    R{{}} true allways
+}
+function Person::isMale() returns boolean {
+    return true;
+}

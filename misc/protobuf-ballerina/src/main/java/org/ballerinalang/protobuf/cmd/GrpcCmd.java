@@ -23,7 +23,6 @@ import com.beust.jcommander.Parameters;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.net.grpc.builder.BallerinaFileBuilder;
 import org.ballerinalang.net.grpc.exception.BalGenerationException;
-import org.ballerinalang.protobuf.BalGenerationConstants;
 import org.ballerinalang.protobuf.exception.BalGenToolException;
 import org.ballerinalang.protobuf.utils.BalFileGenerationUtils;
 import org.slf4j.Logger;
@@ -254,9 +253,8 @@ public class GrpcCmd implements BLauncherCmd {
                 } catch (IOException e) {
                     throw new BalGenToolException("Exception occurred while creating new file for protoc exe. ", e);
                 }
-                String url = PROTOC_PLUGIN_EXE_URL_SUFFIX + protocVersion + BalGenerationConstants.FILE_SEPARATOR +
-                        "protoc-" + protocVersion + "-" + OSDetector
-                        .getDetectedClassifier() + PROTOC_PLUGIN_EXE_PREFIX;
+                String url = PROTOC_PLUGIN_EXE_URL_SUFFIX + protocVersion + "/protoc-" + protocVersion + "-" +
+                        OSDetector.getDetectedClassifier() + PROTOC_PLUGIN_EXE_PREFIX;
                 try {
                     saveFile(new URL(url), exePath);
                     File file = new File(exePath);

@@ -1,5 +1,4 @@
 # Ballerina Composer
-[![Build Status](https://wso2.org/jenkins/job/ballerinalang/job/composer/badge/icon)](https://wso2.org/jenkins/job/ballerinalang/job/composer/)  
 The Ballerina Composer provides a flexible and powerful browser-based tool for creating your Ballerina programs. You can build your integrations by creating sequence diagrams, dragging elements from a tool palette onto a canvas. As you build the diagrams, the underlying code is written for you, which you can work with in the Source view. You can also use the Swagger view of a Service and writing Swagger definitions. You can switch seamlessly between the Design view, Source view and create your programs in the way that you like to work.
 
 **You can create your integration in Design view:**

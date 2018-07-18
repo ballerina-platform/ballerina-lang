@@ -72,4 +72,3 @@ function testFunctionCallOnJSONInRecord() {
     Student? st = {};
     string s = st.info.toString();
 }
-

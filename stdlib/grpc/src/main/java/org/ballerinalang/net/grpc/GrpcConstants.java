@@ -133,7 +133,8 @@ public class GrpcConstants {
     public static final String BRACKET_OPEN = "(";
     public static final String BRACKET_CLOSE = ")";
     public static final String SPACE = " ";
-    
+    public static final String CHECK = "check ";
+
     //Service Endpoint Config
     public static final String ENDPOINT_CONFIG_HOST = "host";
     public static final String ENDPOINT_CONFIG_PORT = "port";

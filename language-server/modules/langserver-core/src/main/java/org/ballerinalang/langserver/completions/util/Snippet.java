@@ -40,7 +40,7 @@ public enum Snippet {
     ENDPOINT("endpoint ${1:http:Listener} ${2:listener} {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
             + CommonUtil.LINE_SEPARATOR + "};"),
 
-    FOREACH("foreach ${1:varRefList} in ${2:listReference} {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
+    FOREACH("foreach ${1:item} in ${2:itemList} {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
             + CommonUtil.LINE_SEPARATOR + "}"),
 
     FORK("fork {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR
@@ -82,6 +82,8 @@ public enum Snippet {
     RESOURCE("${1:newResource} (endpoint ${2:caller}, ${3:http:Request request}) {" + CommonUtil.LINE_SEPARATOR
             + "\t${4}" + CommonUtil.LINE_SEPARATOR + "}"),
 
+    RETRY("retry;"),
+
     RETURN("return;"),
 
     SERVICE("service<${1:http:Service}> ${2:serviceName} {" + CommonUtil.LINE_SEPARATOR
@@ -113,13 +115,13 @@ public enum Snippet {
 
 
     // Constants for the Iterable operators
-    ITR_FOREACH("foreach(function (%params%) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+    ITR_FOREACH("foreach((%params%) => {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
             + CommonUtil.LINE_SEPARATOR + "});"),
 
-    ITR_MAP("map(function (%params%) (any){" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+    ITR_MAP("map((%params%) => (any) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
             + CommonUtil.LINE_SEPARATOR + "});"),
 
-    ITR_FILTER("filter(function (%params%) (boolean){" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+    ITR_FILTER("filter((%params%) => (boolean) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
             + CommonUtil.LINE_SEPARATOR + "});"),
 
     ITR_COUNT("count();"),
