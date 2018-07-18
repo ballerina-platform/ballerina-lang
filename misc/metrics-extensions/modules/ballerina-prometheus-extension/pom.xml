@@ -17,12 +17,11 @@
   ~ under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>metrics-extensions</artifactId>
         <groupId>org.ballerinalang</groupId>
-        <version>0.976.1-SNAPSHOT</version>
+        <version>0.980.1</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -160,10 +159,9 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <mkdir dir="${project.build.directory}/generated-balx/prometheus"/>
-                                <copy file="${ballerina.source.directory}/prometheus/reporter.balx"
-                                      tofile="${project.build.directory}/generated-balx/prometheus/reporter.balx"/>
-                                <delete file="${ballerina.source.directory}/prometheus/reporter.balx"/>
+                                <mkdir dir="${project.build.directory}/generated-balx/prometheus" />
+                                <copy file="${ballerina.source.directory}/prometheus/reporter.balx" tofile="${project.build.directory}/generated-balx/prometheus/reporter.balx" />
+                                <delete file="${ballerina.source.directory}/prometheus/reporter.balx" />
                             </tasks>
                         </configuration>
                     </execution>

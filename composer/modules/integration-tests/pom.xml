@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>composer</artifactId>
-        <version>0.976.1-SNAPSHOT</version>
+        <version>0.980.1</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <packaging>pom</packaging>
@@ -118,11 +117,10 @@
                         <configuration>
                             <skip>${maven.test.skip}</skip>
                             <target name="copy js files to target">
-                                <mkdir dir="${project.build.directory}/js-files-from-web"/>
-                                <copy todir="${project.build.directory}/js-files-from-web" overwrite="true"
-                                      flatten="true">
+                                <mkdir dir="${project.build.directory}/js-files-from-web" />
+                                <copy todir="${project.build.directory}/js-files-from-web" overwrite="true" flatten="true">
                                     <fileset dir="${project.build.directory}/extracted-web-lib/">
-                                        <include name="**/*.js"/>
+                                        <include name="**/*.js" />
                                     </fileset>
                                 </copy>
                             </target>
@@ -139,7 +137,7 @@
                             <target>
                                 <!-- set executable names based on OS family -->
                                 <condition property="npm.executable" value="npm.cmd" else="npm">
-                                    <os family="windows"/>
+                                    <os family="windows" />
                                 </condition>
                             </target>
                             <exportAntProperties>true</exportAntProperties>
