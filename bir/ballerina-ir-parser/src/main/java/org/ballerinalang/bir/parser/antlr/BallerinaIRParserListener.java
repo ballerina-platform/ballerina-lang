@@ -1,6 +1,5 @@
 // Generated from BallerinaIRParser.g4 by ANTLR 4.5.3
 package org.ballerinalang.bir.parser.antlr;
-
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**
