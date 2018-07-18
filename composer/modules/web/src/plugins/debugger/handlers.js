@@ -88,6 +88,15 @@ export function getHandlerDefinitions(debuggerPlugin) {
             },
         },
         {
+            cmdID: COMMANDS.INPUT,
+            handler: (input) => {
+                const activeEditor = debuggerPlugin.appContext.editor.getActiveEditor();
+                if (activeEditor && activeEditor.file) {
+                    LaunchManager.sendInput(activeEditor.file, input);
+                }
+            },
+        },
+        {
             cmdID: COMMANDS.SHOW_LAUNCHER_CONFIG_DIALOG,
             handler: () => {
                 const id = DIALOG_IDS.LAUNCHER_CONFIG;

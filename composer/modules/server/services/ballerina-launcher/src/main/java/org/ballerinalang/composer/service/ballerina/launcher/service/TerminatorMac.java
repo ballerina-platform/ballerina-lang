@@ -45,7 +45,7 @@ public class TerminatorMac extends TerminatorUnix {
         String[] cmd = {
                 "/bin/sh",
                 "-c",
-                "ps -ef | grep " + script + " | grep run | grep ballerina | grep -v 'grep' | awk '{print $2}'"
+                "ps ax | grep " + script + " | grep run | grep ballerina | grep -v 'grep' | awk '{print $1}'"
         };
         return cmd;
     }
