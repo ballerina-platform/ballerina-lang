@@ -125,7 +125,7 @@ public class SrcFile {
                                                         "}%n" +
                                                        "@test:BeforeSuite%n" +
                                                        "function beforeSuiteFunc () {%n" +
-                                                       "    io:println(\"Start the Service!\");%n" +
+                                                       "    io:println(\"Start the Service: %1$s !!\");%n" +
                                                        "}%n" +
                                                        "%n" +
                                                        "documentation {%n" +
@@ -142,7 +142,7 @@ public class SrcFile {
                                                        "}%n" +
                                                        "@test:AfterSuite%n" +
                                                        "function afterSuiteFunc () {%n" +
-                                                       "    io:println(\"Stop the service!\");%n" +
+                                                       "    io:println(\"Stop the Service: %1$s !!\");%n" +
                                                        "}";
 
     private FileType srcFileType;
