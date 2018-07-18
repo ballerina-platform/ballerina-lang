@@ -45,22 +45,26 @@ abstract class ParserTest {
         }
 
         @Override
-        public void syntaxError(Recognizer<?, ?> recognizer, Object o, int i, int i1, String s, RecognitionException e) {
+        public void syntaxError(Recognizer<?, ?> recognizer,
+                                Object o, int i, int i1, String s, RecognitionException e) {
             throw new AssertionError("Syntax error in " + birFile);
         }
 
         @Override
-        public void reportAmbiguity(Parser parser, DFA dfa, int i, int i1, boolean b, BitSet bitSet, ATNConfigSet atnConfigSet) {
+        public void reportAmbiguity(Parser parser, DFA dfa, int i, int i1,
+                                    boolean b, BitSet bitSet, ATNConfigSet atnConfigSet) {
 
         }
 
         @Override
-        public void reportAttemptingFullContext(Parser parser, DFA dfa, int i, int i1, BitSet bitSet, ATNConfigSet atnConfigSet) {
+        public void reportAttemptingFullContext(Parser parser, DFA dfa, int i,
+                                                int i1, BitSet bitSet, ATNConfigSet atnConfigSet) {
 
         }
 
         @Override
-        public void reportContextSensitivity(Parser parser, DFA dfa, int i, int i1, int i2, ATNConfigSet atnConfigSet) {
+        public void reportContextSensitivity(Parser parser, DFA dfa,
+                                             int i, int i1, int i2, ATNConfigSet atnConfigSet) {
 
         }
     }
