@@ -23,8 +23,6 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
@@ -61,9 +59,6 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     private static final CompilerContext.Key<DocumentationAnalyzer> DOCUMENTATION_ANALYZER_KEY =
             new CompilerContext.Key<>();
 
-    private SymbolTable symTable;
-    private SymbolEnv env;
-    private BLangNode parent;
     private BLangDiagnosticLog dlog;
 
     public static DocumentationAnalyzer getInstance(CompilerContext context) {
@@ -74,30 +69,19 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         return documentationAnalyzer;
     }
 
-    public DocumentationAnalyzer(CompilerContext context) {
+    private DocumentationAnalyzer(CompilerContext context) {
         context.put(DOCUMENTATION_ANALYZER_KEY, this);
-        this.symTable = SymbolTable.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
-        parent = pkgNode;
-        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
-        pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, pkgEnv));
+        pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode));
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
-        parent = null;
         return pkgNode;
     }
 
-    private void analyzeNode(BLangNode node, SymbolEnv env) {
-        SymbolEnv prevEnv = this.env;
-        this.env = env;
-        BLangNode myParent = parent;
-        node.parent = parent;
-        parent = node;
+    private void analyzeNode(BLangNode node) {
         node.accept(this);
-        parent = myParent;
-        this.env = prevEnv;
     }
 
     @Override
@@ -147,8 +131,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangService serviceNode) {
         validateNoParameters(serviceNode);
         validateReturnParameter(serviceNode, null, false);
-
-        serviceNode.getResources().forEach(r -> analyzeNode(r, env));
+        serviceNode.getResources().forEach(this::analyzeNode);
     }
 
     @Override
@@ -160,7 +143,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                     DiagnosticCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticCode.FIELD_ALREADY_DOCUMENTED);
             validateReturnParameter(typeDefinition, null, false);
 
-            ((BLangObjectTypeNode) typeDefinition.getTypeNode()).getFunctions().forEach(f -> analyzeNode(f, env));
+            ((BLangObjectTypeNode) typeDefinition.getTypeNode()).getFunctions().forEach(this::analyzeNode);
         } else if (typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
             List<? extends VariableNode> fields = ((BLangRecordTypeNode) typeNode).getFields();
             validateParameters(typeDefinition, fields, DiagnosticCode.UNDOCUMENTED_FIELD,
@@ -233,9 +216,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         if (parameterDocumentations.isEmpty()) {
             return;
         }
-        parameterDocumentations.forEach((parameter, parameterDocumentation) -> {
-            dlog.warning(parameterDocumentation.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_PARAMETER, parameter);
-        });
+        parameterDocumentations.forEach((parameter, parameterDocumentation) ->
+                dlog.warning(parameterDocumentation.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_PARAMETER, parameter));
     }
 
     private void validateReturnParameter(DocumentableNode documentableNode, BLangNode node, boolean isExpected) {
