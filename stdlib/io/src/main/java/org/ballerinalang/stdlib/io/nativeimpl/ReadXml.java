@@ -35,7 +35,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Native function ballerina/io#readXml.
+ * extern function ballerina/io#readXml.
  *
  * @since 0.971.0
  */

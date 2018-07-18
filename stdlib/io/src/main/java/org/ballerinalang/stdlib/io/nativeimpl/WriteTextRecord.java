@@ -35,7 +35,7 @@ import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 
 /**
- * Native function ballerina/io#writeTextRecord.
+ * extern function ballerina/io#writeTextRecord.
  *
  * @since 0.94
  */

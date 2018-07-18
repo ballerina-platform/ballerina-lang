@@ -39,7 +39,7 @@ import static org.ballerinalang.mime.util.MimeConstants.PARSER_ERROR;
 import static org.ballerinalang.mime.util.MimeConstants.SEMICOLON;
 
 /**
- * Native function to parse header value and get value with parameter map.
+ * extern function to parse header value and get value with parameter map.
  *
  * @since 0.96.1
  */

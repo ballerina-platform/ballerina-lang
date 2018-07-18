@@ -33,7 +33,7 @@ import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 
 /**
- * Native function ballerina/io#close.
+ * extern function ballerina/io#close.
  *
  * @since 0.94
  */

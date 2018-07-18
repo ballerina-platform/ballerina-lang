@@ -28,7 +28,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 /**
- * Native function ballerina.model.arrays:substring(string, int, int).
+ * extern function ballerina.model.arrays:substring(string, int, int).
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "builtin",

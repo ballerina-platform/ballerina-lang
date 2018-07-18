@@ -43,7 +43,7 @@ import java.io.OutputStream;
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 
 /**
- * {@code PushPromisedResponse} is the native function to respond back the client with Server Push response.
+ * {@code PushPromisedResponse} is the extern function to respond back the client with Server Push response.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",

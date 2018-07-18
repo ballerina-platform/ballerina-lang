@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.math:ceil.
+ * extern function ballerina.math:ceil.
  *
  * @since 0.94
  */

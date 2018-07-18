@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Native function ballerina.model.json:toString.
+ * extern function ballerina.model.json:toString.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "builtin",

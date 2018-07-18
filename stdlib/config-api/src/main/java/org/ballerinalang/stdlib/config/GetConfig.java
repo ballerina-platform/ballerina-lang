@@ -33,7 +33,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import java.util.Map;
 
 /**
- * Native function ballerina.config:get.
+ * extern function ballerina.config:get.
  *
  * @since 0.970.0-alpha3
  */

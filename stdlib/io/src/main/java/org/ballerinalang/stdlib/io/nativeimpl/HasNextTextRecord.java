@@ -38,7 +38,7 @@ import org.ballerinalang.stdlib.io.utils.IOConstants;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Native function ballerina/io#hasNextTextRecord.
+ * extern function ballerina/io#hasNextTextRecord.
  *
  * @since 0.961.0
  */

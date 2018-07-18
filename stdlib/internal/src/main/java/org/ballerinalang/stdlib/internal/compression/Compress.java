@@ -38,7 +38,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
- * Native function ballerina.compression:compress.
+ * extern function ballerina.compression:compress.
  *
  * @since 0.970.0
  */

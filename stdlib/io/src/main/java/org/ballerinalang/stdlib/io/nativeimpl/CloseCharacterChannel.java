@@ -33,7 +33,7 @@ import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 
 /**
- * Native function ballerina/io#closeCharacterChannel.
+ * extern function ballerina/io#closeCharacterChannel.
  *
  * @since 0.95
  */

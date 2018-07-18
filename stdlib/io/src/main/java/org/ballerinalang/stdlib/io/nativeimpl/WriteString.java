@@ -39,7 +39,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Native function ballerina.io#writeString.
+ * extern function ballerina.io#writeString.
  *
  * @since 0.974.1
  */

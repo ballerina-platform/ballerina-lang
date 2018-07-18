@@ -30,7 +30,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 
 /**
- * Native function to register service to client endpoint.
+ * extern function to register service to client endpoint.
  * Not registering any service.
  *
  * @since 1.0.0

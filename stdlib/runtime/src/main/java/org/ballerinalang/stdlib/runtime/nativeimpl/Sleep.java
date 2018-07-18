@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Native function ballerina/runtime:sleep.
+ * extern function ballerina/runtime:sleep.
  *
  * @since 0.94.1
  */

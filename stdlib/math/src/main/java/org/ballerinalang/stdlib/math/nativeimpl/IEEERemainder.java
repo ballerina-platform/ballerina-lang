@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.math:IEEEremainder.
+ * extern function ballerina.math:IEEEremainder.
  *
  * @since 0.94
  */

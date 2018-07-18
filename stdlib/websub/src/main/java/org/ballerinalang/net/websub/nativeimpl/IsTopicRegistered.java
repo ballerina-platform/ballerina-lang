@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.websub.hub.Hub;
 
 /**
- * Native function to check if a topic is registered in the Ballerina Hub.
+ * extern function to check if a topic is registered in the Ballerina Hub.
  *
  * @since 0.965.0
  */

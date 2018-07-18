@@ -36,7 +36,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBS
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
 
 /**
- * Native function to start up the default Ballerina WebSub Hub.
+ * extern function to start up the default Ballerina WebSub Hub.
  *
  * @since 0.965.0
  */

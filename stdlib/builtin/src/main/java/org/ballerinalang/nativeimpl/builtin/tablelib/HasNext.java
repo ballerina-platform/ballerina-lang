@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function to check record availability in table.
+ * extern function to check record availability in table.
  *
  * @since 0.8.0
  */

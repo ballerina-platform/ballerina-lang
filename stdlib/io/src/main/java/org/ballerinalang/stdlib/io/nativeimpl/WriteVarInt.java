@@ -40,7 +40,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Native function ballerina.io#writeVarInt.
+ * extern function ballerina.io#writeVarInt.
  *
  * @since 0.975.1
  */

@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.math:floorMod.
+ * extern function ballerina.math:floorMod.
  *
  * @since 0.94
  */

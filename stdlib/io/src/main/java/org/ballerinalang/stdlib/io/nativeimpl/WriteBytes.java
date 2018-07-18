@@ -37,7 +37,7 @@ import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 
 /**
- * Native function ballerina.lo#writeBytes.
+ * extern function ballerina.lo#writeBytes.
  *
  * @since 0.94
  */

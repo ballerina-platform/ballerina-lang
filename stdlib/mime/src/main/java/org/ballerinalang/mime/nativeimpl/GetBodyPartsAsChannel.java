@@ -22,7 +22,7 @@ import static org.ballerinalang.mime.util.MimeConstants.BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 
 /**
- * 'getBodyPartsAsChannel' native function converts a set of body parts into a byte channel.
+ * 'getBodyPartsAsChannel' extern function converts a set of body parts into a byte channel.
  *
  * @since 0.970.0
  */

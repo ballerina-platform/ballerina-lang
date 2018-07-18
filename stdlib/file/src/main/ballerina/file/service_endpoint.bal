@@ -31,13 +31,13 @@ public type Listener object {
         check self.initEndpoint();
     }
 
-    native function initEndpoint() returns error?;
+    extern function initEndpoint() returns error?;
 
-    public native function register(typedesc serviceType);
+    public extern function register(typedesc serviceType);
 
-    public native function start();
+    public extern function start();
 
-    public native function stop();
+    public extern function stop();
 };
 
 documentation {

@@ -36,7 +36,7 @@ import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 
 /**
- * Native function for Socket bind address.
+ * extern function for Socket bind address.
  *
  * @since 0.971.1
  */

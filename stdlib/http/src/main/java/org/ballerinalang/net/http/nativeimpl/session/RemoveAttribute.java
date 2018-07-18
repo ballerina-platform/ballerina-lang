@@ -31,7 +31,7 @@ import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Native function to delete session attribute.
+ * extern function to delete session attribute.
  *
  * @since 0.89
  */

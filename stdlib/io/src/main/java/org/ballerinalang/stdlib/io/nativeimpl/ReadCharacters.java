@@ -35,7 +35,7 @@ import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 
 /**
- * Native function ballerina/io#readCharacters.
+ * extern function ballerina/io#readCharacters.
  *
  * @since 0.94
  */

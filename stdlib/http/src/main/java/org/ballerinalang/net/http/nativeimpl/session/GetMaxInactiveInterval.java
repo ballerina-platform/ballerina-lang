@@ -32,7 +32,7 @@ import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Native function to get session max inactive time interval.
+ * extern function to get session max inactive time interval.
  *
  * @since 0.89
  */

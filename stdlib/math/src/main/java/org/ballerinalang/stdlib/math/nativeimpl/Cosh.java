@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.math:cosh.
+ * extern function ballerina.math:cosh.
  *
  * @since 0.94
  */

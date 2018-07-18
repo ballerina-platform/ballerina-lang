@@ -35,7 +35,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 
 /**
- * Native function to check whether caller has terminated the connection in between.
+ * extern function to check whether caller has terminated the connection in between.
  *
  * @since 1.0.0
  */

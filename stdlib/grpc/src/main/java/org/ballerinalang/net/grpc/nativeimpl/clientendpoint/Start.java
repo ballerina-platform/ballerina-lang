@@ -29,7 +29,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 
 /**
- * Native function to start client instance.
+ * extern function to start client instance.
  *
  * @since 1.0.0
  */

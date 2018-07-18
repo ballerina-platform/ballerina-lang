@@ -69,7 +69,7 @@ public class IOUtils {
     /**
      * Returns the error struct for the corresponding message.
      *
-     * @param context context of the native function.
+     * @param context context of the extern function.
      * @param message error message.
      * @return error message struct.
      */
@@ -84,7 +84,7 @@ public class IOUtils {
      *
      * @param channel the channel the bytes should be written.
      * @param content content which should be written.
-     * @param context context of the native function call.
+     * @param context context of the extern function call.
      * @param offset  the start index of the bytes which should be written.
      * @return the number of bytes written to the channel.
      * @throws ExecutionException   errors which occur during execution.
@@ -109,7 +109,7 @@ public class IOUtils {
      * @param channel channel which should be used to write bytes.
      * @param content content which should be written.
      * @param offset  offset which should be set when writing bytes.
-     * @param context context obtained from the native function call.
+     * @param context context obtained from the extern function call.
      * @return the number of bytes written.
      * @throws InterruptedException if the thread is interrupted
      * @throws ExecutionException   error while execution.
@@ -135,7 +135,7 @@ public class IOUtils {
      * @param channel  channel which will be used to write bytes.
      * @param content  content which will be written.
      * @param offset   the offset which will be set to write bytes.
-     * @param context  context of the native function call.
+     * @param context  context of the extern function call.
      * @param function callback function which should be called upon completion.
      */
     public static void write(Channel channel, byte[] content, int offset, EventContext context,
@@ -182,7 +182,7 @@ public class IOUtils {
      * Asynchronously reads bytes from the channel.
      *
      * @param content the initialized array which should be filled with the content.
-     * @param context context of the native function call.
+     * @param context context of the extern function call.
      * @param channel the channel the content should be read into.
      * @throws InterruptedException during interrupt error.
      * @throws ExecutionException   errors which occurs while execution.
@@ -238,7 +238,7 @@ public class IOUtils {
      *
      * @param channel channel the bytes should be read from.
      * @param content byte [] which will hold the content which is read.
-     * @param context context obtained from the native function.
+     * @param context context obtained from the extern function.
      * @return the number of bytes read.
      * @throws InterruptedException errors which occur if the thread is interrupted.
      * @throws ExecutionException   errors which occur during execution.
@@ -263,7 +263,7 @@ public class IOUtils {
      *
      * @param channel  the channel which the bytes should be read from.
      * @param content  the byte[] which will holds the content which will be read.
-     * @param context  context which will be obtained from the native function call.
+     * @param context  context which will be obtained from the extern function call.
      * @param function the callback function which will be triggered.
      */
     public static void read(Channel channel, byte[] content, EventContext context,

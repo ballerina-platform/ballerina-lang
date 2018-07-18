@@ -49,7 +49,7 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * Native function ballerina/internal:execBallerinaDoc.
+ * extern function ballerina/internal:execBallerinaDoc.
  *
  * @since 0.975.1
  */

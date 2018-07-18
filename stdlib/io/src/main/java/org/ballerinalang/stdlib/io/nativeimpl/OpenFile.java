@@ -35,7 +35,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Native function to obtain channel from File.
+ * extern function to obtain channel from File.
  *
  * @since 0.963.0
  */

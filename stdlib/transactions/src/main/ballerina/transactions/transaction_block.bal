@@ -138,7 +138,7 @@ documentation {
     P{{transactionId}} - Globally unique transaction ID.
     P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
 }
-native function prepareResourceManagers(string transactionId, int transactionBlockId) returns boolean;
+extern function prepareResourceManagers(string transactionId, int transactionBlockId) returns boolean;
 
 documentation {
     Commit local resource managers.
@@ -146,7 +146,7 @@ documentation {
     P{{transactionId}} - Globally unique transaction ID.
     P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
 }
-native function commitResourceManagers(string transactionId, int transactionBlockId) returns boolean;
+extern function commitResourceManagers(string transactionId, int transactionBlockId) returns boolean;
 
 documentation {
     Abort local resource managers.
@@ -154,11 +154,11 @@ documentation {
     P{{transactionId}} - Globally unique transaction ID.
     P{{transactionBlockId}} - ID of the transaction block. Each transaction block in a process has a unique ID.
 }
-native function abortResourceManagers(string transactionId, int transactionBlockId) returns boolean;
+extern function abortResourceManagers(string transactionId, int transactionBlockId) returns boolean;
 
 documentation {
     Get the current transaction id. This function is useful for user code to save state against a transaction ID,
     so that when the `oncommit` or `onabort` functions registered for a transaction can retrieve that state using the
     transaction  that is passed in to those functions.
 }
-public native function getCurrentTransactionId() returns string;
+public extern function getCurrentTransactionId() returns string;

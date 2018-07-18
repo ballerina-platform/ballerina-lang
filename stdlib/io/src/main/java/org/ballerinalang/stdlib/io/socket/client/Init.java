@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.nio.channels.SocketChannel;
 
 /**
- * Native function for Socket init.
+ * extern function for Socket init.
  *
  * @since 0.971.1
  */

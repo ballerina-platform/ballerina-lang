@@ -33,7 +33,7 @@ import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 
 /**
- * Native function ballerina/io#closeTextRecordChannel.
+ * extern function ballerina/io#closeTextRecordChannel.
  *
  * @since 0.95
  */

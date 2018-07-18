@@ -40,7 +40,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Native function ballerina.io#readString.
+ * extern function ballerina.io#readString.
  *
  * @since 0.974.1
  */

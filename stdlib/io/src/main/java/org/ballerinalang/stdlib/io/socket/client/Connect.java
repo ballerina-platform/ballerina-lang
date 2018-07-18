@@ -43,7 +43,7 @@ import java.net.Socket;
 import java.nio.channels.SocketChannel;
 
 /**
- * Native function to open a Client socket connection.
+ * extern function to open a Client socket connection.
  *
  * @since 0.971.1
  */

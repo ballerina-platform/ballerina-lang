@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.model.strings:hasSuffix.
+ * extern function ballerina.model.strings:hasSuffix.
  *
  * @since 0.8.0
  */

@@ -39,7 +39,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Native function ballerina.io#DataChannel.close().
+ * extern function ballerina.io#DataChannel.close().
  *
  * @since 0.974.1
  */

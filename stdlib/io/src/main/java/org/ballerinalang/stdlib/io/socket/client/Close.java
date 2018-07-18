@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.channels.ByteChannel;
 
 /**
- * Native function to close a Client socket.
+ * extern function to close a Client socket.
  *
  * @since 0.963.0
  */

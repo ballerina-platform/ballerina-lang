@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 /**
- * Native function ballerina.model.strings:matches.
+ * extern function ballerina.model.strings:matches.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "builtin",

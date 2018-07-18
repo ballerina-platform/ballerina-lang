@@ -38,7 +38,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 
 /**
- * Native function for ServerSocket bind address.
+ * extern function for ServerSocket bind address.
  *
  * @since 0.971.1
  */

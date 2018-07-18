@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.math:toRadians.
+ * extern function ballerina.math:toRadians.
  *
  * @since 0.94
  */

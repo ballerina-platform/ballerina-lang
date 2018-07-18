@@ -62,7 +62,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
 /**
- * Native function to open a secure client socket.
+ * extern function to open a secure client socket.
  *
  * @since 0.964.0
  */

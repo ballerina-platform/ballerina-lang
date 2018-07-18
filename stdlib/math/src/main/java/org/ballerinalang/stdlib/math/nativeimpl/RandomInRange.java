@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Native function ballerina.math:random.
+ * extern function ballerina.math:random.
  *
  * @since 0.90
  */

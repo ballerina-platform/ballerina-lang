@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 
 /**
- * Native function ballerina.transactions:getAvailablePort.
+ * extern function ballerina.transactions:getAvailablePort.
  *
  * @since 0.964.0
  */

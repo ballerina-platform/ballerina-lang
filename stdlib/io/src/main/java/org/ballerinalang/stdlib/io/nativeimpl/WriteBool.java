@@ -39,7 +39,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Native function ballerina/io#writeBool.
+ * extern function ballerina/io#writeBool.
  *
  * @since 0.973.1
  */

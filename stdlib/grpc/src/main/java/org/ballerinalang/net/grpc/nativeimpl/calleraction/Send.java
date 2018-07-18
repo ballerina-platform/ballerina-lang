@@ -47,7 +47,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.RESPONSE_MESSAGE_REF_INDE
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
- * Native function to respond the caller.
+ * extern function to respond the caller.
  *
  * @since 0.96.1
  */

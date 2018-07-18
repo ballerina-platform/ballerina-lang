@@ -39,7 +39,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
- * Native function to send server error the caller.
+ * extern function to send server error the caller.
  *
  * @since 1.0.0
  */

@@ -44,7 +44,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 import java.util.Arrays;
 
 /**
- * Native function ballerina.lo#readBytes.
+ * extern function ballerina.lo#readBytes.
  *
  * @since 0.94
  */

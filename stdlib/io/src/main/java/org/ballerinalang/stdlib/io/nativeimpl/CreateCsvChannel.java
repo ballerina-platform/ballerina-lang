@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Native function ballerina/io#createCsvChannel.
+ * extern function ballerina/io#createCsvChannel.
  *
  * @since 0.970.0-alpha1
  */

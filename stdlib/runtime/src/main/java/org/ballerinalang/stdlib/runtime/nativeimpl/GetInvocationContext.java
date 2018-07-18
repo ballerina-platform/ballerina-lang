@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_RUNTIME_PKG;
 
 /**
- * Native function to get authentication context.
+ * extern function to get authentication context.
  *
  * @since 0.970.0
  */

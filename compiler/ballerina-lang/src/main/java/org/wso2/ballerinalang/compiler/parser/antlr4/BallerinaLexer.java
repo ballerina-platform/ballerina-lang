@@ -17,7 +17,7 @@ public class BallerinaLexer extends Lexer {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		IMPORT=1, AS=2, PUBLIC=3, PRIVATE=4, NATIVE=5, SERVICE=6, RESOURCE=7, 
+		IMPORT=1, AS=2, PUBLIC=3, PRIVATE=4, EXTERN=5, SERVICE=6, RESOURCE=7, 
 		FUNCTION=8, OBJECT=9, RECORD=10, ANNOTATION=11, PARAMETER=12, TRANSFORMER=13, 
 		WORKER=14, ENDPOINT=15, BIND=16, XMLNS=17, RETURNS=18, VERSION=19, DOCUMENTATION=20, 
 		DEPRECATED=21, FROM=22, ON=23, SELECT=24, GROUP=25, BY=26, HAVING=27, 
@@ -85,7 +85,7 @@ public class BallerinaLexer extends Lexer {
 	};
 
 	public static final String[] ruleNames = {
-		"IMPORT", "AS", "PUBLIC", "PRIVATE", "NATIVE", "SERVICE", "RESOURCE", 
+		"IMPORT", "AS", "PUBLIC", "PRIVATE", "EXTERN", "SERVICE", "RESOURCE", 
 		"FUNCTION", "OBJECT", "RECORD", "ANNOTATION", "PARAMETER", "TRANSFORMER", 
 		"WORKER", "ENDPOINT", "BIND", "XMLNS", "RETURNS", "VERSION", "DOCUMENTATION", 
 		"DEPRECATED", "FROM", "ON", "SELECT", "GROUP", "BY", "HAVING", "ORDER", 
@@ -150,7 +150,7 @@ public class BallerinaLexer extends Lexer {
 	};
 
 	private static final String[] _LITERAL_NAMES = {
-		null, "'import'", "'as'", "'public'", "'private'", "'native'", "'service'", 
+		null, "'import'", "'as'", "'public'", "'private'", "'extern'", "'service'", 
 		"'resource'", "'function'", "'object'", "'record'", "'annotation'", "'parameter'", 
 		"'transformer'", "'worker'", "'endpoint'", "'bind'", "'xmlns'", "'returns'", 
 		"'version'", "'documentation'", "'deprecated'", "'from'", "'on'", null, 
@@ -179,7 +179,7 @@ public class BallerinaLexer extends Lexer {
 		"'\"'", "'''"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
-		null, "IMPORT", "AS", "PUBLIC", "PRIVATE", "NATIVE", "SERVICE", "RESOURCE", 
+		null, "IMPORT", "AS", "PUBLIC", "PRIVATE", "EXTERN", "SERVICE", "RESOURCE", 
 		"FUNCTION", "OBJECT", "RECORD", "ANNOTATION", "PARAMETER", "TRANSFORMER", 
 		"WORKER", "ENDPOINT", "BIND", "XMLNS", "RETURNS", "VERSION", "DOCUMENTATION", 
 		"DEPRECATED", "FROM", "ON", "SELECT", "GROUP", "BY", "HAVING", "ORDER", 
@@ -1275,8 +1275,8 @@ public class BallerinaLexer extends Lexer {
 		"\7d\2\2\u0292\u0293\7n\2\2\u0293\u0294\7k\2\2\u0294\u0295\7e\2\2\u0295"+
 		"\24\3\2\2\2\u0296\u0297\7r\2\2\u0297\u0298\7t\2\2\u0298\u0299\7k\2\2\u0299"+
 		"\u029a\7x\2\2\u029a\u029b\7c\2\2\u029b\u029c\7v\2\2\u029c\u029d\7g\2\2"+
-		"\u029d\26\3\2\2\2\u029e\u029f\7p\2\2\u029f\u02a0\7c\2\2\u02a0\u02a1\7"+
-		"v\2\2\u02a1\u02a2\7k\2\2\u02a2\u02a3\7x\2\2\u02a3\u02a4\7g\2\2\u02a4\30"+
+		"\u029d\26\3\2\2\2\u029e\u029f\7g\2\2\u029f\u02a0\7z\2\2\u02a0\u02a1\7"+
+		"v\2\2\u02a1\u02a2\7g\2\2\u02a2\u02a3\7t\2\2\u02a3\u02a4\7p\2\2\u02a4\30"+
 		"\3\2\2\2\u02a5\u02a6\7u\2\2\u02a6\u02a7\7g\2\2\u02a7\u02a8\7t\2\2\u02a8"+
 		"\u02a9\7x\2\2\u02a9\u02aa\7k\2\2\u02aa\u02ab\7e\2\2\u02ab\u02ac\7g\2\2"+
 		"\u02ac\32\3\2\2\2\u02ad\u02ae\7t\2\2\u02ae\u02af\7g\2\2\u02af\u02b0\7"+

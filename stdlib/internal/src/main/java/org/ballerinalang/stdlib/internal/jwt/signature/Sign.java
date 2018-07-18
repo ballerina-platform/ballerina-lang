@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 import java.security.PrivateKey;
 
 /**
- * Native function ballerinalang.jwt:sign.
+ * extern function ballerinalang.jwt:sign.
  *
  * @since 0.964.0
  */

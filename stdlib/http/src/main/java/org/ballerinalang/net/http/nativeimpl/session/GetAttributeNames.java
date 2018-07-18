@@ -33,7 +33,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 
 /**
- * Native function to get session attribute keys.
+ * extern function to get session attribute keys.
  *
  * @since 0.89
  */

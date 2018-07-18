@@ -28,7 +28,7 @@ public type CallerActions object {
         R{{}} A `table[]` if there are tables returned by the call action and else nil,
                 `error` will be returned if there is any error
     }
-    public native function call(@sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
+    public extern function call(@sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
         returns @tainted table[]|()|error;
 
     documentation {
@@ -39,7 +39,7 @@ public type CallerActions object {
         P{{loadToMemory}} Indicates whether to load the retrieved data to memory or not
         R{{}} A `table` returned by the sql query statement else `error` will be returned if there is any error
     }
-    public native function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
+    public extern function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
                                   Param... parameters) returns @tainted table|error;
 
     documentation {
@@ -48,7 +48,7 @@ public type CallerActions object {
         P{{sqlQuery}} SQL statement to execute
         R{{}} `int` number of rows updated by the statement and else `error` will be returned if there is any error
     }
-    public native function update(@sensitive string sqlQuery, Param... parameters) returns int|error;
+    public extern function update(@sensitive string sqlQuery, Param... parameters) returns int|error;
 
     documentation {
         The batchUpdate operation implementation for SQL connector to batch data insert.
@@ -63,7 +63,7 @@ public type CallerActions object {
            A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
                           continues to process commands after a command fails
     }
-    public native function batchUpdate(@sensitive string sqlQuery, Param[]... parameters) returns int[]|error;
+    public extern function batchUpdate(@sensitive string sqlQuery, Param[]... parameters) returns int[]|error;
 
     documentation {
         The updateWithGeneratedKeys operation implementation for SQL connector which returns the auto
@@ -75,7 +75,7 @@ public type CallerActions object {
             aray of auto generated key values during the query execution, in order.
             Else `error` will be returned if there is any error.
     }
-    public native function updateWithGeneratedKeys(@sensitive string sqlQuery, string[]? keyColumns,
+    public extern function updateWithGeneratedKeys(@sensitive string sqlQuery, string[]? keyColumns,
                                                    Param... parameters) returns (int, string[])|error;
 
     documentation {
@@ -87,7 +87,7 @@ public type CallerActions object {
         R{{}} A `table` returned by the operation or else `error` will be returned if there is any error
 
     }
-    public native function getProxyTable(@sensitive string tableName, typedesc recordType) returns @tainted table|error;
+    public extern function getProxyTable(@sensitive string tableName, typedesc recordType) returns @tainted table|error;
 };
 
 documentation {
@@ -95,4 +95,4 @@ documentation {
 
         P{{callerActions}} The CallerActions object which represents the connection pool.
 }
-public native function close(CallerActions callerActions);
+public extern function close(CallerActions callerActions);

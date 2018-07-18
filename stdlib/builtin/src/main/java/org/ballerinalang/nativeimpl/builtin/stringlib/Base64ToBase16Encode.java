@@ -31,7 +31,7 @@ import java.util.Base64;
 import javax.xml.bind.DatatypeConverter;
 
 /**
- * Native function ballerina.model.string:base64ToBase16Encode.
+ * extern function ballerina.model.string:base64ToBase16Encode.
  *
  * @since 0.970.0
  */

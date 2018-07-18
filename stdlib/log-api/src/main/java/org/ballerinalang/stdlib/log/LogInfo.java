@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.observability.ObservabilityUtils;
 
 /**
- * Native function ballerina.log:printInfo.
+ * extern function ballerina.log:printInfo.
  *
  * @since 0.89
  */

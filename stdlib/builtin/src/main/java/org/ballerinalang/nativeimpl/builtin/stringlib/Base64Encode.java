@@ -25,7 +25,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.BuiltInUtils;
 
 /**
- * Native function ballerina.model.string:base64Encode.
+ * extern function ballerina.model.string:base64Encode.
  *
  * @since 0.970.0
  */

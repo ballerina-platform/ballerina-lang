@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.websub.hub.Hub;
 
 /**
- * Native function to retrieve the secret specified by a publisher when registering the topic at the Ballerina Hub.
+ * extern function to retrieve the secret specified by a publisher when registering the topic at the Ballerina Hub.
  *
  * @since 0.965.0
  */

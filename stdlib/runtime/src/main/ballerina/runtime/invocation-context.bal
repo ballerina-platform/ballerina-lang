@@ -47,4 +47,4 @@ documentation {
 
     R{{}} InvocationContext instance
 }
-public native function getInvocationContext() returns (InvocationContext);
+public extern function getInvocationContext() returns (InvocationContext);

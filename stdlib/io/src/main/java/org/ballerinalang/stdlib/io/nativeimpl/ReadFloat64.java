@@ -41,7 +41,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Native function ballerina/io#readFloat64.
+ * extern function ballerina/io#readFloat64.
  *
  * @since 0.973.1
  */

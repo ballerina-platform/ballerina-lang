@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function to check existence of key.
+ * extern function to check existence of key.
  * ballerina.model.map:hasKey(string)
  */
 @BallerinaFunction(

@@ -38,7 +38,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import java.util.NoSuchElementException;
 
 /**
- * Native function to create session if session id not exist, otherwise return existing session.
+ * extern function to create session if session id not exist, otherwise return existing session.
  *
  * @since 0.89
  */

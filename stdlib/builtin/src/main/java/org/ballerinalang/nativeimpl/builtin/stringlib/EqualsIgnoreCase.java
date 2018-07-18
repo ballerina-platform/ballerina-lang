@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.model.strings:equalsIgnoreCase.
+ * extern function ballerina.model.strings:equalsIgnoreCase.
  *
  * @since 0.8.0
  */

@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.utils.Utils;
 
 /**
- * Native function 'mime:base64Decode' that can decode a a given mime base64 encoded string, blob or a
+ * extern function 'mime:base64Decode' that can decode a a given mime base64 encoded string, blob or a
  * byte channel.
  *
  * @since 0.970.0
