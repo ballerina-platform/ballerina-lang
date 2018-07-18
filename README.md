@@ -1,11 +1,30 @@
+<p align="center">
+  <a href="https://ballerina.io/">
+    <img src="https://ballerina.io/img/ballerina-logo.png" alt="Ballerina logo" width=300>
+  </a>
+
+  <h3 align="center">Cloud Native Programming Language</h3>
+
+  <p align="center">
+    Ballerina makes it easy to write microservices that integrate APIs.
+    <br>
+    <a href="https://ballerina.io/philosophy/"><strong>Explore Ballerina philosophy »</strong></a>
+    <br>
+    <br>
+    <a href="https://github.com/ballerina-platform/ballerina-lang/issues/new">Report issues</a>
+    ·
+    <a href="https://blog.ballerina.io/">Blog</a>
+  </p>
+</p>
+
+<br>
+
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 [![Build Status](https://wso2.org/jenkins/view/All%20Builds/job/ballerina-platform/job/ballerina/badge/icon)](https://wso2.org/jenkins/view/All%20Builds/job/ballerina-platform/job/ballerina/)
 [![GitHub (pre-)release](https://img.shields.io/github/release/ballerina-platform/ballerina-lang/all.svg)](https://github.com/ballerina-platform/ballerina-lang/releases)
 [![GitHub (Pre-)Release Date](https://img.shields.io/github/release-date-pre/ballerina-platform/ballerina-lang.svg)](https://github.com/ballerina-platform/ballerina-lang/releases)
 [![GitHub last commit](https://img.shields.io/github/last-commit/ballerina-platform/ballerina-lang.svg)](https://github.com/ballerina-platform/ballerina-lang/commits/master)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-
-Ballerina makes it easy to write microservices that integrate APIs.
 
 #### Integration Syntax
 A compiled, transactional, statically and strongly typed programming language with textual and graphical syntaxes. Ballerina incorporates fundamental concepts of distributed system integration and offers a type safe, concurrent environment to implement microservices.
