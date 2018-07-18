@@ -110,39 +110,39 @@ public class SrcFile {
                                                              "}\n" +
                                                              "\n" +
                                                              "documentation {\n" +
-                                                             "   Before Suite Function\n" +
+                                                             "   After Suite Function\n" +
                                                              "}\n" +
                                                              "@test:AfterSuite\n" +
                                                              "function afterSuiteFunc () {\n" +
-                                                             "    io:println(\"I'm the After suite function!\");\n" +
+                                                             "    io:println(\"I'm the after suite function!\");\n" +
                                                              "}";
 
-    private static final String SERVICE_TEST_CONTENT = "import ballerina/test;%n" +
-                                                       "import ballerina/io;%n" +
-                                                       "%n" +
-                                                        "documentation {%n" +
-                                                        "   Before Suite Function can be used to start the service%n" +
-                                                        "}%n" +
-                                                       "@test:BeforeSuite%n" +
-                                                       "function beforeSuiteFunc () {%n" +
-                                                       "    io:println(\"Start the Service: %1$s !!\");%n" +
-                                                       "}%n" +
-                                                       "%n" +
-                                                       "documentation {%n" +
-                                                       "   Test function%n" +
-                                                       "}%n" +
-                                                       "@test:Config%n" +
-                                                       "function testFunction () {%n" +
-                                                       "    io:println(\"Do your service Tests!\");%n" +
-                                                       "    test:assertTrue(true , msg = \"Failed!\");%n" +
-                                                       "}%n" +
-                                                       "%n" +
-                                                       "documentation {%n" +
-                                                       "   After Suite Function is used to stop the service%n" +
-                                                       "}%n" +
-                                                       "@test:AfterSuite%n" +
-                                                       "function afterSuiteFunc () {%n" +
-                                                       "    io:println(\"Stop the Service: %1$s !!\");%n" +
+    private static final String SERVICE_TEST_CONTENT = "import ballerina/test;\n" +
+                                                       "import ballerina/io;\n" +
+                                                       "\n" +
+                                                        "documentation {\n" +
+                                                        "   Before Suite Function\n" +
+                                                        "}\n" +
+                                                       "@test:BeforeSuite\n" +
+                                                       "function beforeSuiteFunc () {\n" +
+                                                       "    io:println(\"I'm the before suite function!\");\n" +
+                                                       "}\n" +
+                                                       "\n" +
+                                                       "documentation {\n" +
+                                                       "   Test function\n" +
+                                                       "}\n" +
+                                                       "@test:Config\n" +
+                                                       "function testFunction () {\n" +
+                                                       "    io:println(\"Do your service Tests!\");\n" +
+                                                       "    test:assertTrue(true , msg = \"Failed!\");\n" +
+                                                       "}\n" +
+                                                       "\n" +
+                                                       "documentation {\n" +
+                                                       "   After Suite Function\n" +
+                                                       "}\n" +
+                                                       "@test:AfterSuite\n" +
+                                                       "function afterSuiteFunc () {\n" +
+                                                       "    io:println(\"I'm the after suite function!\");\n" +
                                                        "}";
 
     private FileType srcFileType;
@@ -156,7 +156,7 @@ public class SrcFile {
         switch (fileType) {
             case SERVICE:
                 content = SERVICE_CONTENT;
-                testFileContent = String.format(SERVICE_TEST_CONTENT, this.name.isEmpty() ? "." : this.name);
+                testFileContent = SERVICE_TEST_CONTENT;
                 testFileName = "hello_service_test.bal";
                 break;
             case MAIN:
