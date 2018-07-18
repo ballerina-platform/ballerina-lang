@@ -113,7 +113,6 @@ public class BinaryFileWriter {
         } catch (IOException e) {
             throw new BLangCompilerException("error writing program file '" + execFileName + "'", e);
         }
-        outStream.println("    ./target/" + execFileName);
 
         final Path execFilePath = this.sourceDirectory.saveCompiledProgram(new ByteArrayInputStream(byteArrayOS
                 .toByteArray()), execFileName);
