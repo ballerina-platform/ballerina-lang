@@ -148,6 +148,11 @@ class WelcomeTab extends React.Component {
                                 rel='noopener noreferrer'
                                 target='_blank'
                                 href='https://ballerina.io/learn/api-docs/ballerina/http.html'
+                                onClick={(event) => {
+                                    event.preventDefault();
+                                    this.props.commandManager.dispatch(WORKSPACE_COMMANDS.SHOW_EXTERNAL_LINK,
+                                         { url: event.currentTarget.href });
+                                }}
                             >
                                 <Menu.Item name='API Reference' />
                             </a>
