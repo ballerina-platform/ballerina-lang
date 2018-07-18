@@ -12,7 +12,7 @@ import org.antlr.v4.runtime.dfa.DFA;
 import org.ballerinalang.bir.model.IrPackage;
 import org.ballerinalang.bir.parser.antlr.BallerinaIRLexer;
 import org.ballerinalang.bir.parser.antlr.BallerinaIRParser;
-import org.ballerinalang.bir.parser.builder.IRModelBuilder;
+import org.ballerinalang.bir.parser.builder.IrModelBuilder;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -34,7 +34,7 @@ abstract class ParserTest {
         BallerinaIRParser parser = new BallerinaIRParser(tokenStream);
         parser.addErrorListener(new AssertingErrorListener(birFile));
         BallerinaIRParser.IrPackageContext irPackageContext = parser.irPackage();
-        return IRModelBuilder.buildIrPackage(irPackageContext);
+        return IrModelBuilder.buildIrPackage(irPackageContext);
     }
 
     private static class AssertingErrorListener implements ANTLRErrorListener {
