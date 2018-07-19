@@ -1,5 +1,6 @@
 package org.ballerinalang.bir.parser;
 
+import org.ballerinalang.bir.model.IrBasicBlock;
 import org.ballerinalang.bir.model.IrFunction;
 import org.ballerinalang.bir.model.IrPackage;
 import org.testng.Assert;
@@ -15,7 +16,8 @@ public class FunctionInPkg extends ParserTest {
         IrFunction function = irPackage.functions.get(0);
         Assert.assertEquals(function.name, "my-func");
         Assert.assertEquals(function.bbs.size(), 1);
-
+        IrBasicBlock irBasicBlock = function.bbs.get(0);
+        Assert.assertEquals(irBasicBlock.index, 0);
     }
 
 }

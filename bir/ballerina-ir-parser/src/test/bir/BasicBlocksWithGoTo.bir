@@ -1,0 +1,10 @@
+package {
+  function "my-func"(){
+     bb0 {
+        goto bb2;
+     }
+     bb2 {
+        return;
+     }
+  }
+}
