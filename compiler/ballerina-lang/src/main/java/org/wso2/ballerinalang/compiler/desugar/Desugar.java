@@ -95,7 +95,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangChannelLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
@@ -1745,6 +1744,16 @@ public class Desugar extends BLangNodeVisitor {
 
     // private functions
 
+    private BLangInvocation createChannelTable(String channelName) {
+        List<BLangExpression> args = new ArrayList<>();
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        literal.setValue(channelName);
+        literal.type = symTable.stringType;
+        args.add(literal);
+
+        return createInvocationNode("createWF_channelTable", args, symTable.noType);
+    }
+
     private BLangInvocation createInvocationFromTableExpr(BLangTableQueryExpression tableQueryExpression) {
         List<BLangExpression> args = new ArrayList<>();
         String functionName = QUERY_TABLE_WITHOUT_JOIN_CLAUSE;
@@ -2394,7 +2403,7 @@ public class Desugar extends BLangNodeVisitor {
                 array.type = type;
                 return rewriteExpr(array);
             case TypeTags.CHANNEL:
-                return new BLangChannelLiteral(type, name);
+                return createChannelTable(name.getValue());
             default:
                 break;
         }
