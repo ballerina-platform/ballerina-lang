@@ -6,7 +6,7 @@ import java.util.List;
  * Data model for a ir  of a function.
  * Must have at lease one entry basic block.
  */
-public class IrFunction {
+public class IrFunction extends IrElement {
     public String name;
     public List<IrBasicBlock> bbs;
 
