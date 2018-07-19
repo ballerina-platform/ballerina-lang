@@ -4233,7 +4233,7 @@ public class SourceGen {
 
 
     @FindbugsSuppressWarnings
-    String getSourceOf(JsonObject node, boolean pretty, boolean replaceLambda) {
+    public String getSourceOf(JsonObject node, boolean pretty, boolean replaceLambda) {
         if (node == null) {
             return "";
         }

@@ -36,7 +36,6 @@ import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.util.diagnostic.Diagnostic;
-import org.eclipse.lsp4j.DocumentFormattingParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -75,17 +74,16 @@ public class TextDocumentFormatUtil {
     /**
      * Get the AST for the current text document's content.
      *
-     * @param params          Document Formatting parameters
+     * @param uri             File path as a URI
      * @param documentManager Workspace document manager instance
      * @param context         Document formatting context
      * @return {@link JsonObject}   AST as a Json Object
      */
-    public static JsonObject getAST(DocumentFormattingParams params, WorkspaceDocumentManager documentManager,
+    public static JsonObject getAST(String uri, WorkspaceDocumentManager documentManager,
                                     LSContext context) {
-        String documentUri = params.getTextDocument().getUri();
-        String[] uriParts = documentUri.split(Pattern.quote(File.separator));
+        String[] uriParts = uri.split(Pattern.quote(File.separator));
         String fileName = uriParts[uriParts.length - 1];
-        final BLangPackage bLangPackage = LSCompiler.getBLangPackage(context, documentManager, 
+        final BLangPackage bLangPackage = LSCompiler.getBLangPackage(context, documentManager,
                 true, LSCustomErrorStrategy.class, false).get(0);
         context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
         final List<Diagnostic> diagnostics = new ArrayList<>();
