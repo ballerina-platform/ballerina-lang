@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * Represents a parameter documentation node.
+ *
  * @since 0.981.0
  */
 public class BLangMarkdownParameterDocumentation extends BLangExpression

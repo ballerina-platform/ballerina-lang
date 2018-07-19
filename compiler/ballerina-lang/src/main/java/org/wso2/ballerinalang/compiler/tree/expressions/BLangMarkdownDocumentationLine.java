@@ -23,6 +23,8 @@ import org.ballerinalang.model.tree.expressions.MarkdownDocumentationTextAttribu
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
+ * Represents a single documentation line node.
+ *
  * @since 0.981.0
  */
 public class BLangMarkdownDocumentationLine extends BLangExpression implements MarkdownDocumentationTextAttributeNode {

@@ -51,6 +51,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Analyzes markdown documentations.
+ *
  * @since 0.981.0
  */
 public class DocumentationAnalyzer extends BLangNodeVisitor {

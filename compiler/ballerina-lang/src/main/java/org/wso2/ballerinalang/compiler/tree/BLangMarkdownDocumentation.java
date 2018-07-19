@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
+ * Represents a markdown documentation node.
+ *
  * @since 0.981.0
  */
 public class BLangMarkdownDocumentation extends BLangNode implements MarkdownDocumentationNode {

@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * Represents a return parameter node.
+ *
  * @since 0.981.0
  */
 public class BLangMarkdownReturnParameterDocumentation extends BLangExpression
