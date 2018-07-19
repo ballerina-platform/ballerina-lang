@@ -53,6 +53,7 @@
 
         <lang.syntaxHighlighterFactory language="Ballerina"
                                        implementationClass="io.ballerina.plugins.idea.highlighting.BallerinaSyntaxHighlighterFactory"/>
+        fileEditorProvider implementation="io.ballerina.plugins.idea.ui.preview.BallerinaSplitEditorProvider"/>
         <!--Add organization index-->
 
         <indexPatternBuilder implementation="io.ballerina.plugins.idea.BallerinaIndexPatternBuilder"/>
