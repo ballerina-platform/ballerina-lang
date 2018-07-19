@@ -180,6 +180,27 @@
 
     <actions>
         <!-- Ballerina Plugin Actions -->
+        <group id="Markdown.Toolbar.Right" class="com.intellij.openapi.actionSystem.DefaultActionGroup"
+               text="Ballerina editor layout actions">
+            <action class="io.ballerina.plugins.idea.ui.actions.editorLayout.EditorOnlyLayoutChangeAction"
+                    id="io.ballerina.plugins.idea.ui.actions.editorLayout.EditorOnlyLayoutChangeAction"
+                    text="Show editor only"
+                    description="Sets ballerina editor layout to show editor only"
+                    icon="MarkdownIcons.Layout.Editor_only">
+            </action>
+            <action class="io.ballerina.plugins.idea.ui.actions.editorLayout.EditorAndPreviewLayoutChangeAction"
+                    id="io.ballerina.plugins.idea.ui.actions.editorLayout.EditorAndPreviewLayoutChangeAction"
+                    text="Show editor and preview"
+                    description="Sets ballerina editor layout to show editor and preview in split"
+                    icon="MarkdownIcons.Layout.Editor_preview">
+            </action>
+            <action class="io.ballerina.plugins.idea.ui.actions.editorLayout.PreviewOnlyLayoutChangeAction"
+                    id="io.ballerina.plugins.idea.ui.actions.editorLayout.PreviewOnlyLayoutChangeAction"
+                    text="Show preview only"
+                    description="Sets ballerina editor layout to show preview only"
+                    icon="MarkdownIcons.Layout.Preview_only">
+            </action>
+        </group>
         <action id="Ballerina.NewBallerinaFile" class="io.ballerina.plugins.idea.actions.BallerinaCreateFileAction"
                 text="Ballerina File" description="Create new Ballerina file">
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
