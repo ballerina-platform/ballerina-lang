@@ -206,7 +206,7 @@ public class BTestRunner {
             if (buildWithTests) {
                 return;
             }
-            outStream.println("No test functions found in the provided ballerina files.");
+            outStream.println("No tests found");
             return;
         }
 
