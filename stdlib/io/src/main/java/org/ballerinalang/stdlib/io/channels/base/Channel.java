@@ -166,6 +166,11 @@ public abstract class Channel implements IOChannel {
         return hasReachedToEnd;
     }
 
+    /**
+     * This will return {@link ByteChannel} instance that use underneath.
+     *
+     * @return {@link ByteChannel} instance.
+     */
     public ByteChannel getByteChannel() {
         return channel;
     }

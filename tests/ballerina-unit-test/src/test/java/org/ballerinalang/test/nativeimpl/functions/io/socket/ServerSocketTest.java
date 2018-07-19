@@ -73,18 +73,18 @@ public class ServerSocketTest {
             final String clientMsg = "This is the first type of message.";
             boolean connected = false;
             for (int retryCount = 0; retryCount < numberOfRetryAttempts; retryCount++) {
-                try {
-                    Socket s = new Socket("localhost", port);
+                try (Socket s = new Socket("localhost", port)) {
                     BufferedReader input = new BufferedReader(new InputStreamReader(s.getInputStream()));
                     String answer = input.readLine();
                     Assert.assertEquals(welcomeMsg.trim(), answer, "Didn't get the expected response from server.");
-                    OutputStreamWriter out = new OutputStreamWriter(s.getOutputStream(), "UTF-8");
-                    out.write(clientMsg, 0, clientMsg.length());
-                    out.flush();
-                    out.close();
-                    s.close();
-                    connected = true;
-                    break;
+                    try (OutputStreamWriter out = new OutputStreamWriter(s.getOutputStream(), "UTF-8")) {
+                        out.write(clientMsg, 0, clientMsg.length());
+                        out.flush();
+                        out.close();
+                        s.close();
+                        connected = true;
+                        break;
+                    }
                 } catch (IOException e) {
                     sleep(retryInterval);
                 }

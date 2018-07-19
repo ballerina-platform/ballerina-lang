@@ -60,7 +60,7 @@ public class HasNextDelimitedRecordEvent implements Event {
         try {
             if (channel.hasReachedEnd()) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Channel " + channel.hashCode() + " reached it's end");
+                    log.debug("Channel " + channel.hashCode() + " reached its end");
                 }
                 context.setError(new Throwable(IOConstants.IO_EOF));
                 result = new BooleanResult(false, context);
