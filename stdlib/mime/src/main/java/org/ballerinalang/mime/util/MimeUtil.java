@@ -29,17 +29,19 @@ import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Set;
@@ -459,18 +461,30 @@ public class MimeUtil {
 
     public static boolean isJSONCompatible(BType type) {
         switch (type.getTag()) {
-            case TypeTags.INT:
-            case TypeTags.FLOAT:
-            case TypeTags.STRING:
-            case TypeTags.BOOLEAN:
-            case TypeTags.JSON:
+            case TypeTags.INT_TAG:
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.STRING_TAG:
+            case TypeTags.BOOLEAN_TAG:
+            case TypeTags.JSON_TAG:
                 return true;
-            case TypeTags.ARRAY:
+            case TypeTags.ARRAY_TAG:
                 return isJSONCompatible(((BArrayType) type).getElementType());
-            case TypeTags.MAP:
+            case TypeTags.MAP_TAG:
                 return isJSONCompatible(((BMapType) type).getConstrainedType());
             default:
                 return false;
         }
+    }
+
+    public static BString getMessageAsString(BValue dataSource) {
+        BType type = dataSource.getType();
+        if (type.getTag() == TypeTags.STRING_TAG) {
+            return (BString) dataSource;
+        } else if (type.getTag() == TypeTags.ARRAY_TAG &&
+                ((BArrayType) type).getElementType().getTag() == TypeTags.BYTE_TAG) {
+            return new BString(new String(((BByteArray) dataSource).getBytes(), StandardCharsets.UTF_8));
+        }
+
+        return new BString(dataSource.stringValue());
     }
 }

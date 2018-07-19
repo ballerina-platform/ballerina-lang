@@ -63,16 +63,16 @@ public class BStreamingJSON extends BRefValueArray {
     @Override
     public void serialize(OutputStream outputStream) {
         /*
-         * the below order is important, where if the value is generated from a streaming data source,
+         * Below order is important, where if the value is generated from a streaming data source,
          * it should be able to serialize the data out again using the value
          */
-        if (this.values != null) {
-            super.serialize(outputStream);
-        }
-
         try {
             JsonGenerator gen = new JsonGenerator(outputStream);
-            this.datasource.serialize(gen);
+            if (this.values != null) {
+                gen.serialize(this);
+            } else {
+                this.datasource.serialize(gen);
+            }
             gen.flush();
         } catch (IOException e) {
             throw new BallerinaException("error occurred while serializing data", e);

@@ -24,7 +24,6 @@ import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -63,11 +62,7 @@ public class GetText extends BlockingNativeCallableUnit {
                     baseType.equalsIgnoreCase(APPLICATION_FORM))) {
                 BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
                 if (dataSource != null) {
-                    if (dataSource.getType().getTag() == TypeTags.STRING_TAG) {
-                        result = (BString) dataSource;
-                    } else {
-                        result = new BString(dataSource.stringValue());
-                    }
+                    result = MimeUtil.getMessageAsString(dataSource);
                 } else {
                     result = EntityBodyHandler.constructStringDataSource(entityStruct);
                     EntityBodyHandler.addMessageDataSource(entityStruct, result);
