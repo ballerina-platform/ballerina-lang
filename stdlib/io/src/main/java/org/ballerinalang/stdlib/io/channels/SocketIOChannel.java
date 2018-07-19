@@ -19,8 +19,8 @@
 package org.ballerinalang.stdlib.io.channels;
 
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.channels.base.readers.AsyncReader;
-import org.ballerinalang.stdlib.io.channels.base.writers.AsyncWriter;
+import org.ballerinalang.stdlib.io.channels.base.readers.ChannelReader;
+import org.ballerinalang.stdlib.io.channels.base.writers.ChannelWriter;
 import org.ballerinalang.stdlib.io.socket.SocketByteChannel;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 
@@ -40,12 +40,12 @@ public class SocketIOChannel extends Channel {
     private boolean selectable;
 
     public SocketIOChannel(ByteChannel channel) {
-        super(channel, new AsyncReader(), new AsyncWriter());
+        super(channel, new ChannelReader(), new ChannelWriter());
         this.channel = channel;
     }
 
     public SocketIOChannel(ByteChannel channel, boolean selectable) {
-        super(channel, new AsyncReader(), new AsyncWriter());
+        super(channel, new ChannelReader(), new ChannelWriter());
         this.channel = channel;
         this.selectable = selectable;
     }
