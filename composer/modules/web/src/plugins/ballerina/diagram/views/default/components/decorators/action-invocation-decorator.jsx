@@ -236,14 +236,6 @@ class InvocationDecorator extends React.Component {
                 >
                     {tooltip}
                 </rect>
-                <ActionBox
-                    bBox={actionBoxBbox}
-                    show={this.state.active}
-                    isBreakpoint={isBreakpoint}
-                    onDelete={() => this.onDelete()}
-                    onJumptoCodeLine={() => this.onJumpToCodeLine()}
-                    onBreakpointClick={() => this.props.onBreakpointClick()}
-                />
                 <g>
                     <ArrowDecorator
                         start={invocationComponent.start}

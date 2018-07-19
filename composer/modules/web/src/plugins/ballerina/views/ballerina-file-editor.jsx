@@ -52,8 +52,6 @@ import SyncErrorsVisitor from './../visitors/sync-errors';
 import { EVENTS, RESPOSIVE_MENU_TRIGGER } from '../constants';
 import ViewButton from './view-button';
 import MonacoBasedUndoManager from './../utils/monaco-based-undo-manager';
-import FormattingUtil from './../model/formatting-util';
-import FormatVisitor from '../visitors/format-visitor';
 
 /**
  * React component for BallerinaFileEditor.
@@ -113,20 +111,10 @@ class BallerinaFileEditor extends React.Component {
         props.commandProxy.on('resize', () => {
             this.update();
         }, this);
-
-        this.formatSource = new FormatVisitor();
         // Format the source code.
         props.commandProxy.on(FORMAT, () => {
             if (this.props.isActive()) {
-                const formattingUtil = new FormattingUtil();
-                this.formatSource.setFormattingUtil(formattingUtil);
-                this.state.model.accept(this.formatSource);
-                const newContent = this.state.model.getSource();
-                // set the underlaying file.
-                this.props.file.setContent(newContent, {
-                    type: CHANGE_EVT_TYPES.CODE_FORMAT,
-                });
-                this.sourceEditorRef.setContent(newContent, true);
+                this.sourceEditorRef.editorInstance.trigger('','editor.action.formatDocument');
             }
         });
 
@@ -188,10 +176,7 @@ class BallerinaFileEditor extends React.Component {
      * On ast modifications
      */
     onASTModified(evt) {
-        const formattingUtil = new FormattingUtil();
-        this.formatSource.setFormattingUtil(formattingUtil);
         TreeBuilder.modify(evt.origin);
-        this.state.model.accept(this.formatSource);
         const newContent = this.state.model.getSource();
         // set breakpoints to model
         // this.reCalculateBreakpoints(this.state.model);

@@ -36,6 +36,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 import java.util.Optional;
@@ -97,7 +98,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                             Resource onOpenResource = wsService.getResourceByName(
                                     WebSocketConstants.RESOURCE_NAME_ON_OPEN);
                             WebSocketOpenConnectionInfo connectionInfo =
-                                    connectionManager.getConnectionInfo(webSocketInitMessage.getSessionID());
+                                    connectionManager.getConnectionInfo(webSocketInitMessage.getConnectionId());
                             WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
                             BMap<String, BValue> webSocketEndpoint = connectionInfo.getWebSocketEndpoint();
                             BMap<String, BValue> webSocketConnector = (BMap<String, BValue>) webSocketEndpoint
@@ -116,7 +117,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                 public void notifyFailure(BMap<String, BValue> error) {
                     ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
                     WebSocketOpenConnectionInfo connectionInfo =
-                            connectionManager.getConnectionInfo(webSocketInitMessage.getSessionID());
+                            connectionManager.getConnectionInfo(webSocketInitMessage.getConnectionId());
                     if (connectionInfo != null) {
                         WebSocketUtil.closeDuringUnexpectedCondition(connectionInfo.getWebSocketConnection());
                     }
@@ -131,25 +132,25 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
     @Override
     public void onMessage(WebSocketTextMessage webSocketTextMessage) {
         WebSocketDispatcher.dispatchTextMessage(
-                connectionManager.getConnectionInfo(webSocketTextMessage.getSessionID()), webSocketTextMessage);
+                connectionManager.getConnectionInfo(getConnectionId(webSocketTextMessage)), webSocketTextMessage);
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage webSocketBinaryMessage) {
         WebSocketDispatcher.dispatchBinaryMessage(
-                connectionManager.getConnectionInfo(webSocketBinaryMessage.getSessionID()), webSocketBinaryMessage);
+                connectionManager.getConnectionInfo(getConnectionId(webSocketBinaryMessage)), webSocketBinaryMessage);
     }
 
     @Override
     public void onMessage(WebSocketControlMessage webSocketControlMessage) {
         WebSocketDispatcher.dispatchControlMessage(
-                connectionManager.getConnectionInfo(webSocketControlMessage.getSessionID()), webSocketControlMessage);
+                connectionManager.getConnectionInfo(getConnectionId(webSocketControlMessage)), webSocketControlMessage);
     }
 
     @Override
     public void onMessage(WebSocketCloseMessage webSocketCloseMessage) {
         WebSocketDispatcher.dispatchCloseMessage(
-                connectionManager.removeConnectionInfo(webSocketCloseMessage.getSessionID()), webSocketCloseMessage);
+                connectionManager.removeConnectionInfo(getConnectionId(webSocketCloseMessage)), webSocketCloseMessage);
     }
 
     @Override
@@ -160,9 +161,12 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
 
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
-        WebSocketDispatcher.dispatchIdleTimeout(connectionManager.getConnectionInfo(controlMessage.getSessionID()),
+        WebSocketDispatcher.dispatchIdleTimeout(connectionManager.getConnectionInfo(getConnectionId(controlMessage)),
                 controlMessage);
     }
 
+    private String getConnectionId(WebSocketMessage webSocketMessage) {
+        return webSocketMessage.getWebSocketConnection().getId();
+    }
 }
 
