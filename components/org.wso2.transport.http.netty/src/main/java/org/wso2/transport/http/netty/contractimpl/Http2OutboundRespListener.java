@@ -100,6 +100,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         log.error("Couldn't send the outbound response", throwable);
     }
 
+    @Override
     public void onPushPromise(Http2PushPromise pushPromise) {
         ctx.channel().eventLoop().execute(() -> {
             try {

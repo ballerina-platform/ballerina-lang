@@ -29,9 +29,9 @@ import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.ForwardedExtensionConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
-import org.wso2.transport.http.netty.listener.HTTPTraceLoggingHandler;
+import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
+import org.wso2.transport.http.netty.listener.HttpTraceLoggingHandler;
 import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.sender.ConnectionAvailabilityFuture;
@@ -67,7 +67,6 @@ public class TargetChannel {
     private boolean requestHeaderWritten = false;
     private String httpVersion;
     private ChunkConfig chunkConfig;
-    private HttpResponseFuture httpInboundResponseFuture;
     private HandlerExecutor handlerExecutor;
     private Http2ClientChannel http2ClientChannel;
 
@@ -80,7 +79,7 @@ public class TargetChannel {
                          HttpRoute httpRoute, ConnectionAvailabilityFuture connectionAvailabilityFuture) {
         this.httpClientChannelInitializer = httpClientChannelInitializer;
         this.channelFuture = channelFuture;
-        this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
+        this.handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
         this.httpRoute = httpRoute;
         if (httpClientChannelInitializer != null) {
             http2ClientChannel =
@@ -150,15 +149,14 @@ public class TargetChannel {
 
     public void configTargetHandler(HTTPCarbonMessage httpCarbonMessage, HttpResponseFuture httpInboundResponseFuture) {
         this.setTargetHandler(this.getHttpClientChannelInitializer().getTargetHandler());
-        TargetHandler targetHandler = this.getTargetHandler();
-        targetHandler.setHttpResponseFuture(httpInboundResponseFuture);
-        targetHandler.setOutboundRequestMsg(httpCarbonMessage);
-        targetHandler.setConnectionManager(connectionManager);
-        targetHandler.setTargetChannel(this);
+        TargetHandler handler = this.getTargetHandler();
+        handler.setHttpResponseFuture(httpInboundResponseFuture);
+        handler.setOutboundRequestMsg(httpCarbonMessage);
+        handler.setConnectionManager(connectionManager);
+        handler.setTargetChannel(this);
 
-        targetErrorHandler = targetHandler.getTargetErrorHandler();
+        targetErrorHandler = handler.getTargetErrorHandler();
         targetErrorHandler.setResponseFuture(httpInboundResponseFuture);
-        this.httpInboundResponseFuture = httpInboundResponseFuture;
     }
 
     public void setEndPointTimeout(int socketIdleTimeout) {
@@ -172,7 +170,7 @@ public class TargetChannel {
         ChannelPipeline pipeline = this.getChannel().pipeline();
         SourceHandler srcHandler = this.getCorrelatedSource();
         if (srcHandler != null && pipeline.get(Constants.HTTP_TRACE_LOG_HANDLER) != null) {
-            HTTPTraceLoggingHandler loggingHandler = (HTTPTraceLoggingHandler)
+            HttpTraceLoggingHandler loggingHandler = (HttpTraceLoggingHandler)
                     pipeline.get(Constants.HTTP_TRACE_LOG_HANDLER);
             loggingHandler.setCorrelatedSourceId(srcHandler.getInboundChannelContext().channel().id().asShortText());
         }

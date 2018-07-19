@@ -130,12 +130,14 @@ public class HandlerExecutor {
     }
 
     public void addHandler(MessagingHandler messagingHandler) {
-        handlers.put(messagingHandler.handlerName(), messagingHandler);
-        LOG.info("A new handler named " + messagingHandler.handlerName() + " is added to the Handler Executor");
+        String handlerName = messagingHandler.handlerName();
+        handlers.put(handlerName, messagingHandler);
+        LOG.info("A new handler named {} is added to the Handler Executor", handlerName);
     }
 
     public void removeHandler(MessagingHandler messagingHandler) {
-        handlers.remove(messagingHandler.handlerName());
-        LOG.info("Handler named " + messagingHandler.handlerName() + " is removed from the Handler Executor");
+        String handlerName = messagingHandler.handlerName();
+        handlers.remove(handlerName);
+        LOG.info("Handler named {} is removed from the Handler Executor", handlerName);
     }
 }

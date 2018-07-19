@@ -104,7 +104,7 @@
             <class name="org.wso2.transport.http.netty.certificatevalidation.RevocationVerificationTest"/>
             <class name="org.wso2.transport.http.netty.certificatevalidation.CRLVerifierTest"/>
             <class name="org.wso2.transport.http.netty.certificatevalidation.OCSPVerifierTest"/>
-            <class name="org.wso2.transport.http.netty.https.HTTPSClientTestCase"/>
+            <class name="org.wso2.transport.http.netty.https.HttpSClientTestCase"/>
             <class name="org.wso2.transport.http.netty.https.SSLProtocolsTest"/>
             <class name="org.wso2.transport.http.netty.https.MutualSSLTestCase"/>
             <class name="org.wso2.transport.http.netty.https.CipherSuitesTest"/>

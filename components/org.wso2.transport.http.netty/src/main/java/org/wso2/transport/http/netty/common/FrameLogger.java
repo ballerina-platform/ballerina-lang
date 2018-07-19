@@ -46,6 +46,7 @@ public class FrameLogger extends Http2FrameLogger {
         this.level = level;
     }
 
+    @Override
     public void logData(Http2FrameLogger.Direction direction, ChannelHandlerContext ctx, int streamId,
                         ByteBuf data, int padding, boolean endStream) {
         logger.log(level.toInternalLevel(), "{} {} DATA: streamId={} padding={} endStream={} length={} data={}",

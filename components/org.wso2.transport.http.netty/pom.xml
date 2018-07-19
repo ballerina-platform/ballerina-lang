@@ -193,7 +193,7 @@
     </build>
 
     <properties>
-        <bundle.activator>org.wso2.transport.http.netty.internal.HTTPTransportActivator</bundle.activator>
+        <bundle.activator>org.wso2.transport.http.netty.internal.HttpTransportActivator</bundle.activator>
         <private.package>
             org.wso2.transport.http.netty.internal
         </private.package>

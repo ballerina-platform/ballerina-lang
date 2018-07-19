@@ -172,13 +172,10 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
             notifyPongMessage((PongWebSocketFrame) msg);
         } else if (msg instanceof ContinuationWebSocketFrame) {
             ContinuationWebSocketFrame frame = (ContinuationWebSocketFrame) msg;
-            switch (continuationFrameType) {
-                case TEXT:
-                    notifyTextMessage(frame, frame.text(), frame.isFinalFragment());
-                    break;
-                case BINARY:
-                    notifyBinaryMessage(frame, frame.content(), frame.isFinalFragment());
-                    break;
+            if (continuationFrameType == WebSocketFrameType.TEXT) {
+                notifyTextMessage(frame, frame.text(), frame.isFinalFragment());
+            } else if (continuationFrameType == WebSocketFrameType.BINARY) {
+                notifyBinaryMessage(frame, frame.content(), frame.isFinalFragment());
             }
         }
     }

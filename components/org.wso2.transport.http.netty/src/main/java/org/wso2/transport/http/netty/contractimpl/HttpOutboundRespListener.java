@@ -36,8 +36,8 @@ import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
+import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.listener.RequestDataHolder;
 import org.wso2.transport.http.netty.listener.SourceErrorHandler;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -88,7 +88,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         this.requestDataHolder = new RequestDataHolder(requestMsg);
         this.inboundRequestMsg = requestMsg;
         this.keepAliveConfig = keepAliveConfig;
-        this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
+        this.handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
         this.chunkConfig = chunkConfig;
         this.serverName = serverName;
         this.sourceErrorHandler = sourceErrorHandler;

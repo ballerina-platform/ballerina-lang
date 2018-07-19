@@ -49,7 +49,7 @@ import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.listener.HTTPTraceLoggingHandler;
+import org.wso2.transport.http.netty.listener.HttpTraceLoggingHandler;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.sender.http2.ClientFrameListener;
 import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
@@ -249,7 +249,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         pipeline.addLast(Constants.DECOMPRESSOR_HANDLER, new HttpContentDecompressor());
         if (httpTraceLogEnabled) {
             pipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
-                    new HTTPTraceLoggingHandler(Constants.TRACE_LOG_UPSTREAM));
+                    new HttpTraceLoggingHandler(Constants.TRACE_LOG_UPSTREAM));
         }
     }
 

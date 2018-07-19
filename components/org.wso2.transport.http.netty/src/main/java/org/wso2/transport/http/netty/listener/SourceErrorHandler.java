@@ -115,7 +115,7 @@ public class SourceErrorHandler {
                 case ENTITY_BODY_SENT:
                     break;
                 default:
-                    log.error("Unexpected state detected ", state);
+                    log.error("Unexpected state detected {}", state);
             }
         } catch (ServerConnectorException e) {
             log.error("Error while notifying error state to server-connector listener");
@@ -164,7 +164,7 @@ public class SourceErrorHandler {
                 case ENTITY_BODY_SENT:
                     break;
                 default:
-                    log.error("Unexpected state detected ", state);
+                    log.error("Unexpected state detected {}", state);
             }
         } catch (ServerConnectorException e) {
             log.error("Error while notifying error state to server-connector listener");
@@ -180,7 +180,7 @@ public class SourceErrorHandler {
     }
 
     public void exceptionCaught(Throwable cause) {
-        log.warn("Exception occurred in SourceHandler :" + cause.getMessage());
+        log.warn("Exception occurred in SourceHandler : {}", cause.getMessage());
     }
 
     public void setState(SourceInteractiveState state) {

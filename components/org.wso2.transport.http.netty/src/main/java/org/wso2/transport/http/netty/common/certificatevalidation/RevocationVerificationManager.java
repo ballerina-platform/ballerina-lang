@@ -82,13 +82,13 @@ public class RevocationVerificationManager {
                 CertificatePathValidator pathValidator = new CertificatePathValidator(convertedCertificates, verifier);
                 pathValidator.validatePath();
                 if (log.isInfoEnabled()) {
-                    log.info("Path verification is successful. Took " + (System.currentTimeMillis() - start) + " ms.");
+                    log.info("Path verification is successful. Took {} ms.", System.currentTimeMillis() - start);
                 }
                 return true;
             } catch (Exception e) {
                 if (log.isDebugEnabled()) {
-                    log.debug(verifier.getClass().getSimpleName() + " failed.");
-                    log.debug("Certificate verification with " + verifier.getClass().getSimpleName() + " failed. ", e);
+                    log.debug("{} failed.", verifier.getClass().getSimpleName());
+                    log.debug("Certificate verification with {} failed. ", verifier.getClass().getSimpleName(), e);
                 }
             }
         }

@@ -89,6 +89,10 @@ import static org.wso2.transport.http.netty.common.Constants.URL_AUTHORITY;
  */
 public class Util {
 
+    private Util() {
+        //Hides implicit public constructor.
+    }
+
     private static Logger log = LoggerFactory.getLogger(Util.class);
 
     private static String getStringValue(HTTPCarbonMessage msg, String key, String defaultValue) {
@@ -290,10 +294,7 @@ public class Util {
      * @return true if chunking should be enforced else false.
      */
     public static boolean shouldEnforceChunkingforHttpOneZero(ChunkConfig chunkConfig, String httpVersion) {
-        if (chunkConfig == ChunkConfig.ALWAYS && Float.valueOf(httpVersion) >= Constants.HTTP_1_0) {
-            return true;
-        }
-        return false;
+        return chunkConfig == ChunkConfig.ALWAYS && Float.valueOf(httpVersion) >= Constants.HTTP_1_0;
     }
 
     public static SSLConfig getSSLConfigForListener(String certPass, String keyStorePass, String keyStoreFilePath,
@@ -311,21 +312,25 @@ public class Util {
         }
         SSLConfig sslConfig = new SSLConfig(keyStore, keyStorePass).setCertPass(certPass);
         for (Parameter parameter : parametersList) {
-            if (parameter.getName()
-                    .equals(Constants.SERVER_SUPPORT_CIPHERS)) {
-                sslConfig.setCipherSuites(parameter.getValue());
-            } else if (parameter.getName()
-                    .equals(Constants.SERVER_SUPPORT_SSL_PROTOCOLS)) {
-                sslConfig.setEnableProtocols(parameter.getValue());
-            } else if (parameter.getName()
-                    .equals(Constants.SERVER_SUPPORTED_SNIMATCHERS)) {
-                sslConfig.setSniMatchers(parameter.getValue());
-            } else if (parameter.getName()
-                    .equals(Constants.SERVER_SUPPORTED_SERVER_NAMES)) {
-                sslConfig.setServerNames(parameter.getValue());
-            } else if (parameter.getName()
-                    .equals(Constants.SERVER_ENABLE_SESSION_CREATION)) {
-                sslConfig.setEnableSessionCreation(Boolean.parseBoolean(parameter.getValue()));
+            switch (parameter.getName()) {
+                case Constants.SERVER_SUPPORT_CIPHERS:
+                    sslConfig.setCipherSuites(parameter.getValue());
+                    break;
+                case Constants.SERVER_SUPPORT_SSL_PROTOCOLS:
+                    sslConfig.setEnableProtocols(parameter.getValue());
+                    break;
+                case Constants.SERVER_SUPPORTED_SNIMATCHERS:
+                    sslConfig.setSniMatchers(parameter.getValue());
+                    break;
+                case Constants.SERVER_SUPPORTED_SERVER_NAMES:
+                    sslConfig.setServerNames(parameter.getValue());
+                    break;
+                case Constants.SERVER_ENABLE_SESSION_CREATION:
+                    sslConfig.setEnableSessionCreation(Boolean.parseBoolean(parameter.getValue()));
+                    break;
+                default:
+                    //do nothing
+                    break;
             }
         }
         if ("require".equalsIgnoreCase(verifyClient)) {
@@ -677,7 +682,7 @@ public class Util {
         outboundResponse.headers().set(HttpHeaderNames.SERVER.toString(), serverName);
         ChannelFuture outboundRespFuture = ctx.channel().writeAndFlush(outboundResponse);
         outboundRespFuture.addListener(
-                (ChannelFutureListener) channelFuture -> log.warn("Failed to send " + status.reasonPhrase()));
+                (ChannelFutureListener) channelFuture -> log.warn("Failed to send {}", status.reasonPhrase()));
         ctx.channel().close();
     }
 
@@ -723,7 +728,7 @@ public class Util {
     }
 
     /**
-     * Creates HTTP carbon message
+     * Creates HTTP carbon message.
      *
      * @param httpMessage HTTP message
      * @param ctx Channel handler context
@@ -831,11 +836,7 @@ public class Util {
             throws ConfigurationException {
         switch (keepAliveConfig) {
         case AUTO:
-            if (Float.valueOf((String) outboundRequestMsg.getProperty(Constants.HTTP_VERSION)) > Constants.HTTP_1_0) {
-                return true;
-            } else {
-                return false;
-            }
+            return Float.valueOf((String) outboundRequestMsg.getProperty(Constants.HTTP_VERSION)) > Constants.HTTP_1_0;
         case ALWAYS:
             return true;
         case NEVER:

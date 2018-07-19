@@ -34,39 +34,40 @@ import java.nio.charset.CharsetDecoder;
 import static io.netty.util.internal.StringUtil.NEWLINE;
 
 /**
- * A custom LoggingHandler for the HTTP wire logs
+ * A custom LoggingHandler for the HTTP wire logs.
  */
-public class HTTPTraceLoggingHandler extends LoggingHandler {
+public class HttpTraceLoggingHandler extends LoggingHandler {
 
     private static final LogLevel LOG_LEVEL = LogLevel.TRACE;
     private static final String EVENT_REGISTERED = "REGISTERED";
     private static final String EVENT_CONNECT = "CONNECT";
     private static final String EVENT_INBOUND = "INBOUND";
     private static final String EVENT_OUTBOUND = "OUTBOUND";
+    private static final String ID_0X = "[id: 0x";
 
     private String correlatedSourceId;
 
-    public HTTPTraceLoggingHandler(LogLevel level) {
+    public HttpTraceLoggingHandler(LogLevel level) {
         super(level);
         correlatedSourceId = "n/a";
     }
 
-    public HTTPTraceLoggingHandler(Class<?> clazz) {
+    public HttpTraceLoggingHandler(Class<?> clazz) {
         super(clazz);
         correlatedSourceId = "n/a";
     }
 
-    public HTTPTraceLoggingHandler(Class<?> clazz, LogLevel level) {
+    public HttpTraceLoggingHandler(Class<?> clazz, LogLevel level) {
         super(clazz, level);
         correlatedSourceId = "n/a";
     }
 
-    public HTTPTraceLoggingHandler(String name) {
+    public HttpTraceLoggingHandler(String name) {
         super(name, LOG_LEVEL);
         correlatedSourceId = "n/a";
     }
 
-    public HTTPTraceLoggingHandler(String name, LogLevel level) {
+    public HttpTraceLoggingHandler(String name, LogLevel level) {
         super(name, level);
         correlatedSourceId = "n/a";
     }
@@ -76,7 +77,7 @@ public class HTTPTraceLoggingHandler extends LoggingHandler {
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (logger.isEnabled(internalLevel)) {
             logger.log(internalLevel, format(ctx, EVENT_INBOUND, msg));
         }
@@ -84,7 +85,7 @@ public class HTTPTraceLoggingHandler extends LoggingHandler {
     }
 
     @Override
-    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
         if (logger.isEnabled(internalLevel)) {
             logger.log(internalLevel, format(ctx, EVENT_OUTBOUND, msg));
         }
@@ -110,9 +111,9 @@ public class HTTPTraceLoggingHandler extends LoggingHandler {
                         2 + eventName.length());
 
         if (EVENT_REGISTERED.equals(eventName) || EVENT_CONNECT.equals(eventName)) {
-            return stringBuilder.append("[id: 0x").append(channelId).append("] ").append(eventName).toString();
+            return stringBuilder.append(ID_0X).append(channelId).append("] ").append(eventName).toString();
         } else {
-            return stringBuilder.append("[id: 0x").append(channelId).append(", correlatedSource: ")
+            return stringBuilder.append(ID_0X).append(channelId).append(", correlatedSource: ")
                     .append(correlatedSourceId).append(socketInfo).append("] ").append(eventName).toString();
         }
     }
@@ -140,10 +141,10 @@ public class HTTPTraceLoggingHandler extends LoggingHandler {
                         eventName.length() + 2 + msgStr.length());
 
         if (EVENT_REGISTERED.equals(eventName) || EVENT_CONNECT.equals(eventName)) {
-            return stringBuilder.append("[id: 0x").append(channelId).append("] ").append(eventName)
+            return stringBuilder.append(ID_0X).append(channelId).append("] ").append(eventName)
                     .append(": ").append(msgStr).toString();
         } else {
-            return stringBuilder.append("[id: 0x").append(channelId).append(", correlatedSource: ")
+            return stringBuilder.append(ID_0X).append(channelId).append(", correlatedSource: ")
                     .append(correlatedSourceId).append(socketInfo).append("] ").append(eventName)
                     .append(": ").append(msgStr).toString();
         }
@@ -169,9 +170,7 @@ public class HTTPTraceLoggingHandler extends LoggingHandler {
         ByteBuf content = msg.content();
         int length = content.readableBytes();
         if (length == 0) {
-            StringBuilder stringBuilder = new StringBuilder(2 + msgStr.length() + 4);
-            stringBuilder.append(msgStr).append(", 0B");
-            return stringBuilder.toString();
+            return msgStr + ", 0B";
         } else {
             int rows = length / 16 + (length % 16 == 0 ? 0 : 1) + 4;
             StringBuilder stringBuilder = new StringBuilder(2 + msgStr.length() + 2 + 10 + 1 + 2 + rows * 80);

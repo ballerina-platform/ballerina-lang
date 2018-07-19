@@ -47,7 +47,9 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     private ResponseHandle responseHandle;
     private OutboundMsgHolder outboundMsgHolder;
 
-    private Throwable throwable, responseHandleError, returnError;
+    private Throwable throwable;
+    private Throwable responseHandleError;
+    private Throwable returnError;
     private Semaphore executionWaitSem;
 
     // Lock to synchronize response related operations

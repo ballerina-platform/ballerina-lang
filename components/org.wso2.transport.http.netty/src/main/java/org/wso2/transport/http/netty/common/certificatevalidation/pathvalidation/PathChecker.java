@@ -29,6 +29,7 @@ import java.security.cert.Certificate;
 import java.security.cert.PKIXCertPathChecker;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -69,7 +70,7 @@ public class PathChecker extends PKIXCertPathChecker {
 
     @Override
     public Set<String> getSupportedExtensions() {
-        return null;
+        return Collections.emptySet();
     }
 
     /**
@@ -86,7 +87,7 @@ public class PathChecker extends PKIXCertPathChecker {
         try {
             status = verifier.checkRevocationStatus((X509Certificate) cert, nextIssuer());
             if (log.isInfoEnabled()) {
-                log.info("Certificate status is: " + status.getMessage());
+                log.info("Certificate status is: {}", status.getMessage());
         }
             if (status != RevocationStatus.GOOD) {
                 throw new CertPathValidatorException("Revocation Status is Not Good");

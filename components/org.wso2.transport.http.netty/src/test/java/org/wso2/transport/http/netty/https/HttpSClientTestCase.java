@@ -51,9 +51,9 @@ import static org.wso2.transport.http.netty.common.Constants.TEXT_PLAIN;
 /**
  * Tests for HTTPS client connector
  */
-public class HTTPSClientTestCase {
+public class HttpSClientTestCase {
 
-    private static Logger logger = LoggerFactory.getLogger(HTTPSClientTestCase.class);
+    private static Logger logger = LoggerFactory.getLogger(HttpSClientTestCase.class);
 
     private HttpsServer httpsServer;
     private HttpClientConnector httpClientConnector;

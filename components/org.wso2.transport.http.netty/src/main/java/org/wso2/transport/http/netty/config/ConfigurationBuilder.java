@@ -44,8 +44,6 @@ public class ConfigurationBuilder {
 
     private static ConfigurationBuilder instance = new ConfigurationBuilder();
 
-    private TransportsConfiguration transportsConfiguration;
-
     public static ConfigurationBuilder getInstance() {
         return instance;
     }
@@ -66,12 +64,11 @@ public class ConfigurationBuilder {
         String nettyTransportsConfigFile = System.getProperty(NETTY_TRANSPORT_CONF,
                                                               "conf" + File.separator + "transports" + File.separator +
                                                               "netty-transports.yml");
-        transportsConfiguration = getConfiguration(nettyTransportsConfigFile);
-        return transportsConfiguration;
+        return getConfiguration(nettyTransportsConfigFile);
     }
 
     /**
-     * Get the {@code TransportsConfiguration} represented by a particular configuration file
+     * Get the {@code TransportsConfiguration} represented by a particular configuration file.
      *
      * @param configFileLocation configuration file location
      * @return TransportsConfiguration represented by a particular configuration file
@@ -91,8 +88,8 @@ public class ConfigurationBuilder {
                         "Error while loading " + configFileLocation + " configuration file", e);
             }
         } else { // return a default config
-            log.warn("Netty transport configuration file not found in: " + configFileLocation +
-                     " ,hence using default configuration");
+            log.warn("Netty transport configuration file not found in: {} ,hence using default configuration",
+                     configFileLocation);
             transportsConfiguration = new TransportsConfiguration();
         }
 

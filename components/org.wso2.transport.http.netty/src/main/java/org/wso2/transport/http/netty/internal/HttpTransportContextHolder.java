@@ -20,8 +20,6 @@ package org.wso2.transport.http.netty.internal;
 
 import io.netty.channel.EventLoopGroup;
 import org.osgi.framework.BundleContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 
 import java.util.HashMap;
@@ -30,10 +28,9 @@ import java.util.Map;
 /**
  * DataHolder for the HTTP transport.
  */
-public class HTTPTransportContextHolder {
-    private static final Logger log = LoggerFactory.getLogger(HTTPTransportContextHolder.class);
+public class HttpTransportContextHolder {
 
-    private static HTTPTransportContextHolder instance = new HTTPTransportContextHolder();
+    private static HttpTransportContextHolder instance = new HttpTransportContextHolder();
     private BundleContext bundleContext;
     private HandlerExecutor handlerExecutor;
     private Map<String, ListenerConfiguration> listenerConfigurations = new HashMap<>();
@@ -63,11 +60,11 @@ public class HTTPTransportContextHolder {
         listenerConfigurations.put(id, config);
     }
 
-    private HTTPTransportContextHolder() {
+    private HttpTransportContextHolder() {
 
     }
 
-    public static HTTPTransportContextHolder getInstance() {
+    public static HttpTransportContextHolder getInstance() {
         return instance;
     }
 
