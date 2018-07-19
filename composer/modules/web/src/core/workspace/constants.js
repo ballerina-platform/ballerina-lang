@@ -31,6 +31,7 @@ export const COMMANDS = {
     REFRESH_PATH_IN_EXPLORER: 'refresh-path-in-explorer',
     CREATE_PROJECT: 'create-project',
     SHOW_CREATE_PROJECT_WIZARD: 'create-project-wizard',
+    SHOW_EXTERNAL_LINK: 'show-external-link',
 };
 
 export const EVENTS = {
@@ -38,6 +39,7 @@ export const EVENTS = {
     FILE_UPDATED: 'file-updated',
     FILE_SAVED: 'file-saved',
     FILE_CLOSED: 'file-closed',
+    FILE_PATH_CHANGED: 'file-path-changed',
     DIRTY_STATE_CHANGE: 'dirty-state-change',
     CONTENT_MODIFIED: 'content-modified',
 };

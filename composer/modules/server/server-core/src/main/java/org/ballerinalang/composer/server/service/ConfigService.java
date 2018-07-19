@@ -41,6 +41,7 @@ import javax.ws.rs.core.Response;
 public class ConfigService implements ComposerService {
     static final String NAME = "config";
     static final String PATH = "config";
+    private static final String COMPOSER_SAMPLES_DIR = "composer.samples.dir";
     private final Map<String, ServiceInfo> serviceEPMap;
     private final ServerConfig serverConfig;
 
@@ -101,6 +102,11 @@ public class ConfigService implements ComposerService {
         // move below configs to a proper module
         config.addProperty("balHome", serverConfig.getBallerinaHome());
         config.addProperty("debuggerPath", serverConfig.getDebuggerPath());
+        String samplesDir = System.getProperty(COMPOSER_SAMPLES_DIR);
+        if (samplesDir == null) {
+            samplesDir = serverConfig.getBallerinaHome() + File.separator + "docs" + File.separator + "examples";
+        }
+        config.addProperty("samplesDir", samplesDir);
         return config;
     }
 

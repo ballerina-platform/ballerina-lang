@@ -62,8 +62,6 @@ public class DocumentationAttributeInfo implements AttributeInfo {
     public static class ParameterDocumentInfo {
         public final int nameCPIndex;
         public final String name;
-        public final int typeSigCPIndex;
-        public final String typeSig;
         public final int paramKindCPIndex;
         public final String paramKindValue;
         public final int descriptionCPIndex;
@@ -71,16 +69,12 @@ public class DocumentationAttributeInfo implements AttributeInfo {
 
         public ParameterDocumentInfo(int nameCPIndex,
                                      String name,
-                                     int typeSigCPIndex,
-                                     String typeSig,
                                      int paramKindCPIndex,
                                      String paramKindValue,
                                      int descriptionCPIndex,
                                      String description) {
             this.nameCPIndex = nameCPIndex;
             this.name = name;
-            this.typeSigCPIndex = typeSigCPIndex;
-            this.typeSig = typeSig;
             this.paramKindCPIndex = paramKindCPIndex;
             this.paramKindValue = paramKindValue;
             this.descriptionCPIndex = descriptionCPIndex;

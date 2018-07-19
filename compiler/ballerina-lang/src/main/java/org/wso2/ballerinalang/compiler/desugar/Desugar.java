@@ -2753,6 +2753,7 @@ public class Desugar extends BLangNodeVisitor {
         dupFuncSymbol.taintTable = invokableSymbol.taintTable;
         dupFuncSymbol.tainted = invokableSymbol.tainted;
         dupFuncSymbol.closure = invokableSymbol.closure;
+        dupFuncSymbol.documentation = invokableSymbol.documentation;
         dupFuncSymbol.scope = invokableSymbol.scope;
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;

@@ -18,6 +18,7 @@
 
 export const COMMANDS = {
     RUN: 'run',
+    INPUT: 'input',
     RUN_WITH_DEBUG: 'debug',
     TOGGLE_DEBUGGER: 'toggle-debugger',
     TOGGLE_LAUNCHER: 'toggle-launcher',
