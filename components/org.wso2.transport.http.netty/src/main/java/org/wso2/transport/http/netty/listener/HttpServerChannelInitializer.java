@@ -56,8 +56,6 @@ import org.wso2.transport.http.netty.sender.CertificateValidationHandler;
 
 import java.io.IOException;
 import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableEntryException;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLEngine;
 
@@ -140,8 +138,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     }
 
     private void configureSslForHttp(ChannelPipeline serverPipeline, SocketChannel ch)
-            throws NoSuchAlgorithmException, CertificateVerificationException, UnrecoverableEntryException,
-            KeyStoreException, IOException {
+            throws CertificateVerificationException, KeyStoreException, IOException {
 
         if (ocspStaplingEnabled) {
             OCSPResp response = getOcspResponse();

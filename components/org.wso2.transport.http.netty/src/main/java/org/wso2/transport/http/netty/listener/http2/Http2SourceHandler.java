@@ -43,9 +43,9 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
 import org.wso2.transport.http.netty.listener.HttpServerChannelInitializer;
 import org.wso2.transport.http.netty.message.DefaultListener;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
@@ -64,7 +64,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
     private static final Logger log = LoggerFactory.getLogger(Http2SourceHandler.class);
 
     // streamIdRequestMap contains mapping of http carbon messages vs stream id to support multiplexing
-    private Map<Integer, HTTPCarbonMessage> streamIdRequestMap = PlatformDependent.newConcurrentHashMap();
+    private Map<Integer, HttpCarbonMessage> streamIdRequestMap = PlatformDependent.newConcurrentHashMap();
     private ChannelHandlerContext ctx;
     private String interfaceId;
     private ServerConnectorFuture serverConnectorFuture;
@@ -107,7 +107,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
      * (the stream specifically reserved for cleartext HTTP upgrade).
      */
     @Override
-    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {
         if (evt instanceof HttpServerUpgradeHandler.UpgradeEvent) {
             FullHttpRequest upgradedRequest = ((HttpServerUpgradeHandler.UpgradeEvent) evt).upgradeRequest();
 
@@ -131,7 +131,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
 
             if (headersFrame.isEndOfStream()) {
                 // Retrieve HTTP request and add last http content with trailer headers.
-                HTTPCarbonMessage sourceReqCMsg = streamIdRequestMap.get(streamId);
+                HttpCarbonMessage sourceReqCMsg = streamIdRequestMap.get(streamId);
                 if (sourceReqCMsg != null) {
                     readTrailerHeaders(streamId, headersFrame.getHeaders(), sourceReqCMsg);
                     streamIdRequestMap.remove(streamId);
@@ -144,7 +144,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
                 }
             } else {
                 // Construct new HTTP Request
-                HTTPCarbonMessage sourceReqCMsg = setupHttp2CarbonMsg(headersFrame.getHeaders(), streamId);
+                HttpCarbonMessage sourceReqCMsg = setupHttp2CarbonMsg(headersFrame.getHeaders(), streamId);
                 streamIdRequestMap.put(streamId, sourceReqCMsg);   // storing to add HttpContent later
                 notifyRequestListener(sourceReqCMsg, streamId);
             }
@@ -153,7 +153,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
             Http2DataFrame dataFrame = (Http2DataFrame) msg;
             int streamId = dataFrame.getStreamId();
             ByteBuf data = dataFrame.getData();
-            HTTPCarbonMessage sourceReqCMsg = streamIdRequestMap.get(streamId);
+            HttpCarbonMessage sourceReqCMsg = streamIdRequestMap.get(streamId);
             if (sourceReqCMsg != null) {
                 if (dataFrame.isEndOfStream()) {
                     sourceReqCMsg.addHttpContent(new DefaultLastHttpContent(data));
@@ -169,7 +169,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private void readTrailerHeaders(int streamId, Http2Headers headers, HTTPCarbonMessage responseMessage) throws
+    private void readTrailerHeaders(int streamId, Http2Headers headers, HttpCarbonMessage responseMessage) throws
             Http2Exception {
 
         HttpVersion version = new HttpVersion(Constants.HTTP_VERSION_2_0, true);
@@ -182,13 +182,13 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    public void channelInactive(ChannelHandlerContext ctx) {
         destroy();
         ctx.fireChannelInactive();
     }
 
     @Override
-    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
+    public void channelUnregistered(ChannelHandlerContext ctx) {
         destroy();
         ctx.fireChannelUnregistered();
     }
@@ -199,7 +199,7 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
      * @param httpRequestMsg the http request message
      * @param streamId the id of the stream
      */
-    private void notifyRequestListener(HTTPCarbonMessage httpRequestMsg, int streamId) {
+    private void notifyRequestListener(HttpCarbonMessage httpRequestMsg, int streamId) {
         if (serverConnectorFuture != null) {
             try {
                 ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
@@ -219,9 +219,9 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
      * Creates a carbon message for HTTP/2 request.
      *
      * @param http2Headers the Http2 headers
-     * @return a HTTPCarbonMessage
+     * @return a HttpCarbonMessage
      */
-    private HTTPCarbonMessage setupHttp2CarbonMsg(Http2Headers http2Headers, int streamId) throws Http2Exception {
+    private HttpCarbonMessage setupHttp2CarbonMsg(Http2Headers http2Headers, int streamId) throws Http2Exception {
         return setupCarbonRequest(Util.createHttpRequestFromHttp2Headers(http2Headers, streamId));
     }
 

@@ -46,7 +46,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 /**
  * An initializer class for HTTP Server
  */
-public class EchoServerInitializer extends HTTPServerInitializer {
+public class EchoServerInitializer extends HttpServerInitializer {
 
     private static final Logger logger = LoggerFactory.getLogger(EchoServerInitializer.class);
 
@@ -64,7 +64,7 @@ public class EchoServerInitializer extends HTTPServerInitializer {
         private BlockingQueue<HttpContent> content = new LinkedBlockingQueue<>();
 
         @Override
-        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        public void channelRead(ChannelHandlerContext ctx, Object msg) {
             if (msg instanceof HttpRequest) {
                 HttpRequest req = (HttpRequest) msg;
 
@@ -128,8 +128,7 @@ public class EchoServerInitializer extends HTTPServerInitializer {
         }
 
         private void collectContent(HttpContent msg) {
-            HttpContent httpContent = msg;
-            contentLength += httpContent.content().readableBytes();
+            contentLength += msg.content().readableBytes();
             content.add(msg);
         }
 

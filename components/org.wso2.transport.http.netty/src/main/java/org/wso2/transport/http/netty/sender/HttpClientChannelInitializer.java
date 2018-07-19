@@ -38,8 +38,6 @@ import io.netty.handler.ssl.ReferenceCountedOpenSslContext;
 import io.netty.handler.ssl.ReferenceCountedOpenSslEngine;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.FrameLogger;
 import org.wso2.transport.http.netty.common.HttpRoute;
@@ -65,17 +63,13 @@ import static io.netty.handler.logging.LogLevel.TRACE;
  */
 public class HttpClientChannelInitializer extends ChannelInitializer<SocketChannel> {
 
-    private static final Logger log = LoggerFactory.getLogger(HttpClientChannelInitializer.class);
-
     private TargetHandler targetHandler;
     private boolean httpTraceLogEnabled;
     private boolean validateCertEnabled;
-    private int maxRedirectCount;
     private int cacheSize;
     private int cacheDelay;
     private KeepAliveConfig keepAliveConfig;
     private ProxyServerConfiguration proxyServerConfiguration;
-    private ConnectionManager connectionManager;
     private Http2ConnectionManager http2ConnectionManager;
     private boolean http2 = false;
     private Http2ConnectionHandler http2ConnectionHandler;
@@ -92,7 +86,6 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         this.httpTraceLogEnabled = senderConfiguration.isHttpTraceLogEnabled();
         this.keepAliveConfig = senderConfiguration.getKeepAliveConfig();
         this.proxyServerConfiguration = senderConfiguration.getProxyServerConfiguration();
-        this.connectionManager = connectionManager;
         this.http2ConnectionManager = connectionManager.getHttp2ConnectionManager();
         this.validateCertEnabled = senderConfiguration.validateCertEnabled();
         this.cacheDelay = senderConfiguration.getCacheValidityPeriod();
@@ -129,9 +122,9 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         targetHandler.setHttp2TargetHandler(http2TargetHandler);
         targetHandler.setKeepAliveConfig(getKeepAliveConfig());
         if (http2) {
-            SSLConfig sslConfig = senderConfiguration.generateSSLConfig();
-            if (sslConfig != null) {
-                configureSslForHttp2(socketChannel, clientPipeline, sslConfig);
+            SSLConfig config = senderConfiguration.generateSSLConfig();
+            if (config != null) {
+                configureSslForHttp2(socketChannel, clientPipeline, config);
             } else if (senderConfiguration.isForceHttp2()) {
                 configureHttp2Pipeline(clientPipeline);
             } else {
@@ -260,15 +253,6 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
      */
     public Http2Connection getConnection() {
         return connection;
-    }
-
-    /**
-     * Gets the maximum number of allowed redirection on same request.
-     *
-     * @return  maximum number of redirection
-     */
-    public int getMaxRedirectCount() {
-        return maxRedirectCount;
     }
 
     public KeepAliveConfig getKeepAliveConfig() {

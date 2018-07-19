@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -50,10 +50,10 @@ public class ResponseStreamingWithoutBufferingListener implements HttpConnectorL
     private ExecutorService executor = Executors.newCachedThreadPool();
 
     @Override
-    public void onMessage(HTTPCarbonMessage inboundRequest) {
+    public void onMessage(HttpCarbonMessage inboundRequest) {
         executor.execute(() -> {
-            HTTPCarbonMessage outboundResponse =
-                    new HTTPCarbonMessage(new DefaultHttpResponse(HTTP_1_1, OK));
+            HttpCarbonMessage outboundResponse =
+                    new HttpCarbonMessage(new DefaultHttpResponse(HTTP_1_1, OK));
             outboundResponse.setHeader(CONNECTION.toString(), KEEP_ALIVE.toString());
             outboundResponse.setHeader(TRANSFER_ENCODING.toString(), CHUNKED.toString());
             outboundResponse.setHeader(CONTENT_TYPE.toString(), TEXT_PLAIN.toString());

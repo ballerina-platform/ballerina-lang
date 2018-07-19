@@ -20,7 +20,7 @@ package org.wso2.transport.http.netty.internal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +49,7 @@ public class HandlerExecutor {
         }
     }
 
-    public void executeAtSourceRequestReceiving(HTTPCarbonMessage carbonMessage) {
+    public void executeAtSourceRequestReceiving(HttpCarbonMessage carbonMessage) {
         try {
             handlers.forEach((k, v) -> v.invokeAtSourceRequestReceiving(carbonMessage));
         } catch (Exception e) {
@@ -57,7 +57,7 @@ public class HandlerExecutor {
         }
     }
 
-    public void executeAtSourceRequestSending(HTTPCarbonMessage carbonMessage) {
+    public void executeAtSourceRequestSending(HttpCarbonMessage carbonMessage) {
         try {
             handlers.forEach((k, v) -> v.invokeAtSourceRequestSending(carbonMessage));
         } catch (Exception e) {
@@ -65,7 +65,7 @@ public class HandlerExecutor {
         }
     }
 
-    public void executeAtTargetRequestReceiving(HTTPCarbonMessage carbonMessage) {
+    public void executeAtTargetRequestReceiving(HttpCarbonMessage carbonMessage) {
         try {
             handlers.forEach((k, v) -> v.invokeAtTargetRequestReceiving(carbonMessage));
         } catch (Exception e) {
@@ -73,7 +73,7 @@ public class HandlerExecutor {
         }
     }
 
-    public void executeAtTargetRequestSending(HTTPCarbonMessage carbonMessage) {
+    public void executeAtTargetRequestSending(HttpCarbonMessage carbonMessage) {
         try {
             handlers.forEach((k, v) -> v.invokeAtTargetRequestSending(carbonMessage));
         } catch (Exception e) {
@@ -81,7 +81,7 @@ public class HandlerExecutor {
         }
     }
 
-    public void executeAtTargetResponseReceiving(HTTPCarbonMessage carbonMessage) {
+    public void executeAtTargetResponseReceiving(HttpCarbonMessage carbonMessage) {
         try {
             handlers.forEach((k, v) -> v.invokeAtTargetResponseReceiving(carbonMessage));
         } catch (Exception e) {
@@ -89,7 +89,7 @@ public class HandlerExecutor {
         }
     }
 
-    public void executeAtTargetResponseSending(HTTPCarbonMessage carbonMessage) {
+    public void executeAtTargetResponseSending(HttpCarbonMessage carbonMessage) {
         try {
             handlers.forEach((k, v) -> v.invokeAtTargetResponseSending(carbonMessage));
         } catch (Exception e) {
@@ -97,7 +97,7 @@ public class HandlerExecutor {
         }
     }
 
-    public void executeAtSourceResponseReceiving(HTTPCarbonMessage carbonMessage) {
+    public void executeAtSourceResponseReceiving(HttpCarbonMessage carbonMessage) {
         try {
             handlers.forEach((k, v) -> v.invokeAtSourceResponseReceiving(carbonMessage));
         } catch (Exception e) {
@@ -105,7 +105,7 @@ public class HandlerExecutor {
         }
     }
 
-    public void executeAtSourceResponseSending(HTTPCarbonMessage carbonMessage) {
+    public void executeAtSourceResponseSending(HttpCarbonMessage carbonMessage) {
         try {
             handlers.forEach((k, v) -> v.invokeAtSourceResponseSending(carbonMessage));
         } catch (Exception e) {

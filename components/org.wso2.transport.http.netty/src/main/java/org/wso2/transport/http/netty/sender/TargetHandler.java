@@ -33,7 +33,7 @@ import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
@@ -57,11 +57,11 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private static final Logger log = LoggerFactory.getLogger(TargetHandler.class);
 
     private HttpResponseFuture httpResponseFuture;
-    private HTTPCarbonMessage inboundResponseMsg;
+    private HttpCarbonMessage inboundResponseMsg;
     private ConnectionManager connectionManager;
     private TargetChannel targetChannel;
     private Http2TargetHandler http2TargetHandler;
-    private HTTPCarbonMessage outboundRequestMsg;
+    private HttpCarbonMessage outboundRequestMsg;
     private HandlerExecutor handlerExecutor;
     private KeepAliveConfig keepAliveConfig;
     private boolean idleTimeoutTriggered;
@@ -156,7 +156,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         closeChannel(ctx);
         targetErrorHandler.exceptionCaught(cause);
     }
@@ -234,7 +234,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         this.connectionManager = connectionManager;
     }
 
-    public void setOutboundRequestMsg(HTTPCarbonMessage outboundRequestMsg) {
+    public void setOutboundRequestMsg(HttpCarbonMessage outboundRequestMsg) {
         this.outboundRequestMsg = outboundRequestMsg;
     }
 

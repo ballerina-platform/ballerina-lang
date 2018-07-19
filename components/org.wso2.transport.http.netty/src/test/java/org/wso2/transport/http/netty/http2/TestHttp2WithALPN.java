@@ -33,9 +33,9 @@ import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
-import org.wso2.transport.http.netty.util.HTTPConnectorListener;
+import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.BufferedReader;
@@ -78,16 +78,16 @@ public class TestHttp2WithALPN {
     public void testHttp2Post() {
         try {
             String testValue = "Test";
-            HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.SERVER_PORT1, testValue, "");
+            HttpCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.SERVER_PORT1, testValue, "");
 
             CountDownLatch latch = new CountDownLatch(1);
-            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
+            DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
             HttpResponseFuture responseFuture = httpClientConnector.send(msg);
             responseFuture.setHttpConnectorListener(listener);
 
             latch.await(5, TimeUnit.SECONDS);
 
-            HTTPCarbonMessage response = listener.getHttpResponseMessage();
+            HttpCarbonMessage response = listener.getHttpResponseMessage();
             assertNotNull(response);
             String result = new BufferedReader(
                     new InputStreamReader(new HttpMessageDataStreamer(response).getInputStream())).lines()

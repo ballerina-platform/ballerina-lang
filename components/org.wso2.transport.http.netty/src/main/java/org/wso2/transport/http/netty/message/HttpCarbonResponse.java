@@ -22,9 +22,9 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 
 /**
- * Contains information available for http response
+ * Contains information available for http response.
  */
-public class HttpCarbonResponse extends HTTPCarbonMessage {
+public class HttpCarbonResponse extends HttpCarbonMessage {
 
     private HttpResponse httpResponse;
 

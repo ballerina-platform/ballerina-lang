@@ -44,7 +44,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 /**
  * An initializer class for HTTP Server.
  */
-public class SendChannelIDServerInitializer extends HTTPServerInitializer {
+public class SendChannelIDServerInitializer extends HttpServerInitializer {
 
     private static final Logger logger = LoggerFactory.getLogger(SendChannelIDServerInitializer.class);
 
@@ -89,7 +89,7 @@ public class SendChannelIDServerInitializer extends HTTPServerInitializer {
             }
         }
 
-        public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        public void channelInactive(ChannelHandlerContext ctx) {
             ctx.close();
             logger.debug("Channel has become inactive hence closing the connection");
         }

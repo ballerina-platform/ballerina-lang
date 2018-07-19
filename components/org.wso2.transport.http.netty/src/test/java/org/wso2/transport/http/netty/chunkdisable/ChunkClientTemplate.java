@@ -28,9 +28,9 @@ import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
-import org.wso2.transport.http.netty.util.HTTPConnectorListener;
+import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.initializers.EchoServerInitializer;
@@ -62,9 +62,9 @@ public class ChunkClientTemplate {
 
     public void postTest() {}
 
-    public HTTPCarbonMessage sendRequest(String content) throws IOException, InterruptedException {
-        HTTPCarbonMessage requestMsg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
-                HttpMethod.POST, ""));
+    public HttpCarbonMessage sendRequest(String content) throws IOException, InterruptedException {
+        HttpCarbonMessage requestMsg = new HttpCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+                                                                                    HttpMethod.POST, ""));
 
         requestMsg.setProperty(Constants.HTTP_PORT, TestUtil.HTTP_SERVER_PORT);
         requestMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
@@ -72,7 +72,7 @@ public class ChunkClientTemplate {
         requestMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_POST_METHOD);
 
         CountDownLatch latch = new CountDownLatch(1);
-        HTTPConnectorListener listener = new HTTPConnectorListener(latch);
+        DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
         clientConnector.send(requestMsg).setHttpConnectorListener(listener);
         HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(requestMsg);
         httpMessageDataStreamer.getOutputStream().write(content.getBytes());
@@ -80,13 +80,13 @@ public class ChunkClientTemplate {
 
         latch.await(5, TimeUnit.SECONDS);
 
-        HTTPCarbonMessage response = listener.getHttpResponseMessage();
+        HttpCarbonMessage response = listener.getHttpResponseMessage();
         TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         return response;
     }
 
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
-        TestUtil.cleanUp(Collections.EMPTY_LIST , httpServer);
+        TestUtil.cleanUp(Collections.emptyList() , httpServer);
     }
 }

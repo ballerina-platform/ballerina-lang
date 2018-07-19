@@ -41,9 +41,9 @@ import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.listener.SourceHandler;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.Http2Reset;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.ResponseHandle;
 import org.wso2.transport.http.netty.sender.ConnectionAvailabilityListener;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
@@ -132,12 +132,12 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
     }
 
     @Override
-    public HttpResponseFuture send(HTTPCarbonMessage httpOutboundRequest) {
+    public HttpResponseFuture send(HttpCarbonMessage httpOutboundRequest) {
         OutboundMsgHolder outboundMsgHolder = new OutboundMsgHolder(httpOutboundRequest);
         return send(outboundMsgHolder, httpOutboundRequest);
     }
 
-    public HttpResponseFuture send(OutboundMsgHolder outboundMsgHolder, HTTPCarbonMessage httpOutboundRequest) {
+    public HttpResponseFuture send(OutboundMsgHolder outboundMsgHolder, HttpCarbonMessage httpOutboundRequest) {
         final HttpResponseFuture httpResponseFuture;
 
         SourceHandler srcHandler = (SourceHandler) httpOutboundRequest.getProperty(Constants.SRC_HANDLER);
@@ -258,14 +258,14 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         return errorResponseFuture;
     }
 
-    private HttpRoute getTargetRoute(HTTPCarbonMessage httpCarbonMessage) {
+    private HttpRoute getTargetRoute(HttpCarbonMessage httpCarbonMessage) {
         String host = fetchHost(httpCarbonMessage);
         int port = fetchPort(httpCarbonMessage);
 
         return new HttpRoute(host, port);
     }
 
-    private int fetchPort(HTTPCarbonMessage httpCarbonMessage) {
+    private int fetchPort(HttpCarbonMessage httpCarbonMessage) {
         int port;
         Object intProperty = httpCarbonMessage.getProperty(Constants.HTTP_PORT);
         if (intProperty instanceof Integer) {
@@ -278,7 +278,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         return port;
     }
 
-    private String fetchHost(HTTPCarbonMessage httpCarbonMessage) {
+    private String fetchHost(HttpCarbonMessage httpCarbonMessage) {
         String host;
         Object hostProperty = httpCarbonMessage.getProperty(Constants.HTTP_HOST);
         if (hostProperty instanceof String) {
@@ -301,7 +301,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
     }
 
     private void handleOutboundConnectionHeader(KeepAliveConfig keepAliveConfig,
-                                                        HTTPCarbonMessage httpOutboundRequest) {
+                                                        HttpCarbonMessage httpOutboundRequest) {
         switch (keepAliveConfig) {
             case AUTO:
                 if (Float.valueOf(httpVersion) >= Constants.HTTP_1_1) {
@@ -330,7 +330,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         }
     }
 
-    private void setProxyAuthorizationHeader(HTTPCarbonMessage httpOutboundRequest) {
+    private void setProxyAuthorizationHeader(HttpCarbonMessage httpOutboundRequest) {
         ByteBuf authz = Unpooled.copiedBuffer(
                 senderConfiguration.getProxyServerConfiguration().getProxyUsername() + COLON
                         + senderConfiguration.getProxyServerConfiguration().getProxyPassword(), CharsetUtil.UTF_8);

@@ -26,8 +26,8 @@ import org.wso2.transport.http.netty.contract.PortBindingEventListener;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnectorFuture;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
  * Server connector future implementation.
@@ -65,7 +65,7 @@ public class HttpWsServerConnectorFuture extends DefaultWebSocketConnectorFuture
     }
 
     @Override
-    public void notifyHttpListener(HTTPCarbonMessage httpMessage) throws ServerConnectorException {
+    public void notifyHttpListener(HttpCarbonMessage httpMessage) throws ServerConnectorException {
         if (httpConnectorListener == null) {
             throw new ServerConnectorException(HTTP_CONNECTOR_LISTENER_IS_NOT_SET);
         }
@@ -73,7 +73,7 @@ public class HttpWsServerConnectorFuture extends DefaultWebSocketConnectorFuture
     }
 
     @Override
-    public void notifyHttpListener(HTTPCarbonMessage httpMessage, Http2PushPromise pushPromise)
+    public void notifyHttpListener(HttpCarbonMessage httpMessage, Http2PushPromise pushPromise)
             throws ServerConnectorException {
         if (httpConnectorListener == null) {
             throw new ServerConnectorException(HTTP_CONNECTOR_LISTENER_IS_NOT_SET);

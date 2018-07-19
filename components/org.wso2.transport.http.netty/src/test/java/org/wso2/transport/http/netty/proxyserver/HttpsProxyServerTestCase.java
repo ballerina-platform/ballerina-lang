@@ -28,7 +28,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.util.TestUtil;
 
@@ -71,7 +71,7 @@ public class HttpsProxyServerTestCase {
     public void testHttpsProxyServer() {
             String testValue = "Test";
             ByteBuffer byteBuffer = ByteBuffer.wrap(testValue.getBytes(Charset.forName("UTF-8")));
-            HTTPCarbonMessage msg = new HttpCarbonRequest(
+            HttpCarbonMessage msg = new HttpCarbonRequest(
                     new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, ""));
             msg.setProperty(HTTP_METHOD, HttpMethod.POST.toString());
             msg.setProperty(HTTP_PORT, TestUtil.SERVER_PORT1);

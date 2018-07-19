@@ -35,7 +35,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.util.TestUtil;
 
@@ -60,7 +60,7 @@ public class PassthroughMessageProcessorListener implements HttpConnectorListene
     }
 
     @Override
-    public void onMessage(HTTPCarbonMessage httpRequestMessage) {
+    public void onMessage(HttpCarbonMessage httpRequestMessage) {
         executor.execute(() -> {
             httpRequestMessage.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
             httpRequestMessage.setProperty(Constants.HTTP_PORT, TestUtil.HTTP_SERVER_PORT);
@@ -72,7 +72,7 @@ public class PassthroughMessageProcessorListener implements HttpConnectorListene
                 HttpResponseFuture future = clientConnector.send(httpRequestMessage);
                 future.setHttpConnectorListener(new HttpConnectorListener() {
                     @Override
-                    public void onMessage(HTTPCarbonMessage httpResponse) {
+                    public void onMessage(HttpCarbonMessage httpResponse) {
                         executor.execute(() -> {
                             try {
                                 httpRequestMessage.respond(httpResponse);

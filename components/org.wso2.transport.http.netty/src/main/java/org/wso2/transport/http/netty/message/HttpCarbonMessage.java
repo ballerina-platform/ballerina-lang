@@ -43,9 +43,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * HTTP based representation for HTTPCarbonMessage.
+ * HTTP based representation for HttpCarbonMessage.
  */
-public class HTTPCarbonMessage {
+public class HttpCarbonMessage {
 
     protected HttpMessage httpMessage;
     private EntityCollector blockingEntityCollector;
@@ -57,19 +57,19 @@ public class HTTPCarbonMessage {
     private final Observable contentObservable = new DefaultObservable();
     private IOException ioException;
 
-    public HTTPCarbonMessage(HttpMessage httpMessage, Listener contentListener) {
+    public HttpCarbonMessage(HttpMessage httpMessage, Listener contentListener) {
         this.httpMessage = httpMessage;
         setBlockingEntityCollector(new BlockingEntityCollector(Constants.ENDPOINT_TIMEOUT));
         this.contentObservable.setListener(contentListener);
     }
 
-    public HTTPCarbonMessage(HttpMessage httpMessage, int maxWaitTime, Listener contentListener) {
+    public HttpCarbonMessage(HttpMessage httpMessage, int maxWaitTime, Listener contentListener) {
         this.httpMessage = httpMessage;
         setBlockingEntityCollector(new BlockingEntityCollector(maxWaitTime));
         this.contentObservable.setListener(contentListener);
     }
 
-    public HTTPCarbonMessage(HttpMessage httpMessage) {
+    public HttpCarbonMessage(HttpMessage httpMessage) {
         this.httpMessage = httpMessage;
         setBlockingEntityCollector(new BlockingEntityCollector(Constants.ENDPOINT_TIMEOUT));
     }
@@ -125,6 +125,10 @@ public class HTTPCarbonMessage {
         return this.messageFuture;
     }
 
+    /**
+     * @deprecated
+     * @return the message body.
+     */
     @Deprecated
     public ByteBuf getMessageBody() {
         return blockingEntityCollector.getMessageBody();
@@ -158,6 +162,10 @@ public class HTTPCarbonMessage {
         return blockingEntityCollector.getFullMessageLength();
     }
 
+    /**
+     * @deprecated
+     * @param msgBody the message body.
+     */
     @Deprecated
     public void addMessageBody(ByteBuffer msgBody) {
         blockingEntityCollector.addMessageBody(msgBody);
@@ -270,7 +278,7 @@ public class HTTPCarbonMessage {
         return httpOutboundRespStatusFuture;
     }
 
-    public HttpResponseFuture respond(HTTPCarbonMessage httpCarbonMessage) throws ServerConnectorException {
+    public HttpResponseFuture respond(HttpCarbonMessage httpCarbonMessage) throws ServerConnectorException {
         httpOutboundRespFuture.notifyHttpListener(httpCarbonMessage);
         return httpOutboundRespStatusFuture;
     }
@@ -283,7 +291,7 @@ public class HTTPCarbonMessage {
      * @return HttpResponseFuture which gives the status of the operation
      * @throws ServerConnectorException if there is an error occurs while doing the operation
      */
-    public HttpResponseFuture pushResponse(HTTPCarbonMessage httpCarbonMessage, Http2PushPromise pushPromise)
+    public HttpResponseFuture pushResponse(HttpCarbonMessage httpCarbonMessage, Http2PushPromise pushPromise)
             throws ServerConnectorException {
         httpOutboundRespFuture.notifyHttpListener(httpCarbonMessage, pushPromise);
         return httpOutboundRespStatusFuture;
@@ -305,10 +313,10 @@ public class HTTPCarbonMessage {
     /**
      * Copy Message properties and transport headers.
      *
-     * @return HTTPCarbonMessage.
+     * @return HttpCarbonMessage.
      */
-    public HTTPCarbonMessage cloneCarbonMessageWithOutData() {
-        HTTPCarbonMessage newCarbonMessage = getNewHttpCarbonMessage();
+    public HttpCarbonMessage cloneCarbonMessageWithOutData() {
+        HttpCarbonMessage newCarbonMessage = getNewHttpCarbonMessage();
 
         Map<String, Object> propertiesMap = this.getProperties();
         propertiesMap.forEach(newCarbonMessage::setProperty);
@@ -316,7 +324,7 @@ public class HTTPCarbonMessage {
         return newCarbonMessage;
     }
 
-    private HTTPCarbonMessage getNewHttpCarbonMessage() {
+    private HttpCarbonMessage getNewHttpCarbonMessage() {
         HttpMessage newHttpMessage;
         HttpHeaders httpHeaders;
         if (this.httpMessage instanceof HttpRequest) {
@@ -339,7 +347,7 @@ public class HTTPCarbonMessage {
                 httpHeaders.add(entry.getKey(), entry.getValue());
             }
         }
-        HTTPCarbonMessage httpCarbonMessage = new HTTPCarbonMessage(newHttpMessage);
+        HttpCarbonMessage httpCarbonMessage = new HttpCarbonMessage(newHttpMessage);
         httpCarbonMessage.getHeaders().set(httpHeaders);
         return httpCarbonMessage;
     }

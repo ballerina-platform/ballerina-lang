@@ -26,7 +26,7 @@ import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.util.HTTPConnectorListener;
+import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.initializers.SendChannelIDServerInitializer;
@@ -66,7 +66,7 @@ public class ConnectionPoolMainTestCase {
             CountDownLatch requestTwoLatch = new CountDownLatch(1);
             CountDownLatch requestThreeLatch = new CountDownLatch(1);
 
-            HTTPConnectorListener responseListener;
+            DefaultHttpConnectorListener responseListener;
 
             responseListener = sendRequestAsync(requestOneLatch, httpClientConnector);
 

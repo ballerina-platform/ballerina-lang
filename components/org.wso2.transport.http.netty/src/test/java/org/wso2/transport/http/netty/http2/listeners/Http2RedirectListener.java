@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.util.client.http2.MessageGenerator;
 
 import java.util.concurrent.ExecutorService;
@@ -42,7 +42,7 @@ public class Http2RedirectListener implements HttpConnectorListener {
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    private int numberOfRedirects = 0;
+    private int numberOfRedirects;
     private String expectedResponse;
 
     private int redirectCount = 0;
@@ -54,7 +54,7 @@ public class Http2RedirectListener implements HttpConnectorListener {
     }
 
     @Override
-    public void onMessage(HTTPCarbonMessage httpRequest) {
+    public void onMessage(HttpCarbonMessage httpRequest) {
         executor.execute(() -> {
             try {
                 if (redirectCount < numberOfRedirects) {
@@ -68,7 +68,7 @@ public class Http2RedirectListener implements HttpConnectorListener {
                         }
                     }
                     redirectCount++;
-                    HTTPCarbonMessage response =
+                    HttpCarbonMessage response =
                             MessageGenerator.generateResponse(null, HttpResponseStatus.MOVED_PERMANENTLY);
                     response.setHeader(HttpHeaderNames.LOCATION.toString(),
                                        baseLocation.concat(String.valueOf(redirectCount)));

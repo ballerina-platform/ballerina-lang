@@ -33,7 +33,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.https.SSLConnectorListener;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.TestUtil;
 
@@ -79,7 +79,6 @@ public class HostnameVerificationTest {
         };
     }
 
-    @Test(dataProvider = "configurations")
     /**
      * Set up the client and the server.
      *
@@ -90,6 +89,7 @@ public class HostnameVerificationTest {
      * @param hasException Expecting an error(true/false)
      * @param serverPort port
      */
+    @Test(dataProvider = "configurations")
     public void testHostNameVerification(String keyStoreFilePath, String keyStorePassword, String trustStoreFilePath,
             String trustStorePassword, boolean hasException, int serverPort) throws InterruptedException {
 
@@ -109,13 +109,13 @@ public class HostnameVerificationTest {
     public void sendRequest(boolean hasException, int serverPort) {
         try {
             String testValue = "Test";
-            HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(serverPort, testValue, "");
+            HttpCarbonMessage msg = TestUtil.createHttpsPostReq(serverPort, testValue, "");
             CountDownLatch latch = new CountDownLatch(1);
             SSLConnectorListener listener = new SSLConnectorListener(latch);
             HttpResponseFuture responseFuture = httpClientConnector.send(msg);
             responseFuture.setHttpConnectorListener(listener);
             latch.await(5, TimeUnit.SECONDS);
-            HTTPCarbonMessage response = listener.getHttpResponseMessage();
+            HttpCarbonMessage response = listener.getHttpResponseMessage();
 
             if (hasException) {
                 assertNotNull(listener.getThrowables());

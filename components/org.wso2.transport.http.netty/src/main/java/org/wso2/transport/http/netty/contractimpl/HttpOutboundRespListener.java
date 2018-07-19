@@ -40,8 +40,8 @@ import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.listener.RequestDataHolder;
 import org.wso2.transport.http.netty.listener.SourceErrorHandler;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +71,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     private ChannelHandlerContext sourceContext;
     private RequestDataHolder requestDataHolder;
     private HandlerExecutor handlerExecutor;
-    private HTTPCarbonMessage inboundRequestMsg;
+    private HttpCarbonMessage inboundRequestMsg;
     private ChunkConfig chunkConfig;
     private KeepAliveConfig keepAliveConfig;
     private boolean headerWritten = false;
@@ -81,7 +81,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     private List<HttpContent> contentList = new ArrayList<>();
     private AtomicInteger writeCounter = new AtomicInteger(0);
 
-    public HttpOutboundRespListener(ChannelHandlerContext channelHandlerContext, HTTPCarbonMessage requestMsg,
+    public HttpOutboundRespListener(ChannelHandlerContext channelHandlerContext, HttpCarbonMessage requestMsg,
                                     ChunkConfig chunkConfig, KeepAliveConfig keepAliveConfig, String serverName,
                                     SourceErrorHandler sourceErrorHandler, boolean continueRequest) {
         this.sourceContext = channelHandlerContext;
@@ -97,7 +97,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     }
 
     @Override
-    public void onMessage(HTTPCarbonMessage outboundResponseMsg) {
+    public void onMessage(HttpCarbonMessage outboundResponseMsg) {
         sourceContext.channel().eventLoop().execute(() -> {
 
             if (handlerExecutor != null) {
@@ -129,13 +129,13 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     }
 
     @Override
-    public void onPushResponse(int promiseId, HTTPCarbonMessage httpMessage) {
+    public void onPushResponse(int promiseId, HttpCarbonMessage httpMessage) {
         inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(new UnsupportedOperationException(
                 "Sending Server Push messages is not supported for HTTP/1.x connections"));
     }
 
-    private void writeOutboundResponse(HTTPCarbonMessage outboundResponseMsg, boolean keepAlive,
-            HttpContent httpContent) {
+    private void writeOutboundResponse(HttpCarbonMessage outboundResponseMsg, boolean keepAlive,
+                                       HttpContent httpContent) {
         ChunkConfig responseChunkConfig = outboundResponseMsg.getProperty(CHUNKING_CONFIG) != null ?
                 (ChunkConfig) outboundResponseMsg.getProperty(CHUNKING_CONFIG) : null;
         if (responseChunkConfig != null) {
@@ -214,7 +214,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         return outboundChannelFuture;
     }
 
-    private ChannelFuture writeOutboundResponseHeaderAndBody(HTTPCarbonMessage outboundResponseMsg,
+    private ChannelFuture writeOutboundResponseHeaderAndBody(HttpCarbonMessage outboundResponseMsg,
                                                              LastHttpContent lastHttpContent, boolean keepAlive) {
         HttpResponseFuture outRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
 
@@ -248,7 +248,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         return outboundChannelFuture;
     }
 
-    private void writeHeaders(HTTPCarbonMessage outboundResponseMsg, boolean keepAlive,
+    private void writeHeaders(HttpCarbonMessage outboundResponseMsg, boolean keepAlive,
                               HttpResponseFuture outboundRespStatusFuture) {
         setupChunkedRequest(outboundResponseMsg);
         incrementWriteCount(writeCounter);
@@ -279,7 +279,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         }
     }
 
-    private ChannelFuture writeOutboundResponseHeaders(HTTPCarbonMessage outboundResponseMsg, boolean keepAlive) {
+    private ChannelFuture writeOutboundResponseHeaders(HttpCarbonMessage outboundResponseMsg, boolean keepAlive) {
         HttpResponse response = createHttpResponse(outboundResponseMsg, requestDataHolder.getHttpVersion(),
                 serverName, keepAlive);
         headerWritten = true;

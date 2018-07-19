@@ -31,7 +31,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
  * A unit test class for common/Util functions.
@@ -43,8 +43,8 @@ public class CommonUtilTestCase {
         HttpHeaders headers = new DefaultHttpHeaders();
         headers.set("aaa", "123");
         headers.add("aaa", "xyz");
-        HTTPCarbonMessage outboundRequestMsg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
-                HttpMethod.POST, "", headers));
+        HttpCarbonMessage outboundRequestMsg = new HttpCarbonMessage(
+                new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "", headers));
         outboundRequestMsg.setProperty(Constants.TO, "/hello");
         HttpRequest outboundNettyRequest = Util.createHttpRequest(outboundRequestMsg);
 
@@ -61,8 +61,8 @@ public class CommonUtilTestCase {
         HttpHeaders headers = new DefaultHttpHeaders();
         headers.set("aaa", "123");
         headers.add("aaa", "xyz");
-        HTTPCarbonMessage outboundResponseMsg = new HTTPCarbonMessage(new DefaultHttpResponse(HttpVersion.HTTP_1_1,
-                HttpResponseStatus.OK, headers));
+        HttpCarbonMessage outboundResponseMsg = new HttpCarbonMessage(
+                new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, headers));
         HttpResponse outboundNettyResponse = Util.createHttpResponse(outboundResponseMsg, "1.1", "test-server", true);
 
         Assert.assertEquals(outboundNettyResponse.protocolVersion(), HttpVersion.HTTP_1_1);

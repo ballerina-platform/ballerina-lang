@@ -32,9 +32,9 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
-import org.wso2.transport.http.netty.util.HTTPConnectorListener;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpConnectorUtil;
+import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.initializers.BadEchoServerInitializer;
@@ -65,17 +65,17 @@ public class ClientConnectorClosureAfterRequestReadTestCase {
         senderConfiguration.setChunkingConfig(ChunkConfig.NEVER);
 
         httpClientConnector = connectorFactory.createHttpClientConnector(
-                HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
+                HttpConnectorUtil.getTransportProperties(transportsConfiguration),
                 senderConfiguration);
     }
 
     @Test
     public void testHttpsGet() {
         try {
-            HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.HTTP_SERVER_PORT, TestUtil.smallEntity, "");
+            HttpCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.HTTP_SERVER_PORT, TestUtil.smallEntity, "");
 
             CountDownLatch latch = new CountDownLatch(1);
-            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
+            DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
             HttpResponseFuture responseFuture = httpClientConnector.send(msg);
             responseFuture.setHttpConnectorListener(listener);
 

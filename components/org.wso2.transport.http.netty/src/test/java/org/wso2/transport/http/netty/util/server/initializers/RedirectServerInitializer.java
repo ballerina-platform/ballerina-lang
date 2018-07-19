@@ -46,13 +46,13 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 /**
  * An intializer for redirect server
  */
-public class RedirectServerInitializer extends HTTPServerInitializer {
+public class RedirectServerInitializer extends HttpServerInitializer {
 
     private static final Logger logger = LoggerFactory.getLogger(MockServerInitializer.class);
 
     private String stringContent;
     private String contentType;
-    private int responseStatusCode = 307;
+    private int responseStatusCode;
     private HttpRequest req;
     private String location;
     private long delay;

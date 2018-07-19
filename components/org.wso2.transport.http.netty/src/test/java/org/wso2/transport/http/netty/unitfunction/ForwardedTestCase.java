@@ -26,7 +26,7 @@ import io.netty.handler.codec.http.HttpVersion;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.sender.ForwardedHeaderUpdater;
 
 /**
@@ -36,8 +36,8 @@ public class ForwardedTestCase {
 
     @Test(description = "Test setting Forwarded header as first intermediate interface")
     public void testSetForwardedHeaderAsFirstInterface() {
-        HTTPCarbonMessage outboundRequestMsg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
-                HttpMethod.POST, ""));
+        HttpCarbonMessage outboundRequestMsg = new HttpCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+                                                                                            HttpMethod.POST, ""));
         outboundRequestMsg.setProperty(Constants.TO, "/hello");
         outboundRequestMsg.setProperty(Constants.ORIGIN_HOST, "www.example.com");
         outboundRequestMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
@@ -49,8 +49,8 @@ public class ForwardedTestCase {
 
     @Test(description = "Test setting Forwarded header with IPv6 local address")
     public void testSetForwardedHeaderAsFirstInterfaceIPv6() {
-        HTTPCarbonMessage outboundRequestMsg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
-                HttpMethod.POST, ""));
+        HttpCarbonMessage outboundRequestMsg = new HttpCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+                                                                                            HttpMethod.POST, ""));
         outboundRequestMsg.setProperty(Constants.TO, "/hello");
         outboundRequestMsg.setProperty(Constants.ORIGIN_HOST, "www.example.com");
         outboundRequestMsg.setProperty(Constants.PROTOCOL, Constants.HTTPS_SCHEME);
@@ -62,8 +62,8 @@ public class ForwardedTestCase {
 
     @Test(description = "Test setting Forwarded header with IPv6 host and port")
     public void testSetForwardedHeaderAsFirstInterfaceIPv6WithPort() {
-        HTTPCarbonMessage outboundRequestMsg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
-                HttpMethod.POST, ""));
+        HttpCarbonMessage outboundRequestMsg = new HttpCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+                                                                                            HttpMethod.POST, ""));
         outboundRequestMsg.setProperty(Constants.TO, "/hello");
         outboundRequestMsg.setProperty(Constants.ORIGIN_HOST, "www.example.com");
         outboundRequestMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
@@ -75,8 +75,8 @@ public class ForwardedTestCase {
 
     @Test(description = "Test setting Forwarded header with Obfuscated Identifier")
     public void testSetForwardedHeaderAsFirstInterfaceWithObfuscatedIdentifier() {
-        HTTPCarbonMessage outboundRequestMsg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
-                HttpMethod.POST, ""));
+        HttpCarbonMessage outboundRequestMsg = new HttpCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+                                                                                            HttpMethod.POST, ""));
         outboundRequestMsg.setProperty(Constants.TO, "/hello");
         outboundRequestMsg.setProperty(Constants.ORIGIN_HOST, "www.example.com");
         outboundRequestMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
@@ -90,8 +90,8 @@ public class ForwardedTestCase {
     public void testSetForwardedHeaderWithPreviousForwardHeader() {
         HttpHeaders headers = new DefaultHttpHeaders();
         headers.set("Forwarded", "for=192.0.2.43, for=198.51.100.17;by=203.0.113.60;proto=http;host=example.com");
-        HTTPCarbonMessage outboundRequestMsg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
-                HttpMethod.POST, "", headers));
+        HttpCarbonMessage outboundRequestMsg = new HttpCarbonMessage(
+                new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "", headers));
         outboundRequestMsg.setProperty(Constants.TO, "/hello");
         outboundRequestMsg.setProperty(Constants.ORIGIN_HOST, "www.example.com");
         outboundRequestMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
@@ -106,8 +106,8 @@ public class ForwardedTestCase {
         HttpHeaders headers = new DefaultHttpHeaders();
         headers.set("X-Forwarded-For", "192.0.2.43");
         headers.set("X-Forwarded-By", "200.35.130.97");
-        HTTPCarbonMessage outboundRequestMsg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
-                HttpMethod.POST, "", headers));
+        HttpCarbonMessage outboundRequestMsg = new HttpCarbonMessage(
+                new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "", headers));
         outboundRequestMsg.setProperty(Constants.TO, "/hello");
         outboundRequestMsg.setProperty(Constants.ORIGIN_HOST, "www.example.com");
         outboundRequestMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
@@ -122,8 +122,8 @@ public class ForwardedTestCase {
     public void testSetDefactoForwardedHeadersWithIPv6() {
         HttpHeaders headers = new DefaultHttpHeaders();
         headers.set("X-Forwarded-By", "200.35.130.97");
-        HTTPCarbonMessage outboundRequestMsg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
-                HttpMethod.POST, "", headers));
+        HttpCarbonMessage outboundRequestMsg = new HttpCarbonMessage(
+                new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "", headers));
         outboundRequestMsg.setProperty(Constants.TO, "/hello");
         outboundRequestMsg.setProperty(Constants.ORIGIN_HOST, "www.example.com");
         outboundRequestMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
@@ -142,8 +142,8 @@ public class ForwardedTestCase {
         headers.set("Forwarded", "for=192.0.2.43;by=203.0.113.60;proto=http;host=example.com");
         headers.set("X-Forwarded-For", "198.0.2.49");
         headers.set("X-Forwarded-By", "200.35.130.97");
-        HTTPCarbonMessage outboundRequestMsg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
-                HttpMethod.POST, "", headers));
+        HttpCarbonMessage outboundRequestMsg = new HttpCarbonMessage(
+                new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "", headers));
         outboundRequestMsg.setProperty(Constants.TO, "/hello");
         outboundRequestMsg.setProperty(Constants.ORIGIN_HOST, "www.example.com");
         outboundRequestMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
@@ -161,8 +161,8 @@ public class ForwardedTestCase {
         headers.set("X-Forwarded-For", "198.0.2.49");
         headers.set("X-Forwarded-Host", "www.abc.com");
         headers.set("X-Forwarded-Proto", "http");
-        HTTPCarbonMessage outboundRequestMsg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
-                HttpMethod.POST, "", headers));
+        HttpCarbonMessage outboundRequestMsg = new HttpCarbonMessage(
+                new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "", headers));
         outboundRequestMsg.setProperty(Constants.TO, "/hello");
         outboundRequestMsg.setProperty(Constants.ORIGIN_HOST, "www.example.com");
         outboundRequestMsg.setProperty(Constants.PROTOCOL, Constants.HTTPS_SCHEME);
@@ -181,8 +181,8 @@ public class ForwardedTestCase {
         headers.set("X-Forwarded-For", "198.0.2.49");
         headers.set("X-Forwarded-By", "192.10.2.19");
         headers.set("X-Forwarded-Proto", "http");
-        HTTPCarbonMessage outboundRequestMsg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
-                HttpMethod.POST, "", headers));
+        HttpCarbonMessage outboundRequestMsg = new HttpCarbonMessage(
+                new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "", headers));
         outboundRequestMsg.setProperty(Constants.TO, "/hello");
         outboundRequestMsg.setProperty(Constants.ORIGIN_HOST, "www.example.com");
         outboundRequestMsg.setProperty(Constants.PROTOCOL, Constants.HTTPS_SCHEME);
@@ -197,8 +197,8 @@ public class ForwardedTestCase {
         HttpHeaders headers = new DefaultHttpHeaders();
         headers.set("Forwarded", "by=203.0.113.60;proto=http;host=example.com");
         headers.set("X-Forwarded-For", "192.0.2.44, 203.0.113.62");
-        HTTPCarbonMessage outboundRequestMsg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
-                HttpMethod.POST, "", headers));
+        HttpCarbonMessage outboundRequestMsg = new HttpCarbonMessage(
+                new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "", headers));
         outboundRequestMsg.setProperty(Constants.TO, "/hello");
         outboundRequestMsg.setProperty(Constants.ORIGIN_HOST, "www.example.com");
         ForwardedHeaderUpdater headerUpdater = new ForwardedHeaderUpdater(outboundRequestMsg, "10.100.1.92");

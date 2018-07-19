@@ -105,10 +105,11 @@ public class WebSocketClient {
                     uri, WebSocketVersion.V13, subProtocols, true, headers);
             MessageQueueHandler messageQueueHandler = new MessageQueueHandler();
             clientHandshakeHandler = new WebSocketClientHandshakeHandler(webSocketHandshaker, handshakeFuture,
-                    messageQueueHandler, ssl, autoRead, url, handshakeFuture);
+                                                                         messageQueueHandler, ssl, autoRead, url,
+                                                                         handshakeFuture);
             Bootstrap clientBootstrap = initClientBootstrap(host, port, handshakeFuture);
             clientBootstrap.connect(uri.getHost(), port).sync();
-        } catch (Throwable throwable) {
+        } catch (Exception throwable) {
             handleHandshakeError(handshakeFuture, throwable);
         }
         return handshakeFuture;

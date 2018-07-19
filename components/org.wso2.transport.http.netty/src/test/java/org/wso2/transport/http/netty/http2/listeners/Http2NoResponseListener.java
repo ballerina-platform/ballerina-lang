@@ -22,7 +22,7 @@ package org.wso2.transport.http.netty.http2.listeners;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
  * {@code Http2NoResponseListener} is a HttpConnectorListener which receives messages and does nothing with it.
@@ -32,7 +32,7 @@ public class Http2NoResponseListener implements HttpConnectorListener {
     private static final Logger logger = LoggerFactory.getLogger(Http2NoResponseListener.class);
 
     @Override
-    public void onMessage(HTTPCarbonMessage httpRequest) {
+    public void onMessage(HttpCarbonMessage httpRequest) {
         logger.info("Message received");
     }
 

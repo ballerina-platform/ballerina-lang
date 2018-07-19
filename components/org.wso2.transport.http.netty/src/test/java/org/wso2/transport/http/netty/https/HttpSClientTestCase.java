@@ -29,9 +29,9 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
-import org.wso2.transport.http.netty.util.HTTPConnectorListener;
+import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpsServer;
 import org.wso2.transport.http.netty.util.server.initializers.MockServerInitializer;
@@ -76,16 +76,16 @@ public class HttpSClientTestCase {
     @Test
     public void testHttpsGet() {
         try {
-            HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.HTTPS_SERVER_PORT, "", "");
+            HttpCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.HTTPS_SERVER_PORT, "", "");
 
             CountDownLatch latch = new CountDownLatch(1);
-            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
+            DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
             HttpResponseFuture responseFuture = httpClientConnector.send(msg);
             responseFuture.setHttpConnectorListener(listener);
 
             latch.await(5, TimeUnit.SECONDS);
 
-            HTTPCarbonMessage response = listener.getHttpResponseMessage();
+            HttpCarbonMessage response = listener.getHttpResponseMessage();
             assertNotNull(response);
             String result = new BufferedReader(new InputStreamReader(new HttpMessageDataStreamer(response)
                     .getInputStream()))

@@ -19,7 +19,7 @@
 
 package org.wso2.transport.http.netty.contract;
 
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.ResponseHandle;
 
 /**
@@ -43,7 +43,7 @@ public interface HttpResponseFuture {
      *
      * @param httpMessage the entity which contains the data related to the event
      */
-    void notifyHttpListener(HTTPCarbonMessage httpMessage);
+    void notifyHttpListener(HttpCarbonMessage httpMessage);
 
     /**
      * Notifies the listener when there is an event.
@@ -155,7 +155,7 @@ public interface HttpResponseFuture {
      * @param streamId     stream id of the received push response
      * @param pushResponse push response message
      */
-    void notifyPushResponse(int streamId, HTTPCarbonMessage pushResponse);
+    void notifyPushResponse(int streamId, HttpCarbonMessage pushResponse);
 
     /**
      * Notifies the Push Response Listener when there is an error.

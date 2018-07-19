@@ -21,10 +21,10 @@ package org.wso2.transport.http.netty.util.client.http2;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.ResponseHandle;
-import org.wso2.transport.http.netty.util.HTTPConnectorListener;
+import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.util.concurrent.CountDownLatch;
@@ -44,13 +44,13 @@ public class MessageSender {
     /**
      * Sends httpMessages to the back-end and receive the response.
      *
-     * @param httpCarbonMessage {@link HTTPCarbonMessage} which should be sent to the remote server.
+     * @param httpCarbonMessage {@link HttpCarbonMessage} which should be sent to the remote server.
      * @return the response message
      */
-    public HTTPCarbonMessage sendMessage(HTTPCarbonMessage httpCarbonMessage) {
+    public HttpCarbonMessage sendMessage(HttpCarbonMessage httpCarbonMessage) {
         try {
             CountDownLatch latch = new CountDownLatch(1);
-            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
+            DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
             HttpResponseFuture responseFuture = http2ClientConnector.send(httpCarbonMessage);
             responseFuture.setHttpConnectorListener(listener);
             latch.await(TestUtil.HTTP2_RESPONSE_TIME_OUT, TimeUnit.SECONDS);
@@ -64,10 +64,10 @@ public class MessageSender {
     /**
      * Submits a http message to the back-end and receive a handle to receive response asynchronously.
      *
-     * @param httpCarbonMessage {@link HTTPCarbonMessage} which should be sent to the remote server.
+     * @param httpCarbonMessage {@link HttpCarbonMessage} which should be sent to the remote server.
      * @return the response handle
      */
-    public ResponseHandle submitMessage(HTTPCarbonMessage httpCarbonMessage) {
+    public ResponseHandle submitMessage(HttpCarbonMessage httpCarbonMessage) {
         try {
             CountDownLatch latch = new CountDownLatch(1);
             HttpResponseFuture responseFuture = http2ClientConnector.send(httpCarbonMessage);
@@ -87,7 +87,7 @@ public class MessageSender {
      * @param handle the Response Handle which represent the asynchronous service invocation
      * @return response message
      */
-    public HTTPCarbonMessage getResponse(ResponseHandle handle) {
+    public HttpCarbonMessage getResponse(ResponseHandle handle) {
         try {
             CountDownLatch latch = new CountDownLatch(1);
             HttpResponseFuture responseFuture = http2ClientConnector.getResponse(handle);
@@ -148,7 +148,7 @@ public class MessageSender {
      * @param promise push promise related to the server push
      * @return returns the push response related to a particular promise
      */
-    public HTTPCarbonMessage getPushResponse(Http2PushPromise promise) {
+    public HttpCarbonMessage getPushResponse(Http2PushPromise promise) {
         try {
             CountDownLatch latch = new CountDownLatch(1);
             HttpResponseFuture responseFuture = http2ClientConnector.getPushResponse(promise);
@@ -165,19 +165,19 @@ public class MessageSender {
     private class PushResponseListener implements HttpClientConnectorListener {
 
         private CountDownLatch latch;
-        private HTTPCarbonMessage pushResponse;
+        private HttpCarbonMessage pushResponse;
 
         PushResponseListener(CountDownLatch latch) {
             this.latch = latch;
         }
 
         @Override
-        public void onPushResponse(int promiseId, HTTPCarbonMessage pushResponse) {
+        public void onPushResponse(int promiseId, HttpCarbonMessage pushResponse) {
             this.pushResponse = pushResponse;
             latch.countDown();
         }
 
-        HTTPCarbonMessage getPushResponse() {
+        HttpCarbonMessage getPushResponse() {
             return pushResponse;
         }
     }
@@ -205,18 +205,18 @@ public class MessageSender {
     private class ResponseListener implements HttpClientConnectorListener {
 
         private CountDownLatch latch;
-        private HTTPCarbonMessage response;
+        private HttpCarbonMessage response;
 
         ResponseListener(CountDownLatch latch) {
             this.latch = latch;
         }
 
-        public void onMessage(HTTPCarbonMessage response) {
+        public void onMessage(HttpCarbonMessage response) {
             this.response = response;
             latch.countDown();
         }
 
-        public HTTPCarbonMessage getResponse() {
+        public HttpCarbonMessage getResponse() {
             return response;
         }
     }
