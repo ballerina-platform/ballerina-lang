@@ -17,7 +17,7 @@ function readCharacters(int numberOfCharacters) returns string|error {
             return err;
         }
         () => {
-            error e = {message: "Character channel not initialized properly"};
+            error e = {message:"Character channel not initialized properly"};
             return e;
         }
     }
@@ -28,11 +28,17 @@ function readAllCharacters() returns string|error? {
     boolean isDone = false;
     string result;
     while (!isDone){
-        string value = check readCharacters(fixedSize);
-        if (lengthof value == 0){
-            isDone = true;
-        } else {
-            result = result + value;
+        match readCharacters(fixedSize) {
+            string value => {
+                result = result + value;
+            }
+            error err => {
+                if (err.message == "io.EOF"){
+                    isDone = true;
+                } else {
+                    return err;
+                }
+            }
         }
     }
     return result;
@@ -48,7 +54,7 @@ function writeCharacters(string content, int startOffset) returns int|error? {
             return err;
         }
         () => {
-            error e = {message: "Character channel not initialized properly"};
+            error e = {message:"Character channel not initialized properly"};
             return e;
         }
 
@@ -77,7 +83,7 @@ function readXml() returns xml|error {
             return err;
         }
         () => {
-            error e = {message: "Character channel not initialized properly"};
+            error e = {message:"Character channel not initialized properly"};
             return e;
         }
     }

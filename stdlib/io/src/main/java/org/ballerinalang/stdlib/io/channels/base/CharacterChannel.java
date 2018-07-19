@@ -38,7 +38,7 @@ import java.nio.charset.CodingErrorAction;
  * This is a stateful channel.
  * </p>
  */
-public class CharacterChannel {
+public class CharacterChannel implements IOChannel {
 
     private static final Logger log = LoggerFactory.getLogger(CharacterChannel.class);
 
@@ -104,6 +104,11 @@ public class CharacterChannel {
         //decoded could contain a fraction of a character which will result in a malformed-input Exception. The bytes
         //which are on the edge should not be replaced with unknown character.
         bytesDecoder.onMalformedInput(CodingErrorAction.REPLACE);
+    }
+
+    @Override
+    public Channel getChannel() {
+        return channel;
     }
 
     /**
@@ -321,7 +326,7 @@ public class CharacterChannel {
      * @param nBytes number of bytes.
      * @return the character decoded for the specified byte length.
      */
-    public String readAllChars(int nBytes) throws IOException {
+    String readAllChars(int nBytes) throws IOException {
         return asyncReadBytesFromChannel(nBytes);
     }
 
@@ -372,10 +377,46 @@ public class CharacterChannel {
     }
 
     /**
+     * Specified whether the channel is selectable.
+     *
+     * @return true if the channel is selectable.
+     */
+    @Override
+    public boolean isSelectable() {
+        return channel.isSelectable();
+    }
+
+    /**
+     * Provides the id of the channel.
+     *
+     * @return the id of the channel.
+     */
+    @Override
+    public int id() {
+        return channel.id();
+    }
+
+    /**
+     * <p>
+     * Specifies that the file has reached it's end.
+     * </p>
+     *
+     * @return true if end of file has being reached.
+     */
+    @Override
+    public boolean hasReachedEnd() {
+        return null != charBuffer &&
+                null != channel &&
+                !charBuffer.hasRemaining() &&
+                channel.hasReachedEnd();
+    }
+
+    /**
      * Closes the given channel.
      *
      * @throws IOException errors occur while trying to close the connection.
      */
+    @Override
     public void close() throws IOException {
         channel.close();
     }
