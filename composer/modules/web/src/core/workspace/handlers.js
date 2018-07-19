@@ -216,5 +216,20 @@ export function getHandlerDefinitions(workspaceManager) {
                 dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id });
             },
         },
+        {
+            cmdID: COMMANDS.SHOW_EXTERNAL_LINK,
+            handler: ({ url }) => {
+                const { command: { dispatch } } = workspaceManager.appContext;
+                if (isOnElectron()) {
+                    const shell = require('electron').shell;
+                    shell.openExternal(url);
+                } else {
+                    const externalLink = window.open();
+                    externalLink.opener = null;
+                    externalLink.location = url;
+                    window.open(url, '_blank');
+                }
+            },
+        },
     ];
 }
