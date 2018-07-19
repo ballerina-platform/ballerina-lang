@@ -23,7 +23,7 @@ import com.intellij.ui.RowIcon;
 import com.intellij.util.PlatformIcons;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.Icon;
+import javax.swing.*;
 
 /**
  * Contains icons used for completion, etc.
@@ -53,6 +53,15 @@ public class BallerinaIcons {
 
     public static final Icon PUBLIC_FIELD = createPublicFieldIcon(AllIcons.Nodes.Advice);
     public static final Icon PRIVATE_FIELD = createPrivateFieldIcon(AllIcons.Nodes.Advice);
+
+    public static class Layout {
+        public static final Icon Editor_only = IconLoader
+                .getIcon("/icons/layout/Editor_only.png", BallerinaIcons.class); // 16x16
+        public static final Icon Editor_preview = IconLoader
+                .getIcon("/icons/layout/Editor_preview.png", BallerinaIcons.class); // 16x16
+        public static final Icon Preview_only = IconLoader
+                .getIcon("/icons/layout/Preview_only.png", BallerinaIcons.class); // 16x16
+    }
 
     private BallerinaIcons() {
 
