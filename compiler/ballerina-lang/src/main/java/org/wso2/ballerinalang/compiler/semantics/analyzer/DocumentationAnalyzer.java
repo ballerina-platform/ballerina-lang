@@ -47,7 +47,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -168,10 +167,11 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        // Create a new map to add parameter name and parameter node as key-value pairs.
         Map<String, BLangMarkdownParameterDocumentation> documentedParameterMap = new HashMap<>();
         documentation.parameters.forEach(parameter -> {
             String parameterName = parameter.getParameterName().getValue();
-            // Check for duplicate documentations.
+            // Check for parameters which are documented multiple times.
             if (documentedParameterMap.containsKey(parameterName)) {
                 dlog.warning(parameter.pos, parameterAlreadyDefined, parameterName);
             } else {
@@ -179,31 +179,23 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             }
         });
 
-        Map<String, VariableNode> actualParameterMap = new HashMap<>();
+        // Iterate through actual parameters.
         actualParameters.forEach(parameter -> {
             String name = parameter.getName().getValue();
-            actualParameterMap.put(name, parameter);
-            // Set the symbol in the documentation node.
-            BLangMarkdownParameterDocumentation param = documentation.getParameterDocumentations().get(name);
+            // Get parameter documentation if available.
+            BLangMarkdownParameterDocumentation param = documentedParameterMap.get(name);
             if (param != null) {
+                // Set the symbol in the documentation node.
                 param.setSymbol(((BLangVariable) parameter).symbol);
+                documentedParameterMap.remove(name);
+            } else {
+                // Add warnings for undocumented parameters.
+                dlog.warning(((BLangNode) parameter).pos, undocumentedParameter, name);
             }
         });
 
-        // Temporary list to hold matching parameter names.
-        List<String> matchedParameters = new LinkedList<>();
-        actualParameterMap.forEach((name, node) -> {
-            if (documentedParameterMap.containsKey(name)) {
-                matchedParameters.add(name);
-            }
-        });
-
-        // Remove matched parameters.
-        matchedParameters.forEach(documentedParameterMap::remove);
-        matchedParameters.forEach(actualParameterMap::remove);
-
+        // Add warnings for the entries left in the map.
         documentedParameterMap.forEach((name, node) -> dlog.warning(node.pos, noSuchParameter, name));
-        actualParameterMap.forEach((name, node) -> dlog.warning(((BLangNode) node).pos, undocumentedParameter, name));
     }
 
     private void validateNoParameters(DocumentableNode documentableNode) {
