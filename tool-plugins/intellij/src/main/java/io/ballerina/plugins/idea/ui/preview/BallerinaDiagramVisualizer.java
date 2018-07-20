@@ -20,6 +20,8 @@ import com.intellij.openapi.util.UserDataHolderBase;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Alarm;
 import com.intellij.util.messages.MessageBusConnection;
+import io.ballerina.plugins.idea.ui.settings.MarkdownApplicationSettings;
+import io.ballerina.plugins.idea.ui.settings.MarkdownPreviewSettings;
 import io.ballerina.plugins.idea.ui.split.SplitFileEditor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,32 +40,6 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
     private final static long PARSING_CALL_TIMEOUT_MS = 50L;
 
     private final static long RENDERING_DELAY_MS = 20L;
-
-    //  final static NotNullLazyValue<PolicyFactory> SANITIZER_VALUE = new NotNullLazyValue<PolicyFactory>() {
-    //    @NotNull
-    //    @Override
-    //    protected PolicyFactory compute() {
-    //      return Sanitizers.BLOCKS
-    //        .and(Sanitizers.FORMATTING)
-    //        .and(new HtmlPolicyBuilder()
-    //               .allowUrlProtocols("file", "http", "https").allowElements("img")
-    //               .allowAttributes("alt", "src", "title").onElements("img")
-    //               .allowAttributes("border", "height", "width").onElements("img")
-    //               .toFactory())
-    //        .and(new HtmlPolicyBuilder()
-    //               .allowUrlProtocols("file", "http", "https", "mailto").allowElements("a")
-    //               .allowAttributes("href", "title").onElements("a")
-    //               .toFactory())
-    //        .and(Sanitizers.TABLES)
-    //        .and(new HtmlPolicyBuilder()
-    //               .allowElements("body", "pre")
-    //               .allowAttributes(HtmlGenerator.Companion.getSRC_ATTRIBUTE_NAME()).globally().toFactory())
-    //        .and(new HtmlPolicyBuilder()
-    //               .allowElements("code", "tr")
-    //               .allowAttributes("class").onElements("code", "tr")
-    //               .toFactory());
-    //    }
-    //  };
 
     @NotNull
     private final JPanel myHtmlPanelWrapper;
@@ -125,7 +101,7 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
                         return;
                     }
 
-                    //                    attachHtmlPanel();
+                    attachHtmlPanel();
                 }, 0, ModalityState.stateForComponent(getComponent()));
             }
 
@@ -142,7 +118,7 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
         });
 
         if (isPreviewShown(project, file)) {
-            //            attachHtmlPanel();
+            attachHtmlPanel();
         }
 
         MessageBusConnection settingsConnection = ApplicationManager.getApplication().getMessageBus().connect(this);
@@ -317,55 +293,6 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
         return provider;
     }
 
-    //    /**
-    //     * Is always run from pooled thread
-    //     */
-    //    private void updateHtml(final boolean preserveScrollOffset) {
-    //        if (myPanel == null) {
-    //            return;
-    //        }
-    //
-    //        if (!myFile.isValid() || myDocument == null || Disposer.isDisposed(this)) {
-    //            return;
-    //        }
-    //
-    //        final String html = MarkdownUtil.generateMarkdownHtml(myFile, myDocument.getText());
-    //
-    //        // EA-75860: The lines to the top may be processed slowly; Since we're in pooled thread, we can be disposed already.
-    //        if (!myFile.isValid() || Disposer.isDisposed(this)) {
-    //            return;
-    //        }
-    //
-    //        synchronized (REQUESTS_LOCK) {
-    //            if (myLastHtmlOrRefreshRequest != null) {
-    //                mySwingAlarm.cancelRequest(myLastHtmlOrRefreshRequest);
-    //            }
-    //            myLastHtmlOrRefreshRequest = () -> {
-    //                if (myPanel == null) {
-    //                    return;
-    //                }
-    //
-    //                final String currentHtml =
-    //                        "<html><head></head>" + SANITIZER_VALUE.getValue().sanitize(html) + "</html>";
-    //                if (!currentHtml.equals(myLastRenderedHtml)) {
-    //                    myLastRenderedHtml = currentHtml;
-    //                    myPanel.setHtml(myLastRenderedHtml);
-    //
-    //                    if (preserveScrollOffset) {
-    //                        scrollToSrcOffset(myLastScrollOffset);
-    //                    }
-    //                }
-    //
-    //                myPanel.render();
-    //                synchronized (REQUESTS_LOCK) {
-    //                    myLastHtmlOrRefreshRequest = null;
-    //                }
-    //            };
-    //            mySwingAlarm.addRequest(myLastHtmlOrRefreshRequest, RENDERING_DELAY_MS,
-    //                    ModalityState.stateForComponent(getComponent()));
-    //        }
-    //    }
-
     private void detachHtmlPanel() {
         if (myPanel != null) {
             myHtmlPanelWrapper.remove(myPanel.getComponent());
@@ -375,65 +302,11 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
     }
 
     private void attachHtmlPanel() {
-        MarkdownApplicationSettings settings = MarkdownApplicationSettings.getInstance();
+        MarkdownApplicationSettings settings = new MarkdownApplicationSettings();
         myPanel = retrievePanelProvider(settings).createHtmlPanel();
         myHtmlPanelWrapper.add(myPanel.getComponent(), BorderLayout.CENTER);
         myHtmlPanelWrapper.repaint();
-
     }
-
-    //
-    //    private static void updatePanelCssSettings(@NotNull MarkdownHtmlPanel panel,
-    //            @NotNull final MarkdownCssSettings cssSettings) {
-    //        ApplicationManager.getApplication().assertIsDispatchThread();
-    //
-    //        final String inlineCss = cssSettings.isTextEnabled() ? cssSettings.getStylesheetText() : null;
-    //        final String customCssURI = cssSettings.isUriEnabled() ?
-    //                cssSettings.getStylesheetUri() :
-    //                MarkdownCssSettings.getDefaultCssSettings(UIUtil.isUnderDarcula()).getStylesheetUri();
-    //
-    //        panel.setCSS(inlineCss, customCssURI);
-    //
-    //        panel.render();
-    //    }
-    //
-    //    private static boolean isPreviewShown(@NotNull Project project, @NotNull VirtualFile file) {
-    //        MarkdownSplitEditorProvider provider = FileEditorProvider.EP_FILE_EDITOR_PROVIDER
-    //                .findExtension(MarkdownSplitEditorProvider.class);
-    //        if (provider == null) {
-    //            return true;
-    //        }
-    //
-    //        FileEditorState state = EditorHistoryManager.getInstance(project).getState(file, provider);
-    //        if (!(state instanceof SplitFileEditor.MyFileEditorState)) {
-    //            return true;
-    //        }
-    //
-    //        return SplitFileEditor.SplitEditorLayout.valueOf(((SplitFileEditor.MyFileEditorState) state).getSplitLayout())
-    //                != SplitFileEditor.SplitEditorLayout.FIRST;
-    //    }
-
-    //    private class MyUpdatePanelOnSettingsChangedListener
-    //            implements MarkdownApplicationSettings.SettingsChangedListener {
-    //        @Override
-    //        public void settingsChanged(@NotNull MarkdownApplicationSettings settings) {
-    //            mySwingAlarm.addRequest(() -> {
-    //                if (settings.getMarkdownPreviewSettings().getSplitEditorLayout()
-    //                        != SplitFileEditor.SplitEditorLayout.FIRST) {
-    //                    if (myPanel == null) {
-    //                        attachHtmlPanel();
-    //                    } else if (myLastPanelProviderInfo == null || MarkdownHtmlPanelProvider
-    //                            .createFromInfo(myLastPanelProviderInfo).equals(retrievePanelProvider(settings))) {
-    //                        detachHtmlPanel();
-    //                        attachHtmlPanel();
-    //                    }
-    //
-    //                    myPanel.setHtml(myLastRenderedHtml);
-    //                    updatePanelCssSettings(myPanel, settings.getMarkdownCssSettings());
-    //                }
-    //            }, 0, ModalityState.stateForComponent(getComponent()));
-    //        }
-    //    }
 
     private class MyUpdatePanelOnSettingsChangedListener
             implements MarkdownApplicationSettings.SettingsChangedListener {
