@@ -25,22 +25,16 @@ import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.PortBindingEventListener;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
+import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnectorFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 /**
  * Server connector future implementation
  */
-public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
+public class HttpWsServerConnectorFuture extends DefaultWebSocketConnectorFuture implements ServerConnectorFuture {
 
     private HttpConnectorListener httpConnectorListener;
-    private WebSocketConnectorListener wsConnectorListener;
     private PortBindingEventListener portBindingEventListener;
 
     private ChannelFuture nettyBindFuture;
@@ -92,67 +86,6 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
             throw new ServerConnectorException("HTTP connector listener is not set");
         }
         httpConnectorListener.onPushPromise(pushPromise);
-    }
-
-    @Override
-    public void setWSConnectorListener(WebSocketConnectorListener wsConnectorListener) {
-        this.wsConnectorListener = wsConnectorListener;
-    }
-
-    @Override
-    public void notifyWSListener(WebSocketInitMessage initMessage) throws ServerConnectorException {
-        if (wsConnectorListener == null) {
-            throw new ServerConnectorException("WebSocket connector listener is not set");
-        }
-        wsConnectorListener.onMessage(initMessage);
-    }
-
-    @Override
-    public void notifyWSListener(WebSocketTextMessage textMessage) throws ServerConnectorException {
-        if (wsConnectorListener == null) {
-            throw new ServerConnectorException("WebSocket connector listener is not set");
-        }
-        wsConnectorListener.onMessage(textMessage);
-    }
-
-    @Override
-    public void notifyWSListener(WebSocketBinaryMessage binaryMessage) throws ServerConnectorException {
-        if (wsConnectorListener == null) {
-            throw new ServerConnectorException("WebSocket connector listener is not set");
-        }
-        wsConnectorListener.onMessage(binaryMessage);
-    }
-
-    @Override
-    public void notifyWSListener(WebSocketControlMessage controlMessage) throws ServerConnectorException {
-        if (wsConnectorListener == null) {
-            throw new ServerConnectorException("WebSocket connector listener is not set");
-        }
-        wsConnectorListener.onMessage(controlMessage);
-    }
-
-    @Override
-    public void notifyWSListener(WebSocketCloseMessage closeMessage) throws ServerConnectorException {
-        if (wsConnectorListener == null) {
-            throw new ServerConnectorException("WebSocket connector listener is not set");
-        }
-        wsConnectorListener.onMessage(closeMessage);
-    }
-
-    @Override
-    public void notifyWSListener(Throwable throwable) throws ServerConnectorException {
-        if (wsConnectorListener == null) {
-            throw new ServerConnectorException("WebSocket connector listener is not set");
-        }
-        wsConnectorListener.onError(throwable);
-    }
-
-    @Override
-    public void notifyWSIdleTimeout(WebSocketControlMessage controlMessage) throws ServerConnectorException {
-        if (wsConnectorListener == null) {
-            throw new ServerConnectorException("WebSocket connector listener is not set");
-        }
-        wsConnectorListener.onIdleTimeout(controlMessage);
     }
 
     @Override

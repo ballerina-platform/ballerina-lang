@@ -42,7 +42,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
 /**
- * Provides input and output stream by taking the HttpCarbonMessage
+ * Provides input and output stream by taking the HttpCarbonMessage.
  */
 public class HttpMessageDataStreamer {
 
@@ -129,24 +129,19 @@ public class HttpMessageDataStreamer {
 
         @Override
         public void write(int b) throws IOException, EncoderException {
-            byteStreamWriteLock.lock();
-            try {
-                if (ioException != null) {
-                    throw new EncoderException(ioException.getMessage());
-                }
-            } finally {
-                byteStreamWriteLock.unlock();
-            }
             if (dataHolder == null) {
                 dataHolder = getBuffer();
             }
             if (dataHolder.writableBytes() != 0) {
                 dataHolder.writeByte((byte) b);
             } else {
-                httpCarbonMessage.addHttpContent(new DefaultHttpContent(dataHolder));
-
-                dataHolder = getBuffer();
-                dataHolder.writeByte((byte) b);
+                try {
+                    httpCarbonMessage.addHttpContent(new DefaultHttpContent(dataHolder));
+                    dataHolder = getBuffer();
+                    dataHolder.writeByte((byte) b);
+                } catch (RuntimeException ex) {
+                    throw new EncoderException(httpCarbonMessage.getIoException());
+                }
             }
         }
 
@@ -163,6 +158,8 @@ public class HttpMessageDataStreamer {
                 } else {
                     httpCarbonMessage.addHttpContent(LastHttpContent.EMPTY_LAST_CONTENT);
                 }
+            } catch (RuntimeException ex) {
+                throw new EncoderException(httpCarbonMessage.getIoException());
             } catch (Exception e) {
                 log.error("Error while closing output stream but underlying resources are reset", e);
             } finally {

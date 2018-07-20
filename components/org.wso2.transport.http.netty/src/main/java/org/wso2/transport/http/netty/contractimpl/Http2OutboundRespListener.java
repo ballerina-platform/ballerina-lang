@@ -26,6 +26,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2Error;
@@ -167,13 +168,31 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
                 writeHeaders(outboundResponseMsg);
             }
             if (Util.isLastHttpContent(httpContent)) {
-                writeData(httpContent, true);
+                final LastHttpContent lastContent = (LastHttpContent) httpContent;
+                HttpHeaders trailers = lastContent.trailingHeaders();
                 if (serverChannelInitializer.isHttpAccessLogEnabled()) {
                     logAccessInfo(outboundResponseMsg);
+                }
+                boolean endStream = trailers.isEmpty();
+                writeData(lastContent, endStream);
+                if (!trailers.isEmpty()) {
+                    Http2Headers http2Trailers = HttpConversionUtil.toHttp2Headers(trailers, true);
+                    // Write trailing headers.
+                    writeHttp2Headers(ctx, streamId, http2Trailers, true);
                 }
             } else {
                 writeData(httpContent, false);
             }
+        }
+
+        private void writeHttp2Headers(ChannelHandlerContext ctx, int streamId, Http2Headers http2Headers, boolean
+                endStream) throws Http2Exception {
+
+            ChannelFuture channelFuture = encoder.writeHeaders(
+                    ctx, streamId, http2Headers, 0, endStream, ctx.newPromise());
+            encoder.flowController().writePendingBytes();
+            ctx.flush();
+            Util.addResponseWriteFailureListener(outboundRespStatusFuture, channelFuture);
         }
 
         private void writeHeaders(HTTPCarbonMessage outboundResponseMsg) throws Http2Exception {
@@ -185,18 +204,14 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
             Http2Headers http2Headers = HttpConversionUtil.toHttp2Headers(httpMessage, true);
             validatePromisedStreamState();
             isHeaderWritten = true;
-            ChannelFuture channelFuture =
-                    encoder.writeHeaders(ctx, streamId, http2Headers, 0, false, ctx.newPromise());
-            encoder.flowController().writePendingBytes();
-            ctx.flush();
-            Util.addResponseWriteFailureListener(outboundRespStatusFuture, channelFuture);
+            writeHttp2Headers(ctx, streamId, http2Headers, false);
         }
 
         private void writeData(HttpContent httpContent, boolean endStream) throws Http2Exception {
             contentLength += httpContent.content().readableBytes();
             validatePromisedStreamState();
             ChannelFuture channelFuture = encoder.writeData(
-                    ctx, streamId, httpContent.content().retain(), 0, endStream, ctx.newPromise());
+                    ctx, streamId, httpContent.content(), 0, endStream, ctx.newPromise());
             encoder.flowController().writePendingBytes();
             ctx.flush();
             if (endStream) {

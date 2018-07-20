@@ -63,9 +63,10 @@ public interface WebSocketConnectorListener {
     /**
      * Trigger any transport error.
      *
+     * @param webSocketConnection {@link WebSocketConnection} which causes the error.
      * @param throwable error received from transport.
      */
-    void onError(Throwable throwable);
+    void onError(WebSocketConnection webSocketConnection, Throwable throwable);
 
     /**
      * This is triggered in a IdleTimeout for WebSocket.

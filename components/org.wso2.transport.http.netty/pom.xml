@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.wso2.transport.http</groupId>
         <artifactId>http-parent</artifactId>
-        <version>6.0.182-SNAPSHOT</version>
+        <version>6.0.216-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -93,11 +93,6 @@
         <dependency>
             <groupId>org.wso2.orbit.org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.websocket</groupId>
-            <artifactId>javax.websocket-api</artifactId>
         </dependency>
 
         <dependency>
@@ -219,7 +214,6 @@
             org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
             javax.xml.bind.*;version="${javax.xml.bind.import.version.range}",
             javax.net.ssl.*;version="${javax.net.ssl.import.version.range}",javax.management,
-            javax.websocket.*;version="${javax.websocket.version.range}",
             org.yaml.snakeyaml.*;version="${org.snakeyaml.package.import.version.range}",
             org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
             org.apache.commons.pool.*;version="${commons.pool.package.import.version.range}",

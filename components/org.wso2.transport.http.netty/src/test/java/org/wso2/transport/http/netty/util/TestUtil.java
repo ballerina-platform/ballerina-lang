@@ -80,9 +80,12 @@ public class TestUtil {
 
     public static final int HTTP_SERVER_PORT = 9000;
     public static final int HTTPS_SERVER_PORT = 9004;
+    public static final int SERVER_PORT1 = 9001;
+    public static final int SERVER_PORT2 = 9002;
+    public static final int SERVER_PORT3 = 9003;
     public static final int SERVER_CONNECTOR_PORT = 8490;
-    public static final int ALTER_INTERFACE_PORT = 8590;
-    public static final int REMOTE_WS_SERVER_PORT = 9010;
+    public static final int WEBSOCKET_REMOTE_SERVER_PORT = 9010;
+    public static final int WEBSOCKET_TEST_IDLE_TIMEOUT = 30;
     public static final long HTTP2_RESPONSE_TIME_OUT = 30;
     public static final String TEST_HOST = "localhost";
     public static final String TEST_SERVER = "test-server";
@@ -90,6 +93,10 @@ public class TestUtil {
     public static final String TRUST_STORE_FILE_PATH = "/simple-test-config/client-truststore.jks";
     public static final String KEY_STORE_PASSWORD = "wso2carbon";
     public static final TimeUnit HTTP2_RESPONSE_TIME_UNIT = TimeUnit.SECONDS;
+    public static final String WEBSOCKET_REMOTE_SERVER_URL =
+            String.format("ws://%s:%d/%s", TEST_HOST, WEBSOCKET_REMOTE_SERVER_PORT, "websocket");
+    public static final String WEBSOCKET_SECURE_REMOTE_SERVER_URL =
+            String.format("wss://%s:%d/%s", TEST_HOST, WEBSOCKET_REMOTE_SERVER_PORT, "websocket");
     private static final DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
 
     public static HttpServer startHTTPServer(int port, ChannelInitializer channelInitializer) {

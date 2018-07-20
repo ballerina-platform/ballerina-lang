@@ -44,18 +44,18 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.FrameLogger;
 import org.wso2.transport.http.netty.common.HttpRoute;
 import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
+import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.listener.HTTPTraceLoggingHandler;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
-import org.wso2.transport.http.netty.sender.http2.ClientInboundHandler;
-import org.wso2.transport.http.netty.sender.http2.ClientOutboundHandler;
+import org.wso2.transport.http.netty.sender.http2.ClientFrameListener;
 import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.sender.http2.Http2ConnectionManager;
+import org.wso2.transport.http.netty.sender.http2.Http2TargetHandler;
 
-import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
 import static io.netty.handler.logging.LogLevel.TRACE;
@@ -69,7 +69,6 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
 
     private TargetHandler targetHandler;
     private boolean httpTraceLogEnabled;
-    private boolean followRedirect;
     private boolean validateCertEnabled;
     private int maxRedirectCount;
     private int cacheSize;
@@ -80,8 +79,8 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     private Http2ConnectionManager http2ConnectionManager;
     private boolean http2 = false;
     private Http2ConnectionHandler http2ConnectionHandler;
-    private ClientInboundHandler clientInboundHandler;
-    private ClientOutboundHandler clientOutboundHandler;
+    private ClientFrameListener clientFrameListener;
+    private Http2TargetHandler http2TargetHandler;
     private Http2Connection connection;
     private SSLConfig sslConfig;
     private HttpRoute httpRoute;
@@ -91,8 +90,6 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     public HttpClientChannelInitializer(SenderConfiguration senderConfiguration, HttpRoute httpRoute,
             ConnectionManager connectionManager, ConnectionAvailabilityFuture connectionAvailabilityFuture) {
         this.httpTraceLogEnabled = senderConfiguration.isHttpTraceLogEnabled();
-        this.followRedirect = senderConfiguration.isFollowRedirect();
-        this.maxRedirectCount = senderConfiguration.getMaxRedirectCount(Constants.MAX_REDIRECT_COUNT);
         this.keepAliveConfig = senderConfiguration.getKeepAliveConfig();
         this.proxyServerConfiguration = senderConfiguration.getProxyServerConfiguration();
         this.connectionManager = connectionManager;
@@ -102,7 +99,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         this.cacheSize = senderConfiguration.getCacheSize();
         this.senderConfiguration = senderConfiguration;
         this.httpRoute = httpRoute;
-        this.sslConfig = senderConfiguration.getSSLConfig();
+        this.sslConfig = senderConfiguration.generateSSLConfig();
         this.connectionAvailabilityFuture = connectionAvailabilityFuture;
 
         String httpVersion = senderConfiguration.getHttpVersion();
@@ -110,15 +107,15 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
             http2 = true;
         }
         connection = new DefaultHttp2Connection(false);
-        clientInboundHandler = new ClientInboundHandler();
-        Http2FrameListener frameListener = new DelegatingDecompressorFrameListener(connection, clientInboundHandler);
+        clientFrameListener = new ClientFrameListener();
+        Http2FrameListener frameListener = new DelegatingDecompressorFrameListener(connection, clientFrameListener);
 
         Http2ConnectionHandlerBuilder connectionHandlerBuilder = new Http2ConnectionHandlerBuilder();
         if (httpTraceLogEnabled) {
             connectionHandlerBuilder.frameLogger(new FrameLogger(TRACE, Constants.TRACE_LOG_UPSTREAM));
         }
         http2ConnectionHandler = connectionHandlerBuilder.connection(connection).frameListener(frameListener).build();
-        clientOutboundHandler = new ClientOutboundHandler(connection, http2ConnectionHandler.encoder());
+        http2TargetHandler = new Http2TargetHandler(connection, http2ConnectionHandler.encoder());
     }
 
     @Override
@@ -129,10 +126,10 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         configureProxyServer(clientPipeline);
         HttpClientCodec sourceCodec = new HttpClientCodec();
         targetHandler = new TargetHandler();
-        targetHandler.setHttp2ClientOutboundHandler(clientOutboundHandler);
+        targetHandler.setHttp2TargetHandler(http2TargetHandler);
         targetHandler.setKeepAliveConfig(getKeepAliveConfig());
         if (http2) {
-            SSLConfig sslConfig = senderConfiguration.getSSLConfig();
+            SSLConfig sslConfig = senderConfiguration.generateSSLConfig();
             if (sslConfig != null) {
                 configureSslForHttp2(socketChannel, clientPipeline, sslConfig);
             } else if (senderConfiguration.isForceHttp2()) {
@@ -142,7 +139,11 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
             }
         } else {
             if (sslConfig != null) {
-                configureSslForHttp(clientPipeline, targetHandler, socketChannel);
+                connectionAvailabilityFuture.setSSLEnabled(true);
+                Util.configureHttpPipelineForSSL(socketChannel, httpRoute.getHost(), httpRoute.getPort(),
+                        senderConfiguration);
+                clientPipeline.addLast(Constants.SSL_COMPLETION_HANDLER,
+                        new SslHandshakeCompletionHandlerForClient(connectionAvailabilityFuture, this, targetHandler));
             } else {
                 configureHttpPipeline(clientPipeline, targetHandler);
             }
@@ -163,34 +164,6 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
                         new HttpProxyHandler(proxyServerConfiguration.getInetSocketAddress()));
             }
         }
-    }
-
-    private void configureSslForHttp(ChannelPipeline clientPipeline, TargetHandler targetHandler,
-            SocketChannel socketChannel)
-            throws SSLException {
-        log.debug("adding ssl handler");
-        connectionAvailabilityFuture.setSSLEnabled(true);
-        if (senderConfiguration.isOcspStaplingEnabled()) {
-            SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
-            ReferenceCountedOpenSslContext referenceCountedOpenSslContext = sslHandlerFactory
-                    .buildClientReferenceCountedOpenSslContext();
-
-            if (referenceCountedOpenSslContext != null) {
-                SslHandler sslHandler = referenceCountedOpenSslContext.newHandler(socketChannel.alloc());
-                ReferenceCountedOpenSslEngine engine = (ReferenceCountedOpenSslEngine) sslHandler.engine();
-                socketChannel.pipeline().addLast(sslHandler);
-                socketChannel.pipeline().addLast(new OCSPStaplingHandler(engine));
-            }
-        } else {
-            SSLEngine sslEngine = instantiateAndConfigSSL(sslConfig);
-            clientPipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
-            if (validateCertEnabled) {
-                clientPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
-                        new CertificateValidationHandler(sslEngine, this.cacheDelay, this.cacheSize));
-            }
-        }
-        clientPipeline.addLast(Constants.SSL_COMPLETION_HANDLER,
-                new SslHandshakeCompletionHandlerForClient(connectionAvailabilityFuture, this, targetHandler));
     }
 
     private void configureSslForHttp2(SocketChannel ch, ChannelPipeline clientPipeline, SSLConfig sslConfig)
@@ -251,7 +224,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
      */
     private void configureHttp2Pipeline(ChannelPipeline pipeline) {
         pipeline.addLast(Constants.CONNECTION_HANDLER, http2ConnectionHandler);
-        pipeline.addLast(Constants.OUTBOUND_HANDLER, clientOutboundHandler);
+        pipeline.addLast(Constants.HTTP2_TARGET_HANDLER, http2TargetHandler);
         pipeline.addLast(Constants.DECOMPRESSOR_HANDLER, new HttpContentDecompressor());
     }
 
@@ -278,35 +251,6 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
             pipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
                     new HTTPTraceLoggingHandler(Constants.TRACE_LOG_UPSTREAM));
         }
-        if (followRedirect) {
-            if (log.isDebugEnabled()) {
-                log.debug("Follow Redirect is enabled, so adding the redirect handler to the pipeline.");
-            }
-            RedirectHandler redirectHandler = new RedirectHandler(instantiateAndConfigSSL(sslConfig),
-                    httpTraceLogEnabled, maxRedirectCount, connectionManager);
-            pipeline.addLast(Constants.REDIRECT_HANDLER, redirectHandler);
-        }
-    }
-
-    /**
-     * Set configurations to create ssl engine.
-     *
-     * @param sslConfig ssl related configurations
-     * @return ssl engine
-     */
-    private SSLEngine instantiateAndConfigSSL(SSLConfig sslConfig) {
-        // set the pipeline factory, which creates the pipeline for each newly created channels
-        SSLEngine sslEngine = null;
-        if (sslConfig != null) {
-            SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
-            sslEngine = sslHandlerFactory.buildClientSSLEngine(httpRoute.getHost(), httpRoute.getPort());
-            sslEngine.setUseClientMode(true);
-            sslHandlerFactory.setSNIServerNames(sslEngine, httpRoute.getHost());
-            if (senderConfiguration.hostNameVerificationEnabled()) {
-                sslHandlerFactory.setHostNameVerfication(sslEngine);
-            }
-        }
-        return sslEngine;
     }
 
     /**
@@ -316,15 +260,6 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
      */
     public Http2Connection getConnection() {
         return connection;
-    }
-
-    /**
-     * Checks whether redirection is enabled.
-     *
-     * @return whether redirection is enabled
-     */
-    public boolean isFollowRedirect() {
-        return followRedirect;
     }
 
     /**
@@ -341,8 +276,8 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     }
 
     public void setHttp2ClientChannel(Http2ClientChannel http2ClientChannel) {
-        clientOutboundHandler.setHttp2ClientChannel(http2ClientChannel);
-        clientInboundHandler.setHttp2ClientChannel(http2ClientChannel);
+        http2TargetHandler.setHttp2ClientChannel(http2ClientChannel);
+        clientFrameListener.setHttp2ClientChannel(http2ClientChannel);
     }
 
     /**

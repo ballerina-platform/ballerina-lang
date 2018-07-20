@@ -23,7 +23,6 @@ import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -85,7 +84,7 @@ public class ListenerConfiguration {
     private String certPass;
 
     @XmlAttribute
-    private int socketIdleTimeout;
+    private long socketIdleTimeout;
 
     @XmlAttribute
     private String messageProcessorId;
@@ -294,10 +293,7 @@ public class ListenerConfiguration {
 
     }
 
-    public int getSocketIdleTimeout(int defaultVal) {
-        if (socketIdleTimeout == 0) {
-            return defaultVal;
-        }
+    public long getSocketIdleTimeout() {
         return socketIdleTimeout;
     }
 

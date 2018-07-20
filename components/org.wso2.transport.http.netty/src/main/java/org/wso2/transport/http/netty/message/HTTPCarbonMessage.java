@@ -22,6 +22,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
@@ -35,6 +36,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
@@ -53,6 +55,7 @@ public class HTTPCarbonMessage {
     private final ServerConnectorFuture httpOutboundRespFuture = new HttpWsServerConnectorFuture();
     private final DefaultHttpResponseFuture httpOutboundRespStatusFuture = new DefaultHttpResponseFuture();
     private final Observable contentObservable = new DefaultObservable();
+    private IOException ioException;
 
     public HTTPCarbonMessage(HttpMessage httpMessage, Listener contentListener) {
         this.httpMessage = httpMessage;
@@ -79,17 +82,30 @@ public class HTTPCarbonMessage {
     public synchronized void addHttpContent(HttpContent httpContent) {
         contentObservable.notifyAddListener(httpContent);
         if (messageFuture != null) {
+            if (ioException != null) {
+                blockingEntityCollector.addHttpContent(new DefaultLastHttpContent());
+                messageFuture.notifyMessageListener(blockingEntityCollector.getHttpContent());
+                removeMessageFuture();
+                throw new RuntimeException(this.getIoException());
+            }
             contentObservable.notifyGetListener(httpContent);
             blockingEntityCollector.addHttpContent(httpContent);
-            messageFuture.notifyMessageListener(blockingEntityCollector.getHttpContent());
+            if (messageFuture.isMessageListenerSet()) {
+                messageFuture.notifyMessageListener(blockingEntityCollector.getHttpContent());
+            }
             // We remove the feature as the message has reached it life time. If there is a need
             // for using the same message again, we need to set the future again and restart
             // the life-cycle.
             if (httpContent instanceof LastHttpContent) {
-                this.removeMessageFuture();
+                removeMessageFuture();
             }
         } else {
-            blockingEntityCollector.addHttpContent(httpContent);
+            if (ioException != null) {
+                blockingEntityCollector.addHttpContent(new DefaultLastHttpContent());
+                throw new RuntimeException(this.getIoException());
+            } else {
+                blockingEntityCollector.addHttpContent(httpContent);
+            }
         }
     }
 
@@ -354,5 +370,13 @@ public class HTTPCarbonMessage {
      */
     public HttpResponse getNettyHttpResponse() {
         return (HttpResponse) this.httpMessage;
+    }
+
+    public synchronized IOException getIoException() {
+        return ioException;
+    }
+
+    public synchronized void setIoException(IOException ioException) {
+        this.ioException = ioException;
     }
 }

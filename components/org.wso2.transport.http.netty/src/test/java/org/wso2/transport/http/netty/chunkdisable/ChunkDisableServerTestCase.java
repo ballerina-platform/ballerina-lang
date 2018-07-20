@@ -18,14 +18,18 @@
 
 package org.wso2.transport.http.netty.chunkdisable;
 
+import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.DefaultFullHttpRequest;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpVersion;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.util.TestUtil;
-
-import java.io.IOException;
-import java.net.HttpURLConnection;
+import org.wso2.transport.http.netty.util.client.http.HttpClient;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -42,16 +46,21 @@ public class ChunkDisableServerTestCase extends ChunkServerTemplate {
 
     @Test
     public void postTest() {
-        try {
-            HttpURLConnection urlConn = sendEntityBody(TestUtil.largeEntity);
-            assertEquals(urlConn.getHeaderField(HttpHeaderNames.CONTENT_LENGTH.toString()), "9342");
 
-            urlConn = sendEntityBody(TestUtil.smallEntity);
-            assertEquals(urlConn.getHeaderField(HttpHeaderNames.CONTENT_LENGTH.toString()), "70");
+        HttpClient httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
+        FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1,
+                HttpMethod.POST, "/", Unpooled.wrappedBuffer(TestUtil.largeEntity.getBytes()));
+        FullHttpResponse httpResponse = httpClient.sendRequest(httpRequest);
 
-            urlConn.disconnect();
-        } catch (IOException e) {
-            TestUtil.handleException("IOException occurred while running postTest", e);
-        }
+        assertEquals(TestUtil.largeEntity, TestUtil.getEntityBodyFrom(httpResponse));
+        assertEquals(httpResponse.headers().get(HttpHeaderNames.CONTENT_LENGTH), "9342");
+
+        httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
+        httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1,
+                HttpMethod.POST, "/", Unpooled.wrappedBuffer(TestUtil.smallEntity.getBytes()));
+        httpResponse = httpClient.sendRequest(httpRequest);
+
+        assertEquals(TestUtil.smallEntity, TestUtil.getEntityBodyFrom(httpResponse));
+        assertEquals(httpResponse.headers().get(HttpHeaderNames.CONTENT_LENGTH), "70");
     }
 }

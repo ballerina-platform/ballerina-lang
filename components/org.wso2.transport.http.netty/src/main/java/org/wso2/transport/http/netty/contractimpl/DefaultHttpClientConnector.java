@@ -21,7 +21,6 @@ package org.wso2.transport.http.netty.contractimpl;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.base64.Base64;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -71,7 +70,6 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
     private SenderConfiguration senderConfiguration;
     private SSLConfig sslConfig;
     private int socketIdleTimeout;
-    private boolean followRedirect;
     private String httpVersion;
     private ChunkConfig chunkConfig;
     private KeepAliveConfig keepAliveConfig;
@@ -218,10 +216,6 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                     freshHttp2ClientChannel.addDataEventListener(Constants.IDLE_STATE_HANDLER,
                             new TimeoutHandler(socketIdleTimeout, freshHttp2ClientChannel));
 
-                    if (followRedirect) {
-                        setChannelAttributes(channelFuture.channel(), httpOutboundRequest,
-                                httpResponseFuture, targetChannel);
-                    }
                     freshHttp2ClientChannel.getChannel().eventLoop().execute(
                             () -> freshHttp2ClientChannel.getChannel().write(outboundMsgHolder));
                     httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
@@ -235,14 +229,10 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                     httpResponseFuture.notifyResponseHandle(new ResponseHandle(outboundMsgHolder));
                     targetChannel.setChannel(channelFuture.channel());
                     targetChannel.configTargetHandler(httpOutboundRequest, httpResponseFuture);
-                    targetChannel.setEndPointTimeout(socketIdleTimeout, followRedirect);
+                    targetChannel.setEndPointTimeout(socketIdleTimeout);
                     targetChannel.setCorrelationIdForLogging();
                     targetChannel.setHttpVersion(httpVersion);
                     targetChannel.setChunkConfig(chunkConfig);
-                    if (followRedirect) {
-                        setChannelAttributes(channelFuture.channel(), httpOutboundRequest,
-                                httpResponseFuture, targetChannel);
-                    }
                     handleOutboundConnectionHeader(keepAliveConfig, httpOutboundRequest);
                     targetChannel
                             .setForwardedExtension(forwardedExtensionConfig, httpOutboundRequest);
@@ -298,30 +288,11 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         return host;
     }
 
-    /**
-     * Set following attributes to original channel when redirect is on.
-     *
-     * @param channel            Original channel
-     * @param httpCarbonRequest  Http request
-     * @param httpResponseFuture Response future
-     * @param targetChannel      Target channel
-     */
-    private void setChannelAttributes(Channel channel, HTTPCarbonMessage httpCarbonRequest,
-            HttpResponseFuture httpResponseFuture, TargetChannel targetChannel) {
-        channel.attr(Constants.ORIGINAL_REQUEST).set(httpCarbonRequest);
-        channel.attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).set(httpResponseFuture);
-        channel.attr(Constants.TARGET_CHANNEL_REFERENCE).set(targetChannel);
-        channel.attr(Constants.ORIGINAL_CHANNEL_START_TIME).set(System.currentTimeMillis());
-        channel.attr(Constants.ORIGINAL_CHANNEL_TIMEOUT).set(socketIdleTimeout);
-        channel.attr(Constants.CLIENT_CONNECTOR).set(this);
-    }
-
     private void initTargetChannelProperties(SenderConfiguration senderConfiguration) {
         this.httpVersion = senderConfiguration.getHttpVersion();
         this.chunkConfig = senderConfiguration.getChunkingConfig();
-        this.followRedirect = senderConfiguration.isFollowRedirect();
         this.socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(Constants.ENDPOINT_TIMEOUT);
-        this.sslConfig = senderConfiguration.getSSLConfig();
+        this.sslConfig = senderConfiguration.generateSSLConfig();
         this.keepAliveConfig = senderConfiguration.getKeepAliveConfig();
         this.forwardedExtensionConfig = senderConfiguration.getForwardedExtensionConfig();
     }

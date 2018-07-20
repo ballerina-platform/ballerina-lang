@@ -3,7 +3,6 @@ package org.wso2.transport.http.netty.contract.websocket;
 import io.netty.channel.ChannelFuture;
 
 import java.nio.ByteBuffer;
-import javax.websocket.Session;
 
 /**
  * Represents successfully opened WebSocket connection.
@@ -13,22 +12,44 @@ public interface WebSocketConnection {
     /**
      * Get the id of the connection.
      *
-     * @return the id of the connection.
+     * @return the id of the connection
      */
     String getId();
 
     /**
-     * Get the {@link javax.websocket.Session} of the WebSocket connection.
+     * Check if the connection is open.
      *
-     * <br><i>This is going to be removed in the future.</i>
-     * <br><i>For more details </i>
-     * @see <a href="https://github.com/wso2/transport-http/issues/130">
-     *     [WebSocket] Need to Remove javax.websocket.session interface from Http-Transport</a>
-     *
-     * @return the session of the WebSocket connection.
+     * @return true if the connection is open
      */
-    @Deprecated
-    Session getSession();
+    boolean isOpen();
+
+    /**
+     * Check if the connection is secure.
+     *
+     * @return true if the connection is secure
+     */
+    boolean isSecure();
+
+    /**
+     * Retrieve the host of the connection.
+     *
+     * @return the host of the connection.
+     */
+    String getHost();
+
+    /**
+     * Retrieve the port of the connection.
+     *
+     * @return the port of the connection.
+     */
+    int getPort();
+
+    /**
+     * Retrieve the negotiated sub-protocol during WebSocket handshake.
+     *
+     * @return the negotiated sub-protocol during WebSocket handshake
+     */
+    String getNegotiatedSubProtocol();
 
     /**
      * Reading WebSocket frames after successful handshake is blocked by default in transport level.
@@ -56,95 +77,91 @@ public interface WebSocketConnection {
     /**
      * Push text frame to the WebSocket connection asynchronously.
      *
-     * @param text text to be sent.
-     * @return Future to represent the completion of asynchronous frame sending.
+     * @param text text to be sent
+     * @return Future to represent the completion of asynchronous frame sending
      */
     ChannelFuture pushText(String text);
 
     /**
      * Push text frame to the WebSocket connection asynchronously.
      *
-     * @param text text to be sent.
-     * @param finalFrame true if sending final frame.
-     * @return Future to represent the completion of asynchronous frame sending.
+     * @param text text to be sent
+     * @param finalFrame true if sending final frame
+     * @return Future to represent the completion of asynchronous frame sending
      */
     ChannelFuture pushText(String text, boolean finalFrame);
 
     /**
      * Push binary frame to the WebSocket connection asynchronously.
      *
-     * @param data binary data to be sent.
-     * @return Future to represent the completion of asynchronous frame sending.
+     * @param data binary data to be sent
+     * @return Future to represent the completion of asynchronous frame sending
      */
     ChannelFuture pushBinary(ByteBuffer data);
 
     /**
      * Push binary frame to the WebSocket connection asynchronously.
      *
-     * @param data binary data to be sent.
-     * @param finalFrame true if sending final frame.
-     * @return Future to represent the completion of asynchronous frame sending.
+     * @param data binary data to be sent
+     * @param finalFrame true if sending final frame
+     * @return Future to represent the completion of asynchronous frame sending
      */
     ChannelFuture pushBinary(ByteBuffer data, boolean finalFrame);
 
     /**
      * Ping remote endpoint asynchronously.
      *
-     * @param data data to be sent with ping frame.
-     * @return Future to represent the completion of asynchronous frame sending.
+     * @param data data to be sent with ping frame
+     * @return Future to represent the completion of asynchronous frame sending
      */
     ChannelFuture ping(ByteBuffer data);
 
     /**
      * Send pong to remote endpoint asynchronously.
      *
-     * @param data data to be sent with ping frame.
-     * @return Future to represent the completion of asynchronous frame sending.
+     * @param data data to be sent with ping frame
+     * @return Future to represent the completion of asynchronous frame sending
      */
     ChannelFuture pong(ByteBuffer data);
 
     /**
-     * Initiate connection closure.
+     * Initiates connection closure. {@link ChannelFuture} will complete operation successfully if and only if it
+     * receives back a echoed close WebSocket frame from the remote endpoint with the same status code as was written.
+     * Also {@link ChannelFuture} will not reach operationComplete state until it receives a close WebSocket frame
+     * from the remote endpoint. If user does not need to wait for the echoed back WebSocket frame from the remote
+     * endpoint, user need to handle it separately.
      *
      * @param statusCode Status code to indicate the reason of closure
      *                   @see <a href="https://tools.ietf.org/html/rfc6455">WebSocket Protocol</a>
-     * @param reason Reason to close the connection.
-     * @param timeoutInSecs timeout which waits for the close frame from remote endpoint to close the connection.
-     *                      <p>If the timeout exceeds then the connection will be terminated even though a close frame
-     *                      is not received from the remote backend. If the value is -1 the connection will wait until
-     *                      a close frame is received.</p>
-     * @return Future to represent the completion of asynchronous frame sending.
+     * @param reason Reason to close the connection
+     * @return Future to represent the completion of asynchronous frame sending
      */
-    ChannelFuture initiateConnectionClosure(int statusCode, String reason, int timeoutInSecs);
+    ChannelFuture initiateConnectionClosure(int statusCode, String reason);
 
     /**
      * Finish the connection closure if a close frame has been received without this connection sending a close frame.
      *
      * @param statusCode Status code to indicate the reason of closure
      *                   @see <a href="https://tools.ietf.org/html/rfc6455">WebSocket Protocol</a>
-     * @param reason Reason to close the connection.
-     * @return Future to represent the completion of asynchronous frame sending.
+     * @param reason Reason to close the connection
+     * @return Future to represent the completion of asynchronous frame sending
      */
     ChannelFuture finishConnectionClosure(int statusCode, String reason);
 
     /**
-     * Close connection without close frame.
+     * Terminate connection without close frame.
      *
-     * @return Future to represent the completion of closure asynchronously.
+     * @return Future to represent the completion of closure asynchronously
      */
-    ChannelFuture closeForcefully();
+    ChannelFuture terminateConnection();
 
     /**
-     * Check whether a close frame is sent.
+     * Send a close frame and close the connection without waiting for a response.
      *
-     * @return true if close frame is sent.
+     * @param statusCode Status code to indicate the reason of closure
+     *                   @see <a href="https://tools.ietf.org/html/rfc6455">WebSocket Protocol</a>
+     * @param reason Reason to close the connection
+     * @return Future to represent the completion of asynchronous frame sending
      */
-    boolean closeFrameSent();
-
-    /**
-     * Check whether a close frame is received.
-     *
-     * @return true if a close frame is received.
-     */
-    boolean closeFrameReceived();
+    ChannelFuture terminateConnection(int statusCode, String reason);
 }

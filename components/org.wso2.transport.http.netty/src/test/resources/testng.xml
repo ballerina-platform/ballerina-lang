@@ -19,13 +19,13 @@
   -->
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
-<suite name="Transport test Suite">
+<suite name="Transport test Suite" parallel="false">
 
     <listeners>
         <listener class-name="org.wso2.transport.http.netty.util.TestNGListener" />
     </listeners>
 
-    <test name="Transport test">
+    <test name="Transport test" parallel="false">
         <classes>
             <class name="org.wso2.transport.http.netty.passthrough.PassThroughHttpTestCase" />
             <class name="org.wso2.transport.http.netty.passthrough.PassThroughHttpsTestCase"/>
@@ -36,21 +36,8 @@
             <class name="org.wso2.transport.http.netty.contentaware.RequestResponseTransformTestCase" />
             <class name="org.wso2.transport.http.netty.contentaware.RequestResponseTransformStreamingTestCase" />
 
-            <class name="org.wso2.transport.http.netty.https.HTTPSClientTestCase" />
-            <class name="org.wso2.transport.http.netty.https.SSLProtocolsTest" />
-            <class name="org.wso2.transport.http.netty.https.MutualSSLTestCase" />
-            <class name="org.wso2.transport.http.netty.https.CipherSuitesTest" />
-
-            <class name="org.wso2.transport.http.netty.pkcs.PKCSTest" />
-
-            <class name="org.wso2.transport.http.netty.certificatevalidation.RevocationVerificationTest" />
-            <class name="org.wso2.transport.http.netty.certificatevalidation.CRLVerifierTest" />
-            <class name="org.wso2.transport.http.netty.certificatevalidation.OCSPVerifierTest" />
-
-            <class name="org.wso2.transport.http.netty.proxyserver.ProxyServerTestCase" />
-
-            <class name="org.wso2.transport.http.netty.hostnameverfication.HostnameVerificationTest" />
-            <class name="org.wso2.transport.http.netty.redirect.HttpClientRedirectTestCase" />
+            <class name="org.wso2.transport.http.netty.proxyserver.HttpsProxyServerTestCase" />
+            <class name="org.wso2.transport.http.netty.proxyserver.HttpProxyServerTestCase" />
 
             <class name="org.wso2.transport.http.netty.ClientConnectorTimeoutTestCase" />
             <class name="org.wso2.transport.http.netty.ClientConnectorConnectionRefusedTestCase" />
@@ -64,35 +51,17 @@
             <class name="org.wso2.transport.http.netty.chunkdisable.ChunkDisableClientTestCase" />
 
             <class name="org.wso2.transport.http.netty.headers.Continue100TestCase" />
-            <class name="org.wso2.transport.http.netty.headers.DateHeaderTestCase" />
 
             <class name="org.wso2.transport.http.netty.unitfunction.CommonUtilTestCase" />
             <class name="org.wso2.transport.http.netty.unitfunction.HttpCarbonMessageTestCase" />
             <class name="org.wso2.transport.http.netty.unitfunction.ForwardedTestCase" />
 
-            <class name="org.wso2.transport.http.netty.http2.Http2ClientConnectorBasicTestCase" />
-            <class name="org.wso2.transport.http.netty.http2.Http2ServerConnectorBasicTestCase" />
-            <class name="org.wso2.transport.http.netty.http2.Http2ServerPushTestCase" />
-            <class name="org.wso2.transport.http.netty.http2.Http2ClientTimeoutTestCase" />
-            <class name="org.wso2.transport.http.netty.http2.Http2WithPriorKnowledgeTestCase" />
-            <class name="org.wso2.transport.http.netty.http2.TestHttp2WithALPN" />
-            <class name="org.wso2.transport.http.netty.ocspstapling.OCSPStaplingTest" />
             <class name="org.wso2.transport.http.netty.encoding.ContentEncodingTestCase"/>
             <class name="org.wso2.transport.http.netty.urilengthvalidation.Status414And413ResponseTest"/>
             <class name="org.wso2.transport.http.netty.http1point0test.HttpOnePointZeroServerConnectorTestCase"/>
             <class name="org.wso2.transport.http.netty.http1point0test.KeepAliveHttpOnePointZeroClientTestCase"/>
             <class name="org.wso2.transport.http.netty.http1point0test.ChunkAutoHttpOnePointZeroClientTestCase"/>
             <class name="org.wso2.transport.http.netty.http1point0test.ChunkAlwaysHttpOnePointZeroClientTestCase"/>
-
-            <class name="org.wso2.transport.http.netty.compression.ServerRespCompressionTestCase"/>
-            <class name="org.wso2.transport.http.netty.compression.ClientRespDecompressionTestCase"/>
-
-            <class name="org.wso2.transport.http.netty.websocket.WebSocketServerTestCase"/>
-            <class name="org.wso2.transport.http.netty.websocket.WebSocketClientTestCase"/>
-            <class name="org.wso2.transport.http.netty.websocket.WebSocketPassThroughTestCase"/>
-            <class name="org.wso2.transport.http.netty.websocket.WebSocketMessagePropertiesTestCase"/>
-            <class name="org.wso2.transport.http.netty.websocket.HttpToWebSocketProtocolSwitchTestCase"/>
-            <class name="org.wso2.transport.http.netty.websocket.HttpToWebSocketProtocolSwitchMultiThreadTestCase"/>
 
             <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolProxyTestCase" />
             <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolEvictionTestCase" />
@@ -104,6 +73,44 @@
             <class name="org.wso2.transport.http.netty.forwardedextension.ForwardedEnableTestCase" />
             <class name="org.wso2.transport.http.netty.forwardedextension.ForwardedTransitionTestCase" />
             <class name="org.wso2.transport.http.netty.forwardedextension.ForwardedDisableTestCase" />
+
+            <class name="org.wso2.transport.http.netty.method.head.HeadRequestTestCase"/>
+        </classes>
+    </test>
+    <test name="WebSocket Tests" parallel="false">
+        <classes>
+            <class name="org.wso2.transport.http.netty.websocket.server.WebSocketServerHandshakeFunctionalityTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.server.WebSocketServerFunctionalityTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.client.WebSocketClientHandshakeFunctionalityTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.client.WebSocketClientFunctionalityTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.passthrough.WebSocketPassThroughTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.ssl.WebSocketSSLHandshakeSuccessfulTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.ssl.WebSocketSSLHandshakeFailureTestCase"/>
+        </classes>
+    </test>
+    <test name="HTTP2 Tests" parallel="false">
+        <classes>
+            <class name="org.wso2.transport.http.netty.http2.Http2ClientConnectorBasicTestCase"/>
+            <class name="org.wso2.transport.http.netty.http2.Http2ServerConnectorBasicTestCase"/>
+            <class name="org.wso2.transport.http.netty.http2.Http2ServerPushTestCase"/>
+            <class name="org.wso2.transport.http.netty.http2.Http2ClientTimeoutTestCase"/>
+            <class name="org.wso2.transport.http.netty.http2.Http2WithPriorKnowledgeTestCase"/>
+            <class name="org.wso2.transport.http.netty.http2.TestHttp2WithALPN"/>
+        </classes>
+    </test>
+    <test name="Transport Security Tests" parallel="false">
+        <classes>
+            <class name="org.wso2.transport.http.netty.certificatevalidation.RevocationVerificationTest"/>
+            <class name="org.wso2.transport.http.netty.certificatevalidation.CRLVerifierTest"/>
+            <class name="org.wso2.transport.http.netty.certificatevalidation.OCSPVerifierTest"/>
+            <class name="org.wso2.transport.http.netty.https.HTTPSClientTestCase"/>
+            <class name="org.wso2.transport.http.netty.https.SSLProtocolsTest"/>
+            <class name="org.wso2.transport.http.netty.https.MutualSSLTestCase"/>
+            <class name="org.wso2.transport.http.netty.https.CipherSuitesTest"/>
+            <class name="org.wso2.transport.http.netty.hostnameverfication.HostnameVerificationTest"/>
+            <class name="org.wso2.transport.http.netty.pkcs.PKCSTest"/>
+            <class name="org.wso2.transport.http.netty.certificatevalidation.OCSPStaplingTest"/>
+            <class name="org.wso2.transport.http.netty.certificatevalidation.OCSPValidationTest"/>
         </classes>
     </test>
 </suite>

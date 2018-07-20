@@ -24,15 +24,14 @@ import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 /**
  * Future for WebSocket handshake.
  */
-public interface ClientHandshakeFuture {
+public interface ClientHandshakeFuture extends WebSocketConnectorFuture {
 
     /**
      * Set the listener for WebSocket handshake.
      *
      * @param serverHandshakeListener Listener for WebSocket handshake.
-     * @return the same handshake future.
      */
-    ClientHandshakeFuture setClientHandshakeListener(ClientHandshakeListener serverHandshakeListener);
+    void setClientHandshakeListener(ClientHandshakeListener serverHandshakeListener);
 
     /**
      * Notify the success of the WebSocket handshake.

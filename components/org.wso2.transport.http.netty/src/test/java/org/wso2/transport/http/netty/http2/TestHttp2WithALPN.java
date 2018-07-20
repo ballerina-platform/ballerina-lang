@@ -23,10 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -36,21 +34,21 @@ import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
-import java.util.Set;
+import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
+import static org.wso2.transport.http.netty.common.Constants.HTTP_2_0;
 
 /**
  * A test case consisting of a http2 client and server communicating over TLS.
@@ -60,14 +58,10 @@ public class TestHttp2WithALPN {
     private static final Logger log = LoggerFactory.getLogger(TestHttp2WithALPN.class);
     private ServerConnector serverConnector;
     private HttpClientConnector httpClientConnector;
-    private int port = 8443;
     private HttpWsConnectorFactory connectorFactory;
 
     @BeforeClass
     public void setup() throws InterruptedException {
-
-        TransportsConfiguration transportsConfiguration = TestUtil
-                .getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
 
         HttpWsConnectorFactory factory = new DefaultHttpWsConnectorFactory();
         serverConnector = factory
@@ -76,26 +70,15 @@ public class TestHttp2WithALPN {
         future.setHttpConnectorListener(new EchoMessageListener());
         future.sync();
 
-        Set<SenderConfiguration> senderConfig = transportsConfiguration.getSenderConfigurations();
-        senderConfig.forEach(config -> {
-            if (config.getId().contains(Constants.HTTPS_SCHEME)) {
-                config.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
-                config.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
-                config.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
-            }
-        });
         connectorFactory = new DefaultHttpWsConnectorFactory();
-        httpClientConnector = connectorFactory
-                .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
-                        HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTPS_SCHEME));
-
+        httpClientConnector = connectorFactory.createHttpClientConnector(new HashMap<>(), getSenderConfigs());
     }
 
     @Test
     public void testHttp2Post() {
         try {
             String testValue = "Test";
-            HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(port, testValue, "");
+            HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.SERVER_PORT1, testValue, "");
 
             CountDownLatch latch = new CountDownLatch(1);
             HTTPConnectorListener listener = new HTTPConnectorListener(latch);
@@ -117,12 +100,21 @@ public class TestHttp2WithALPN {
 
     private ListenerConfiguration getListenerConfigs() {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
-        listenerConfiguration.setPort(port);
-        listenerConfiguration.setScheme(Constants.HTTPS_SCHEME);
-        listenerConfiguration.setVersion(String.valueOf(Constants.HTTP_2_0));
+        listenerConfiguration.setPort(TestUtil.SERVER_PORT1);
+        listenerConfiguration.setScheme(HTTPS_SCHEME);
+        listenerConfiguration.setVersion(String.valueOf(HTTP_2_0));
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         listenerConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
         return listenerConfiguration;
+    }
+
+    private SenderConfiguration getSenderConfigs() {
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
+        senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
+        senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
+        senderConfiguration.setHttpVersion(String.valueOf(HTTP_2_0));
+        senderConfiguration.setScheme(HTTPS_SCHEME);
+        return senderConfiguration;
     }
 
     @AfterClass

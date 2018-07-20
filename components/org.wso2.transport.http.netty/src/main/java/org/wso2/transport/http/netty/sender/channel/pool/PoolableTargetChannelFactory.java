@@ -31,6 +31,8 @@ import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 
 import java.net.InetSocketAddress;
 
+import static org.wso2.transport.http.netty.common.Constants.HTTP_SCHEME;
+
 /**
  * A class which creates a TargetChannel pool for each route.
  */
@@ -70,7 +72,8 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
 
         // Connect to proxy server if proxy is enabled
         ChannelFuture channelFuture;
-        if (senderConfiguration.getProxyServerConfiguration() != null) {
+        if (senderConfiguration.getProxyServerConfiguration() != null && senderConfiguration.getScheme()
+                .equals(HTTP_SCHEME)) {
             channelFuture = clientBootstrap.connect(new InetSocketAddress(
                     senderConfiguration.getProxyServerConfiguration().getProxyHost(),
                     senderConfiguration.getProxyServerConfiguration().getProxyPort()

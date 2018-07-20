@@ -19,124 +19,15 @@
 
 package org.wso2.transport.http.netty.contract;
 
-import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorFuture;
 
 /**
  * Allows to set listeners.
  */
-public interface ServerConnectorFuture {
-    /**
-     * Set Connector listener for HTTP.
-     *
-     * @param connectorListener Connector listener for HTTP.
-     */
-    void setHttpConnectorListener(HttpConnectorListener connectorListener);
+public interface ServerConnectorFuture extends HttpConnectorFuture, WebSocketConnectorFuture {
 
     /**
-     * Notify HTTP messages to the listener.
-     *
-     * @param httpMessage HTTP message.
-     * @throws ServerConnectorException if any error occurred during the notification.
-     */
-    void notifyHttpListener(HTTPCarbonMessage httpMessage) throws ServerConnectorException;
-
-    /**
-     * Notifies HTTP Server Push messages to the listener.
-     *
-     * @param httpMessage the {@link HTTPCarbonMessage} receive as the push response
-     * @param pushPromise the related {@link Http2PushPromise}
-     * @throws ServerConnectorException if any error occurred during the notification
-     */
-    void notifyHttpListener(HTTPCarbonMessage httpMessage, Http2PushPromise pushPromise)
-            throws ServerConnectorException;
-
-    /**
-     * Notifies {@link Http2PushPromise} to the listener.
-     *
-     * @param pushPromise the push promise message
-     * @throws ServerConnectorException in case of failure
-     */
-    void notifyHttpListener(Http2PushPromise pushPromise) throws ServerConnectorException;
-
-    /**
-     *  Set Connector listener for WebSocket.
-     * @param connectorListener Connector listener for WebSocket.
-     */
-    void setWSConnectorListener(WebSocketConnectorListener connectorListener);
-
-    /**
-     * Notify WebSocket connection initialization for the listener.
-     *
-     * @param initMessage {@link WebSocketInitMessage} to notify connection initialization.
-     * @throws ServerConnectorException if any error occurred during the notification.
-     */
-    void notifyWSListener(WebSocketInitMessage initMessage) throws ServerConnectorException;
-
-    /**
-     * Notify incoming WebSocket text message for the listener.
-     *
-     * @param textMessage {@link WebSocketTextMessage} to notify incoming WebSocket text message.
-     * @throws ServerConnectorException if any error occurred during the notification.
-     */
-    void notifyWSListener(WebSocketTextMessage textMessage) throws ServerConnectorException;
-
-    /**
-     * Notify incoming WebSocket binary message for the listener.
-     *
-     * @param binaryMessage {@link WebSocketBinaryMessage} to notify incoming WebSocket binary message.
-     * @throws ServerConnectorException if any error occurred during the notification.
-     */
-    void notifyWSListener(WebSocketBinaryMessage binaryMessage) throws ServerConnectorException;
-
-    /**
-     * Notify incoming WebSocket pong message for the listener.
-     *
-     * @param controlMessage {@link WebSocketControlMessage} to Notify incoming WebSocket pong message.
-     * @throws ServerConnectorException if any error occurred during the notification.
-     */
-    void notifyWSListener(WebSocketControlMessage controlMessage) throws ServerConnectorException;
-
-    /**
-     * Notify incoming WebSocket connection closure for the listener.
-     *
-     * @param closeMessage {@link WebSocketCloseMessage} to notify incoming WebSocket connection closure.
-     * @throws ServerConnectorException if any error occurred during the notification.
-     */
-    void notifyWSListener(WebSocketCloseMessage closeMessage) throws ServerConnectorException;
-
-    /**
-     * Notify any error occurred in transport for the listener.
-     *
-     * @param throwable {@link Throwable} error occurred.
-     * @throws ServerConnectorException if any error occurred during the notification.
-     */
-    void notifyWSListener(Throwable throwable) throws ServerConnectorException;
-
-    /**
-     * Notify idle timeout of WebSocket connection.
-     *
-     * @param controlMessage Indicate WebSocket connection timeout.
-     * @throws ServerConnectorException if any error occurred during notification to the listener.
-     */
-    void notifyWSIdleTimeout(WebSocketControlMessage controlMessage) throws ServerConnectorException;
-
-    /**
-     * Notify error messages to the listener.
-     *
-     * @param cause Reason for the error.
-     * @throws ServerConnectorException if any error occurred during the error notification.
-     */
-    void notifyErrorListener(Throwable cause) throws ServerConnectorException;;
-
-    /**
-     * Set life cycle event listener for the HTTP/WS connector
+     * Set life cycle event listener for the HTTP/WS_SCHEME connector
      *
      * @param portBindingEventListener The PortBindingEventListener implementation
      */

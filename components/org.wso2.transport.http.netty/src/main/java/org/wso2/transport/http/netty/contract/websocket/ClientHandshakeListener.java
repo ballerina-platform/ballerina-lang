@@ -30,12 +30,15 @@ public interface ClientHandshakeListener {
      * Notify the success of the handshake.
      *
      * @param webSocketConnection {@link WebSocketConnection} for the successful handshake.
+     * @param response The response message for the handshake request.
      */
     void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse response);
 
     /**
      * Notify error on handshake.
+     *
      * @param t error occurred during handshake.
+     * @param response The response message for the handshake request.
      */
     void onError(Throwable t, HttpCarbonResponse response);
 

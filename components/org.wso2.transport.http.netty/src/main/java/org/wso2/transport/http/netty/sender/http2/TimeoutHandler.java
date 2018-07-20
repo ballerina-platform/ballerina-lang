@@ -137,7 +137,11 @@ public class TimeoutHandler  implements Http2DataEventListener {
 
     private void updateLastWriteTime(int streamId) {
         OutboundMsgHolder msgHolder = http2ClientChannel.getInFlightMessage(streamId);
-        msgHolder.setLastReadWriteTime(ticksInNanos());
+        if (msgHolder != null) {
+            msgHolder.setLastReadWriteTime(ticksInNanos());
+        } else {
+            log.debug("OutboundMsgHolder may have already removed for streamId: " + streamId);
+        }
     }
 
     private class IdleTimeoutTask implements Runnable {
@@ -162,12 +166,12 @@ public class TimeoutHandler  implements Http2DataEventListener {
                 } else if (msgHolder.isRequestWritten()) {
                     msgHolder.getResponseFuture().notifyHttpListener(
                             new EndpointTimeOutException(
-                                    Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_RESPONSE,
+                                    Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
                                     HttpResponseStatus.GATEWAY_TIMEOUT.code()));
                 } else {
                     msgHolder.getResponseFuture().notifyHttpListener(
                             new EndpointTimeOutException(
-                                    Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_WRITING_OUTBOUND_RESPONSE,
+                                    Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE,
                                     HttpResponseStatus.GATEWAY_TIMEOUT.code()));
                 }
                 http2ClientChannel.removeInFlightMessage(streamId);
@@ -190,8 +194,8 @@ public class TimeoutHandler  implements Http2DataEventListener {
     }
 
     private void closeStream(int streamId, ChannelHandlerContext ctx) {
-        ClientOutboundHandler clientOutboundHandler =
-                (ClientOutboundHandler) ctx.pipeline().get(Constants.OUTBOUND_HANDLER);
+        Http2TargetHandler clientOutboundHandler =
+                (Http2TargetHandler) ctx.pipeline().get(Constants.HTTP2_TARGET_HANDLER);
         clientOutboundHandler.resetStream(ctx, streamId, Http2Error.STREAM_CLOSED);
     }
 

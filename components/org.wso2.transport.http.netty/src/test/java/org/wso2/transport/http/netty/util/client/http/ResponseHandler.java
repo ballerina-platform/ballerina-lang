@@ -19,11 +19,22 @@
 
 package org.wso2.transport.http.netty.util.client.http;
 
+import io.netty.buffer.CompositeByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.EmptyHttpHeaders;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.LastHttpContent;
 
+
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -34,17 +45,40 @@ public class ResponseHandler extends ChannelInboundHandlerAdapter {
     private CountDownLatch latch;
     private CountDownLatch waitForConnectionClosureLatch;
     private LinkedList<FullHttpResponse> fullHttpResponses = new LinkedList<>();
+    private FullHttpResponseMessage fullHttpResponseMessage;
+    private HttpResponse response;
+    private List<HttpContent> contentList = new ArrayList<>();
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (msg instanceof FullHttpResponse) {
-            this.fullHttpResponses.add((FullHttpResponse) msg);
-            latch.countDown();
+        if (msg instanceof HttpResponse) {
+            response = (HttpResponse) msg;
+        } else {
+            if (msg instanceof HttpContent) {
+                HttpContent httpContent = (HttpContent) msg;
+                contentList.add(httpContent);
+                if (httpContent instanceof LastHttpContent) {
+                    fullHttpResponseMessage = new FullHttpResponseMessage(contentList, response);
+                    fullHttpResponses.add(getHttpFullResponse());
+                    latch.countDown();
+                }
+            }
         }
     }
 
     FullHttpResponse getHttpFullResponse() {
-        return this.fullHttpResponses.getFirst();
+        HttpHeaders trailers = EmptyHttpHeaders.INSTANCE;
+        CompositeByteBuf allContent = Unpooled.compositeBuffer();
+        HttpResponse httpResponse = this.fullHttpResponseMessage.getHttpResponse();
+        for (HttpContent httpContent : this.fullHttpResponseMessage.getContentList()) {
+            allContent.addComponent(true, httpContent.content());
+            if (httpContent instanceof LastHttpContent) {
+                trailers = ((LastHttpContent) httpContent).trailingHeaders();
+            }
+        }
+        DefaultFullHttpResponse defaultFullHttpResponse = new DefaultFullHttpResponse(httpResponse.protocolVersion(),
+                httpResponse.status(), allContent, httpResponse.headers(), trailers);
+        return defaultFullHttpResponse;
     }
 
     LinkedList<FullHttpResponse> getHttpFullResponses() {

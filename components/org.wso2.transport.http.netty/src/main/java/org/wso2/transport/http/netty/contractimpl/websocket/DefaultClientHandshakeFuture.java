@@ -27,7 +27,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 /**
  * Implementation of WebSocket handshake future.
  */
-public class DefaultClientHandshakeFuture implements ClientHandshakeFuture {
+public class DefaultClientHandshakeFuture extends DefaultWebSocketConnectorFuture implements ClientHandshakeFuture {
 
     private Throwable throwable = null;
     private WebSocketConnection webSocketConnection = null;
@@ -38,15 +38,13 @@ public class DefaultClientHandshakeFuture implements ClientHandshakeFuture {
     }
 
     @Override
-    public ClientHandshakeFuture setClientHandshakeListener(ClientHandshakeListener clientHandshakeListener) {
+    public void setClientHandshakeListener(ClientHandshakeListener clientHandshakeListener) {
         this.clientHandshakeListener = clientHandshakeListener;
         if (throwable != null) {
             clientHandshakeListener.onError(throwable, response);
-        }
-        if (webSocketConnection != null && response != null) {
+        } else if (webSocketConnection != null && response != null) {
             clientHandshakeListener.onSuccess(webSocketConnection, response);
         }
-        return this;
     }
 
     @Override

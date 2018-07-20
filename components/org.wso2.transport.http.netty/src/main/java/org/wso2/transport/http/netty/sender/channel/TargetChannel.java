@@ -37,18 +37,18 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.sender.ConnectionAvailabilityFuture;
 import org.wso2.transport.http.netty.sender.ForwardedHeaderUpdater;
 import org.wso2.transport.http.netty.sender.HttpClientChannelInitializer;
+import org.wso2.transport.http.netty.sender.TargetErrorHandler;
 import org.wso2.transport.http.netty.sender.TargetHandler;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
-import org.wso2.transport.http.netty.sender.http2.RedirectHandler;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+
+import static org.wso2.transport.http.netty.common.SourceInteractiveState.SENDING_ENTITY_BODY;
 
 /**
  * A class that encapsulate channel and state.
@@ -74,6 +74,7 @@ public class TargetChannel {
     private List<HttpContent> contentList = new ArrayList<>();
     private long contentLength = 0;
     private final ConnectionAvailabilityFuture connectionAvailabilityFuture;
+    private TargetErrorHandler targetErrorHandler;
 
     public TargetChannel(HttpClientChannelInitializer httpClientChannelInitializer, ChannelFuture channelFuture,
                          HttpRoute httpRoute, ConnectionAvailabilityFuture connectionAvailabilityFuture) {
@@ -86,10 +87,6 @@ public class TargetChannel {
                     new Http2ClientChannel(httpClientChannelInitializer.getHttp2ConnectionManager(),
                                            httpClientChannelInitializer.getConnection(),
                                            httpRoute, channelFuture.channel());
-            if (httpClientChannelInitializer.isFollowRedirect()) {
-                http2ClientChannel.addDataEventListener(Constants.REDIRECT_HANDLER,
-                        new RedirectHandler(http2ClientChannel, httpClientChannelInitializer.getMaxRedirectCount()));
-            }
         }
         this.connectionAvailabilityFuture = connectionAvailabilityFuture;
     }
@@ -159,11 +156,13 @@ public class TargetChannel {
         targetHandler.setConnectionManager(connectionManager);
         targetHandler.setTargetChannel(this);
 
+        targetErrorHandler = targetHandler.getTargetErrorHandler();
+        targetErrorHandler.setResponseFuture(httpInboundResponseFuture);
         this.httpInboundResponseFuture = httpInboundResponseFuture;
     }
 
-    public void setEndPointTimeout(int socketIdleTimeout, boolean followRedirect) {
-        this.getChannel().pipeline().addBefore((followRedirect ? Constants.REDIRECT_HANDLER : Constants.TARGET_HANDLER),
+    public void setEndPointTimeout(int socketIdleTimeout) {
+        this.getChannel().pipeline().addBefore(Constants.TARGET_HANDLER,
                 Constants.IDLE_STATE_HANDLER, new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, 0,
                         TimeUnit.MILLISECONDS));
         http2ClientChannel.setSocketIdleTimeout(socketIdleTimeout);
@@ -212,6 +211,7 @@ public class TargetChannel {
     }
 
     private void writeOutboundRequest(HTTPCarbonMessage httpOutboundRequest, HttpContent httpContent) throws Exception {
+        targetErrorHandler.setState(SENDING_ENTITY_BODY);
         if (Util.isLastHttpContent(httpContent)) {
             if (!this.requestHeaderWritten) {
                 // this means we need to send an empty payload
@@ -241,8 +241,7 @@ public class TargetChannel {
                     Util.setupChunkedRequest(httpOutboundRequest);
                     writeOutboundRequestHeaders(httpOutboundRequest);
                 }
-                ChannelFuture outboundRequestChannelFuture = this.getChannel().writeAndFlush(httpContent);
-                notifyIfFailure(outboundRequestChannelFuture);
+                this.getChannel().writeAndFlush(httpContent);
             } else {
                 this.contentList.add(httpContent);
                 contentLength += httpContent.content().readableBytes();
@@ -253,25 +252,11 @@ public class TargetChannel {
     private void writeOutboundRequestBody(HttpContent lastHttpContent) {
         if (chunkConfig == ChunkConfig.NEVER || !Util.isVersionCompatibleForChunking(httpVersion)) {
             for (HttpContent cachedHttpContent : contentList) {
-                ChannelFuture outboundRequestChannelFuture = this.getChannel().writeAndFlush(cachedHttpContent);
-                notifyIfFailure(outboundRequestChannelFuture);
+                this.getChannel().writeAndFlush(cachedHttpContent);
             }
         }
         ChannelFuture outboundRequestChannelFuture = this.getChannel().writeAndFlush(lastHttpContent);
-        notifyIfFailure(outboundRequestChannelFuture);
-    }
-
-    private void notifyIfFailure(ChannelFuture outboundRequestChannelFuture) {
-        outboundRequestChannelFuture.addListener(writeOperationPromise -> {
-            if (writeOperationPromise.cause() != null) {
-                Throwable throwable = writeOperationPromise.cause();
-                if (throwable instanceof ClosedChannelException) {
-                    throwable = new IOException(Constants.REMOTE_SERVER_ABRUPTLY_CLOSE_REQUEST_CONNECTION);
-                }
-                log.error(Constants.REMOTE_SERVER_ABRUPTLY_CLOSE_REQUEST_CONNECTION, throwable);
-                httpInboundResponseFuture.notifyHttpListener(throwable);
-            }
-        });
+        targetErrorHandler.checkForRequestWriteStatus(outboundRequestChannelFuture);
     }
 
     private void resetTargetChannelState() {
@@ -293,13 +278,13 @@ public class TargetChannel {
         HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
         this.setRequestHeaderWritten(true);
         ChannelFuture outboundHeaderFuture = this.getChannel().write(httpRequest);
-        notifyIfFailure(outboundHeaderFuture);
+        targetErrorHandler.notifyIfHeaderFailure(outboundHeaderFuture);
     }
 
     private void setHttpVersionProperty(HTTPCarbonMessage httpOutboundRequest) {
         if (Float.valueOf(httpVersion) == Constants.HTTP_2_0) {
             // Upgrade request of HTTP/2 should be a HTTP/1.1 request
-            httpOutboundRequest.setProperty(Constants.HTTP_VERSION, Constants.HTTP_1_1);
+            httpOutboundRequest.setProperty(Constants.HTTP_VERSION, String.valueOf(Constants.HTTP_1_1));
         } else {
             httpOutboundRequest.setProperty(Constants.HTTP_VERSION, httpVersion);
         }

@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.wso2.transport.http</groupId>
         <artifactId>http-parent</artifactId>
-        <version>6.0.182-SNAPSHOT</version>
+        <version>6.0.216-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -70,10 +70,6 @@
         <dependency>
             <groupId>commons-pool.wso2</groupId>
             <artifactId>commons-pool</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.websocket</groupId>
-            <artifactId>javax.websocket-api</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -178,10 +174,6 @@
                                 <bundle>
                                     <symbolicName>org.wso2.transport.http.netty</symbolicName>
                                     <version>${project.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>javax.websocket-api</symbolicName>
-                                    <version>${javax.websocket.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>

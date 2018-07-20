@@ -21,45 +21,23 @@ package org.wso2.transport.http.netty.contractimpl.websocket.message;
 
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
-import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketMessage;
 
 import java.nio.ByteBuffer;
 
 /**
  * Implementation of WebSocket control message.
  */
-public class DefaultWebSocketControlMessage extends DefaultWebSocketMessage implements WebSocketControlMessage {
+public class DefaultWebSocketControlMessage extends DefaultWebSocketBinaryMessage implements WebSocketControlMessage {
 
     private final WebSocketControlSignal controlSignal;
-    private final ByteBuffer buffer;
 
     public DefaultWebSocketControlMessage(WebSocketControlSignal controlSignal, ByteBuffer buffer) {
+        super(buffer, true);
         this.controlSignal = controlSignal;
-        this.buffer = buffer;
     }
 
     @Override
     public WebSocketControlSignal getControlSignal() {
         return controlSignal;
-    }
-
-    @Override
-    public byte[] getByteArray() {
-        byte[] bytes;
-        if (buffer.hasArray()) {
-            bytes = buffer.array();
-        } else {
-            int remaining = buffer.remaining();
-            bytes = new byte[remaining];
-            for (int i = 0; i < remaining; i++) {
-                bytes[i] = buffer.get();
-            }
-        }
-        return bytes;
-    }
-
-    @Override
-    public ByteBuffer getPayload() {
-        return buffer;
     }
 }

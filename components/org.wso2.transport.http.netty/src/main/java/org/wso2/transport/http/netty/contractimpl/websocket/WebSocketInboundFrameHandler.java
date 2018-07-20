@@ -18,29 +18,86 @@
 
 package org.wso2.transport.http.netty.contractimpl.websocket;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-
-import java.util.concurrent.CountDownLatch;
+import io.netty.channel.ChannelPromise;
+import io.netty.handler.codec.CorruptedFrameException;
+import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import io.netty.handler.timeout.IdleStateEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorException;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorFuture;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketFrameType;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
+import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketCloseMessage;
+import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketControlMessage;
+import org.wso2.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
+import org.wso2.transport.http.netty.listener.MessageQueueHandler;
 
 /**
  * Abstract WebSocket frame handler for WebSocket server and client.
  */
-public abstract class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
+public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
+
+    private Logger log = LoggerFactory.getLogger(WebSocketInboundFrameHandler.class);
+
+    private final boolean isServer;
+    private final boolean secureConnection;
+    private final String target;
+    private final String negotiatedSubProtocol;
+    private final WebSocketConnectorFuture connectorFuture;
+    private final MessageQueueHandler messageQueueHandler;
+    private boolean caughtException;
+    private boolean closeFrameReceived;
+    private boolean closeInitialized;
+    private DefaultWebSocketConnection webSocketConnection;
+    private ChannelPromise closePromise;
+    private WebSocketFrameType continuationFrameType;
+
+    public WebSocketInboundFrameHandler(boolean isServer, boolean secureConnection, String target,
+                                        String negotiatedSubProtocol, WebSocketConnectorFuture connectorFuture,
+                                        MessageQueueHandler messageQueueHandler) {
+        this.isServer = isServer;
+        this.secureConnection = secureConnection;
+        this.target = target;
+        this.negotiatedSubProtocol = negotiatedSubProtocol;
+        this.connectorFuture = connectorFuture;
+        this.messageQueueHandler = messageQueueHandler;
+        this.closeInitialized = false;
+    }
 
     /**
-     * Set countdown latch for WebSocket connection close.
+     * Set channel promise for WebSocket connection close.
      *
-     * @param closeCountDownLatch {@link CountDownLatch} to wait for WebSocket connection closure.
+     * @param closePromise {@link ChannelPromise} to indicate the receiving of close frame echo
+     *                     back from the remote endpoint.
      */
-    public abstract void setCloseCountDownLatch(CountDownLatch closeCountDownLatch);
+    public void setClosePromise(ChannelPromise closePromise) {
+        this.closePromise = closePromise;
+    }
 
     /**
      * Retrieve the WebSocket connection associated with the frame handler.
      *
      * @return the WebSocket connection associated with the frame handler.
      */
-    public abstract DefaultWebSocketConnection getWebSocketConnection();
+    public DefaultWebSocketConnection getWebSocketConnection() {
+        return this.webSocketConnection;
+    }
 
     /**
      * Check whether a close frame is received without the relevant connection to this Frame handler sending a close
@@ -49,13 +106,162 @@ public abstract class WebSocketInboundFrameHandler extends ChannelInboundHandler
      * @return true if a close frame is received without the relevant connection to this Frame handler sending a close
      * frame.
      */
-    public abstract boolean isCloseFrameReceived();
+    public boolean isCloseFrameReceived() {
+        return closeFrameReceived;
+    }
 
-    /**
-     * Retrieve the {@link ChannelHandlerContext} of the {@link WebSocketInboundFrameHandler}.
-     *
-     * @return the {@link ChannelHandlerContext} of the {@link WebSocketInboundFrameHandler}.
-     */
-    public abstract ChannelHandlerContext getChannelHandlerContext();
+    public void setCloseInitialized(boolean closeInitialized) {
+        this.closeInitialized = closeInitialized;
+    }
 
+    @Override
+    public void handlerAdded(ChannelHandlerContext ctx) {
+        webSocketConnection = new DefaultWebSocketConnection(ctx, this, messageQueueHandler, secureConnection,
+                                                             negotiatedSubProtocol);
+    }
+
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws WebSocketConnectorException {
+        if (evt instanceof IdleStateEvent) {
+            IdleStateEvent idleStateEvent = (IdleStateEvent) evt;
+            if (idleStateEvent.state() == IdleStateEvent.ALL_IDLE_STATE_EVENT.state()) {
+                notifyIdleTimeout();
+            }
+        }
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws WebSocketConnectorException {
+        if (!caughtException && webSocketConnection != null && !this.isCloseFrameReceived() && closePromise == null &&
+                !closeInitialized) {
+            // Notify abnormal closure.
+            DefaultWebSocketMessage webSocketCloseMessage =
+                    new DefaultWebSocketCloseMessage(Constants.WEBSOCKET_STATUS_CODE_ABNORMAL_CLOSURE);
+            setupCommonProperties(webSocketCloseMessage);
+            connectorFuture.notifyWebSocketListener((WebSocketCloseMessage) webSocketCloseMessage);
+            return;
+        }
+
+        if (closePromise != null && !closeFrameReceived) {
+            String errMsg = "Connection is closed by remote endpoint without echoing a close frame";
+            ctx.close().addListener(closeFuture -> closePromise.setFailure(new IllegalStateException(errMsg)));
+        }
+    }
+
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        if (!(msg instanceof WebSocketFrame)) {
+            log.error("Expecting WebSocketFrame. Unknown type.");
+            throw new UnknownWebSocketFrameTypeException("Expecting WebSocketFrame. Unknown type.");
+        }
+
+        // If the continuation of frames are not following the protocol, netty handles them internally.
+        // Hence those situations are not handled here.
+        if (msg instanceof TextWebSocketFrame) {
+            TextWebSocketFrame textFrame = (TextWebSocketFrame) msg;
+            if (!textFrame.isFinalFragment()) {
+                continuationFrameType = WebSocketFrameType.TEXT;
+            }
+            notifyTextMessage(textFrame, textFrame.text(), textFrame.isFinalFragment());
+        } else if (msg instanceof BinaryWebSocketFrame) {
+            BinaryWebSocketFrame binaryFrame = (BinaryWebSocketFrame) msg;
+            if (!binaryFrame.isFinalFragment()) {
+                continuationFrameType = WebSocketFrameType.BINARY;
+            }
+            notifyBinaryMessage(binaryFrame, binaryFrame.content(), binaryFrame.isFinalFragment());
+        } else if (msg instanceof CloseWebSocketFrame) {
+            closeFrameReceived = true;
+            notifyCloseMessage((CloseWebSocketFrame) msg);
+        } else if (msg instanceof PingWebSocketFrame) {
+            notifyPingMessage((PingWebSocketFrame) msg);
+        } else if (msg instanceof PongWebSocketFrame) {
+            notifyPongMessage((PongWebSocketFrame) msg);
+        } else if (msg instanceof ContinuationWebSocketFrame) {
+            ContinuationWebSocketFrame frame = (ContinuationWebSocketFrame) msg;
+            switch (continuationFrameType) {
+                case TEXT:
+                    notifyTextMessage(frame, frame.text(), frame.isFinalFragment());
+                    break;
+                case BINARY:
+                    notifyBinaryMessage(frame, frame.content(), frame.isFinalFragment());
+                    break;
+            }
+        }
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws WebSocketConnectorException {
+        caughtException = true;
+        if (!(cause instanceof CorruptedFrameException)) {
+            ChannelFuture closeFrameFuture = ctx.channel().writeAndFlush(new CloseWebSocketFrame(
+                    Constants.WEBSOCKET_STATUS_CODE_UNEXPECTED_CONDITION, "Encountered an unexpected condition"));
+            closeFrameFuture.addListener(future -> ctx.close().addListener(
+                    closeFuture -> connectorFuture.notifyWebSocketListener(webSocketConnection, cause)));
+            return;
+        }
+        connectorFuture.notifyWebSocketListener(webSocketConnection, cause);
+    }
+
+    private void notifyTextMessage(WebSocketFrame frame, String text, boolean finalFragment)
+            throws WebSocketConnectorException {
+        DefaultWebSocketMessage webSocketTextMessage = WebSocketUtil.getWebSocketMessage(frame, text, finalFragment);
+        setupCommonProperties(webSocketTextMessage);
+        connectorFuture.notifyWebSocketListener((WebSocketTextMessage) webSocketTextMessage);
+    }
+
+    private void notifyBinaryMessage(WebSocketFrame frame, ByteBuf content, boolean finalFragment)
+            throws WebSocketConnectorException {
+        DefaultWebSocketMessage webSocketBinaryMessage = WebSocketUtil.getWebSocketMessage(frame, content,
+                                                                                           finalFragment);
+        setupCommonProperties(webSocketBinaryMessage);
+        connectorFuture.notifyWebSocketListener((WebSocketBinaryMessage) webSocketBinaryMessage);
+    }
+
+    private void notifyCloseMessage(CloseWebSocketFrame closeWebSocketFrame) throws WebSocketConnectorException {
+        String reasonText = closeWebSocketFrame.reasonText();
+        int statusCode = closeWebSocketFrame.statusCode();
+        // closePromise == null means that WebSocketConnection has not yet initiated a connection closure.
+        if (closePromise == null) {
+            DefaultWebSocketMessage webSocketCloseMessage = new DefaultWebSocketCloseMessage(statusCode, reasonText);
+            setupCommonProperties(webSocketCloseMessage);
+            connectorFuture.notifyWebSocketListener((WebSocketCloseMessage) webSocketCloseMessage);
+        } else {
+            if (webSocketConnection.getCloseInitiatedStatusCode() != closeWebSocketFrame.statusCode()) {
+                String errMsg = String.format(
+                        "Expected status code %d but found %d in echoed close frame from remote endpoint",
+                        webSocketConnection.getCloseInitiatedStatusCode(), closeWebSocketFrame.statusCode());
+                closePromise.setFailure(new IllegalStateException(errMsg));
+                return;
+            }
+            closePromise.setSuccess();
+        }
+        closeWebSocketFrame.release();
+    }
+
+    private void notifyPingMessage(PingWebSocketFrame pingWebSocketFrame) throws WebSocketConnectorException {
+        WebSocketControlMessage webSocketControlMessage = WebSocketUtil.
+                getWebSocketControlMessage(pingWebSocketFrame, WebSocketControlSignal.PING);
+        setupCommonProperties((DefaultWebSocketMessage) webSocketControlMessage);
+        connectorFuture.notifyWebSocketListener(webSocketControlMessage);
+    }
+
+    private void notifyPongMessage(PongWebSocketFrame pongWebSocketFrame) throws WebSocketConnectorException {
+        WebSocketControlMessage webSocketControlMessage = WebSocketUtil.
+                getWebSocketControlMessage(pongWebSocketFrame, WebSocketControlSignal.PONG);
+        setupCommonProperties((DefaultWebSocketMessage) webSocketControlMessage);
+        connectorFuture.notifyWebSocketListener(webSocketControlMessage);
+    }
+
+    private void notifyIdleTimeout() throws WebSocketConnectorException {
+        DefaultWebSocketMessage webSocketControlMessage = new DefaultWebSocketControlMessage(
+                WebSocketControlSignal.IDLE_TIMEOUT, null);
+        setupCommonProperties(webSocketControlMessage);
+        connectorFuture.notifyWebSocketIdleTimeout((WebSocketControlMessage) webSocketControlMessage);
+    }
+
+    private void setupCommonProperties(DefaultWebSocketMessage webSocketMessage) {
+        webSocketMessage.setTarget(target);
+        webSocketMessage.setWebSocketConnection(webSocketConnection);
+        webSocketMessage.setIsServerMessage(isServer);
+    }
 }

@@ -32,29 +32,25 @@ import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketClientCompressionHandler;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.util.TestUtil;
 
-import java.io.IOException;
-import java.net.ProtocolException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-import javax.net.ssl.SSLException;
 
 /**
  * WebSocket client class for test
@@ -63,185 +59,168 @@ public class WebSocketTestClient {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketTestClient.class);
 
-    private String url = System.getProperty("url", String.format("ws://%s:%d/%s",
-                                                  TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT, "test"));
     private final String subProtocol;
-    private Map<String, String> customHeaders = new HashMap<>();
+    private final int maxContentLength;
+    private String url = String.format("ws://%s:%d/%s", TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT, "test");
+    private Map<String, String> customHeaders;
+    private boolean handshakeSuccessful;
 
-    private Channel channel = null;
-    private WebSocketClientHandler handler;
-    private EventLoopGroup group;
-    private CountDownLatch latch;
+    private Channel channel;
+    private WebSocketTestClientFrameHandler clientFrameHandler;
 
     public WebSocketTestClient() {
-        this.subProtocol = null;
+        this(null, new HashMap<>());
     }
 
     public WebSocketTestClient(String url) {
+        this(null, new HashMap<>());
         this.url = url;
-        this.subProtocol = null;
-        if (customHeaders != null) {
-            this.customHeaders = customHeaders;
-        }
     }
 
     public WebSocketTestClient(String subProtocol, Map<String, String> customHeaders) {
         this.subProtocol = subProtocol;
-        if (customHeaders != null) {
-            this.customHeaders = customHeaders;
-        }
+        this.customHeaders = customHeaders;
+        this.maxContentLength = 8192;
     }
 
-    public WebSocketTestClient(CountDownLatch latch) {
-        this.subProtocol = null;
-        this.latch = latch;
+    public void setCountDownLatch(CountDownLatch countDownLatch) {
+        if (!handshakeSuccessful) {
+            throw new IllegalStateException("Cannot set countdown latch until handshake is done");
+        }
+        clientFrameHandler.setCountDownLatch(countDownLatch);
     }
 
-    public WebSocketTestClient(String url, CountDownLatch latch) {
-        this.url = url;
-        this.subProtocol = null;
-        if (customHeaders != null) {
-            this.customHeaders = customHeaders;
-        }
-        this.latch = latch;
+    public WebSocketClientHandshaker getHandshaker() {
+        return clientFrameHandler.getHandshaker();
     }
 
-    public WebSocketTestClient(String subProtocol, Map<String, String> customHeaders, CountDownLatch latch) {
-        this.subProtocol = subProtocol;
-        if (customHeaders != null) {
-            this.customHeaders = customHeaders;
-        }
-        this.latch = latch;
+    public HttpResponse getHandshakeResponse() {
+        return clientFrameHandler.getHttpResponse();
     }
 
     /**
-     * @return true if the handshake is done properly.
-     * @throws URISyntaxException throws if there is an error in the URI syntax.
+     * Handshake with WebSocket server.
+     *
+     * @throws URISyntaxException   throws if there is an error in the URI syntax.
      * @throws InterruptedException throws if the connecting the server is interrupted.
      */
-    public boolean handhshake() throws InterruptedException, URISyntaxException, SSLException, ProtocolException {
-        boolean isSuccess;
+    public void handshake() throws URISyntaxException, InterruptedException {
         URI uri = new URI(url);
-        String scheme = uri.getScheme() == null ? "ws" : uri.getScheme();
-        final String host = uri.getHost() == null ? "127.0.0.1" : uri.getHost();
-        final int port;
-        if (uri.getPort() == -1) {
-            if ("ws".equalsIgnoreCase(scheme)) {
-                port = 80;
-            } else if ("wss".equalsIgnoreCase(scheme)) {
-                port = 443;
-            } else {
-                port = -1;
-            }
-        } else {
-            port = uri.getPort();
-        }
-
-        if (!"ws".equalsIgnoreCase(scheme) && !"wss".equalsIgnoreCase(scheme)) {
-            logger.error("Only WS(S) is supported.");
-            return false;
-        }
-
-        final boolean ssl = "wss".equalsIgnoreCase(scheme);
-        final SslContext sslCtx;
-        if (ssl) {
-            sslCtx = SslContextBuilder.forClient()
-                    .trustManager(InsecureTrustManagerFactory.INSTANCE).build();
-        } else {
-            sslCtx = null;
-        }
-
-        group = new NioEventLoopGroup();
-
+        EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
         HttpHeaders headers = new DefaultHttpHeaders();
-        customHeaders.entrySet().forEach(
-                header -> headers.add(header.getKey(), header.getValue())
-        );
+        customHeaders.forEach(headers::add);
         try {
-            // Connect with V13 (RFC 6455 aka HyBi-17). You can change it to V08 or V00.
-            // If you change it to V00, ping is not supported and remember to change
-            // HttpResponseDecoder to WebSocketHttpResponseDecoder in the pipeline.
-            handler =
-                    new WebSocketClientHandler(
-                            WebSocketClientHandshakerFactory.newHandshaker(uri, WebSocketVersion.V13, subProtocol,
-                                                                           true, headers), latch);
-
-            Bootstrap b = new Bootstrap();
-            b.group(group)
-                    .channel(NioSocketChannel.class)
-                    .handler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        protected void initChannel(SocketChannel ch) {
-                            ChannelPipeline p = ch.pipeline();
-                            if (sslCtx != null) {
-                                p.addLast(sslCtx.newHandler(ch.alloc(), host, port));
-                            }
-                            p.addLast(
-                                    new HttpClientCodec(),
-                                    new HttpObjectAggregator(8192),
-                                    WebSocketClientCompressionHandler.INSTANCE,
-                                    handler);
-                        }
-                    });
-
-            channel = b.connect(uri.getHost(), port).sync().channel();
-            isSuccess = handler.handshakeFuture().sync().isSuccess();
-            logger.debug("WebSocket Handshake successful : " + isSuccess);
-            return isSuccess;
+            Bootstrap clientBootstrap = getClientBootstrap(uri, eventLoopGroup, headers);
+            channel = clientBootstrap.connect(uri.getHost(), uri.getPort()).sync().channel();
+            handshakeSuccessful = clientFrameHandler.handshakeFuture().sync().isSuccess();
+            logger.debug("WebSocket Handshake successful : " + handshakeSuccessful);
         } catch (Exception e) {
             logger.error("Handshake unsuccessful : " + e.getMessage());
-            throw new ProtocolException("Protocol exception: " + e.getMessage());
+            throw e;
         }
+    }
+
+    private Bootstrap getClientBootstrap(URI uri, EventLoopGroup eventLoopGroup, HttpHeaders headers) {
+        WebSocketClientHandshaker clientHandshaker = WebSocketClientHandshakerFactory
+                .newHandshaker(uri, WebSocketVersion.V13, subProtocol, true, headers);
+        clientFrameHandler = new WebSocketTestClientFrameHandler(clientHandshaker);
+
+        Bootstrap clientBootstrap = new Bootstrap();
+        clientBootstrap.group(eventLoopGroup).channel(NioSocketChannel.class)
+                .handler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel ch) {
+                        ChannelPipeline pipeline = ch.pipeline();
+                        pipeline.addLast(new HttpClientCodec(), new HttpObjectAggregator(maxContentLength),
+                                         WebSocketClientCompressionHandler.INSTANCE, clientFrameHandler);
+                    }
+                });
+        return clientBootstrap;
     }
 
     /**
      * Send text to the server.
+     *
      * @param text text need to be sent.
      */
-    public void sendText(String text) {
+    public void sendText(String text) throws InterruptedException {
         if (channel == null) {
             logger.error("Channel is null. Cannot send text.");
             throw new IllegalArgumentException("Cannot find the channel to write");
         }
-        channel.writeAndFlush(new TextWebSocketFrame(text));
+        channel.writeAndFlush(new TextWebSocketFrame(text)).sync();
     }
 
     /**
      * Send binary data to server.
+     *
      * @param buf buffer containing the data need to be sent.
      */
-    public void sendBinary(ByteBuffer buf) throws IOException {
+    public void sendBinary(ByteBuffer buf) throws InterruptedException {
         if (channel == null) {
-            logger.error("Channel is null. Cannot send text.");
+            logger.error("Channel is null. Cannot send binary frame.");
             throw new IllegalArgumentException("Cannot find the channel to write");
         }
-        channel.writeAndFlush(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(buf)));
+        channel.writeAndFlush(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(buf))).sync();
     }
 
     /**
      * Send a ping message to the server.
+     *
      * @param buf content of the ping message to be sent.
      */
-    public void sendPing(ByteBuffer buf) throws IOException {
+    public void sendPing(ByteBuffer buf) throws InterruptedException {
+        if (channel == null) {
+            logger.error("Channel is null. Cannot send ping.");
+            throw new IllegalArgumentException("Cannot find the channel to write");
+        }
+        channel.writeAndFlush(new PingWebSocketFrame(Unpooled.wrappedBuffer(buf))).sync();
+    }
+
+    /**
+     * Send close frame to the remote backend.
+     *
+     * @param statusCode Status code to close the connection.
+     * @param reason     Reason to close the connection.
+     * @return this {@link WebSocketTestClient}.
+     * @throws InterruptedException if connection is interrupted while sending the message.
+     */
+    public WebSocketTestClient sendCloseFrame(int statusCode, String reason) throws InterruptedException {
         if (channel == null) {
             logger.error("Channel is null. Cannot send text.");
             throw new IllegalArgumentException("Cannot find the channel to write");
         }
-        channel.writeAndFlush(new PingWebSocketFrame(Unpooled.wrappedBuffer(buf)));
+        channel.writeAndFlush(new CloseWebSocketFrame(statusCode, reason)).sync();
+        return this;
+    }
+
+    /**
+     * Send last HTTP content.
+     *
+     * @return this {@link WebSocketTestClient}.
+     * @throws InterruptedException if connection is interrupted while sending the message.
+     */
+    public WebSocketTestClient sendCorruptedFrame() throws InterruptedException {
+        if (channel == null) {
+            logger.error("Channel is null. Cannot send text.");
+            throw new IllegalArgumentException("Cannot find the channel to write");
+        }
+        channel.writeAndFlush(Unpooled.wrappedBuffer(new byte[] { 1, 2, 3, 4 })).sync();
+        return this;
     }
 
     /**
      * @return the text received from the server.
      */
     public String getTextReceived() {
-        return handler.getTextReceived();
+        return clientFrameHandler.getTextReceived();
     }
 
     /**
      * @return the binary data received from the server.
      */
     public ByteBuffer getBufferReceived() {
-        return handler.getBufferReceived();
+        return clientFrameHandler.getBufferReceived();
     }
 
     /**
@@ -250,7 +229,7 @@ public class WebSocketTestClient {
      * @return true if connection is still open.
      */
     public boolean isOpen() {
-       return channel.isOpen();
+        return channel.isOpen();
     }
 
     /**
@@ -259,7 +238,7 @@ public class WebSocketTestClient {
      * @return true if a ping is received.
      */
     public boolean isPingReceived() {
-        return handler.isPingReceived();
+        return clientFrameHandler.isPingReceived();
     }
 
     /**
@@ -268,20 +247,26 @@ public class WebSocketTestClient {
      * @return true if a ping is received.
      */
     public boolean isPongReceived() {
-        return handler.isPongReceived();
+        return clientFrameHandler.isPongReceived();
     }
 
     /**
-     * Shutdown the WebSocket Client.
+     * Retrieve received close frame.
+     *
+     * @return received close frame.
      */
-    public void shutDown() throws InterruptedException {
-        if (channel.isOpen()) {
-            channel.writeAndFlush(new CloseWebSocketFrame(1001, "Going away")).addListener(future -> {
-                if (channel.isOpen()) {
-                    channel.close();
-                }
-            }).sync();
-        }
+    public CloseWebSocketFrame getReceivedCloseFrame() {
+        return clientFrameHandler.getReceivedCloseFrame();
     }
 
+    /**
+     * Forcefully shutdown WebSocket client.
+     *
+     * @throws InterruptedException if the connection is interrupted when closing channel.
+     */
+    public void closeChannel() throws InterruptedException {
+        if (channel.isOpen()) {
+            channel.close().sync();
+        }
+    }
 }

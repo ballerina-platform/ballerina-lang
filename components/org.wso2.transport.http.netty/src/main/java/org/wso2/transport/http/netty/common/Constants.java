@@ -120,6 +120,8 @@ public final class Constants {
     public static final String X_FORWARDED_HOST = "x-forwarded-host";
     public static final String X_FORWARDED_PROTO = "x-forwarded-proto";
 
+    public static final String HEADER_VAL_100_CONTINUE = "100-continue";
+
     public static final String HTTP_GET_METHOD = "GET";
     public static final String HTTP_POST_METHOD = "POST";
     public static final String HTTP_HEAD_METHOD = "HEAD";
@@ -171,14 +173,17 @@ public final class Constants {
 
     public static final String LOCALHOST = "localhost";
 
-
-    public static final String WEBSOCKET_PROTOCOL = "ws";
-    public static final String WEBSOCKET_PROTOCOL_SECURED = "wss";
+    public static final String HTTP_OBJECT_AGGREGATOR = "HTTP_OBJECT_AGGREGATOR";
+    public static final String WS_SCHEME = "ws";
+    public static final String WSS_SCHEME = "wss";
     public static final String WEBSOCKET_UPGRADE = "websocket";
-    public static final String WEBSOCKET_SOURCE_HANDLER = "ws_handler";
+    public static final String WEBSOCKET_FRAME_HANDLER = "WEBSOCKET_FRAME_HANDLER";
+    public static final String MESSAGE_QUEUE_HANDLER = "MESSAGE_QUEUE_HANDLER";
     public static final int WEBSOCKET_STATUS_CODE_NORMAL_CLOSURE = 1000;
     public static final int WEBSOCKET_STATUS_CODE_GOING_AWAY = 1001;
+    public static final int WEBSOCKET_STATUS_CODE_PROTOCOL_ERROR = 1002;
     public static final int WEBSOCKET_STATUS_CODE_ABNORMAL_CLOSURE = 1006;
+    public static final int WEBSOCKET_STATUS_CODE_UNEXPECTED_CONDITION = 1011;
 
     // Callback related parameters
     public static final String HTTP_CONNECTION_CLOSE = "close";
@@ -211,22 +216,23 @@ public final class Constants {
     public static final String HTTP_CLIENT_CODEC = "codec";
     public static final String HTTP_SERVER_CODEC = "ServerCodec";
     public static final String HTTP2_SOURCE_HANDLER = "Http2SourceHandler";
+    public static final String HTTP2_SOURCE_CONNECTION_HANDLER = "Http2SourceConnectionHandler";
     public static final String HTTP2_ALPN_HANDLER = "Http2ALPNHandler";
     public static final String PROXY_HANDLER = "proxyServerHandler";
     public static final String SSL_COMPLETION_HANDLER = "sslHandshakeCompletionHandler";
     public static final String HTTP_CERT_VALIDATION_HANDLER = "certificateValidation";
     public static final String CONNECTION_HANDLER = "connectionHandler";
-    public static final String OUTBOUND_HANDLER = "outboundHandler";
+    public static final String HTTP2_TARGET_HANDLER = "http2TargetHandler";
     public static final String TARGET_HANDLER = "targetHandler";
     public static final String HTTP2_TIMEOUT_HANDLER = "Http2TimeoutHandler";
     public static final String HTTP2_UPGRADE_HANDLER = "Http2UpgradeHandler";
     public static final String HTTP2_TO_HTTP_FALLBACK_HANDLER = "Http2ToHttpFallbackHandler";
-    public static final String REDIRECT_HANDLER = "redirectHandler";
     public static final String DECOMPRESSOR_HANDLER = "deCompressor";
     public static final String IDLE_STATE_HANDLER = "idleStateHandler";
     public static final String HTTP_TRACE_LOG_HANDLER = "http-trace-logger";
     public static final String HTTP_ACCESS_LOG_HANDLER = "http-access-logger";
     public static final String WEBSOCKET_SERVER_HANDSHAKE_HANDLER = "websocket-server-handshake-handler";
+    public static final String WEBSOCKET_CLIENT_HANDSHAKE_HANDLER = "websocket-client-handshake-handler";
 
     public static final AttributeKey<Integer> REDIRECT_COUNT = AttributeKey.valueOf("REDIRECT_COUNT");
     public static final AttributeKey<String> RESOLVED_REQUESTED_URI_ATTR = AttributeKey
@@ -269,32 +275,62 @@ public final class Constants {
     public static final String REQUEST_LINE_TOO_LONG = "An HTTP line is larger than";
     public static final String REQUEST_HEADER_TOO_LARGE = "HTTP header is larger than";
 
+    // Idle timeout error scenarios
+    public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST
+            = "Idle timeout triggered before initiating inbound request";
     public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST
             = "Idle timeout triggered while reading inbound request";
-    public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_WRITING_OUTBOUND_RESPONSE
-            = "Idle timeout triggered while writing outbound response";
+    public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE
+            = "Idle timeout triggered before initiating outbound response";
+    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE
+                = "Idle timeout triggered while writing outbound response";
+    public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_100_CONTINUE_RESPONSE
+            = "Idle timeout triggered before initiating 100 continue response";
+    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_100_CONTINUE_RESPONSE
+            = "Idle timeout triggered while writing 100 continue response";
+
+    public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_REQUEST
+            = "Idle timeout triggered before initiating outbound request";
+    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST
+            = "Idle timeout triggered while writing outbound request";
+    public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE
+            = "Idle timeout triggered before initiating inbound response";
     public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE
             = "Idle timeout triggered while reading inbound response";
-    public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_RESPONSE
-            = "Idle timeout triggered before reading inbound response";
 
     public static final String EXCEPTION_CAUGHT_WHILE_READING_REQUEST
             = "Exception caught while reading inbound request";
     public static final String EXCEPTION_CAUGHT_WHILE_READING_RESPONSE
             = "Exception caught while reading inbound response";
 
-    public static final String REMOTE_CLIENT_ABRUPTLY_CLOSE_CONNECTION
-            = "Remote client closed the connection without completing inbound request";
-    public static final String REMOTE_SERVER_ABRUPTLY_CLOSE_RESPONSE_CONNECTION
-            = "Remote host closed the connection without completing inbound response";
+    // Client connection closure error scenarios
+    public static final String REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST
+            = "Remote client closed the connection before initiating inbound request";
+    public static final String REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST
+            = "Remote client closed the connection while reading inbound request";
+    public static final String REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE
+            = "Remote client closed the connection before initiating outbound response";
+    public static final String REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE
+            = "Remote client closed the connection while writing outbound response";
+    public static final String REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE
+            = "Remote client closed the connection before initiating 100 continue response";
+    public static final String REMOTE_CLIENT_CLOSED_WHILE_WRITING_100_CONTINUE_RESPONSE
+            = "Remote client closed the connection while writing 100 continue response";
 
-    public static final String REMOTE_SERVER_ABRUPTLY_CLOSE_REQUEST_CONNECTION
-            = "Remote host closed the connection before completing outbound request";
-    public static final String REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION
-            = "Remote client closed the connection before completing outbound response";
+    // Server connection closure error scenarios
+    public static final String REMOTE_SERVER_CLOSED_BEFORE_INITIATING_OUTBOUND_REQUEST
+            = "Remote host closed the connection before initiating outbound request";
+    public static final String REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST
+            = "Remote host closed the connection while writing outbound request";
+    public static final String REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE
+            = "Remote host closed the connection before initiating inbound response";
+    public static final String REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE
+            = "Remote host closed the connection while reading inbound response";
 
-    public static final String REMOTE_SERVER_CLOSE_RESPONSE_CONNECTION_AFTER_REQUEST_READ
-            = "Remote host closed the connection without sending inbound response";
+    public static final String REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED
+            = "Connection between remote client and host is closed";
+    public static final String CLIENT_TO_REMOTE_HOST_CONNECTION_CLOSED
+            = "Connection between client and remote host is closed";
 
     public static final String PROMISED_STREAM_REJECTED_ERROR
             = "Promised stream is already rejected or stream is no longer valid";
@@ -304,6 +340,8 @@ public final class Constants {
     public static final String JMX_AGENT_NAME = "jmx.agent.name";
 
     public static final String HTTP_RESOURCE = "httpResource";
+
+    public static final String INBOUND_RESPONSE_ALREADY_RECEIVED = "Inbound response message already received";
 
     private Constants() {
     }

@@ -22,7 +22,7 @@ package org.wso2.transport.http.netty.contract;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
-import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 
 import java.util.Map;
@@ -57,7 +57,7 @@ public interface HttpWsConnectorFactory {
      * @param clientConnectorConfig Properties to create a client connector.
      * @return WebSocketClientConnector.
      */
-    WebSocketClientConnector createWsClientConnector(WsClientConnectorConfig clientConnectorConfig);
+    WebSocketClientConnector createWsClientConnector(WebSocketClientConnectorConfig clientConnectorConfig);
 
     /**
      * Shutdown all the server channels and the accepted channels. It also shutdown all the eventloop groups.

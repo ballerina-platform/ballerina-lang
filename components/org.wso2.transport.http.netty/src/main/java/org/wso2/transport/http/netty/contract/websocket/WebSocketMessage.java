@@ -27,32 +27,11 @@ package org.wso2.transport.http.netty.contract.websocket;
 public interface WebSocketMessage {
 
     /**
-     * Retrieve negotiated sub-protocol.
-     *
-     * @return the negotiated sub-protocol.
-     */
-    String getSubProtocol();
-
-    /**
      * Retrieve the target of the application as a String.
      *
      * @return the target of the application.
      */
     String getTarget();
-
-    /**
-     * Retrieve the listener interface of the the incoming message.
-     *
-     * @return the listener interface.
-     */
-    String getListenerInterface();
-
-    /**
-     * Check whether the given connection is secured or not.
-     *
-     * @return true if the connection is secured.
-     */
-    boolean isConnectionSecured();
 
     /**
      * Check whether the message is coming from server connector or client connector.
@@ -68,11 +47,4 @@ public interface WebSocketMessage {
      * @return the session of the connection.
      */
     WebSocketConnection getWebSocketConnection();
-
-    /**
-     * Retrieve the session ID.
-     *
-     * @return the session ID.
-     */
-    String getSessionID();
 }
