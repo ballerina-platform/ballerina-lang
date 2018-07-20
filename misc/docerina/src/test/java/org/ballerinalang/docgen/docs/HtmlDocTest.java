@@ -321,7 +321,7 @@ public class HtmlDocTest {
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertEquals(page.constructs.get(0).name, "Test");
         Assert.assertEquals(page.constructs.get(0).icon, "fw-struct");
-        Assert.assertEquals(page.constructs.get(0).description, "<p>Object Test Description.</p>\n");
+        Assert.assertEquals(page.constructs.get(0).description, "<p>Object Test\nDescription.</p>\n");
         Assert.assertEquals(page.constructs.get(0).getClass(), ObjectDoc.class, "Invalid documentable type");
         ObjectDoc objectDoc = (ObjectDoc) page.constructs.get(0);
         Assert.assertEquals(objectDoc.fields.size(), 2);

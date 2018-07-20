@@ -93,7 +93,7 @@ public class BallerinaDocGenTest {
             SourceDirectory srcDirectory = new FileSystemProjectDirectory(Paths.get(path));
             List<String> sourcePackageNames = srcDirectory.getSourcePackageNames();
             BallerinaDocGenerator.generateApiDocs(path, testResourceRoot + File.separator + "api-docs", null, false,
-                    sourcePackageNames.toArray(new String[0]));
+                    true, sourcePackageNames.toArray(new String[0]));
             Map<String, PackageDoc> docsMap = BallerinaDocDataHolder.getInstance().getPackageMap();
             Assert.assertNotNull(docsMap);
             // this folder has 3 bal files. 2 bal files out of those are in same package.
