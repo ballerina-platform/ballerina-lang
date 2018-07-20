@@ -99,6 +99,16 @@ public class BasicTupleTest {
         Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
+    @Test(description = "Test index based access of tuple type with records")
+    public void testIndexBasedAccessOfRecords() {
+        BValue[] returns = BRunUtil.invoke(result, "testIndexBasedAccessOfRecords");
+        Assert.assertEquals(returns[0].stringValue(), "NewFoo");
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Assert.assertEquals(returns[2].stringValue(), "NewBar");
+        Assert.assertEquals(returns[3].stringValue(), "Foo");
+        Assert.assertEquals(((BFloat) returns[4]).floatValue(), 15.5);
+    }
+
     @Test(description = "Test default values for tuple type")
     public void testDefaultValuesInTuples() {
         BValue[] returns = BRunUtil.invoke(result, "testDefaultValuesInTuples");

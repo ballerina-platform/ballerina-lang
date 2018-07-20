@@ -963,14 +963,23 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         if (variableStore) {
             int opcode = getValueToRefTypeCastOpcode(tupleIndexAccessExpr.type.tag);
-            RegIndex refRegTupleValue = getRegIndex(TypeTags.ANY);
-            emit(opcode, tupleIndexAccessExpr.regIndex, refRegTupleValue);
-            emit(InstructionCodes.RASTORE, varRefRegIndex, indexRegIndex, refRegTupleValue);
+            if (opcode == InstructionCodes.NOP) {
+                emit(InstructionCodes.RASTORE, varRefRegIndex, indexRegIndex, tupleIndexAccessExpr.regIndex);
+            } else {
+                RegIndex refRegTupleValue = getRegIndex(TypeTags.ANY);
+                emit(opcode, tupleIndexAccessExpr.regIndex, refRegTupleValue);
+                emit(InstructionCodes.RASTORE, varRefRegIndex, indexRegIndex, refRegTupleValue);
+            }
         } else {
             int opcode = getRefToValueTypeCastOpcode(tupleIndexAccessExpr.type.tag);
-            RegIndex refRegTupleValue = getRegIndex(TypeTags.ANY);
-            emit(InstructionCodes.RALOAD, varRefRegIndex, indexRegIndex, refRegTupleValue);
-            emit(opcode, refRegTupleValue, calcAndGetExprRegIndex(tupleIndexAccessExpr));
+            if (opcode == InstructionCodes.NOP) {
+                emit(InstructionCodes.RALOAD,
+                        varRefRegIndex, indexRegIndex, calcAndGetExprRegIndex(tupleIndexAccessExpr));
+            } else {
+                RegIndex refRegTupleValue = getRegIndex(TypeTags.ANY);
+                emit(InstructionCodes.RALOAD, varRefRegIndex, indexRegIndex, refRegTupleValue);
+                emit(opcode, refRegTupleValue, calcAndGetExprRegIndex(tupleIndexAccessExpr));
+            }
         }
 
         this.varAssignment = variableStore;
