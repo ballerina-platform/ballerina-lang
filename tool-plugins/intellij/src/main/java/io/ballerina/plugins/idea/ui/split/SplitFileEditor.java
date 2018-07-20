@@ -12,6 +12,7 @@ import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.UserDataHolderBase;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.ui.JBSplitter;
 import org.jetbrains.annotations.NotNull;
@@ -58,23 +59,23 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
             mySecondEditor.putUserData(PARENT_SPLIT_KEY, this);
         }
 
-        //    MarkdownApplicationSettings.SettingsChangedListener settingsChangedListener =
-        //      new MarkdownApplicationSettings.SettingsChangedListener() {
-        //        @Override
-        //        public void beforeSettingsChanged(@NotNull MarkdownApplicationSettings newSettings) {
-        //          SplitEditorLayout oldSplitEditorLayout =
-        //            MarkdownApplicationSettings.getInstance().getMarkdownPreviewSettings().getSplitEditorLayout();
+        //            MarkdownApplicationSettings.SettingsChangedListener settingsChangedListener =
+        //              new MarkdownApplicationSettings.SettingsChangedListener() {
+        //                @Override
+        //                public void beforeSettingsChanged(@NotNull MarkdownApplicationSettings newSettings) {
+        //                  SplitEditorLayout oldSplitEditorLayout =
+        //                    MarkdownApplicationSettings.getInstance().getMarkdownPreviewSettings().getSplitEditorLayout();
         //
-        //          ApplicationManager.getApplication().invokeLater(() -> {
-        //            if (oldSplitEditorLayout == mySplitEditorLayout) {
-        //              triggerLayoutChange(newSettings.getMarkdownPreviewSettings().getSplitEditorLayout(), false);
-        //            }
-        //          });
-        //        }
-        //      };
-
-        //    ApplicationManager.getApplication().getMessageBus().connect(this)
-        //      .subscribe(MarkdownApplicationSettings.SettingsChangedListener.TOPIC, settingsChangedListener);
+        //                  ApplicationManager.getApplication().invokeLater(() -> {
+        //                    if (oldSplitEditorLayout == mySplitEditorLayout) {
+        //                      triggerLayoutChange(newSettings.getMarkdownPreviewSettings().getSplitEditorLayout(), false);
+        //                    }
+        //                  });
+        //                }
+        //              };
+        //
+        //            ApplicationManager.getApplication().getMessageBus().connect(this)
+        //              .subscribe(MarkdownApplicationSettings.SettingsChangedListener.TOPIC, settingsChangedListener);
     }
 
     @NotNull
@@ -95,7 +96,7 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
         }
 
         final JPanel result = new JPanel(new BorderLayout());
-        //    result.add(myToolbarWrapper, BorderLayout.NORTH);
+        result.add(myToolbarWrapper, BorderLayout.NORTH);
         result.add(splitter, BorderLayout.CENTER);
         adjustEditorsVisibility();
         return result;
@@ -362,6 +363,11 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
         @Override
         public String toString() {
             return presentationName;
+        }
+
+        public String getPresentationText() {
+            //noinspection ConstantConditions
+            return StringUtil.capitalize(StringUtil.substringAfter(presentationName, "Show "));
         }
     }
 }
