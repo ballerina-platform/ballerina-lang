@@ -13,8 +13,8 @@ I'm in test function 2!
 I'm in test function 1!
 I'm the after suite function!
 
-	  ✔ testFunction2
-	  ✔ testFunction1
+	  [pass] testFunction2
+	  [pass] testFunction1
 
 	  2 passing
 	  0 failing

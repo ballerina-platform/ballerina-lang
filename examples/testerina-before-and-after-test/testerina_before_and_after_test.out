@@ -12,7 +12,7 @@ I'm the before function!
 I'm in test function!
 I'm the after function!
 
-	  ✔ testFunction
+	  [pass] testFunction
 
 	  1 passing
 	  0 failing

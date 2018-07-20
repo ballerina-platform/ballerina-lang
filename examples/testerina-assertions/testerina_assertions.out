@@ -4,20 +4,20 @@ Compiling tests
 
 Running tests
     testerina_assertions.bal
-	  ✔ testAssertFail2
-	  ✔ testAssertFail1
-	  ✔ testAssertFalse
-	  ✔ testAssertTrue
-	  ✔ testAssertNotEqualsJson
-	  ✔ testAssertNotEqualsString
-	  ✔ testAssertFloatArrayEquals
-	  ✔ testAssertIntArrayEquals
-	  ✔ testAssertStringArrayEquals
-	  ✔ testAssertBooleanEquals
-	  ✔ testAssertJsonEquals
-	  ✔ testAssertStringEquals
-	  ✔ testAssertFloatEquals
-	  ✔ testAssertIntEquals
+	  [pass] testAssertFail2
+	  [pass] testAssertFail1
+	  [pass] testAssertFalse
+	  [pass] testAssertTrue
+	  [pass] testAssertNotEqualsJson
+	  [pass] testAssertNotEqualsString
+	  [pass] testAssertFloatArrayEquals
+	  [pass] testAssertIntArrayEquals
+	  [pass] testAssertStringArrayEquals
+	  [pass] testAssertBooleanEquals
+	  [pass] testAssertJsonEquals
+	  [pass] testAssertStringEquals
+	  [pass] testAssertFloatEquals
+	  [pass] testAssertIntEquals
 
 	  14 passing
 	  0 failing
