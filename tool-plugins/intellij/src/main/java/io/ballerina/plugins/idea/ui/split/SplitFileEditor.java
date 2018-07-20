@@ -2,6 +2,7 @@ package io.ballerina.plugins.idea.ui.split;
 
 import com.intellij.codeHighlighting.BackgroundEditorHighlighter;
 import com.intellij.ide.structureView.StructureViewBuilder;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.ex.EditorGutterComponentEx;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorLocation;
@@ -15,6 +16,7 @@ import com.intellij.openapi.util.UserDataHolderBase;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.ui.JBSplitter;
+import io.ballerina.plugins.idea.ui.settings.MarkdownApplicationSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,8 +26,6 @@ import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.*;
-
-//import com.intellij.openapi.application.ApplicationManager;
 
 public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEditor> extends UserDataHolderBase
         implements FileEditor {
@@ -40,7 +40,8 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
     @NotNull
     private final JComponent myComponent;
     @NotNull
-    private SplitEditorLayout mySplitEditorLayout = SplitFileEditor.SplitEditorLayout.SPLIT;
+    private SplitEditorLayout mySplitEditorLayout = MarkdownApplicationSettings.getInstance()
+            .getMarkdownPreviewSettings().getSplitEditorLayout();
     @NotNull
     private final MyListenersMultimap myListenersGenerator = new MyListenersMultimap();
 
@@ -59,23 +60,22 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
             mySecondEditor.putUserData(PARENT_SPLIT_KEY, this);
         }
 
-        //            MarkdownApplicationSettings.SettingsChangedListener settingsChangedListener =
-        //              new MarkdownApplicationSettings.SettingsChangedListener() {
-        //                @Override
-        //                public void beforeSettingsChanged(@NotNull MarkdownApplicationSettings newSettings) {
-        //                  SplitEditorLayout oldSplitEditorLayout =
-        //                    MarkdownApplicationSettings.getInstance().getMarkdownPreviewSettings().getSplitEditorLayout();
-        //
-        //                  ApplicationManager.getApplication().invokeLater(() -> {
-        //                    if (oldSplitEditorLayout == mySplitEditorLayout) {
-        //                      triggerLayoutChange(newSettings.getMarkdownPreviewSettings().getSplitEditorLayout(), false);
-        //                    }
-        //                  });
-        //                }
-        //              };
-        //
-        //            ApplicationManager.getApplication().getMessageBus().connect(this)
-        //              .subscribe(MarkdownApplicationSettings.SettingsChangedListener.TOPIC, settingsChangedListener);
+        MarkdownApplicationSettings.SettingsChangedListener settingsChangedListener = new MarkdownApplicationSettings.SettingsChangedListener() {
+            @Override
+            public void beforeSettingsChanged(@NotNull MarkdownApplicationSettings newSettings) {
+                SplitEditorLayout oldSplitEditorLayout = MarkdownApplicationSettings.getInstance()
+                        .getMarkdownPreviewSettings().getSplitEditorLayout();
+
+                ApplicationManager.getApplication().invokeLater(() -> {
+                    if (oldSplitEditorLayout == mySplitEditorLayout) {
+                        triggerLayoutChange(newSettings.getMarkdownPreviewSettings().getSplitEditorLayout(), false);
+                    }
+                });
+            }
+        };
+
+        ApplicationManager.getApplication().getMessageBus().connect(this)
+                .subscribe(MarkdownApplicationSettings.SettingsChangedListener.TOPIC, settingsChangedListener);
     }
 
     @NotNull
@@ -99,6 +99,7 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
         result.add(myToolbarWrapper, BorderLayout.NORTH);
         result.add(splitter, BorderLayout.CENTER);
         adjustEditorsVisibility();
+
         return result;
     }
 
@@ -347,8 +348,8 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
     }
 
     public enum SplitEditorLayout {
-        FIRST(true, false, "markdown.layout.editor.only"), SECOND(false, true, "markdown.layout.preview.only"), SPLIT(
-                true, true, "markdown.layout.editor.and.preview");
+        FIRST(true, false, "Show editor only"), SECOND(false, true, "Show preview only"), SPLIT(true, true,
+                "Show editor and preview");
 
         public final boolean showFirst;
         public final boolean showSecond;
@@ -360,14 +361,14 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
             this.presentationName = presentationName;
         }
 
-        @Override
-        public String toString() {
-            return presentationName;
-        }
-
         public String getPresentationText() {
             //noinspection ConstantConditions
             return StringUtil.capitalize(StringUtil.substringAfter(presentationName, "Show "));
+        }
+
+        @Override
+        public String toString() {
+            return presentationName;
         }
     }
 }

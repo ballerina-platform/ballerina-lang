@@ -19,13 +19,13 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 
-//import org.intellij.plugins.markdown.MarkdownBundle;
-
 public class SplitEditorToolbar extends JPanel implements Disposable {
     private static final String RIGHT_TOOLBAR_GROUP_ID = "Markdown.Toolbar.Right";
-    public static final String CENTER_PANEL_LABEL = "View: ";
+
     private final MySpacingPanel mySpacingPanel;
-    private final ActionToolbar myRightToolbar;
+
+    private final ActionToolbar myToolbar;
+
     private final List<EditorGutterComponentEx> myGutters = new ArrayList<>();
 
     private final ComponentAdapter myAdjustToGutterListener = new ComponentAdapter() {
@@ -48,18 +48,20 @@ public class SplitEditorToolbar extends JPanel implements Disposable {
     public SplitEditorToolbar(@NotNull final JComponent targetComponentForActions) {
         super(new GridBagLayout());
 
-        myRightToolbar = createToolbarFromGroupId(RIGHT_TOOLBAR_GROUP_ID);
-        myRightToolbar.setTargetComponent(targetComponentForActions);
+        myToolbar = createToolbarFromGroupId(RIGHT_TOOLBAR_GROUP_ID);
+        myToolbar.setTargetComponent(targetComponentForActions);
 
-        mySpacingPanel = new MySpacingPanel((int) myRightToolbar.getComponent().getPreferredSize().getHeight());
+        mySpacingPanel = new MySpacingPanel((int) myToolbar.getComponent().getPreferredSize().getHeight());
         final JPanel centerPanel = new JPanel(new BorderLayout());
-        centerPanel.add(new JLabel(CENTER_PANEL_LABEL, SwingConstants.RIGHT), BorderLayout.EAST);
+        centerPanel.add(new JLabel("View: ", SwingConstants.RIGHT), BorderLayout.EAST);
         add(mySpacingPanel);
         add(centerPanel,
                 new GridBagConstraints(2, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                         JBUI.emptyInsets(), 0, 0));
-        add(myRightToolbar.getComponent());
-        setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, UIUtil.CONTRAST_BORDER_COLOR));
+        add(myToolbar.getComponent());
+
+        setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, UIUtil.CONTRAST_BORDER_COLOR));
+
         addComponentListener(myAdjustToGutterListener);
     }
 
@@ -71,7 +73,7 @@ public class SplitEditorToolbar extends JPanel implements Disposable {
 
     public void refresh() {
         adjustSpacing();
-        myRightToolbar.updateActionsImmediately();
+        myToolbar.updateActionsImmediately();
     }
 
     private void adjustSpacing() {
