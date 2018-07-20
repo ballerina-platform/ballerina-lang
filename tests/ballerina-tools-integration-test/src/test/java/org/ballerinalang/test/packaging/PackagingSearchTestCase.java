@@ -48,7 +48,7 @@ public class PackagingSearchTestCase extends IntegrationTestCase {
     }
 
     @Test(description = "Test searching a package from central")
-    public void testSearch() throws Exception {
+    public void testSearch() throws BallerinaTestException, IOException {
         ballerinaClient = new ServerInstance(serverZipPath);
         String[] clientArgs = {"searchTestPackage"};
 
