@@ -21,6 +21,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -30,8 +31,8 @@ import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.Whitespace;
+import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -39,6 +40,7 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -54,7 +56,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -80,7 +81,7 @@ public class TextDocumentFormatUtil {
      * @return {@link JsonObject}   AST as a Json Object
      */
     public static JsonObject getAST(String uri, WorkspaceDocumentManager documentManager,
-                                    LSContext context) {
+                                    LSContext context) throws InvocationTargetException, IllegalAccessException {
         String[] uriParts = uri.split(Pattern.quote(File.separator));
         String fileName = uriParts[uriParts.length - 1];
         final BLangPackage bLangPackage = LSCompiler.getBLangPackage(context, documentManager,
@@ -110,7 +111,8 @@ public class TextDocumentFormatUtil {
      * @param anonStructs Map of anonymous structs
      * @return {@link JsonElement}          Json Representation of the node
      */
-    public static JsonElement generateJSON(Node node, Map<String, Node> anonStructs) {
+    public static JsonElement generateJSON(Node node, Map<String, Node> anonStructs)
+            throws InvocationTargetException, IllegalAccessException {
         if (node == null) {
             return JsonNull.INSTANCE;
         }
@@ -132,7 +134,7 @@ public class TextDocumentFormatUtil {
             }
             nodeJson.add("ws", wsJsonArray);
         }
-        org.ballerinalang.util.diagnostic.Diagnostic.DiagnosticPosition position = node.getPosition();
+        Diagnostic.DiagnosticPosition position = node.getPosition();
         if (position != null) {
             JsonObject positionJson = new JsonObject();
             positionJson.addProperty("startColumn", position.getStartColumn());
@@ -142,8 +144,7 @@ public class TextDocumentFormatUtil {
             nodeJson.add("position", positionJson);
         }
 
-        // Add UUID for each node.
-        nodeJson.addProperty("id", UUID.randomUUID().toString());
+        /* Virtual props */
 
         JsonArray type = getType(node);
         if (type != null) {
@@ -173,12 +174,7 @@ public class TextDocumentFormatUtil {
                 continue;
             }
 
-            Object prop = null;
-            try {
-                prop = m.invoke(node);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                logger.error("Error while serializing source to JSON: [" + e.getMessage() + "]");
-            }
+            Object prop = m.invoke(node);
 
             /* Literal class - This class is escaped in backend to address cases like "ss\"" and 8.0 and null */
             if (node.getKind() == NodeKind.LITERAL && "value".equals(jsonName)) {
@@ -191,16 +187,16 @@ public class TextDocumentFormatUtil {
                 continue;
             }
 
-            if (node.getKind() == NodeKind.USER_DEFINED_TYPE && jsonName.equals("typeName")) {
-                IdentifierNode typeNode = (IdentifierNode) prop;
-                Node structNode;
-                if (typeNode.getValue().startsWith("$anonStruct$") &&
-                        (structNode = anonStructs.remove(typeNode.getValue())) != null) {
-                    JsonObject anonStruct = generateJSON(structNode, anonStructs).getAsJsonObject();
-                    anonStruct.addProperty("anonStruct", true);
-                    nodeJson.add("anonStruct", anonStruct);
-                    continue;
-                }
+            if (node.getKind() == NodeKind.ANNOTATION
+                    && node instanceof BLangAnnotation) {
+                JsonArray attachmentPoints = new JsonArray();
+                ((BLangAnnotation) node)
+                        .getAttachPoints()
+                        .stream()
+                        .map(AttachPoint::getValue)
+                        .map(JsonPrimitive::new)
+                        .forEach(attachmentPoints::add);
+                nodeJson.add("attachmentPoints", attachmentPoints);
             }
 
             if (prop instanceof List && jsonName.equals("types")) {
@@ -219,12 +215,6 @@ public class TextDocumentFormatUtil {
                     if (listPropItem instanceof Node) {
                         /* Remove top level anon func and struct */
                         if (node.getKind() == NodeKind.COMPILATION_UNIT) {
-                            // TODO: 5/21/18 BLangStruct Has been removed and need to revisit the following logic
-//                            if (listPropItem instanceof BLangStruct && ((BLangStruct) listPropItem).isAnonymous) {
-//                                anonStructs.put(((BLangStruct) listPropItem).getName().getValue(),
-//                                                ((BLangStruct) listPropItem));
-//                                continue;
-//                            }
                             if (listPropItem instanceof BLangFunction
                                     && (((BLangFunction) listPropItem)).name.value.startsWith("$lambda$")) {
                                 continue;
@@ -263,6 +253,13 @@ public class TextDocumentFormatUtil {
                 nodeJson.addProperty(jsonName, (Boolean) prop);
             } else if (prop instanceof Enum) {
                 nodeJson.addProperty(jsonName, StringUtils.lowerCase(((Enum) prop).name()));
+            } else if (prop instanceof int[]) {
+                int[] intArray = ((int[]) prop);
+                JsonArray intArrayPropJson = new JsonArray();
+                nodeJson.add(jsonName, intArrayPropJson);
+                for (int intProp : intArray) {
+                    intArrayPropJson.add(intProp);
+                }
             } else if (prop != null) {
                 nodeJson.addProperty(jsonName, prop.toString());
                 String message = "Node " + node.getClass().getSimpleName() +
@@ -280,7 +277,7 @@ public class TextDocumentFormatUtil {
      * @param prefixLen Length of prefix
      * @return {@link String}   Converted value
      */
-    private static String toJsonName(String name, int prefixLen) {
+    public static String toJsonName(String name, int prefixLen) {
         return Character.toLowerCase(name.charAt(prefixLen)) + name.substring(prefixLen + 1);
     }
 
@@ -292,19 +289,18 @@ public class TextDocumentFormatUtil {
      * @return {@link JsonArray}    Converted array value
      */
     public static JsonArray getType(Node node) {
-        if (node instanceof BLangNode) {
-            BType type = ((BLangNode) node).type;
-            if (node instanceof BLangInvocation) {
-                JsonArray jsonElements = new JsonArray();
-                jsonElements.add(((BLangInvocation) node).type.getKind().typeName());
-                return jsonElements;
-            } else if (type != null) {
-                JsonArray jsonElements = new JsonArray();
-                jsonElements.add(type.getKind().typeName());
-                return jsonElements;
-            }
+        BType type = ((BLangNode) node).type;
+        if (node instanceof BLangInvocation) {
+            JsonArray jsonElements = new JsonArray();
+            /*for (BType returnType : ((BLangInvocation) node).types) {
+                jsonElements.add(returnType.getKind().typeName());
+            }*/
+            return jsonElements;
+        } else if (type != null) {
+            JsonArray jsonElements = new JsonArray();
+            jsonElements.add(type.getKind().typeName());
+            return jsonElements;
         }
-
         return null;
     }
 }
