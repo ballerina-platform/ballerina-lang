@@ -17,7 +17,7 @@
  */
 
 import React from 'react';
-import Item from '../../../../../interactions/item';
+import Item from './item';
 
 class ControllerUtil {
 

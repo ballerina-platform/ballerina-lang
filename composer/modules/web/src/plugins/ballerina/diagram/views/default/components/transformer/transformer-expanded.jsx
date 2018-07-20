@@ -33,7 +33,6 @@ import Operator from './operator';
 import NestedTransformer from './nested-transformer';
 import TreeUtil from '../../../../../model/tree-util';
 import DropZone from '../../../../../drag-drop/DropZone';
-import Button from '../../../../../interactions/transform-button';
 import './transformer-expanded.css';
 import IterableList from './iterable-list';
 import ConversionList from './conversion-list';
@@ -1445,13 +1444,16 @@ class TransformerExpanded extends React.Component {
                                             })
                                         }
                                     </DropZone>
+
+                                    {/*
+                                    // need to move this to graphical editor
                                     <Button
                                         className='transformer-button'
                                         bBox={{ x: 0, y: 0, h: 0, w: 300 }}
                                         showAlways
                                         model={this.props.model.getBody()}
                                         transformNodeManager={this.transformNodeManager}
-                                    />
+                                    /> */}
                                     <IterableList
                                         showIterables={this.state.connectionMenu.showIterables}
                                         bBox={{

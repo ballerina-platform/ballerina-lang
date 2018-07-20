@@ -18,7 +18,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ClientResponderDecorator from '../decorators/client-responder-decorator';
-import ActiveArbiter from '../decorators/active-arbiter';
 
 /**
  * Action Invocation Node component. This is a custom component for rendering all statements
@@ -63,7 +62,6 @@ ClientResponderNode.propTypes = {
 };
 
 ClientResponderNode.contextTypes = {
-    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
     designer: PropTypes.instanceOf(Object).isRequired,
 };
 
