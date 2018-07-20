@@ -74,11 +74,6 @@
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-launcher</artifactId>
     </dependency>
-    <dependency>
-        <groupId>org.ballerinalang</groupId>
-        <artifactId>composer-ballerina-parser-service</artifactId>
-        <version>${project.version}</version>
-    </dependency>
         <dependency>
         <groupId>io.swagger.parser.v3</groupId>
         <artifactId>swagger-parser-v2-converter</artifactId>
