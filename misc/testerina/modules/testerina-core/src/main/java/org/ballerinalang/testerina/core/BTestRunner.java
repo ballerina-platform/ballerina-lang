@@ -146,6 +146,8 @@ public class BTestRunner {
      */
     private void compileAndBuildSuites(String sourceRoot, Path[] sourceFilePaths, boolean buildWithTests)  {
         if (sourceFilePaths.length == 0) {
+            outStream.println("Compiling tests");
+            outStream.println("    No tests found\n");
             return;
         }
         if (buildWithTests) {
@@ -206,7 +208,8 @@ public class BTestRunner {
             if (buildWithTests) {
                 return;
             }
-            outStream.println("No tests found");
+            outStream.println("Running tests");
+            outStream.println("    No tests found");
             return;
         }
 
