@@ -22,13 +22,10 @@ import javax.swing.*;
 //import org.intellij.plugins.markdown.MarkdownBundle;
 
 public class SplitEditorToolbar extends JPanel implements Disposable {
-    private static final String LEFT_TOOLBAR_GROUP_ID = "Markdown.Toolbar.Left";
     private static final String RIGHT_TOOLBAR_GROUP_ID = "Markdown.Toolbar.Right";
-
+    public static final String CENTER_PANEL_LABEL = "View: ";
     private final MySpacingPanel mySpacingPanel;
-
     private final ActionToolbar myRightToolbar;
-
     private final List<EditorGutterComponentEx> myGutters = new ArrayList<>();
 
     private final ComponentAdapter myAdjustToGutterListener = new ComponentAdapter() {
@@ -51,23 +48,18 @@ public class SplitEditorToolbar extends JPanel implements Disposable {
     public SplitEditorToolbar(@NotNull final JComponent targetComponentForActions) {
         super(new GridBagLayout());
 
-        //final ActionToolbar leftToolbar = createToolbarFromGroupId(LEFT_TOOLBAR_GROUP_ID);
-        //leftToolbar.setTargetComponent(targetComponentForActions);
         myRightToolbar = createToolbarFromGroupId(RIGHT_TOOLBAR_GROUP_ID);
         myRightToolbar.setTargetComponent(targetComponentForActions);
 
         mySpacingPanel = new MySpacingPanel((int) myRightToolbar.getComponent().getPreferredSize().getHeight());
         final JPanel centerPanel = new JPanel(new BorderLayout());
-        centerPanel.add(new JLabel("View", SwingConstants.RIGHT), BorderLayout.WEST);
+        centerPanel.add(new JLabel(CENTER_PANEL_LABEL, SwingConstants.RIGHT), BorderLayout.EAST);
         add(mySpacingPanel);
-        //add(leftToolbar.getComponent());
         add(centerPanel,
                 new GridBagConstraints(2, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                         JBUI.emptyInsets(), 0, 0));
         add(myRightToolbar.getComponent());
-
-        setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, UIUtil.CONTRAST_BORDER_COLOR));
-
+        setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, UIUtil.CONTRAST_BORDER_COLOR));
         addComponentListener(myAdjustToGutterListener);
     }
 
