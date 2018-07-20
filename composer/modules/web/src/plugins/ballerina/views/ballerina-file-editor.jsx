@@ -647,7 +647,7 @@ class BallerinaFileEditor extends React.Component {
             this.state.splitSize;
         const designWidth = (this.state.activeView === DESIGN_VIEW) ? this.props.width :
             this.props.width - this.state.splitSize;
-        const height = this.props.height - 10; // height is reduced to accommodate scroll bars
+        const height = this.props.height - 56; // height is reduced to accommodate scroll bars
 
         const sourceView = (
             <SourceView

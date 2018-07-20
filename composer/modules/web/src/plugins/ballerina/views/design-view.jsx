@@ -177,6 +177,13 @@ class DesignView extends React.Component {
             >
                 <div className='outerCanvasDiv'>
                     <DragLayer />
+                    <DiagramMenu
+                            width={this.props.width}
+                            model={this.props.model}
+                            onModeChange={(data) => { this.props.onModeChange(data); }}
+                            onCodeExpandToggle={(data) => { this.props.onCodeExpandToggle(data); }}
+                            editMode={this.props.editMode}
+                            mode={this.props.mode} />
                     <Scrollbars
                         style={{
                             width: this.props.width,
@@ -185,13 +192,6 @@ class DesignView extends React.Component {
                         ref={(scrollbars) => { this.scrollbars = scrollbars; }}
                         onScrollFrame={this.onScroll}
                     >
-                        <DiagramMenu
-                            width={this.props.width}
-                            model={this.props.model}
-                            onModeChange={(data) => { this.props.onModeChange(data); }}
-                            onCodeExpandToggle={(data) => { this.props.onCodeExpandToggle(data); }}
-                            editMode={this.props.editMode}
-                            mode={this.props.mode} />
                         <div className='canvas-container'>
                             <div className='canvas-top-controls-container' />
                             <div className='html-overlay' ref={this.setOverlayContainer} />
