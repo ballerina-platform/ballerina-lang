@@ -19,9 +19,12 @@
 package org.ballerinalang.stdlib.io.readers;
 
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
+import org.ballerinalang.stdlib.io.events.EventContext;
 import org.ballerinalang.stdlib.io.events.EventManager;
 import org.ballerinalang.stdlib.io.events.EventResult;
 import org.ballerinalang.stdlib.io.events.characters.ReadCharactersEvent;
+import org.ballerinalang.stdlib.io.events.result.AlphaResult;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,8 +42,11 @@ public class CharacterChannelReader extends Reader {
 
     private CharacterChannel channel;
 
-    public CharacterChannelReader(CharacterChannel channel) {
+    private EventContext context;
+
+    public CharacterChannelReader(CharacterChannel channel, EventContext context) {
         this.channel = channel;
+        this.context = context;
     }
 
     @Override
@@ -48,11 +54,15 @@ public class CharacterChannelReader extends Reader {
         if (log.isDebugEnabled()) {
             log.debug("Read offset: " + off + " length: " + len);
         }
-        ReadCharactersEvent event = new ReadCharactersEvent(channel, len);
+        ReadCharactersEvent event = new ReadCharactersEvent(channel, len, context);
         CompletableFuture<EventResult> future = EventManager.getInstance().publish(event);
-        final EventResult eventResult;
+        final AlphaResult eventResult;
         try {
-            eventResult = future.get();
+            eventResult = (AlphaResult) future.get();
+            Throwable error = eventResult.getContext().getError();
+            if (null != error && !IOConstants.IO_EOF.equals(error.getMessage())) {
+                throw new IOException(error);
+            }
         } catch (InterruptedException | ExecutionException e) {
             throw new IOException(e);
         }

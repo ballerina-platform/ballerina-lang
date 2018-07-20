@@ -92,5 +92,8 @@ export function getCommandDefinitions() {
                 filePath: PropTypes.string.isRequired,
             },
         },
+        {
+            id: COMMANDS.SHOW_EXTERNAL_LINK,
+        },
     ];
 }

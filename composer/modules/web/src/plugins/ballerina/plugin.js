@@ -101,7 +101,6 @@ class BallerinaPlugin extends Plugin {
                 listen({
                     webSocket,
                     onConnection: (connection) => {
-                        this.langServerConnection = connection;
                         // create and start the language client
                         const languageClient = new BaseLanguageClient({
                             name: 'Ballerina Language Client',
@@ -116,8 +115,13 @@ class BallerinaPlugin extends Plugin {
                             },
                             services: {
                                 commands: {
-                                    registerCommand: (...args) => {
-                                        this.lsCommands.push({ ...args });
+                                    registerCommand: (command, callback, thisArg) => {
+                                        this.lsCommands.push({
+                                            command,
+                                            callback,
+                                            thisArg,
+                                        });
+                                        return { dispose: () => {} };
                                     },
                                 },
                                 languages: new MonacoLanguages(p2m, m2p),
@@ -131,12 +135,14 @@ class BallerinaPlugin extends Plugin {
                                 },
                             },
                         });
+                        languageClient.onReady().then(() => {
+                            this.langServerConnection = connection;
+                            resolve(this.langServerConnection);
+                        });
                         const disposable = languageClient.start();
                         connection.onClose(() => disposable.dispose());
-                        resolve(this.langServerConnection);
                     },
                 });
-                
             }
         });
     }
