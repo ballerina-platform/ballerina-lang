@@ -56,7 +56,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -606,13 +606,13 @@ public class MessageUtils {
         return new DefaultHttpWsConnectorFactory();
     }
 
-    public static HTTPCarbonMessage createHttpCarbonMessage(boolean isRequest) {
-        HTTPCarbonMessage httpCarbonMessage;
+    public static HttpCarbonMessage createHttpCarbonMessage(boolean isRequest) {
+        HttpCarbonMessage httpCarbonMessage;
         if (isRequest) {
-            httpCarbonMessage = new HTTPCarbonMessage(
+            httpCarbonMessage = new HttpCarbonMessage(
                     new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, ""));
         } else {
-            httpCarbonMessage = new HTTPCarbonMessage(
+            httpCarbonMessage = new HttpCarbonMessage(
                     new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
         }
         return httpCarbonMessage;

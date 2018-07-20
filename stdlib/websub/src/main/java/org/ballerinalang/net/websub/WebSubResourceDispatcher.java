@@ -30,7 +30,7 @@ import org.ballerinalang.net.http.HttpService;
 import org.ballerinalang.net.websub.util.WebSubUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.ballerinalang.mime.util.MimeConstants.MESSAGE_DATA_SOURCE;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_METHOD;
@@ -56,7 +56,7 @@ import static org.wso2.transport.http.netty.common.Constants.HTTP_RESOURCE;
  */
 class WebSubResourceDispatcher {
 
-    static HttpResource findResource(HttpService service, HTTPCarbonMessage inboundRequest,
+    static HttpResource findResource(HttpService service, HttpCarbonMessage inboundRequest,
                                      WebSubServicesRegistry servicesRegistry)
             throws BallerinaConnectorException, ServerConnectorException {
 
@@ -147,7 +147,7 @@ class WebSubResourceDispatcher {
      * @return                  the name of the resource as identified based on the topic
      * @throws BallerinaConnectorException if a resource could not be mapped to the topic identified
      */
-    private static String retrieveResourceName(ProgramFile programFile, HTTPCarbonMessage inboundRequest,
+    private static String retrieveResourceName(ProgramFile programFile, HttpCarbonMessage inboundRequest,
                    String topicHeader, BStringArray payloadKeys, BMap<String, BMap<String, BString>> topicResourceMap) {
         String topicHeaderPrefix = topicHeader + "::";
         BValue httpRequest = WebSubUtils.getHttpRequest(programFile, inboundRequest);
@@ -184,7 +184,7 @@ class WebSubResourceDispatcher {
      * @return                  the name of the resource as identified based on the topic
      * @throws BallerinaConnectorException if a resource could not be mapped to the topic identified
      */
-    private static String retrieveResourceName(ProgramFile programFile, HTTPCarbonMessage inboundRequest,
+    private static String retrieveResourceName(ProgramFile programFile, HttpCarbonMessage inboundRequest,
                                        BStringArray payloadKeys, BMap<String, BMap<String, BString>> topicResourceMap) {
         BValue httpRequest = WebSubUtils.getHttpRequest(programFile, inboundRequest);
         BJSON jsonBody = retrieveJsonBody(httpRequest);

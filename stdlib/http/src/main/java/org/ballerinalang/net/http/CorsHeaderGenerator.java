@@ -23,7 +23,7 @@ import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -45,7 +45,7 @@ public class CorsHeaderGenerator {
     private static final Logger bLog = LoggerFactory.getLogger(BLogManager.BALLERINA_ROOT_LOGGER_NAME);
     private static final String action = "Failed to process CORS : ";
 
-    public static void process(HTTPCarbonMessage requestMsg, HTTPCarbonMessage responseMsg, boolean isSimpleRequest) {
+    public static void process(HttpCarbonMessage requestMsg, HttpCarbonMessage responseMsg, boolean isSimpleRequest) {
 
         boolean isCorsResponseHeadersAvailable = false;
         Map<String, String> responseHeaders = null;
@@ -97,7 +97,7 @@ public class CorsHeaderGenerator {
         return responseHeaders;
     }
 
-    private static Map<String, String> processPreflightRequest(String originValue, HTTPCarbonMessage cMsg) {
+    private static Map<String, String> processPreflightRequest(String originValue, HttpCarbonMessage cMsg) {
         Map<String, String> responseHeaders = new HashMap<>();
         //6.2.1 - request must have origin, must have one origin.
         List<String> requestOrigins = getOriginValues(originValue);
@@ -181,7 +181,7 @@ public class CorsHeaderGenerator {
         return false;
     }
 
-    private static CorsHeaders getResourceCors(HTTPCarbonMessage cMsg, String requestMethod) {
+    private static CorsHeaders getResourceCors(HttpCarbonMessage cMsg, String requestMethod) {
         List<HttpResource> resources = (List<HttpResource>) cMsg.getProperty(HttpConstants.PREFLIGHT_RESOURCES);
         if (resources == null) {
             return null;
@@ -202,7 +202,7 @@ public class CorsHeaderGenerator {
         return null;
     }
 
-    private static List<String> getHeaderValues(String key, HTTPCarbonMessage cMsg) {
+    private static List<String> getHeaderValues(String key, HttpCarbonMessage cMsg) {
         String value = cMsg.getHeader(key);
         if (value != null) {
             String[] values = fieldCommaPattern.split(value);
