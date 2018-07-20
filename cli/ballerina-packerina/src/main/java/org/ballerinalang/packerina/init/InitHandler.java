@@ -134,7 +134,7 @@ public class InitHandler {
                 if (!Files.exists(packagePath)) {
                     Files.createDirectory(packagePath);
                 }
-                if (!Files.exists(testDirPath)) {
+                if (!Files.isSameFile(projectPath, packagePath) && !Files.exists(testDirPath)) {
                     Files.createDirectory(testDirPath);
                 }
 
@@ -144,7 +144,7 @@ public class InitHandler {
                     Files.createFile(srcFilePath);
                     writeContent(srcFilePath, srcFile.getContent());
                 }
-                if (!Files.exists(testFilePath)) {
+                if (!Files.isSameFile(projectPath, packagePath) && !Files.exists(testFilePath)) {
                     Files.createFile(testFilePath);
                     writeContent(testFilePath, srcFile.getTestContent());
                 }
