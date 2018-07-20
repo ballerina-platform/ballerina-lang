@@ -37,7 +37,6 @@ import org.ballerinalang.docgen.model.RecordDoc;
 import org.ballerinalang.docgen.model.StaticCaption;
 import org.ballerinalang.docgen.model.Variable;
 import org.ballerinalang.model.elements.AttachPoint;
-import org.ballerinalang.model.elements.DocAttachment;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -454,21 +453,22 @@ public class Generator {
         if (recordType.isAnonymous) {
             structName = "Anonymous Record " + structName.substring(structName.lastIndexOf('$') + 1);
         }
-        List<Field> fields = getFields(recordType, recordType.fields, recordType.symbol.documentation.attributes);
+        List<Field> fields = getFields(recordType, recordType.fields,
+                typeDefinition.getMarkdownDocumentationAttachment());
         BLangMarkdownDocumentation documentationNode = typeDefinition.markdownDocumentationAttachment;
         String documentationText = documentationNode == null ? null : documentationNode.getDocumentation();
         return new RecordDoc(structName, documentationText, new ArrayList<>(), fields);
     }
 
     private static List<Field> getFields(BLangNode node, List<BLangVariable> allFields,
-                                         List<DocAttachment.DocAttribute> nodeDocAttributes) {
+                                         BLangMarkdownDocumentation documentation) {
         List<Field> fields = new ArrayList<>();
         for (BLangVariable param : allFields) {
             if (param.getFlags().contains(Flag.PUBLIC)) {
                 String name = param.getName().value;
                 String dataType = type(param);
                 String desc = fieldAnnotation(node, param);
-                desc = desc.isEmpty() ? findDescFromList(name, nodeDocAttributes) : desc;
+                desc = desc.isEmpty() ? findDescFromList(name, documentation) : desc;
 
                 String defaultValue = "";
                 if (null != param.getInitialExpression()) {
@@ -482,10 +482,17 @@ public class Generator {
         return fields;
     }
 
-    private static String findDescFromList(String name, List<DocAttachment.DocAttribute> nodeDocAttributes) {
-        String rawText = nodeDocAttributes.stream()
-                .filter(n -> n.name.equals(name)).findAny().map(d -> d.description).orElse("");
-        return BallerinaDocUtils.mdToHtml(rawText);
+    private static String findDescFromList(String name, BLangMarkdownDocumentation documentation) {
+        if (documentation == null) {
+            return "";
+        }
+        Map<String, BLangMarkdownParameterDocumentation> parameterDocumentations =
+                documentation.getParameterDocumentations();
+        BLangMarkdownParameterDocumentation parameter = parameterDocumentations.get(name);
+        if (parameter == null) {
+            return "";
+        }
+        return BallerinaDocUtils.mdToHtml(parameter.getParameterDocumentation());
     }
 
     private static void addDocForType(BLangObjectTypeNode objectType,
@@ -496,7 +503,7 @@ public class Generator {
         String name = parent.getName().getValue();
         String description = description(parent);
 
-        List<Field> fields = getFields(parent, objectType.fields, parent.symbol.documentation.attributes);
+        List<Field> fields = getFields(parent, objectType.fields, parent.getMarkdownDocumentationAttachment());
         boolean hasConstructor = false;
 
         if (objectType.initFunction != null) {

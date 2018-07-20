@@ -25,6 +25,7 @@ import org.ballerinalang.docgen.model.AnnotationDoc;
 import org.ballerinalang.docgen.model.Documentable;
 import org.ballerinalang.docgen.model.EndpointDoc;
 import org.ballerinalang.docgen.model.EnumDoc;
+import org.ballerinalang.docgen.model.Field;
 import org.ballerinalang.docgen.model.FunctionDoc;
 import org.ballerinalang.docgen.model.GlobalVariableDoc;
 import org.ballerinalang.docgen.model.Link;
@@ -229,6 +230,36 @@ public class HtmlDocTest {
         Assert.assertEquals(functionDoc2.returnParams.get(0).toString(), "boolean", "Invalid return type");
         Assert.assertEquals(functionDoc2.returnParams.get(0).description, "<p>whether successful or not</p>\n");
 
+    }
+
+    @Test(description = "Test records")
+    public void testRecord() {
+        BLangPackage bLangPackage = createPackage("# Record description.\n" +
+                "#\n" +
+                "# + name - name of the user\n" +
+                "# + age - age of the user\n" +
+                "public type User record {\n" +
+                "    string name,\n" +
+                "    int age,\n" +
+                "};");
+        Page page = generatePage(bLangPackage);
+        Assert.assertEquals(page.constructs.size(), 1);
+
+        Assert.assertEquals(page.constructs.get(0).getClass(), RecordDoc.class, "Invalid documentable type");
+        RecordDoc record = (RecordDoc) page.constructs.get(0);
+        Assert.assertEquals(record.name, "User");
+        Assert.assertEquals(record.icon, "fw-record");
+
+        List<Field> fields = record.fields;
+        Assert.assertEquals(fields.size(), 2);
+
+        Field field = fields.get(0);
+        Assert.assertEquals(field.name, "name");
+        Assert.assertEquals(field.description, "<p>name of the user</p>\n");
+
+        field = fields.get(1);
+        Assert.assertEquals(field.name, "age");
+        Assert.assertEquals(field.description, "<p>age of the user</p>\n");
     }
 
     @Test(description = "Objects in a package should be shown in the constructs")
