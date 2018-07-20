@@ -24,9 +24,11 @@ import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -91,8 +93,9 @@ public class CsvChannelTest {
         Assert.assertEquals(records.size(), expectedRecordLength);
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
-        Assert.assertEquals(records.size(), 0);
+        BMap error = (BMap) returns[0];
+        Assert.assertTrue(IOConstants.IO_EOF.equals(error.getMap().get("message").toString()));
+
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertFalse(hasNextRecord.booleanValue(), "Not expecting anymore records");
@@ -132,8 +135,9 @@ public class CsvChannelTest {
         Assert.assertEquals(records.size(), expectedRecordLength);
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
-        Assert.assertEquals(records.size(), 0);
+        BMap error = (BMap) returns[0];
+        Assert.assertTrue(IOConstants.IO_EOF.equals(error.getMap().get("message").toString()));
+
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertFalse(hasNextRecord.booleanValue(), "Not expecting anymore records");
@@ -246,8 +250,9 @@ public class CsvChannelTest {
         Assert.assertEquals(records.size(), expectedRecordLength);
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
-        Assert.assertEquals(records.size(), 0);
+        BMap error = (BMap) returns[0];
+        Assert.assertTrue(IOConstants.IO_EOF.equals(error.getMap().get("message").toString()));
+
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertFalse(hasNextRecord.booleanValue(), "Not expecting anymore records");
@@ -287,8 +292,9 @@ public class CsvChannelTest {
         Assert.assertEquals(records.size(), expectedRecordLength);
 
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
-        Assert.assertEquals(records.size(), 0);
+        BMap error = (BMap) returns[0];
+        Assert.assertTrue(IOConstants.IO_EOF.equals(error.getMap().get("message").toString()));
+
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertFalse(hasNextRecord.booleanValue(), "Not expecting anymore records");

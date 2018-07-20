@@ -60,6 +60,11 @@ public class IOConstants {
     public static final String IO_PACKAGE = "ballerina/io";
 
     /**
+     * Error flag to indicate when file reaches it's end.
+     */
+    public static final String IO_EOF = "io.EOF";
+
+    /**
      * Represents the base number of protobuf.
      */
     public static final int PROTO_BUF_BASE = 7;

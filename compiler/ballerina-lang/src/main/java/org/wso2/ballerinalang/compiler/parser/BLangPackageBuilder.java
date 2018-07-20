@@ -37,6 +37,7 @@ import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.InvokableNode;
+import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.ResourceNode;
@@ -88,6 +89,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -128,6 +130,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
@@ -258,6 +263,8 @@ public class BLangPackageBuilder {
     private Stack<AnnotationNode> annotationStack = new Stack<>();
 
     private Stack<DocumentationNode> docAttachmentStack = new Stack<>();
+
+    private Stack<MarkdownDocumentationNode> markdownDocumentationStack = new Stack<>();
 
     private Stack<DeprecatedNode> deprecatedAttachmentStack = new Stack<>();
 
@@ -618,6 +625,7 @@ public class BLangPackageBuilder {
         FunctionNode functionNode = TreeBuilder.createFunctionNode();
         attachAnnotations(functionNode);
         attachDocumentations(functionNode);
+        attachMarkdownDocumentations(functionNode);
         attachDeprecatedNode(functionNode);
         this.invokableNodeStack.push(functionNode);
         startEndpointDeclarationScope(((BLangFunction) functionNode).endpoints);
@@ -1418,6 +1426,7 @@ public class BLangPackageBuilder {
         }
         var.docTag = DocTag.VARIABLE;
         attachDocumentations(var);
+        attachMarkdownDocumentations(var);
         attachDeprecatedNode(var);
         this.compUnit.addTopLevelNode(var);
     }
@@ -1537,6 +1546,8 @@ public class BLangPackageBuilder {
         typeDefinition.pos = pos;
         typeDefinition.addWS(ws);
         attachDocumentations(typeDefinition);
+        Collections.reverse(markdownDocumentationStack);
+        attachMarkdownDocumentations(typeDefinition);
         attachDeprecatedNode(typeDefinition);
         attachAnnotations(typeDefinition);
         this.compUnit.addTopLevelNode(typeDefinition);
@@ -1567,7 +1578,7 @@ public class BLangPackageBuilder {
 
     void endObjectInitFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
                                   boolean publicFunc, boolean bodyExists, boolean docPresent,
-                                  boolean deprecatedDocPresent, int annCount) {
+                                  boolean markdownDocPresent, boolean deprecatedDocPresent, int annCount) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         endEndpointDeclarationScope();
         function.setName(this.createIdentifier(identifier));
@@ -1585,6 +1596,9 @@ public class BLangPackageBuilder {
         attachAnnotations(function, annCount);
         if (docPresent) {
             attachDocumentations(function);
+        }
+        if (markdownDocPresent) {
+            attachMarkdownDocumentations(function);
         }
         if (deprecatedDocPresent) {
             attachDeprecatedNode(function);
@@ -1606,7 +1620,7 @@ public class BLangPackageBuilder {
 
     void endObjectAttachedFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean publicFunc, boolean privateFunc,
                                       boolean nativeFunc, boolean bodyExists, boolean docPresent,
-                                      boolean deprecatedDocPresent, int annCount) {
+                                      boolean markdownDocPresent, boolean deprecatedDocPresent, int annCount) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         endEndpointDeclarationScope();
         function.pos = pos;
@@ -1638,6 +1652,9 @@ public class BLangPackageBuilder {
         attachAnnotations(function, annCount);
         if (docPresent) {
             attachDocumentations(function);
+        }
+        if (markdownDocPresent) {
+            attachMarkdownDocumentations(function);
         }
         if (deprecatedDocPresent) {
             attachDeprecatedNode(function);
@@ -1729,6 +1746,7 @@ public class BLangPackageBuilder {
         annotNode.pos = pos;
         attachAnnotations(annotNode);
         attachDocumentations(annotNode);
+        attachMarkdownDocumentations(annotNode);
         attachDeprecatedNode(annotNode);
         this.annotationStack.add(annotNode);
     }
@@ -1764,6 +1782,60 @@ public class BLangPackageBuilder {
     void endDocumentationAttachment(Set<Whitespace> ws) {
         DocumentationNode docAttachmentNode = docAttachmentStack.peek();
         docAttachmentNode.addWS(ws);
+    }
+
+    void startMarkdownDocumentationString(DiagnosticPos currentPos) {
+        BLangMarkdownDocumentation markdownDocumentationNode =
+                (BLangMarkdownDocumentation) TreeBuilder.createMarkdownDocumentationNode();
+        markdownDocumentationNode.pos = currentPos;
+        markdownDocumentationStack.push(markdownDocumentationNode);
+    }
+
+    void endMarkdownDocumentationString(Set<Whitespace> ws) {
+        MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
+        markdownDocumentationNode.addWS(ws);
+    }
+
+    void endMarkdownDocumentationText(DiagnosticPos pos, String text) {
+        MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
+        BLangMarkdownDocumentationLine documentationDescription =
+                (BLangMarkdownDocumentationLine) TreeBuilder.createMarkdownDocumentationTextNode();
+        documentationDescription.text = text;
+        documentationDescription.pos = pos;
+        markdownDocumentationNode.addDocumentationLine(documentationDescription);
+    }
+
+    void endParameterDocumentation(DiagnosticPos pos, String parameterName, String description) {
+        MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
+        BLangMarkdownParameterDocumentation parameterDocumentationNode =
+                (BLangMarkdownParameterDocumentation) TreeBuilder.createMarkdownParameterDocumentationNode();
+        parameterDocumentationNode.parameterName = (BLangIdentifier) createIdentifier(parameterName);
+        parameterDocumentationNode.pos = pos;
+        parameterDocumentationNode.addParameterDocumentationLine(description);
+        markdownDocumentationNode.addParameter(parameterDocumentationNode);
+    }
+
+    void endParameterDocumentationDescription(String description) {
+        MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
+        BLangMarkdownParameterDocumentation parameterDocumentation =
+                markdownDocumentationNode.getParameters().getLast();
+        parameterDocumentation.addParameterDocumentationLine(description);
+    }
+
+    void endReturnParameterDocumentation(DiagnosticPos pos, String description) {
+        MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
+        BLangMarkdownReturnParameterDocumentation returnParameterDocumentation =
+                (BLangMarkdownReturnParameterDocumentation) TreeBuilder
+                        .createMarkdownReturnParameterDocumentationNode();
+        returnParameterDocumentation.pos = pos;
+        returnParameterDocumentation.addReturnParameterDocumentationLine(description);
+        markdownDocumentationNode.setReturnParameter(returnParameterDocumentation);
+    }
+
+    void endReturnParameterDocumentationDescription(String description) {
+        MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
+        BLangMarkdownReturnParameterDocumentation returnParameter = markdownDocumentationNode.getReturnParameter();
+        returnParameter.addReturnParameterDocumentationLine(description);
     }
 
     void setDocumentationAttachmentContent(DiagnosticPos pos,
@@ -1835,6 +1907,12 @@ public class BLangPackageBuilder {
     private void attachDocumentations(DocumentableNode documentableNode) {
         if (!docAttachmentStack.empty()) {
             documentableNode.addDocumentationAttachment(docAttachmentStack.pop());
+        }
+    }
+
+    private void attachMarkdownDocumentations(DocumentableNode documentableNode) {
+        if (!markdownDocumentationStack.empty()) {
+            documentableNode.setMarkdownDocumentationAttachment(markdownDocumentationStack.pop());
         }
     }
 
@@ -2205,6 +2283,7 @@ public class BLangPackageBuilder {
         serviceNode.pos = pos;
         attachAnnotations(serviceNode);
         attachDocumentations(serviceNode);
+        attachMarkdownDocumentations(serviceNode);
         attachDeprecatedNode(serviceNode);
         serviceNodeStack.push(serviceNode);
         startEndpointDeclarationScope(serviceNode.endpoints);
@@ -2266,7 +2345,7 @@ public class BLangPackageBuilder {
     }
 
     void endResourceDef(DiagnosticPos pos, Set<Whitespace> ws, String resourceName,
-                        boolean docExists, boolean isDeprecated, boolean hasParameters) {
+                        boolean docExists, boolean markdownDocPresent, boolean isDeprecated, boolean hasParameters) {
         BLangResource resourceNode = (BLangResource) invokableNodeStack.pop();
         endEndpointDeclarationScope();
         resourceNode.pos = pos;
@@ -2274,6 +2353,9 @@ public class BLangPackageBuilder {
         resourceNode.setName(createIdentifier(resourceName));
         if (docExists) {
             attachDocumentations(resourceNode);
+        }
+        if (markdownDocPresent) {
+            attachMarkdownDocumentations(resourceNode);
         }
         if (isDeprecated) {
             attachDeprecatedNode(resourceNode);

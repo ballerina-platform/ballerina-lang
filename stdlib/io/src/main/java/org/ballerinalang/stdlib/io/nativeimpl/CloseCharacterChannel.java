@@ -28,7 +28,10 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.events.EventContext;
+import org.ballerinalang.stdlib.io.events.EventRegister;
 import org.ballerinalang.stdlib.io.events.EventResult;
+import org.ballerinalang.stdlib.io.events.Register;
+import org.ballerinalang.stdlib.io.events.characters.CloseCharacterChannelEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 
@@ -76,7 +79,10 @@ public class CloseCharacterChannel implements NativeCallableUnit {
         BMap<String, BValue> channel = (BMap<String, BValue>) context.getRefArgument(CHARACTER_CHANNEL_INDEX);
         CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(IOConstants.CHARACTER_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
-        IOUtils.close(charChannel, eventContext, CloseCharacterChannel::closeResponse);
+        CloseCharacterChannelEvent closeEvent = new CloseCharacterChannelEvent(charChannel, eventContext);
+        Register register = EventRegister.getFactory().register(closeEvent, CloseCharacterChannel::closeResponse);
+        eventContext.setRegister(register);
+        register.submit();
     }
 
     @Override

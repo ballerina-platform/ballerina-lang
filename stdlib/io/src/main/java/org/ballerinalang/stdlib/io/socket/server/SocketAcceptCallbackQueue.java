@@ -31,19 +31,33 @@ import java.util.Queue;
  */
 public class SocketAcceptCallbackQueue {
 
-    private static Map<Integer, Queue<SocketAcceptCallback>> callbackRegistry = new HashMap<>();
+    private static SocketAcceptCallbackQueue instance = new SocketAcceptCallbackQueue();
+    private final Object keyLock = new Object();
 
-    public static void registerSocketAcceptCallback(int serverSocketHash, SocketAcceptCallback e) {
-        Queue<SocketAcceptCallback> socketChannels = callbackRegistry.get(serverSocketHash);
-        if (socketChannels == null) {
-            Queue<SocketAcceptCallback> queue = new LinkedList<>();
-            callbackRegistry.put(serverSocketHash, queue);
-            socketChannels = queue;
-        }
-        socketChannels.add(e);
+    private SocketAcceptCallbackQueue() {
     }
 
-    public static Queue<SocketAcceptCallback> getCallbackQueue(int serverSocketHash) {
-        return callbackRegistry.get(serverSocketHash);
+    public static SocketAcceptCallbackQueue getInstance() {
+        return instance;
+    }
+
+    private Map<Integer, Queue<SocketAcceptCallback>> callbackRegistry = new HashMap<>();
+
+    public void registerSocketAcceptCallback(int serverSocketHash, SocketAcceptCallback e) {
+        synchronized (keyLock) {
+            Queue<SocketAcceptCallback> socketChannels = callbackRegistry.get(serverSocketHash);
+            if (socketChannels == null) {
+                Queue<SocketAcceptCallback> queue = new LinkedList<>();
+                callbackRegistry.put(serverSocketHash, queue);
+                socketChannels = queue;
+            }
+            socketChannels.add(e);
+        }
+    }
+
+    public Queue<SocketAcceptCallback> getCallbackQueue(int serverSocketHash) {
+        synchronized (keyLock) {
+            return callbackRegistry.get(serverSocketHash);
+        }
     }
 }
