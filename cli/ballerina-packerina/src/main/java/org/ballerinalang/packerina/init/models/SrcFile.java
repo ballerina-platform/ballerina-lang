@@ -124,7 +124,7 @@ public class SrcFile {
                                                         "   Before Suite Function\n" +
                                                         "}\n" +
                                                        "@test:BeforeSuite\n" +
-                                                       "function beforeSuiteFunc () {\n" +
+                                                       "function beforeSuiteServiceFunc () {\n" +
                                                        "    io:println(\"I'm the before suite function!\");\n" +
                                                        "}\n" +
                                                        "\n" +
@@ -132,7 +132,7 @@ public class SrcFile {
                                                        "   Test function\n" +
                                                        "}\n" +
                                                        "@test:Config\n" +
-                                                       "function testFunction () {\n" +
+                                                       "function testServiceFunction () {\n" +
                                                        "    io:println(\"Do your service Tests!\");\n" +
                                                        "    test:assertTrue(true , msg = \"Failed!\");\n" +
                                                        "}\n" +
@@ -141,7 +141,7 @@ public class SrcFile {
                                                        "   After Suite Function\n" +
                                                        "}\n" +
                                                        "@test:AfterSuite\n" +
-                                                       "function afterSuiteFunc () {\n" +
+                                                       "function afterSuiteServiceFunc () {\n" +
                                                        "    io:println(\"I'm the after suite function!\");\n" +
                                                        "}";
 
