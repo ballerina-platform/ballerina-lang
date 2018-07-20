@@ -34,9 +34,9 @@ import java.nio.channels.NonReadableChannelException;
  * This will be a non-blocking operation.
  * </p>
  */
-public class AsyncReader implements Reader {
+public class ChannelReader implements Reader {
 
-    private static final Logger log = LoggerFactory.getLogger(BlockingReader.class);
+    private static final Logger log = LoggerFactory.getLogger(ChannelReader.class);
 
     /**
      * Reads bytes asynchronously.

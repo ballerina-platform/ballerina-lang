@@ -118,6 +118,10 @@ class BallerinaFileEditor extends React.Component {
             }
         });
 
+        if (this.props.file.name === 'untitled' && this.fetchState('diagramMode') === undefined) {
+            this.state.diagramFitToWidth = false;
+        }
+
         this.resetSwaggerView = this.resetSwaggerView.bind(this);
         this.handleSplitChange = this.handleSplitChange.bind(this);
         this.onModeChange = this.onModeChange.bind(this);

@@ -37,6 +37,8 @@ public class UtilSymbolKeys {
 
     public static final String DOT_SYMBOL_KEY = ".";
 
+    public static final String COMMA_SYMBOL_KEY = ",";
+
     public static final String ANNOTATION_START_SYMBOL_KEY = "@";
 
     public static final String SEMI_COLON_SYMBOL_KEY = ";";

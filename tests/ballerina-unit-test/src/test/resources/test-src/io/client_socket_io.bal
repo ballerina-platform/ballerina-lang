@@ -49,7 +49,3 @@ function read (int size) returns (byte[], int)|error {
 function close (io:Socket localSocket) {
     error? err = localSocket.close();
 }
-
-function main (string... args)  {
-    openSocketConnection("localhost", 9999);
-}
