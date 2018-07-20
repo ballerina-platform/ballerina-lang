@@ -37,8 +37,6 @@ import WorkerInvocationArrowPositionUtil from './views/default/worker-invocation
 
 const components = {};
 
-const CONTROLLER_SUFFIX = 'Ctrl';
-
 // We need to refactor this big time for the time being implementing the functionality.
 // extend configs from default
 const ActionConfig = _.merge(_.cloneDeep(DefaultConfig), actionConfig);
@@ -204,40 +202,3 @@ export {
     getOverlayComponent,
     getConfig,
 };
-
-// WIP please do not remove.
-export class DiagramUtil {
-
-    static getNodeControllers(node, mode) {
-        // lets load controllers of modes.
-        components.default = requireAll(require.context('./views/default/components/controllers', true, /\.jsx$/));
-        components.action = requireAll(require.context('./views/action/components/controllers', true, /\.jsx$/));
-
-        // hide hidden elements
-        if (node.viewState && node.viewState.hidden) {
-            return undefined;
-        }
-
-        let compName = node.viewState.alias || node.kind;
-        compName += CONTROLLER_SUFFIX;
-
-        const props = {
-            model: node,
-            // set the key to prevent warning
-            // see: https://facebook.githubg.io/react/docs/lists-and-keys.html#keys
-            key: node.getID(),
-        };
-
-        return DiagramUtil.createComponent(components, mode, compName, props);
-    }
-
-    static createComponent(comps, mode, name, props) {
-        if (comps[mode][name]) {
-            return React.createElement(comps[mode][name], props, null);
-        } else if (comps.default[name]) {
-            return React.createElement(comps.default[name], props, null);
-        }
-        return undefined;
-    }
-
-}

@@ -24,9 +24,16 @@ import org.ballerinalang.composer.server.spi.ServiceInfo;
 import org.ballerinalang.composer.server.spi.ServiceType;
 import org.ballerinalang.composer.service.ballerina.swagger.Constants;
 import org.ballerinalang.composer.service.ballerina.swagger.service.model.SwaggerServiceContainer;
+import org.ballerinalang.swagger.CodeGenerator;
+import org.ballerinalang.swagger.model.GenSrcFile;
+import org.ballerinalang.swagger.utils.GeneratorConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
@@ -86,6 +93,44 @@ public class BallerinaToSwaggerService implements ComposerService {
     public Response sendCORSHeadersForConvertToSwaggerPost() {
         return this.sendCORSHeaders();
     }
+
+    @POST
+    @Path("/swagger-to-ballerina")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response convertToBallerinaService(SwaggerServiceContainer swaggerServiceContainer,
+                                     @QueryParam("serviceName") String serviceName) {
+        try {
+            // Get the ballerina source.
+            String swaggerSource = swaggerServiceContainer.getSwaggerDefinition();
+            // Write the data to a temp file.
+            File temp = File.createTempFile("tempfile", ".json");
+            BufferedWriter bw = new BufferedWriter(new FileWriter(temp));
+            bw.write(swaggerSource);
+            bw.close();
+
+            CodeGenerator generator = new CodeGenerator();
+            List<GenSrcFile> source = generator.generate(GeneratorConstants.GenType.MOCK, temp.getPath());
+
+            swaggerServiceContainer.setBallerinaDefinition(source.get(0).getContent());
+            return Response.ok().entity(swaggerServiceContainer).header(ACCESS_CONTROL_ALLOW_ORIGIN_NAME, '*').build();
+        } catch (Exception ex) {
+            logger.error("error: while processing service definition at converter service: " + ex.getMessage(), ex);
+            JsonObject entity = new JsonObject();
+            entity.addProperty("Error", ex.toString());
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(entity)
+                    .header(ACCESS_CONTROL_ALLOW_ORIGIN_NAME, '*')
+                    .type(MediaType.APPLICATION_JSON).build();
+        }
+    }
+
+    @OPTIONS
+    @Path("/swagger-to-ballerina")
+    public Response sendCORSHeadersForConvertToBallerinaService() {
+        return this.sendCORSHeaders();
+    }
+
 
     /**
      * Responses with CORS headers.

@@ -22,13 +22,14 @@ import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * AnnotationAttachments resolver for the completion Items.
  */
 public class AnnotationAttachmentContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         return new ArrayList<>();
     }
 }

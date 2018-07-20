@@ -38,6 +38,7 @@ import { PLUGIN_ID, EDITOR_ID, DOC_VIEW_ID, COMMANDS as COMMAND_IDS, TOOLS as TO
             DIALOGS as DIALOG_IDS, EVENTS } from './constants';
 import OpenProgramDirConfirmDialog from './dialogs/OpenProgramDirConfirmDialog';
 import FixPackageNameOrPathConfirmDialog from './dialogs/FixPackageNameOrPathConfirmDialog';
+import InvalidSwaggerDialog from './dialogs/InvalidSwaggerDialog';
 import { isInCorrectPath, getCorrectPackageForPath, getCorrectPathForPackage } from './utils/program-dir-utils';
 import TreeBuilder from './model/tree-builder';
 import FragmentUtils from './utils/fragment-utils';
@@ -100,7 +101,6 @@ class BallerinaPlugin extends Plugin {
                 listen({
                     webSocket,
                     onConnection: (connection) => {
-                        this.langServerConnection = connection;
                         // create and start the language client
                         const languageClient = new BaseLanguageClient({
                             name: 'Ballerina Language Client',
@@ -115,8 +115,13 @@ class BallerinaPlugin extends Plugin {
                             },
                             services: {
                                 commands: {
-                                    registerCommand: (...args) => {
-                                        this.lsCommands.push({ ...args });
+                                    registerCommand: (command, callback, thisArg) => {
+                                        this.lsCommands.push({
+                                            command,
+                                            callback,
+                                            thisArg,
+                                        });
+                                        return { dispose: () => {} };
                                     },
                                 },
                                 languages: new MonacoLanguages(p2m, m2p),
@@ -130,12 +135,14 @@ class BallerinaPlugin extends Plugin {
                                 },
                             },
                         });
+                        languageClient.onReady().then(() => {
+                            this.langServerConnection = connection;
+                            resolve(this.langServerConnection);
+                        });
                         const disposable = languageClient.start();
                         connection.onClose(() => disposable.dispose());
-                        resolve(this.langServerConnection);
                     },
                 });
-                
             }
         });
     }
@@ -164,18 +171,7 @@ class BallerinaPlugin extends Plugin {
                         };
                     },
                     newFileContentProvider: (fileFullPath) => {
-                        if (!fileFullPath) {
-                            return '';
-                        }
-                        const { workspace } = this.appContext;
-                        const pathSep = getPathSeperator();
-                        const pathParts = fileFullPath.split(pathSep);
-                        pathParts.splice(-1, 1);
-                        const filePath = pathParts.join(pathSep);
-                        const workspaceDir = workspace.getExplorerFolderForPath(filePath);
-                        const programDir = workspaceDir ? workspaceDir.fullPath : undefined;
-                        const pkg = getCorrectPackageForPath(programDir, filePath);
-                        return pkg ? `package ${pkg};` : '';
+                        return '';
                     },
                 },
             ],
@@ -335,6 +331,15 @@ class BallerinaPlugin extends Plugin {
                 {
                     id: DIALOG_IDS.FIX_PACKAGE_NAME_OR_PATH_CONFIRM,
                     component: FixPackageNameOrPathConfirmDialog,
+                    propsProvider: () => {
+                        return {
+                            ballerinaPlugin: this,
+                        };
+                    },
+                },
+                {
+                    id: DIALOG_IDS.INVALID_SWAGGER_DIALOG,
+                    component: InvalidSwaggerDialog,
                     propsProvider: () => {
                         return {
                             ballerinaPlugin: this,

@@ -163,7 +163,7 @@
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <project.build.sourceEncoding>${file.encoding}</project.build.sourceEncoding>
         <org.wso2.transport.http.version>6.0.63</org.wso2.transport.http.version>
-        <jackson.core.version>2.4.5</jackson.core.version>
+        <jackson.core.version>2.9.1</jackson.core.version>
         <maven.shadeplugin.version>2.4.1</maven.shadeplugin.version>
         <lsp4j.version>0.3.0</lsp4j.version>
     </properties>

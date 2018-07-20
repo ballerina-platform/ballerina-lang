@@ -19,7 +19,7 @@ package org.ballerinalang.bre;
 
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -58,9 +58,9 @@ public interface Context {
 
     boolean isInTransaction();
 
-    BStruct getError();
+    BMap<?, ?> getError();
 
-    void setError(BStruct error);
+    void setError(BMap<?, ?> error);
 
     ProgramFile getProgramFile();
 
@@ -75,8 +75,6 @@ public interface Context {
     double getFloatArgument(int index);
 
     boolean getBooleanArgument(int index);
-
-    byte[] getBlobArgument(int index);
 
     BValue getRefArgument(int index);
 

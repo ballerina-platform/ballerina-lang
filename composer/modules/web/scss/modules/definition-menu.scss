@@ -1,26 +1,25 @@
 .design-view-container {
     .definition-dropdown {
-        width: 100px !important;
         padding-left: 30px !important;
         height: 28px;
-        margin: 4px 10px 4px 4px !important;
+        margin: 4px !important;
         padding-top: 6px !important;
         .left-icon {
             position: absolute;
             margin: -14px -26px !important;
             font-size: 12px !important;
         }
-    }    
-    .item {
+    }
+    .ui.menu .item {
         border: 0;
-        padding: 0 !important;
+        padding: 0;
         margin-top: 6px ;
         .menu-icon, .menu-icon-right {
             width: 25px !important;
             height: 25px !important;
             color: #222;
             padding-top:5px;
-            margin-top:3px; 
+            margin-top:3px;
         }
     }
     .ui.menu .item:before {
@@ -32,7 +31,7 @@
     }
     .menu-button:hover{
         font-weight  : 500 !important;
-        border-radius: 0% !important; 
+        border-radius: 0% !important;
         background   : none !important;
         opacity      : 1 !important;
     }

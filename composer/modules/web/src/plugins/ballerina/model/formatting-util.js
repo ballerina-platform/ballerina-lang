@@ -17,10 +17,173 @@
  */
 
 import _ from 'lodash';
-import TreeUtil from './../../../model/tree-util';
+import defaultWS from './../../../../source-gen/default-ws';
 
+const TAB = "\t";
+const SPACE_TAB = "    ";
+const BETWEEN_BLOCK_SPACE = "\r\n\r\n";
+const SINGLE_SPACE = " ";
+const NEW_LINE = "\r\n";
+const EMPTY_SPACE = "";
+
+/**
+ * Formatting util to handle formatting for each node with context awareness.
+ */
 class FormattingUtil {
 
+    /**
+     * Get the white spaces for formatting.
+     *
+     * @param column {number} column number
+     * @returns {string}
+     */
+    getWhiteSpaces(column) {
+        let whiteSpaces = "";
+        for (let i = 0; i < (column - 1); i++) {
+            whiteSpaces += SINGLE_SPACE;
+        }
+        return whiteSpaces;
+    }
+
+    /**
+     * Get white space count.
+     *
+     * @param ws {string} white space string
+     * @returns {number} count of white spaces.
+     */
+    getWhiteSpaceCount(ws) {
+        let whiteSpaces = ws.split(SINGLE_SPACE);
+        return whiteSpaces.length - 1;
+    }
+
+    /**
+     * Find the object property by name.
+     *
+     * @param parent Node's parent node
+     * @param name name of the property
+     * @returns {*} null|Array
+     */
+    findObjectPropertyByName(parent, name) {
+        if (!parent) {
+            return;
+        }
+
+        let properties = [];
+        if (parent.__proto__ && parent.__proto__.__proto__) {
+            let keys = Object.getOwnPropertyNames(parent.__proto__.__proto__);
+            for (let i = 0; i < keys.length; i++) {
+                if (keys[i].includes(name)) {
+                    properties.push(keys[i]);
+                }
+            }
+        }
+
+        return properties;
+    }
+
+    /**
+     * Find the index of a given node.
+     *
+     * @param node node which need to find the index of
+     * @returns {number} -1 | Index
+     */
+    findIndex(node) {
+        let functions = this.findObjectPropertyByName(node.parent, "getIndexOf");
+        for (let i = 0; i < functions.length; i++) {
+            if (_.isFunction(node.parent[functions[i]])) {
+                let index = node.parent[functions[i]](node);
+                if (index >= 0) {
+                    return index;
+                }
+            }
+        }
+        return -1;
+    };
+
+    /**
+     * Tokenize given text to capture new lines and characters except whitespaces.
+     *
+     * @param text text to the be tokenize
+     * @returns {Array} token array
+     */
+    tokenizer(text) {
+        let tokens = [];
+        let comment = "";
+        for (let i = 0; i < text.length; i++) {
+            if (/[^\n]/.test(text[i])) {
+                comment += text[i];
+            } else {
+                if (comment && comment.trim() !== "") {
+                    tokens.push(comment.trim());
+                    comment = "";
+                }
+                tokens.push(text[i]);
+            }
+
+            if (i === (text.length - 1) && comment.trim() !== "") {
+                tokens.push(comment.trim());
+                comment = "";
+            }
+        }
+        return tokens;
+    }
+
+    /**
+     * Build the string from the given tokens.
+     *
+     * @param tokens tokens to be used
+     * @param indent indentation to be applied
+     * @returns {string} single string
+     */
+    getTextFromTokens(tokens, indent) {
+        let text = "";
+        for (let i = 0; i < tokens.length; i++) {
+            if (/[^\n]/.test(tokens[i])) {
+                text += indent ? indent + tokens[i] : tokens[i];
+            } else {
+                text += tokens[i];
+            }
+        }
+        return indent ? (text + indent) : text;
+    }
+
+    /**
+     * Preserve height of given whitespace.
+     *
+     * @param ws whitespace string to be height preserved
+     * @param indent indentation to be applied
+     */
+    preserveHeight(ws, indent) {
+        for (let i = 0; i < ws.length; i++) {
+            if (/\S/.test(ws[i].ws)) {
+                let tokens = this.tokenizer(ws[i].ws);
+                ws[i].ws = this.getTextFromTokens(tokens, indent);
+            } else if (/\n/.test(ws[i].ws)) {
+                let tokens = this.tokenizer(ws[i].ws);
+                ws[i].ws = this.getTextFromTokens(tokens, indent);
+            }
+        }
+    }
+
+    /**
+     * Check whether height is available for given whitespace.
+     *
+     * @param ws whitespace to check
+     * @returns {*|boolean} true | false
+     */
+    isHeightAvailable(ws) {
+        return /\S|\n/.test(ws);
+    }
+
+    /**
+     * Check whether given text has new lines.
+     *
+     * @param text text to be checked
+     * @returns {*|boolean} true | false
+     */
+    isNewLine(text) {
+        return /[\n]/.test(text);
+    }
 
     /**
      * format Action nodes.
@@ -51,7 +214,21 @@ class FormattingUtil {
      *
      */
     formatAnnotationAttachmentNode(node) {
-        // Not implemented.
+        if (!node.ws) {
+            return;
+        }
+
+        this.preserveHeight(node.ws, this.getWhiteSpaces(node.position.startColumn));
+
+        if (!this.isHeightAvailable(node.ws[0].ws)) {
+            node.ws[0].ws = BETWEEN_BLOCK_SPACE + this.getWhiteSpaces(node.position.startColumn);
+        } else if (!this.isNewLine(node.ws[0].ws[0])) {
+            node.ws[0].ws = NEW_LINE + node.ws[0].ws;
+        }
+
+        if (node.expression && node.expression.ws) {
+            node.expression.position.startColumn = node.position.startColumn;
+        }
     }
 
 
@@ -84,7 +261,57 @@ class FormattingUtil {
      *
      */
     formatCompilationUnitNode(node) {
-        // Not implemented.
+        // Add the start column and sorted index.
+        for (let i = 0; i < node.topLevelNodes.length; i++) {
+            let child = node.topLevelNodes[i];
+            child.position.startColumn = 1;
+        }
+
+        if (node.ws) {
+            this.preserveHeight(node.ws);
+            if (!this.isHeightAvailable(node.ws[0].ws)) {
+                node.ws[0].ws = NEW_LINE;
+            } else if (!this.isNewLine(node.ws[0].ws[node.ws[0].ws.length - 1])) {
+                node.ws[0].ws = node.ws[0].ws + NEW_LINE;
+            }
+        }
+
+        // Sort imports
+        let i, j, swapped = false;
+        for (i = 0; i < node.topLevelNodes.length - 1; i++) {
+            swapped = false;
+            for (j = 0; j < node.topLevelNodes.length - i - 1; j++) {
+                if (node.topLevelNodes[j].kind === 'Import' && node.topLevelNodes[j + 1].kind === 'Import') {
+                    let refImportName = node.topLevelNodes[j].orgName.value +
+                        "/" + node.topLevelNodes[j].packageName[0].value;
+
+                    let compImportName = node.topLevelNodes[j + 1].orgName.value +
+                        "/" + node.topLevelNodes[j + 1].packageName[0].value;
+
+                    let comparisonResult = refImportName.localeCompare(compImportName);
+
+                    // Swap if the comparison value is positive.
+                    if (comparisonResult > 0) {
+                        // Swap ws to keep the formatting in level.
+                        let refWS = node.topLevelNodes[j].ws[0].ws;
+                        let compWS = node.topLevelNodes[j + 1].ws[0].ws;
+
+                        let tempNode = node.topLevelNodes[j];
+                        node.topLevelNodes[j] = node.topLevelNodes[j + 1];
+                        tempNode.ws[0].ws = compWS;
+                        node.topLevelNodes[j].ws[0].ws = refWS;
+                        node.topLevelNodes[j + 1] = tempNode;
+
+                        swapped = true;
+                    }
+                }
+            }
+
+            // If not swapped break;
+            if (!swapped) {
+                break;
+            }
+        }
     }
 
 
@@ -117,7 +344,25 @@ class FormattingUtil {
      *
      */
     formatEndpointNode(node) {
-        // Not implemented.
+        if (!node.ws) {
+            return;
+        }
+
+        this.preserveHeight(node.ws, this.getWhiteSpaces(node.position.startColumn));
+
+        let endpointIndex = this.findIndex(node);
+
+        if (!this.isHeightAvailable(node.ws[0].ws)) {
+            node.ws[0].ws = (endpointIndex > 0 || node.parent.kind !== 'CompilationUnit')
+                ? (BETWEEN_BLOCK_SPACE + this.getWhiteSpaces(node.position.startColumn))
+                : EMPTY_SPACE;
+        } else if (!this.isNewLine(node.ws[0].ws[0]) && endpointIndex !== 0) {
+            node.ws[0].ws = NEW_LINE + node.ws[0].ws;
+        }
+
+        if (node.configurationExpression && node.configurationExpression.ws) {
+            node.configurationExpression.position.startColumn = node.position.startColumn;
+        }
     }
 
 
@@ -139,9 +384,56 @@ class FormattingUtil {
      *
      */
     formatFunctionNode(node) {
-        // Not implemented.
-    }
+        if (!node.ws) {
+            return;
+        }
 
+        this.preserveHeight(node.ws, this.getWhiteSpaces(node.position.startColumn));
+
+        let functionIndex = this.findIndex(node);
+        if (!this.isHeightAvailable(node.ws[0].ws)) {
+            node.ws[0].ws = (functionIndex > 0 || node.parent.kind === 'ObjectType')
+                ? (BETWEEN_BLOCK_SPACE + this.getWhiteSpaces(node.position.startColumn))
+                : EMPTY_SPACE;
+        } else if (!this.isNewLine(node.ws[0].ws[0]) && functionIndex !== 0) {
+            node.ws[0].ws = NEW_LINE + node.ws[0].ws;
+        }
+
+        if (!this.isHeightAvailable(node.ws[node.ws.length - 2].ws)) {
+            node.ws[node.ws.length - 2].ws = SINGLE_SPACE;
+        }
+
+        if (node.body && node.body.statements.length <= 0 && node.endpointNodes.length <= 0 &&
+            node.workers.length <= 0) {
+            if (!this.isHeightAvailable(node.ws[node.ws.length - 1].ws)) {
+                node.ws[node.ws.length - 1].ws = NEW_LINE + this.getWhiteSpaces(node.position.startColumn) + NEW_LINE
+                    + this.getWhiteSpaces(node.position.startColumn);
+            }
+        } else {
+            if (!this.isHeightAvailable(node.ws[node.ws.length - 1].ws)) {
+                node.ws[node.ws.length - 1].ws = NEW_LINE + this.getWhiteSpaces(node.position.startColumn);
+            }
+        }
+
+        if (node.parameters) {
+            for (let i = 0; i < node.parameters.length; i++) {
+                if (node.parameters[i].typeNode) {
+                    if (i === 0) {
+                        node.parameters[i].typeNode.ws[0].ws = EMPTY_SPACE;
+                    } else {
+                        node.parameters[i].typeNode.ws[0].ws = SINGLE_SPACE;
+                    }
+                }
+            }
+        }
+
+        if (node.endpointNodes) {
+            for (let i = 0; i < node.endpointNodes.length; i++) {
+                node.endpointNodes[i].position.startColumn = node.position.startColumn +
+                    this.getWhiteSpaceCount(SPACE_TAB);
+            }
+        }
+    }
 
     /**
      * format Identifier nodes.
@@ -161,7 +453,22 @@ class FormattingUtil {
      *
      */
     formatImportNode(node) {
-        // Not implemented.
+        if (!node.ws) {
+            return;
+        }
+
+        this.preserveHeight(node.ws, this.getWhiteSpaces(node.position.startColumn));
+        let importIndex = this.findIndex(node);
+
+        if (importIndex > 0) {
+            if (!this.isHeightAvailable(node.ws[0].ws)) {
+                node.ws[0].ws = NEW_LINE;
+            }
+        } else {
+            if (!this.isHeightAvailable(node.ws[0].ws)) {
+                node.ws[0].ws = EMPTY_SPACE;
+            }
+        }
     }
 
 
@@ -194,7 +501,50 @@ class FormattingUtil {
      *
      */
     formatResourceNode(node) {
-        // Not implemented.
+        if (!node.ws) {
+            return;
+        }
+
+        this.preserveHeight(node.ws, this.getWhiteSpaces(node.position.startColumn));
+
+        if (!this.isHeightAvailable(node.ws[0].ws)) {
+            node.ws[0].ws = BETWEEN_BLOCK_SPACE + this.getWhiteSpaces(node.position.startColumn);
+        }
+
+        if (!this.isHeightAvailable(node.ws[node.ws.length - 2].ws)) {
+            node.ws[node.ws.length - 2].ws = SINGLE_SPACE;
+        }
+
+        if (node.body && node.body.statements.length <= 0 && node.workers.length <= 0 &&
+            node.endpointNodes.length <= 0) {
+            if (!this.isHeightAvailable(node.ws[node.ws.length - 1].ws)) {
+                node.ws[node.ws.length - 1].ws = NEW_LINE + this.getWhiteSpaces(node.position.startColumn) + NEW_LINE +
+                    this.getWhiteSpaces(node.position.startColumn);
+            }
+        } else {
+            if (!this.isHeightAvailable(node.ws[node.ws.length - 1].ws)) {
+                node.ws[node.ws.length - 1].ws = NEW_LINE + this.getWhiteSpaces(node.position.startColumn);
+            }
+        }
+
+        if (node.parameters) {
+            for (let i = 0; i < node.parameters.length; i++) {
+                if (node.parameters[i].typeNode) {
+                    if (i === 0) {
+                        node.parameters[i].typeNode.ws[0].ws = EMPTY_SPACE;
+                    } else {
+                        node.parameters[i].typeNode.ws[0].ws = SINGLE_SPACE;
+                    }
+                }
+            }
+        }
+
+        if (node.endpointNodes) {
+            for (let i = 0; i < node.endpointNodes.length; i++) {
+                node.endpointNodes[i].position.startColumn = node.position.startColumn +
+                    this.getWhiteSpaceCount(SPACE_TAB);
+            }
+        }
     }
 
 
@@ -205,7 +555,60 @@ class FormattingUtil {
      *
      */
     formatServiceNode(node) {
-        // Not implemented.
+        if (!node.ws) {
+            return;
+        }
+
+        this.preserveHeight(node.ws, this.getWhiteSpaces(node.position.startColumn));
+        let serviceIndex = this.findIndex(node);
+
+        if (!this.isHeightAvailable(node.ws[0].ws)) {
+            node.ws[0].ws = serviceIndex > 0 ? BETWEEN_BLOCK_SPACE : EMPTY_SPACE;
+        } else if (!this.isNewLine(node.ws[0].ws[0]) && serviceIndex !== 0) {
+            node.ws[0].ws = NEW_LINE + node.ws[0].ws;
+        }
+
+        if (!this.isHeightAvailable(node.ws[node.ws.length - 2].ws)) {
+            node.ws[node.ws.length - 2].ws = SINGLE_SPACE;
+        }
+
+        if (node.resources.length <= 0 && node.variables.length <= 0 && node.endpointNodes.length <= 0 &&
+            node.namespaceDeclarations.length <= 0) {
+            if (!this.isHeightAvailable(node.ws[node.ws.length - 1].ws)) {
+                node.ws[node.ws.length - 1].ws = NEW_LINE + SPACE_TAB + NEW_LINE;
+            }
+        } else {
+            if (!this.isHeightAvailable(node.ws[node.ws.length - 1].ws)) {
+                node.ws[node.ws.length - 1].ws = NEW_LINE;
+            }
+        }
+
+        if (node.endpointNodes) {
+            for (let i = 0; i < node.endpointNodes.length; i++) {
+                node.endpointNodes[i].position.startColumn = node.position.startColumn +
+                    this.getWhiteSpaceCount(SPACE_TAB);
+            }
+        }
+
+        if (node.resources) {
+            for (let i = 0; i < node.resources.length; i++) {
+                node.resources[i].position.startColumn = node.position.startColumn +
+                    this.getWhiteSpaceCount(SPACE_TAB);
+            }
+        }
+
+        if (node.variables) {
+            for (let i = 0; i < node.variables.length; i++) {
+                node.variables[i].position.startColumn = node.position.startColumn +
+                    this.getWhiteSpaceCount(SPACE_TAB);
+            }
+        }
+
+        if (node.annotationAttachments) {
+            for (let i = 0; i < node.annotationAttachments.length; i++) {
+                node.annotationAttachments[i].position.startColumn = node.position.startColumn;
+            }
+        }
     }
 
 
@@ -216,7 +619,38 @@ class FormattingUtil {
      *
      */
     formatTypeDefinitionNode(node) {
-        // Not implemented.
+        if (!node.ws) {
+            return;
+        }
+
+        this.preserveHeight(node.ws, this.getWhiteSpaces(node.position.startColumn));
+        let typeDefinitionIndex = this.findIndex(node);
+
+        if (!this.isHeightAvailable(node.ws[0].ws)) {
+            node.ws[0].ws = typeDefinitionIndex > 0
+                ? BETWEEN_BLOCK_SPACE
+                : EMPTY_SPACE;
+        } else if (!this.isNewLine(node.ws[0].ws[0]) && typeDefinitionIndex !== 0) {
+            node.ws[0].ws = NEW_LINE + node.ws[0].ws;
+        }
+
+        if (!this.isHeightAvailable(node.ws[node.ws.length - 3].ws)) {
+            node.ws[node.ws.length - 3].ws = SINGLE_SPACE;
+        }
+
+        if (node.typeNode && node.typeNode.fields.length <= 0) {
+            if (!this.isHeightAvailable(node.ws[node.ws.length - 2].ws)) {
+                node.ws[node.ws.length - 2].ws = NEW_LINE + SPACE_TAB + NEW_LINE;
+            }
+        } else {
+            if (!this.isHeightAvailable(node.ws[node.ws.length - 2].ws)) {
+                node.ws[node.ws.length - 2].ws = NEW_LINE;
+            }
+        }
+
+        if (node.typeNode) {
+            node.typeNode.position.startColumn = node.position.startColumn
+        }
     }
 
 
@@ -227,7 +661,63 @@ class FormattingUtil {
      *
      */
     formatVariableNode(node) {
-        // Not implemented.
+        if (!node.ws) {
+            return;
+        }
+
+        this.preserveHeight(node.ws, this.getWhiteSpaces(node.position.startColumn));
+        let variableIndex = this.findIndex(node);
+
+        if (node.parent.kind === 'VariableDef' || node.parent.kind === "CompilationUnit" ||
+            node.parent.kind === 'RecordType') {
+            if (node.typeNode && node.typeNode.kind !== 'ArrayType') {
+                node.typeNode.position.startColumn = node.position.startColumn;
+                if (node.typeNode.ws) {
+                    this.preserveHeight(node.typeNode.ws, this.getWhiteSpaces(node.position.startColumn));
+
+                    if ((variableIndex > 0 || variableIndex < 0)) {
+                        if (!this.isHeightAvailable(node.typeNode.ws[0].ws)) {
+                            node.typeNode.ws[0].ws = NEW_LINE + this.getWhiteSpaces(node.position.startColumn);
+                        }
+                    } else {
+                        if (!this.isHeightAvailable(node.typeNode.ws[0].ws)) {
+                            if (node.parent.kind === 'RecordType') {
+                                node.typeNode.ws[0].ws = NEW_LINE + this.getWhiteSpaces(node.position.startColumn);
+                            } else {
+                                node.typeNode.ws[0].ws = EMPTY_SPACE;
+                            }
+                        }
+                    }
+                } else if (node.isAnonType && node.ws && node.ws.length > 3) {
+                    if (!this.isHeightAvailable(node.ws[0].ws)) {
+                        node.ws[0].ws = NEW_LINE + this.getWhiteSpaces(node.position.startColumn);
+                    }
+
+                    if (!this.isHeightAvailable(node.ws[1].ws)) {
+                        node.ws[1].ws = SINGLE_SPACE;
+                    }
+
+                    if (node.typeNode && node.typeNode.anonType && node.typeNode.anonType.fields &&
+                        node.typeNode.anonType.fields.length <= 0) {
+                        if (!this.isHeightAvailable(node.ws[2].ws)) {
+                            node.ws[2].ws = NEW_LINE + SPACE_TAB + NEW_LINE;
+                        }
+                    } else {
+                        if (!this.isHeightAvailable(node.ws[2].ws)) {
+                            node.ws[2].ws = NEW_LINE;
+                        }
+                    }
+                }
+            } else if(node.typeNode) {
+                node.typeNode.position.startColumn = node.position.startColumn;
+                if (node.typeNode.ws) {
+                    this.preserveHeight(node.typeNode.ws, this.getWhiteSpaces(node.position.startColumn));
+                    if (!this.isHeightAvailable(node.typeNode.ws[0].ws)) {
+                        node.typeNode.ws[0].ws = EMPTY_SPACE;
+                    }
+                }
+            }
+        }
     }
 
 
@@ -370,7 +860,47 @@ class FormattingUtil {
      *
      */
     formatInvocationNode(node) {
-        // Not implemented.
+        if (!node.ws) {
+            return;
+        }
+
+        this.preserveHeight(node.ws, this.getWhiteSpaces(node.position.startColumn));
+
+        if (node.parent.kind === 'ExpressionStatement') {
+            if (node.expression && node.expression.ws) {
+                this.preserveHeight(node.expression.ws, this.getWhiteSpaces(node.position.startColumn));
+                if (!this.isHeightAvailable(node.expression.ws[0].ws)) {
+                    node.expression.ws[0].ws = NEW_LINE + this.getWhiteSpaces(node.position.startColumn);
+                }
+            } else {
+                if (!this.isHeightAvailable(node.ws[0].ws)) {
+                    node.ws[0].ws = NEW_LINE + this.getWhiteSpaces(node.parent.position.startColumn);
+                }
+            }
+        } else {
+            if (node.expression && node.expression.ws) {
+                this.preserveHeight(node.expression.ws, this.getWhiteSpaces(node.position.startColumn));
+                if (!this.isHeightAvailable(node.expression.ws[0].ws)) {
+                    node.expression.ws[0].ws = SINGLE_SPACE;
+                }
+            } else {
+                if (!this.isHeightAvailable(node.ws[0].ws)) {
+                    node.ws[0].ws = SINGLE_SPACE;
+                }
+            }
+        }
+
+        if (node.argumentExpressions) {
+            for (let i = 0; i < node.argumentExpressions.length; i++) {
+                if (node.argumentExpressions[i]) {
+                    if (i === 0) {
+                        node.argumentExpressions[i].ws[0].ws = EMPTY_SPACE;
+                    } else {
+                        node.argumentExpressions[i].ws[0].ws = SINGLE_SPACE;
+                    }
+                }
+            }
+        }
     }
 
 
@@ -403,7 +933,59 @@ class FormattingUtil {
      *
      */
     formatRecordLiteralExprNode(node) {
-        // Not implemented.
+        if (!node.ws) {
+            return;
+        }
+
+        if (node.parent.kind === 'Endpoint' || node.parent.kind === 'AnnotationAttachment' ||
+            node.parent.kind === "Service") {
+
+            this.preserveHeight(node.ws, this.getWhiteSpaces(node.position.startColumn));
+
+            if (!this.isHeightAvailable(node.ws[0].ws)) {
+                node.ws[0].ws = SINGLE_SPACE;
+            }
+            if (node.keyValuePairs.length <= 0) {
+                if (!this.isHeightAvailable(node.ws[node.ws.length - 1].ws)) {
+                    node.ws[node.ws.length - 1].ws =
+                        NEW_LINE + this.getWhiteSpaces(node.position.startColumn) + NEW_LINE +
+                        this.getWhiteSpaces(node.position.startColumn);
+                }
+            } else {
+                if (!this.isHeightAvailable(node.ws[node.ws.length - 1].ws)) {
+                    node.ws[node.ws.length - 1].ws =
+                        NEW_LINE + this.getWhiteSpaces(node.position.startColumn);
+                }
+            }
+
+
+            let indentedStartColumn = node.position.startColumn +
+                this.getWhiteSpaceCount(SPACE_TAB);
+
+            for (let i = 0; i < node.keyValuePairs.length; i++) {
+                this.preserveHeight(node.keyValuePairs[i].key.ws, this.getWhiteSpaces(indentedStartColumn));
+                this.preserveHeight(node.keyValuePairs[i].value.ws, this.getWhiteSpaces(indentedStartColumn));
+                this.preserveHeight(node.keyValuePairs[i].ws, this.getWhiteSpaces(indentedStartColumn));
+
+                if (!this.isHeightAvailable(node.keyValuePairs[i].key.ws[0].ws)) {
+                    node.keyValuePairs[i].key.ws[0].ws = NEW_LINE + this.getWhiteSpaces(indentedStartColumn);
+                }
+
+                if (!this.isHeightAvailable(node.keyValuePairs[i].value.ws[0].ws)) {
+                    node.keyValuePairs[i].value.ws[0].ws = SINGLE_SPACE;
+                }
+
+                if (!this.isHeightAvailable(node.keyValuePairs[i].ws)) {
+                    node.keyValuePairs[i].ws = EMPTY_SPACE;
+                }
+            }
+
+            for (let j = 0; j < node.ws.length; j++) {
+                if (node.ws[j].text === ',') {
+                    node.ws[j].ws = EMPTY_SPACE;
+                }
+            }
+        }
     }
 
 
@@ -414,7 +996,7 @@ class FormattingUtil {
      *
      */
     formatSimpleVariableRefNode(node) {
-        // Not implemented.
+
     }
 
 
@@ -612,7 +1194,33 @@ class FormattingUtil {
      *
      */
     formatAssignmentNode(node) {
-        // Not implemented.
+        if (!node.ws) {
+            return;
+        }
+
+        this.preserveHeight(node.ws, this.getWhiteSpaces(node.position.startColumn));
+
+        if (node.variable && node.variable.ws) {
+            this.preserveHeight(node.variable.ws, this.getWhiteSpaces(node.position.startColumn));
+            if (!this.isHeightAvailable(node.variable.ws[0].ws)) {
+                node.variable.ws[0].ws = NEW_LINE + this.getWhiteSpaces(node.position.startColumn);
+            }
+        }
+
+        if (node.expression && node.expression.ws) {
+            this.preserveHeight(node.expression.ws, this.getWhiteSpaces(node.position.startColumn));
+            if (!this.isHeightAvailable(node.expression.ws[0].ws)) {
+                node.expression.ws[0].ws = SINGLE_SPACE;
+            }
+        }
+
+        if (!this.isHeightAvailable(node.ws[0].ws)) {
+            node.ws[0].ws = SINGLE_SPACE;
+        }
+
+        if (!this.isHeightAvailable(node.ws[1].ws)) {
+            node.ws[1].ws = EMPTY_SPACE;
+        }
     }
 
 
@@ -656,7 +1264,15 @@ class FormattingUtil {
      *
      */
     formatBlockNode(node) {
-        // Not implemented.
+        node.position = {
+            startColumn: node.parent.position.startColumn,
+        };
+
+        // Add the start column and sorted index.
+        for (let i = 0; i < node.statements.length; i++) {
+            let child = node.statements[i];
+            child.position.startColumn = node.position.startColumn + this.getWhiteSpaceCount(SPACE_TAB);
+        }
     }
 
 
@@ -678,7 +1294,16 @@ class FormattingUtil {
      *
      */
     formatExpressionStatementNode(node) {
-        // Not implemented.
+        if (!node.ws) {
+            return;
+        }
+
+        this.preserveHeight(node.ws, this.getWhiteSpaces(node.position.startColumn));
+        node.expression.position.startColumn = node.position.startColumn;
+
+        if (!this.isHeightAvailable(node.ws[0].ws)) {
+            node.ws[0].ws = EMPTY_SPACE;
+        }
     }
 
 
@@ -810,7 +1435,16 @@ class FormattingUtil {
      *
      */
     formatVariableDefNode(node) {
-        // Not implemented.
+        if (!node.ws) {
+            return;
+        }
+
+        this.preserveHeight(node.ws, this.getWhiteSpaces(node.position.startColumn));
+        node.variable.position.startColumn = node.position.startColumn;
+
+        if (!this.isHeightAvailable(node.ws[0].ws)) {
+            node.ws[0].ws = EMPTY_SPACE;
+        }
     }
 
 
@@ -920,7 +1554,9 @@ class FormattingUtil {
      *
      */
     formatUserDefinedTypeNode(node) {
-        // Not implemented.
+        if (node.isAnonType && node.anonType) {
+            node.anonType.position.startColumn = node.position.startColumn;
+        }
     }
 
 
@@ -953,7 +1589,11 @@ class FormattingUtil {
      *
      */
     formatRecordTypeNode(node) {
-        // Not implemented.
+        // Add the start column and sorted index.
+        for (let i = 0; i < node.fields.length; i++) {
+            let child = node.fields[i];
+            child.position.startColumn = node.position.startColumn + this.getWhiteSpaceCount(SPACE_TAB);
+        }
     }
 
 
@@ -1153,7 +1793,6 @@ class FormattingUtil {
     formatForeverNode(node) {
         // Not implemented.
     }
-
 
 }
 

@@ -22,7 +22,7 @@ SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
 OBJECT      : 'object' ;
-RECORD      : 'record';
+RECORD      : 'record' ;
 ANNOTATION  : 'annotation' ;
 PARAMETER   : 'parameter' ;
 TRANSFORMER : 'transformer' ;
@@ -86,10 +86,10 @@ ASCENDING   : 'ascending' ;
 DESCENDING  : 'descending' ;
 
 TYPE_INT        : 'int' ;
+TYPE_BYTE       : 'byte' ;
 TYPE_FLOAT      : 'float' ;
 TYPE_BOOL       : 'boolean' ;
 TYPE_STRING     : 'string' ;
-TYPE_BLOB       : 'blob' ;
 TYPE_MAP        : 'map' ;
 TYPE_JSON       : 'json' ;
 TYPE_XML        : 'xml' ;
@@ -136,6 +136,10 @@ AWAIT       : 'await' ;
 BUT         : 'but' ;
 CHECK       : 'check' ;
 DONE        : 'done' ;
+SCOPE       : 'scope';
+COMPENSATION : 'compensation';
+COMPENSATE  : 'compensate' ;
+PRIMARYKEY  : 'primarykey' ;
 
 // Separators
 
@@ -152,6 +156,11 @@ LEFT_BRACKET        : '[' ;
 RIGHT_BRACKET       : ']' ;
 QUESTION_MARK       : '?' ;
 
+// Documentation markdown
+
+fragment
+HASH                : '#' ;
+
 // Arithmetic operators
 
 ASSIGN  : '=' ;
@@ -159,7 +168,6 @@ ADD     : '+' ;
 SUB     : '-' ;
 MUL     : '*' ;
 DIV     : '/' ;
-POW     : '^' ;
 MOD     : '%';
 
 // Relational operators
@@ -173,6 +181,11 @@ GT_EQUAL    : '>=' ;
 LT_EQUAL    : '<=' ;
 AND         : '&&' ;
 OR          : '||' ;
+
+// Bitwise Operators
+
+BITAND  : '&' ;
+BITXOR  : '^' ;
 
 // Additional symbols 
 
@@ -204,35 +217,30 @@ DECREMENT      : '--' ;
 HALF_OPEN_RANGE   : '..<' ;
 
 DecimalIntegerLiteral
-    :   DecimalNumeral IntegerTypeSuffix?
+    :   DecimalNumeral
     ;
 
 HexIntegerLiteral
-    :   HexNumeral IntegerTypeSuffix?
+    :   HexNumeral
     ;
 
 OctalIntegerLiteral
-    :   OctalNumeral IntegerTypeSuffix?
+    :   OctalNumeral
     ;
 
 BinaryIntegerLiteral
-    :   BinaryNumeral IntegerTypeSuffix?
-    ;
-
-fragment
-IntegerTypeSuffix
-    :   [lL]
+    :   BinaryNumeral
     ;
 
 fragment
 DecimalNumeral
     :   '0'
-    |   NonZeroDigit (Digits? | Underscores Digits)
+    |   NonZeroDigit Digits?
     ;
 
 fragment
 Digits
-    :   Digit (DigitOrUnderscore* Digit)?
+    :   Digit+
     ;
 
 fragment
@@ -247,24 +255,13 @@ NonZeroDigit
     ;
 
 fragment
-DigitOrUnderscore
-    :   Digit
-    |   '_'
-    ;
-
-fragment
-Underscores
-    :   '_'+
-    ;
-
-fragment
 HexNumeral
     :   '0' [xX] HexDigits
     ;
 
 fragment
 HexDigits
-    :   HexDigit (HexDigitOrUnderscore* HexDigit)?
+    :   HexDigit+
     ;
 
 fragment
@@ -273,30 +270,18 @@ HexDigit
     ;
 
 fragment
-HexDigitOrUnderscore
-    :   HexDigit
-    |   '_'
-    ;
-
-fragment
 OctalNumeral
-    :   '0' Underscores? OctalDigits
+    :   '0' OctalDigits
     ;
 
 fragment
 OctalDigits
-    :   OctalDigit (OctalDigitOrUnderscore* OctalDigit)?
+    :   OctalDigit+
     ;
 
 fragment
 OctalDigit
     :   [0-7]
-    ;
-
-fragment
-OctalDigitOrUnderscore
-    :   OctalDigit
-    |   '_'
     ;
 
 fragment
@@ -306,18 +291,12 @@ BinaryNumeral
 
 fragment
 BinaryDigits
-    :   BinaryDigit (BinaryDigitOrUnderscore* BinaryDigit)?
+    :   BinaryDigit+
     ;
 
 fragment
 BinaryDigit
     :   [01]
-    ;
-
-fragment
-BinaryDigitOrUnderscore
-    :   BinaryDigit
-    |   '_'
     ;
 
 // §3.10.2 Floating-Point Literals
@@ -329,10 +308,10 @@ FloatingPointLiteral
 
 fragment
 DecimalFloatingPointLiteral
-    :   Digits '.' (Digits ExponentPart? FloatTypeSuffix? | Digits? ExponentPart FloatTypeSuffix? | Digits? ExponentPart? FloatTypeSuffix)
-    |   '.' Digits ExponentPart? FloatTypeSuffix?
-    |   Digits ExponentPart FloatTypeSuffix?
-    |   Digits FloatTypeSuffix
+    :   Digits '.' (Digits ExponentPart? | Digits? ExponentPart)
+    |   '.' Digits ExponentPart?
+    |   Digits ExponentPart
+    |   Digits
     ;
 
 fragment
@@ -356,13 +335,8 @@ Sign
     ;
 
 fragment
-FloatTypeSuffix
-    :   [fFdD]
-    ;
-
-fragment
 HexadecimalFloatingPointLiteral
-    :   HexSignificand BinaryExponent FloatTypeSuffix?
+    :   HexSignificand BinaryExponent
     ;
 
 fragment
@@ -502,6 +476,18 @@ StringTemplateLiteralStart
     :   TYPE_STRING WS* BACKTICK   { inTemplate = true; } -> pushMode(STRING_TEMPLATE)
     ;
 
+DocumentationLineStart
+    :   HASH DocumentationSpace? -> pushMode(MARKDOWN_DOCUMENTATION)
+    ;
+
+ParameterDocumentationStart
+    :   HASH DocumentationSpace? ADD DocumentationSpace* -> pushMode(MARKDOWN_DOCUMENTATION_PARAM)
+    ;
+
+ReturnParameterDocumentationStart
+    :   HASH DocumentationSpace? ADD DocumentationSpace* RETURN DocumentationSpace* SUB DocumentationSpace* -> pushMode(MARKDOWN_DOCUMENTATION)
+    ;
+
 DocumentationTemplateStart
     :   DOCUMENTATION WS* LEFT_BRACE   { inDocTemplate = true; } -> pushMode(DOCUMENTATION_TEMPLATE)
     ;
@@ -544,6 +530,100 @@ IdentifierLiteralEscapeSequence
     : '\\' [|"\\/]
     | '\\\\' [btnfr]
     | UnicodeEscape
+    ;
+
+mode MARKDOWN_DOCUMENTATION;
+
+VARIABLE    : 'variable';
+MODULE      : 'module';
+
+ReferenceType
+    :   TYPE|ENDPOINT|SERVICE|VARIABLE|VAR|ANNOTATION|MODULE|FUNCTION|PARAMETER
+    ;
+
+DocumentationText
+    :   DocumentationTextCharacter+
+    ;
+
+SingleBacktickStart
+    :   BACKTICK -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION)
+    ;
+
+DoubleBacktickStart
+    :   BACKTICK BACKTICK -> pushMode(DOUBLE_BACKTICKED_DOCUMENTATION)
+    ;
+
+TripleBacktickStart
+    :   BACKTICK BACKTICK BACKTICK -> pushMode(TRIPLE_BACKTICKED_DOCUMENTATION)
+    ;
+
+DefinitionReference
+    :   ReferenceType DocumentationSpace+
+    ;
+
+fragment
+DocumentationTextCharacter
+    :   ~[`\n+\- ]
+    |   '\\' BACKTICK
+    ;
+
+DocumentationEscapedCharacters
+    :   DocumentationSpace | [+-]
+    ;
+
+DocumentationSpace
+    :   [ ]
+    ;
+
+DocumentationEnd
+    :   [\n] -> channel(HIDDEN), popMode
+    ;
+
+mode MARKDOWN_DOCUMENTATION_PARAM;
+
+ParameterName
+    :   Identifier
+    ;
+
+DescriptionSeparator
+    :   DocumentationSpace* SUB DocumentationSpace* -> popMode, pushMode(MARKDOWN_DOCUMENTATION)
+    ;
+
+DocumentationParamEnd
+    :   [\n] -> channel(HIDDEN), popMode
+    ;
+
+mode SINGLE_BACKTICKED_DOCUMENTATION;
+
+SingleBacktickContent
+    :   ((~[`\n] | '\\' BACKTICK)* [\n])? (DocumentationLineStart (~[`\n] | '\\' BACKTICK)* [\n]?)+
+    |   (~[`\n] | '\\' BACKTICK)+
+    ;
+
+SingleBacktickEnd
+    :   BACKTICK -> popMode
+    ;
+
+mode DOUBLE_BACKTICKED_DOCUMENTATION;
+
+DoubleBacktickContent
+    :   ((~[`\n] | BACKTICK ~[`])* [\n])? (DocumentationLineStart (~[`\n] | BACKTICK ~[`])* [\n]?)+
+    |   (~[`\n] | BACKTICK ~[`])+
+    ;
+
+DoubleBacktickEnd
+    :   BACKTICK BACKTICK -> popMode
+    ;
+
+mode TRIPLE_BACKTICKED_DOCUMENTATION;
+
+TripleBacktickContent
+    :   ((~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])* [\n])? (DocumentationLineStart (~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])* [\n]?)+
+    |   (~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])+
+    ;
+
+TripleBacktickEnd
+    :   BACKTICK BACKTICK BACKTICK -> popMode
     ;
 
 

@@ -40,6 +40,18 @@ class Node extends EventChannel {
             }
         });
 
+        this.on('mouse-enter', function (event = {}) {
+            if (!_.isNil(this.parent)) {
+                this.parent.trigger('mouse-enter', event);
+            }
+        });
+
+        this.on('mouse-leave', function (event = {}) {
+            if (!_.isNil(this.parent)) {
+                this.parent.trigger('mouse-leave', event);
+            }
+        });
+
         /**
          * View State Object to keep track of the model's view properties
          * @type {{bBox: SimpleBBox, components: {}, dimensionsSynced: boolean}}
@@ -110,7 +122,7 @@ class Node extends EventChannel {
         for (const childName in this) {
             if (childName !== 'parent' && childName !== 'position' && childName !== 'ws') {
                 if (newTree === undefined || newTree[childName] === undefined) {
-                    console.warn(`could not find ${childName} in newTree`, newTree);
+                    // console.warn(`could not find ${childName} in newTree`, newTree);
                 } else {
                     const child = this[childName];
                     const child2 = newTree[childName];

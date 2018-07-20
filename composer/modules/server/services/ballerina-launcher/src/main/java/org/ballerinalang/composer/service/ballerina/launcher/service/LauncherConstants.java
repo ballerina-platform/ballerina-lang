@@ -41,7 +41,8 @@ public class LauncherConstants {
     public static final String PING = "PING";
     public static final String PONG = "PONG";
     public static final String MSG_INVALID = "Unsupported command";
-    
+
+    public static final String INPUT = "INPUT";
     public static final String OUTPUT = "OUTPUT";
     public static final String EXECUTION_STARTED = "EXECUTION_STARTED";
     public static final String EXECUTION_STOPPED = "EXECUTION_STOPPED";

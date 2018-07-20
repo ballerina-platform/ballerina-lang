@@ -100,11 +100,11 @@ export function parseFile(file) {
  */
 export function parseContent(content) {
     const payload = {
-        fileName: 'untitle',
-        filePath: '/temp',
-        packageName: 'test.package',
+        fileName: 'untitled.bal',
+        filePath: 'temp',
         includeTree: true,
         includePackageInfo: true,
+        includeProgramDir: true,
         content,
     };
     const endpoint = getServiceEndpoint('ballerina-parser') + '/file/validate-and-parse';
@@ -127,6 +127,31 @@ export function getPackages() {
         axios.get(endpoint, { headers: CONTENT_TYPE_JSON_HEADER })
             .then((response) => {
                 resolve(response.data);
+            }).catch(error => reject(error));
+    });
+}
+
+export function getEndpoints() {
+    const endpoint = getServiceEndpoint('ballerina-parser') + '/endpoints';
+
+    return new Promise((resolve, reject) => {
+        axios.get(endpoint, { headers: CONTENT_TYPE_JSON_HEADER })
+            .then((response) => {
+                resolve(response.data.packages);
+            }).catch(error => reject(error));
+    });
+}
+
+export function getActions(packageName, typeName) {
+    const endpoint = getServiceEndpoint('ballerina-parser') + '/actions';
+    const data = {
+        pkgName: packageName,
+        typeName,
+    };
+    return new Promise((resolve, reject) => {
+        axios.get(endpoint, { params: data }, { headers: CONTENT_TYPE_JSON_HEADER })
+            .then((response) => {
+                resolve(response.data.packages);
             }).catch(error => reject(error));
     });
 }
@@ -191,6 +216,22 @@ export function getSwaggerDefinition(ballerinaSource, serviceName) {
         axios.post(endpoint, payload, { headers: CONTENT_TYPE_JSON_HEADER })
             .then((response) => {
                 resolve(response.data.swaggerDefinition);
+            }).catch(error => reject(error));
+    });
+}
+
+export function getServiceDefinition(swagger, serviceName) {
+    const endpoint = `${getServiceEndpoint('ballerina-to-swagger')}/swagger-to-ballerina?serviceName=${serviceName}`;
+    const payload = {
+        swaggerDefinition: JSON.stringify(swagger),
+    };
+
+    return new Promise((resolve, reject) => {
+        axios.post(endpoint, payload, { headers: CONTENT_TYPE_JSON_HEADER })
+            .then((response) => {
+                parseContent(response.data.ballerinaDefinition).then(( data = {})=>{
+                    resolve(data);
+                });
             }).catch(error => reject(error));
     });
 }

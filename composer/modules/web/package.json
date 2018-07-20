@@ -1,6 +1,6 @@
 {
   "name": "ballerina-composer",
-  "version": "0.974.1",
+  "version": "0.980.1",
   "description": "A web based tool for creating integrations in ballerina language.",
   "scripts": {
     "clean": "npm install rimraf & rimraf dist",
@@ -104,6 +104,7 @@
     "cross-env": "^3.2.3",
     "electron": "^2.0.0",
     "enzyme-adapter-react-16": "^1.1.1",
+    "generate-schema": "^2.6.0",
     "jquery": "^3.3.1",
     "js-yaml": "^3.7.0",
     "json5": "^0.5.1",
@@ -137,8 +138,8 @@
     "react-treeview": "^0.4.7",
     "reconnecting-websocket": "^3.2.2",
     "rimraf": "^2.6.2",
-    "semantic-ui-less": "^2.2.14",
-    "semantic-ui-react": "^0.78.3",
+    "semantic-ui-less": "^2.3.2",
+    "semantic-ui-react": "^0.81.3",
     "swagger-editor-dist": "^3.1.18",
     "uuid": "^3.1.0",
     "vscode-ws-jsonrpc": "0.0.1-alpha.5",

@@ -31,6 +31,7 @@ public class ItemResolverConstants {
     public static final String WORKER = "worker";
     public static final String TRANSACTION = "transaction";
     public static final String ABORT = "abort";
+    public static final String RETRY = "retry";
     public static final String TRY = "try";
     public static final String WHILE = "while";
     public static final String LOCK = "lock";
@@ -46,8 +47,10 @@ public class ItemResolverConstants {
     public static final String MATCH = "match";
     public static final String THROW = "throw";
     public static final String NEW = "new";
+    public static final String LENGTHOF = "lengthof";
 
     public static final String FUNCTION = "function";
+    public static final String FUNCTION_SIGNATURE = "function signature";
     public static final String MAIN_FUNCTION = "main function";
     public static final String SERVICE = "service";
     public static final String ANNOTATION = "annotation";
@@ -76,7 +79,7 @@ public class ItemResolverConstants {
     public static final String NONE = "none";
     public static final String BOOLEAN_TYPE = "boolean";
     public static final String OBJECT_TYPE = "type <ObjectName> object";
-    public static final String RECORD_TYPE = "type <RecordName>";
+    public static final String RECORD_TYPE = "type <RecordName> record";
     public static final String TYPE_TYPE = "type";
     public static final String NEW_OBJECT_CONSTRUCTOR_TYPE = "new object constructor";
     // End Symbol Types Constants

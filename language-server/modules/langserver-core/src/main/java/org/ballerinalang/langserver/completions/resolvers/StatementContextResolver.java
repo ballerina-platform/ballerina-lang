@@ -39,7 +39,7 @@ import java.util.List;
 public class StatementContextResolver extends AbstractItemResolver {
     @Override
     @SuppressWarnings("unchecked")
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         // Here we specifically need to check whether the statement is function invocation,

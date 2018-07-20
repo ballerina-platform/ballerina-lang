@@ -21,7 +21,7 @@ documentation {
 
     F{{name}} - protocol name
 }
-type Protocol {
+type Protocol record {
     @readonly string name;
 };
 
@@ -30,7 +30,7 @@ documentation {
 
     F{{name}} - protocol name
 }
-type LocalProtocol {
+type LocalProtocol record {
     @readonly string name;
 };
 
@@ -41,16 +41,14 @@ documentation {
     F{{url}}  - protocol URL. This URL will have a value only if the participant is remote. If the participant is local,
                 the `protocolFn` will be called
 }
-public type RemoteProtocol {
+public type RemoteProtocol record {
     @readonly string name;
     @readonly string url;
 };
 
 type Participant object {
 
-    private {
-        string participantId;
-    }
+    string participantId;
 
     function prepare(string protocol) returns ((PrepareResult|error)?, Participant);
 
@@ -59,11 +57,9 @@ type Participant object {
 
 type RemoteParticipant object {
 
-    private {
-        string participantId;
-        string transactionId;
-        RemoteProtocol[] participantProtocols;
-    }
+    private string participantId;
+    private string transactionId;
+    private RemoteProtocol[] participantProtocols;
 
     new(participantId, transactionId, participantProtocols) {}
 
@@ -168,11 +164,10 @@ type RemoteParticipant object {
 };
 
 type LocalParticipant object {
-    private {
-        string participantId;
-        TwoPhaseCommitTransaction participatedTxn;
-        LocalProtocol[] participantProtocols;
-    }
+
+    private string participantId;
+    private TwoPhaseCommitTransaction participatedTxn;
+    private LocalProtocol[] participantProtocols;
 
     new(participantId, participatedTxn, participantProtocols) {}
 

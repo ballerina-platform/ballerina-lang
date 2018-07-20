@@ -24,17 +24,13 @@ import SimpleBBox from './../../../../../model/view/simple-bounding-box';
 import * as DesignerDefaults from './../../designer-defaults';
 import TreeUtils from './../../../../../model/tree-util';
 import OverlayComponentsRenderingUtil from './../utils/overlay-component-rendering-util';
-import ActionBox from './action-box';
-import ActiveArbiter from './active-arbiter';
 import ArrowDecorator from '../decorators/arrow-decorator';
-
+import HoverGroup from 'plugins/ballerina/graphical-editor/controller-utils/hover-group';
 
 class LifeLine extends React.Component {
 
     constructor(props) {
         super(props);
-        this.setActionVisibilityFalse = this.setActionVisibility.bind(this, false);
-        this.setActionVisibilityTrue = this.setActionVisibility.bind(this, true);
 
         const bBox = this.props.bBox;
         this.topBox = new SimpleBBox(bBox.x, bBox.y, bBox.w, DesignerDefaults.lifeLine.head.height);
@@ -42,34 +38,8 @@ class LifeLine extends React.Component {
         this.handleConnectorProps = this.handleConnectorProps.bind(this);
     }
 
-    onDelete() {
-        this.props.onDelete();
-    }
-
-    /**
-     * Navigates to codeline in the source view from the design view node
-     *
-     */
-    onJumptoCodeLine() {
-        const { editor } = this.context;
-        editor.goToSource(this.props.model);
-    }
-
     onUpdate(text) {
     }
-
-    /**
-     * Shows the action box.
-     * @param {boolean} show - Display action box if true or else hide.
-     */
-    setActionVisibility(show) {
-        if (show) {
-            this.context.activeArbiter.readyToActivate(this);
-        } else {
-            this.context.activeArbiter.readyToDeactivate(this);
-        }
-    }
-
 
     handleConnectorProps() {
         const model = this.props.model;
@@ -100,12 +70,6 @@ class LifeLine extends React.Component {
 
         // Check if its the default worker
         const isDefaultWorker = this.props.title === 'default';
-        const actionBbox = new SimpleBBox();
-        actionBbox.w = isDefaultWorker ? (DesignerDefaults.actionBox.width + 15) / 4
-          : ((3 * DesignerDefaults.actionBox.width) - 14) / 4;
-        actionBbox.h = DesignerDefaults.actionBox.height;
-        actionBbox.x = bBox.x + ((bBox.w - actionBbox.w) / 2);
-        actionBbox.y = bBox.y + 20;
         let tooltip = this.props.title;
         if (this.props.tooltip) {
             tooltip = this.props.tooltip;
@@ -121,8 +85,6 @@ class LifeLine extends React.Component {
         const startY = bBox.y + titleBoxH + this.context.designer.config.statement.height;
         return (<g
             className='life-line-group'
-            onMouseOut={this.setActionVisibilityFalse}
-            onMouseOver={this.setActionVisibilityTrue}
         >
 
             <title> {tooltip} </title>
@@ -141,17 +103,17 @@ class LifeLine extends React.Component {
                 className={`${lineClass} life-line`}
             />
             {this.props.icon &&
-            <g onClick={this.handleConnectorProps}>
-                <text
-                    x={startX - (iconSize / 2)}
-                    y={bBox.y - 5}
-                    fontFamily='font-ballerina'
-                    fontSize={iconSize}
-                    className={`${lineClass} life-line-icon`}
-                >
-                    {this.props.icon}
-                </text>
-            </g>
+                <g onClick={this.handleConnectorProps}>
+                    <text
+                        x={startX - (iconSize / 2)}
+                        y={bBox.y - 5}
+                        fontFamily='font-ballerina'
+                        fontSize={iconSize}
+                        className={`${lineClass} life-line-icon`}
+                    >
+                        {this.props.icon}
+                    </text>
+                </g>
             }
             <line
                 x1={bBox.x}
@@ -176,22 +138,22 @@ class LifeLine extends React.Component {
                 fontWeight='400'
                 className={`${lineClass} life-line-title`}
             >{identifier}</text>
-            {this.props.onDelete &&
-                <ActionBox
-                    show={this.state.active}
-                    bBox={actionBbox}
-                    onDelete={() => this.onDelete()}
-                    onJumptoCodeLine={() => this.onJumptoCodeLine()}
-                    isDefaultWorker={isDefaultWorker}
+            <HoverGroup model={this.props.model} region='actionBox'>
+                <rect
+                    x={bBox.x}
+                    y={bBox.y}
+                    width={bBox.w}
+                    height={bBox.h}
+                    className='invisible-rect'
                 />
-            }
-            { (!TreeUtils.isForkJoin(this.props.model.parent) &&
-              (isDefaultWorker || TreeUtils.isWorker(this.props.model))) &&
-              <ArrowDecorator
-                  start={{ x: startX, y: startY }}
-                  end={{ x: startX, y: startY }}
-                  classNameArrow={`${lineClass} client-invocation-arrow`}
-              />
+            </HoverGroup>
+            {(!TreeUtils.isForkJoin(this.props.model.parent) &&
+                (isDefaultWorker || TreeUtils.isWorker(this.props.model))) &&
+                <ArrowDecorator
+                    start={{ x: startX, y: startY }}
+                    end={{ x: startX, y: startY }}
+                    classNameArrow={`${lineClass} client-invocation-arrow`}
+                />
             }
         </g>);
     }
@@ -202,7 +164,6 @@ LifeLine.propTypes = {
     title: PropTypes.string,
     icon: PropTypes.string,
     bBox: PropTypes.instanceOf(Object).isRequired,
-    onDelete: PropTypes.func.isRequired,
     tooltip: PropTypes.string,
     className: PropTypes.string.isRequired,
 };
@@ -220,7 +181,6 @@ LifeLine.contextTypes = {
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
     environment: PropTypes.instanceOf(Object).isRequired,
-    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
 };
 
 export default LifeLine;

@@ -18,12 +18,12 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import ActiveArbiter from '../decorators/active-arbiter';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import LifeLine from '../decorators/lifeline';
 import ImageUtil from '../../../../image-util';
 import FragmentUtils from '../../../../../utils/fragment-utils';
 import TreeBuilder from '../../../../../model/tree-builder';
+import HoverGroup from 'plugins/ballerina/graphical-editor/controller-utils/hover-group';
 
 /**
  * Worker Node Decorator.
@@ -38,16 +38,7 @@ class WorkerNode extends React.Component {
      * */
     constructor(props) {
         super(props);
-        this.onDelete = this.onDelete.bind(this);
         this.handleSetName = this.handleSetName.bind(this);
-    }
-
-    /**
-     * Removes self on delete button click.
-     * @returns {void}
-     */
-    onDelete() {
-        this.props.model.remove();
     }
 
     /**
@@ -95,8 +86,16 @@ class WorkerNode extends React.Component {
                     editorOptions={editorOptions}
                     className='worker'
                     icon={ImageUtil.getCodePoint('worker')}
-                    onDelete={this.onDelete}
                 />
+                <HoverGroup model={model} region='actionBox'>
+                    <rect
+                        x={model.x}
+                        y={model.y}
+                        width={model.w}
+                        height={model.h}
+                        className='invisible-rect'
+                    />
+                </HoverGroup>
                 {blockNode}
             </g>
         );
@@ -108,7 +107,6 @@ WorkerNode.propTypes = {
 };
 
 WorkerNode.contextTypes = {
-    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
     designer: PropTypes.instanceOf(Object).isRequired,
 };
 

@@ -25,15 +25,12 @@ import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.logging.BLogManager;
-import org.ballerinalang.nativeimpl.io.BallerinaIOException;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.testerina.util.Utils;
-import org.ballerinalang.toml.model.Manifest;
-import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.VMOptions;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -85,6 +82,9 @@ public class TestCmd implements BLauncherCmd {
 
     @Parameter(names = "--disable-groups", description = "test groups to be disabled")
     private List<String> disableGroupList;
+
+    @Parameter(names = "--exclude-packages", description = "packages to be excluded")
+    private List<String> excludedPackageList;
 
     public void execute() {
         if (helpFlag) {
@@ -140,14 +140,14 @@ public class TestCmd implements BLauncherCmd {
             throw new RuntimeException("failed to read the specified configuration file: " + configFilePath, e);
         }
 
-        Path[] paths = sourceFileList.stream().map(Paths::get).toArray(Path[]::new);
+        Path[] paths = sourceFileList.stream()
+                .filter(source -> excludedPackageList == null || !excludedPackageList.contains(source))
+                .map(Paths::get)
+                .sorted()
+                .toArray(Path[]::new);
 
         if (srcDirectory != null) {
-            Manifest manifest = readManifestConfigurations();
-            String orgName = manifest.getName();
-            String version = manifest.getVersion();
-            TesterinaRegistry.getInstance().setOrgName(orgName);
-            TesterinaRegistry.getInstance().setVersion(version);
+            Utils.setManifestConfigs();
         }
         BTestRunner testRunner = new BTestRunner();
         if (listGroups) {
@@ -157,7 +157,7 @@ public class TestCmd implements BLauncherCmd {
         if (disableGroupList != null) {
             testRunner.runTest(sourceRootPath.toString(), paths, disableGroupList, false);
         } else {
-            testRunner.runTest(sourceRootPath.toString(), paths, groupList, true);
+            testRunner.runTest(sourceRootPath.toString(), paths, groupList);
         }
         if (testRunner.getTesterinaReport().isFailure()) {
             Utils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
@@ -188,20 +188,5 @@ public class TestCmd implements BLauncherCmd {
     public void setSelfCmdParser(JCommander selfCmdParser) {
         // ignore
 
-    }
-
-    /**
-     * Read the manifest.
-     *
-     * @return manifest configuration object
-     */
-    private static Manifest readManifestConfigurations() {
-        String tomlFilePath = Paths.get(".").toAbsolutePath().normalize().resolve
-            (ProjectDirConstants.MANIFEST_FILE_NAME).toString();
-        try {
-            return ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
-        } catch (IOException e) {
-            return new Manifest();
-        }
     }
 }

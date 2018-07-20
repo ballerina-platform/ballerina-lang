@@ -46,6 +46,8 @@ public enum ItemSorters {
             new StatementContextItemSorter()),
     VAR_DEF_CONTEXT_ITEM_SORTER(BallerinaParser.VariableDefinitionStatementContext.class,
             new VariableDefContextItemSorter()),
+    GLOBAL_VAR_DEF_CONTEXT_ITEM_SORTER(BallerinaParser.GlobalVariableDefinitionContext.class,
+            new VariableDefContextItemSorter()),
     CONDITIONAL_STMT_CONTEXT_ITEM_SORTER(ConditionalStatementItemSorter.class,
             new ConditionalStatementItemSorter()),
     MATCH_STMT_CONTEXT_ITEM_SORTER(MatchContextItemSorter.class,

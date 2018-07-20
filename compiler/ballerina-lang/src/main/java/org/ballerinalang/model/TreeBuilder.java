@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.model;
 
 import org.ballerinalang.model.tree.ActionNode;
@@ -29,6 +29,7 @@ import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
+import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
@@ -69,6 +70,9 @@ import org.ballerinalang.model.tree.expressions.IntRangeExpression;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
 import org.ballerinalang.model.tree.expressions.LambdaFunctionNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
+import org.ballerinalang.model.tree.expressions.MarkdownDocumentationParameterAttributeNode;
+import org.ballerinalang.model.tree.expressions.MarkdownDocumentationReturnParameterAttributeNode;
+import org.ballerinalang.model.tree.expressions.MarkdownDocumentationTextAttributeNode;
 import org.ballerinalang.model.tree.expressions.MatchExpressionNode;
 import org.ballerinalang.model.tree.expressions.MatchExpressionNode.MatchExpressionPatternNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
@@ -98,6 +102,7 @@ import org.ballerinalang.model.tree.statements.BindNode;
 import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.BreakNode;
 import org.ballerinalang.model.tree.statements.CatchNode;
+import org.ballerinalang.model.tree.statements.CompensateNode;
 import org.ballerinalang.model.tree.statements.CompoundAssignmentNode;
 import org.ballerinalang.model.tree.statements.ContinueNode;
 import org.ballerinalang.model.tree.statements.DoneNode;
@@ -112,6 +117,7 @@ import org.ballerinalang.model.tree.statements.MatchNode.MatchStatementPatternNo
 import org.ballerinalang.model.tree.statements.PostIncrementNode;
 import org.ballerinalang.model.tree.statements.RetryNode;
 import org.ballerinalang.model.tree.statements.ReturnNode;
+import org.ballerinalang.model.tree.statements.ScopeNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.statements.ThrowNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
@@ -146,6 +152,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangEnum.BLangEnumerator;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -188,6 +195,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
@@ -218,6 +228,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
@@ -232,6 +243,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -530,6 +542,22 @@ public class TreeBuilder {
         return new BLangDocumentation();
     }
 
+    public static MarkdownDocumentationNode createMarkdownDocumentationNode() {
+        return new BLangMarkdownDocumentation();
+    }
+
+    public static MarkdownDocumentationTextAttributeNode createMarkdownDocumentationTextNode() {
+        return new BLangMarkdownDocumentationLine();
+    }
+
+    public static MarkdownDocumentationParameterAttributeNode createMarkdownParameterDocumentationNode() {
+        return new BLangMarkdownParameterDocumentation();
+    }
+
+    public static MarkdownDocumentationReturnParameterAttributeNode createMarkdownReturnParameterDocumentationNode() {
+        return new BLangMarkdownReturnParameterDocumentation();
+    }
+
     public static DeprecatedNode createDeprecatedNode() {
         return new BLangDeprecatedNode();
     }
@@ -744,5 +772,13 @@ public class TreeBuilder {
 
     public static StatementExpressionNode creatStatementExpression() {
         return new BLangStatementExpression();
+    }
+
+    public static CompensateNode createCompensateNode() {
+        return new BLangCompensate();
+    }
+
+    public static ScopeNode createScopeNode() {
+        return new BLangScope();
     }
 }

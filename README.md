@@ -1,11 +1,30 @@
+<p align="center">
+  <a href="https://ballerina.io/">
+    <img src="https://ballerina.io/img/ballerina-logo.png" alt="Ballerina logo" width=300>
+  </a>
+
+  <h3 align="center">Cloud Native Programming Language</h3>
+
+  <p align="center">
+    Ballerina makes it easy to write microservices that integrate APIs.
+    <br>
+    <a href="https://ballerina.io/philosophy/"><strong>Explore Ballerina philosophy »</strong></a>
+    <br>
+    <br>
+    <a href="https://github.com/ballerina-platform/ballerina-lang/issues/new">Report issues</a>
+    ·
+    <a href="https://blog.ballerina.io/">Blog</a>
+  </p>
+</p>
+
+<br>
+
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 [![Build Status](https://wso2.org/jenkins/view/All%20Builds/job/ballerina-platform/job/ballerina/badge/icon)](https://wso2.org/jenkins/view/All%20Builds/job/ballerina-platform/job/ballerina/)
 [![GitHub (pre-)release](https://img.shields.io/github/release/ballerina-platform/ballerina-lang/all.svg)](https://github.com/ballerina-platform/ballerina-lang/releases)
 [![GitHub (Pre-)Release Date](https://img.shields.io/github/release-date-pre/ballerina-platform/ballerina-lang.svg)](https://github.com/ballerina-platform/ballerina-lang/releases)
 [![GitHub last commit](https://img.shields.io/github/last-commit/ballerina-platform/ballerina-lang.svg)](https://github.com/ballerina-platform/ballerina-lang/commits/master)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-
-Ballerina makes it easy to write microservices that integrate APIs.
 
 #### Integration Syntax
 A compiled, transactional, statically and strongly typed programming language with textual and graphical syntaxes. Ballerina incorporates fundamental concepts of distributed system integration and offers a type safe, concurrent environment to implement microservices.
@@ -45,6 +64,7 @@ Alternatively, you can install Ballerina from the source using the following ins
 
 #### Prerequisites
 
+* [Oracle JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or [OpenJDK 8](http://openjdk.java.net/install/)
 * [Maven 3.5.0 or later](https://maven.apache.org/download.cgi)
 * [Node (v8.9.x or latest LTS release) + npm (v5.6.0 or later)](https://nodejs.org/en/download/)
 * [Docker](https://www.docker.com/get-docker)
@@ -78,5 +98,5 @@ Ballerina code is distributed under [Apache license 2.0](https://github.com/ball
 ## Useful links
 
 * The ballerina-dev@googlegroups.com mailing list is for discussing code changes to the Ballerina project.
-* Chat live with us on our [Slack channel](https://ballerina-platform.slack.com/).
+* Chat live with us on our [Slack channel](https://ballerina.io/open-source/slack/).
 * Technical questions should be posted on Stack Overflow with the [#ballerina](https://stackoverflow.com/questions/tagged/ballerina) tag.

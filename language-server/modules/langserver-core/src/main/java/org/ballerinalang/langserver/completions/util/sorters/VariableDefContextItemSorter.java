@@ -17,13 +17,14 @@
 */
 package org.ballerinalang.langserver.completions.util.sorters;
 
-import org.antlr.v4.runtime.TokenStream;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Item Sorter for the Variable Definition context.
@@ -39,33 +40,17 @@ public class VariableDefContextItemSorter extends CompletionItemSorter {
     public void sortItems(LSServiceOperationContext ctx, List<CompletionItem> completionItems) {
         this.setPriorities(completionItems);
         String variableType = this.getVariableType(ctx);
-        int startTokenIndex = ctx.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY).getStart().getTokenIndex();
-        int stopTokenIndex = ctx.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY).getStop().getTokenIndex();
-        TokenStream tokenStream = ctx.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
-        String tokenString;
-        boolean isEqualTokenFound = false;
-        int tokenCounter = startTokenIndex + 1;
-        
-        while (true) {
-            if (tokenCounter > stopTokenIndex) {
-                break;
-            }
-            tokenString = tokenStream.get(tokenCounter).getText();
-            if ("=".equals(tokenString)) {
-                isEqualTokenFound = true;
-                break;
-            }
-            tokenCounter++;
-        }
-        
-        if (!isEqualTokenFound) {
-            completionItems.clear();
-        } else {
+        List<String> poppedTokens = ctx.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY)
+                .stream()
+                .map(Token::getText)
+                .collect(Collectors.toList());
+
+        if (poppedTokens.contains("=")) {
             completionItems.forEach(completionItem -> {
                 if (completionItem.getDetail().equals(ItemResolverConstants.FUNCTION_TYPE)) {
                     String label = completionItem.getLabel();
                     String functionReturnType = label.substring(label.lastIndexOf("(") + 1, label.lastIndexOf(")"));
-                    
+
                     if (variableType.equals(functionReturnType)) {
                         this.increasePriority(completionItem);
                     }
@@ -74,7 +59,7 @@ public class VariableDefContextItemSorter extends CompletionItemSorter {
         }
     }
     
-    private void increasePriority(CompletionItem completionItem) {
+    public void increasePriority(CompletionItem completionItem) {
         int sortText = Integer.parseInt(completionItem.getSortText());
         completionItem.setSortText(Integer.toString(sortText - 1));
     }
@@ -85,6 +70,10 @@ public class VariableDefContextItemSorter extends CompletionItemSorter {
      * @return      {@link String} type of the variable
      */
     String getVariableType(LSServiceOperationContext ctx) {
-        return ctx.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY).start.getText();
+        List<String> poppedTokens = ctx.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY)
+                .stream()
+                .map(Token::getText)
+                .collect(Collectors.toList());
+        return poppedTokens.get(0);
     }
 }

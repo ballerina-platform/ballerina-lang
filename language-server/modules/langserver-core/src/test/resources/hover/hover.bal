@@ -2,20 +2,24 @@
 
 import ballerina/io;
 
-@Description {value:"Struct for represent person's details"}
-@Field{value:"name: string value name of the person"}
-@Field{value:"id: int value id of the person"}
-@Field{value:"age: int value age of the person"}
-type Person {
+documentation {
+    Struct for represent person's details
+    F{{name}} string value name of the person
+    F{{id}} int value id of the person
+    F{{age}} int value age of the person
+}
+type Person record {
     string name;
     int id;
     int age;
 };
 
-@Description{value:"Test function to show current package works"}
-@Param{value:"s: string parameter"}
-@Param{value:"sd: int parameter"}
-@Return{value:"return an int"}
+documentation {
+    Test function to show current package works
+    P{{s}} string parameter
+    P{{sd}} int parameter
+    R{{}} return an int
+}
 function test1 (string s, int sd) returns int{
     int a = 0;
     return a;

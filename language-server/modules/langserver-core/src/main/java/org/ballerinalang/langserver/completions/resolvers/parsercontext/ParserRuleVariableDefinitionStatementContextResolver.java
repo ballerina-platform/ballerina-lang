@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.util.filters.PackageActionFunctionAndTypesFilter;
@@ -38,7 +38,7 @@ import java.util.List;
 public class ParserRuleVariableDefinitionStatementContextResolver extends AbstractItemResolver {
     @Override
     @SuppressWarnings("unchecked")
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         // Here we specifically need to check whether the statement is function invocation,
@@ -51,7 +51,7 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
                             .filterItems(completionContext);
             this.populateCompletionItemList(filteredList, completionItems);
         } else {
-            sorterKey = completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY).getClass();
+            sorterKey = completionContext.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getClass();
             completionItems.addAll(this.getVariableDefinitionCompletionItems(completionContext));
         }
 

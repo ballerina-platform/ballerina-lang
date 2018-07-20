@@ -4,7 +4,6 @@
   "description": "Electron based standalone distribution of Ballerina Composer",
   "main": "src/index.js",
   "scripts": {
-    "postinstall": "install-app-deps",
     "build-pack": "build --dir",
     "build-pack-win": "build --dir --win",
     "build-pack-all": "build --dir --mac --win --linux",
@@ -84,7 +83,6 @@
     "decompress": "^4.0.0",
     "electron": "^2.0.2",
     "electron-builder": "^20.15.3",
-    "electron-icon-generator": "^1.0.2",
     "glob": "^7.1.1"
   },
   "dependencies": {

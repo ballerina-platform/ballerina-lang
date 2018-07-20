@@ -537,6 +537,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .betweenInside(EXPRESSION, LEFT_BRACE, ELSE_IF_CLAUSE).spaceIf(true)
                 .betweenInside(SIMPLE_LITERAL_EXPRESSION, LEFT_BRACE, ELSE_IF_CLAUSE).spaceIf(true)
 
+                .before(WHILE_STATEMENT_BODY).spaceIf(true)
                 .between(EXPRESSION, WHILE_STATEMENT_BODY).spaceIf(true)
                 .between(SIMPLE_LITERAL_EXPRESSION, WHILE_STATEMENT_BODY).spaceIf(true)
 

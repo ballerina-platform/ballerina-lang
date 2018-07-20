@@ -35,10 +35,12 @@ public enum Snippet {
 
     CHECK_KEYWORD_SNIPPET("check "),
 
+    CONTINUE("continue;"),
+
     ENDPOINT("endpoint ${1:http:Listener} ${2:listener} {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
             + CommonUtil.LINE_SEPARATOR + "};"),
 
-    FOREACH("foreach ${1:varRefList} in ${2:listReference} {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
+    FOREACH("foreach ${1:item} in ${2:itemList} {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
             + CommonUtil.LINE_SEPARATOR + "}"),
 
     FORK("fork {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR
@@ -50,6 +52,8 @@ public enum Snippet {
     FUNCTION_SIGNATURE("function ${1:name} (${2});"),
 
     IF("if (${1:true}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR + "}"),
+    
+    LENGTHOF("lengthof "),
 
     LOCK("lock {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}"),
 
@@ -60,10 +64,8 @@ public enum Snippet {
 
     NAMESPACE_DECLARATION("xmlns \"${1}\" as ${2:ns};"),
 
-    NEW_OBJECT_CONSTRUCTOR("new (${1:args}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR
+    NEW_OBJECT_CONSTRUCTOR("public new (${1:args}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR
             + "}"),
-
-    CONTINUE("continue;"),
 
     OBJECT_SNIPPET("type ${1:ObjectName} object {" + CommonUtil.LINE_SEPARATOR + "\t${2}"
             + CommonUtil.LINE_SEPARATOR + "};"),
@@ -72,10 +74,15 @@ public enum Snippet {
 
     PUBLIC_BLOCK("public {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}"),
 
-    RECORD_SNIPPET("type ${1:RecordName} {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR + "};"),
+    PUBLIC_KEYWORD_SNIPPET("public "),
+
+    RECORD_SNIPPET("type ${1:RecordName} record {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR
+            + "};"),
 
     RESOURCE("${1:newResource} (endpoint ${2:caller}, ${3:http:Request request}) {" + CommonUtil.LINE_SEPARATOR
             + "\t${4}" + CommonUtil.LINE_SEPARATOR + "}"),
+
+    RETRY("retry;"),
 
     RETURN("return;"),
 
@@ -98,8 +105,6 @@ public enum Snippet {
 
     VAR_KEYWORD_SNIPPET("var "),
 
-    PUBLIC_KEYWORD_SNIPPET("public "),
-
     WHILE("while (${1:true}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR + "}"),
 
     WORKER_REPLY("${1} <- ${2};"),
@@ -110,13 +115,13 @@ public enum Snippet {
 
 
     // Constants for the Iterable operators
-    ITR_FOREACH("foreach(function (%params%) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+    ITR_FOREACH("foreach((%params%) => {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
             + CommonUtil.LINE_SEPARATOR + "});"),
 
-    ITR_MAP("map(function (%params%) (any){" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+    ITR_MAP("map((%params%) => (any) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
             + CommonUtil.LINE_SEPARATOR + "});"),
 
-    ITR_FILTER("filter(function (%params%) (boolean){" + CommonUtil.LINE_SEPARATOR + "\t${1}"
+    ITR_FILTER("filter((%params%) => (boolean) {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
             + CommonUtil.LINE_SEPARATOR + "});"),
 
     ITR_COUNT("count();"),

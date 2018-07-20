@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.RecordTypeInfo;
 import org.ballerinalang.util.codegen.TypeInfo;
@@ -31,6 +31,9 @@ public class BRecordType extends BStructureType {
 
     public RecordTypeInfo recordTypeInfo;
 
+    public boolean sealed;
+    public BType restFieldType;
+
     /**
      * Create a {@code BStructType} which represents the user defined struct type.
      *
@@ -40,7 +43,7 @@ public class BRecordType extends BStructureType {
      * @param flags of the record type
      */
     public BRecordType(RecordTypeInfo recordTypeInfo, String typeName, String pkgPath, int flags) {
-        super(typeName, pkgPath, flags, BStruct.class);
+        super(typeName, pkgPath, flags, BMap.class);
         this.recordTypeInfo = recordTypeInfo;
     }
 
@@ -55,7 +58,7 @@ public class BRecordType extends BStructureType {
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BStruct(this);
+        return (V) new BMap<>(this);
     }
 
     @Override

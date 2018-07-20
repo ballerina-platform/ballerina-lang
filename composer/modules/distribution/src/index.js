@@ -27,6 +27,7 @@ const { createWindow, createSplashWindow } = require('./app');
 const { createErrorWindow } = require('./error-window');
 const { ErrorCodes } = require('./error-codes');
 const registerMenuLoader = require('./menu.js');
+const { version } = require('./version');
 
 // Disable unwanted menus in mac OSX
 if (process.platform === 'darwin') {
@@ -43,12 +44,13 @@ let win,
     balHome = path.join(appDir, '..', '..', '..', '..', '..', '..')
                     .replace('app.asar', 'app.asar.unpacked');
 
-balHome = process.platform === 'darwin'
-            ? process.env.BALLERINA_HOME
-            : balHome;
+if (process.platform === 'darwin') {
+    balHome = path.join('/Library', 'Ballerina', `ballerina-${version}`);
+}
 
 let composerHome = path.join(balHome, 'lib', 'resources', 'composer'),
     composerPublicPath = path.join(composerHome, 'web', 'app'),
+    composerSamplesDir = path.join(balHome, 'docs', 'examples'),
     pageURL = `file://${composerPublicPath}/index.html`,
     javaHome = path.join(balHome, 'bre', 'lib', 'jre1.8.0_172'),
     javaExec = path.join(javaHome, 'bin', 'java');
@@ -58,6 +60,15 @@ if (process.platform == 'win32') {
 }
 
 let  openFilePath = '';
+
+function copySamples() {
+    const newSamplesDir = path.join(os.homedir(), '.composer', version, 'examples');
+    if (!fs.existsSync(newSamplesDir)) {
+        fs.ensureDirSync(newSamplesDir);
+        fs.copySync(composerSamplesDir, newSamplesDir);
+    }
+    composerSamplesDir = newSamplesDir;
+}
 
 function createLogger(){
     fs.ensureDirSync(logsDir);
@@ -92,8 +103,13 @@ function startServer(){
     args.push(classpath);
     args.push('-Dballerina.home=' + balHome);
     args.push('-Dcomposer.public.path=' + composerPublicPath);
+    args.push('-Dcomposer.samples.dir=' + composerSamplesDir);
     args.push('-Dopen.browser=false');
     args.push('org.ballerinalang.composer.server.launcher.ServerLauncher');
+    args.push('--host');
+    args.push('localhost');
+    args.push('--port');
+    args.push('0');
 
     logger.info('Starting composer from ' + balHome);
 
@@ -124,7 +140,15 @@ function startServer(){
             win.on('close', (evt) => {
                 if (process.platform === 'darwin' && !app.quitting) {
                     evt.preventDefault();
-                    win.hide();
+                    if (win.isFullScreen()) {
+                        win.once('leave-full-screen', function () {
+                            win.hide();
+                        })
+                        win.setFullScreen(false);
+                    }
+                    else{
+                        win.hide();
+                    }
                 }
             });
         } else {
@@ -209,6 +233,7 @@ app.on('ready', () => {
         splashWin = null;
     });
     createLogger();
+    copySamples();
     logger.info('Resource path is ' + process.resourcesPath);
     logger.info('Using ' + appDir + ' as the app directory.');
     logger.info('verifying availability of java runtime in path');

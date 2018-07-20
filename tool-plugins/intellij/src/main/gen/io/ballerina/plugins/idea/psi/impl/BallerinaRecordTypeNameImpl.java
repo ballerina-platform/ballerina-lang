@@ -43,8 +43,8 @@ public class BallerinaRecordTypeNameImpl extends BallerinaTypeNameImpl implement
 
   @Override
   @NotNull
-  public BallerinaFieldDefinitionList getFieldDefinitionList() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaFieldDefinitionList.class));
+  public BallerinaRecordFieldDefinitionList getRecordFieldDefinitionList() {
+    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaRecordFieldDefinitionList.class));
   }
 
   @Override

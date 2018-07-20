@@ -16,19 +16,17 @@
 
 import ballerina/http;
 
-type InitiatorClientConfig {
+type InitiatorClientConfig record {
     string registerAtURL;
     int timeoutMillis;
-    {
+    record {
         int count;
         int interval;
     } retryConfig;
 };
 
 type InitiatorClientEP object {
-    private {
-        http:Client httpClient;
-    }
+    http:Client httpClient;
 
     function init(InitiatorClientConfig conf) {
         endpoint http:Client httpEP {
@@ -49,9 +47,7 @@ type InitiatorClientEP object {
 };
 
 type InitiatorClient object {
-    private {
-        InitiatorClientEP clientEP;
-    }
+    InitiatorClientEP clientEP;
 
     new() {
 

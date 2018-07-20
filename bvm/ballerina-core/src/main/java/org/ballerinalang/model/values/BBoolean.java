@@ -51,6 +51,11 @@ public final class BBoolean extends BValueType implements BRefType<Boolean> {
     }
 
     @Override
+    public byte byteValue() {
+        return 0;
+    }
+
+    @Override
     public double floatValue() {
         return 0;
     }
@@ -58,11 +63,6 @@ public final class BBoolean extends BValueType implements BRefType<Boolean> {
     @Override
     public boolean booleanValue() {
         return this.value;
-    }
-
-    @Override
-    public byte[] blobValue() {
-        return null;
     }
 
     @Override

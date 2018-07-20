@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.974.1-SNAPSHOT</version>
+        <version>0.980.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -35,7 +35,7 @@
     </properties>
 
     <modules>
-        <module>modules/ballerina-micrometer-extension</module>
+        <module>modules/ballerina-metrics-extension</module>
         <module>modules/ballerina-prometheus-extension</module>
     </modules>
 

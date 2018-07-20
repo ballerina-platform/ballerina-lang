@@ -15,12 +15,12 @@
  */
 package org.ballerinalang.langserver.compiler;
 
-import com.google.common.io.Files;
 import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.compiler.common.CustomErrorStrategyFactory;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
+import org.ballerinalang.langserver.compiler.workspace.ExtendedWorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProgramDirectory;
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProjectDirectory;
@@ -47,6 +47,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -79,7 +80,7 @@ public class LSCompiler {
 
     static {
         // Here we will create a tmp directory as the untitled project repo.
-        File untitledDir = Files.createTempDir();
+        File untitledDir = com.google.common.io.Files.createTempDir();
         untitledProjectPath = untitledDir.toPath();
         // Now lets create a empty untitled.bal to fool compiler.
         File untitledBal = new File(Paths.get(untitledProjectPath.toString(), UNTITLED_BAL).toString());
@@ -114,7 +115,18 @@ public class LSCompiler {
     public BallerinaFile compileContent(String content, CompilerPhase phase, boolean preserveWhitespace) {
         java.nio.file.Path filePath = createAndGetTempFile(UNTITLED_BAL);
         Optional<Lock> fileLock = documentManager.lockFile(filePath);
+
+        // If the Extended workspace document manager is use enable explicit mode.
+        ExtendedWorkspaceDocumentManagerImpl exDocManager = null;
+        if (documentManager instanceof  ExtendedWorkspaceDocumentManagerImpl) {
+            exDocManager = (ExtendedWorkspaceDocumentManagerImpl) documentManager;
+        }
+
         try {
+            if (null != exDocManager) {
+                exDocManager.enableExplicitMode(filePath);
+            }
+
             if (documentManager.isFileOpen(filePath)) {
                 documentManager.updateFile(filePath, content);
             } else {
@@ -126,6 +138,9 @@ public class LSCompiler {
             documentManager.closeFile(filePath);
             return ballerinaFile;
         } finally {
+            if (null != exDocManager) {
+                exDocManager.disableExplicitMode();
+            }
             fileLock.ifPresent(Lock::unlock);
         }
     }
@@ -354,17 +369,45 @@ public class LSCompiler {
     }
 
     @CheckForNull
-    public static String findProjectRoot(String parentDir, Path homePath) {
-        Path path = Paths.get(parentDir, ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
-        if (!path.equals(homePath) && java.nio.file.Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
+    public static String findProjectRoot(String parentDir, Path balHomePath) {
+        if (parentDir == null) {
+            return null;
+        }
+        Path pathWithDotBal = null;
+        boolean pathWithDotBalExists = false;
+
+        // Go to top till you find a project directory or ballerina home
+        while (!pathWithDotBalExists && parentDir != null) {
+            pathWithDotBal = Paths.get(parentDir, ProjectDirConstants.DOT_BALLERINA_DIR_NAME);
+            pathWithDotBalExists = Files.exists(pathWithDotBal, LinkOption.NOFOLLOW_LINKS);
+            if (!pathWithDotBalExists) {
+                Path parentsParent = Paths.get(parentDir).getParent();
+                parentDir = (parentsParent != null) ? parentsParent.toString() : null;
+            }
+        }
+
+        boolean balHomeExists = Files.exists(balHomePath, LinkOption.NOFOLLOW_LINKS);
+
+        // Check if you find ballerina home if so return null.
+        if (pathWithDotBalExists && balHomeExists && isSameFile(pathWithDotBal, balHomePath)) {
+            return null;
+        }
+
+        // Else return the project directory.
+        if (pathWithDotBalExists) {
             return parentDir;
+        } else {
+            // If no directory found return null.
+            return null;
         }
-        Path parent = Paths.get(parentDir);
-        Path parentsParent = parent.getParent();
-        if (null != parentsParent) {
-            return findProjectRoot(parentsParent.toString(), homePath);
+    }
+
+    private static boolean isSameFile(Path path1, Path path2) {
+        try {
+            return path1.equals(path2) || Files.isSameFile(path1, path2);
+        } catch (IOException e) {
+            return false;
         }
-        return null;
     }
 
     /**

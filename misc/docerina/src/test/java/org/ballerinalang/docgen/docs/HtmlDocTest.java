@@ -93,7 +93,7 @@ public class HtmlDocTest {
     @Test(description = "Param links should be generated correctly")
     public void testComplexReturn() throws Exception {
         BLangPackage bLangPackage = createPackage("public function hello(string name) returns ((string[],int) | error)"
-                + "{return (\"a\", 2);}");
+                + "{return ([\"a\"], 2);}");
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertEquals(page.constructs.get(0).name, "hello");
@@ -111,11 +111,11 @@ public class HtmlDocTest {
         String source = "@Description {value:\"GitHub client\n" +
                         " connector\"}\n" +
                         "public type TestConnector object {\n" +
-                        "    public {\n" +
+                        "    \n" +
                         "        \n" +
-                        "string url;\n" +
-                        "        string path;\n" +
-                        "    }\n" +
+                        "public string url;\n" +
+                        "public string path;\n" +
+                        "    \n" +
                         "\n" +
                         "    @Description {value: \n" +
                         "\"Test Connector action testAction.\"}\n" +
@@ -158,13 +158,15 @@ public class HtmlDocTest {
 
     @Test(description = "Connectors in a package should be shown in the constructs with new docerina syntax")
     public void testConnectorsWithNewSyntax() throws Exception {
-        BLangPackage bLangPackage = createPackage("import ballerina/http;\n public type GitHubClientConfig {\n" + " "
+        BLangPackage bLangPackage = createPackage(
+                "import ballerina/http;\n public type GitHubClientConfig record {\n" + " "
                 + "   " + "    " + "http:ClientEndpointConfig clientEndpointConfiguration = {};\n" + "};\n" + "\n" +
                 "documentation { " + "GitHub client\n" + "    E{{}}\n" + "    F{{githubClientConfiguration}} - GitHub" +
                 " client " + "configurations (Access token, Client endpoint configurations)\n" + "    " +
                 "F{{githubConnector}} - " + "GitHub connector object\n" + "}\n" + "public type Client object {\n" + "" +
-                "    public {\n" + "        " + "GitHubClientConfig githubClientConfiguration = {};\n" + "        " +
-                "TestConnector githubConnector = " + "new;\n" + "    }\n" + "\n" + "    documentation { GitHub client" +
+                "    public \n" + "        " + "GitHubClientConfig githubClientConfiguration = {};\n" + "        " +
+                "public TestConnector githubConnector = " + "new;\n" + "    \n" + "\n" +
+                "    documentation { GitHub client" +
                 " endpoint initialization function\n" + "        P{{githubClientConfig}} - GitHub client " +
                 "configuration\n" + "    }\n" + "    public " + "function init (GitHubClientConfig " +
                 "githubClientConfig);\n" + "\n" + "    documentation { Return the " + "GitHub client\n" + "        " +
@@ -172,13 +174,13 @@ public class HtmlDocTest {
                 "public function getCallerActions ()" + " returns TestConnector;" +
                 "\n" + "\n" + "};\n" + "documentation {Test Connector\n F{{url}} url for " + "endpoint\n" +
                 "F{{path}} path for endpoint\n" + "}\n" + "public type TestConnector object {\n" + "  " + "  public " +
-                "{\n" + "        string url;\n" + "        string path;\n" + "    }\n" + "\n" + "    " +
+                "\n" + "        string url;\n" + "        public string path;\n" + "    \n" + "\n" + "    " +
                 "documentation {Test " + "Connector action testAction R{{}} whether successful or not}\n" + "    " +
                 "public function " + "testAction() returns boolean;\n" + "\n" + "    documentation {Test Connector "
                 + "action testSend P{{ep}}" + " endpoint url R{{}} whether successful or not}\n" + "    public " +
                 "function" + " testSend(string ep) " + "returns boolean;\n" + "};\n" +
-                "public function TestConnector::testAction() returns boolean {return true;}\n" +
-                "public function TestConnector::testSend(string ep) returns boolean {return true;}");
+                "function TestConnector::testAction() returns boolean {return true;}\n" +
+                "function TestConnector::testSend(string ep) returns boolean {return true;}");
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 3);
 
@@ -219,10 +221,10 @@ public class HtmlDocTest {
     public void testObjects() throws Exception {
         String source = "@Description {value:\"Object Test\"}\n" +
                         "public type Test object {\n" +
-                        "    public {\n" +
-                        "        string url;\n" +
-                        "        string path;\n" +
-                        "    }\n" +
+                        "    \n" +
+                        "    public string url;\n" +
+                        "    public string path;\n" +
+                        "    \n" +
 
                         "    @Description {value: \"Test Object function test1.\"}\n" +
                         "    @Return {value:\"whether successful or not\"}\n" +
@@ -273,14 +275,14 @@ public class HtmlDocTest {
                       "public type Test object \n" +
                       "{\n" +
                       "    public \n" +
-                      "{\n" +
+                      "\n" +
                       "        string url;\n" +
-                      "        string path;\n" +
-                      "    }\n" +
-                      "    private {\n" +
+                      "       public string path;\n" +
+                      "    \n" +
+                      "    private \n" +
                       "       \n" +
                       " string idx;\n" +
-                      "    }\n" +
+                      "    \n" +
                       "documentation {Initialized a new `Test` object\n" +
                       "P{{abc}} This is abc\n" +
                       "P{{path}} This is path\n" +
@@ -366,7 +368,7 @@ public class HtmlDocTest {
 
     @Test(description = "Structs in a package should be shown in the constructs")
     public void testStructs() throws Exception {
-        BLangPackage bLangPackage = createPackage("public type Message {string message; error? cause;};");
+        BLangPackage bLangPackage = createPackage("public type Message record {string message; error? cause;};");
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertEquals(page.constructs.get(0).name, "Message");

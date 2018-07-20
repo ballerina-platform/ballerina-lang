@@ -42,12 +42,12 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.ASCENDING;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.AWAIT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BINARY_INTEGER_LITERAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BIND;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.BLOB;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BOOLEAN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BOOLEAN_LITERAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BREAK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BUT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.BY;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.BYTE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CATCH;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CHECK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DAY;
@@ -173,8 +173,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
             OCTAL_INTEGER_LITERAL, BINARY_INTEGER_LITERAL, FLOATING_POINT_LITERAL);
 
     // Todo - Annotate ReservedWord in the runtime to prevent highlighting as keywords.
-    public static final TokenSet KEYWORDS = TokenSet.create(ABORT, ALL, ANNOTATION, ANY, AS, AWAIT, BIND, BLOB,
-            BOOLEAN, BREAK, BUT, CATCH, CHECK, DEPRECATED, DONE, ELSE, ENDPOINT, ENUM, FAIL, FINALLY, FLOAT, FOREACH,
+    public static final TokenSet KEYWORDS = TokenSet.create(ABORT, ALL, ANNOTATION, ANY, AS, AWAIT, BIND, BOOLEAN,
+            BREAK, BUT, BYTE, CATCH, CHECK, DEPRECATED, DONE, ELSE, ENDPOINT, ENUM, FAIL, FINALLY, FLOAT, FOREACH,
             FORK, FUNCTION, FUTURE, IF, IMPORT, IN, INT, JOIN, JSON, LENGTHOF, LOCK, MAP, MATCH, NATIVE, NEW,
             OBJECT, ONABORT, ONCOMMIT, ONRETRY, PARAMETER, PRIVATE, PUBLIC, RECORD, RESOURCE, RETRIES, RETRY, RETURN,
             RETURNS, SERVICE, SOME, START, STREAM, STRING, TABLE, TIMEOUT, TRANSACTION, TRY, TYPE, TYPEDESC, THROW,

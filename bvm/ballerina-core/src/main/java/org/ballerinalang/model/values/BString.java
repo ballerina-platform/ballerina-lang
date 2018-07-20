@@ -46,6 +46,17 @@ public final class BString extends BValueType implements BRefType<String> {
     }
 
     @Override
+    public byte byteValue() {
+        byte result;
+        try {
+            result = Byte.parseByte(this.value);
+        } catch (NumberFormatException e) {
+            throw new BallerinaException("input value " + this.value + " cannot be cast to byte");
+        }
+        return result;
+    }
+
+    @Override
     public double floatValue() {
         double result;
         try {
@@ -59,11 +70,6 @@ public final class BString extends BValueType implements BRefType<String> {
     @Override
     public boolean booleanValue() {
         return false;
-    }
-
-    @Override
-    public byte[] blobValue() {
-        return null;
     }
 
     @Override

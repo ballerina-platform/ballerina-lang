@@ -72,93 +72,88 @@ class DefinitionViewMenu extends React.Component {
             endpoints = this.props.model.topLevelNodes.filter((node) => { return TreeUtil.isEndpoint(node); });
             records = this.props.model.topLevelNodes.filter((node) => { return TreeUtil.isRecord(node); });
         }
+
         return (
-            <Popup
-                trigger={
-                    <Button as='div' labelPosition='right'>
-                        <Grid divided className={'top-bar ' + (this.props.width > RESPOSIVE_MENU_TRIGGER.ICON_MODE ? '' : 'mobile-top-bar')} columns={2}>
-                            <Grid.Row>
-                                <Grid.Column width={5} floated='right'>
-                                    <Grid.Row className='top-bar-row'>
-                                        <Label className='top-bar-icon'>
-                                            <Icon name={'fw fw-struct'} />
-                                        </Label>
-                                        <Label >Objects</Label>
-                                        <Label >{structs.length}</Label>
-                                    </Grid.Row>
-                                </Grid.Column>
-                                <Grid.Column width={5} floated='right'>
-                                    <Grid.Row className='top-bar-row'>
-                                        <Label className='top-bar-icon'>
-                                            <Icon name={'fw fw-records'} />
-                                        </Label>
-                                        <Label>Records</Label>
-                                        <Label >{records.length}</Label>
-                                    </Grid.Row>
-                                </Grid.Column>
-                                <Grid.Column width={5} floated='right'>
-                                    <Grid.Row className='top-bar-row'>
-                                        <Label className='top-bar-icon'>
-                                            <Icon name={'fw fw-endpoint'} />
-                                        </Label>
-                                        <Label>Endpoints</Label>
-                                        <Label >{endpoints.length}</Label>
-                                    </Grid.Row>
-                                </Grid.Column>
-                            </Grid.Row>
-                        </Grid>
-                    </Button>
-                    }
-                flowing
-                hoverable
-                wide
-                position='bottom center'
-                open={this.state.isOpen}
-                onClose={this.handleClose}
-                onOpen={this.handleOpen}
-            >
-                {
-                    <Grid divided columns={2} className='menu-pop-content'>
-                        <Grid.Column mobile={16} tablet={5} computer={5}>
-                            <Header as='h5'>
-                                <Icon name={'fw fw-struct'} />
-                                <Header.Content>Objects</Header.Content>
-                            </Header>
-                            {
+            <div className={'top-bar ' + (this.props.width > RESPOSIVE_MENU_TRIGGER.ICON_MODE ? '' : 'mobile-top-bar')}>
+                { structs.length > 0 &&
+                    <Popup
+                        trigger={
+                          <Label as='a' color='white'>
+                              <Icon name={'fw fw-struct'} />
+                              <span>Objects</span>
+                              <Label.Detail>{structs.length}</Label.Detail>
+                          </Label>
+                        }
+                        className='definitions-popup-window'
+                        position='bottom right'
+                        flowing
+                        wide
+                        hideOnScroll>
+                        {
+                            <div>
+                                {
                                     structs.map((element) => {
                                         return this.getItem(element.getName().getValue(),
                                                             () => { this.onDelete(element); });
                                     })
                                 }
-                        </Grid.Column>
-                        <Grid.Column mobile={16} tablet={5} computer={5}>
-                            <Header as='h5'>
-                                <Icon name={'fw fw-records'} />
-                                <Header.Content>Records</Header.Content>
-                            </Header>
-                            {
+                            </div>
+                        }
+                    </Popup>
+                }
+                { records.length > 0 &&
+                    <Popup
+                        trigger={
+                          <Label as='a' color='white'>
+                              <Icon name={'fw fw-records'} />
+                              <span>Records</span>
+                              <Label.Detail>{records.length}</Label.Detail>
+                          </Label>
+                        }
+                        className='definitions-popup-window'
+                        position='bottom right'
+                        flowing
+                        wide
+                        hideOnScroll>
+                        {
+                            <div>
+                                {
                                     records.map((element) => {
                                         return this.getItem(element.getName().getValue(),
                                                             () => { this.onDelete(element); });
                                     })
                                 }
-                        </Grid.Column>
-                        <Grid.Column mobile={16} tablet={5} computer={5}>
-                            <Header as='h5'>
-                                <Icon size='mini' name={'fw fw-endpoint'} />
-                                <Header.Content>Endpoints</Header.Content>
-                            </Header>
+                            </div>
+                        }
+                    </Popup>
+                }
+                { endpoints.length > 0 &&
+                    <Popup
+                        trigger={
+                          <Label as='a' color='white'>
+                              <Icon name={'fw fw-endpoint'} />
+                              <span>Endpoints</span>
+                              <Label.Detail>{endpoints.length}</Label.Detail>
+                          </Label>
+                        }
+                        className='definitions-popup-window'
+                        position='bottom right'
+                        flowing
+                        wide
+                        hideOnScroll>
                             {
-                                    endpoints.map((element) => {
-                                        return this.getItem(element.getName().getValue(),
-                                                            () => { this.onDelete(element); });
-                                    })
-                                }
-                        </Grid.Column>
-                    </Grid>
-            }
-
-            </Popup>
+                                <div>
+                                    {
+                                        endpoints.map((element) => {
+                                            return this.getItem(element.getName().getValue(),
+                                                                () => { this.onDelete(element); });
+                                        })
+                                    }
+                                </div>
+                            }
+                    </Popup>
+                }
+            </div>
         );
     }
 }

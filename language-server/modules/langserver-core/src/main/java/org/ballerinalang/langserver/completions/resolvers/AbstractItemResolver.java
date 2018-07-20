@@ -18,23 +18,19 @@
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.BInvokableSymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.BPackageSymbolUtil;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
-import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -45,6 +41,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,7 +53,7 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractItemResolver {
     
-    public abstract ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext);
+    public abstract List<CompletionItem> resolveItems(LSServiceOperationContext completionContext);
 
     /**
      * Populate the completion item list by considering the.
@@ -70,7 +67,10 @@ public abstract class AbstractItemResolver {
             BSymbol bSymbol = symbolInfo.getScopeEntry() != null ? symbolInfo.getScopeEntry().symbol : null;
             if (!(bSymbol != null && bSymbol.getName().getValue().startsWith("$"))) {
                 if ((bSymbol instanceof BInvokableSymbol
-                        && SymbolKind.FUNCTION.equals(((BInvokableSymbol) bSymbol).kind))
+                        && ((((BInvokableSymbol) bSymbol).kind == null
+                        && (SymbolKind.RECORD.equals(((BInvokableSymbol) bSymbol).owner.kind)
+                        || SymbolKind.FUNCTION.equals(((BInvokableSymbol) bSymbol).owner.kind)))
+                        || SymbolKind.FUNCTION.equals(((BInvokableSymbol) bSymbol).kind)))
                         || symbolInfo.isIterableOperation()) {
                     completionItem = this.populateBallerinaFunctionCompletionItem(symbolInfo);
                 } else if (!(bSymbol instanceof BInvokableSymbol)
@@ -135,7 +135,7 @@ public abstract class AbstractItemResolver {
      * @param symbolInfo - symbol information
      * @return completion item
      */
-    private CompletionItem populateVariableDefCompletionItem(SymbolInfo symbolInfo) {
+    protected CompletionItem populateVariableDefCompletionItem(SymbolInfo symbolInfo) {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(symbolInfo.getSymbolName());
         String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
@@ -164,64 +164,30 @@ public abstract class AbstractItemResolver {
 
     /**
      * Check whether the token stream corresponds to a action invocation or a function invocation.
-     * @param documentServiceContext - Completion operation context
-     * @return {@link Boolean}
+     * @param context               Completion operation context
+     * @return {@link Boolean}      Whether invocation or Field Access
      */
-    protected boolean isInvocationOrFieldAccess(LSServiceOperationContext documentServiceContext) {
-        ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(new String[]{";", "}", "{", "(", ")", "="}));
-        Position position = documentServiceContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-        int cursorLine = position.getLine();
-        TokenStream tokenStream = documentServiceContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
-        if (tokenStream == null) {
-            String lineSegment = documentServiceContext.get(CompletionKeys.CURRENT_LINE_SEGMENT_KEY);
-            String tokenString = CompletionUtil.getDelimiterTokenFromLineSegment(documentServiceContext, lineSegment);
-            return (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(tokenString)
-                    || UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(tokenString)
-                    || UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(tokenString));
-        }
-        int searchTokenIndex = documentServiceContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
-        
-        /*
-        In order to avoid the token index inconsistencies, current token index offsets from two default tokens
-         */
-        Token offsetToken = CommonUtil.getNthDefaultTokensToLeft(tokenStream, searchTokenIndex, 2);
-        if (!terminalTokens.contains(offsetToken.getText())) {
-            searchTokenIndex = offsetToken.getTokenIndex();
-        }
-
-        while (true) {
-            if (searchTokenIndex >= tokenStream.size()) {
-                documentServiceContext.put(CompletionKeys.INVOCATION_STATEMENT_KEY, false);
-                return false;
-            }
-            Token token = tokenStream.get(searchTokenIndex);
-            String tokenString = token.getText();
-            if (terminalTokens.contains(tokenString)
-                    && documentServiceContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY) <= searchTokenIndex) {
-                documentServiceContext.put(CompletionKeys.INVOCATION_STATEMENT_KEY, false);
-                return false;
-            } else if ((UtilSymbolKeys.DOT_SYMBOL_KEY.equals(tokenString)
-                    || UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(tokenString)
-                    || UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(tokenString))
-                    && cursorLine == token.getLine() - 1) {
-                documentServiceContext.put(CompletionKeys.INVOCATION_STATEMENT_KEY, true);
-                return true;
-            } else {
-                searchTokenIndex++;
-            }
-        }
+    protected boolean isInvocationOrFieldAccess(LSServiceOperationContext context) {
+        List<String> poppedTokens = CommonUtil.popNFromStack(context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY), 2)
+                .stream()
+                .map(Token::getText)
+                .collect(Collectors.toList());
+        return poppedTokens.contains(UtilSymbolKeys.DOT_SYMBOL_KEY)
+                || poppedTokens.contains(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)
+                || poppedTokens.contains(UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY);
     }
 
     /**
      * Check whether the token stream contains an annotation start (@).
-     * @param ctx - Completion operation context
-     * @return {@link Boolean}
+     * @param ctx                   Completion operation context
+     * @return {@link Boolean}      Whether annotation context start or not
      */
-    protected boolean isAnnotationContext(LSServiceOperationContext ctx) {
-        return ctx.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY) != null
-                && UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY
-                .equals(ctx.get(DocumentServiceKeys.TOKEN_STREAM_KEY).get(ctx.get(DocumentServiceKeys.TOKEN_INDEX_KEY))
-                        .getText());
+    protected boolean isAnnotationStart(LSServiceOperationContext ctx) {
+        List<String> poppedTokens = CommonUtil.popNFromStack(ctx.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY), 4)
+                .stream()
+                .map(Token::getText)
+                .collect(Collectors.toList());
+        return poppedTokens.contains(UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY);
     }
 
     /**
@@ -266,7 +232,7 @@ public abstract class AbstractItemResolver {
         symbolInfoList.removeIf(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
             String symbolName = bSymbol.getName().getValue();
-            return (bSymbol instanceof BInvokableSymbol && (((BInvokableSymbol) bSymbol).receiverSymbol) != null
+            return (bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED)
                     && !bSymbol.kind.equals(SymbolKind.RESOURCE))
                     || (bSymbol instanceof BPackageSymbol && invalidPkgs.contains(symbolName))
                     || (symbolName.startsWith("$anonStruct"));
@@ -285,9 +251,7 @@ public abstract class AbstractItemResolver {
     protected List<CompletionItem> getVariableDefinitionCompletionItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<SymbolInfo> filteredList;
-        String tokenString = CommonUtil.getPreviousDefaultToken(
-                completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY),
-                completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY)).getText();
+        String tokenString = "";
         if (ItemResolverConstants.NEW.equals(tokenString)) {
             filteredList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).stream()
                     .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol.kind == SymbolKind.OBJECT)
@@ -300,19 +264,6 @@ public abstract class AbstractItemResolver {
             });
             this.populateCompletionItemList(filteredList, completionItems);
         } else {
-            // Add the check keyword
-            CompletionItem createKeyword = new CompletionItem();
-            createKeyword.setInsertText(Snippet.CHECK_KEYWORD_SNIPPET.toString());
-            createKeyword.setLabel(ItemResolverConstants.CHECK_KEYWORD);
-            createKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
-
-            // Add But keyword item
-            CompletionItem butKeyword = new CompletionItem();
-            butKeyword.setInsertText(Snippet.BUT.toString());
-            butKeyword.setLabel(ItemResolverConstants.BUT);
-            butKeyword.setInsertTextFormat(InsertTextFormat.Snippet);
-            butKeyword.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-
             filteredList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
                     .stream()
                     .filter(symbolInfo -> {
@@ -320,8 +271,10 @@ public abstract class AbstractItemResolver {
                         SymbolKind symbolKind = bSymbol.kind;
 
                         // Here we return false if the BType is not either a package symbol or ENUM
-                        return !((bSymbol instanceof BTypeSymbol) && !(bSymbol instanceof BPackageSymbol
-                                || SymbolKind.ENUM.equals(symbolKind)));
+                        return !(((bSymbol instanceof BTypeSymbol) && !(bSymbol instanceof BPackageSymbol
+                                || SymbolKind.ENUM.equals(symbolKind)))
+                                || (bSymbol instanceof BInvokableSymbol
+                                && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED)));
                     })
                     .collect(Collectors.toList());
 
@@ -331,10 +284,35 @@ public abstract class AbstractItemResolver {
                 return bSymbol instanceof BInvokableSymbol && ((BInvokableSymbol) bSymbol).receiverSymbol != null;
             });
             populateCompletionItemList(filteredList, completionItems);
-            completionItems.add(createKeyword);
-            completionItems.add(butKeyword);
+            addKeywords(completionItems);
         }
         
         return completionItems;
+    }
+    
+    private void addKeywords(List<CompletionItem> completionItems) {
+
+        // Add the check keyword
+        CompletionItem checkKeyword = new CompletionItem();
+        checkKeyword.setInsertText(Snippet.CHECK_KEYWORD_SNIPPET.toString());
+        checkKeyword.setLabel(ItemResolverConstants.CHECK_KEYWORD);
+        checkKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
+
+        // Add But keyword item
+        CompletionItem butKeyword = new CompletionItem();
+        butKeyword.setInsertText(Snippet.BUT.toString());
+        butKeyword.setLabel(ItemResolverConstants.BUT);
+        butKeyword.setInsertTextFormat(InsertTextFormat.Snippet);
+        butKeyword.setDetail(ItemResolverConstants.STATEMENT_TYPE);
+
+        // Add lengthof keyword item
+        CompletionItem lengthofKeyword = new CompletionItem();
+        lengthofKeyword.setInsertText(Snippet.LENGTHOF.toString());
+        lengthofKeyword.setLabel(ItemResolverConstants.LENGTHOF);
+        lengthofKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
+
+        completionItems.add(checkKeyword);
+        completionItems.add(butKeyword);
+        completionItems.add(lengthofKeyword);
     }
 }

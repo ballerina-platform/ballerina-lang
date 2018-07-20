@@ -25,7 +25,7 @@ import { Loader, Dimmer } from 'semantic-ui-react';
 import CSSTransitionGroup from 'react-transition-group/CSSTransitionGroup';
 import DebugManager from 'plugins/debugger/DebugManager/DebugManager'; // FIXME: Importing from debugger plugin
 import TreeUtil from 'plugins/ballerina/model/tree-util.js';
-import { parseFile } from 'api-client/api-client';
+import { parseFile, getSwaggerDefinition } from 'api-client/api-client';
 import { CONTENT_MODIFIED, UNDO_EVENT, REDO_EVENT } from 'plugins/ballerina/constants/events';
 import { GO_TO_POSITION, FORMAT } from 'plugins/ballerina/constants/commands';
 import File from 'core/workspace/model/file';
@@ -88,6 +88,12 @@ class BallerinaFileEditor extends React.Component {
         // listen for the changes to file content
         this.props.file.on(CONTENT_MODIFIED, (evt) => {
             const originEvtType = evt.originEvt.type;
+            if (originEvtType !== CHANGE_EVT_TYPES.SOURCE_MODIFIED &&
+                originEvtType !== CHANGE_EVT_TYPES.TREE_MODIFIED) {
+                const newContent = evt.newContent;
+                this.sourceEditorRef.setContent(newContent, true);
+            }
+
             if (originEvtType !== CHANGE_EVT_TYPES.TREE_MODIFIED) {
                 // upon code format
                 this.state.isASTInvalid = true;
@@ -98,6 +104,8 @@ class BallerinaFileEditor extends React.Component {
         this.props.editorModel.setProperty('balEnvironment', this.environment);
 
         this.hideSwaggerAceEditor = false;
+        this.swagger = '';
+        this.swaggerEditorID = '';
 
         // Resize the canvas
         props.commandProxy.on('resize', () => {
@@ -106,14 +114,13 @@ class BallerinaFileEditor extends React.Component {
         // Format the source code.
         props.commandProxy.on(FORMAT, () => {
             if (this.props.isActive()) {
-                let newContent = this.state.model.getSource(true);
-                newContent = _.trim(newContent, '\n');
-                // set the underlaying file.
-                this.props.file.setContent(newContent, {
-                    type: CHANGE_EVT_TYPES.CODE_FORMAT,
-                });
+                this.sourceEditorRef.editorInstance.trigger('','editor.action.formatDocument');
             }
         });
+
+        if (this.props.file.name === 'untitled' && this.fetchState('diagramMode') === undefined) {
+            this.state.diagramFitToWidth = false;
+        }
 
         this.resetSwaggerView = this.resetSwaggerView.bind(this);
         this.handleSplitChange = this.handleSplitChange.bind(this);
@@ -282,14 +289,14 @@ class BallerinaFileEditor extends React.Component {
         const designWidth = (this.state.activeView === DESIGN_VIEW) ? this.props.width :
             this.props.width - this.state.splitSize;
 
-        if(designWidth < RESPOSIVE_MENU_TRIGGER.HIDDEN_MODE && !this.fetchState('diagramFitToWidth', true)){
+        if (designWidth < RESPOSIVE_MENU_TRIGGER.HIDDEN_MODE && !this.fetchState('diagramFitToWidth', true)) {
             this.setState({
                 isDiagramOnEditMode: true,
             });
             this.onModeChange({ mode: 'action', fitToWidth: true });
         }
 
-        if(this.state.isDiagramOnEditMode && designWidth > ( RESPOSIVE_MENU_TRIGGER.HIDDEN_MODE - 10 ) ){
+        if (this.state.isDiagramOnEditMode && designWidth > (RESPOSIVE_MENU_TRIGGER.HIDDEN_MODE - 10)) {
             this.setState({
                 isDiagramOnEditMode: false,
             });
@@ -372,12 +379,27 @@ class BallerinaFileEditor extends React.Component {
      *
      * @param {ServiceDefinition} serviceDef Service def node to display
      */
-    showSwaggerViewForService(serviceDef) {
-        // not using setState to avoid multiple re-renders
-        // this.update() will finally trigger re-render
-        this.state.swaggerViewTargetService = serviceDef;
-        this.state.activeView = SWAGGER_VIEW;
-        this.update();
+    showSwaggerViewForService(service) {
+        if (!_.isNil(service)) {
+            getSwaggerDefinition(this.state.model.getSource(), service.getName().getValue())
+                .then((swaggerDefinition) => {
+                    if (swaggerDefinition) {
+                        this.swagger = swaggerDefinition;
+                        this.swaggerEditorID = `z-${service.id}-swagger-editor`;
+                        // not using setState to avoid multiple re-renders
+                        // this.update() will finally trigger re-render
+                        this.state.swaggerViewTargetService = service;
+                        this.state.activeView = SWAGGER_VIEW;
+                        this.forceUpdate();
+                    } else {
+                        log.error('Error building swagger definition.');
+                    }
+                })
+                .catch(error => log.error(error));
+        } else {
+            this.swagger = undefined;
+            this.swaggerEditorID = undefined;
+        }
     }
 
     /**
@@ -610,6 +632,7 @@ class BallerinaFileEditor extends React.Component {
             this.state.splitSize;
         const designWidth = (this.state.activeView === DESIGN_VIEW) ? this.props.width :
             this.props.width - this.state.splitSize;
+        const height = this.props.height - 10; // height is reduced to accommodate scroll bars
 
         const sourceView = (
             <SourceView
@@ -620,7 +643,7 @@ class BallerinaFileEditor extends React.Component {
                 show={showSourceView}
                 panelResizeInProgress={this.props.panelResizeInProgress}
                 width={sourceWidth}
-                height={this.props.height}
+                height={height}
             />
         );
 
@@ -643,7 +666,7 @@ class BallerinaFileEditor extends React.Component {
                     file={this.props.file}
                     commandProxy={this.props.commandProxy}
                     width={designWidth}
-                    height={this.props.height}
+                    height={height}
                     panelResizeInProgress={this.props.panelResizeInProgress}
                     disabled={this.state.parseFailed}
                     onModeChange={this.onModeChange}
@@ -697,6 +720,9 @@ class BallerinaFileEditor extends React.Component {
                         resetSwaggerViewFun={this.resetSwaggerView}
                         height={this.props.height}
                         width={this.props.width}
+                        visible={showSwaggerView}
+                        swagger={this.swagger}
+                        swaggerEditorID={this.swaggerEditorID}
                     />
                 </div>
                 { !showSwaggerView &&

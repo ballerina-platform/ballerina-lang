@@ -28,7 +28,9 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.FileSystem;
@@ -55,6 +57,7 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
     private final Path projectDirPath;
     private List<String> packageNames;
     private boolean scanned = false;
+    private static PrintStream outStream = System.out;
 
     public FileSystemProjectDirectory(Path projectDirPath) {
         super(projectDirPath);
@@ -137,6 +140,7 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
     public Path saveCompiledProgram(InputStream source, String fileName) {
         Path targetFilePath = ensureAndGetTargetDirPath().resolve(fileName);
         try {
+            outStream.println("    ./target/" + fileName);
             Files.copy(source, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
             return targetFilePath;
         } catch (DirectoryNotEmptyException e) {
@@ -162,10 +166,19 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
         Map<String, String> fsEnv = new HashMap<String, String>() {{
             put("create", "true");
         }};
-        URI compiledPkgURI = URI.create("jar:file:" + compiledPkgPath.toUri().getPath());
-        try (FileSystem fs = FileSystems.newFileSystem(compiledPkgURI, fsEnv)) {
-            compiledPackage.getAllEntries()
-                    .forEach(rethrow(entry -> addCompilerOutputEntry(fs, entry)));
+        URI filepath = compiledPkgPath.toUri();
+        URI zipFileURI;
+        try {
+            zipFileURI = new URI("jar:" + filepath.getScheme(),
+                                 filepath.getUserInfo(), filepath.getHost(), filepath.getPort(),
+                                 filepath.getPath() + "!/",
+                                 filepath.getQuery(), filepath.getFragment());
+            try (FileSystem fs = FileSystems.newFileSystem(zipFileURI, fsEnv)) {
+                compiledPackage.getAllEntries()
+                               .forEach(rethrow(entry -> addCompilerOutputEntry(fs, entry)));
+            }
+        } catch (URISyntaxException e) {
+            throw new BLangCompilerException("error creating artifact: " + compiledPkgPath.getFileName());
         }
     }
 

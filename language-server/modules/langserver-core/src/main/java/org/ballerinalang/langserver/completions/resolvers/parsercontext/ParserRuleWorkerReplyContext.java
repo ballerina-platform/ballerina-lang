@@ -23,13 +23,14 @@ import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Parser rule based Item resolver for the Worker reply statement.
  */
 public class ParserRuleWorkerReplyContext extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         return new ArrayList<>();
     }
 }

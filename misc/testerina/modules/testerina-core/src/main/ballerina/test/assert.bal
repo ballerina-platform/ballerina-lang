@@ -8,7 +8,7 @@ import ballerina/reflect;
 @Field{value:"The assertion error message"}
 @Field{value:"The error which caused the assertion error"}
 @Field{value:"The assert error category"}
-type AssertError {
+type AssertError record {
     string message;
     error? cause;
     string category;

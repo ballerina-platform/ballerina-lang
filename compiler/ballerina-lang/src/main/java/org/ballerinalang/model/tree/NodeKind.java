@@ -30,6 +30,7 @@ public enum NodeKind {
     COMPILATION_UNIT,
     DEPRECATED,
     DOCUMENTATION,
+    MARKDOWN_DOCUMENTATION,
     ENDPOINT,
     ENUM,
     ENUMERATOR,
@@ -43,6 +44,7 @@ public enum NodeKind {
     SERVICE,
     TYPE_DEFINITION,
     TABLE,
+    TABLE_COLUMN,
     VARIABLE,
     WORKER,
     XMLNS,
@@ -88,6 +90,9 @@ public enum NodeKind {
     MATCH_EXPRESSION_PATTERN_CLAUSE,
     CHECK_EXPR,
 
+    DOCUMENTATION_DESCRIPTION,
+    DOCUMENTATION_PARAMETER,
+
     /* streams/tables expressions */
     SELECT_EXPRESSION,
     TABLE_QUERY_EXPRESSION,
@@ -122,6 +127,8 @@ public enum NodeKind {
     WORKER_RECEIVE,
     WORKER_SEND,
     STREAM,
+    SCOPE,
+    COMPENSATE,
 
     /* Types */
     ARRAY_TYPE,
