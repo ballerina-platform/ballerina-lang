@@ -125,7 +125,7 @@ public class SrcFile {
                                                         "}\n" +
                                                        "@test:BeforeSuite\n" +
                                                        "function beforeSuiteServiceFunc () {\n" +
-                                                       "    io:println(\"I'm the before suite function!\");\n" +
+                                                       "    io:println(\"I'm the before suite service function!\");\n" +
                                                        "}\n" +
                                                        "\n" +
                                                        "documentation {\n" +
@@ -142,7 +142,7 @@ public class SrcFile {
                                                        "}\n" +
                                                        "@test:AfterSuite\n" +
                                                        "function afterSuiteServiceFunc () {\n" +
-                                                       "    io:println(\"I'm the after suite function!\");\n" +
+                                                       "    io:println(\"I'm the after suite service function!\");\n" +
                                                        "}";
 
     private FileType srcFileType;
