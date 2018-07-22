@@ -149,8 +149,8 @@ public class ServerConnectorBootstrap {
         httpServerChannelInitializer.setHttpAccessLogEnabled(isHttpAccessLogEnabled);
     }
 
-    public void addSslEngine(SSLHandlerFactory sslHandlerFactory) {
-        httpServerChannelInitializer.setSslEngine(sslHandlerFactory);
+    public void addSslHandlerFactory(SSLHandlerFactory sslHandlerFactory) {
+        httpServerChannelInitializer.setSslHandlerFactory(sslHandlerFactory);
     }
 
     public void addHeaderAndEntitySizeValidation(RequestSizeValidationConfig requestSizeValidationConfig) {

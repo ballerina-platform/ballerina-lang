@@ -282,7 +282,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         this.sslConfig = sslConfig;
     }
 
-    void setSslEngine(SSLHandlerFactory sslHandlerFactory) {
+    void setSslHandlerFactory(SSLHandlerFactory sslHandlerFactory) {
         this.sslHandlerFactory = sslHandlerFactory;
     }
 

@@ -78,7 +78,7 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
             serverConnectorBootstrap.setHttp2Enabled(true);
         }
         if (listenerConfig.getSSLConfig() != null) {
-            serverConnectorBootstrap.addSslEngine(new SSLHandlerFactory(listenerConfig.getSSLConfig()));
+            serverConnectorBootstrap.addSslHandlerFactory(new SSLHandlerFactory(listenerConfig.getSSLConfig()));
         }
         serverConnectorBootstrap.addHttpTraceLogHandler(listenerConfig.isHttpTraceLogEnabled());
         serverConnectorBootstrap.addHttpAccessLogHandler(listenerConfig.isHttpAccessLogEnabled());
