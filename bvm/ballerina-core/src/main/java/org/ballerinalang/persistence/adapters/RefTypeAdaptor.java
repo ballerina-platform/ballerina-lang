@@ -53,7 +53,8 @@ public class RefTypeAdaptor implements JsonSerializer<SerializableRefType>, Json
         try {
             return context.deserialize(element, Class.forName(type));
         } catch (ClassNotFoundException e) {
-            throw new JsonParseException("Unknown element type: " + type, e);
+            throw new JsonParseException("Unknown element type found after deserialize the element : " +
+                                                 type, e);
         }
     }
 }

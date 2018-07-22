@@ -28,6 +28,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.program.BLangVMUtils;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -52,10 +53,12 @@ public class PersistenceStore {
     }
 
     public static List<State> getStates(ProgramFile programFile) {
-        List<State> states = new LinkedList<>();
-
         List<String> serializedStates = storageProvider.getAllSerializedStates();
+        if (serializedStates.isEmpty()) {
+            return Collections.emptyList();
+        }
         Deserializer deserializer = new Deserializer();
+        List<State> states = new LinkedList<>();
         for (String serializedState : serializedStates) {
             SerializableState sState = SerializableState.deserialize(serializedState);
             WorkerExecutionContext context = sState.getExecutionContext(programFile, deserializer);

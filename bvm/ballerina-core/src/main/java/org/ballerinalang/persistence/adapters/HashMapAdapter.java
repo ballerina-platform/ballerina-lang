@@ -29,8 +29,6 @@ import org.ballerinalang.runtime.Constants;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * This implements @{@link JsonSerializer} to serialize and deserialize @{@link HashMap} objects.
@@ -42,8 +40,7 @@ public class HashMapAdapter implements JsonSerializer<HashMap<String, Object>>,
 
     public JsonElement serialize(HashMap<String, Object> map, Type type, JsonSerializationContext context) {
         JsonObject result = new JsonObject();
-        for (String key : map.keySet()) {
-            Object v = map.get(key);
+        map.forEach((s, v) -> {
             JsonObject wrapper = new JsonObject();
             if (v != null) {
                 wrapper.add(Constants.TYPE, new JsonPrimitive(v.getClass().getName()));
@@ -51,31 +48,30 @@ public class HashMapAdapter implements JsonSerializer<HashMap<String, Object>>,
             } else {
                 wrapper.add(Constants.TYPE, new JsonPrimitive(Constants.NULL));
             }
-            result.add(key, wrapper);
-        }
+            result.add(s, wrapper);
+        });
         return result;
     }
 
     public HashMap<String, Object> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
         JsonObject jsonObject = json.getAsJsonObject();
         HashMap<String, Object> map = new HashMap<>();
-        Set<Map.Entry<String, JsonElement>> entries = jsonObject.entrySet();
-        try {
-            for (Map.Entry<String, JsonElement> entry : entries) {
-                String key = entry.getKey();
-                JsonObject wrapper = entry.getValue().getAsJsonObject();
-                String className = wrapper.get(Constants.TYPE).getAsString();
-                if (Constants.NULL.equals(className)) {
-                    map.put(key, null);
-                } else {
-                    JsonElement data = wrapper.get(Constants.DATA);
-                    Object o = context.deserialize(data, Class.forName(className));
-                    map.put(key, o);
+        jsonObject.entrySet().forEach(entry -> {
+            String key = entry.getKey();
+            JsonObject wrapper = entry.getValue().getAsJsonObject();
+            String className = wrapper.get(Constants.TYPE).getAsString();
+            if (Constants.NULL.equals(className)) {
+                map.put(key, null);
+            } else {
+                JsonElement data = wrapper.get(Constants.DATA);
+                try {
+                    map.put(key, context.deserialize(data, Class.forName(className)));
+                } catch (ClassNotFoundException e) {
+                    throw new JsonParseException("Unknown element type found after deserialize the element : " +
+                                                         className, e);
                 }
             }
-        } catch (ClassNotFoundException e) {
-            throw new JsonParseException("Unknown element type found after deserialize the element.", e);
-        }
+        });
         return map;
     }
 }

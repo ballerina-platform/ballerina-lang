@@ -46,7 +46,7 @@ public class RecoveryTask implements Runnable {
     @Override
     public void run() {
         List<State> states = PersistenceStore.getStates(programFile);
-        if (states == null) {
+        if (states.isEmpty()) {
             return;
         }
         logger.debug("RecoveryTask: Starting saved states.");

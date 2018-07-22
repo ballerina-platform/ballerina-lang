@@ -166,7 +166,6 @@ public class BLangScheduler {
     }
     
     public static void workerDone(WorkerExecutionContext ctx) {
-
         schedulerStats.stateTransition(ctx, WorkerState.DONE);
         ctx.state = WorkerState.DONE;
         removeInterruptibleState(ctx);

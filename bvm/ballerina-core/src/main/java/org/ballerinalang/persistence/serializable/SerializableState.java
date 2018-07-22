@@ -41,10 +41,15 @@ import java.util.Map;
 public class SerializableState {
 
     private String instanceId;
+
     private String currentContextKey;
+
     private Map<String, SerializableContext> sContexts = new HashMap<>();
+
     private Map<String, SerializableRespContext> sRespContexts = new HashMap<>();
+
     private Map<String, SerializableRefType> sRefTypes = new HashMap<>();
+
     public HashMap<String, Object> globalProps = new HashMap<>();
 
     public String getInstanceId() {

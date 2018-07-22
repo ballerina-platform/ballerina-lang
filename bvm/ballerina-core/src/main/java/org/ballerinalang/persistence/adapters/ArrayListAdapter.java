@@ -40,7 +40,7 @@ public class ArrayListAdapter implements JsonSerializer<ArrayList<Object>>, Json
 
     public JsonElement serialize(ArrayList<Object> list, Type type, JsonSerializationContext context) {
         JsonArray result = new JsonArray();
-        for (Object o : list) {
+        list.forEach(o -> {
             JsonObject wrapper = new JsonObject();
             if (o != null) {
                 wrapper.add(Constants.TYPE, new JsonPrimitive(o.getClass().getName()));
@@ -49,28 +49,28 @@ public class ArrayListAdapter implements JsonSerializer<ArrayList<Object>>, Json
                 wrapper.add(Constants.TYPE, new JsonPrimitive(Constants.NULL));
             }
             result.add(wrapper);
-        }
+        });
         return result;
     }
 
     public ArrayList<Object> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
-        JsonArray jsonObject = json.getAsJsonArray();
+        JsonArray jsonArray = json.getAsJsonArray();
         ArrayList<Object> list = new ArrayList<>();
-        try {
-            for (int i = 0; i < jsonObject.size(); i++) {
-                JsonObject wrapper = jsonObject.get(i).getAsJsonObject();
-                String className = wrapper.get(Constants.TYPE).getAsString();
-                if (className.equals(Constants.NULL)) {
-                    list.add(i, null);
-                } else {
-                    JsonElement data = wrapper.get(Constants.DATA);
-                    Object o = context.deserialize(data, Class.forName(className));
-                    list.add(i, o);
+        jsonArray.forEach(jsonElement -> {
+            JsonObject wrapper = jsonElement.getAsJsonObject();
+            String className = wrapper.get(Constants.TYPE).getAsString();
+            if (className.equals(Constants.NULL)) {
+                list.add(null);
+            } else {
+                JsonElement data = wrapper.get(Constants.DATA);
+                try {
+                    list.add(context.deserialize(data, Class.forName(className)));
+                } catch (ClassNotFoundException e) {
+                    throw new JsonParseException("Unknown element type found after deserialize the element : " +
+                                                         className, e);
                 }
             }
-        } catch (ClassNotFoundException e) {
-            throw new JsonParseException("Unknown element type found after deserialize the element.", e);
-        }
+        });
         return list;
     }
 }
