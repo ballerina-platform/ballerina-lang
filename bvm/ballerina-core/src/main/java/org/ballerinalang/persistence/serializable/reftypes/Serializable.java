@@ -20,7 +20,7 @@ package org.ballerinalang.persistence.serializable.reftypes;
 import org.ballerinalang.persistence.serializable.SerializableState;
 
 /**
- * Interface which is used to serialize the given object.
+ * Interface used to serialize the given object.
  *
  * @since 0.976.0
  */

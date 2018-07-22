@@ -50,12 +50,8 @@ public class SerializableBMap<K, V extends BValue> implements SerializableRefTyp
     public SerializableBMap(BMap<K, V> bMap, SerializableState state) {
         structName = bMap.getType().getName();
         pkgPath = bMap.getType().getPackagePath();
-        bMap.getNativeData().forEach((k, o) -> {
-            nativeData.put(k, state.serialize(o));
-        });
-        bMap.getMap().forEach((k, v) -> {
-            map.put(k, state.serialize(v));
-        });
+        bMap.getNativeData().forEach((k, o) -> nativeData.put(k, state.serialize(o)));
+        bMap.getMap().forEach((k, v) -> map.put(k, state.serialize(v)));
     }
 
     @Override
@@ -72,12 +68,8 @@ public class SerializableBMap<K, V extends BValue> implements SerializableRefTyp
         } else {
             bMap = new BMap<>();
         }
-        nativeData.forEach((s, o) -> {
-            bMap.addNativeData(s, state.deserialize(o, programFile, deserializer));
-        });
-        map.forEach((k, v) -> {
-            bMap.put(k, (V) state.deserialize(v, programFile, deserializer));
-        });
+        nativeData.forEach((s, o) -> bMap.addNativeData(s, state.deserialize(o, programFile, deserializer)));
+        map.forEach((k, v) -> bMap.put(k, (V) state.deserialize(v, programFile, deserializer)));
         return bMap;
     }
 

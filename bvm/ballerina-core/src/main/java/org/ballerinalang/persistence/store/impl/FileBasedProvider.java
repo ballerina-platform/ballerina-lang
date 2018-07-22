@@ -40,6 +40,7 @@ import java.util.stream.Stream;
 public class FileBasedProvider implements StorageProvider {
 
     private static final String BASE_PATH = "states";
+
     private static final Logger log = LoggerFactory.getLogger(FileBasedProvider.class);
 
     @Override
