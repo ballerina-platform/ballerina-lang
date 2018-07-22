@@ -41,9 +41,9 @@ import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
-import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
+import org.wso2.transport.http.netty.listener.states.Connected;
+import org.wso2.transport.http.netty.listener.states.ListenerState;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.net.SocketAddress;
@@ -51,13 +51,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST;
-import static org.wso2.transport.http.netty.common.SourceInteractiveState.CONNECTED;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_RECEIVED;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_SENT;
-import static org.wso2.transport.http.netty.common.SourceInteractiveState.EXPECT_100_CONTINUE_HEADER_RECEIVED;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.RECEIVING_ENTITY_BODY;
-import static org.wso2.transport.http.netty.common.Util.createInboundReqCarbonMsg;
-import static org.wso2.transport.http.netty.common.Util.is100ContinueRequest;
 
 /**
  * A Class responsible for handle  incoming message through netty inbound pipeline.
@@ -80,7 +76,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     protected ChannelHandlerContext ctx;
     private SocketAddress remoteAddress;
     private SourceErrorHandler sourceErrorHandler;
-    private boolean continueRequest = false;
+    private ListenerState state;
 
     public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId, ChunkConfig chunkConfig,
                          KeepAliveConfig keepAliveConfig, String serverName, ChannelGroup allChannels) {
@@ -99,80 +95,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpRequest) {
-            readInboundRequestHeaders(ctx, (HttpRequest) msg);
+            state.readInboundRequestHeaders(ctx, (HttpRequest) msg);
         } else {
-            readInboundReqEntityBody(msg);
+            state.readInboundReqEntityBody(msg);
         }
-    }
-
-    private void readInboundRequestHeaders(ChannelHandlerContext ctx, HttpRequest inboundRequestHeaders) {
-        sourceErrorHandler.setState(CONNECTED);
-        inboundRequestMsg = createInboundReqCarbonMsg(inboundRequestHeaders, ctx, remoteAddress, interfaceId, this);
-        continueRequest = is100ContinueRequest(inboundRequestMsg);
-        if (continueRequest) {
-            sourceErrorHandler.setState(EXPECT_100_CONTINUE_HEADER_RECEIVED);
-        }
-        notifyRequestListener(inboundRequestMsg, ctx);
-
-        if (inboundRequestHeaders.decoderResult().isFailure()) {
-            log.warn(inboundRequestHeaders.decoderResult().cause().getMessage());
-        }
-        if (handlerExecutor != null) {
-            handlerExecutor.executeAtSourceRequestReceiving(inboundRequestMsg);
-        }
-    }
-
-    private void readInboundReqEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
-        if (inboundRequestMsg != null) {
-            if (inboundRequestEntityBody instanceof HttpContent) {
-                sourceErrorHandler.setState(RECEIVING_ENTITY_BODY);
-                HttpContent httpContent = (HttpContent) inboundRequestEntityBody;
-                try {
-                    inboundRequestMsg.addHttpContent(httpContent);
-                    if (Util.isLastHttpContent(httpContent)) {
-                        if (handlerExecutor != null) {
-                            handlerExecutor.executeAtSourceRequestSending(inboundRequestMsg);
-                        }
-                        if (isDiffered(inboundRequestMsg)) {
-                            this.serverConnectorFuture.notifyHttpListener(inboundRequestMsg);
-                        }
-                        inboundRequestMsg = null;
-                        sourceErrorHandler.setState(ENTITY_BODY_RECEIVED);
-                    }
-                } catch (RuntimeException ex) {
-                    httpContent.release();
-                    log.warn("Response already received before completing the inbound request" + ex.getMessage());
-                }
-            }
-        } else {
-            log.warn("Inconsistent state detected : inboundRequestMsg is null for channel read event");
-        }
-    }
-
-    private void notifyRequestListener(HTTPCarbonMessage httpRequestMsg, ChannelHandlerContext ctx) {
-
-        if (handlerExecutor != null) {
-            handlerExecutor.executeAtSourceRequestReceiving(httpRequestMsg);
-        }
-
-        if (serverConnectorFuture != null) {
-            try {
-                ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
-                outboundRespFuture.setHttpConnectorListener(
-                        new HttpOutboundRespListener(ctx, httpRequestMsg, chunkConfig, keepAliveConfig, serverName,
-                                sourceErrorHandler, continueRequest));
-                this.serverConnectorFuture.notifyHttpListener(httpRequestMsg);
-            } catch (Exception e) {
-                log.error("Error while notifying listeners", e);
-            }
-        } else {
-            log.error("Cannot find registered listener to forward the message");
-        }
-    }
-
-    private boolean isDiffered(HTTPCarbonMessage sourceReqCmsg) {
-        //Http resource stored in the HTTPCarbonMessage means execution waits till payload.
-        return sourceReqCmsg.getProperty(Constants.HTTP_RESOURCE) != null;
     }
 
     @Override
@@ -182,14 +108,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(final ChannelHandlerContext ctx) {
-        allChannels.add(ctx.channel());
-        this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
-        if (this.handlerExecutor != null) {
-            this.handlerExecutor.executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
-        }
         this.ctx = ctx;
-        this.remoteAddress = ctx.channel().remoteAddress();
-        sourceErrorHandler.setState(CONNECTED);
+        state = new Connected(this);
+        state.channelActive(ctx);
     }
 
     @Override
@@ -273,5 +194,49 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     public ChannelHandlerContext getInboundChannelContext() {
         return ctx;
+    }
+
+    public ChannelGroup getAllChannels() {
+        return allChannels;
+    }
+
+    public void setHandlerExecutor(HandlerExecutor handlerExecutor) {
+        this.handlerExecutor = handlerExecutor;
+    }
+
+    public void setRemoteAddress(SocketAddress remoteAddress) {
+        this.remoteAddress = remoteAddress;
+    }
+
+    public SocketAddress getRemoteAddress() {
+        return remoteAddress;
+    }
+
+    public String getInterfaceId() {
+        return interfaceId;
+    }
+
+    public ServerConnectorFuture getServerConnectorFuture() {
+        return serverConnectorFuture;
+    }
+
+    public ChunkConfig getChunkConfig() {
+        return chunkConfig;
+    }
+
+    public KeepAliveConfig getKeepAliveConfig() {
+        return keepAliveConfig;
+    }
+
+    public String getServerName() {
+        return serverName;
+    }
+
+    public SourceErrorHandler getSourceErrorHandler() {
+        return sourceErrorHandler;
+    }
+
+    public ListenerState getState() {
+        return state;
     }
 }
