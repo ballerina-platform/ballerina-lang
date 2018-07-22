@@ -30,6 +30,7 @@ import org.wso2.transport.http.netty.common.certificatevalidation.Constants;
 import org.wso2.transport.http.netty.common.certificatevalidation.ocsp.OCSPCache;
 import org.wso2.transport.http.netty.common.certificatevalidation.ocsp.OCSPVerifier;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
+import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;

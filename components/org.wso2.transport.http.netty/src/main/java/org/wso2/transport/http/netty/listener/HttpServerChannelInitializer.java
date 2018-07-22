@@ -81,6 +81,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     private String interfaceId;
     private String serverName;
     private SSLConfig sslConfig;
+    private SSLHandlerFactory sslHandlerFactory;
     private ServerConnectorFuture serverConnectorFuture;
     private RequestSizeValidationConfig reqSizeValidationConfig;
     private boolean http2Enabled = false;
@@ -95,12 +96,11 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         if (log.isDebugEnabled()) {
             log.debug("Initializing source channel pipeline");
         }
-
         ChannelPipeline serverPipeline = ch.pipeline();
 
         if (http2Enabled) {
-            if (sslConfig != null) {
-                SslContext sslCtx = new SSLHandlerFactory(sslConfig)
+            if (sslHandlerFactory != null) {
+                SslContext sslCtx = sslHandlerFactory
                         .createHttp2TLSContextForServer(ocspStaplingEnabled);
                 if (ocspStaplingEnabled) {
                     OCSPResp response = getOcspResponse();
@@ -119,7 +119,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
                 configureH2cPipeline(serverPipeline);
             }
         } else {
-            if (sslConfig != null) {
+            if (sslHandlerFactory != null) {
                 configureSslForHttp(serverPipeline, ch);
             } else {
                 configureHttpPipeline(serverPipeline, Constants.HTTP_SCHEME);
@@ -147,7 +147,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         if (ocspStaplingEnabled) {
             OCSPResp response = getOcspResponse();
 
-            ReferenceCountedOpenSslContext context = new SSLHandlerFactory(sslConfig)
+            ReferenceCountedOpenSslContext context = sslHandlerFactory
                     .getServerReferenceCountedOpenSslContext(ocspStaplingEnabled);
             SslHandler sslHandler = context.newHandler(ch.alloc());
 
@@ -155,7 +155,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
             engine.setOcspResponse(response.getEncoded());
             ch.pipeline().addLast(sslHandler);
         } else {
-            SSLEngine sslEngine = new SSLHandlerFactory(sslConfig).buildServerSSLEngine();
+            SSLEngine sslEngine = sslHandlerFactory.buildServerSSLEngine();
             serverPipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
             if (validateCertEnabled) {
                 serverPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
@@ -280,6 +280,10 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
 
     void setSslConfig(SSLConfig sslConfig) {
         this.sslConfig = sslConfig;
+    }
+
+    void setSslEngine(SSLHandlerFactory sslHandlerFactory) {
+        this.sslHandlerFactory = sslHandlerFactory;
     }
 
     void setReqSizeValidationConfig(RequestSizeValidationConfig reqSizeValidationConfig) {

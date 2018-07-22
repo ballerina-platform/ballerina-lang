@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
+import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
@@ -147,6 +148,11 @@ public class ServerConnectorBootstrap {
     public void addHttpAccessLogHandler(Boolean isHttpAccessLogEnabled) {
         httpServerChannelInitializer.setHttpAccessLogEnabled(isHttpAccessLogEnabled);
     }
+
+    public void addSslEngine(SSLHandlerFactory sslHandlerFactory) {
+        httpServerChannelInitializer.setSslEngine(sslHandlerFactory);
+    }
+
     public void addHeaderAndEntitySizeValidation(RequestSizeValidationConfig requestSizeValidationConfig) {
         httpServerChannelInitializer.setReqSizeValidationConfig(requestSizeValidationConfig);
     }

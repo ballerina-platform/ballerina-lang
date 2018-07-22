@@ -98,7 +98,7 @@ public class SSLHandlerFactory {
         }
     }
 
-    private KeyStore getKeyStore(File keyStore, String keyStorePassword) throws IOException {
+    public KeyStore getKeyStore(File keyStore, String keyStorePassword) throws IOException {
         KeyStore ks = null;
         String  tlsStoreType = sslConfig.getTLSStoreType();
         if (keyStore != null && keyStorePassword != null) {

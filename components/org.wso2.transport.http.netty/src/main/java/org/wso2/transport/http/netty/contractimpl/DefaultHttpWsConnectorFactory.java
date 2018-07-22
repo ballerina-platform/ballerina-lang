@@ -25,6 +25,7 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
@@ -75,6 +76,9 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
         serverConnectorBootstrap.addIdleTimeout(listenerConfig.getSocketIdleTimeout());
         if (Constants.HTTP_2_0 == Float.valueOf(listenerConfig.getVersion())) {
             serverConnectorBootstrap.setHttp2Enabled(true);
+        }
+        if (listenerConfig.getSSLConfig() != null) {
+            serverConnectorBootstrap.addSslEngine(new SSLHandlerFactory(listenerConfig.getSSLConfig()));
         }
         serverConnectorBootstrap.addHttpTraceLogHandler(listenerConfig.isHttpTraceLogEnabled());
         serverConnectorBootstrap.addHttpAccessLogHandler(listenerConfig.isHttpAccessLogEnabled());
