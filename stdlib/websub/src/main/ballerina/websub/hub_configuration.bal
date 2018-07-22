@@ -34,7 +34,7 @@ import ballerina/log;
 @readonly int hubLeaseSeconds;
 @readonly string hubSignatureMethod;
 @readonly boolean hubRemotePublishingEnabled;
-@readonly string hubRemotePublishingMode;
+@readonly RemotePublishMode hubRemotePublishMode = PUBLISH_MODE_DIRECT;
 @readonly boolean hubTopicRegistrationRequired;
 @readonly string hubPublicUrl;
 
