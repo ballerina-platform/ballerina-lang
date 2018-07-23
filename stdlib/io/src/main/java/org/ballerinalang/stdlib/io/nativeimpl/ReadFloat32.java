@@ -32,13 +32,12 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.io.channels.base.DataChannel;
 import org.ballerinalang.stdlib.io.channels.base.Representation;
 import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventManager;
+import org.ballerinalang.stdlib.io.events.EventRegister;
 import org.ballerinalang.stdlib.io.events.EventResult;
+import org.ballerinalang.stdlib.io.events.Register;
 import org.ballerinalang.stdlib.io.events.data.ReadFloatEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * extern function ballerina/io#readFloat32.
@@ -76,6 +75,7 @@ public class ReadFloat32 implements NativeCallableUnit {
             Double readDouble = result.getResponse();
             context.setReturnValues(new BFloat(readDouble));
         }
+        IOUtils.validateChannelState(eventContext);
         callback.notifySuccess();
         return result;
     }
@@ -86,8 +86,9 @@ public class ReadFloat32 implements NativeCallableUnit {
         DataChannel channel = (DataChannel) dataChannelStruct.getNativeData(IOConstants.DATA_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
         ReadFloatEvent event = new ReadFloatEvent(channel, Representation.BIT_32, eventContext);
-        CompletableFuture<EventResult> publish = EventManager.getInstance().publish(event);
-        publish.thenApply(ReadFloat32::readResponse);
+        Register register = EventRegister.getFactory().register(event, ReadFloat32::readResponse);
+        eventContext.setRegister(register);
+        register.submit();
     }
 
     @Override

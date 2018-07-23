@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.DocumentationAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
@@ -69,6 +70,7 @@ public class CompilerDriver {
     private final SemanticAnalyzer semAnalyzer;
     private final CodeAnalyzer codeAnalyzer;
     private final TaintAnalyzer taintAnalyzer;
+    private final DocumentationAnalyzer documentationAnalyzer;
     private final CompilerPluginRunner compilerPluginRunner;
     private final Desugar desugar;
     private final CodeGenerator codeGenerator;
@@ -94,6 +96,7 @@ public class CompilerDriver {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.semAnalyzer = SemanticAnalyzer.getInstance(context);
         this.codeAnalyzer = CodeAnalyzer.getInstance(context);
+        this.documentationAnalyzer = DocumentationAnalyzer.getInstance(context);
         this.taintAnalyzer = TaintAnalyzer.getInstance(context);
         this.compilerPluginRunner = CompilerPluginRunner.getInstance(context);
         this.desugar = Desugar.getInstance(context);
@@ -150,6 +153,11 @@ public class CompilerDriver {
         }
 
         codeAnalyze(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.DOCUMENTATION_ANALYZE)) {
+            return;
+        }
+
+        documentationAnalyze(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.TAINT_ANALYZE)) {
             return;
         }
@@ -178,6 +186,10 @@ public class CompilerDriver {
 
     private BLangPackage typeCheck(BLangPackage pkgNode) {
         return this.semAnalyzer.analyze(pkgNode);
+    }
+
+    private BLangPackage documentationAnalyze(BLangPackage pkgNode) {
+        return this.documentationAnalyzer.analyze(pkgNode);
     }
 
     private BLangPackage codeAnalyze(BLangPackage pkgNode) {
@@ -234,8 +246,8 @@ public class CompilerDriver {
         BField cause = symbolTable.errStructType.fields.get(1);
         BUnionType causeType = (BUnionType) cause.type;
         Set<BType> memberTypes = new HashSet<BType>() {{
-                add(symbolTable.errStructType);
-                add(symbolTable.nilType);
+            add(symbolTable.errStructType);
+            add(symbolTable.nilType);
         }};
         BType newCauseType = new BUnionType(causeType.tsymbol, memberTypes, true);
         cause.type = newCauseType;

@@ -206,7 +206,8 @@ public class BTestRunner {
             if (buildWithTests) {
                 return;
             }
-            throw new BallerinaException("No test functions found in the provided ballerina files.");
+            outStream.println("No test functions found in the provided ballerina files.");
+            return;
         }
 
         AtomicBoolean shouldSkip = new AtomicBoolean();

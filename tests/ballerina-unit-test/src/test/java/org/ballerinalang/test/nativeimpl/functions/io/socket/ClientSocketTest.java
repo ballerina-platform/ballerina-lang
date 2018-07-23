@@ -40,7 +40,6 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Unit tests for client socket.
  */
-@Test(groups = { "broken" })
 public class ClientSocketTest {
 
     private static final Logger log = LoggerFactory.getLogger(ClientSocketTest.class);
@@ -52,9 +51,10 @@ public class ClientSocketTest {
     public void setup() {
         socketClient = BCompileUtil.compileAndSetup("test-src/io/client_socket_io.bal");
         boolean connectionStatus;
-        int numberOfRetryAttempts = 10;
+        int numberOfRetryAttempts = 20;
         try {
             server = MockSocketServer.start();
+            Thread.sleep(2000);
             connectionStatus = isConnected(MockSocketServer.SERVER_HOST, numberOfRetryAttempts);
             if (!connectionStatus) {
                 Assert.fail("Unable to open connection with the test TCP server");

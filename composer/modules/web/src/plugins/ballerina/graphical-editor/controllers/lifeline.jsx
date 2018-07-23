@@ -23,7 +23,7 @@ import { Menu } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import WorkerTools from 'plugins/ballerina/tool-palette/item-provider/worker-tools';
 import { getEndpoints } from 'api-client/api-client';
-import ControllerUtil from 'plugins/ballerina/diagram/views/default/components/controllers/controller-util';
+import ControllerUtil from '../controller-utils/controller-util';
 import TreeUtil from 'plugins/ballerina/model/tree-util';
 import LifelineTools from 'plugins/ballerina/tool-palette/item-provider/lifeline-tools';
 import TreeBuilder from 'plugins/ballerina/model/tree-builder';

@@ -30,7 +30,10 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.events.EventContext;
+import org.ballerinalang.stdlib.io.events.EventRegister;
 import org.ballerinalang.stdlib.io.events.EventResult;
+import org.ballerinalang.stdlib.io.events.Register;
+import org.ballerinalang.stdlib.io.events.characters.WriteCharactersEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 
@@ -100,7 +103,11 @@ public class WriteCharacters implements NativeCallableUnit {
         CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
                 .CHARACTER_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
-        IOUtils.write(characterChannel, content, (int) startOffset, eventContext, WriteCharacters::writeResponse);
+        WriteCharactersEvent event = new WriteCharactersEvent(characterChannel, content, (int) startOffset,
+                eventContext);
+        Register register = EventRegister.getFactory().register(event, WriteCharacters::writeResponse);
+        eventContext.setRegister(register);
+        register.submit();
     }
 
     @Override
