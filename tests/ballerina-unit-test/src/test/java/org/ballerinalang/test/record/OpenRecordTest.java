@@ -362,7 +362,7 @@ public class OpenRecordTest {
         Assert.assertTrue(miscInfo.get(1) instanceof BString);
         Assert.assertTrue(miscInfo.get(2) instanceof BMap);
 
-        Assert.assertEquals(person.stringValue(), "{name:\"Foo\", age:25, misc:(5.9, Bar, {name:\"Miaw\", " +
+        Assert.assertEquals(person.stringValue(), "{name:\"Foo\", age:25, misc:(5.9, \"Bar\", {name:\"Miaw\", " +
                 "kind:\"Cat\"})}");
     }
 

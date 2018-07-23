@@ -90,7 +90,7 @@ public class BArrayType extends BType implements BIndexedType {
                         return (V) elementType.getZeroValue();
                     }
                 default:
-                    return (V) new BRefValueArray();
+                    return (V) new BRefValueArray(elementType);
             }
         } else {
             return getEmptyValue();
