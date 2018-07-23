@@ -42,8 +42,8 @@ public class InvalidServiceContractTestCase {
     @BeforeClass
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
-        resourceDir = Paths.get(InvalidServiceContractTestCase.class.getProtectionDomain().getCodeSource().getLocation()
-                .toURI().getPath());
+        resourceDir = Paths.get(new File(InvalidServiceContractTestCase.class.getProtectionDomain().getCodeSource()
+                .getLocation().toURI().getPath()).getAbsolutePath());
     }
 
     @Test
@@ -78,8 +78,8 @@ public class InvalidServiceContractTestCase {
         try {
             grpcCmd1.execute();
         } catch (BalGenToolException e) {
-            Assert.assertEquals(e.getMessage(), "\nhelloWorldErrorSyntax.proto:3:27: \"HelloRequest\" " +
-                    "is not defined.");
+            Assert.assertTrue(e.getMessage().contains("helloWorldErrorSyntax.proto:3:27: \"HelloRequest\" " +
+                    "is not defined."));
         }
     }
 

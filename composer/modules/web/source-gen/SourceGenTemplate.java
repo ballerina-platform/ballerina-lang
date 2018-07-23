@@ -44,7 +44,7 @@ public class SourceGen {
 
 
     @FindbugsSuppressWarnings
-    String getSourceOf(JsonObject node, boolean pretty, boolean replaceLambda) {
+    public String getSourceOf(JsonObject node, boolean pretty, boolean replaceLambda) {
         if (node == null) {
             return "";
         }
@@ -607,6 +607,12 @@ public class SourceGen {
             }
         }
 
+        if (kind.equals("RecordType")) {
+            if (node.has("restFieldType")) {
+                node.addProperty("isRestFieldAvailable", true);
+            }
+        }
+
         if (kind.equals("TypeInitExpr")) {
             if (node.getAsJsonArray("expressions").size() <= 0) {
                 node.addProperty("noExpressionAvailable", true);
@@ -726,7 +732,7 @@ public class SourceGen {
             }
         }
 
-        if (kind.equals("Literal") && parentKind.equals("StringTemplateLiteral")) {
+        if (kind.equals("Literal") && !parentKind.equals("StringTemplateLiteral")) {
             if (node.has("ws")
                     && node.getAsJsonArray("ws").size() == 1
                     && node.getAsJsonArray("ws").get(0).getAsJsonObject().has("text")) {
@@ -787,16 +793,30 @@ public class SourceGen {
         }
 
         if (kind.equals("ArrayType")) {
-            if (node.getAsJsonArray("dimensions").size() > 0 && node.has("ws")) {
+            if (node.has("dimensions") &&
+                    node.get("dimensions").getAsInt() > 0 &&
+                    node.has("ws")) {
                 String dimensionAsString = "";
-
+                JsonObject startingBracket = null;
+                JsonObject endingBracket = null;
+                StringBuilder content = new StringBuilder();
                 JsonArray ws = node.getAsJsonArray("ws");
                 for (int j = 0; j < ws.size(); j++) {
                     if (ws.get(j).getAsJsonObject().get("text").getAsString().equals("[")) {
-                        JsonObject startingBracket = ws.get(j).getAsJsonObject();
-                        JsonObject endingBracket = ws.get(j + 1).getAsJsonObject();
-                        dimensionAsString += startingBracket.get("ws").getAsString() + startingBracket.get("text").getAsString()
-                                + endingBracket.get("ws").getAsString() + endingBracket.get("text").getAsString();
+                        startingBracket = ws.get(j).getAsJsonObject();
+                    } else if (ws.get(j).getAsJsonObject().get("text").getAsString().equals("]")) {
+                        endingBracket = ws.get(j).getAsJsonObject();
+
+                        dimensionAsString += startingBracket.get("text").getAsString() + content.toString()
+                                + endingBracket.get("ws").getAsString()
+                                + endingBracket.get("text").getAsString();
+
+                        startingBracket = null;
+                        endingBracket = null;
+                        content = new StringBuilder();
+                    } else if (startingBracket != null) {
+                        content.append(ws.get(j).getAsJsonObject().get("ws").getAsString())
+                                .append(ws.get(j).getAsJsonObject().get("text").getAsString());
                     }
                 }
 

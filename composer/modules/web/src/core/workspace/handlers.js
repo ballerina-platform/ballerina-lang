@@ -26,10 +26,12 @@ import { isOnElectron } from '../utils/client-info';
 
 const saveFile = (targetFile, filePath, context) => {
     const { workspace } = context;
-    const pathSegments = _.split(filePath, getPathSeperator());
+    const pathSep = getPathSeperator();
+    const pathSegments = _.split(filePath, pathSep);
     const derivedFileName = _.last(pathSegments);
-    const derivedFilePath = _.join(_.slice(pathSegments, 0, pathSegments.length - 1),
-                getPathSeperator());
+    let derivedFilePath = _.join(_.slice(pathSegments, 0, pathSegments.length - 1), pathSep);
+    derivedFilePath = !_.endsWith(derivedFilePath, pathSep)
+            ? derivedFilePath + pathSep : derivedFilePath;
     createOrUpdate(derivedFilePath, derivedFileName, targetFile.content)
         .then((success) => {
             targetFile.name =  _.split(derivedFileName, '.')[0];
@@ -88,7 +90,13 @@ export function getHandlerDefinitions(workspaceManager) {
         },
         {
             cmdID: COMMANDS.SAVE_FILE,
-            handler: ({ file = undefined, onSaveSuccess = () => {}, onSaveFail = () => {} }) => {
+            handler: ({
+                file = undefined,
+                onSaveSuccess = () => {},
+                onSaveFail = (err) => {
+                    workspaceManager.appContext.alert.showError(err);
+                },
+            }) => {
                 const { command: { dispatch }, editor } = workspaceManager.appContext;
                 const targetFile = file || editor.getActiveEditor().file;
                 const onSuccess = () => {
@@ -206,6 +214,21 @@ export function getHandlerDefinitions(workspaceManager) {
                 const { command: { dispatch } } = workspaceManager.appContext;
                 const id = DIALOGS.CREATE_PROJECT;
                 dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, { id });
+            },
+        },
+        {
+            cmdID: COMMANDS.SHOW_EXTERNAL_LINK,
+            handler: ({ url }) => {
+                const { command: { dispatch } } = workspaceManager.appContext;
+                if (isOnElectron()) {
+                    const shell = require('electron').shell;
+                    shell.openExternal(url);
+                } else {
+                    const externalLink = window.open();
+                    externalLink.opener = null;
+                    externalLink.location = url;
+                    window.open(url, '_blank');
+                }
             },
         },
     ];

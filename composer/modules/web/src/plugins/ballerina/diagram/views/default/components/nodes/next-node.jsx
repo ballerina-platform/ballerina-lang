@@ -18,7 +18,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import StatementDecorator from '../decorators/statement-decorator';
-import ActiveArbiter from '../decorators/active-arbiter';
 
 /**
  * class to render Next statement.
@@ -49,7 +48,6 @@ NextNode.propTypes = {
 };
 
 NextNode.contextTypes = {
-    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
     designer: PropTypes.instanceOf(Object).isRequired,
 };
 

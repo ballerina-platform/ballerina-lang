@@ -362,7 +362,7 @@ public class OpenRecordTest {
         Assert.assertTrue(miscInfo.get(2) instanceof BMap);
 
         Assert.assertEquals(person.stringValue(),
-                "{name:\"Foo\", age:25, misc:(5.9, Bar, {kind:\"Cat\", name:\"Miaw\"})}");
+                "{name:\"Foo\", age:25, misc:(5.9, \"Bar\", {kind:\"Cat\", name:\"Miaw\"})}");
     }
 
     @Test(description = "Test non-existent tuple rest field RHS access", expectedExceptions =

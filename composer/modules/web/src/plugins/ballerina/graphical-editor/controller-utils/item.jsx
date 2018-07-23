@@ -17,6 +17,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import './interactions.scss';
 
 /**
  * Interaction menu item component

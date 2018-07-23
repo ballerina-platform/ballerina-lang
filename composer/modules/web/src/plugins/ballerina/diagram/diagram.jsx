@@ -19,7 +19,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import CanvasDecorator from './views/default/components/decorators/canvas-decorator';
-import ControllerOverlay from './views/default/components/decorators/controller-overlay';
 import PositionVisitor from './visitors/position-visitor';
 import EndpointAggregatorVisitor from './visitors/endpoint-aggregator-visitor';
 import DimensionVisitor from './visitors/dimension-visitor';
@@ -36,7 +35,6 @@ import {
     getInvocationArrowPositionUtil,
     getConfig,
 } from './diagram-util';
-import ActiveArbiter from './views/default/components/decorators/active-arbiter';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
 
 const padding = 5;
@@ -70,11 +68,10 @@ class Diagram extends React.Component {
     getChildContext() {
         return {
             astRoot: this.props.model,
-            activeArbiter: new ActiveArbiter(),
             mode: this.props.mode,
             designer: getSizingUtil(this.props.mode),
             config: getConfig(this.props.mode),
-            fitToWidth: this.props.fitToWidth,
+            editMode: this.props.editMode,
         };
     }
 
@@ -131,7 +128,6 @@ class Diagram extends React.Component {
         const tln = (this.props.model.getTopLevelNodes()) ? this.props.model.getTopLevelNodes() : [];
         const children = getComponentForNodeArray(tln, this.props.mode);
 
-        const overlay = <ControllerOverlay model={this.props.model} />;
         // get container dimentions to fit svg when mode is fit-to-screen
         const { width, height } = this.props;
 
@@ -140,7 +136,6 @@ class Diagram extends React.Component {
         return (<CanvasDecorator
             dropTarget={this.props.model}
             bBox={viewState.bBox}
-            overlay={overlay}
             containerSize={{
                 width,
                 height,
@@ -158,7 +153,7 @@ Diagram.propTypes = {
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
     disabled: PropTypes.bool.isRequired,
-    fitToWidth: PropTypes.bool,
+    editMode: PropTypes.bool,
 };
 
 Diagram.contextTypes = {
@@ -173,16 +168,15 @@ Diagram.contextTypes = {
 Diagram.childContextTypes = {
     astRoot: PropTypes.instanceOf(CompilationUnitNode).isRequired,
     mode: PropTypes.string,
-    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
     designer: PropTypes.instanceOf(Object).isRequired,
     config: PropTypes.instanceOf(Object).isRequired,
-    fitToWidth: PropTypes.bool,
+    editMode: PropTypes.bool,
 };
 
 Diagram.defaultProps = {
     mode: 'default',
     disabled: false,
-    fitToWidth: true,
+    editMode: true,
 };
 
 export default Diagram;

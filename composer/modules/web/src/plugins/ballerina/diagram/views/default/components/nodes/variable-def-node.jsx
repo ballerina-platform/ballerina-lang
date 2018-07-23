@@ -19,7 +19,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import StatementDecorator from '../decorators/statement-decorator';
-import ActiveArbiter from '../decorators/active-arbiter';
 
 /**
  * Variable Definition Statement Decorator.
@@ -68,10 +67,6 @@ class VariableDefNode extends React.Component {
 
 VariableDefNode.propTypes = {
     model: PropTypes.instanceOf(Object).isRequired,
-};
-
-VariableDefNode.contextTypes = {
-    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
 };
 
 export default VariableDefNode;
