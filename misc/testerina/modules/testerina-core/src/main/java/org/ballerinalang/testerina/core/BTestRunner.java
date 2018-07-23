@@ -145,15 +145,14 @@ public class BTestRunner {
      * @param sourceFilePaths List of @{@link Path} of ballerina files
      */
     private void compileAndBuildSuites(String sourceRoot, Path[] sourceFilePaths, boolean buildWithTests)  {
-        if (sourceFilePaths.length == 0) {
-            outStream.println("Compiling tests");
-            outStream.println("    No tests found");
-            return;
-        }
         if (buildWithTests) {
             outStream.println();
         }
-        outStream.println(sourceFilePaths.length > 0 ? "Compiling tests" : "Compiling test");
+        outStream.println("Compiling tests");
+        if (sourceFilePaths.length == 0) {
+            outStream.println("    No tests found");
+            return;
+        }
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
 
             String packageName = Utils.getFullPackageName(sourcePackage.toString());
