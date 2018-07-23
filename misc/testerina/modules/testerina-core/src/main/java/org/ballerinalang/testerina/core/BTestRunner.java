@@ -147,7 +147,7 @@ public class BTestRunner {
     private void compileAndBuildSuites(String sourceRoot, Path[] sourceFilePaths, boolean buildWithTests)  {
         if (sourceFilePaths.length == 0) {
             outStream.println("Compiling tests");
-            outStream.println("    No tests found\n");
+            outStream.println("    No tests found");
             return;
         }
         if (buildWithTests) {
@@ -204,11 +204,12 @@ public class BTestRunner {
      */
     private void execute(boolean buildWithTests) {
         Map<String, TestSuite> testSuites = registry.getTestSuites();
+        outStream.println();
+        outStream.println("Running tests");
         if (testSuites.isEmpty()) {
             if (buildWithTests) {
                 return;
             }
-            outStream.println("Running tests");
             outStream.println("    No tests found");
             return;
         }
@@ -217,8 +218,6 @@ public class BTestRunner {
         LinkedList<String> keys = new LinkedList<>(testSuites.keySet());
         Collections.sort(keys);
 
-        outStream.println();
-        outStream.println("Running tests");
         keys.forEach(packageName -> {
             TestSuite suite = testSuites.get(packageName);
             if (packageName.equals(Names.DOT.value)) {
