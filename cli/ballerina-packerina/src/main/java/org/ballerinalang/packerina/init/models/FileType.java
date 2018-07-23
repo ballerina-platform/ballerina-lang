@@ -22,7 +22,9 @@ package org.ballerinalang.packerina.init.models;
  */
 public enum FileType {
     SERVICE("hello_service.bal"),
-    MAIN("main.bal");
+    MAIN("main.bal"),
+    MAIN_TEST("main_test.bal"),
+    SERVICE_TEST("hello_service_test.bal");
 
     private final String fileName;
 

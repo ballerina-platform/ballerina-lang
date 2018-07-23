@@ -147,23 +147,23 @@ public class SrcFile {
 
     private FileType srcFileType;
     private String content;
-    private String testFileContent;
     private String name;
-    private String testFileName;
     public SrcFile(String name, FileType fileType) {
         this.srcFileType = fileType;
         this.name = name;
         switch (fileType) {
             case SERVICE:
                 content = SERVICE_CONTENT;
-                testFileContent = SERVICE_TEST_CONTENT;
-                testFileName = "hello_service_test.bal";
                 break;
             case MAIN:
             default:
                 content = MAIN_FUNCTION_CONTENT;
-                testFileContent = MAIN_FUNCTION_TEST_CONTENT;
-                testFileName = "main_test.bal";
+                break;
+            case MAIN_TEST:
+                content = MAIN_FUNCTION_TEST_CONTENT;
+                break;
+            case SERVICE_TEST:
+                content = SERVICE_TEST_CONTENT;
                 break;
         }
     }
@@ -176,19 +176,7 @@ public class SrcFile {
         return content;
     }
 
-    public String getTestContent() {
-        return testFileContent;
-    }
-    
     public String getName() {
         return name;
-    }
-
-    /**
-     * Returns the name of the test file according to the type.
-     * @return name of the test file
-     */
-    public String getTestFileName() {
-        return testFileName;
     }
 }

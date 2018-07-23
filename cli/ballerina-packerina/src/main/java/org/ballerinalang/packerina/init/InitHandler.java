@@ -18,6 +18,7 @@
 
 package org.ballerinalang.packerina.init;
 
+import org.ballerinalang.packerina.init.models.FileType;
 import org.ballerinalang.packerina.init.models.PackageMdFile;
 import org.ballerinalang.packerina.init.models.SrcFile;
 import org.ballerinalang.toml.model.Manifest;
@@ -126,27 +127,32 @@ public class InitHandler {
      * @throws IOException If file write exception occurs.
      */
     private static void createSrcFolder(Path projectPath, List<SrcFile> srcFiles) throws IOException {
-        final String testDirName = "tests";
         if (null != srcFiles && srcFiles.size() > 0) {
             for (SrcFile srcFile : srcFiles) {
                 Path packagePath = projectPath.resolve(srcFile.getName());
-                Path testDirPath = packagePath.resolve(testDirName);
-                if (!Files.exists(packagePath)) {
-                    Files.createDirectory(packagePath);
-                }
-                if (!Files.isSameFile(projectPath, packagePath) && !Files.exists(testDirPath)) {
-                    Files.createDirectory(testDirPath);
-                }
-
-                Path srcFilePath = packagePath.resolve(srcFile.getSrcFileType().getFileName());
-                Path testFilePath = testDirPath.resolve(srcFile.getTestFileName());
-                if (!Files.exists(srcFilePath)) {
-                    Files.createFile(srcFilePath);
-                    writeContent(srcFilePath, srcFile.getContent());
-                }
-                if (!Files.isSameFile(projectPath, packagePath) && !Files.exists(testFilePath)) {
-                    Files.createFile(testFilePath);
-                    writeContent(testFilePath, srcFile.getTestContent());
+                if (srcFile.getSrcFileType().equals(FileType.MAIN_TEST) || srcFile.getSrcFileType()
+                                                                                  .equals(FileType.SERVICE_TEST)) {
+                    // Ignore top level tests created
+                    if (!Files.isSameFile(projectPath, packagePath)) {
+                        Path testDirPath = packagePath.resolve("tests");
+                        if (!Files.exists(testDirPath)) {
+                            Files.createDirectory(testDirPath);
+                        }
+                        Path testFilePath = testDirPath.resolve(srcFile.getSrcFileType().getFileName());
+                        if (!Files.exists(testFilePath)) {
+                            Files.createFile(testFilePath);
+                            writeContent(testFilePath, srcFile.getContent());
+                        }
+                    }
+                } else {
+                    if (!Files.exists(packagePath)) {
+                        Files.createDirectory(packagePath);
+                    }
+                    Path srcFilePath = packagePath.resolve(srcFile.getSrcFileType().getFileName());
+                    if (!Files.exists(srcFilePath)) {
+                        Files.createFile(srcFilePath);
+                        writeContent(srcFilePath, srcFile.getContent());
+                    }
                 }
             }
         }
