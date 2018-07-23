@@ -2,19 +2,42 @@
 package ${PACKAGE_NAME};
 #end
 
+// A system package containing protocol access constructs
+// Package objects referenced with 'http:' in code
 import ballerina/http;
-import ballerina/log;
 
-// By default, Ballerina assumes that the service is to be exposed via HTTP/1.1.
-service<http:Service> hello bind { port: 9090 } {
+documentation {
+   A service endpoint represents a listener.
+}
+endpoint http:Listener listener {
+    port:9090
+};
 
-    // All resources are invoked with arguments of server connector and request.
-    sayHello(endpoint caller, http:Request req) {
-        http:Response res = new;
-        // A util method that can be used to set a string payload.
-        res.setPayload("Hello, World!");
+documentation {
+   A service is a network-accessible API
+   Advertised on '/hello', port comes from listener endpoint
+}
+service<http:Service> hello bind listener {
 
-        // Sends the response back to the caller.
-        caller->respond(res) but { error e => log:printError("Error sending response", err = e) };
+    documentation {
+       A resource is an invokable API method
+       Accessible at '/hello/sayHello
+       'caller' is the client invoking this resource
+
+       P{{caller}} Server Connector
+       P{{request}} Request
+    }
+    sayHello (endpoint caller, http:Request request) {
+
+        // Create object to carry data back to caller
+        http:Response response = new;
+
+        // Objects and structs can have function calls
+        response.setTextPayload("Hello Ballerina!\n");
+
+        // Send a response back to caller
+        // Errors are ignored with '_'
+        // -> indicates a synchronous network-bound call
+        _ = caller -> respond(response);
     }
 }
