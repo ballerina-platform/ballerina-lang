@@ -35,6 +35,7 @@ import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
 import javax.jms.Destination;
+import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Queue;
 import javax.jms.Topic;
@@ -63,20 +64,24 @@ public class GetReplyTo extends AbstractBlockinAction {
         BMap<String, BValue> bStruct = BLangConnectorSPIUtil.createBStruct(context, 
                                         Constants.BALLERINA_PACKAGE_JMS,
                                         Constants.JMS_DESTINATION_STRUCT_NAME);
-        Destination destination = message.getJMSReplyTo();
-        if (destination instanceof Queue) {
-            Queue replyTo = (Queue) destination;
-            bStruct.addNativeData(Constants.JMS_DESTINATION_OBJECT, replyTo);
-            bStruct.put(Constants.DESTINATION_NAME, new BString(replyTo.getQueueName()));
-            bStruct.put(Constants.DESTINATION_TYPE, new BString("queue"));
-            context.setReturnValues(bStruct);
-        } else {
-            //it must be a topic
-            Topic replyTo = (Topic) destination;
-            bStruct.addNativeData(Constants.JMS_DESTINATION_OBJECT, replyTo);
-            bStruct.put(Constants.DESTINATION_NAME, new BString(replyTo.getTopicName()));
-            bStruct.put(Constants.DESTINATION_TYPE, new BString("topic"));
-            context.setReturnValues(bStruct);
+        try {
+            Destination destination = message.getJMSReplyTo();
+            if (destination instanceof Queue) {
+                Queue replyTo = (Queue) destination;
+                bStruct.addNativeData(Constants.JMS_DESTINATION_OBJECT, replyTo);
+                bStruct.put(Constants.DESTINATION_NAME, new BString(replyTo.getQueueName()));
+                bStruct.put(Constants.DESTINATION_TYPE, new BString("queue"));
+                context.setReturnValues(bStruct);
+            } else {
+                //it must be a topic
+                Topic replyTo = (Topic) destination;
+                bStruct.addNativeData(Constants.JMS_DESTINATION_OBJECT, replyTo);
+                bStruct.put(Constants.DESTINATION_NAME, new BString(replyTo.getTopicName()));
+                bStruct.put(Constants.DESTINATION_TYPE, new BString("topic"));
+                context.setReturnValues(bStruct);
+            }
+        } catch (JMSException e) {
+            BallerinaAdapter.returnError("Error when retrieving replyTo", context, e);
         }
     }
 }
