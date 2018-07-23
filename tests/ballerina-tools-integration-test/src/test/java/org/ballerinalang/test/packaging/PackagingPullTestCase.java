@@ -50,7 +50,7 @@ public class PackagingPullTestCase extends IntegrationTestCase {
         serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
     }
 
-    @Test(description = "Test pulling a package from central")
+    @Test(description = "Test pulling a package from central", enabled = false)
     public void testPull() throws Exception {
         String[] clientArgs = {"natasha/calculator:1.0.2"};
         ballerinaClient = new ServerInstance(serverZipPath);
