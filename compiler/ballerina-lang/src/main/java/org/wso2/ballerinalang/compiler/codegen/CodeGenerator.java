@@ -703,7 +703,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangJSONLiteral jsonLiteral) {
         jsonLiteral.regIndex = calcAndGetExprRegIndex(jsonLiteral);
         Operand typeCPIndex = getTypeCPIndex(jsonLiteral.type);
-        emit(InstructionCodes.NEWJSON, jsonLiteral.regIndex, typeCPIndex);
+        emit(InstructionCodes.NEWMAP, jsonLiteral.regIndex, typeCPIndex);
 
         for (BLangRecordKeyValue keyValue : jsonLiteral.keyValuePairs) {
             BLangExpression keyExpr = keyValue.key.expr;

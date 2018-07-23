@@ -245,7 +245,6 @@ public interface InstructionCodes {
 
     int NEWSTRUCT = 210;
     int NEWMAP = 212;
-    int NEWJSON = 213;
     int NEWTABLE = 215;
     int NEWSTREAM = 217;
 

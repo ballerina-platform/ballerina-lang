@@ -214,7 +214,6 @@ public class Mnemonics {
 
         mnemonics[InstructionCodes.NEWSTRUCT] = "newstruct";
         mnemonics[InstructionCodes.NEWMAP] = "newmap";
-        mnemonics[InstructionCodes.NEWJSON] = "newjson";
         mnemonics[InstructionCodes.NEWTABLE] = "newtable";
         mnemonics[InstructionCodes.NEWSTREAM] = "newstream";
 

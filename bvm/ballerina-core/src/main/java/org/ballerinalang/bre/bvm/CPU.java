@@ -605,13 +605,6 @@ public class CPU {
                         i = operands[0];
                         cpIndex = operands[1];
                         typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
-                        BMapType mapType = (BMapType) typeRefCPEntry.getType();
-                        sf.refRegs[i] = new BMap<String, BRefType>(mapType);
-                        break;
-                    case InstructionCodes.NEWJSON:
-                        i = operands[0];
-                        cpIndex = operands[1];
-                        typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
                         sf.refRegs[i] = new BMap<String, BRefType>(typeRefCPEntry.getType());
                         break;
                     case InstructionCodes.NEWTABLE:
