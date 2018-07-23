@@ -20,7 +20,9 @@ import com.intellij.openapi.util.UserDataHolderBase;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Alarm;
 import com.intellij.util.messages.MessageBusConnection;
+import com.intellij.util.ui.UIUtil;
 import io.ballerina.plugins.idea.ui.settings.MarkdownApplicationSettings;
+import io.ballerina.plugins.idea.ui.settings.MarkdownCssSettings;
 import io.ballerina.plugins.idea.ui.settings.MarkdownPreviewSettings;
 import io.ballerina.plugins.idea.ui.split.SplitFileEditor;
 import org.jetbrains.annotations.NotNull;
@@ -44,9 +46,9 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
     @NotNull
     private final JPanel myHtmlPanelWrapper;
     @Nullable
-    private MarkdownHtmlPanelProvider.ProviderInfo myLastPanelProviderInfo = null;
-    @Nullable
     private MarkdownHtmlPanel myPanel;
+    @Nullable
+    private BallerinaHtmlPanelProvider.ProviderInfo myLastPanelProviderInfo = null;
     @NotNull
     private final VirtualFile myFile;
     @Nullable
@@ -57,17 +59,14 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
     private final Alarm mySwingAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD, this);
 
     private final Object REQUESTS_LOCK = new Object();
-    //    @Nullable
-    //    private Runnable myLastScrollRequest = null;
+    @Nullable
+    private Runnable myLastScrollRequest = null;
     @Nullable
     private Runnable myLastHtmlOrRefreshRequest = null;
 
-    //private volatile int myLastScrollOffset;
+    private volatile int myLastScrollOffset;
     @NotNull
-    private String myLastRenderedHtml =
-            "<html>\n" + "<header><title>This is title</title></header>\n" + "<body>\n" + "Hello world\n" + "</body>\n"
-                    + "</html>\n";
-    ;
+    private String myLastRenderedHtml = "";
 
     public BallerinaDiagramVisualizer(@NotNull Project project, @NotNull VirtualFile file) {
         myFile = file;
@@ -85,7 +84,7 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
                 public void documentChanged(final DocumentEvent e) {
                     myPooledAlarm.addRequest(() -> {
                         //myLastScrollOffset = e.getOffset();
-                        updateHtml(true);
+                        updateHtml(false);
                     }, PARSING_CALL_TIMEOUT_MS);
                 }
             }, this);
@@ -127,66 +126,33 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
                 .subscribe(MarkdownApplicationSettings.SettingsChangedListener.TOPIC, settingsChangedListener);
     }
 
-    private static boolean isPreviewShown(@NotNull Project project, @NotNull VirtualFile file) {
-        BallerinaSplitEditorProvider provider = FileEditorProvider.EP_FILE_EDITOR_PROVIDER
-                .findExtension(BallerinaSplitEditorProvider.class);
-        if (provider == null) {
-            return true;
-        }
-
-        FileEditorState state = EditorHistoryManager.getInstance(project).getState(file, provider);
-        if (!(state instanceof SplitFileEditor.MyFileEditorState)) {
-            return true;
-        }
-
-        return SplitFileEditor.SplitEditorLayout.valueOf(((SplitFileEditor.MyFileEditorState) state).getSplitLayout())
-                != SplitFileEditor.SplitEditorLayout.FIRST;
-    }
-
-    /**
-     * Is always run from pooled thread
-     */
-    private void updateHtml(final boolean preserveScrollOffset) {
+    public void scrollToSrcOffset(final int offset) {
         if (myPanel == null) {
             return;
         }
 
-        if (!myFile.isValid() || myDocument == null || Disposer.isDisposed(this)) {
-            return;
-        }
-
-        final String html =
-                "<html>\n" + "<header><title>This is title</title></header>\n" + "<body>\n" + "Hello world\n"
-                        + "</body>\n" + "</html>\n";
-
-        //MarkdownUtil.generateMarkdownHtml(myFile, myDocument.getText());
-
-        // EA-75860: The lines to the top may be processed slowly; Since we're in pooled thread, we can be disposed already.
-        if (!myFile.isValid() || Disposer.isDisposed(this)) {
+        // Do not scroll if html update request is online
+        // This will restrain preview from glitches on editing
+        if (!myPooledAlarm.isEmpty()) {
+            myLastScrollOffset = offset;
             return;
         }
 
         synchronized (REQUESTS_LOCK) {
-            if (myLastHtmlOrRefreshRequest != null) {
-                mySwingAlarm.cancelRequest(myLastHtmlOrRefreshRequest);
+            if (myLastScrollRequest != null) {
+                mySwingAlarm.cancelRequest(myLastScrollRequest);
             }
-            myLastHtmlOrRefreshRequest = () -> {
+            myLastScrollRequest = () -> {
                 if (myPanel == null) {
                     return;
                 }
 
-                final String currentHtml = "<html><head></head>" + html + "</html>";
-                if (!currentHtml.equals(myLastRenderedHtml)) {
-                    myLastRenderedHtml = currentHtml;
-                    myPanel.setHtml(myLastRenderedHtml);
-                }
-
-                myPanel.render();
+                myLastScrollOffset = offset;
                 synchronized (REQUESTS_LOCK) {
-                    myLastHtmlOrRefreshRequest = null;
+                    myLastScrollRequest = null;
                 }
             };
-            mySwingAlarm.addRequest(myLastHtmlOrRefreshRequest, RENDERING_DELAY_MS,
+            mySwingAlarm.addRequest(myLastScrollRequest, RENDERING_DELAY_MS,
                     ModalityState.stateForComponent(getComponent()));
         }
     }
@@ -209,12 +175,11 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
     @NotNull
     @Override
     public String getName() {
-        return "Ballerina Diagram HTML Preview";
+        return "Markdown HTML Preview";
     }
 
     @Override
     public void setState(@NotNull FileEditorState state) {
-
     }
 
     @Override
@@ -270,27 +235,77 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
     }
 
     @NotNull
-    private MarkdownHtmlPanelProvider retrievePanelProvider(@NotNull MarkdownApplicationSettings settings) {
-        final MarkdownHtmlPanelProvider.ProviderInfo providerInfo = settings.getMarkdownPreviewSettings()
+    private BallerinaHtmlPanelProvider retrievePanelProvider(@NotNull MarkdownApplicationSettings settings) {
+        final BallerinaHtmlPanelProvider.ProviderInfo providerInfo = settings.getMarkdownPreviewSettings()
                 .getHtmlPanelProviderInfo();
 
-        MarkdownHtmlPanelProvider provider = MarkdownHtmlPanelProvider.createFromInfo(providerInfo);
+        BallerinaHtmlPanelProvider provider = BallerinaHtmlPanelProvider.createFromInfo(providerInfo);
 
-        if (provider.isAvailable() != MarkdownHtmlPanelProvider.AvailabilityInfo.AVAILABLE) {
+        if (provider.isAvailable() != BallerinaHtmlPanelProvider.AvailabilityInfo.AVAILABLE) {
             settings.setMarkdownPreviewSettings(
                     new MarkdownPreviewSettings(settings.getMarkdownPreviewSettings().getSplitEditorLayout(),
-                            MarkdownPreviewSettings.DEFAULT.getHtmlPanelProviderInfo(), true, true));
+                            MarkdownPreviewSettings.DEFAULT.getHtmlPanelProviderInfo(),
+                            settings.getMarkdownPreviewSettings().isUseGrayscaleRendering(),
+                            settings.getMarkdownPreviewSettings().isAutoScrollPreview()));
 
             Messages.showMessageDialog(myHtmlPanelWrapper,
                     "Tried to use preview panel provider (" + providerInfo.getName()
                             + "), but it is unavailable. Reverting to default.", CommonBundle.getErrorTitle(),
                     Messages.getErrorIcon());
 
-            provider = MarkdownHtmlPanelProvider.getProviders()[0];
+            provider = BallerinaHtmlPanelProvider.getProviders()[0];
         }
 
         myLastPanelProviderInfo = settings.getMarkdownPreviewSettings().getHtmlPanelProviderInfo();
         return provider;
+    }
+
+    /**
+     * Is always run from pooled thread
+     */
+    private void updateHtml(final boolean preserveScrollOffset) {
+        if (myPanel == null) {
+            return;
+        }
+
+        if (!myFile.isValid() || myDocument == null || Disposer.isDisposed(this)) {
+            return;
+        }
+
+        final String html = VisualizerUtil.generateMarkdownHtml(myFile, myDocument.getText());
+
+        // EA-75860: The lines to the top may be processed slowly; Since we're in pooled thread, we can be disposed already.
+        if (!myFile.isValid() || Disposer.isDisposed(this)) {
+            return;
+        }
+
+        synchronized (REQUESTS_LOCK) {
+            if (myLastHtmlOrRefreshRequest != null) {
+                mySwingAlarm.cancelRequest(myLastHtmlOrRefreshRequest);
+            }
+            myLastHtmlOrRefreshRequest = () -> {
+                if (myPanel == null) {
+                    return;
+                }
+
+                final String currentHtml = "<html><head></head>" + html + "</html>";
+                if (!currentHtml.equals(myLastRenderedHtml)) {
+                    myLastRenderedHtml = currentHtml;
+                    myPanel.setHtml(myLastRenderedHtml);
+
+                    if (preserveScrollOffset) {
+                        scrollToSrcOffset(myLastScrollOffset);
+                    }
+                }
+
+                myPanel.render();
+                synchronized (REQUESTS_LOCK) {
+                    myLastHtmlOrRefreshRequest = null;
+                }
+            };
+            mySwingAlarm.addRequest(myLastHtmlOrRefreshRequest, RENDERING_DELAY_MS,
+                    ModalityState.stateForComponent(getComponent()));
+        }
     }
 
     private void detachHtmlPanel() {
@@ -302,10 +317,40 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
     }
 
     private void attachHtmlPanel() {
-        MarkdownApplicationSettings settings = new MarkdownApplicationSettings();
+        MarkdownApplicationSettings settings = MarkdownApplicationSettings.getInstance();
         myPanel = retrievePanelProvider(settings).createHtmlPanel();
         myHtmlPanelWrapper.add(myPanel.getComponent(), BorderLayout.CENTER);
         myHtmlPanelWrapper.repaint();
+    }
+
+    private static void updatePanelCssSettings(@NotNull MarkdownHtmlPanel panel,
+            @NotNull final MarkdownCssSettings cssSettings) {
+        ApplicationManager.getApplication().assertIsDispatchThread();
+
+        final String inlineCss = cssSettings.isTextEnabled() ? cssSettings.getStylesheetText() : null;
+        final String customCssURI = cssSettings.isUriEnabled() ?
+                cssSettings.getStylesheetUri() :
+                MarkdownCssSettings.getDefaultCssSettings(UIUtil.isUnderDarcula()).getStylesheetUri();
+
+        panel.setCSS(inlineCss, customCssURI);
+
+        panel.render();
+    }
+
+    private static boolean isPreviewShown(@NotNull Project project, @NotNull VirtualFile file) {
+        BallerinaSplitEditorProvider provider = FileEditorProvider.EP_FILE_EDITOR_PROVIDER
+                .findExtension(BallerinaSplitEditorProvider.class);
+        if (provider == null) {
+            return true;
+        }
+
+        FileEditorState state = EditorHistoryManager.getInstance(project).getState(file, provider);
+        if (!(state instanceof SplitFileEditor.MyFileEditorState)) {
+            return true;
+        }
+
+        return SplitFileEditor.SplitEditorLayout.valueOf(((SplitFileEditor.MyFileEditorState) state).getSplitLayout())
+                != SplitFileEditor.SplitEditorLayout.FIRST;
     }
 
     private class MyUpdatePanelOnSettingsChangedListener
@@ -317,12 +362,14 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
                         != SplitFileEditor.SplitEditorLayout.FIRST) {
                     if (myPanel == null) {
                         attachHtmlPanel();
-                    } else if (myLastPanelProviderInfo == null || MarkdownHtmlPanelProvider
+                    } else if (myLastPanelProviderInfo == null || BallerinaHtmlPanelProvider
                             .createFromInfo(myLastPanelProviderInfo).equals(retrievePanelProvider(settings))) {
                         detachHtmlPanel();
                         attachHtmlPanel();
                     }
+
                     myPanel.setHtml(myLastRenderedHtml);
+                    updatePanelCssSettings(myPanel, settings.getMarkdownCssSettings());
                 }
             }, 0, ModalityState.stateForComponent(getComponent()));
         }
