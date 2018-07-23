@@ -306,20 +306,4 @@ public class JsonGenerator {
                 break;
         }
     }
-
-    /**
-     * This represents a JSON data source implementation, which should be used for custom JSON
-     * streaming implementations.
-     */
-    public static interface JSONDataSource {
-
-        /**
-         * Serializes the current representation of the JSON data source to the given {@link JsonGenerator}.
-         * 
-         * @param gen The {@link JsonGenerator} object to write the data to
-         * @throws IOException Error occurs while serializing
-         */
-        void serialize(JsonGenerator gen) throws IOException;
-
-    }
 }

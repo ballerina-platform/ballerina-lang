@@ -17,10 +17,10 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.JSONDataSource;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.JsonGenerator;
-import org.ballerinalang.model.util.JsonGenerator.JSONDataSource;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -88,8 +88,7 @@ public class BStreamingJSON extends BRefValueArray {
     }
 
     private void buildDatasource() {
-        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        try {
+        try (ByteArrayOutputStream byteOut = new ByteArrayOutputStream();) {
             JsonGenerator gen = new JsonGenerator(byteOut);
             this.datasource.serialize(gen);
             gen.flush();
@@ -100,7 +99,7 @@ public class BStreamingJSON extends BRefValueArray {
             throw new BallerinaException("error occurred while building JSON: ", t);
         }
     }
-    
+
     @Override
     public String stringValue() {
         if (values == null) {

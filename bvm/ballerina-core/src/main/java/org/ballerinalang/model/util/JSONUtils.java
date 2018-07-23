@@ -94,7 +94,7 @@ public class JSONUtils {
         }
         return ((BMap<String, BValue>) json).hasKey(elementName);
     }
-    
+
     /**
      * Convert {@link BIntArray} to {@link BJSON}.
      *

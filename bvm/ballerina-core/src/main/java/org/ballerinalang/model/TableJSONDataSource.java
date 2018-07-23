@@ -25,7 +25,6 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonGenerator;
-import org.ballerinalang.model.util.JsonGenerator.JSONDataSource;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
@@ -42,8 +41,9 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.sql.Struct;
+
 /**
- * {@link org.ballerinalang.model.values.BJSON.JSONDataSource} implementation for table.
+ * {@link JSONDataSource} implementation for table.
  *
  * @since 0.8.0
  */
@@ -265,16 +265,16 @@ public class TableJSONDataSource implements JSONDataSource {
 
     /**
      * This represents the logic that will transform the current entry of a
-     * data table to a {@link JsonNode}.
+     * data table to a JSON.
      */
     public static interface JSONObjectGenerator {
 
         /**
-         * Converts the current position of the given table to a JSON object.
+         * Converts the current position of the given table to a JSON.
          *
          * @param table The table that should be used in the current position
          * @return The generated JSON object
-         * @throws IOException for json reading/serializing errors
+         * @throws IOException for JSON reading/serializing errors
          */
         BRefType<?> transform(BTable table) throws IOException;
 

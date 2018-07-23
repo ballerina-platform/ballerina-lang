@@ -47,7 +47,7 @@ public class ServiceSkeletonTest {
         System.setProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT, sourceRoot);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testBefore() {
         cleanup();
         BTestRunner bTestRunner = new BTestRunner();
