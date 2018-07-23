@@ -48,7 +48,7 @@ export class BallerinaGrammarContribution implements LanguageGrammarDefinitionCo
 
         monaco.languages.setLanguageConfiguration(BALLERINA_LANGUAGE_ID, this.config);
 
-        const balGrammar = require('../../../../vscode/plugin/ballerina-grammar/syntaxes/ballerina.tmLanguage');
+        const balGrammar = require('raw-loader!../../../../vscode/plugin/ballerina-grammar/syntaxes/ballerina.tmLanguage');
         registry.registerTextMateGrammarScope('source.ballerina', {
             async getGrammarDefinition() {
                 return {

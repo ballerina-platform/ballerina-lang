@@ -3,23 +3,23 @@
   "name": "electron-app",
   "version": "0.0.1",
   "dependencies": {
-    "@theia/core": "latest",
-    "@theia/filesystem": "latest",
-    "@theia/workspace": "latest",
-    "@theia/preferences": "latest",
-    "@theia/navigator": "latest",
-    "@theia/process": "latest",
-    "@theia/terminal": "latest",
-    "@theia/editor": "latest",
-    "@theia/languages": "latest",
-    "@theia/markers": "latest",
-    "@theia/monaco": "latest",
-    "@theia/typescript": "latest",
-    "@theia/messages": "latest",
+    "@theia/core": "next",
+    "@theia/filesystem": "next",
+    "@theia/workspace": "next",
+    "@theia/preferences": "next",
+    "@theia/navigator": "next",
+    "@theia/process": "next",
+    "@theia/terminal": "next",
+    "@theia/editor": "next",
+    "@theia/languages": "next",
+    "@theia/markers": "next",
+    "@theia/monaco": "next",
+    "@theia/typescript": "next",
+    "@theia/messages": "next",
     "ballerina-extension": "0.0.1"
   },
   "devDependencies": {
-    "@theia/cli": "latest"
+    "@theia/cli": "next"
   },
   "scripts": {
     "prepare": "theia build --mode development",    
