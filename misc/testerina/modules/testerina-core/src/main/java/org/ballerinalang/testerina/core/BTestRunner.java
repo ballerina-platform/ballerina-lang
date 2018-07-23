@@ -206,10 +206,10 @@ public class BTestRunner {
         outStream.println();
         outStream.println("Running tests");
         if (testSuites.isEmpty()) {
-            if (buildWithTests) {
-                return;
-            }
             outStream.println("    No tests found");
+            if (buildWithTests) {
+                outStream.println();
+            }
             return;
         }
 
