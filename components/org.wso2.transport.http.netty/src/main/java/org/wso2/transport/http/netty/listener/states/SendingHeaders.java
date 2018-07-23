@@ -39,7 +39,12 @@ import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
+import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static org.wso2.transport.http.netty.common.Constants.CHUNKING_CONFIG;
+import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.RESPONSE_100_CONTINUE_SENT;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.SENDING_ENTITY_BODY;
 import static org.wso2.transport.http.netty.common.Util.createFullHttpResponse;
@@ -58,11 +63,14 @@ public class SendingHeaders implements ListenerState {
     private static Logger log = LoggerFactory.getLogger(SendingHeaders.class);
     private final HttpOutboundRespListener outboundResponseListener;
     private final boolean keepAlive;
+    private final ListenerStateContext stateContext;
     private ChunkConfig chunkConfig;
     private HttpResponseFuture outboundRespStatusFuture;
 
-    public SendingHeaders(HttpOutboundRespListener outboundResponseListener) {
+    public SendingHeaders(HttpOutboundRespListener outboundResponseListener,
+                          ListenerStateContext stateContext) {
         this.outboundResponseListener = outboundResponseListener;
+        this.stateContext = stateContext;
         this.chunkConfig = outboundResponseListener.getChunkConfig();
         this.keepAlive = outboundResponseListener.isKeepAlive();
     }
@@ -129,9 +137,8 @@ public class SendingHeaders implements ListenerState {
     }
 
     private void writeResponse(HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        ListenerState state = new SendingEntityBody(chunkConfig, outboundRespStatusFuture);
-        outboundResponseListener.setState(state);
-        state.writeOutboundResponse(outboundResponseListener, outboundResponseMsg, httpContent);
+        stateContext.setState(new SendingEntityBody(stateContext, chunkConfig, outboundRespStatusFuture));
+        stateContext.getState().writeOutboundResponse(outboundResponseListener, outboundResponseMsg, httpContent);
     }
 
     private boolean checkChunkingCompatibility(HttpOutboundRespListener outboundResponseListener) {
@@ -143,8 +150,11 @@ public class SendingHeaders implements ListenerState {
                               HttpResponseFuture outboundRespStatusFuture) {
         setupChunkedRequest(outboundResponseMsg);
         ChannelFuture outboundHeaderFuture = writeResponseHeaders(outboundResponseMsg, keepAlive);
-//        sourceErrorHandler.addResponseWriteFailureListener(outboundRespStatusFuture, outboundHeaderFuture,
-//                                                           writeCounter);
+        addResponseWriteFailureListener(outboundRespStatusFuture, outboundHeaderFuture);
+    }
+
+    private void setChunkConfig(ChunkConfig chunkConfig) {
+        this.chunkConfig = chunkConfig;
     }
 
     private ChannelFuture writeResponseHeaders(HTTPCarbonMessage outboundResponseMsg, boolean keepAlive) {
@@ -153,7 +163,16 @@ public class SendingHeaders implements ListenerState {
         return outboundResponseListener.getSourceContext().write(response);
     }
 
-    private void setChunkConfig(ChunkConfig chunkConfig) {
-        this.chunkConfig = chunkConfig;
+    private void addResponseWriteFailureListener(HttpResponseFuture outboundRespStatusFuture,
+                                                ChannelFuture channelFuture) {
+        channelFuture.addListener(writeOperationPromise -> {
+            Throwable throwable = writeOperationPromise.cause();
+            if (throwable != null) {
+                if (throwable instanceof ClosedChannelException) {
+                    throwable = new IOException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE);
+                }
+                outboundRespStatusFuture.notifyHttpListener(throwable);
+            }
+        });
     }
 }

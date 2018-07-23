@@ -191,36 +191,6 @@ public class SourceErrorHandler {
         return state;
     }
 
-    public void checkForResponseWriteStatus(HTTPCarbonMessage inboundRequestMsg,
-                                            HttpResponseFuture outboundRespStatusFuture, ChannelFuture channelFuture) {
-        channelFuture.addListener(writeOperationPromise -> {
-            Throwable throwable = writeOperationPromise.cause();
-            if (throwable != null) {
-                if (throwable instanceof ClosedChannelException) {
-                    throwable = new IOException(REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED);
-                }
-                outboundRespStatusFuture.notifyHttpListener(throwable);
-            } else {
-                outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
-                this.setState(ENTITY_BODY_SENT);
-            }
-        });
-    }
-
-    public void addResponseWriteFailureListener(HttpResponseFuture outboundRespStatusFuture,
-                                                ChannelFuture channelFuture, AtomicInteger writeCounter) {
-        channelFuture.addListener(writeOperationPromise -> {
-            Throwable throwable = writeOperationPromise.cause();
-            if (throwable != null && writeCounter.get() == 1) {
-                if (throwable instanceof ClosedChannelException) {
-                    throwable = new IOException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE);
-                }
-                outboundRespStatusFuture.notifyHttpListener(throwable);
-            }
-            writeCounter.decrementAndGet();
-        });
-    }
-
     private ChannelFuture sendRequestTimeoutResponse(ChannelHandlerContext ctx, HttpResponseStatus status,
                                                      ByteBuf content, int length) {
         state = SENDING_ENTITY_BODY;

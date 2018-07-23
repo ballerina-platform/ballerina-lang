@@ -39,9 +39,13 @@ import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
+import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED;
+import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_SENT;
 import static org.wso2.transport.http.netty.common.Util.createFullHttpResponse;
 import static org.wso2.transport.http.netty.common.Util.isLastHttpContent;
 import static org.wso2.transport.http.netty.common.Util.isVersionCompatibleForChunking;
@@ -57,6 +61,7 @@ public class SendingEntityBody implements ListenerState {
     private static Logger log = LoggerFactory.getLogger(SendingEntityBody.class);
     private final HandlerExecutor handlerExecutor;
     private final HttpResponseFuture outboundRespStatusFuture;
+    private final ListenerStateContext stateContext;
     private ChunkConfig chunkConfig;
     private long contentLength = 0;
     private boolean headRequest;
@@ -65,7 +70,8 @@ public class SendingEntityBody implements ListenerState {
     private ChannelHandlerContext sourceContext;
 
 
-    public SendingEntityBody(ChunkConfig chunkConfig, HttpResponseFuture outboundRespStatusFuture) {
+    public SendingEntityBody(ListenerStateContext stateContext, ChunkConfig chunkConfig, HttpResponseFuture outboundRespStatusFuture) {
+        this.stateContext = stateContext;
         this.chunkConfig = chunkConfig;
         this.outboundRespStatusFuture = outboundRespStatusFuture;
         handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
@@ -135,10 +141,7 @@ public class SendingEntityBody implements ListenerState {
                     httpContent.release();
                     return;
                 }
-
-                ChannelFuture outboundResponseChannelFuture = outboundRespListener.getSourceContext().writeAndFlush(httpContent);
-//                sourceErrorHandler.addResponseWriteFailureListener(outboundRespStatusFuture,
-//                                                                   outboundResponseChannelFuture, writeCounter);
+                outboundRespListener.getSourceContext().writeAndFlush(httpContent);
             } else {
                 this.contentList.add(httpContent);
                 contentLength += httpContent.content().readableBytes();
@@ -182,15 +185,30 @@ public class SendingEntityBody implements ListenerState {
                                                                    outboundRespListener.getServerName(),
                                                                    outboundRespListener.isKeepAlive(), allContent);
 
-        ChannelFuture outboundChannelFuture = outboundRespListener.getSourceContext().writeAndFlush(fullOutboundResponse);
-//        sourceErrorHandler.checkForResponseWriteStatus(outboundRespListener.getInboundRequestMsg(), outboundRespStatusFuture, outboundChannelFuture);
+        ChannelFuture outboundChannelFuture = sourceContext.writeAndFlush(fullOutboundResponse);
+        checkForResponseWriteStatus(inboundRequestMsg, outboundRespStatusFuture, outboundChannelFuture);
         return outboundChannelFuture;
     }
 
     private ChannelFuture writeOutboundResponseBody(HttpContent lastHttpContent) {
-//        incrementWriteCount(writeCounter);
         ChannelFuture outboundChannelFuture = sourceContext.writeAndFlush(lastHttpContent);
-//        sourceErrorHandler.checkForResponseWriteStatus(inboundRequestMsg, outboundRespStatusFuture, outboundChannelFuture);
+        checkForResponseWriteStatus(inboundRequestMsg, outboundRespStatusFuture, outboundChannelFuture);
         return outboundChannelFuture;
+    }
+
+    private void checkForResponseWriteStatus(HTTPCarbonMessage inboundRequestMsg,
+                                            HttpResponseFuture outboundRespStatusFuture, ChannelFuture channelFuture) {
+        channelFuture.addListener(writeOperationPromise -> {
+            Throwable throwable = writeOperationPromise.cause();
+            if (throwable != null) {
+                if (throwable instanceof ClosedChannelException) {
+                    throwable = new IOException(REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED);
+                }
+                outboundRespStatusFuture.notifyHttpListener(throwable);
+            } else {
+                outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
+//                this.setState(ENTITY_BODY_SENT);
+            }
+        });
     }
 }

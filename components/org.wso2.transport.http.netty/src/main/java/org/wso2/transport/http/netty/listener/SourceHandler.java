@@ -27,7 +27,6 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.EventLoop;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.socket.ChannelInputShutdownReadComplete;
-import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpServerUpgradeHandler;
 import io.netty.handler.ssl.SslCloseCompletionEvent;
@@ -35,15 +34,12 @@ import io.netty.handler.timeout.IdleStateEvent;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
-import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.listener.states.Connected;
-import org.wso2.transport.http.netty.listener.states.ListenerState;
+import org.wso2.transport.http.netty.listener.states.ListenerStateContext;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.net.SocketAddress;
@@ -51,7 +47,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST;
-import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_RECEIVED;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_SENT;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.RECEIVING_ENTITY_BODY;
 
@@ -76,7 +71,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     protected ChannelHandlerContext ctx;
     private SocketAddress remoteAddress;
     private SourceErrorHandler sourceErrorHandler;
-    private ListenerState state;
+    private ListenerStateContext stateContext;
 
     public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId, ChunkConfig chunkConfig,
                          KeepAliveConfig keepAliveConfig, String serverName, ChannelGroup allChannels) {
@@ -95,9 +90,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpRequest) {
-            state.readInboundRequestHeaders(ctx, (HttpRequest) msg);
+            stateContext.getState().readInboundRequestHeaders(ctx, (HttpRequest) msg);
         } else {
-            state.readInboundReqEntityBody(msg);
+            stateContext.getState().readInboundReqEntityBody(msg);
         }
     }
 
@@ -109,15 +104,17 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(final ChannelHandlerContext ctx) {
         this.ctx = ctx;
-        state = new Connected(this);
-        state.channelActive(ctx);
+        stateContext = new ListenerStateContext();
+        stateContext.setState(new Connected(this, stateContext));
+        stateContext.getState().channelActive(ctx);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
         ctx.close();
-        if (!idleTimeout) {
-            sourceErrorHandler.handleErrorCloseScenario(inboundRequestMsg);
+        if (!idleTimeout && stateContext != null) {
+            stateContext.getState().channelClose(serverConnectorFuture, inboundRequestMsg);
+//            sourceErrorHandler.handleErrorCloseScenario(inboundRequestMsg);
         }
         closeTargetChannels();
         if (handlerExecutor != null) {
@@ -151,6 +148,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             boolean inCompleteRequest = sourceErrorHandler.getState() == RECEIVING_ENTITY_BODY;
             ChannelFuture outboundRespFuture = sourceErrorHandler.handleIdleErrorScenario(inboundRequestMsg, ctx,
                                                                                           (IdleStateEvent) evt);
+            stateContext.setState(new IdleTimeoutClosure(stateContext));
+
             if (outboundRespFuture == null) {
                 this.channelInactive(ctx);
             } else {
@@ -236,7 +235,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         return sourceErrorHandler;
     }
 
-    public ListenerState getState() {
-        return state;
+    public ListenerStateContext getStateContext() {
+        return stateContext;
     }
 }

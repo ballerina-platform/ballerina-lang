@@ -39,11 +39,14 @@ public class ReceivingEntityBody implements ListenerState {
     private static Logger log = LoggerFactory.getLogger(ReceivingEntityBody.class);
     private final HandlerExecutor handlerExecutor;
     private final ServerConnectorFuture serverConnectorFuture;
+    private final ListenerStateContext stateContext;
     private HTTPCarbonMessage inboundRequestMsg;
 
-    public ReceivingEntityBody(HTTPCarbonMessage inboundRequestMsg, HandlerExecutor handlerExecutor,
+    public ReceivingEntityBody(ListenerStateContext stateContext,
+                               HTTPCarbonMessage inboundRequestMsg, HandlerExecutor handlerExecutor,
                                ServerConnectorFuture serverConnectorFuture) {
         this.inboundRequestMsg = inboundRequestMsg;
+        this.stateContext = stateContext;
         this.handlerExecutor = handlerExecutor;
         this.serverConnectorFuture = serverConnectorFuture;
     }
@@ -74,6 +77,7 @@ public class ReceivingEntityBody implements ListenerState {
                             serverConnectorFuture.notifyHttpListener(inboundRequestMsg);
                         }
                         inboundRequestMsg = null;
+                        stateContext.setState(new EntityBodyReceived(stateContext));
 //                        sourceErrorHandler.setState(ENTITY_BODY_RECEIVED);
                     }
                 } catch (RuntimeException ex) {
@@ -94,8 +98,6 @@ public class ReceivingEntityBody implements ListenerState {
     @Override
     public void writeOutboundResponse(HttpOutboundRespListener outboundResponseListener,
                                       HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        ListenerState state = new SendingHeaders(outboundResponseListener);
-        state.writeOutboundResponseHeaders(outboundResponseMsg, httpContent);
     }
 
     private boolean isDiffered(HTTPCarbonMessage sourceReqCmsg) {

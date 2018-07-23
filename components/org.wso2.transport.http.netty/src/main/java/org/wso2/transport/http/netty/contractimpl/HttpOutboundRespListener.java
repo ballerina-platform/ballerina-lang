@@ -19,10 +19,8 @@
 
 package org.wso2.transport.http.netty.contractimpl;
 
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
@@ -34,7 +32,7 @@ import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.listener.RequestDataHolder;
 import org.wso2.transport.http.netty.listener.SourceErrorHandler;
 import org.wso2.transport.http.netty.listener.SourceHandler;
-import org.wso2.transport.http.netty.listener.states.ListenerState;
+import org.wso2.transport.http.netty.listener.states.ListenerStateContext;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
@@ -42,8 +40,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.wso2.transport.http.netty.common.Util.createHttpResponse;
 
 /**
  * Get executed when the response is available.
@@ -53,7 +49,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     private static final Logger log = LoggerFactory.getLogger(HttpOutboundRespListener.class);
     private final SourceErrorHandler sourceErrorHandler;
     private final boolean headRequest;
-    private ListenerState state;
+    private final ListenerStateContext stateContext;
 
     private ChannelHandlerContext sourceContext;
     private RequestDataHolder requestDataHolder;
@@ -80,7 +76,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         this.sourceErrorHandler = sourceHandler.getSourceErrorHandler();
         this.headRequest = requestDataHolder.getHttpMethod().equalsIgnoreCase(Constants.HTTP_HEAD_METHOD);
         this.continueRequest = continueRequest;
-        state = sourceHandler.getState();
+        this.stateContext = sourceHandler.getStateContext();
     }
 
     @Override
@@ -123,7 +119,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
     private void writeOutboundResponse(HTTPCarbonMessage outboundResponseMsg, boolean keepAlive,
             HttpContent httpContent) {
-        state.writeOutboundResponse(this, outboundResponseMsg, httpContent);
+        stateContext.getState().writeOutboundResponse(this, outboundResponseMsg, httpContent);
 //        ChunkConfig responseChunkConfig = outboundResponseMsg.getProperty(CHUNKING_CONFIG) != null ?
 //                (ChunkConfig) outboundResponseMsg.getProperty(CHUNKING_CONFIG) : null;
 //        if (responseChunkConfig != null) {
@@ -251,10 +247,6 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
     public RequestDataHolder getRequestDataHolder() {
         return requestDataHolder;
-    }
-
-    public void setState(ListenerState state) {
-        this.state = state;
     }
 
     public ChannelHandlerContext getSourceContext() {

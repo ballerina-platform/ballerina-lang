@@ -22,6 +22,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
+import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -40,4 +41,8 @@ public interface ListenerState {
 
     void writeOutboundResponse(HttpOutboundRespListener outboundResponseListener, HTTPCarbonMessage outboundResponseMsg,
                                HttpContent httpContent);
+
+    void channelClose(ServerConnectorFuture serverConnectorFuture, HTTPCarbonMessage inboundRequestMsg);
+
+    void triggerIdleTimeout();
 }

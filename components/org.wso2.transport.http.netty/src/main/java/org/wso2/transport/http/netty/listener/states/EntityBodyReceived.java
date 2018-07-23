@@ -18,59 +18,43 @@
 
 package org.wso2.transport.http.netty.listener.states;
 
-
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
-import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
-import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST;
 
 /**
  * Custom Http Content Compressor to handle the content-length and transfer encoding.
  */
-public class Connected implements ListenerState {
+public class EntityBodyReceived implements ListenerState {
 
-    private static Logger log = LoggerFactory.getLogger(Connected.class);
-    private final SourceHandler sourceHandler;
+    private static Logger log = LoggerFactory.getLogger(EntityBodyReceived.class);
     private final ListenerStateContext stateContext;
-    private HandlerExecutor handlerExecutor;
 
-    public Connected(SourceHandler sourceHandler,
-                     ListenerStateContext stateContext) {
-        this.sourceHandler = sourceHandler;
+    public EntityBodyReceived(ListenerStateContext stateContext) {
         this.stateContext = stateContext;
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        sourceHandler.getAllChannels().add(ctx.channel());
-        handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
-        sourceHandler.setHandlerExecutor(handlerExecutor);
-        if (handlerExecutor != null) {
-            handlerExecutor.executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
-        }
-        sourceHandler.setRemoteAddress(ctx.channel().remoteAddress());
-//        sourceErrorHandler.setState(CONNECTED);
 
     }
 
     @Override
     public void readInboundRequestHeaders(ChannelHandlerContext ctx, HttpRequest inboundRequestHeaders) {
-        stateContext.setState(new ReceivingHeaders(sourceHandler, handlerExecutor, stateContext));
-        stateContext.getState().readInboundRequestHeaders(ctx, inboundRequestHeaders);
+
     }
 
     @Override
-    public void readInboundReqEntityBody(Object inboundRequestEntityBody) {
+    public void readInboundReqEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
 
     }
 
@@ -82,19 +66,13 @@ public class Connected implements ListenerState {
     @Override
     public void writeOutboundResponse(HttpOutboundRespListener outboundResponseListener,
                                       HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-
+        stateContext.setState(new SendingHeaders(outboundResponseListener, stateContext));
+        stateContext.getState().writeOutboundResponseHeaders(outboundResponseMsg, httpContent);
     }
 
     @Override
     public void channelClose(ServerConnectorFuture serverConnectorFuture, HTTPCarbonMessage inboundRequestMsg) {
-        try {
-            serverConnectorFuture.notifyErrorListener(
-                    new ServerConnectorException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST));
-            // Error is notified to server connector. Debug log is to make transport layer aware
-            log.debug(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST);
-        } catch (ServerConnectorException e) {
-            log.error("Error while notifying error state to server-connector listener");
-        }
+
     }
 
     @Override

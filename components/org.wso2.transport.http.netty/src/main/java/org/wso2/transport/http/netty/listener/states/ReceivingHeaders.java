@@ -41,13 +41,16 @@ public class ReceivingHeaders implements ListenerState {
     private static Logger log = LoggerFactory.getLogger(ReceivingHeaders.class);
     private final SourceHandler sourceHandler;
     private final HandlerExecutor handlerExecutor;
+    private final ListenerStateContext stateContext;
     private HTTPCarbonMessage inboundRequestMsg;
     private boolean continueRequest;
 
     public ReceivingHeaders(SourceHandler sourceHandler,
-                            HandlerExecutor handlerExecutor) {
+                            HandlerExecutor handlerExecutor,
+                            ListenerStateContext stateContext) {
         this.sourceHandler = sourceHandler;
         this.handlerExecutor = handlerExecutor;
+        this.stateContext = stateContext;
     }
 
     @Override
@@ -75,9 +78,9 @@ public class ReceivingHeaders implements ListenerState {
 
     @Override
     public void readInboundReqEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
-        ListenerState state = new ReceivingEntityBody(inboundRequestMsg, handlerExecutor,
-                                                      sourceHandler.getServerConnectorFuture());
-        state.readInboundReqEntityBody(inboundRequestEntityBody);
+        stateContext.setState(new ReceivingEntityBody(stateContext, inboundRequestMsg, handlerExecutor,
+                                                       sourceHandler.getServerConnectorFuture()));
+        stateContext.getState().readInboundReqEntityBody(inboundRequestEntityBody);
 
     }
 
