@@ -23,12 +23,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import javax.swing.*;
 
-public abstract class MarkdownHtmlPanelProvider {
+public abstract class BallerinaHtmlPanelProvider {
 
-  public static final ExtensionPointName<MarkdownHtmlPanelProvider> EP_NAME =
-    ExtensionPointName.create("org.intellij.markdown.html.panel.provider");
+  public static final ExtensionPointName<BallerinaHtmlPanelProvider> EP_NAME =
+    ExtensionPointName.create("io.ballerina.html.panel.provider");
 
-  private static MarkdownHtmlPanelProvider[] ourProviders = null;
+  private static BallerinaHtmlPanelProvider[] ourProviders = null;
 
   @NotNull
   public abstract MarkdownHtmlPanel createHtmlPanel();
@@ -40,7 +40,7 @@ public abstract class MarkdownHtmlPanelProvider {
   public abstract ProviderInfo getProviderInfo();
 
   @NotNull
-  public static MarkdownHtmlPanelProvider[] getProviders() {
+  public static BallerinaHtmlPanelProvider[] getProviders() {
     if (ourProviders == null) {
       ourProviders = EP_NAME.getExtensions();
     }
@@ -48,9 +48,9 @@ public abstract class MarkdownHtmlPanelProvider {
   }
 
   @NotNull
-  public static MarkdownHtmlPanelProvider createFromInfo(@NotNull ProviderInfo providerInfo) {
+  public static BallerinaHtmlPanelProvider createFromInfo(@NotNull ProviderInfo providerInfo) {
     try {
-      return ((MarkdownHtmlPanelProvider)Class.forName(providerInfo.getClassName()).newInstance());
+      return ((BallerinaHtmlPanelProvider)Class.forName(providerInfo.getClassName()).newInstance());
     }
     catch (Exception e) {
       Messages.showMessageDialog(
@@ -58,7 +58,7 @@ public abstract class MarkdownHtmlPanelProvider {
         CommonBundle.getErrorTitle(),
         Messages.getErrorIcon()
       );
-      Logger.getInstance(MarkdownHtmlPanelProvider.class).error(e);
+      Logger.getInstance(BallerinaHtmlPanelProvider.class).error(e);
       return getProviders()[0];
     }
   }
