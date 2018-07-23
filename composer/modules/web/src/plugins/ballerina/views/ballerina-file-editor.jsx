@@ -79,7 +79,7 @@ class BallerinaFileEditor extends React.Component {
             activeView: this.fetchState('activeView', SPLIT_VIEW),
             splitSize: this.fetchState('splitSize', (this.props.width / 2)),
             diagramMode: this.fetchState('diagramMode', 'action'),
-            diagramFitToWidth: this.fetchState('diagramFitToWidth', true),
+            diagramEditMode: this.fetchState('diagramEditMode', true),
             isDiagramOnEditMode: false,
             lastRenderedTimestamp: undefined,
         };
@@ -125,6 +125,7 @@ class BallerinaFileEditor extends React.Component {
         this.resetSwaggerView = this.resetSwaggerView.bind(this);
         this.handleSplitChange = this.handleSplitChange.bind(this);
         this.onModeChange = this.onModeChange.bind(this);
+        this.onCodeExpandToggle = this.onCodeExpandToggle.bind(this);
         this.sourceEditorRef = undefined;
     }
 
@@ -261,8 +262,20 @@ class BallerinaFileEditor extends React.Component {
      */
     onModeChange(data) {
         this.setState({
+            diagramEditMode: data.editMode,
+        });
+        this.persistState();
+    }
+
+    /**
+     * Toggle code expand/collapse.
+     *
+     * @param {any} data event data
+     * @memberof BallerinaFileEditor
+     */
+    onCodeExpandToggle(data) {
+        this.setState({
             diagramMode: data.mode,
-            diagramFitToWidth: data.fitToWidth,
         });
         this.persistState();
     }
@@ -280,8 +293,8 @@ class BallerinaFileEditor extends React.Component {
      * @param {any} newState
      * @memberof BallerinaFileEditor
      */
-    handleFitToWidthChange(state) {
-        this.setState({ diagramFitToWidth: state });
+    handleEditModeChange(state) {
+        this.setState({ diagramEditMode: state });
         this.persistState();
     }
 
@@ -289,18 +302,20 @@ class BallerinaFileEditor extends React.Component {
         const designWidth = (this.state.activeView === DESIGN_VIEW) ? this.props.width :
             this.props.width - this.state.splitSize;
 
-        if (designWidth < RESPOSIVE_MENU_TRIGGER.HIDDEN_MODE && !this.fetchState('diagramFitToWidth', true)) {
+        if (designWidth < RESPOSIVE_MENU_TRIGGER.HIDDEN_MODE && !this.fetchState('diagramEditMode', true)) {
             this.setState({
                 isDiagramOnEditMode: true,
             });
-            this.onModeChange({ mode: 'action', fitToWidth: true });
+            this.onModeChange({ editMode: true });
+            this.onCodeExpandToggle({ mode: 'action' });
         }
 
         if (this.state.isDiagramOnEditMode && designWidth > (RESPOSIVE_MENU_TRIGGER.HIDDEN_MODE - 10)) {
             this.setState({
                 isDiagramOnEditMode: false,
             });
-            this.onModeChange({ mode: 'action', fitToWidth: false });
+            this.onModeChange({ editMode: false });
+            this.onCodeExpandToggle({ mode: 'action' });
         }
 
         this.setState({ splitSize: size });
@@ -560,7 +575,7 @@ class BallerinaFileEditor extends React.Component {
         appContext.pref.put(this.props.file.id, {
             activeView: this.state.activeView,
             splitSize: this.state.splitSize,
-            diagramFitToWidth: this.state.diagramFitToWidth,
+            diagramEditMode: this.state.diagramEditMode,
             diagramMode: this.state.diagramMode,
         });
     }
@@ -632,7 +647,7 @@ class BallerinaFileEditor extends React.Component {
             this.state.splitSize;
         const designWidth = (this.state.activeView === DESIGN_VIEW) ? this.props.width :
             this.props.width - this.state.splitSize;
-        const height = this.props.height - 10; // height is reduced to accommodate scroll bars
+        const height = this.props.height - 56; // height is reduced to accommodate scroll bars
 
         const sourceView = (
             <SourceView
@@ -670,8 +685,9 @@ class BallerinaFileEditor extends React.Component {
                     panelResizeInProgress={this.props.panelResizeInProgress}
                     disabled={this.state.parseFailed}
                     onModeChange={this.onModeChange}
+                    onCodeExpandToggle={this.onCodeExpandToggle}
                     mode={this.state.diagramMode}
-                    fitToWidth={this.state.diagramFitToWidth}
+                    editMode={this.state.diagramEditMode}
                 />
             </div>
         );

@@ -13,26 +13,27 @@
     .ui.menu .item {
         border: 0;
         padding: 0;
-        margin-top: 6px ;
-        .menu-icon, .menu-icon-right {
+        margin-top: -6px;
+        .menu-icon,
+        .menu-icon-right {
             width: 25px !important;
             height: 25px !important;
             color: #222;
-            padding-top:5px;
-            margin-top:3px;
+            padding-top: 5px;
+            margin-top: 3px;
         }
     }
     .ui.menu .item:before {
         width: 0;
     }
-    .menu-button{
+    .menu-button {
         opacity: 0.8;
         margin-right: 35px !important;
     }
-    .menu-button:hover{
-        font-weight  : 500 !important;
+    .menu-button:hover {
+        font-weight: 500 !important;
         border-radius: 0% !important;
-        background   : none !important;
-        opacity      : 1 !important;
+        background: none !important;
+        opacity: 1 !important;
     }
 }

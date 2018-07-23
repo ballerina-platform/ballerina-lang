@@ -71,7 +71,7 @@ class Diagram extends React.Component {
             mode: this.props.mode,
             designer: getSizingUtil(this.props.mode),
             config: getConfig(this.props.mode),
-            fitToWidth: this.props.fitToWidth,
+            editMode: this.props.editMode,
         };
     }
 
@@ -153,7 +153,7 @@ Diagram.propTypes = {
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
     disabled: PropTypes.bool.isRequired,
-    fitToWidth: PropTypes.bool,
+    editMode: PropTypes.bool,
 };
 
 Diagram.contextTypes = {
@@ -170,13 +170,13 @@ Diagram.childContextTypes = {
     mode: PropTypes.string,
     designer: PropTypes.instanceOf(Object).isRequired,
     config: PropTypes.instanceOf(Object).isRequired,
-    fitToWidth: PropTypes.bool,
+    editMode: PropTypes.bool,
 };
 
 Diagram.defaultProps = {
     mode: 'default',
     disabled: false,
-    fitToWidth: true,
+    editMode: true,
 };
 
 export default Diagram;

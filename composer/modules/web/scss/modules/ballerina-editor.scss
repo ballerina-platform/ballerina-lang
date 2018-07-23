@@ -1,92 +1,93 @@
-
 .editor-area {
-  .rc-tabs-tab-active {
-    .tab-title-wrapper {
-      &.ballerina-design-view {
-        background-color: $white01;
-        color: $gray08;
-        height: 40px;
-        .close-tab {
-          color: $gray08;
-          background-color: $white01;
-          &:hover {
-            color: $gray05;
-          }
+    .rc-tabs-tab-active {
+        .tab-title-wrapper {
+            &.ballerina-design-view {
+                background-color: $white01;
+                color: $gray08;
+                height: 40px;
+                .close-tab {
+                    color: $gray08;
+                    background-color: $white01;
+                    &:hover {
+                        color: $gray05;
+                    }
+                }
+            }
         }
-      }
     }
-  }
-  .rc-tabs-bar {
-    .split-view-icon {
-      font-size: 20px;
-      margin-right: 20px;
-      opacity: 0.6;
+    .rc-tabs-bar {
+        .split-view-icon {
+            font-size: 20px;
+            margin-right: 20px;
+            opacity: 0.6;
+        }
+        .split-view-icon:hover {
+            opacity: 1;
+            cursor: pointer;
+        }
     }
-    .split-view-icon:hover {
-      opacity: 1;
-      cursor: pointer;
-    }
-  }
 }
 
-.client-line-header, .client-life-line,
-.life-line, .client-invocation-arrow,
-.action-arrow .statement-title-rect, .statement-title-rect, .action-arrow,
-.action-arrow-head, .action-dash-line, .flowchart-action-arrow,
-.default-worker-life-line, .action-invocation-statement-rect
-.flowchart-background-empty-rect {
-  stroke-width: 0.75;
+.client-line-header,
+.client-life-line,
+.life-line,
+.client-invocation-arrow,
+.action-arrow .statement-title-rect,
+.statement-title-rect,
+.action-arrow,
+.action-arrow-head,
+.action-dash-line,
+.flowchart-action-arrow,
+.default-worker-life-line,
+.action-invocation-statement-rect .flowchart-background-empty-rect {
+    stroke-width: 0.75;
 }
+
 
 /*---------------------------
       Action buttons
 ---------------------------*/
 
 .ui.lifeline.icons.buttons .ui.button {
-  height: 25px;
-  width: 25px;
-  font-size: 12px;
-  line-height: 0;
-  padding: 0 !important;
-  cursor: pointer;
+    height: 25px;
+    width: 25px;
+    font-size: 12px;
+    line-height: 0;
+    padding: 0 !important;
+    cursor: pointer;
 }
 
 .ui.icon.lifeline.button {
-  height: 20px;
-  width: 20px;
-  font-size: 10px;
-  line-height: 0;
-  padding: 0 !important;
-  text-align: center;
-  color: $white;
-  cursor: pointer;
-
-  &.primary {
-    background: $brand-primary;
-
-    &:hover {
-      background: $brand-primary-hover;
+    height: 20px;
+    width: 20px;
+    font-size: 10px;
+    line-height: 0;
+    padding: 0 !important;
+    text-align: center;
+    color: $white;
+    cursor: pointer;
+    &.primary {
+        background: $brand-primary;
+        &:hover {
+            background: $brand-primary-hover;
+        }
     }
-  }
-
-  &.secondary {
-    background: $secondary-color;
-
-    &:hover {
-      background: $secondary-color-hover;
+    &.secondary {
+        background: $secondary-color;
+        &:hover {
+            background: $secondary-color-hover;
+        }
     }
-  }
-
-  &.circle {
-    border-radius: 50%;
-  }
-
-  i.fw,
-  i.fa,
-  i.icon {
-    vertical-align: middle;
-  }
+    &.circle {
+        border-radius: 50%;
+    }
+    i.fw,
+    i.fa,
+    i.icon {
+        vertical-align: middle;
+    }
 }
+
 
 /*---------------------------
       Default lines
@@ -96,18 +97,18 @@
 .client-life-line,
 .client-invocation-arrow,
 .action-arrow .statement-title-rect {
-  stroke: $primary-line-bgcolor;
+    stroke: $primary-line-bgcolor;
 }
 
 .statement-title-rect {
-  fill: $white;
-  stroke:$primary-line-bgcolor;
+    fill: $white;
+    stroke: $primary-line-bgcolor;
 }
 
 .flowchart-true-text,
 .flowchart-false-text {
-  fill: $primary-line-bgcolor;
-  font-weight: 300;
+    fill: $primary-line-bgcolor;
+    font-weight: 300;
 }
 
 .client-line-header,
@@ -115,484 +116,510 @@
 .flowchart-background-empty-rect,
 .flowchart-separator-line,
 .panel-header {
-  fill: $white;
+    fill: $white;
 }
 
 .action-arrow,
 .action-arrow-head,
 .action-dash-line {
-  stroke: $primary-line-bgcolor;
-  fill: $primary-line-bgcolor;
+    stroke: $primary-line-bgcolor;
+    fill: $primary-line-bgcolor;
 }
+
 
 /*---------------------------
       Worker lines
 ---------------------------*/
 
 .worker {
-  fill: $worker-color;
-  font-weight: 300;
+    fill: $worker-color;
+    font-weight: 300;
 }
 
-.worker.life-line{
-  stroke: $worker-color;
+.worker.life-line {
+    stroke: $worker-color;
 }
 
 .flowchart-action-arrow {
-  fill: $worker-color;
-  font-weight: 300;
+    fill: $worker-color;
+    font-weight: 300;
 }
 
 .flowchart-action-arrow,
 .flowchart-background-empty-rect {
-  stroke: $worker-color;
-  stroke-width: 0.75;
+    stroke: $worker-color;
+    stroke-width: 0.75;
 }
 
 .flowchart-action-arrow-head {
-  fill: $worker-color;
-  stroke: $worker-color;
+    fill: $worker-color;
+    stroke: $worker-color;
 }
+
 
 /*---------------------------
       Endpoint lines
 ---------------------------*/
 
 .connector {
-  fill: $connector-color;
-  font-weight: 400;
+    fill: $connector-color;
+    font-weight: 400;
 }
 
 .connector.life-line {
-  stroke: $connector-color;
+    stroke: $connector-color;
 }
 
 .action-invocation-statement-rect {
-  fill: $connector-color;
+    fill: $connector-color;
 }
 
 .ballerina-editor {
-  .design-view-container {
-    background-color: $diagram-background;
-  }
-  .protocol-http,
-  .svg-container {
-    .panel {
-      /* -- Service herder Styles -- */
-      .panel-header {
-        .text-placeholder {
-          shape-rendering: crispEdges;
-          stroke: $white04;
-          stroke-width: 1;
-          stroke-dasharray: 4, 2;
+    .design-view-container {
+        background-color: $diagram-background;
+    }
+    .protocol-http,
+    .svg-container {
+        .panel {
+            /* -- Service herder Styles -- */
+            .panel-header {
+                .text-placeholder {
+                    shape-rendering: crispEdges;
+                    stroke: $white04;
+                    stroke-width: 1;
+                    stroke-dasharray: 4, 2;
+                }
+                .headingRect,
+                .panel-body-rect {
+                    fill: $white;
+                }
+                .editable-text-label {
+                    fill: $text-color;
+                    stroke: $gray04;
+                    font-weight: 300;
+                    stroke-width: 0;
+                }
+                .panel-header-controls-wrapper {
+                    fill: rgba(255, 255, 255, 0.1);
+                }
+                .control-icons {
+                    fill: $gray07;
+                    font-size: 11px;
+                    cursor: pointer;
+                }
+                .title-icon {
+                    fill: $gray07;
+                }
+                .editor-area {
+                    color: $text-color;
+                    border: 1px solid $gray05;
+                }
+            }
+            .panel-body {
+                .panel-body-rect {
+                    fill: $white;
+                }
+                .client-line-group {
+                    .client-line-text {
+                        text-anchor: middle;
+                        dominant-baseline: central;
+                        fill: $primary-line-bgcolor;
+                        font-weight: 300;
+                    }
+                    text,
+                    .title-text {
+                        fill: $text-color;
+                        font-weight: 300px;
+                    }
+                }
+                .action-dash-line {
+                    stroke: $primary-line-bgcolor;
+                    fill: $primary-line-bgcolor;
+                    stroke-dasharray: 5, 5;
+                }
+                .match-expression {
+                    dominant-baseline: central;
+                }
+                .match-pattern-clause {
+                    font-style: italic;
+                }
+                .statement-title-text,
+                .condition-text {
+                    text-anchor: middle;
+                    dominant-baseline: central;
+                    text-transform: lowercase;
+                }
+                .statement-title-text {
+                    fill: $statementTextColor;
+                    font-style: italic;
+                }
+                .statement-title-text-left {
+                    text-anchor: start;
+                    dominant-baseline: central;
+                    fill: $statementTextColor;
+                    font-style: italic;
+                }
+                .compound-statement-rect {
+                    fill: none;
+                    stroke: $statementTextColor;
+                    stroke-dasharray: 3, 3;
+                }
+                .flowchart-separator-line {
+                    stroke: $white03;
+                    stroke-width: 2;
+                }
+                .flowchart-true-text {
+                    text-anchor: end;
+                    font-style: italic;
+                    font-weight: bolder;
+                }
+                .flowchart-false-text {
+                    text-anchor: start;
+                    font-style: italic;
+                    font-weight: bolder;
+                }
+                .property-pane-action-button-wrapper {
+                    fill: $white01;
+                    padding: 10px;
+                }
+                .property-pane-action-button-delete,
+                .property-pane-action-button-jump {
+                    cursor: pointer;
+                    opacity: 0.6;
+                    fill: $text-color;
+                    &:hover {
+                        opacity: 1;
+                    }
+                }
+            }
         }
-        .headingRect, .panel-body-rect{
-          fill: $white;
+    }
+    .panel-body {
+        .panel {
+            .panel-header,
+            .svg-container {
+                fill: $white;
+                stroke-width: 0;
+            }
         }
-        .editable-text-label {
-          fill: $text-color;
-          stroke: $gray04;
-          font-weight: 300;
-          stroke-width: 0;
-        }
-
-        .panel-header-controls-wrapper {
-          fill: rgba(255, 255, 255, 0.1);
-        }
-        .control-icons {
-          fill: $gray07;
-          font-size: 11px;
-          cursor: pointer;
-        }
-
-        .title-icon{
-          fill: $gray07;
-        }
-        .editor-area {
-          color: $text-color;
-          border: 1px solid $gray05;
-        }
-      }
-      .panel-body {
-        .panel-body-rect{
-          fill:$white;
-        }
-        .client-line-group {
-          .client-line-text {
-            text-anchor: middle;
-            dominant-baseline: central;
-            fill: $primary-line-bgcolor;
-            font-weight: 300;
-          }
-          text, .title-text {
-            fill: $text-color;
-            font-weight: 300px;
-          }
-        }
-        .action-dash-line {
-          stroke: $primary-line-bgcolor;
-          fill: $primary-line-bgcolor;
-          stroke-dasharray: 5, 5;
-        }
-
-        .match-expression{
-          dominant-baseline: central;
-        }
-        .match-pattern-clause{
-          font-style: italic;
-        }
-
-        .statement-title-text,
+        .title-text,
         .condition-text {
-          text-anchor: middle;
-          dominant-baseline: central;
-          text-transform: lowercase;
+            fill: $gray06;
         }
-        .statement-title-text {
-          fill: $statementTextColor;
-          font-style: italic;
-        }
-        .statement-title-text-left {
-          text-anchor: start;
-          dominant-baseline: central;
-          fill: $statementTextColor;
-          font-style: italic;
-        }
-        .compound-statement-rect {
-          fill: none;
-          stroke: $statementTextColor;
-          stroke-dasharray: 3, 3;
-        }
-        .flowchart-separator-line {
-          stroke: $white03;
-          stroke-width: 2;
-        }
-        .flowchart-true-text {
-          text-anchor: end;
-          font-style: italic;
-          font-weight: bolder;
-        }
-        .flowchart-false-text {
-          text-anchor: start;
-          font-style: italic;
-          font-weight: bolder;
-        }
-        .property-pane-action-button-wrapper {
-          fill: $white01;
-          padding: 10px;
-        }
-        .property-pane-action-button-delete,
-        .property-pane-action-button-jump {
-          cursor: pointer;
-          opacity: 0.6;
-          fill: $text-color;
-          &:hover {
-            opacity: 1;
-          }
-        }
-      }
     }
-  }
-  .panel-body {
-    .panel {
-      .panel-header,
-      .svg-container {
-        fill: $white;
-        stroke-width: 0;
-      }
+    .bottom-right-controls-container {
+        position: absolute;
+        bottom: 20px;
+        right: 15px;
+        z-index: 30;
+        color: $white03;
+        padding: 0;
+        line-height: 30px;
+        width: 120px;
+        .view-split-view-btn {
+            .bottom-label-icon-wrapper {
+                height: 30px;
+                width: 30px;
+                background-color: $gray05;
+                float: left;
+                padding: 2px 8px;
+                color: $white;
+                line-height: 26px;
+                &:hover {
+                    position: relative;
+                    cursor: pointer;
+                    background-color: $gray02;
+                    color: $white01;
+                    font-weight: 400;
+                }
+            }
+            &.active .bottom-label-icon-wrapper {
+                background-color: $white02;
+                color: $gray07;
+            }
+        }
+        .bottom-view-label {
+            display: none;
+            cursor: pointer;
+        }
     }
-    .title-text, .condition-text{
-      fill: $gray06;
-    }
-  }
-  .bottom-right-controls-container {
-    position: absolute;
-    bottom: 20px;
-    right: 15px;
-    z-index: 30;
-    color: $white03;
-    padding: 0;
-    line-height: 30px;
-    width: 120px;
-
-    .view-split-view-btn {
-      .bottom-label-icon-wrapper {
-        height: 30px;
+    .zoom-controls {
+        bottom: 60px !important;
         width: 30px;
-        background-color: $gray05;
-        float: left;
-        padding: 2px 8px;
-        color: $white;
-        line-height: 26px;
-
-        &:hover {
-          position: relative;
-          cursor: pointer;
-          background-color: $gray02;
-          color: $white01;
-          font-weight: 400;
-        }
-      }
-
-      &.active .bottom-label-icon-wrapper {
-        background-color: $white02;
-        color: $gray07;
-      }
+        right: 25px;
     }
-
-    .bottom-view-label {
-      display: none;
-      cursor: pointer;
+    .background-empty-rect {
+        fill: $white;
     }
-  }
-  .zoom-controls {
-    bottom: 60px !important;
-    width: 30px;
-    right: 25px;
-  }
-  .background-empty-rect {
-    fill: $white;
-  }
-  .fork-bar {
-    fill: $white04;
-  }
-  .diagram-menu {
-    position: fixed;
-    background: $diagram-background;
-    height: 45px;
-    width: 100%;
-    -webkit-box-shadow: -6px 6px 6px -6px $white04;
-    -moz-box-shadow: -6px 6px 6px -6px $white04;
-    box-shadow: -6px 6px 6px -6px $white04;
-    padding: 5px;
-  }
+    .fork-bar {
+        fill: $white04;
+    }
+    .diagram-menu {
+        position: fixed;
+        background: $diagram-background;
+        height: 45px;
+        width: 100%;
+        -webkit-box-shadow: -6px 6px 6px -6px $white04;
+        -moz-box-shadow: -6px 6px 6px -6px $white04;
+        box-shadow: -6px 6px 6px -6px $white04;
+        padding: 5px;
+    }
 }
 
 .syntax-error-overlay {
-  z-index: 1000;
-  text-align: center;
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  background-color: rgba(60, 60, 60, 0.0);
-  .error-list {
-    position: relative;
-    text-align: left;
-    padding: 10px;
-    width: 400px;
-    margin: auto;
-    top: 20px;
-    background-color: $gray08;
-    .list-heading {
-      text-align: center;
-      font-size: 16px;
-      color: $white01;
+    z-index: 1000;
+    text-align: center;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(60, 60, 60, 0.0);
+    .error-list {
+        position: relative;
+        text-align: left;
+        padding: 10px;
+        width: 400px;
+        margin: auto;
+        top: 20px;
+        background-color: $gray08;
+        .list-heading {
+            text-align: center;
+            font-size: 16px;
+            color: $white01;
+        }
     }
-  }
 }
 
 @keyframes ellipsis {
-  to {
-    width: 1.25em;
-  }
+    to {
+        width: 1.25em;
+    }
 }
 
 @-webkit-keyframes ellipsis {
-  to {
-    width: 1.25em;
-  }
+    to {
+        width: 1.25em;
+    }
 }
 
 .swagger-view-container {
-  background: $white;
+    background: $white;
 }
 
-.close-swagger{
-  background-color: #1e1e1e;
-  padding: 5px;
+.close-swagger {
+    background-color: #1e1e1e;
+    padding: 5px;
 }
 
-swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
-  font-weight: normal;
-  line-height: normal;
+swagger-ui h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
+    font-weight: normal;
+    line-height: normal;
 }
 
 .swagger-ui pre {
-  padding: 0;
-  font-size: medium;
-  line-height: normal;
-  word-break: normal;
-  word-wrap: normal;
-  background-color: transparent;
-  border-radius: 0;
+    padding: 0;
+    font-size: medium;
+    line-height: normal;
+    word-break: normal;
+    word-wrap: normal;
+    background-color: transparent;
+    border-radius: 0;
 }
 
 .swagger-ui .try-out {
-  display: none,
+    display: none,
 }
 
 .swaggerEditor .SplitPane {
-  height: 100% !important;
+    height: 100% !important;
 }
 
 .expand-operation {
-  display: none;
+    display: none;
 }
 
 .SplitPane .vertical {
-  overflow: hidden;
+    overflow: hidden;
 }
 
-.swagger-container .SplitPane .Pane2{
-  overflow: scroll;
-  padding-bottom: 40px;
+.swagger-container .SplitPane .Pane2 {
+    overflow: scroll;
+    padding-bottom: 40px;
 }
 
-.swagger-container .SplitPane .Pane1{
-  padding-bottom: 40px;
+.swagger-container .SplitPane .Pane1 {
+    padding-bottom: 40px;
 }
 
 .divider {
-  fill: $white01;
+    fill: $white01;
 }
 
 .hidden-code {
-  font-size: 10px;
+    font-size: 10px;
 }
 
-.panel-header-title text{
-  font-weight: 500 !important;
+.panel-header-title text {
+    font-weight: 500 !important;
 }
 
 .top-menu {
-  position: fixed;
-  padding: 3px 35px 6px 30px !important;
-  height: 40px;
-
-  &.hidden { display: none !important; }
-
-  .top-bar {
-    > .ui.label {
-      & > span { vertical-align: text-top; }
-      & > .detail { margin-left: 0.5em; }
+    padding: 4px 35px 0 30px !important;
+    margin: 0 !important;
+    background-color: #e7eaeb !important;
+    box-shadow: 0px 1px 2px 0 rgba(34, 36, 38, 0.15) !important;
+    min-height: 3.4rem !important;
+    &.hidden {
+        display: none !important;
     }
-
+    .top-bar {
+        >.ui.label {
+            &>span {
+                vertical-align: text-top;
+            }
+            &>.detail {
+                margin-left: 0.5em;
+            }
+        }
+        &.mobile-top-bar {
+            &>.ui.label {
+                &>.icon {
+                    margin: 0;
+                }
+                &>span {
+                    display: none;
+                }
+            }
+        }
+    }
     &.mobile-top-bar {
-      & > .ui.label {
-        & > .icon { margin: 0; }
-        & > span { display: none; }
-      }
+        & .menu .item {
+            & .icon.menu-icon-right {
+                padding-right: 0 !important;
+            }
+            &>.text {
+                display: none;
+            }
+        }
     }
-  }
-
-  &.mobile-top-bar {
-    & .menu .item {
-      & .icon.menu-icon-right { padding-right: 0 !important; }
-      & > .text { display: none; }
+    .definitions-menu {
+        margin-top: 6px !important;
     }
-  }
-
-  .definitions-menu { margin-top: 6px !important; }
 }
 
 .ui.bottom.right.popup {
-  margin-right: -1em !important;
-
-  &.definitions-popup-window { margin-right: 0 !important; }
+    margin-right: -1em !important;
+    &.definitions-popup-window {
+        margin-right: 0 !important;
+    }
 }
 
 .ui.bottom.center.popup {
-  transform-origin: center top;
-  background: $menu-pop-content-bgcolor;
-  border: 1px solid $white01;
+    transform-origin: center top;
+    background: $menu-pop-content-bgcolor;
+    border: 1px solid $white01;
 }
 
-.ui.bottom.popup:before{
-  background: $menu-pop-content-bgcolor !important;
+.ui.bottom.popup:before {
+    background: $menu-pop-content-bgcolor !important;
 }
 
-.ui.bottom.center.popup:before{
-  box-shadow:-1px -1px 0px 0px $white01 !important;
+.ui.bottom.center.popup:before {
+    box-shadow: -1px -1px 0px 0px $white01 !important;
 }
 
 .menu-pop-content {
-  background: $menu-pop-content-bgcolor !important;
-  width: 500px;
-  .column {
-    width: 250px !important;
-    .ui.header {
-      .content {
-        font-weight: 400;
-        color: $gray05;
-      }
-      .icon {
-        font-size: 15px !important;
-      }
+    background: $menu-pop-content-bgcolor !important;
+    width: 500px;
+    .column {
+        width: 250px !important;
+        .ui.header {
+            .content {
+                font-weight: 400;
+                color: $gray05;
+            }
+            .icon {
+                font-size: 15px !important;
+            }
+        }
     }
-  }
 }
 
 .definition-icon {
-  opacity: 0 !important;
+    opacity: 0 !important;
 }
 
 .definition-name:hover .definition-icon {
-  padding-left: 5px;
-  opacity: 1 !important;
+    padding-left: 5px;
+    opacity: 1 !important;
 }
 
 .definition-name {
-  cursor: pointer;
-  font-size: 12px !important;
-  font-weight: 300px !important;
-  color: #555 !important;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 165px;
-  white-space: nowrap;
+    cursor: pointer;
+    font-size: 12px !important;
+    font-weight: 300px !important;
+    color: #555 !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 165px;
+    white-space: nowrap;
 }
 
 a.item.menu-button.ui.button {
-  padding: 7px 10px !important;
-  margin: 5px 0 3px 0 !important;
-  font-weight: 400;
-  height: 28px;
-
-  &.primary {
-    background: $brand-primary;
-    color: $white;
-
-    &:hover { background: $brand-primary-hover !important; }
-  }
-
-  &.secondary {
-    background: $secondary-color;
-    color: $white;
-
-    &:hover { background: $secondary-color-hover !important; }
-  }
-
-  .icon.menu-icon-right {
-    color: $white;
-    padding-right: 25px;
-  }
+    padding: 7px 10px !important;
+    margin: 5px 0 3px 0 !important;
+    font-weight: 400;
+    height: 28px;
+    &.primary {
+        background: $brand-primary;
+        color: $white;
+        &:hover {
+            background: $brand-primary-hover !important;
+        }
+    }
+    &.secondary {
+        background: $secondary-color;
+        color: $white;
+        &:hover {
+            background: $secondary-color-hover !important;
+        }
+    }
+    .icon.menu-icon-right {
+        color: $white;
+        padding-right: 25px;
+    }
 }
-.composer-logo{
-  font-size: 15px;
+
+.composer-logo {
+    font-size: 15px;
 }
-.brand-color{
-  color: $brand-primary;
+
+.brand-color {
+    color: $brand-primary;
 }
+
 .brand .brand-color {
     margin-left: 0.3em;
 }
-.aboutWrapper{
-  margin: 0em 0em 1em;
-  line-height: 1em;
-  font-weight: 300;
-  line-height: 1.3em;
-  color: #ccc;
+
+.aboutWrapper {
+    margin: 0em 0em 1em;
+    line-height: 1em;
+    font-weight: 300;
+    line-height: 1.3em;
+    color: #ccc;
 }
+
 .endpoint-item {
-  cursor: pointer;
+    cursor: pointer;
 }
