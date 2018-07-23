@@ -26,7 +26,7 @@ function main(string... args) {
     strMap["C"] = 3;
 
     // This prints the length of the created map.
-    length = lengthof jsonArray;
+    length = lengthof strMap;
     io:println("Map size: ", length);
 
     // This creates a string.
