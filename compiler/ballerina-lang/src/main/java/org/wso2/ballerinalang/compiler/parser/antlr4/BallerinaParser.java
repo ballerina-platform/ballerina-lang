@@ -17,7 +17,7 @@ public class BallerinaParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		IMPORT=1, AS=2, PUBLIC=3, PRIVATE=4, NATIVE=5, SERVICE=6, RESOURCE=7, 
+		IMPORT=1, AS=2, PUBLIC=3, PRIVATE=4, EXTERN=5, SERVICE=6, RESOURCE=7, 
 		FUNCTION=8, OBJECT=9, RECORD=10, ANNOTATION=11, PARAMETER=12, TRANSFORMER=13, 
 		WORKER=14, ENDPOINT=15, BIND=16, XMLNS=17, RETURNS=18, VERSION=19, DOCUMENTATION=20, 
 		DEPRECATED=21, FROM=22, ON=23, SELECT=24, GROUP=25, BY=26, HAVING=27, 
@@ -215,7 +215,7 @@ public class BallerinaParser extends Parser {
 	};
 
 	private static final String[] _LITERAL_NAMES = {
-		null, "'import'", "'as'", "'public'", "'private'", "'native'", "'service'", 
+		null, "'import'", "'as'", "'public'", "'private'", "'extern'", "'service'", 
 		"'resource'", "'function'", "'object'", "'record'", "'annotation'", "'parameter'", 
 		"'transformer'", "'worker'", "'endpoint'", "'bind'", "'xmlns'", "'returns'", 
 		"'version'", "'documentation'", "'deprecated'", "'from'", "'on'", null, 
@@ -246,7 +246,7 @@ public class BallerinaParser extends Parser {
 		null, "'\"'", "'''"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
-		null, "IMPORT", "AS", "PUBLIC", "PRIVATE", "NATIVE", "SERVICE", "RESOURCE", 
+		null, "IMPORT", "AS", "PUBLIC", "PRIVATE", "EXTERN", "SERVICE", "RESOURCE", 
 		"FUNCTION", "OBJECT", "RECORD", "ANNOTATION", "PARAMETER", "TRANSFORMER", 
 		"WORKER", "ENDPOINT", "BIND", "XMLNS", "RETURNS", "VERSION", "DOCUMENTATION", 
 		"DEPRECATED", "FROM", "ON", "SELECT", "GROUP", "BY", "HAVING", "ORDER", 
@@ -442,7 +442,7 @@ public class BallerinaParser extends Parser {
 			setState(477);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << PUBLIC) | (1L << NATIVE) | (1L << SERVICE) | (1L << FUNCTION) | (1L << OBJECT) | (1L << RECORD) | (1L << ANNOTATION) | (1L << ENDPOINT))) != 0) || ((((_la - 71)) & ~0x3f) == 0 && ((1L << (_la - 71)) & ((1L << (TYPE_INT - 71)) | (1L << (TYPE_BYTE - 71)) | (1L << (TYPE_FLOAT - 71)) | (1L << (TYPE_BOOL - 71)) | (1L << (TYPE_STRING - 71)) | (1L << (TYPE_MAP - 71)) | (1L << (TYPE_JSON - 71)) | (1L << (TYPE_XML - 71)) | (1L << (TYPE_TABLE - 71)) | (1L << (TYPE_STREAM - 71)) | (1L << (TYPE_ANY - 71)) | (1L << (TYPE_DESC - 71)) | (1L << (TYPE - 71)) | (1L << (TYPE_FUTURE - 71)) | (1L << (LEFT_PARENTHESIS - 71)))) != 0) || ((((_la - 156)) & ~0x3f) == 0 && ((1L << (_la - 156)) & ((1L << (AT - 156)) | (1L << (Identifier - 156)) | (1L << (DocumentationLineStart - 156)) | (1L << (DocumentationTemplateStart - 156)) | (1L << (DeprecatedTemplateStart - 156)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << PUBLIC) | (1L << EXTERN) | (1L << SERVICE) | (1L << FUNCTION) | (1L << OBJECT) | (1L << RECORD) | (1L << ANNOTATION) | (1L << ENDPOINT))) != 0) || ((((_la - 71)) & ~0x3f) == 0 && ((1L << (_la - 71)) & ((1L << (TYPE_INT - 71)) | (1L << (TYPE_BYTE - 71)) | (1L << (TYPE_FLOAT - 71)) | (1L << (TYPE_BOOL - 71)) | (1L << (TYPE_STRING - 71)) | (1L << (TYPE_MAP - 71)) | (1L << (TYPE_JSON - 71)) | (1L << (TYPE_XML - 71)) | (1L << (TYPE_TABLE - 71)) | (1L << (TYPE_STREAM - 71)) | (1L << (TYPE_ANY - 71)) | (1L << (TYPE_DESC - 71)) | (1L << (TYPE - 71)) | (1L << (TYPE_FUTURE - 71)) | (1L << (LEFT_PARENTHESIS - 71)))) != 0) || ((((_la - 156)) & ~0x3f) == 0 && ((1L << (_la - 156)) & ((1L << (AT - 156)) | (1L << (Identifier - 156)) | (1L << (DocumentationLineStart - 156)) | (1L << (DocumentationTemplateStart - 156)) | (1L << (DeprecatedTemplateStart - 156)))) != 0)) {
 				{
 				{
 				setState(463);
@@ -460,7 +460,7 @@ public class BallerinaParser extends Parser {
 					}
 					break;
 				case PUBLIC:
-				case NATIVE:
+				case EXTERN:
 				case SERVICE:
 				case FUNCTION:
 				case OBJECT:
@@ -1555,7 +1555,7 @@ public class BallerinaParser extends Parser {
 		}
 		public TerminalNode SEMICOLON() { return getToken(BallerinaParser.SEMICOLON, 0); }
 		public TerminalNode PUBLIC() { return getToken(BallerinaParser.PUBLIC, 0); }
-		public TerminalNode NATIVE() { return getToken(BallerinaParser.NATIVE, 0); }
+		public TerminalNode EXTERN() { return getToken(BallerinaParser.EXTERN, 0); }
 		public TerminalNode DOUBLE_COLON() { return getToken(BallerinaParser.DOUBLE_COLON, 0); }
 		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
 		public TypeNameContext typeName() {
@@ -1593,10 +1593,10 @@ public class BallerinaParser extends Parser {
 
 			setState(623);
 			_la = _input.LA(1);
-			if (_la==NATIVE) {
+			if (_la==EXTERN) {
 				{
 				setState(622);
-				match(NATIVE);
+				match(EXTERN);
 				}
 			}
 
@@ -1925,7 +1925,7 @@ public class BallerinaParser extends Parser {
 			}
 			setState(676);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << PUBLIC) | (1L << PRIVATE) | (1L << NATIVE) | (1L << FUNCTION))) != 0) || ((((_la - 156)) & ~0x3f) == 0 && ((1L << (_la - 156)) & ((1L << (AT - 156)) | (1L << (DocumentationLineStart - 156)) | (1L << (DocumentationTemplateStart - 156)) | (1L << (DeprecatedTemplateStart - 156)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << PUBLIC) | (1L << PRIVATE) | (1L << EXTERN) | (1L << FUNCTION))) != 0) || ((((_la - 156)) & ~0x3f) == 0 && ((1L << (_la - 156)) & ((1L << (AT - 156)) | (1L << (DocumentationLineStart - 156)) | (1L << (DocumentationTemplateStart - 156)) | (1L << (DeprecatedTemplateStart - 156)))) != 0)) {
 				{
 				setState(675);
 				objectFunctions();
@@ -2143,7 +2143,7 @@ public class BallerinaParser extends Parser {
 				setState(704); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << PUBLIC) | (1L << PRIVATE) | (1L << NATIVE) | (1L << FUNCTION))) != 0) || ((((_la - 156)) & ~0x3f) == 0 && ((1L << (_la - 156)) & ((1L << (AT - 156)) | (1L << (DocumentationLineStart - 156)) | (1L << (DocumentationTemplateStart - 156)) | (1L << (DeprecatedTemplateStart - 156)))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << PUBLIC) | (1L << PRIVATE) | (1L << EXTERN) | (1L << FUNCTION))) != 0) || ((((_la - 156)) & ~0x3f) == 0 && ((1L << (_la - 156)) & ((1L << (AT - 156)) | (1L << (DocumentationLineStart - 156)) | (1L << (DocumentationTemplateStart - 156)) | (1L << (DeprecatedTemplateStart - 156)))) != 0) );
 			}
 		}
 		catch (RecognitionException re) {
@@ -2802,7 +2802,7 @@ public class BallerinaParser extends Parser {
 		public DeprecatedAttachmentContext deprecatedAttachment() {
 			return getRuleContext(DeprecatedAttachmentContext.class,0);
 		}
-		public TerminalNode NATIVE() { return getToken(BallerinaParser.NATIVE, 0); }
+		public TerminalNode EXTERN() { return getToken(BallerinaParser.EXTERN, 0); }
 		public TerminalNode PUBLIC() { return getToken(BallerinaParser.PUBLIC, 0); }
 		public TerminalNode PRIVATE() { return getToken(BallerinaParser.PRIVATE, 0); }
 		public ObjectFunctionDefinitionContext(ParserRuleContext parent, int invokingState) {
@@ -2856,7 +2856,7 @@ public class BallerinaParser extends Parser {
 				break;
 			case PUBLIC:
 			case PRIVATE:
-			case NATIVE:
+			case EXTERN:
 			case FUNCTION:
 			case DeprecatedTemplateStart:
 				break;
@@ -2888,10 +2888,10 @@ public class BallerinaParser extends Parser {
 
 			setState(809);
 			_la = _input.LA(1);
-			if (_la==NATIVE) {
+			if (_la==EXTERN) {
 				{
 				setState(808);
-				match(NATIVE);
+				match(EXTERN);
 				}
 			}
 
