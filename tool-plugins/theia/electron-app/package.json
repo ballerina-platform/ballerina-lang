@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "electron-app",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "dependencies": {
     "@theia/core": "latest",
     "@theia/filesystem": "latest",
@@ -16,7 +16,7 @@
     "@theia/monaco": "latest",
     "@theia/typescript": "latest",
     "@theia/messages": "latest",
-    "ballerina-extension": "0.0.0"
+    "ballerina-extension": "0.0.1"
   },
   "devDependencies": {
     "@theia/cli": "latest"

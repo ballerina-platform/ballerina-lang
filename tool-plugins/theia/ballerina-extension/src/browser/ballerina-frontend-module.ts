@@ -7,6 +7,8 @@ import {
     CommandContribution,
     MenuContribution
 } from "@theia/core/lib/common";
+import { LanguageGrammarDefinitionContribution } from "@theia/monaco/lib/browser/textmate";
+import { BallerinaGrammarContribution } from "./ballerina-grammar-contribution";
 
 import { ContainerModule } from "inversify";
 
@@ -15,5 +17,5 @@ export default new ContainerModule(bind => {
     
     bind(CommandContribution).to(BallerinaCommandContribution);
     bind(MenuContribution).to(BallerinaMenuContribution);
-    
+    bind(LanguageGrammarDefinitionContribution).to(BallerinaGrammarContribution).inSingletonScope();
 });
