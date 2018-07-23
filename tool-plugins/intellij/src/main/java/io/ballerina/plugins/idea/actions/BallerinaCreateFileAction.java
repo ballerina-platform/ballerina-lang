@@ -33,12 +33,16 @@ import java.util.Map;
  */
 public class BallerinaCreateFileAction extends CreateFileFromTemplateAction implements DumbAware {
 
-    private static final String BALLERINA_EMPTY_FILE = "Ballerina File";
-    private static final String BALLERINA_MAIN = "Ballerina Main";
-    private static final String BALLERINA_SERVICE = "Ballerina Service";
+    public static final String BALLERINA_EMPTY_FILE = "Ballerina File";
+    public static final String BALLERINA_MAIN = "Ballerina Main";
+    public static final String BALLERINA_SERVICE = "Ballerina Service";
 
-    private static final String NEW_BALLERINA_FILE = "New Ballerina File";
-    private static final String DEFAULT_BALLERINA_TEMPLATE_PROPERTY = "Empty file";
+    public static final String NEW_BALLERINA_FILE = "New Ballerina File";
+    public static final String DEFAULT_BALLERINA_TEMPLATE_PROPERTY = "Empty file";
+
+    public BallerinaCreateFileAction(String name, String description) {
+        super(name, description, BallerinaIcons.ICON);
+    }
 
     public BallerinaCreateFileAction() {
         super(NEW_BALLERINA_FILE, "", BallerinaIcons.ICON);
