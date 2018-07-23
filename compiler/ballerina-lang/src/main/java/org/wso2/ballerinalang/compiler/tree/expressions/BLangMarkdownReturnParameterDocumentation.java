@@ -54,7 +54,7 @@ public class BLangMarkdownReturnParameterDocumentation extends BLangExpression
 
     @Override
     public String getReturnParameterDocumentation() {
-        return returnParameterDocumentationLines.stream().collect(Collectors.joining("\n"));
+        return returnParameterDocumentationLines.stream().collect(Collectors.joining("\n")).replaceAll("\r", "");
     }
 
     @Override
