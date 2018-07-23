@@ -25,6 +25,12 @@
     <!-- uncomment to enable plugin in all products -->
     <depends>com.intellij.modules.lang</depends>
     <depends optional="true" config-file="java-deps.xml">com.intellij.modules.java</depends>
+
+    <extensionPoints>
+    <extensionPoint qualifiedName="io.ballerina.html.panel.provider"
+                    interface="io.ballerina.plugins.idea.ui.preview.BallerinaHtmlPanelProvider" />
+    </extensionPoints>
+
     <module-components>
         <component>
             <implementation-class>
@@ -157,6 +163,7 @@
         <!--project-->
         <applicationService
                 serviceImplementation="io.ballerina.plugins.idea.project.BallerinaApplicationLibrariesService"/>
+        <applicationService serviceImplementation="io.ballerina.plugins.idea.ui.settings.MarkdownApplicationSettings"/>
         <projectService
                 serviceImplementation="io.ballerina.plugins.idea.project.BallerinaProjectLibrariesService"/>
         <projectConfigurable id="Ballerina" groupId="language"
@@ -178,6 +185,10 @@
                 id="io.ballerina.plugins.idea.preloading.BallerinaPreloadingActivity"/>
     </extensions>
 
+    <extensions defaultExtensionNs="io.ballerina">
+        <html.panel.provider implementation="io.ballerina.plugins.idea.ui.preview.javafx.JavaFxHtmlPanelProvider" />
+    </extensions>
+
     <actions>
         <!-- Ballerina Plugin Actions -->
         <group id="Markdown.Toolbar.Right" class="com.intellij.openapi.actionSystem.DefaultActionGroup"
@@ -186,21 +197,22 @@
                     id="io.ballerina.plugins.idea.ui.actions.editorLayout.EditorOnlyLayoutChangeAction"
                     text="Show editor only"
                     description="Sets ballerina editor layout to show editor only"
-                    icon="MarkdownIcons.Layout.Editor_only">
+                    icon="AllIcons.Actions.PreviewDetails">
             </action>
             <action class="io.ballerina.plugins.idea.ui.actions.editorLayout.EditorAndPreviewLayoutChangeAction"
                     id="io.ballerina.plugins.idea.ui.actions.editorLayout.EditorAndPreviewLayoutChangeAction"
                     text="Show editor and preview"
                     description="Sets ballerina editor layout to show editor and preview in split"
-                    icon="MarkdownIcons.Layout.Editor_preview">
+                    icon="AllIcons.Actions.PreviewDetails">
             </action>
             <action class="io.ballerina.plugins.idea.ui.actions.editorLayout.PreviewOnlyLayoutChangeAction"
                     id="io.ballerina.plugins.idea.ui.actions.editorLayout.PreviewOnlyLayoutChangeAction"
                     text="Show preview only"
                     description="Sets ballerina editor layout to show preview only"
-                    icon="MarkdownIcons.Layout.Preview_only">
+                    icon="AllIcons.Actions.PreviewDetails">
             </action>
         </group>
+        <!-- Add your actions here -->
         <action id="Ballerina.NewBallerinaFile" class="io.ballerina.plugins.idea.actions.BallerinaCreateFileAction"
                 text="Ballerina File" description="Create new Ballerina file">
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFile"/>
