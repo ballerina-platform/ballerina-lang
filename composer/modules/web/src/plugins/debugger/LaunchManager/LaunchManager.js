@@ -64,9 +64,37 @@ class LaunchManager extends EventChannel {
         });
     }
 
+    sendInput(file, input) {
+        this.channel = new LaunchChannel(this.endpoint);
+        this.channel.on('connected', () => {
+            this.sendProgramInputMessage(file, input);
+        });
+        this.channel.on('onmessage', (message) => {
+            this.processMesssage(message);
+        });
+    }
+
     stop() {
         const message = {
             command: 'TERMINATE',
+        };
+        this.channel.sendMessage(message);
+    }
+
+    /**
+     * Send input to ballerina program
+     * @param {File} file - File instance
+     * @param input message
+     *
+     * @memberof LaunchManager
+     */
+    sendProgramInputMessage(file, input) {
+        let command = 'INPUT';
+        const message = {
+            command,
+            fileName: `${file.name}.${file.extension}`,
+            filePath: file.path,
+            commandArgs: [input],
         };
         this.channel.sendMessage(message);
     }

@@ -23,12 +23,10 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.io.socket.SocketConstants;
-import org.ballerinalang.stdlib.io.utils.IOUtils;
-import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
@@ -44,7 +42,7 @@ public class SocketAcceptCallback {
     private Context context;
     private CallableUnitCallback callback;
 
-    public SocketAcceptCallback(Context context, CallableUnitCallback callback) {
+    SocketAcceptCallback(Context context, CallableUnitCallback callback) {
         this.context = context;
         this.callback = callback;
     }
@@ -53,17 +51,14 @@ public class SocketAcceptCallback {
         BMap<String, BValue> serverSocketStruct = (BMap<String, BValue>) context.getRefArgument(0);
         ServerSocketChannel serverSocketChannel = (ServerSocketChannel) serverSocketStruct
                 .getNativeData(SocketConstants.SERVER_SOCKET_KEY);
-        SocketChannel socketChannel = SocketQueue.getSocket(serverSocketChannel.hashCode());
+        SocketChannel socketChannel = SocketQueue.getInstance().getSocket(serverSocketChannel.hashCode());
         if (socketChannel != null) {
-            try {
-                PackageInfo ioPackageInfo = context.getProgramFile().getPackageInfo(SocketConstants.SOCKET_PACKAGE);
-                BMap<String, BValue> socketStruct = ServerSocketUtils.getSocketStruct(socketChannel, ioPackageInfo);
-                context.setReturnValues(socketStruct);
-                callback.notifySuccess();
-            } catch (IOException e) {
-                String msg = "Failed to open a client connection: " + e.getMessage();
-                log.error(msg, e);
-                context.setReturnValues(IOUtils.createError(context, msg));
+            final BMap<String, BValue> socket = ServerSocketUtils.createSocket(context, socketChannel);
+            context.setReturnValues(socket);
+            callback.notifySuccess();
+            if (log.isDebugEnabled()) {
+                log.debug("[" + socketChannel + "][" + socket.getNativeData(IOConstants.CLIENT_SOCKET_NAME)
+                        + "] Callback invoked.");
             }
         }
     }

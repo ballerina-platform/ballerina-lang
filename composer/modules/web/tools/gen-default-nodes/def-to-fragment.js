@@ -26,13 +26,13 @@ export default {
     },
     createHTTPServiceDef: () => {
         return FragmentUtils.createTopLevelNodeFragment(
-            'service<http:Service> serviceName bind endpointName {' +
-            'getAction (endpoint client){' +
-            'http:Response res = new;' +
-            'res.setPayload("Successful");' +
-            '_ = client -> respond(res);' +
-            '}' +
-            '}'
+            `service<http:Service> service1 bind endpointName {
+                newResource (endpoint client, http:Request request) {
+                   http:Response res = new;
+                   res.setPayload("Successful");
+                   _ = client -> respond(res);       
+                }
+             }`,
         );
     },
     createHTTPEndpointDef: () => {

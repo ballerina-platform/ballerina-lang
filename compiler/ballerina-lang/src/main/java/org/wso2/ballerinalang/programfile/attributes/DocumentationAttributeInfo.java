@@ -56,16 +56,13 @@ public class DocumentationAttributeInfo implements AttributeInfo {
      */
     public static class ParameterDocumentInfo {
         public int nameCPIndex;
-        public int typeSigCPIndex;
         public int paramKindCPIndex;
         public int descriptionCPIndex;
 
         public ParameterDocumentInfo(int nameCPIndex,
-                                     int typeSigCPIndex,
                                      int paramKindCPIndex,
                                      int descriptionCPIndex) {
             this.nameCPIndex = nameCPIndex;
-            this.typeSigCPIndex = typeSigCPIndex;
             this.paramKindCPIndex = paramKindCPIndex;
             this.descriptionCPIndex = descriptionCPIndex;
         }

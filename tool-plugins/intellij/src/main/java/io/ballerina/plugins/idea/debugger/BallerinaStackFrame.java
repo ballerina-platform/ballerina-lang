@@ -102,6 +102,16 @@ public class BallerinaStackFrame extends XStackFrame {
 
     private String constructFilePath(@NotNull String projectBasePath, @NotNull String packagePath,
                                      @NotNull String fileName) {
+        // Remove organization.
+        int index = packagePath.indexOf("/");
+        if (index != -1) {
+            packagePath = packagePath.substring(index + 1);
+        }
+        // Remove package version.
+        index = packagePath.indexOf(":");
+        if (index != -1) {
+            packagePath = packagePath.substring(0, index);
+        }
         StringBuilder stringBuilder = new StringBuilder(projectBasePath).append(File.separator);
         stringBuilder = stringBuilder.append(packagePath.replaceAll("\\.", File.separator))
                 .append(File.separator);

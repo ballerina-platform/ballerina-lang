@@ -206,7 +206,8 @@ public class BTestRunner {
             if (buildWithTests) {
                 return;
             }
-            throw new BallerinaException("No test functions found in the provided ballerina files.");
+            outStream.println("No test functions found in the provided ballerina files.");
+            return;
         }
 
         AtomicBoolean shouldSkip = new AtomicBoolean();
@@ -239,7 +240,7 @@ public class BTestRunner {
                     test.invoke();
                 } catch (Throwable e) {
                     shouldSkip.set(true);
-                    errorMsg = "\t✗ " + test.getName() + " [before test suite function]" + ":\n\t    "
+                    errorMsg = "\t[fail] " + test.getName() + " [before test suite function]" + ":\n\t    "
                             + Utils.formatError(e.getMessage());
                     errStream.println(errorMsg);
                 }
@@ -255,7 +256,7 @@ public class BTestRunner {
                             beforeEachTest.invoke();
                         } catch (Throwable e) {
                             shouldSkipTest.set(true);
-                            errorMsg = String.format("\t✗ " + beforeEachTest.getName() +
+                            errorMsg = String.format("\t[fail] " + beforeEachTest.getName() +
                                                      " [before each test function for the test %s] :\n\t    %s",
                                                      test.getTestFunction().getName(),
                                                      Utils.formatError(e.getMessage()));
@@ -272,7 +273,7 @@ public class BTestRunner {
                         }
                     } catch (Throwable e) {
                         shouldSkipTest.set(true);
-                        errorMsg = String.format("\t✗ " + test.getBeforeTestFunctionObj().getName() +
+                        errorMsg = String.format("\t[fail] " + test.getBeforeTestFunctionObj().getName() +
                                                  " [before test function for the test %s] :\n\t    %s",
                                                  test.getTestFunction().getName(),
                                                  Utils.formatError(e.getMessage()));
@@ -330,7 +331,7 @@ public class BTestRunner {
                         test.getAfterTestFunctionObj().invoke();
                     }
                 } catch (Throwable e) {
-                    error = String.format("\t✗ " + test.getAfterTestFunctionObj().getName() +
+                    error = String.format("\t[fail] " + test.getAfterTestFunctionObj().getName() +
                                           " [after test function for the test %s] :\n\t    %s",
                                           test.getTestFunction().getName(),
                                           Utils.formatError(e.getMessage()));
@@ -343,7 +344,7 @@ public class BTestRunner {
                     try {
                         afterEachTest.invoke();
                     } catch (Throwable e) {
-                        errorMsg2 = String.format("\t✗ " + afterEachTest.getName() +
+                        errorMsg2 = String.format("\t[fail] " + afterEachTest.getName() +
                                                   " [after each test function for the test %s] :\n\t    %s",
                                                   test.getTestFunction().getName(),
                                                   Utils.formatError(e.getMessage()));
@@ -359,8 +360,8 @@ public class BTestRunner {
                 try {
                     func.invoke();
                 } catch (Throwable e) {
-                    errorMsg = String.format("\t✗ " + func.getName() + " [after test suite function] :\n\t    %s",
-                                             Utils.formatError(e.getMessage()));
+                    errorMsg = String.format("\t[fail] " + func.getName() + " [after test suite function] :\n\t    " +
+                                                     "%s", Utils.formatError(e.getMessage()));
                     errStream.println(errorMsg);
                 }
             });
