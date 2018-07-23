@@ -18,6 +18,7 @@
 
 import { VIEWS as WELCOME_TAB_VIEWS } from 'plugins/welcome-tab/constants';
 import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
+import { COMMANDS as WORKSPACE_COMMANDS } from 'core/workspace/constants';
 import { COMMANDS, DIALOG } from './constants';
 
 /**
@@ -31,19 +32,22 @@ export function getHandlerDefinitions(plugin) {
         {
             cmdID: COMMANDS.OPEN_EXAMPLE,
             handler: () => {
-                window.open(plugin.config.example_url);
+                plugin.appContext.command.dispatch(WORKSPACE_COMMANDS.SHOW_EXTERNAL_LINK,
+                    { url: plugin.config.example_url });
             },
         },
         {
             cmdID: COMMANDS.OPEN_API_REFERENCE,
             handler: () => {
-                window.open(plugin.config.api_reference_url);
+                plugin.appContext.command.dispatch(WORKSPACE_COMMANDS.SHOW_EXTERNAL_LINK,
+                    { url: plugin.config.api_reference_url });
             },
         },
         {
             cmdID: COMMANDS.REPORT_ISSUE,
             handler: () => {
-                window.open(plugin.config.issue_tracker_url);
+                plugin.appContext.command.dispatch(WORKSPACE_COMMANDS.SHOW_EXTERNAL_LINK,
+                    { url: plugin.config.issue_tracker_url });
             },
         },
         {

@@ -31,23 +31,36 @@ import java.util.Queue;
  */
 public class SocketQueue {
 
-    private static Map<Integer, Queue<SocketChannel>> clientSockets = new HashMap<>();
+    private Map<Integer, Queue<SocketChannel>> clientSockets = new HashMap<>();
+    private final Object keyLock = new Object();
+    private static SocketQueue instance = new SocketQueue();
 
-    public static void addSocket(int serverSocketHash, SocketChannel socket) {
-        Queue<SocketChannel> socketChannels = clientSockets.get(serverSocketHash);
-        if (socketChannels == null) {
-            Queue<SocketChannel> queue = new LinkedList<>();
-            clientSockets.put(serverSocketHash, queue);
-            socketChannels = queue;
-        }
-        socketChannels.add(socket);
+    private SocketQueue() {
     }
 
-    public static SocketChannel getSocket(int serverSocketHash) {
-        final Queue<SocketChannel> clientQueue = clientSockets.get(serverSocketHash);
-        if (clientQueue == null) {
-            return null;
+    public static SocketQueue getInstance() {
+        return instance;
+    }
+
+    public void addSocket(int serverSocketHash, SocketChannel socket) {
+        synchronized (keyLock) {
+            Queue<SocketChannel> socketChannels = clientSockets.get(serverSocketHash);
+            if (socketChannels == null) {
+                Queue<SocketChannel> queue = new LinkedList<>();
+                clientSockets.put(serverSocketHash, queue);
+                socketChannels = queue;
+            }
+            socketChannels.add(socket);
         }
-        return clientQueue.poll();
+    }
+
+    public SocketChannel getSocket(int serverSocketHash) {
+        synchronized (keyLock) {
+            final Queue<SocketChannel> clientQueue = clientSockets.get(serverSocketHash);
+            if (clientQueue == null) {
+                return null;
+            }
+            return clientQueue.poll();
+        }
     }
 }

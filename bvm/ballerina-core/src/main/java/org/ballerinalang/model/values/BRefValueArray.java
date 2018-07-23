@@ -18,6 +18,7 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonGenerator;
@@ -28,6 +29,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.StringJoiner;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @since 0.87
@@ -51,6 +53,12 @@ public class BRefValueArray extends BNewArray {
             }
             values = (BRefType[]) newArrayInstance(BRefType.class);
             Arrays.fill(values, arrayType.getElementType().getZeroValue());
+        } else if (type.getTag() == TypeTags.TUPLE_TAG) {
+            BTupleType tupleType = (BTupleType) type;
+            this.size = maxArraySize = tupleType.getTupleTypes().size();
+            values = (BRefType[]) newArrayInstance(BRefType.class);
+            AtomicInteger counter = new AtomicInteger(0);
+            tupleType.getTupleTypes().forEach(memType -> values[counter.getAndIncrement()] = memType.getEmptyValue());
         } else {
             values = (BRefType[]) newArrayInstance(BRefType.class);
             Arrays.fill(values, type.getEmptyValue());
@@ -106,7 +114,10 @@ public class BRefValueArray extends BNewArray {
         }
 
         for (int i = 0; i < size; i++) {
-            sj.add(values[i] == null ? "null" : values[i].stringValue());
+            if (values[i] != null) {
+                sj.add((values[i].getType().getTag() == TypeTags.STRING_TAG)
+                        ? ("\"" + values[i] + "\"") : values[i].stringValue());
+            }
         }
         return sj.toString();
     }

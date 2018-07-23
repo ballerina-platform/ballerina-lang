@@ -65,7 +65,7 @@ public class MimeWithHttpTest {
         String path = "/test/largepayload";
         try {
             ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/fileThatExceeds2MB.txt");
-            Channel channel = new MockByteChannel(byteChannel, 10);
+            Channel channel = new MockByteChannel(byteChannel);
             CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
             String responseValue = characterChannel.readAll();
             characterChannel.close();

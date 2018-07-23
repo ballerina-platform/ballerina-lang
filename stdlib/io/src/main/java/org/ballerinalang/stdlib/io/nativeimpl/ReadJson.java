@@ -29,6 +29,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
+import org.ballerinalang.stdlib.io.events.EventContext;
 import org.ballerinalang.stdlib.io.readers.CharacterChannelReader;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
@@ -51,7 +52,7 @@ public class ReadJson implements NativeCallableUnit {
     public void execute(Context context, CallableUnitCallback callback) {
         BMap<String, BValue> channel = (BMap<String, BValue>) context.getRefArgument(0);
         CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(IOConstants.CHARACTER_CHANNEL_NAME);
-        CharacterChannelReader reader = new CharacterChannelReader(charChannel);
+        CharacterChannelReader reader = new CharacterChannelReader(charChannel, new EventContext());
         final BRefType<?> json;
         try {
             json = JsonParser.parse(reader);

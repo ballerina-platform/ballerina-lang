@@ -35,7 +35,6 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.stdlib.io.channels.TempFileIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
-import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.jvnet.mimepull.MIMEPart;
 
@@ -94,7 +93,7 @@ public class EntityBodyHandler {
         } catch (IOException e) {
             throw new BallerinaException("Error occurred while creating a file channel from a temporary file");
         }
-        return new TempFileIOChannel(fileChannel, IOConstants.CHANNEL_BUFFER_SIZE, temporaryFilePath);
+        return new TempFileIOChannel(fileChannel, temporaryFilePath);
     }
 
     /**
