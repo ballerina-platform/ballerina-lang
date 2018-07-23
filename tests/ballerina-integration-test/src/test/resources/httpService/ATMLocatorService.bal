@@ -16,7 +16,6 @@ endpoint http:Client branchLocatorService {
 
 @http:ServiceConfig {
     basePath:"/ABCBank",
-    endpoints:[serviceEnpoint]
 }
 service<http:Service> ATMLocator bind serviceEnpoint {
     @http:ResourceConfig {
@@ -82,7 +81,6 @@ service<http:Service> ATMLocator bind serviceEnpoint {
 
 @http:ServiceConfig {
     basePath:"/bankinfo",
-    endpoints:[serviceEnpoint]
 }
 service<http:Service> Bankinfo bind serviceEnpoint {
 
@@ -116,7 +114,6 @@ service<http:Service> Bankinfo bind serviceEnpoint {
 
 @http:ServiceConfig {
     basePath:"/branchlocator",
-    endpoints:[serviceEnpoint]
 }
 service<http:Service> Banklocator bind serviceEnpoint {
 

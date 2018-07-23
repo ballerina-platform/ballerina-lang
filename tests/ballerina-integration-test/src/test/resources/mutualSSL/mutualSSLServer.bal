@@ -22,7 +22,6 @@ endpoint http:Listener echo {
 };
 
 @http:ServiceConfig {
-     endpoints:[echo],
      basePath:"/echo"
 }
 
@@ -45,7 +44,6 @@ endpoint http:Listener echoDummy {
 };
 
 @http:ServiceConfig {
-      endpoints:[echoDummy],
       basePath:"/echoDummy"
 }
 service<http:Service> echoDummyService bind echoDummy {
