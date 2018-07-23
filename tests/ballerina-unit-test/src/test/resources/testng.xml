@@ -28,9 +28,11 @@ under the License.
 
 
     <test name="ballerina-socket-test-suite" preserve-order="true" parallel="false">
-        <packages>
-            <package name="org.ballerinalang.test.nativeimpl.functions.io.socket"/>
-        </packages>
+        <classes>
+            <class name="org.ballerinalang.test.nativeimpl.functions.io.socket.ClientSocketTest"/>
+            <class name="org.ballerinalang.test.nativeimpl.functions.io.socket.SecureClientSocketTest"/>
+            <class name="org.ballerinalang.test.nativeimpl.functions.io.socket.ServerSocketTest"/>
+        </classes>
     </test>
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
