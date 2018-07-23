@@ -17,6 +17,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
     private boolean inXmlPiMode = false;
     private boolean inXmlCommentMode = false;
 
+    private boolean inMarkdownMode = false;
     private boolean inStringTemplate = false;
 
     private boolean inDeprecatedTemplate = false;
@@ -171,8 +172,16 @@ STRING_TEMPLATE_LITERAL_END = "`"
 
 DOCUMENTATION = "documentation"
 DEPRECATED = "deprecated"
+
+DOCUMENTATION_LINE_START =  {HASH} {DocumentationSpace}?
+PARAMETER_DOCUMENTATION_START = {HASH} DocumentationSpace? ADD DocumentationSpace* -> pushMode
+(MARKDOWN_DOCUMENTATION_PARAM)
+
 DOCUMENTATION_TEMPLATE_START = {DOCUMENTATION} {WHITE_SPACE}* {LEFT_BRACE}
 DEPRECATED_TEMPLATE_START = {DEPRECATED} {WHITE_SPACE}* {LEFT_BRACE}
+
+//Markdown documentation
+HASH = "#"
 
 // Todo - Need to add spaces between braces?
 // Note - This is used in checkExpressionEnd() function.
@@ -247,6 +256,8 @@ XML_COMMENT_CHAR = [^{}>\\-] | {XML_ESCAPED_SEQUENCE}
 XML_COMMENT_ALLOWED_SEQUENCE = {XML_BRACES_SEQUENCE} | {XML_COMMENT_SPECIAL_SEQUENCE} | ({XML_BRACES_SEQUENCE} {XML_COMMENT_SPECIAL_SEQUENCE})+ {XML_BRACES_SEQUENCE}? | ({XML_COMMENT_SPECIAL_SEQUENCE} {XML_BRACES_SEQUENCE})+ {XML_COMMENT_SPECIAL_SEQUENCE}?
 XML_COMMENT_SPECIAL_SEQUENCE = ">"+ | (">"* "-" ">"+)+ | "-"? ">"* "-"+
 
+// MARKDOWN_DOCUMENTATION
+
 // DOCUMENTATION_TEMPLATE
 DOCUMENTATION_TEMPLATE_END = {RIGHT_BRACE}
 DOCUMENTATION_TEMPLATE_ATTRIBUTE_START = {ATTRIBUTE_PREFIX} {EXPRESSION_START}
@@ -301,6 +312,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
 %state XML_PI_MODE
 %state XML_COMMENT_MODE
 
+%state MARKDOWN_DOCUMENTATION_MODE
 %state DOCUMENTATION_TEMPLATE_MODE
 %state TRIPLE_BACKTICK_INLINE_CODE_MODE
 %state DOUBLE_BACKTICK_INLINE_CODE_MODE
@@ -521,10 +533,17 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     {STRING_TEMPLATE_LITERAL_START}             { inStringTemplate = true; yybegin(STRING_TEMPLATE_MODE); return STRING_TEMPLATE_LITERAL_START; }
     {EXPRESSION_END}                            { return checkExpressionEnd(); }
 
+
+
+
+
+
+
     {DOCUMENTATION_TEMPLATE_START}              { inDocTemplate = true; yybegin(DOCUMENTATION_TEMPLATE_MODE); return DOCUMENTATION_TEMPLATE_START; }
     {DEPRECATED_TEMPLATE_START}                 { inDeprecatedTemplate = true; yybegin(DEPRECATED_TEMPLATE_MODE); return DEPRECATED_TEMPLATE_START; }
     .                                           { return BAD_CHARACTER; }
 }
+
 
 <XML_MODE>{
     {XML_COMMENT_START}                         { yybegin(XML_COMMENT_MODE); return XML_COMMENT_START; }
@@ -588,6 +607,13 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     {STRING_TEMPLATE_TEXT}                      { return STRING_TEMPLATE_TEXT; }
     .                                           { inStringTemplate = false; yybegin(YYINITIAL); return BAD_CHARACTER; }
 }
+
+<MARKDOWN_DOCUMENTATION_MODE>{
+    {DOCUMENTATION_MARKDOWN_END} {inMarkdownMode = false; yybegin(YYINITIAL); return DOCUMENTATION_MARKDOWN_END;}
+    {SINGLE_BACKTICK_START} { }
+}
+
+
 
 <DOCUMENTATION_TEMPLATE_MODE>{
     {DOCUMENTATION_TEMPLATE_END}                { inDocTemplate = false; yybegin(YYINITIAL); return DOCUMENTATION_TEMPLATE_END; }
