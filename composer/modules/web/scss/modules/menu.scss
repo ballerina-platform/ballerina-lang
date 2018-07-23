@@ -52,9 +52,6 @@
         .rc-menu-item {
             padding: 0 7px;
             border-bottom: none;
-            & div>div:not(.menu-label){
-                top:2px;
-            }
             @extend .menu-item-common;
             &.rc-menu-item-disabled {
                 color: #999;
