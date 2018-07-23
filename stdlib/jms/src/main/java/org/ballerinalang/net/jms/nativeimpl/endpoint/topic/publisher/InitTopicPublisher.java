@@ -33,7 +33,6 @@ import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SessionConnector;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
@@ -60,10 +59,6 @@ public class InitTopicPublisher extends AbstractBlockinAction {
         Struct topicProducerBObject = BallerinaAdapter.getReceiverObject(context);
         Struct topicProducerConfig = topicProducerBObject.getStructField(Constants.TOPIC_PUBLISHER_FIELD_CONFIG);
         String topicPattern = topicProducerConfig.getStringField(Constants.TOPIC_PUBLISHER_FIELD_TOPIC_PATTERN);
-
-        if (JMSUtils.isNullOrEmptyAfterTrim(topicPattern)) {
-            throw new BallerinaException("Topic pattern cannot be null", context);
-        }
 
         BMap<String, BValue> sessionBObject = (BMap<String, BValue>) context.getRefArgument(1);
         Session session = BallerinaAdapter.getNativeObject(sessionBObject,

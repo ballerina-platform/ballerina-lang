@@ -48,6 +48,26 @@ public type Session object {
         P{{subscriptionId}} the name used to identify this subscription
     }
     public native function unsubscribe(string subscriptionId) returns error?;
+
+    documentation { 
+        Creates a JMS Queue which can be used as temporary response destination.
+    }
+    public native function createTemporaryQueue() returns Destination|error;
+
+    documentation { 
+        Creates a JMS Topic which can be used as temporary response destination.
+    }
+    public native function createTemporaryTopic() returns Destination|error;
+ 
+    documentation { Creates a JMS Queue which can be used with a message producer.
+        P{{queueName}} name of the Queue
+    }
+    public native function createQueue(string queueName) returns Destination|error;
+
+    documentation { Creates a JMS Topic which can be used with a message producer.
+        P{{topicName}} name of the Topic
+    }
+    public native function createTopic(string topicName) returns Destination|error;
 };
 
 documentation { Configurations related to a JMS session

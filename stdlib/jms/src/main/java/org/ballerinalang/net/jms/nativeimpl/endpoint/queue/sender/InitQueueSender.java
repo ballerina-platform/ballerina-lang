@@ -22,6 +22,7 @@ package org.ballerinalang.net.jms.nativeimpl.endpoint.queue.sender;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Struct;
+import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
@@ -33,7 +34,6 @@ import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SessionConnector;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
@@ -64,10 +64,11 @@ public class InitQueueSender implements NativeCallableUnit {
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
         Struct queueSenderBObject = BallerinaAdapter.getReceiverObject(context);
         Struct queueSenderConfig = queueSenderBObject.getStructField(Constants.QUEUE_SENDER_FIELD_CONFIG);
-        String queueName = queueSenderConfig.getStringField(Constants.QUEUE_SENDER_FIELD_QUEUE_NAME);
+        Value vQueueName = queueSenderConfig.getRefField(Constants.QUEUE_SENDER_FIELD_QUEUE_NAME);
 
-        if (JMSUtils.isNullOrEmptyAfterTrim(queueName)) {
-            throw new BallerinaException("Queue name cannot be null", context);
+        String queueName = null;
+        if (vQueueName != null) {
+            queueName = vQueueName.getStringValue();
         }
 
         BMap<String, BValue> sessionBObject = (BMap<String, BValue>) context.getRefArgument(1);

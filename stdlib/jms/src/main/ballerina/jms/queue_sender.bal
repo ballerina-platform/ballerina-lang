@@ -74,7 +74,7 @@ documentation { Configurations related to a QueueSender object
 }
 public type QueueSenderEndpointConfiguration record {
     Session? session;
-    string queueName;
+    string? queueName;
 };
 
 documentation { JMS QueueSender action handling object }
@@ -84,4 +84,10 @@ public type QueueSenderActions object {
         P{{message}} message to be sent to the JMS provider
     }
     public native function send(Message message) returns error?;
+
+    documentation { Sends a message to the JMS provider
+        P{{destination}} destination used for the message sender
+        P{{message}} message to be sent to the JMS provider
+    }
+    public native function sendTo(Destination destination, Message message) returns error?;
 };
