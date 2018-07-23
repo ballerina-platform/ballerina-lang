@@ -27,6 +27,7 @@
         <classes>
             <class name="org.ballerinalang.test.packaging.PackagingPullTestCase"/>
             <class name="org.ballerinalang.test.packaging.PackagingPushTestCase"/>
+            <class name="org.ballerinalang.test.packaging.PackagingSearchTestCase"/>
         </classes>
     </test>
 

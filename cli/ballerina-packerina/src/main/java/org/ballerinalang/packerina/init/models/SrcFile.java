@@ -124,15 +124,15 @@ public class SrcFile {
                                                         "   Before Suite Function\n" +
                                                         "}\n" +
                                                        "@test:BeforeSuite\n" +
-                                                       "function beforeSuiteFunc () {\n" +
-                                                       "    io:println(\"I'm the before suite function!\");\n" +
+                                                       "function beforeSuiteServiceFunc () {\n" +
+                                                       "    io:println(\"I'm the before suite service function!\");\n" +
                                                        "}\n" +
                                                        "\n" +
                                                        "documentation {\n" +
                                                        "   Test function\n" +
                                                        "}\n" +
                                                        "@test:Config\n" +
-                                                       "function testFunction () {\n" +
+                                                       "function testServiceFunction () {\n" +
                                                        "    io:println(\"Do your service Tests!\");\n" +
                                                        "    test:assertTrue(true , msg = \"Failed!\");\n" +
                                                        "}\n" +
@@ -141,8 +141,8 @@ public class SrcFile {
                                                        "   After Suite Function\n" +
                                                        "}\n" +
                                                        "@test:AfterSuite\n" +
-                                                       "function afterSuiteFunc () {\n" +
-                                                       "    io:println(\"I'm the after suite function!\");\n" +
+                                                       "function afterSuiteServiceFunc () {\n" +
+                                                       "    io:println(\"I'm the after suite service function!\");\n" +
                                                        "}";
 
     private FileType srcFileType;

@@ -51,12 +51,14 @@ public class ServiceUnavailableTestCase extends IntegrationTestCase {
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BString request = new BString("WSO2");
         final String expectedMsg = "Error from Connector: Status{ code UNAVAILABLE, description null, cause " +
-                "Connection refused: localhost/127.0.0.1:9096}";
-
+                "Connection refused:";
+        final String expectedHostDetails = "localhost/127.0.0.1:9096";
+        
         BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
-        Assert.assertEquals(responses[0].stringValue(), expectedMsg);
+        Assert.assertTrue(responses[0].stringValue().startsWith(expectedMsg) && responses[0].stringValue()
+                .contains(expectedHostDetails));
     }
 
 }

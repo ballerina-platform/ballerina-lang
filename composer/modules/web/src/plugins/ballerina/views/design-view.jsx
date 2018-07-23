@@ -59,7 +59,7 @@ class DesignView extends React.Component {
      */
     getChildContext() {
         return {
-            fitToWidth: this.props.fitToWidth,
+            editMode: this.props.editMode,
             designView: this,
             getOverlayContainer: this.getOverlayContainer,
             getDiagramContainer: this.getDiagramContainer,
@@ -177,6 +177,13 @@ class DesignView extends React.Component {
             >
                 <div className='outerCanvasDiv'>
                     <DragLayer />
+                    <DiagramMenu
+                            width={this.props.width}
+                            model={this.props.model}
+                            onModeChange={(data) => { this.props.onModeChange(data); }}
+                            onCodeExpandToggle={(data) => { this.props.onCodeExpandToggle(data); }}
+                            editMode={this.props.editMode}
+                            mode={this.props.mode} />
                     <Scrollbars
                         style={{
                             width: this.props.width,
@@ -185,13 +192,6 @@ class DesignView extends React.Component {
                         ref={(scrollbars) => { this.scrollbars = scrollbars; }}
                         onScrollFrame={this.onScroll}
                     >
-                        <DiagramMenu
-                            width={this.props.width}
-                            model={this.props.model}
-                            onModeChange={(data) => { this.props.onModeChange(data); }}
-                            fitToWidth={this.props.fitToWidth}
-                            mode={this.props.mode}
-                        />
                         <div className='canvas-container'>
                             <div className='canvas-top-controls-container' />
                             <div className='html-overlay' ref={this.setOverlayContainer} />
@@ -205,12 +205,12 @@ class DesignView extends React.Component {
                                             width={this.props.width}
                                             height={this.props.height}
                                             disabled={this.props.disabled}
-                                            fitToWidth={this.props.fitToWidth}
+                                            editMode={this.props.editMode}
                                         />
                                         <GraphicalEditor
                                             model={this.props.model}
                                             mode={this.props.mode}
-                                            fitToWidth={this.props.fitToWidth}
+                                            editMode={this.props.editMode}
                                         />
                                     </DesignViewErrorBoundary>
                                 }
@@ -245,7 +245,7 @@ DesignView.propTypes = {
     disabled: PropTypes.bool.isRequired,
     zoomLevel: PropTypes.number,
     setZoom: PropTypes.func.isRequired,
-    fitToWidth: PropTypes.bool,
+    editMode: PropTypes.bool,
 };
 
 DesignView.defaultProps = {
@@ -253,7 +253,7 @@ DesignView.defaultProps = {
     model: undefined,
     disabled: false,
     zoomLevel: 1,
-    fitToWidth: true,
+    editMode: true,
 };
 
 DesignView.contextTypes = {
@@ -266,7 +266,7 @@ DesignView.childContextTypes = {
     getDiagramContainer: PropTypes.instanceOf(Object).isRequired,
     getOverlayContainer: PropTypes.instanceOf(Object).isRequired,
     getGraphicalEditorContainer: PropTypes.instanceOf(Object).isRequired,
-    fitToWidth: PropTypes.bool,
+    editMode: PropTypes.bool,
 };
 
 export default DesignView;
