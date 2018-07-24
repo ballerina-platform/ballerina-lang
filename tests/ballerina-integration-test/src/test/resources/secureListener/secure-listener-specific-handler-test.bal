@@ -24,4 +24,13 @@ service<http:Service> echo bind listener {
         http:Response res = new;
         _ = caller -> respond(res);
     }
+
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/path/{id}"
+    }
+    path (endpoint caller, http:Request req, string id) {
+        http:Response res = new;
+        _ = caller -> respond(res);
+    }
 }
