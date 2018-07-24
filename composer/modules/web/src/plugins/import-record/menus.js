@@ -29,9 +29,9 @@ import { MENUS, COMMANDS, LABELS } from './constants';
 export function getMenuDefinitions(plugin) {
     return [
         {
-            id: MENUS.IMPORT_STRUCT_MENU,
+            id: MENUS.IMPORT_RECORD_MENU,
             parent: TOOLS_MENUS.TOOLS_MENU,
-            label: LABELS.IMPORT_STRUCT_MENU_TITLE,
+            label: LABELS.IMPORT_RECORD_MENU_TITLE,
             isActive: () => {
                 const { editor } = plugin.appContext;
                 const activeTab = editor.getActiveEditor();
@@ -39,7 +39,7 @@ export function getMenuDefinitions(plugin) {
             },
             icon: 'import',
             order: 1,
-            command: COMMANDS.SHOW_IMPORT_STRUCT_DIALOG,
+            command: COMMANDS.SHOW_IMPORT_RECORD_DIALOG,
             type: MENU_DEF_TYPES.ITEM,
         },
     ];
