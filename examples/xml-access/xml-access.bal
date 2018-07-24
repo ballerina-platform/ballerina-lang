@@ -12,7 +12,7 @@ function main(string... args) {
                 <!--Price: $10-->
                 </book>`;
     
-    // You can access child XML items field-based or index-based syntax.
+    // You can access child XML items using the field-based or index-based syntax.
     io:println(bookXML.author.fname);
     io:println(bookXML["author"]["fname"]);
 

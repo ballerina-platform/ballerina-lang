@@ -11,8 +11,8 @@ Running tests
 I'm in test belonging to g1 and g2!
 I'm in test belonging to g1!
 
-	  ✔ testFunction2
-	  ✔ testFunction1
+	  [pass] testFunction2
+	  [pass] testFunction1
 
 	  2 passing
 	  0 failing
@@ -28,8 +28,8 @@ Running tests
 I'm in test belonging to g1 and g2!
 I'm in test belonging to g1!
 
-	  ✔ testFunction2
-	  ✔ testFunction1
+	  [pass] testFunction2
+	  [pass] testFunction1
 
 	  2 passing
 	  0 failing
@@ -45,8 +45,8 @@ Running tests
 I'm the ungrouped test
 I'm in test belonging to g1!
 
-	  ✔ testFunction3
-	  ✔ testFunction1
+	  [pass] testFunction3
+	  [pass] testFunction1
 
 	  2 passing
 	  0 failing

@@ -5,7 +5,7 @@ import ballerina/http;
 boolean serviceStarted;
 
 function startService() {
-    serviceStarted = test:startServices("http-circuit-breaker");
+    //serviceStarted = test:startServices("http-circuit-breaker");
 }
 
 @test:Config {
@@ -16,7 +16,7 @@ function testFunc() {
     // Invoking the main function.
     endpoint http:Client httpEndpoint { url: "http://localhost:9090" };
     // Check whether the server has started.
-    test:assertTrue(serviceStarted, msg = "Unable to start the service");
+    //test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
     string response1 = "Hello World!!!";
     // Send a GET request to the specified endpoint
@@ -80,5 +80,5 @@ function testFunc() {
 }
 
 function stopService() {
-    test:stopServices("http_circuit_breaker");
+    //test:stopServices("http_circuit_breaker");
 }

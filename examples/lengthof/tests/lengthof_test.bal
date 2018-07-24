@@ -25,7 +25,7 @@ function testFunc() {
 
     string out1 = "Integer array size: 3";
     string out2 = "JSON array size: 2";
-    string out3 = "Map size: 2";
+    string out3 = "Map size: 3";
     string out4 = "String size: 23";
     string out5 = "XML child elements size: 2";
     test:assertEquals(out1, outputs[0]);

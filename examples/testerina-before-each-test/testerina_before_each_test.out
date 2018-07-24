@@ -15,9 +15,9 @@ I'm in test function 2!
 I'm the before function!
 I'm in test function 1!
 
-	  ✔ testFunction3
-	  ✔ testFunction2
-	  ✔ testFunction1
+	  [pass] testFunction3
+	  [pass] testFunction2
+	  [pass] testFunction1
 
 	  3 passing
 	  0 failing
