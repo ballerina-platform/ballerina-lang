@@ -1,8 +1,3 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-
 import { LanguageGrammarDefinitionContribution, TextmateRegistry } from "@theia/monaco/lib/browser/textmate";
 
 import { injectable } from "inversify";
@@ -13,31 +8,30 @@ export class BallerinaGrammarContribution implements LanguageGrammarDefinitionCo
 
     readonly config: monaco.languages.LanguageConfiguration = {
 		comments: {
-			lineComment: '//',
-			blockComment: ['/*', '*/'],
+			// symbol used for single line comment. Remove this entry if your language does not support line comments
+			lineComment: "//"
 		},
+		// symbols used as brackets
 		brackets: [
-			['{', '}'],
-			['[', ']'],
-			['(', ')']
+			["{", "}"],
+			["[", "]"],
+			["(", ")"]
 		],
+		// symbols that are auto closed when typing
 		autoClosingPairs: [
-			{ open: '{', close: '}' },
-			{ open: '[', close: ']' },
-			{ open: '(', close: ')' },
-			{ open: '`', close: '`', notIn: ['string'] },
-			{ open: '"', close: '"', notIn: ['string'] },
-			{ open: '\'', close: '\'', notIn: ['string', 'comment'] },
+			{ open: "{", close: "}" },
+			{ open: "[", close: "]" },
+			{ open: "(", close: ")" },
+			{ open: "\\", close: "\\" }
 		],
+		// symbols that that can be used to surround a selection
 		surroundingPairs: [
-			{ open: '{', close: '}' },
-			{ open: '[', close: ']' },
-			{ open: '(', close: ')' },
-			{ open: '`', close: '`' },
-			{ open: '"', close: '"' },
-			{ open: '\'', close: '\'' },
+			{ open: "{", close: "}" },
+			{ open: "[", close: "]" },
+			{ open: "(", close: ")" },
+			{ open: "\\", close: "\\" }
 		]
-	};
+	}
 
 	registerTextmateLanguage(registry: TextmateRegistry) {
         monaco.languages.register({
