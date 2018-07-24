@@ -453,9 +453,8 @@ public class Generator {
         if (recordType.isAnonymous) {
             structName = "Anonymous Record " + structName.substring(structName.lastIndexOf('$') + 1);
         }
-        List<Field> fields = getFields(recordType, recordType.fields,
-                typeDefinition.getMarkdownDocumentationAttachment());
-        BLangMarkdownDocumentation documentationNode = typeDefinition.markdownDocumentationAttachment;
+        BLangMarkdownDocumentation documentationNode = typeDefinition.getMarkdownDocumentationAttachment();
+        List<Field> fields = getFields(recordType, recordType.fields, documentationNode);
         String documentationText = documentationNode == null ? null : documentationNode.getDocumentation();
         return new RecordDoc(structName, documentationText, new ArrayList<>(), fields);
     }
@@ -596,19 +595,6 @@ public class Generator {
                 ((BLangUserDefinedType) bLangType).typeName.value : bLangType.toString());
     }
 
-    //    /**
-    //     * Get the annotation attachments for the node.
-    //     *
-    //     * @param node a node
-    //     * @return list of annotation attachments.
-    //     */
-    //    private static List<? extends AnnotationAttachmentNode> getAnnotationAttachments(BLangNode node) {
-    //        if (node instanceof AnnotatableNode) {
-    //            return ((AnnotatableNode) node).getAnnotationAttachments();
-    //        }
-    //        return new ArrayList<>();
-    //    }
-
     /**
      * Get description annotation of the parameter.
      *
@@ -619,8 +605,7 @@ public class Generator {
     private static String paramAnnotation(BLangNode node, BLangVariable param) {
         String subName = param.getName() == null ? param.type.tsymbol.name.value : param.getName().getValue();
 
-        if (node instanceof DocumentableNode
-                && ((DocumentableNode) node).getMarkdownDocumentationAttachment() != null) {
+        if (isDocumentAttached(node)) {
             BLangMarkdownDocumentation documentationAttachment =
                     ((DocumentableNode) node).getMarkdownDocumentationAttachment();
             Map<String, BLangMarkdownParameterDocumentation> parameterDocumentations =
@@ -642,8 +627,7 @@ public class Generator {
      * @return description of the return parameter.
      */
     private static String returnParamAnnotation(BLangNode node) {
-        if (node instanceof DocumentableNode
-                && ((DocumentableNode) node).getMarkdownDocumentationAttachment() != null) {
+        if (isDocumentAttached(node)) {
             BLangMarkdownDocumentation documentationAttachment =
                     ((DocumentableNode) node).getMarkdownDocumentationAttachment();
             return BallerinaDocUtils.mdToHtml(documentationAttachment.getReturnParameterDocumentation());
@@ -666,8 +650,7 @@ public class Generator {
                     paramVariable.type.tsymbol.name.value : paramVariable.getName().getValue();
         }
 
-        if (node instanceof DocumentableNode
-                && ((DocumentableNode) node).getMarkdownDocumentationAttachment() != null) {
+        if (isDocumentAttached(node)) {
             BLangMarkdownDocumentation documentationAttachment =
                     ((DocumentableNode) node).getMarkdownDocumentationAttachment();
             Map<String, BLangMarkdownParameterDocumentation> parameterDocumentations =
@@ -689,12 +672,16 @@ public class Generator {
      * @return description of the node.
      */
     private static String description(BLangNode node) {
-        if (node instanceof DocumentableNode
-                && ((DocumentableNode) node).getMarkdownDocumentationAttachment() != null) {
+        if (isDocumentAttached(node)) {
             BLangMarkdownDocumentation documentationAttachment =
                     ((DocumentableNode) node).getMarkdownDocumentationAttachment();
             return BallerinaDocUtils.mdToHtml(documentationAttachment.getDocumentation());
         }
         return "";
+    }
+
+    private static boolean isDocumentAttached(BLangNode node) {
+        return node instanceof DocumentableNode
+                && ((DocumentableNode) node).getMarkdownDocumentationAttachment() != null;
     }
 }
