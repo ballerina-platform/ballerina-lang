@@ -206,7 +206,7 @@ class EditorTabs extends View {
                             >
                                 ×
                             </button>
-                            <i className={`fw fw-${icon} tab-icon`} />
+                            {icon ? <i className={`fw fw-${icon} tab-icon`} /> : ''}
                             {_.isFunction(title) ? title(finalProps) : title}
                         </div>
                     }

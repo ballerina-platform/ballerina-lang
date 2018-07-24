@@ -50,7 +50,7 @@ public class TerminatorUnix implements Terminator {
         String[] cmd = {
                 "/bin/sh",
                 "-c",
-                "ps -ef -o pid,args | grep " +
+                "ps ax | grep " +
                         script + " | grep run | grep ballerina | grep -v 'grep' | awk '{print $1}'"
         };
         return cmd;

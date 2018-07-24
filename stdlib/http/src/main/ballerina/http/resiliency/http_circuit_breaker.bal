@@ -615,13 +615,8 @@ function updateCircuitState(CircuitHealth circuitHealth, CircuitState currentSta
         circuitHealth.totalRequestCount = totalRequestsCount;
         if (totalRequestsCount >= circuitBreakerInferredConfig.rollingWindow.requestVolumeThreshold) {
             if (currentState == CB_OPEN_STATE) {
-                time:Time effectiveErrorTime = getEffectiveErrorTime(circuitHealth);
-                int elapsedTime = time:currentTime().time - effectiveErrorTime.time;
-                if (elapsedTime > circuitBreakerInferredConfig.resetTimeMillis) {
-                    currentState = CB_HALF_OPEN_STATE;
-                    log:printInfo("CircuitBreaker reset timeout reached. Circuit switched from OPEN to HALF_OPEN state."
-                    );
-                }
+                currentState = switchCircuitStateOpenToHalfOpenOnResetTime(circuitBreakerInferredConfig,
+                                                                                    circuitHealth, currentState);
             } else if (currentState == CB_HALF_OPEN_STATE) {
                 if (!circuitHealth.lastRequestSuccess) {
                     // If the trial run has failed, trip the circuit again
@@ -643,6 +638,9 @@ function updateCircuitState(CircuitHealth circuitHealth, CircuitState currentSta
                     );
                 }
             }
+        } else {
+            currentState = switchCircuitStateOpenToHalfOpenOnResetTime(circuitBreakerInferredConfig,
+                                                                                    circuitHealth, currentState);
         }
         circuitHealth.totalBuckets[currentBucketId].totalCount++;
         return currentState;
@@ -855,4 +853,26 @@ function updateLastUsedBucketId(int bucketId, CircuitHealth circuitHealth) {
         resetBucketStats(circuitHealth, bucketId);
         circuitHealth.lastUsedBucketId = bucketId;
     }
+}
+
+documentation {
+    Switches circuit state from open to half open state when reset time exceeded.
+
+    P{{circuitBreakerInferredConfig}}  Configurations derived from `CircuitBreakerConfig`
+    P{{circuitHealth}}  Circuit Breaker health status
+    P{{currentState}}  current state of the circuit
+    R{{}} Calculated state value of the circuit
+}
+function switchCircuitStateOpenToHalfOpenOnResetTime(CircuitBreakerInferredConfig circuitBreakerInferredConfig,
+                                        CircuitHealth circuitHealth, CircuitState currentState) returns CircuitState {
+    CircuitState currentCircuitState = currentState;
+    if (currentState == CB_OPEN_STATE) {
+        time:Time effectiveErrorTime = getEffectiveErrorTime(circuitHealth);
+        int elapsedTime = time:currentTime().time - effectiveErrorTime.time;
+        if (elapsedTime > circuitBreakerInferredConfig.resetTimeMillis) {
+            currentCircuitState = CB_HALF_OPEN_STATE;
+            log:printInfo("CircuitBreaker reset timeout reached. Circuit switched from OPEN to HALF_OPEN state.");
+        }
+    }
+    return currentCircuitState;
 }

@@ -46,7 +46,6 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Test class for secure client socket related actions.
  */
-@Test(groups = { "broken" })
 public class SecureClientSocketTest {
 
     private static final Logger log = LoggerFactory.getLogger(SecureClientSocketTest.class);
@@ -60,9 +59,10 @@ public class SecureClientSocketTest {
         port = ThreadLocalRandom.current().nextInt(47000, 55000);
         socketClient = BCompileUtil.compileAndSetup("test-src/io/secure_client_socket_io.bal");
         boolean connectionStatus;
-        int numberOfRetryAttempts = 10;
+        int numberOfRetryAttempts = 20;
         try {
             server = MockSecureSocketServer.start(String.valueOf(port));
+            Thread.sleep(2000);
             connectionStatus = isConnected(port, numberOfRetryAttempts);
             if (!connectionStatus) {
                 Assert.fail("Unable to open connection with the test TCP server");

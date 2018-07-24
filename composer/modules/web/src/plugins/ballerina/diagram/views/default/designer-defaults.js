@@ -240,7 +240,7 @@ export const fork = {
 
 export const canvas = {
     padding: {
-        top: 20,
+        top: 0,
         right: 50,
         bottom: 100,
         left: 50,

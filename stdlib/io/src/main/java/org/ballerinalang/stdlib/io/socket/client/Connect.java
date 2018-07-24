@@ -88,7 +88,7 @@ public class Connect extends BlockingNativeCallableUnit {
             PackageInfo ioPackageInfo = context.getProgramFile().getPackageInfo(SocketConstants.SOCKET_PACKAGE);
             // Create ByteChannel Struct
             StructureTypeInfo channelStructInfo = ioPackageInfo.getStructInfo(BYTE_CHANNEL_STRUCT_TYPE);
-            Channel ballerinaSocketChannel = new SocketIOChannel(socketChannel, 0);
+            Channel ballerinaSocketChannel = new SocketIOChannel(socketChannel, false);
             BMap<String, BValue> channelStruct = BLangVMStructs.createBStruct(channelStructInfo);
             channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, ballerinaSocketChannel);
 
@@ -96,10 +96,10 @@ public class Connect extends BlockingNativeCallableUnit {
             socketStruct.put(IOConstants.BYTE_CHANNEL_NAME, channelStruct);
             socketStruct.put(SocketConstants.REMOTE_PORT_FIELD, new BInteger(socket.getPort()));
             socketStruct.put(SocketConstants.LOCAL_PORT_OPTION_FIELD, new BInteger(socket.getLocalPort()));
-            socketStruct.put(SocketConstants.REMOTE_ADDRESS_FIELD,
-                    new BString(socket.getInetAddress().getHostAddress()));
-            socketStruct.put(SocketConstants.LOCAL_ADDRESS_FIELD,
-                    new BString(socket.getLocalAddress().getHostAddress()));
+            socketStruct
+                    .put(SocketConstants.REMOTE_ADDRESS_FIELD, new BString(socket.getInetAddress().getHostAddress()));
+            socketStruct
+                    .put(SocketConstants.LOCAL_ADDRESS_FIELD, new BString(socket.getLocalAddress().getHostAddress()));
             socketStruct.addNativeData(IOConstants.CLIENT_SOCKET_NAME, socketChannel);
             context.setReturnValues();
         } catch (Throwable e) {

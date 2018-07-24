@@ -76,21 +76,20 @@ public class BallerinaDocGenerator {
 
     /**
      * API to generate Ballerina API documentation.
-     *
-     * @param sourceRoot    project root
+     *  @param sourceRoot    project root
      * @param output        path to the output directory where the API documentation will be written to.
      * @param packageFilter comma separated list of package names to be filtered from the documentation.
      * @param isNative      whether the given packages are native or not.
+     * @param offline
      * @param sources       either the path to the directories where Ballerina source files reside or a
-     *                      path to a Ballerina file which does not belong to a package.
      */
     public static void generateApiDocs(String sourceRoot, String output, String packageFilter, boolean isNative,
-                                       String... sources) {
+                                       boolean offline, String... sources) {
         out.println("docerina: API documentation generation for sources - " + Arrays.toString(sources));
         List<Link> primitives = primitives();
 
         // generate package docs
-        Map<String, PackageDoc> docsMap = generatePackageDocsMap(sourceRoot, packageFilter, isNative, sources);
+        Map<String, PackageDoc> docsMap = generatePackageDocsMap(sourceRoot, packageFilter, isNative, sources, offline);
 
         if (docsMap.size() == 0) {
             out.println("docerina: no package definitions found!");
@@ -293,11 +292,11 @@ public class BallerinaDocGenerator {
     }
 
     private static Map<String, PackageDoc> generatePackageDocsMap(String sourceRoot, String packageFilter, boolean
-            isNative, String[] sources) {
+            isNative, String[] sources, boolean offline) {
         for (String source : sources) {
             source = source.trim();
             try {
-                generatePackageDocsFromBallerina(sourceRoot, source, packageFilter, isNative);
+                generatePackageDocsFromBallerina(sourceRoot, source, packageFilter, isNative, offline);
 
             } catch (IOException e) {
                 out.println(String.format("docerina: API documentation generation failed for %s: %s", source, e
@@ -320,7 +319,7 @@ public class BallerinaDocGenerator {
      */
     protected static Map<String, PackageDoc> generatePackageDocsFromBallerina(String sourceRoot, String packagePath)
             throws IOException {
-        return generatePackageDocsFromBallerina(sourceRoot, packagePath, null);
+        return generatePackageDocsFromBallerina(sourceRoot, packagePath, null, true);
     }
 
     /**
@@ -329,13 +328,14 @@ public class BallerinaDocGenerator {
      * @param sourceRoot    points to the folder relative to which package path is given
      * @param packagePath   should point either to a ballerina file or a folder with ballerina files.
      * @param packageFilter comma separated list of package names/patterns to be filtered from the documentation.
+     * @param offline
      * @return a map of {@link BLangPackage} objects. Key - Ballerina package name Value - {@link BLangPackage}
      * @throws IOException on error.
      */
     protected static Map<String, PackageDoc> generatePackageDocsFromBallerina(String sourceRoot, String packagePath,
-                                                                                String packageFilter)
+                                                                              String packageFilter, boolean offline)
             throws IOException {
-        return generatePackageDocsFromBallerina(sourceRoot, packagePath, packageFilter, false);
+        return generatePackageDocsFromBallerina(sourceRoot, packagePath, packageFilter, false, offline);
     }
 
     /**
@@ -345,12 +345,14 @@ public class BallerinaDocGenerator {
      * @param packagePath   should point either to a ballerina file or a folder with ballerina files.
      * @param packageFilter comma separated list of package names/patterns to be filtered from the documentation.
      * @param isNative      whether this is a native package or not.
+     * @param offline
      * @return a map of {@link BLangPackage} objects. Key - Ballerina package name Value - {@link BLangPackage}
      * @throws IOException on error.
      */
     protected static Map<String, PackageDoc> generatePackageDocsFromBallerina(
-            String sourceRoot, String packagePath, String packageFilter, boolean isNative) throws IOException {
-        return generatePackageDocsFromBallerina(sourceRoot, Paths.get(packagePath), packageFilter, isNative);
+            String sourceRoot, String packagePath, String packageFilter, boolean isNative, boolean offline)
+            throws IOException {
+        return generatePackageDocsFromBallerina(sourceRoot, Paths.get(packagePath), packageFilter, isNative, offline);
     }
 
     /**
@@ -360,11 +362,13 @@ public class BallerinaDocGenerator {
      * @param packagePath   a {@link Path} object pointing either to a ballerina file or a folder with ballerina files.
      * @param packageFilter comma separated list of package names/patterns to be filtered from the documentation.
      * @param isNative      whether the given packages are native or not.
+     * @param offline
      * @return a map of {@link BLangPackage} objects. Key - Ballerina package name Value - {@link BLangPackage}
      * @throws IOException on error.
      */
     protected static Map<String, PackageDoc> generatePackageDocsFromBallerina(
-        String sourceRoot, Path packagePath, String packageFilter, boolean isNative) throws IOException {
+            String sourceRoot, Path packagePath, String packageFilter, boolean isNative, boolean offline)
+            throws IOException {
 
         // find the Package.md file
         Path packageMd;
@@ -399,6 +403,7 @@ public class BallerinaDocGenerator {
         options.put(CompilerOptionName.PROJECT_DIR, sourceRoot);
         options.put(CompilerOptionName.COMPILER_PHASE, CompilerPhase.TYPE_CHECK.toString());
         options.put(CompilerOptionName.PRESERVE_WHITESPACE, "false");
+        options.put(CompilerOptionName.OFFLINE, Boolean.valueOf(offline).toString());
         context.put(SourceDirectory.class, new FileSystemProjectDirectory(Paths.get(sourceRoot)));
 
         Compiler compiler = Compiler.getInstance(context);

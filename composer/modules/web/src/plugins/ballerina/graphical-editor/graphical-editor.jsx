@@ -41,7 +41,7 @@ class GraphicalEditor extends React.Component {
      * @inheritDoc
      */
     render() {
-        if (this.props.fitToWidth) {
+        if (this.props.editMode) {
             return null;
         }
         return (

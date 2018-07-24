@@ -34,8 +34,8 @@ public class TempFileIOChannel extends FileIOChannel {
 
     private String tempFilePath;
 
-    public TempFileIOChannel(FileChannel channel, int size, String tempFilePath) throws BallerinaIOException {
-        super(channel, size);
+    public TempFileIOChannel(FileChannel channel, String tempFilePath) throws BallerinaIOException {
+        super(channel);
         this.tempFilePath = tempFilePath;
     }
 

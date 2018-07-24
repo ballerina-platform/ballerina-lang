@@ -18,7 +18,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import StatementDecorator from '../decorators/statement-decorator';
-import ActiveArbiter from '../decorators/active-arbiter';
 
 /**
  * PostIncrement Statement Decorator.
@@ -56,7 +55,6 @@ PostIncrementNode.propTypes = {
 };
 
 PostIncrementNode.contextTypes = {
-    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
     designer: PropTypes.instanceOf(Object).isRequired,
 };
 

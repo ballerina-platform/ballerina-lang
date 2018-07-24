@@ -260,8 +260,8 @@ public class IOTest {
         Assert.assertEquals(records.size(), expectedRecordLength);
 
         returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
-        Assert.assertEquals(records.size(), 0);
+        BMap error = (BMap) returns[0];
+        Assert.assertTrue(IOConstants.IO_EOF.equals(error.getMap().get("message").toString()));
         returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertFalse(hasNextRecord.booleanValue(), "Not expecting anymore records");
