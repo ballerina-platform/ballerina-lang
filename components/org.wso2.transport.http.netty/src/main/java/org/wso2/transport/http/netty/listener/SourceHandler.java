@@ -39,8 +39,8 @@ import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.listener.states.Connected;
+import org.wso2.transport.http.netty.listener.states.ListenerState;
 import org.wso2.transport.http.netty.listener.states.ListenerStateContext;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.net.SocketAddress;
 import java.util.Map;
@@ -56,13 +56,12 @@ import static org.wso2.transport.http.netty.common.SourceInteractiveState.RECEIV
 public class SourceHandler extends ChannelInboundHandlerAdapter {
     private static Logger log = LoggerFactory.getLogger(SourceHandler.class);
 
-    private HTTPCarbonMessage inboundRequestMsg;
     private HandlerExecutor handlerExecutor;
     private Map<String, GenericObjectPool> targetChannelPool;
     private ChunkConfig chunkConfig;
     private KeepAliveConfig keepAliveConfig;
 
-    private final ServerConnectorFuture serverConnectorFuture;
+    private ServerConnectorFuture serverConnectorFuture;
 
     private String interfaceId;
     private String serverName;
@@ -90,9 +89,9 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpRequest) {
-            stateContext.getState().readInboundRequestHeaders(ctx, (HttpRequest) msg);
+            execute().readInboundRequestHeaders(ctx, (HttpRequest) msg);
         } else {
-            stateContext.getState().readInboundReqEntityBody(msg);
+            execute().readInboundReqEntityBody(msg);
         }
     }
 
@@ -106,14 +105,14 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         this.ctx = ctx;
         stateContext = new ListenerStateContext();
         stateContext.setState(new Connected(this, stateContext));
-        stateContext.getState().channelActive(ctx);
+        execute().channelActive(ctx);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
         ctx.close();
         if (!idleTimeout && stateContext != null) {
-            stateContext.getState().channelClose(serverConnectorFuture, inboundRequestMsg);
+            execute().handleAbruptChannelClosure(serverConnectorFuture);
 //            sourceErrorHandler.handleErrorCloseScenario(inboundRequestMsg);
         }
         closeTargetChannels();
@@ -146,10 +145,13 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (evt instanceof IdleStateEvent) {
             this.idleTimeout = true;
             boolean inCompleteRequest = sourceErrorHandler.getState() == RECEIVING_ENTITY_BODY;
-            ChannelFuture outboundRespFuture = sourceErrorHandler.handleIdleErrorScenario(inboundRequestMsg, ctx,
-                                                                                          (IdleStateEvent) evt);
-            stateContext.setState(new IdleTimeoutClosure(stateContext));
+//            ChannelFuture outboundRespFuture = sourceErrorHandler.handleIdleErrorScenario(inboundRequestMsg, ctx, (IdleStateEvent) evt);
 
+            ChannelFuture outboundRespFuture = null;
+            if (stateContext != null) {
+                outboundRespFuture = execute()
+                        .handleIdleTimeoutConnectionClosure(serverConnectorFuture, ctx, (IdleStateEvent) evt);
+            }
             if (outboundRespFuture == null) {
                 this.channelInactive(ctx);
             } else {
@@ -181,6 +183,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         } else {
             log.warn("Unexpected user event {} triggered", evt.toString());
         }
+    }
+
+    private ListenerState execute() {
+        return this.stateContext.getState();
     }
 
     public EventLoop getEventLoop() {

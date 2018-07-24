@@ -50,6 +50,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     private final SourceErrorHandler sourceErrorHandler;
     private final boolean headRequest;
     private final ListenerStateContext stateContext;
+    private final SourceHandler sourceHandler;
 
     private ChannelHandlerContext sourceContext;
     private RequestDataHolder requestDataHolder;
@@ -68,6 +69,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                                     boolean continueRequest) {
         this.requestDataHolder = new RequestDataHolder(requestMsg);
         this.inboundRequestMsg = requestMsg;
+        this.sourceHandler = sourceHandler;
         this.sourceContext = sourceHandler.getInboundChannelContext();
         this.chunkConfig = sourceHandler.getChunkConfig();
         this.keepAliveConfig = sourceHandler.getKeepAliveConfig();
@@ -209,13 +211,6 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         }
     }
 
-//    private ChannelFuture writeOutboundResponseHeaders(HTTPCarbonMessage outboundResponseMsg, boolean keepAlive) {
-//        HttpResponse response = createHttpResponse(outboundResponseMsg, requestDataHolder.getHttpVersion(),
-//                serverName, keepAlive);
-//        headerWritten = true;
-//        return sourceContext.write(response);
-//    }
-
     @Override
     public void onError(Throwable throwable) {
         log.error("Couldn't send the outbound response", throwable);
@@ -255,5 +250,13 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
     public String getServerName() {
         return serverName;
+    }
+
+    public void setKeepAliveConfig(KeepAliveConfig config) {
+        this.keepAliveConfig = config;
+    }
+
+    public SourceHandler getSourceHandler() {
+        return sourceHandler;
     }
 }

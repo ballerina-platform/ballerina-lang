@@ -28,15 +28,18 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
+import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
+import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.IOException;
@@ -44,17 +47,16 @@ import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED;
-import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_SENT;
 import static org.wso2.transport.http.netty.common.Util.createFullHttpResponse;
 import static org.wso2.transport.http.netty.common.Util.isLastHttpContent;
 import static org.wso2.transport.http.netty.common.Util.isVersionCompatibleForChunking;
-import static org.wso2.transport.http.netty.common.Util.setupChunkedRequest;
 import static org.wso2.transport.http.netty.common.Util.setupContentLengthRequest;
 import static org.wso2.transport.http.netty.common.Util.shouldEnforceChunkingforHttpOneZero;
 
 /**
- * Custom Http Content Compressor to handle the content-length and transfer encoding.
+ * State between start and end of response payload write
  */
 public class SendingEntityBody implements ListenerState {
 
@@ -68,6 +70,7 @@ public class SendingEntityBody implements ListenerState {
     private List<HttpContent> contentList = new ArrayList<>();
     private HTTPCarbonMessage inboundRequestMsg;
     private ChannelHandlerContext sourceContext;
+    private SourceHandler sourceHandler;
 
 
     public SendingEntityBody(ListenerStateContext stateContext, ChunkConfig chunkConfig, HttpResponseFuture outboundRespStatusFuture) {
@@ -79,42 +82,31 @@ public class SendingEntityBody implements ListenerState {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-
+        // Not a dependant action of this state.
     }
 
     @Override
     public void readInboundRequestHeaders(ChannelHandlerContext ctx, HttpRequest inboundRequestHeaders) {
-
+        // Not a dependant action of this state.
     }
 
     @Override
     public void readInboundReqEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
-
+        // Not a dependant action of this state.
     }
 
     @Override
     public void writeOutboundResponseHeaders(HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-
+        // Not a dependant action of this state.
     }
 
     @Override
     public void writeOutboundResponse(HttpOutboundRespListener outboundRespListener,
                                       HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        if (outboundRespListener.isContinueRequest()) {
-//            sourceErrorHandler.setState(RESPONSE_100_CONTINUE_SENT);
-            outboundRespListener.setContinueRequest(false);
-        } else {
-//            if (sourceErrorHandler.getState().equals(SourceInteractiveState.RECEIVING_ENTITY_BODY)) {
-                // Response is being sent before finish reading the inbound request,
-                // hence close the connection once the response is sent.
-//                keepAlive = false;
-//            }
-//            sourceErrorHandler.setState(SENDING_ENTITY_BODY);
-        }
-
         headRequest = outboundRespListener.getRequestDataHolder().getHttpMethod().equalsIgnoreCase(Constants.HTTP_HEAD_METHOD);
         inboundRequestMsg = outboundRespListener.getInboundRequestMsg();
         sourceContext = outboundRespListener.getSourceContext();
+        sourceHandler = outboundRespListener.getSourceHandler();
 
         ChannelFuture outboundChannelFuture;
         if (isLastHttpContent(httpContent)) {
@@ -147,6 +139,19 @@ public class SendingEntityBody implements ListenerState {
                 contentLength += httpContent.content().readableBytes();
             }
         }
+    }
+
+    @Override
+    public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture) {
+        // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
+        log.error(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE);
+    }
+
+    @Override
+    public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
+                                                            ChannelHandlerContext ctx,
+                                                            IdleStateEvent evt) {
+        return null;
     }
 
     private boolean checkChunkingCompatibility(HttpOutboundRespListener outboundResponseListener) {
@@ -207,6 +212,7 @@ public class SendingEntityBody implements ListenerState {
                 outboundRespStatusFuture.notifyHttpListener(throwable);
             } else {
                 outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
+                stateContext.setState(new EntityBodySent(sourceHandler, stateContext));
 //                this.setState(ENTITY_BODY_SENT);
             }
         });

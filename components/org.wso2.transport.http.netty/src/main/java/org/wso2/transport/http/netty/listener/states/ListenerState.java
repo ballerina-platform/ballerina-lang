@@ -18,9 +18,11 @@
 
 package org.wso2.transport.http.netty.listener.states;
 
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.timeout.IdleStateEvent;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
@@ -31,7 +33,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
  */
 public interface ListenerState {
 
-    public void channelActive(final ChannelHandlerContext ctx);
+    void channelActive(final ChannelHandlerContext ctx);
 
     void readInboundRequestHeaders(ChannelHandlerContext ctx, HttpRequest inboundRequestHeaders);
 
@@ -42,7 +44,9 @@ public interface ListenerState {
     void writeOutboundResponse(HttpOutboundRespListener outboundResponseListener, HTTPCarbonMessage outboundResponseMsg,
                                HttpContent httpContent);
 
-    void channelClose(ServerConnectorFuture serverConnectorFuture, HTTPCarbonMessage inboundRequestMsg);
+    void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture);
 
-    void triggerIdleTimeout();
+    ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
+                                                     ChannelHandlerContext ctx,
+                                                     IdleStateEvent evt);
 }

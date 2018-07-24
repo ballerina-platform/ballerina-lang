@@ -20,7 +20,7 @@ package org.wso2.transport.http.netty.listener.states;
 
 
 /**
- * Custom Http Content Compressor to handle the content-length and transfer encoding.
+ * Context class to manipulate current state.
  */
 public class ListenerStateContext {
 
@@ -33,5 +33,4 @@ public class ListenerStateContext {
     public ListenerState getState() {
         return state;
     }
-
 }

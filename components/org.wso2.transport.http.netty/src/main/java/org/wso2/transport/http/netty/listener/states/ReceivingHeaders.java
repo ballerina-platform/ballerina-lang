@@ -18,23 +18,41 @@
 
 package org.wso2.transport.http.netty.listener.states;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.DecoderException;
+import io.netty.handler.codec.DecoderResult;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
+import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
+import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST;
+import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.Util.createInboundReqCarbonMsg;
 import static org.wso2.transport.http.netty.common.Util.is100ContinueRequest;
 
 /**
- * Custom Http Content Compressor to handle the content-length and transfer encoding.
+ * State between start and end of inbound request headers read.
  */
 public class ReceivingHeaders implements ListenerState {
 
@@ -45,17 +63,15 @@ public class ReceivingHeaders implements ListenerState {
     private HTTPCarbonMessage inboundRequestMsg;
     private boolean continueRequest;
 
-    public ReceivingHeaders(SourceHandler sourceHandler,
-                            HandlerExecutor handlerExecutor,
-                            ListenerStateContext stateContext) {
+    public ReceivingHeaders(SourceHandler sourceHandler, ListenerStateContext stateContext) {
         this.sourceHandler = sourceHandler;
-        this.handlerExecutor = handlerExecutor;
+        this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
         this.stateContext = stateContext;
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-
+        // Not a dependant action of this state.
     }
 
     @Override
@@ -65,6 +81,7 @@ public class ReceivingHeaders implements ListenerState {
         continueRequest = is100ContinueRequest(inboundRequestMsg);
         if (continueRequest) {
 //            sourceErrorHandler.setState(EXPECT_100_CONTINUE_HEADER_RECEIVED);
+            stateContext.setState(new Expect100ContinueHeaderReceived(stateContext, sourceHandler));
         }
         notifyRequestListener(inboundRequestMsg);
 
@@ -74,25 +91,6 @@ public class ReceivingHeaders implements ListenerState {
         if (handlerExecutor != null) {
             handlerExecutor.executeAtSourceRequestReceiving(inboundRequestMsg);
         }
-    }
-
-    @Override
-    public void readInboundReqEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
-        stateContext.setState(new ReceivingEntityBody(stateContext, inboundRequestMsg, handlerExecutor,
-                                                       sourceHandler.getServerConnectorFuture()));
-        stateContext.getState().readInboundReqEntityBody(inboundRequestEntityBody);
-
-    }
-
-    @Override
-    public void writeOutboundResponseHeaders(HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-
-    }
-
-    @Override
-    public void writeOutboundResponse(HttpOutboundRespListener outboundResponseMsg, HTTPCarbonMessage keepAlive,
-                                      HttpContent httpContent) {
-
     }
 
     private void notifyRequestListener(HTTPCarbonMessage httpRequestMsg) {
@@ -112,5 +110,71 @@ public class ReceivingHeaders implements ListenerState {
         } else {
             log.error("Cannot find registered listener to forward the message");
         }
+    }
+
+    @Override
+    public void readInboundReqEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
+        stateContext.setState(new ReceivingEntityBody(stateContext, inboundRequestMsg, sourceHandler));
+        stateContext.getState().readInboundReqEntityBody(inboundRequestEntityBody);
+    }
+
+    @Override
+    public void writeOutboundResponseHeaders(HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
+        // Not a dependant action of this state.
+    }
+
+    @Override
+    public void writeOutboundResponse(HttpOutboundRespListener outboundResponseMsg, HTTPCarbonMessage keepAlive,
+                                      HttpContent httpContent) {
+        // Not a dependant action of this state.
+    }
+
+    @Override
+    public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture) {
+        handleIncompleteInboundRequest(REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST);
+    }
+
+    @Override
+    public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
+                                                            ChannelHandlerContext ctx,
+                                                            IdleStateEvent evt) {
+        ChannelFuture outboundRespFuture = sendRequestTimeoutResponse(ctx, HttpResponseStatus.REQUEST_TIMEOUT, Unpooled.EMPTY_BUFFER, 0);
+
+        outboundRespFuture.addListener((ChannelFutureListener) channelFuture -> {
+            Throwable cause = channelFuture.cause();
+            if (cause != null) {
+                log.warn("Failed to send: " + cause.getMessage());
+            }
+            sourceHandler.channelInactive(ctx);
+            handleIncompleteInboundRequest(IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST);
+        });
+        return null;
+    }
+
+    private ChannelFuture sendRequestTimeoutResponse(ChannelHandlerContext ctx, HttpResponseStatus status,
+                                                     ByteBuf content, int length) {
+        HttpResponse outboundResponse;
+        if (inboundRequestMsg != null) {
+            float httpVersion = Float.parseFloat((String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION));
+            if (httpVersion == Constants.HTTP_1_0) {
+                outboundResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_0, status, content);
+            } else {
+                outboundResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, content);
+            }
+        } else {
+            outboundResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, content);
+        }
+        outboundResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, length);
+        outboundResponse.headers().set(HttpHeaderNames.CONTENT_TYPE, Constants.TEXT_PLAIN);
+        outboundResponse.headers().set(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_CLOSE);
+        outboundResponse.headers().set(HttpHeaderNames.SERVER.toString(), sourceHandler.getServerName());
+        return ctx.channel().writeAndFlush(outboundResponse);
+    }
+
+    void handleIncompleteInboundRequest(String errorMessage) {
+        LastHttpContent lastHttpContent = new DefaultLastHttpContent();
+        lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(errorMessage)));
+        this.inboundRequestMsg.addHttpContent(lastHttpContent);
+        log.warn(errorMessage);
     }
 }

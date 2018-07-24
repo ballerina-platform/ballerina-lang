@@ -28,25 +28,28 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
+import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_100_CONTINUE_RESPONSE;
 
 /**
- * State between end of payload read and start of response headers write
+ * Special state of sending 100-continue response
  */
-public class EntityBodyReceived implements ListenerState {
+public class Response100ContinueSent extends SendingHeaders {
 
-    private static Logger log = LoggerFactory.getLogger(EntityBodyReceived.class);
+    private static Logger log = LoggerFactory.getLogger(Response100ContinueSent.class);
     private final ListenerStateContext stateContext;
+    private final HttpOutboundRespListener outboundResponseListener;
+    private final SourceHandler sourceHandler;
 
-    public EntityBodyReceived(ListenerStateContext stateContext) {
+    public Response100ContinueSent(HttpOutboundRespListener outboundResponseListener,
+                                   SourceHandler sourceHandler,
+                                   ListenerStateContext stateContext) {
+        super(outboundResponseListener, stateContext);
+        this.outboundResponseListener = outboundResponseListener;
+        this.sourceHandler = sourceHandler;
         this.stateContext = stateContext;
-    }
-
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) {
-        // Not a dependant action of this state.
     }
 
     @Override
@@ -56,7 +59,9 @@ public class EntityBodyReceived implements ListenerState {
 
     @Override
     public void readInboundReqEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
-        // Not a dependant action of this state.
+        stateContext.setState(new ReceivingEntityBody(stateContext, outboundResponseListener.getInboundRequestMsg(),
+                                                      sourceHandler));
+        stateContext.getState().readInboundReqEntityBody(inboundRequestEntityBody);
     }
 
     @Override
@@ -65,20 +70,16 @@ public class EntityBodyReceived implements ListenerState {
     }
 
     @Override
-    public void writeOutboundResponse(HttpOutboundRespListener outboundResponseListener,
+    public void writeOutboundResponse(HttpOutboundRespListener outboundRespListener,
                                       HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        stateContext.setState(new SendingHeaders(outboundResponseListener, stateContext));
-        stateContext.getState().writeOutboundResponseHeaders(outboundResponseMsg, httpContent);
+        super.writeOutboundResponseHeaders(outboundResponseMsg, httpContent);
     }
 
     @Override
     public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture) {
-        try {
-            serverConnectorFuture.notifyErrorListener(
-                    new ServerConnectorException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE));
-        } catch (ServerConnectorException e) {
-            log.error("Error while notifying error state to server-connector listener");
-        }
+        // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
+        log.error(REMOTE_CLIENT_CLOSED_WHILE_WRITING_100_CONTINUE_RESPONSE);
+
     }
 
     @Override

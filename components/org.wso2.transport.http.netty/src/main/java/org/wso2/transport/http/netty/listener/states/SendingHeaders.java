@@ -18,45 +18,34 @@
 
 package org.wso2.transport.http.netty.listener.states;
 
-import io.netty.buffer.CompositeByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.SourceInteractiveState;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
+import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
-import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
-import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.wso2.transport.http.netty.common.Constants.CHUNKING_CONFIG;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
-import static org.wso2.transport.http.netty.common.SourceInteractiveState.RESPONSE_100_CONTINUE_SENT;
-import static org.wso2.transport.http.netty.common.SourceInteractiveState.SENDING_ENTITY_BODY;
-import static org.wso2.transport.http.netty.common.Util.createFullHttpResponse;
 import static org.wso2.transport.http.netty.common.Util.createHttpResponse;
 import static org.wso2.transport.http.netty.common.Util.isLastHttpContent;
 import static org.wso2.transport.http.netty.common.Util.isVersionCompatibleForChunking;
 import static org.wso2.transport.http.netty.common.Util.setupChunkedRequest;
-import static org.wso2.transport.http.netty.common.Util.setupContentLengthRequest;
 import static org.wso2.transport.http.netty.common.Util.shouldEnforceChunkingforHttpOneZero;
 
 /**
- * Custom Http Content Compressor to handle the content-length and transfer encoding.
+ * State between start and end of outbound response headers write
  */
 public class SendingHeaders implements ListenerState {
 
@@ -77,23 +66,35 @@ public class SendingHeaders implements ListenerState {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-
+        // Not a dependant action of this state.
     }
 
     @Override
     public void readInboundRequestHeaders(ChannelHandlerContext ctx, HttpRequest inboundRequestHeaders) {
-
+        // Not a dependant action of this state.
     }
 
     @Override
     public void readInboundReqEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
-
+        // Not a dependant action of this state.
     }
 
     @Override
     public void writeOutboundResponse(HttpOutboundRespListener outboundResponseListener,
                                       HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
+        // Not a dependant action of this state.
+    }
 
+    @Override
+    public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture) {
+        // Not a dependant action of this state.
+    }
+
+    @Override
+    public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
+                                                            ChannelHandlerContext ctx,
+                                                            IdleStateEvent evt) {
+        return null;
     }
 
     @Override
@@ -102,17 +103,6 @@ public class SendingHeaders implements ListenerState {
                 (ChunkConfig) outboundResponseMsg.getProperty(CHUNKING_CONFIG) : null;
         if (responseChunkConfig != null) {
             this.setChunkConfig(responseChunkConfig);
-        }
-        if (outboundResponseListener.isContinueRequest()) {
-//            sourceErrorHandler.setState(RESPONSE_100_CONTINUE_SENT);
-            outboundResponseListener.setContinueRequest(false);
-        } else {
-//            if (sourceErrorHandler.getState().equals(SourceInteractiveState.RECEIVING_ENTITY_BODY)) {
-                // Response is being sent before finish reading the inbound request,
-                // hence close the connection once the response is sent.
-//                keepAlive = false;
-//            }
-//            sourceErrorHandler.setState(SENDING_ENTITY_BODY);
         }
         outboundRespStatusFuture = outboundResponseListener.getInboundRequestMsg().getHttpOutboundRespStatusFuture();
         if (isLastHttpContent(httpContent)) {

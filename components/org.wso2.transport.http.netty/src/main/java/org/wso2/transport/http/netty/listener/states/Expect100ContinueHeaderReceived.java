@@ -18,7 +18,6 @@
 
 package org.wso2.transport.http.netty.listener.states;
 
-
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
@@ -29,49 +28,39 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
-import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
-import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST;
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST;
+import static org.wso2.transport.http.netty.common.Constants
+        .REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
 
 /**
- * State between connection creation and start of inbound request header read
+ * Special state of receiving request with expect:100-continue header
  */
-public class Connected implements ListenerState {
+public class Expect100ContinueHeaderReceived implements ListenerState {
 
-    private static Logger log = LoggerFactory.getLogger(Connected.class);
-    private final SourceHandler sourceHandler;
+    private static Logger log = LoggerFactory.getLogger(Expect100ContinueHeaderReceived.class);
     private final ListenerStateContext stateContext;
+    private final SourceHandler sourceHandler;
 
-    public Connected(SourceHandler sourceHandler, ListenerStateContext stateContext) {
-        this.sourceHandler = sourceHandler;
+    public Expect100ContinueHeaderReceived(
+            ListenerStateContext stateContext, SourceHandler sourceHandler) {
         this.stateContext = stateContext;
+        this.sourceHandler = sourceHandler;
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        sourceHandler.getAllChannels().add(ctx.channel());
-        HandlerExecutor handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
-        sourceHandler.setHandlerExecutor(handlerExecutor);
-        if (handlerExecutor != null) {
-            handlerExecutor.executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
-        }
-        sourceHandler.setRemoteAddress(ctx.channel().remoteAddress());
-//        sourceErrorHandler.setState(CONNECTED);
-
+        // Not a dependant action of this state.
     }
 
     @Override
     public void readInboundRequestHeaders(ChannelHandlerContext ctx, HttpRequest inboundRequestHeaders) {
-        stateContext.setState(new ReceivingHeaders(sourceHandler, stateContext));
-        stateContext.getState().readInboundRequestHeaders(ctx, inboundRequestHeaders);
+        // Not a dependant action of this state.
     }
 
     @Override
-    public void readInboundReqEntityBody(Object inboundRequestEntityBody) {
+    public void readInboundReqEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
         // Not a dependant action of this state.
     }
 
@@ -83,16 +72,15 @@ public class Connected implements ListenerState {
     @Override
     public void writeOutboundResponse(HttpOutboundRespListener outboundResponseListener,
                                       HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        // Not a dependant action of this state.
+        stateContext.setState(new Response100ContinueSent(outboundResponseListener, sourceHandler, stateContext));
+        stateContext.getState().writeOutboundResponse(outboundResponseListener, outboundResponseMsg, httpContent);
     }
 
     @Override
     public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture) {
         try {
             serverConnectorFuture.notifyErrorListener(
-                    new ServerConnectorException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST));
-            // Error is notified to server connector. Debug log is to make transport layer aware
-            log.debug(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST);
+                    new ServerConnectorException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE));
         } catch (ServerConnectorException e) {
             log.error("Error while notifying error state to server-connector listener");
         }
@@ -102,14 +90,6 @@ public class Connected implements ListenerState {
     public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
                                                             ChannelHandlerContext ctx,
                                                             IdleStateEvent evt) {
-        try {
-            serverConnectorFuture.notifyErrorListener(
-                    new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST));
-            // Error is notified to server connector. Debug log is to make transport layer aware
-            log.debug(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST);
-        } catch (ServerConnectorException e) {
-            log.error("Error while notifying error state to server-connector listener");
-        }
         return null;
     }
 }
