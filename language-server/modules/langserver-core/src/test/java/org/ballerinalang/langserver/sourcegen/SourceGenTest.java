@@ -86,7 +86,7 @@ public class SourceGenTest {
     }
 
     /**
-     * File visitor for file walker
+     * File visitor for file walker.
      */
     static class FileVisitor extends SimpleFileVisitor<Path> {
         private List<File> files;
