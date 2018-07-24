@@ -23,8 +23,6 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerInstance;
-import org.ballerinalang.test.util.HttpClientRequest;
-import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -55,7 +53,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 /**
  * Testing pushing, pulling, searching a package from central and installing package to home repository.
  */
-public class PackagingTestsAgainstCentral extends IntegrationTestCase {
+public class PackagingTestCase extends IntegrationTestCase {
     private ServerInstance ballerinaClient;
     private String serverZipPath;
     private Path tempHomeDirectory;
@@ -187,13 +185,6 @@ public class PackagingTestsAgainstCentral extends IntegrationTestCase {
         ballerinaClient.addLogLeecher(clientLeecher);
         ballerinaClient.runMain(clientArgs, getEnvVariables(), "push");
         clientLeecher.waitForText(5000);
-
-        // Check if package Exists
-        String stagingURL = "https://api.staging-central.ballerina.io/packages/";
-        HttpResponse response = HttpClientRequest.doGet(stagingURL + "integrationtests/" + packageName
-                                                                + "/1.0.0");
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-
     }
 
     @Test(description = "Test pushing a package to the home repository (installing a package)")
@@ -215,13 +206,16 @@ public class PackagingTestsAgainstCentral extends IntegrationTestCase {
         Path dirPath = Paths.get(ProjectDirConstants.CACHES_DIR_NAME,
                                  ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME,
                                  "integrationtests", packageName, "1.0.0");
+
         given().with().pollInterval(Duration.TEN_SECONDS).and()
-               .with().pollDelay(Duration.FIVE_SECONDS).await().atMost(60, SECONDS).until(() -> {
+               .with().pollDelay(Duration.FIVE_SECONDS)
+               .await().atMost(60, SECONDS).until(() -> {
             ballerinaClient = new ServerInstance(serverZipPath);
             String[] clientArgs = {"integrationtests/" + packageName + ":1.0.0"};
             ballerinaClient.runMain(clientArgs, getEnvVariables(), "pull");
             return Files.exists(tempHomeDirectory.resolve(dirPath).resolve(packageName + ".zip"));
         });
+
         Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(dirPath).resolve(packageName + ".zip")));
     }
 

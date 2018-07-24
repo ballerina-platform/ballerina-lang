@@ -25,7 +25,7 @@
 
     <test name="ballerina-packaging-sample-tests" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.ballerinalang.test.packaging.PackagingTestsAgainstCentral"/>
+            <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>
         </classes>
     </test>
 
