@@ -15,9 +15,8 @@ import { BallerinaLanguageClientContribution } from './ballerina-language-client
 import { ContainerModule } from "inversify";
 
 export default new ContainerModule(bind => {
-    // add your contribution bindings here
+    bind(LanguageClientContribution).to(BallerinaLanguageClientContribution).inSingletonScope();
     bind(CommandContribution).to(BallerinaCommandContribution);
     bind(MenuContribution).to(BallerinaMenuContribution);
     bind(LanguageGrammarDefinitionContribution).to(BallerinaGrammarContribution).inSingletonScope();
-    bind(LanguageClientContribution).to(BallerinaLanguageClientContribution).inSingletonScope();
 });

@@ -7872,9 +7872,9 @@ typescript-language-server@^0.1.14:
     vscode-languageserver "^3.4.3"
     vscode-uri "^1.0.1"
 
-typescript@next:
-  version "3.1.0-dev.20180721"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.1.0-dev.20180721.tgz#690467dccdf00c2910611ce3eb8efcffd5f43dbd"
+typescript@^2.9.2:
+  version "2.9.2"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.9.2.tgz#1cbf61d05d6b96269244eb6a3bce4bd914e0f00c"
 
 ua-parser-js@^0.7.18:
   version "0.7.18"
