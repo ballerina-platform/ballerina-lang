@@ -78,9 +78,9 @@ public class PackagingInitTestCase extends IntegrationTestCase {
 
         InitHandler.initialize(projectPath, manifest, sourceFiles, packageDescFiles);
 
-        Assert.assertEquals(Files.exists(projectPath.resolve("foo").resolve("main.bal")), true);
-        Assert.assertEquals(Files.exists(projectPath.resolve("Ballerina.toml")), true);
-        Assert.assertEquals(Files.exists(projectPath.resolve("foo").resolve("tests").resolve("main_test.bal")), true);
+        Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("main.bal")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("tests").resolve("main_test.bal")));
 
         ballerinaServerForMain = new ServerInstance(serverZipPath);
         String[] clientArgs = {"--sourceroot", projectPath.toString(), "foo"};
@@ -102,10 +102,9 @@ public class PackagingInitTestCase extends IntegrationTestCase {
 
         InitHandler.initialize(projectPath, manifest, sourceFiles, packageDescFiles);
 
-        Assert.assertEquals(Files.exists(projectPath.resolve("foo").resolve("hello_service.bal")), true);
-        Assert.assertEquals(Files.exists(projectPath.resolve("Ballerina.toml")), true);
-        Assert.assertEquals(Files.exists(projectPath.resolve("foo").resolve("tests").resolve("hello_service_test.bal")),
-                            true);
+        Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("hello_service.bal")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("tests").resolve("hello_service_test.bal")));
 
         ballerinaServerForService = ServerInstance.initBallerinaServer();
         ballerinaServerForService.startBallerinaServer(projectPath.resolve("foo").resolve("hello_service.bal")
@@ -132,12 +131,11 @@ public class PackagingInitTestCase extends IntegrationTestCase {
 
         InitHandler.initialize(projectPath, manifest, sourceFiles, packageDescFiles);
 
-        Assert.assertEquals(Files.exists(projectPath.resolve("foo").resolve("main.bal")), true);
-        Assert.assertEquals(Files.exists(projectPath.resolve("bar").resolve("hello_service.bal")), true);
-        Assert.assertEquals(Files.exists(projectPath.resolve("Ballerina.toml")), true);
-        Assert.assertEquals(Files.exists(projectPath.resolve("foo").resolve("tests").resolve("main_test.bal")), true);
-        Assert.assertEquals(Files.exists(projectPath.resolve("bar").resolve("tests").resolve("hello_service_test.bal")),
-                            true);
+        Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("main.bal")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("bar").resolve("hello_service.bal")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("tests").resolve("main_test.bal")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("bar").resolve("tests").resolve("hello_service_test.bal")));
         // Test for main
         ballerinaServerForMain = new ServerInstance(serverZipPath);
         String[] clientArgs = {"--sourceroot", projectPath.toString(), "foo"};
@@ -160,16 +158,15 @@ public class PackagingInitTestCase extends IntegrationTestCase {
         Files.createDirectories(projectPath);
 
         sourceFiles = new ArrayList<>();
-        packageDescFiles = new ArrayList<>();
-
         sourceFiles.add(new SrcFile("", FileType.SERVICE));
-        packageDescFiles.add(new PackageMdFile("", FileType.SERVICE));
+        
+        packageDescFiles = new ArrayList<>();
 
         InitHandler.initialize(projectPath, manifest, sourceFiles, packageDescFiles);
 
-        Assert.assertEquals(Files.exists(projectPath.resolve("hello_service.bal")), true);
-        Assert.assertEquals(Files.exists(projectPath.resolve("Ballerina.toml")), true);
-        Assert.assertEquals(Files.exists(projectPath.resolve(".ballerina")), true);
+        Assert.assertTrue(Files.exists(projectPath.resolve("hello_service.bal")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
+        Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina")));
 
         // Test for service
         ballerinaServerForService = ServerInstance.initBallerinaServer();
@@ -186,9 +183,9 @@ public class PackagingInitTestCase extends IntegrationTestCase {
         InitHandler.initialize(projectPath, manifest, new ArrayList<>(), new ArrayList<>());
 
         Path packagePath = projectPath.resolve("foo");
-        Assert.assertEquals(Files.exists(packagePath.resolve("main.bal")), true);
-        Assert.assertEquals(Files.exists(projectPath.resolve("Ballerina.toml")), true);
-        Assert.assertEquals(Files.exists(packagePath.resolve("tests").resolve("main_test.bal")), true);
+        Assert.assertTrue(Files.exists(packagePath.resolve("main.bal")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
+        Assert.assertTrue(Files.exists(packagePath.resolve("tests").resolve("main_test.bal")));
 
         ballerinaServerForMain = new ServerInstance(serverZipPath);
         String[] clientArgs = {"--sourceroot", projectPath.toString(), "foo"};
@@ -210,14 +207,13 @@ public class PackagingInitTestCase extends IntegrationTestCase {
 
         InitHandler.initialize(projectPath, manifest, sourceFiles, packageDescFiles);
 
-        Assert.assertEquals(Files.exists(projectPath.resolve("newpkg").resolve("main.bal")), true);
-        Assert.assertEquals(Files.exists(projectPath.resolve("Ballerina.toml")), true);
-        Assert.assertEquals(Files.exists(projectPath.resolve("newpkg").resolve("tests").resolve("main_test.bal")),
-                            true);
+        Assert.assertTrue(Files.exists(projectPath.resolve("newpkg").resolve("main.bal")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("newpkg").resolve("tests").resolve("main_test.bal")));
 
-        Assert.assertEquals(Files.exists(projectPath.resolve("foo").resolve("main.bal")), true);
-        Assert.assertEquals(Files.exists(projectPath.resolve("Ballerina.toml")), true);
-        Assert.assertEquals(Files.exists(projectPath.resolve("foo").resolve("tests").resolve("main_test.bal")), true);
+        Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("main.bal")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("tests").resolve("main_test.bal")));
 
         ballerinaServerForMain = new ServerInstance(serverZipPath);
         String[] clientArgs = {"--sourceroot", projectPath.toString(), "newpkg"};

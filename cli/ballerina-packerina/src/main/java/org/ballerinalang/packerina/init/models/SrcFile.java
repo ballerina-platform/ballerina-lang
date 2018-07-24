@@ -167,7 +167,11 @@ public class SrcFile {
                 break;
         }
     }
-    
+
+    public SrcFile (FileType fileType) {
+        this.name = "";
+        this.srcFileType = fileType;
+    }
     public FileType getSrcFileType() {
         return srcFileType;
     }
