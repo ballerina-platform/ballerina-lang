@@ -279,10 +279,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean docExists = ctx.documentationAttachment() != null;
+        boolean markdownDocExists = ctx.documentationString() != null;
         boolean isDeprecated = ctx.deprecatedAttachment() != null;
         boolean hasParameters = ctx.resourceParameterList() != null;
         this.pkgBuilder.endResourceDef(getCurrentPos(ctx), getWS(ctx),
-                ctx.Identifier().getText(), docExists, isDeprecated, hasParameters);
+                ctx.Identifier().getText(), docExists, markdownDocExists, isDeprecated, hasParameters);
     }
 
     @Override
@@ -486,8 +487,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean publicFunc = ctx.PUBLIC() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
         boolean docExists = ctx.documentationAttachment() != null;
+        boolean markdownDocExists = ctx.documentationString() != null;
         this.pkgBuilder.endObjectInitFunctionDef(getCurrentPos(ctx), getWS(ctx), ctx.NEW().getText(),
-                publicFunc, bodyExists, docExists, false, ctx.annotationAttachment().size());
+                publicFunc, bodyExists, docExists, markdownDocExists, false, ctx.annotationAttachment().size());
     }
 
     /**
@@ -626,9 +628,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean nativeFunc = ctx.NATIVE() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
         boolean docExists = ctx.documentationAttachment() != null;
+        boolean markdownDocExists = ctx.documentationString() != null;
         boolean deprecatedDocExists = ctx.deprecatedAttachment() != null;
         this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, isPrivate,
-                nativeFunc, bodyExists, docExists, deprecatedDocExists, ctx.annotationAttachment().size());
+                nativeFunc, bodyExists, docExists, markdownDocExists, deprecatedDocExists,
+                ctx.annotationAttachment().size());
     }
 
     /**
@@ -2951,6 +2955,89 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         this.pkgBuilder.endDocumentationAttachment(getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void enterDocumentationString(BallerinaParser.DocumentationStringContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.startMarkdownDocumentationString(getCurrentPos(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitDocumentationString(BallerinaParser.DocumentationStringContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.endMarkdownDocumentationString(getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitDocumentationContent(BallerinaParser.DocumentationContentContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        String text = ctx.getText() != null ? ctx.getText() : "";
+        this.pkgBuilder.endMarkdownDocumentationText(getCurrentPos(ctx), text);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitParameterDocumentation(BallerinaParser.ParameterDocumentationContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        String parameterName = ctx.docParameterName() != null ? ctx.docParameterName().getText() : "";
+        String description = ctx.docParameterDescription() != null ? ctx.docParameterDescription().getText() : "";
+        this.pkgBuilder.endParameterDocumentation(getCurrentPos(ctx), parameterName, description);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitParameterDescription(BallerinaParser.ParameterDescriptionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        String description = ctx.documentationText() != null ? ctx.documentationText().getText() : "";
+        this.pkgBuilder.endParameterDocumentationDescription(description);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitReturnParameterDocumentation(BallerinaParser.ReturnParameterDocumentationContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        String description = ctx.docParameterDescription() != null ? ctx.docParameterDescription().getText() : "";
+        this.pkgBuilder.endReturnParameterDocumentation(getCurrentPos(ctx.getParent()), description);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitReturnParameterDescription(BallerinaParser.ReturnParameterDescriptionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        String description = ctx.documentationText() != null ? ctx.documentationText().getText() : "";
+        this.pkgBuilder.endReturnParameterDocumentationDescription(description);
     }
 
     /**

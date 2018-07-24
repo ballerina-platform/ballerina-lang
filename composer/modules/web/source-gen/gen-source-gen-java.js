@@ -31,7 +31,6 @@ const utilList = [];
 const kindList = [];
 
 function join(arr, sep, indent) {
-    // const indentLen = indent.lenght;
     const maxLen = 65;
     const str = arr.join(sep);
     let s = 0;
@@ -168,10 +167,7 @@ stream.once('open', () => {
                         pushWithWS(js, 'node' + accessJsonObjs(getter) + '.getAsString()', getter);
                     }
 
-                    if (getter === 'joinCount') {
-                        // HACK
-                        condition.push(getter + ' >= 0');
-                    } else if (getter) {
+                    if (getter) {
                         condition.push(getter);
                     }
                 } else if (p.match(/^<.*>[*+]$/)) {
@@ -243,6 +239,8 @@ stream.once('open', () => {
                     result = nullCheck + ' && ' + valueCheck;
                 } else if (propertyComps[propertyComps.length - 1] === 'size()') {
                     result += ' > 0';
+                } else if (propertyComps[propertyComps.length - 1] === 'joinCount') {
+                    result += '.getAsInt() >= 0';
                 } else {
                     result += ' != null';
                 }

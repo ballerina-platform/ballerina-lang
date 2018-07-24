@@ -43,7 +43,7 @@ import java.util.Arrays;
  * bytes I/O reading/writing APIs.
  * </p>
  */
-public abstract class Channel {
+public abstract class Channel implements IOChannel {
     /**
      * Will be used to read/write bytes to/from channels.
      */
@@ -113,6 +113,7 @@ public abstract class Channel {
      * @param size    the size of the fixed buffer.
      * @throws BallerinaIOException initialization error.
      */
+    @Deprecated
     public Channel(ByteChannel channel, Reader reader, Writer writer, int size) throws BallerinaIOException {
         if (null != channel) {
             this.channel = channel;
@@ -139,12 +140,39 @@ public abstract class Channel {
     public abstract void transfer(int position, int count, WritableByteChannel dstChannel) throws IOException;
 
     /**
+     * Specifies whether the channel is selectable.
+     *
+     * @return true if the channel is selectable.
+     */
+    public abstract boolean isSelectable();
+
+    /**
+     * Returns the hashcode of the channel as the id.
+     *
+     * @return id of the channel.
+     */
+    @Override
+    public int id() {
+        return channel.hashCode();
+    }
+
+    /**
      * Specifies whether the channel has reached to it's end.
      *
      * @return true if the channel has reached to it's end
      */
+    @Override
     public boolean hasReachedEnd() {
         return hasReachedToEnd;
+    }
+
+    /**
+     * This will return {@link ByteChannel} instance that use underneath.
+     *
+     * @return {@link ByteChannel} instance.
+     */
+    public ByteChannel getByteChannel() {
+        return channel;
     }
 
     /**
@@ -158,7 +186,7 @@ public abstract class Channel {
      */
     public int read(ByteBuffer buffer) throws IOException {
         int readBytes = reader.read(buffer, channel);
-        if (readBytes <= 0) {
+        if (readBytes < 0) {
             //Since we're counting the bytes if a value < 0 is returned, this will be re-set
             readBytes = 0;
             hasReachedToEnd = true;
@@ -225,6 +253,7 @@ public abstract class Channel {
      *
      * @throws IOException errors occur while closing the connection.
      */
+    @Override
     public void close() throws IOException {
         try {
             if (null != channel) {

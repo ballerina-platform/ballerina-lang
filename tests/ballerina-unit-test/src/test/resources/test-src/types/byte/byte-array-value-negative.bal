@@ -11,7 +11,7 @@ function base16InvalidLiteralTest() {
 function base64InvalidLiteralTest() {
     byte[] a = base6 4 `aa ab cc ad af df 1a d2 f3 a4`;
     byte[] b = base 64 `aaabccadafcd 1a4b abcd12dff45d`;
-    byte[] c = base64 `aaabcfccad afcd3 4bdf abcd ferf #$$$=`;
+    byte[] c = base64 `aaabcfccad afcd3 4bdf abcd ferf $$$$=`;
     byte[] d = base64 `aaabcfccad afcd34 1a4bdf abcd8912df kmk=`;
     byte[] e = base64 "afcd34abcdef123aGc234bcd1a4bdfABbadaBCd892s3as==";
     byte[] f = base64 `afcd341a4bdfaaabmcfccadabcd89 12df ss==`;

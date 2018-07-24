@@ -35,6 +35,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -48,7 +49,8 @@ public class ExpectContinueTestCase {
     @BeforeClass
     public void setup() throws Exception {
         ballerinaServer = ServerInstance.initBallerinaServer();
-        String resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+        String resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath())
+                .getAbsolutePath();
         String balFile = Paths.get(resourceRoot, "httpService", "100_continue.bal").toAbsolutePath().toString();
         ballerinaServer.startBallerinaServer(balFile);
     }

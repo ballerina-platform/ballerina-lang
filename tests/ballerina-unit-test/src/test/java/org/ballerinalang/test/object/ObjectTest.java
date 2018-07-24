@@ -22,10 +22,14 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 
 /**
  * Test cases for user defined object types in ballerina.
@@ -589,4 +593,18 @@ public class ObjectTest {
         Assert.assertEquals(returns[0].stringValue(), "hello foo");
     }
 
+    @Test
+    public void testStructPrint() {
+        PrintStream prevOut = System.out;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        CompileResult compileResult =
+                BCompileUtil.compile("test-src/object/object-print.bal");
+        System.setOut(new PrintStream(out));
+        BValue[] returns = BRunUtil.invoke(compileResult, "testPrintingObject");
+        System.setOut(prevOut);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BMap.class);
+        Assert.assertEquals(returns[0].stringValue(), "{age:20, name:\"John\"}");
+        Assert.assertEquals(out.toString().trim(), "{age:20, name:\"John\"}");
+    }
 }

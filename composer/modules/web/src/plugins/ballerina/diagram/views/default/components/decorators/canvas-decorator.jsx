@@ -49,12 +49,12 @@ class CanvasDecorator extends React.Component {
             x: 0,
             y: 0,
         };
-        const { fitToWidth } = this.context;
+        const { editMode } = this.context;
         const svgSize = {
-            w: fitToWidth ? this.props.containerSize.width : this.props.bBox.w,
+            w: editMode ? this.props.containerSize.width : this.props.bBox.w,
             h: this.props.bBox.h,
         };
-        const viewBox = fitToWidth ? `0 0 ${this.props.bBox.w} ${this.props.bBox.h}` : '';
+        const viewBox = editMode ? `0 0 ${this.props.bBox.w} ${this.props.bBox.h}` : '';
         return (
             <div className='' style={{ width: svgSize.w }} >
                 <div ref={(x) => { setCanvasOverlay(x); }}>
@@ -66,7 +66,7 @@ class CanvasDecorator extends React.Component {
                     height={svgSize.h}
                     viewBox={viewBox}
                     preserveAspectRatio='xMinYMin'
-                    style={{ pointerEvents: fitToWidth ? 'none' : 'auto' }}
+                    style={{ pointerEvents: editMode ? 'none' : 'auto' }}
                 >
                     <DropZone
                         x='0'
@@ -101,7 +101,7 @@ CanvasDecorator.propTypes = {
 };
 
 CanvasDecorator.contextTypes = {
-    fitToWidth: PropTypes.bool,
+    editMode: PropTypes.bool,
 };
 
 CanvasDecorator.defaultProps = {

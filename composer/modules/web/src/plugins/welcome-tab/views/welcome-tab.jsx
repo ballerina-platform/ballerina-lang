@@ -46,7 +46,7 @@ class WelcomeTab extends React.Component {
 
     renderSamples() {
         const pathSeperator = getPathSeperator();
-        const ballerinaHome = this.props.balHome;
+        const samplesDir = this.props.samplesDir;
         let sampleConfigs = [];
         sampleConfigs = this.props.samples.map(sample => ({
             sampleName: sample.name,
@@ -57,18 +57,18 @@ class WelcomeTab extends React.Component {
                 const sampleFolder = sample.folder ? sample.folder.split('/').join(pathSeperator) : '';
                 if (sample.isFile) {
                     this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FILE, {
-                        filePath: ballerinaHome + sampleFile,
+                        filePath: samplesDir + sampleFile,
                         ext: 'bal',
                     });
                 } else {
                     if (sample.openFolder) {
                         this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FOLDER, {
-                            folderPath: ballerinaHome + sampleFolder,
+                            folderPath: samplesDir + sampleFolder,
                         });
                         this.props.commandManager.dispatch(LAYOUT_COMMANDS.SHOW_VIEW, { id: WORKSPACE_VIEWS.EXPLORER });
                     }
                     this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FILE, {
-                        filePath: ballerinaHome + sampleFile,
+                        filePath: samplesDir + sampleFile,
                         ext: 'bal',
                     });
                 }
@@ -93,8 +93,8 @@ class WelcomeTab extends React.Component {
 
     openSampleDir(url) {
         const pathSeperator = getPathSeperator();
-        const ballerinaHome = this.props.balHome;
-        const folderPath = `${ballerinaHome}${pathSeperator}docs${pathSeperator}examples${pathSeperator}${url}`;
+        const samplesDir = this.props.samplesDir;
+        const folderPath = `${samplesDir}${pathSeperator}${url}`;
 
         this.props.commandManager.dispatch(WORKSPACE_COMMANDS.OPEN_FOLDER, {
             folderPath,
@@ -148,6 +148,11 @@ class WelcomeTab extends React.Component {
                                 rel='noopener noreferrer'
                                 target='_blank'
                                 href='https://ballerina.io/learn/api-docs/ballerina/http.html'
+                                onClick={(event) => {
+                                    event.preventDefault();
+                                    this.props.commandManager.dispatch(WORKSPACE_COMMANDS.SHOW_EXTERNAL_LINK,
+                                         { url: event.currentTarget.href });
+                                }}
                             >
                                 <Menu.Item name='API Reference' />
                             </a>
@@ -254,7 +259,7 @@ WelcomeTab.propTypes = {
         path: PropTypes.string.isRequired,
         image: PropTypes.string.isRequired,
     })).isRequired,
-    balHome: PropTypes.string.isRequired,
+    samplesDir: PropTypes.string.isRequired,
     commandManager: PropTypes.objectOf(Object).isRequired,
 };
 
