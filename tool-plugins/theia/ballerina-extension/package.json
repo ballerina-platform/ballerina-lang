@@ -9,16 +9,16 @@
     "src"
   ],
   "dependencies": {
-    "@theia/callhierarchy": "next",
-    "@theia/core": "next",
-    "@theia/languages": "next",
-    "@theia/monaco": "next",
+    "@theia/callhierarchy": "latest",
+    "@theia/core": "latest",
+    "@theia/languages": "latest",
+    "@theia/monaco": "latest",
     "typescript": "^2.9.2",
     "vscode-textmate": "^4.0.1"
   },
   "devDependencies": {
-    "rimraf": "next",
-    "typescript": "next"
+    "rimraf": "latest",
+    "typescript": "latest"
   },
   "scripts": {
     "prepare": "yarn run clean && yarn run build",

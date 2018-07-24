@@ -112,11 +112,11 @@
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-0.7.0.tgz#9a06f4f137ee84d7df0460c1fdb1135ffa6c50fd"
 
-"@theia/application-manager@0.4.0-next.e445a4cd":
-  version "0.4.0-next.e445a4cd"
-  resolved "https://registry.yarnpkg.com/@theia/application-manager/-/application-manager-0.4.0-next.e445a4cd.tgz#71868d5639af2cf4209d1868fc67b65303baf490"
+"@theia/application-manager@^0.3.12":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/application-manager/-/application-manager-0.3.12.tgz#62ecd64f77995f694184675ec02961a1213be5a2"
   dependencies:
-    "@theia/application-package" "0.4.0-next.e445a4cd"
+    "@theia/application-package" "^0.3.12"
     bunyan "^1.8.10"
     circular-dependency-plugin "^4.0.0"
     copy-webpack-plugin "^4.5.0"
@@ -135,9 +135,9 @@
     webpack-cli "2.0.12"
     worker-loader "^1.1.1"
 
-"@theia/application-package@0.4.0-next.e445a4cd":
-  version "0.4.0-next.e445a4cd"
-  resolved "https://registry.yarnpkg.com/@theia/application-package/-/application-package-0.4.0-next.e445a4cd.tgz#c637b9b7a975f63e158f81089a214fc04f93d39d"
+"@theia/application-package@0.4.0-next.b9941f63":
+  version "0.4.0-next.b9941f63"
+  resolved "https://registry.yarnpkg.com/@theia/application-package/-/application-package-0.4.0-next.b9941f63.tgz#fbd1820f26378c1969c1414adacbcad8c1faf8b0"
   dependencies:
     "@types/fs-extra" "^4.0.2"
     "@types/request" "^2.0.3"
@@ -149,28 +149,42 @@
     semver "^5.4.1"
     write-json-file "^2.2.0"
 
-"@theia/callhierarchy@0.4.0-next.e445a4cd", "@theia/callhierarchy@next":
-  version "0.4.0-next.e445a4cd"
-  resolved "https://registry.yarnpkg.com/@theia/callhierarchy/-/callhierarchy-0.4.0-next.e445a4cd.tgz#11d7cc9eaca6f131e64cd87b1588a7fd7a54207f"
+"@theia/application-package@^0.3.12":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/application-package/-/application-package-0.3.12.tgz#0008e573ded5a20da7d27a1b504fa63254b8075e"
   dependencies:
-    "@theia/core" "0.4.0-next.e445a4cd"
-    "@theia/editor" "0.4.0-next.e445a4cd"
-    "@theia/languages" "0.4.0-next.e445a4cd"
-    "@theia/monaco" "0.4.0-next.e445a4cd"
+    "@types/fs-extra" "^4.0.2"
+    "@types/request" "^2.0.3"
+    "@types/semver" "^5.4.0"
+    "@types/write-json-file" "^2.2.1"
+    changes-stream "^2.2.0"
+    fs-extra "^4.0.2"
+    request "^2.82.0"
+    semver "^5.4.1"
+    write-json-file "^2.2.0"
+
+"@theia/callhierarchy@^0.3.12", "@theia/callhierarchy@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/callhierarchy/-/callhierarchy-0.3.12.tgz#00e4c4f7095ab1268fd9ce9e0bf36b8da8d720c6"
+  dependencies:
+    "@theia/core" "^0.3.12"
+    "@theia/editor" "^0.3.12"
+    "@theia/languages" "^0.3.12"
+    "@theia/monaco" "^0.3.12"
     ts-md5 "^1.2.2"
 
-"@theia/cli@next":
-  version "0.4.0-next.e445a4cd"
-  resolved "https://registry.yarnpkg.com/@theia/cli/-/cli-0.4.0-next.e445a4cd.tgz#66b089e60abaa240634eeeed5197e27b9f7f8371"
+"@theia/cli@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/cli/-/cli-0.3.12.tgz#73e9b83a9524b691ae60aad6a4dfb7dbae4fb359"
   dependencies:
-    "@theia/application-manager" "0.4.0-next.e445a4cd"
+    "@theia/application-manager" "^0.3.12"
 
-"@theia/core@0.4.0-next.e445a4cd", "@theia/core@next":
-  version "0.4.0-next.e445a4cd"
-  resolved "https://registry.yarnpkg.com/@theia/core/-/core-0.4.0-next.e445a4cd.tgz#a3e2f0be3c1f6cb679e15e8c315d9fcc142b2c90"
+"@theia/core@0.4.0-next.b9941f63":
+  version "0.4.0-next.b9941f63"
+  resolved "https://registry.yarnpkg.com/@theia/core/-/core-0.4.0-next.b9941f63.tgz#5016a19df5e796149fdaa682d7bd12fad3c10147"
   dependencies:
     "@phosphor/widgets" "^1.5.0"
-    "@theia/application-package" "0.4.0-next.e445a4cd"
+    "@theia/application-package" "0.4.0-next.b9941f63"
     "@types/body-parser" "^1.16.4"
     "@types/bunyan" "^1.8.0"
     "@types/express" "^4.16.0"
@@ -178,7 +192,6 @@
     "@types/lodash.throttle" "^4.1.3"
     "@types/react" "^16.4.1"
     "@types/react-dom" "^16.0.6"
-    "@types/react-virtualized" "^9.18.3"
     "@types/route-parser" "^0.1.1"
     "@types/ws" "^3.0.2"
     "@types/yargs" "^8.0.2"
@@ -195,7 +208,6 @@
     perfect-scrollbar "^1.3.0"
     react "^16.4.1"
     react-dom "^16.4.1"
-    react-virtualized "^9.20.0"
     reconnecting-websocket "^3.0.7"
     reflect-metadata "^0.1.10"
     route-parser "^0.0.5"
@@ -206,19 +218,111 @@
     ws "^3.0.0"
     yargs "^9.0.1"
 
-"@theia/editor@0.4.0-next.e445a4cd", "@theia/editor@next":
-  version "0.4.0-next.e445a4cd"
-  resolved "https://registry.yarnpkg.com/@theia/editor/-/editor-0.4.0-next.e445a4cd.tgz#75ab7a1c5a842694a5c27d7a2676279eba3cf1ba"
+"@theia/core@^0.3.12", "@theia/core@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/core/-/core-0.3.12.tgz#967fa1c049068264156161f16959736a3d5e0fb0"
   dependencies:
-    "@theia/core" "0.4.0-next.e445a4cd"
-    "@theia/languages" "0.4.0-next.e445a4cd"
-    "@theia/variable-resolver" "0.4.0-next.e445a4cd"
+    "@phosphor/widgets" "^1.5.0"
+    "@theia/application-package" "^0.3.12"
+    "@types/body-parser" "^1.16.4"
+    "@types/bunyan" "^1.8.0"
+    "@types/express" "^4.16.0"
+    "@types/lodash.debounce" "4.0.3"
+    "@types/lodash.throttle" "^4.1.3"
+    "@types/react" "^16.4.1"
+    "@types/react-dom" "^16.0.6"
+    "@types/route-parser" "^0.1.1"
+    "@types/ws" "^3.0.2"
+    "@types/yargs" "^8.0.2"
+    ajv "^5.2.2"
+    body-parser "^1.17.2"
+    electron "1.8.2-beta.5"
+    es6-promise "^4.2.4"
+    express "^4.16.3"
+    file-icons-js "^1.0.3"
+    font-awesome "^4.7.0"
+    inversify "^4.2.0"
+    lodash.debounce "^4.0.8"
+    lodash.throttle "^4.1.1"
+    perfect-scrollbar "^1.3.0"
+    react "^16.4.1"
+    react-dom "^16.4.1"
+    reconnecting-websocket "^3.0.7"
+    reflect-metadata "^0.1.10"
+    route-parser "^0.0.5"
+    vscode-languageserver-types "^3.6.1"
+    vscode-nsfw "^1.0.17"
+    vscode-uri "^1.0.1"
+    vscode-ws-jsonrpc "^0.0.2-1"
+    ws "^3.0.0"
+    yargs "^9.0.1"
 
-"@theia/filesystem@0.4.0-next.e445a4cd", "@theia/filesystem@next":
-  version "0.4.0-next.e445a4cd"
-  resolved "https://registry.yarnpkg.com/@theia/filesystem/-/filesystem-0.4.0-next.e445a4cd.tgz#a25bda51de6b014860e9979ead3a3dca77550522"
+"@theia/cpp@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/cpp/-/cpp-0.3.12.tgz#28ec7537c967030aa1cbee8dac585fcce155249b"
   dependencies:
-    "@theia/core" "0.4.0-next.e445a4cd"
+    "@theia/core" "^0.3.12"
+    "@theia/editor" "^0.3.12"
+    "@theia/filesystem" "^0.3.12"
+    "@theia/languages" "^0.3.12"
+    "@theia/monaco" "^0.3.12"
+    "@theia/preferences" "^0.3.12"
+    "@theia/process" "^0.3.12"
+
+"@theia/editor@0.4.0-next.b9941f63":
+  version "0.4.0-next.b9941f63"
+  resolved "https://registry.yarnpkg.com/@theia/editor/-/editor-0.4.0-next.b9941f63.tgz#3351f16776b75df2ff465ac963e517bd5aa1beca"
+  dependencies:
+    "@theia/core" "0.4.0-next.b9941f63"
+    "@theia/languages" "0.4.0-next.b9941f63"
+    "@theia/variable-resolver" "0.4.0-next.b9941f63"
+
+"@theia/editor@^0.3.12", "@theia/editor@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/editor/-/editor-0.3.12.tgz#bbd3ac3e4a39053a053f1fd28c9c3ed7fdeb7392"
+  dependencies:
+    "@theia/core" "^0.3.12"
+    "@theia/languages" "^0.3.12"
+    "@theia/variable-resolver" "^0.3.12"
+
+"@theia/editorconfig@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/editorconfig/-/editorconfig-0.3.12.tgz#c66a05233276e5a25ff25a6e2e52daba9aafbaf9"
+  dependencies:
+    "@theia/core" "^0.3.12"
+    "@theia/editor" "^0.3.12"
+    "@theia/monaco" "^0.3.12"
+    editorconfig "^0.15.0"
+
+"@theia/extension-manager@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/extension-manager/-/extension-manager-0.3.12.tgz#4a1f454ba9c44bdbf6f2932a5736f1eae530e9a5"
+  dependencies:
+    "@theia/application-manager" "^0.3.12"
+    "@theia/core" "^0.3.12"
+    "@theia/filesystem" "^0.3.12"
+    "@types/fs-extra" "^4.0.2"
+    "@types/sanitize-html" "^1.13.31"
+    "@types/showdown" "^1.7.1"
+    fs-extra "^4.0.2"
+    sanitize-html "^1.14.1"
+    showdown "^1.7.4"
+
+"@theia/file-search@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/file-search/-/file-search-0.3.12.tgz#26f653236f713631887e0b280dda670d43cbe291"
+  dependencies:
+    "@theia/core" "^0.3.12"
+    "@theia/filesystem" "^0.3.12"
+    "@theia/workspace" "^0.3.12"
+    fuzzy "^0.1.3"
+    vscode-ripgrep "^1.0.1"
+
+"@theia/filesystem@0.4.0-next.b9941f63":
+  version "0.4.0-next.b9941f63"
+  resolved "https://registry.yarnpkg.com/@theia/filesystem/-/filesystem-0.4.0-next.b9941f63.tgz#b0774b0b2cfaa4701901cb2c911708de335684ca"
+  dependencies:
+    "@theia/core" "0.4.0-next.b9941f63"
     "@types/base64-js" "^1.2.5"
     "@types/body-parser" "^1.17.0"
     "@types/fs-extra" "^4.0.2"
@@ -240,130 +344,386 @@
     uuid "^3.2.1"
     zip-dir "^1.0.2"
 
-"@theia/languages@0.4.0-next.e445a4cd", "@theia/languages@next":
-  version "0.4.0-next.e445a4cd"
-  resolved "https://registry.yarnpkg.com/@theia/languages/-/languages-0.4.0-next.e445a4cd.tgz#9da4d9463b9dda29776b3538a694025476588aba"
+"@theia/filesystem@^0.3.12", "@theia/filesystem@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/filesystem/-/filesystem-0.3.12.tgz#d8355dc30bfaf50dd0ceb450976f92b1b33694dc"
   dependencies:
-    "@theia/core" "0.4.0-next.e445a4cd"
-    "@theia/output" "0.4.0-next.e445a4cd"
-    "@theia/process" "0.4.0-next.e445a4cd"
-    "@theia/workspace" "0.4.0-next.e445a4cd"
+    "@theia/core" "^0.3.12"
+    "@types/base64-js" "^1.2.5"
+    "@types/body-parser" "^1.17.0"
+    "@types/fs-extra" "^4.0.2"
+    "@types/mime-types" "^2.1.0"
+    "@types/rimraf" "^2.0.2"
+    "@types/tar-fs" "^1.16.1"
+    "@types/touch" "0.0.1"
+    "@types/uuid" "^3.4.3"
+    base64-js "^1.2.1"
+    body-parser "^1.18.3"
+    fs-extra "^4.0.2"
+    http-status-codes "^1.3.0"
+    mime-types "^2.1.18"
+    mv "^2.1.1"
+    rimraf "^2.6.2"
+    tar-fs "^1.16.2"
+    touch "^3.1.0"
+    trash "^4.0.1"
+    uuid "^3.2.1"
+    zip-dir "^1.0.2"
+
+"@theia/git@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/git/-/git-0.3.12.tgz#00348a1f103bba4494a60018b5fe2ad60533fcce"
+  dependencies:
+    "@theia/core" "^0.3.12"
+    "@theia/editor" "^0.3.12"
+    "@theia/filesystem" "^0.3.12"
+    "@theia/languages" "^0.3.12"
+    "@theia/navigator" "^0.3.12"
+    "@theia/workspace" "^0.3.12"
+    "@types/diff" "^3.2.2"
+    "@types/fs-extra" "^4.0.2"
+    diff "^3.4.0"
+    dugite-extra "0.0.1-alpha.23"
+    find-git-repositories "^0.1.0"
+    fs-extra "^4.0.2"
+    moment "^2.21.0"
+    octicons "^7.1.0"
+    ts-md5 "^1.2.2"
+
+"@theia/java@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/java/-/java-0.3.12.tgz#7d596d89766744dc6585bcf3b9ed89283b5ad965"
+  dependencies:
+    "@theia/core" "^0.3.12"
+    "@theia/editor" "^0.3.12"
+    "@theia/languages" "^0.3.12"
+    "@theia/monaco" "^0.3.12"
+    "@types/glob" "^5.0.30"
+    "@types/tar" "4.0.0"
+    glob "^7.1.2"
+    mkdirp "^0.5.0"
+    tar "^4.0.0"
+
+"@theia/keymaps@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/keymaps/-/keymaps-0.3.12.tgz#cab16453f759a4c6d49a1111043694bdef45789d"
+  dependencies:
+    "@theia/core" "^0.3.12"
+    "@theia/userstorage" "^0.3.12"
+    "@theia/workspace" "^0.3.12"
+    ajv "^5.2.2"
+    jsonc-parser "^1.0.1"
+
+"@theia/languages@0.4.0-next.b9941f63":
+  version "0.4.0-next.b9941f63"
+  resolved "https://registry.yarnpkg.com/@theia/languages/-/languages-0.4.0-next.b9941f63.tgz#4f22328573dcf2693ac7ba2cb93283735bf9ecc0"
+  dependencies:
+    "@theia/core" "0.4.0-next.b9941f63"
+    "@theia/output" "0.4.0-next.b9941f63"
+    "@theia/process" "0.4.0-next.b9941f63"
     vscode-base-languageclient "^0.0.1-alpha.5"
     vscode-languageserver-protocol "^3.6.0"
 
-"@theia/markers@0.4.0-next.e445a4cd", "@theia/markers@next":
-  version "0.4.0-next.e445a4cd"
-  resolved "https://registry.yarnpkg.com/@theia/markers/-/markers-0.4.0-next.e445a4cd.tgz#455303178d2da98e64260c24ed772f632b9e8bb0"
+"@theia/languages@^0.3.12", "@theia/languages@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/languages/-/languages-0.3.12.tgz#b2d4990d6e5d4e275a246da54491e0ee4b3d1cb9"
   dependencies:
-    "@theia/core" "0.4.0-next.e445a4cd"
-    "@theia/filesystem" "0.4.0-next.e445a4cd"
-    "@theia/navigator" "0.4.0-next.e445a4cd"
-    "@theia/workspace" "0.4.0-next.e445a4cd"
+    "@theia/core" "^0.3.12"
+    "@theia/output" "^0.3.12"
+    "@theia/process" "^0.3.12"
+    vscode-base-languageclient "^0.0.1-alpha.5"
+    vscode-languageserver-protocol "^3.6.0"
 
-"@theia/messages@next":
-  version "0.4.0-next.e445a4cd"
-  resolved "https://registry.yarnpkg.com/@theia/messages/-/messages-0.4.0-next.e445a4cd.tgz#65c7d63db13f9a112da6759560ac72da5351b008"
+"@theia/markers@0.4.0-next.b9941f63":
+  version "0.4.0-next.b9941f63"
+  resolved "https://registry.yarnpkg.com/@theia/markers/-/markers-0.4.0-next.b9941f63.tgz#131129dccbf1c4c6bcba076f26f53150d2cf32c4"
   dependencies:
-    "@theia/core" "0.4.0-next.e445a4cd"
+    "@theia/core" "0.4.0-next.b9941f63"
+    "@theia/filesystem" "0.4.0-next.b9941f63"
+    "@theia/navigator" "0.4.0-next.b9941f63"
+    "@theia/workspace" "0.4.0-next.b9941f63"
 
-"@theia/monaco@0.4.0-next.e445a4cd", "@theia/monaco@next":
-  version "0.4.0-next.e445a4cd"
-  resolved "https://registry.yarnpkg.com/@theia/monaco/-/monaco-0.4.0-next.e445a4cd.tgz#acad78454af74982dfd368b926daf9834d53bd23"
+"@theia/markers@^0.3.12", "@theia/markers@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/markers/-/markers-0.3.12.tgz#a08c001dfc193a9dc79ceeca0fdd8928a579b133"
   dependencies:
-    "@theia/core" "0.4.0-next.e445a4cd"
-    "@theia/editor" "0.4.0-next.e445a4cd"
-    "@theia/filesystem" "0.4.0-next.e445a4cd"
-    "@theia/languages" "0.4.0-next.e445a4cd"
-    "@theia/markers" "0.4.0-next.e445a4cd"
-    "@theia/outline-view" "0.4.0-next.e445a4cd"
-    "@theia/workspace" "0.4.0-next.e445a4cd"
+    "@theia/core" "^0.3.12"
+    "@theia/filesystem" "^0.3.12"
+    "@theia/navigator" "^0.3.12"
+    "@theia/workspace" "^0.3.12"
+
+"@theia/merge-conflicts@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/merge-conflicts/-/merge-conflicts-0.3.12.tgz#7f63d8869083928b781f43077558400a7c522484"
+  dependencies:
+    "@theia/core" "^0.3.12"
+    "@theia/editor" "^0.3.12"
+    "@theia/languages" "^0.3.12"
+
+"@theia/messages@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/messages/-/messages-0.3.12.tgz#64715d2430bb84803a588483ccd5dab603dd245b"
+  dependencies:
+    "@theia/core" "^0.3.12"
+
+"@theia/metrics@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/metrics/-/metrics-0.3.12.tgz#c813b317ea38526808a656a6872a7a631c289bc6"
+  dependencies:
+    "@theia/application-manager" "^0.3.12"
+    "@theia/core" "^0.3.12"
+    prom-client "^10.2.0"
+
+"@theia/mini-browser@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/mini-browser/-/mini-browser-0.3.12.tgz#32ae58fe15939ff84ffcc14295bc238e22941800"
+  dependencies:
+    "@theia/core" "^0.3.12"
+    "@theia/filesystem" "^0.3.12"
+    "@types/mime-types" "^2.1.0"
+    mime-types "^2.1.18"
+    pdfobject "^2.0.201604172"
+
+"@theia/monaco@0.4.0-next.b9941f63":
+  version "0.4.0-next.b9941f63"
+  resolved "https://registry.yarnpkg.com/@theia/monaco/-/monaco-0.4.0-next.b9941f63.tgz#d62056cfc623edd6ae33a9c4202919bed8424068"
+  dependencies:
+    "@theia/core" "0.4.0-next.b9941f63"
+    "@theia/editor" "0.4.0-next.b9941f63"
+    "@theia/filesystem" "0.4.0-next.b9941f63"
+    "@theia/languages" "0.4.0-next.b9941f63"
+    "@theia/markers" "0.4.0-next.b9941f63"
+    "@theia/outline-view" "0.4.0-next.b9941f63"
+    "@theia/workspace" "0.4.0-next.b9941f63"
     monaco-css "^2.0.1"
     monaco-html "^2.0.2"
     monaco-languageclient "0.6.3"
     monaco-textmate "^3.0.0"
     onigasm "^2.1.0"
 
-"@theia/navigator@0.4.0-next.e445a4cd", "@theia/navigator@next":
-  version "0.4.0-next.e445a4cd"
-  resolved "https://registry.yarnpkg.com/@theia/navigator/-/navigator-0.4.0-next.e445a4cd.tgz#33d656cd13eb1c8786bda5a57e90736a77f13023"
+"@theia/monaco@^0.3.12", "@theia/monaco@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/monaco/-/monaco-0.3.12.tgz#46c221d8021dd06eddef835d6c4957f841ed0ccd"
   dependencies:
-    "@theia/core" "0.4.0-next.e445a4cd"
-    "@theia/filesystem" "0.4.0-next.e445a4cd"
-    "@theia/workspace" "0.4.0-next.e445a4cd"
+    "@theia/core" "^0.3.12"
+    "@theia/editor" "^0.3.12"
+    "@theia/filesystem" "^0.3.12"
+    "@theia/languages" "^0.3.12"
+    "@theia/markers" "^0.3.12"
+    "@theia/outline-view" "^0.3.12"
+    "@theia/workspace" "^0.3.12"
+    monaco-css "^2.0.1"
+    monaco-html "^2.0.2"
+    monaco-json "^2.0.1"
+    monaco-languageclient "0.6.3"
+    monaco-languages "^1.0.4"
+    monaco-textmate "^3.0.0"
+    onigasm "^2.1.0"
+
+"@theia/navigator@0.4.0-next.b9941f63":
+  version "0.4.0-next.b9941f63"
+  resolved "https://registry.yarnpkg.com/@theia/navigator/-/navigator-0.4.0-next.b9941f63.tgz#a5859cce7131c52776896bb84537e3dfa77d7c20"
+  dependencies:
+    "@theia/core" "0.4.0-next.b9941f63"
+    "@theia/filesystem" "0.4.0-next.b9941f63"
+    "@theia/workspace" "0.4.0-next.b9941f63"
+    "@types/throttle-debounce" "^1.0.0"
     fuzzy "^0.1.3"
+    throttle-debounce "1.0.1"
 
-"@theia/outline-view@0.4.0-next.e445a4cd":
-  version "0.4.0-next.e445a4cd"
-  resolved "https://registry.yarnpkg.com/@theia/outline-view/-/outline-view-0.4.0-next.e445a4cd.tgz#ee797d5d4c952738de81958f622cb5a0580a5943"
+"@theia/navigator@^0.3.12", "@theia/navigator@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/navigator/-/navigator-0.3.12.tgz#be9d0f6daba9d9b4d20c9afd1816b4bbea5671c4"
   dependencies:
-    "@theia/core" "0.4.0-next.e445a4cd"
+    "@theia/core" "^0.3.12"
+    "@theia/filesystem" "^0.3.12"
+    "@theia/workspace" "^0.3.12"
+    "@types/throttle-debounce" "^1.0.0"
+    fuzzy "^0.1.3"
+    throttle-debounce "^1.0.1"
 
-"@theia/output@0.4.0-next.e445a4cd":
-  version "0.4.0-next.e445a4cd"
-  resolved "https://registry.yarnpkg.com/@theia/output/-/output-0.4.0-next.e445a4cd.tgz#415038deaf88c5cba5b85674c9920d8b21a70e57"
+"@theia/outline-view@0.4.0-next.b9941f63":
+  version "0.4.0-next.b9941f63"
+  resolved "https://registry.yarnpkg.com/@theia/outline-view/-/outline-view-0.4.0-next.b9941f63.tgz#e07b1e4447b2722e26a3dccdd4add5728441feca"
   dependencies:
-    "@theia/core" "0.4.0-next.e445a4cd"
+    "@theia/core" "0.4.0-next.b9941f63"
 
-"@theia/preferences@next":
-  version "0.4.0-next.e445a4cd"
-  resolved "https://registry.yarnpkg.com/@theia/preferences/-/preferences-0.4.0-next.e445a4cd.tgz#fd826d36c625c90ae0c70dc0298e4f65a887d031"
+"@theia/outline-view@^0.3.12", "@theia/outline-view@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/outline-view/-/outline-view-0.3.12.tgz#b8c3b2ced0a8459e79ceca77167ff51ad9fb60f5"
   dependencies:
-    "@theia/core" "0.4.0-next.e445a4cd"
-    "@theia/filesystem" "0.4.0-next.e445a4cd"
-    "@theia/userstorage" "0.4.0-next.e445a4cd"
-    "@theia/workspace" "0.4.0-next.e445a4cd"
+    "@theia/core" "^0.3.12"
+
+"@theia/output@0.4.0-next.b9941f63":
+  version "0.4.0-next.b9941f63"
+  resolved "https://registry.yarnpkg.com/@theia/output/-/output-0.4.0-next.b9941f63.tgz#d7c7eb30ebde71c5ba6ff72c9ec605fabb01376b"
+  dependencies:
+    "@theia/core" "0.4.0-next.b9941f63"
+
+"@theia/output@^0.3.12", "@theia/output@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/output/-/output-0.3.12.tgz#394722b47a6892d1a54cf1bea396a8a040999a33"
+  dependencies:
+    "@theia/core" "^0.3.12"
+
+"@theia/plugin-ext-vscode@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/plugin-ext-vscode/-/plugin-ext-vscode-0.3.12.tgz#4c94ffa62e6f923277cb181e35ffab096412a534"
+  dependencies:
+    "@theia/plugin-ext" "^0.3.12"
+
+"@theia/plugin-ext@^0.3.12", "@theia/plugin-ext@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/plugin-ext/-/plugin-ext-0.3.12.tgz#a75b5affe852102e11911987365e2e05873a3d13"
+  dependencies:
+    "@theia/core" "^0.3.12"
+    "@theia/filesystem" "^0.3.12"
+    "@theia/monaco" "^0.3.12"
+    "@theia/plugin" "^0.3.12"
+    "@theia/workspace" "^0.3.12"
+    decompress "^4.2.0"
+    lodash.clonedeep "^4.5.0"
+    ps-tree "1.1.0"
+    vscode-uri "^1.0.1"
+
+"@theia/plugin@^0.3.12":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/plugin/-/plugin-0.3.12.tgz#82c62d7066325e637d7d6066ee09de08d061333d"
+
+"@theia/preferences@^0.3.12", "@theia/preferences@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/preferences/-/preferences-0.3.12.tgz#b286bf78fb537e1735e16231ef187f9bee84c768"
+  dependencies:
+    "@theia/core" "^0.3.12"
+    "@theia/filesystem" "^0.3.12"
+    "@theia/userstorage" "^0.3.12"
+    "@theia/workspace" "^0.3.12"
     "@types/fs-extra" "^4.0.2"
     fs-extra "^4.0.2"
     jsonc-parser "^1.0.1"
 
-"@theia/process@0.4.0-next.e445a4cd", "@theia/process@next":
-  version "0.4.0-next.e445a4cd"
-  resolved "https://registry.yarnpkg.com/@theia/process/-/process-0.4.0-next.e445a4cd.tgz#2e320913f17e97d9c055f3b84d8873bb56e480a2"
+"@theia/preview@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/preview/-/preview-0.3.12.tgz#41c7be2d42807eb957f9d3b1a886c76a597eb9a3"
   dependencies:
-    "@theia/core" "0.4.0-next.e445a4cd"
-    node-pty "0.7.6"
+    "@theia/core" "^0.3.12"
+    "@theia/editor" "^0.3.12"
+    "@theia/languages" "^0.3.12"
+    "@types/highlight.js" "^9.12.2"
+    "@types/markdown-it" "^0.0.4"
+    "@types/markdown-it-anchor" "^4.0.1"
+    "@types/throttle-debounce" "^1.0.0"
+    highlight.js "^9.12.0"
+    markdown-it "^8.4.0"
+    markdown-it-anchor "^4.0.0"
+    throttle-debounce "^1.0.1"
+
+"@theia/process@0.4.0-next.b9941f63":
+  version "0.4.0-next.b9941f63"
+  resolved "https://registry.yarnpkg.com/@theia/process/-/process-0.4.0-next.b9941f63.tgz#0d23bacc05fccaee6ff5b5c4d7499e3e909279bc"
+  dependencies:
+    "@theia/core" "0.4.0-next.b9941f63"
+    node-pty "0.7.4"
     string-argv "0.0.2"
 
-"@theia/terminal@next":
-  version "0.4.0-next.e445a4cd"
-  resolved "https://registry.yarnpkg.com/@theia/terminal/-/terminal-0.4.0-next.e445a4cd.tgz#1d557d87c3b16c82923da1bc90b0580cf6824c0a"
+"@theia/process@^0.3.12", "@theia/process@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/process/-/process-0.3.12.tgz#8cebf1c2a501ae7f3950103bd6592022e64b0c5b"
   dependencies:
-    "@theia/core" "0.4.0-next.e445a4cd"
-    "@theia/filesystem" "0.4.0-next.e445a4cd"
-    "@theia/process" "0.4.0-next.e445a4cd"
-    "@theia/workspace" "0.4.0-next.e445a4cd"
-    xterm "~3.5.0"
+    "@theia/core" "^0.3.12"
+    node-pty "^0.7.0"
+    string-argv "0.0.2"
 
-"@theia/typescript@next":
-  version "0.4.0-next.e445a4cd"
-  resolved "https://registry.yarnpkg.com/@theia/typescript/-/typescript-0.4.0-next.e445a4cd.tgz#afead689a4377b97a526cb359c39be40250dab6b"
+"@theia/python@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/python/-/python-0.3.12.tgz#823235e2dfac2aa70f58c0d3245f2542e11d1163"
   dependencies:
-    "@theia/callhierarchy" "0.4.0-next.e445a4cd"
-    "@theia/core" "0.4.0-next.e445a4cd"
-    "@theia/languages" "0.4.0-next.e445a4cd"
-    "@theia/monaco" "0.4.0-next.e445a4cd"
+    "@theia/core" "^0.3.12"
+    "@theia/languages" "^0.3.12"
+
+"@theia/search-in-workspace@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/search-in-workspace/-/search-in-workspace-0.3.12.tgz#755c698f55a1ea2283a2a9a60512e751093487b3"
+  dependencies:
+    "@theia/core" "^0.3.12"
+    "@theia/editor" "^0.3.12"
+    vscode-ripgrep "^1.0.1"
+
+"@theia/task@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/task/-/task-0.3.12.tgz#e67798a68d5c8db115d5f2aaa3679ede5d2ed733"
+  dependencies:
+    "@theia/core" "^0.3.12"
+    "@theia/markers" "^0.3.12"
+    "@theia/process" "^0.3.12"
+    "@theia/terminal" "^0.3.12"
+    "@theia/variable-resolver" "^0.3.12"
+    "@theia/workspace" "^0.3.12"
+    jsonc-parser "^1.0.1"
+
+"@theia/terminal@^0.3.12", "@theia/terminal@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/terminal/-/terminal-0.3.12.tgz#94569a6c1cb8b5c2c640cd7f140ff95c05cdb21f"
+  dependencies:
+    "@theia/core" "^0.3.12"
+    "@theia/filesystem" "^0.3.12"
+    "@theia/process" "^0.3.12"
+    "@theia/workspace" "^0.3.12"
+    xterm "^3.0.1"
+
+"@theia/textmate-grammars@latest":
+  version "0.4.0-next.b9941f63"
+  resolved "https://registry.yarnpkg.com/@theia/textmate-grammars/-/textmate-grammars-0.4.0-next.b9941f63.tgz#b4ac0149b65ecddb468d64ec745bcb0a072c21f3"
+  dependencies:
+    "@theia/monaco" "0.4.0-next.b9941f63"
+
+"@theia/typescript@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/typescript/-/typescript-0.3.12.tgz#609df2e85f67752fd94ba203ea4b1ee07c440c35"
+  dependencies:
+    "@theia/callhierarchy" "^0.3.12"
+    "@theia/core" "^0.3.12"
+    "@theia/languages" "^0.3.12"
+    "@theia/monaco" "^0.3.12"
     typescript-language-server "^0.1.14"
 
-"@theia/userstorage@0.4.0-next.e445a4cd":
-  version "0.4.0-next.e445a4cd"
-  resolved "https://registry.yarnpkg.com/@theia/userstorage/-/userstorage-0.4.0-next.e445a4cd.tgz#f7686f64f00c940d47602984df10c830e7cc1707"
+"@theia/userstorage@^0.3.12", "@theia/userstorage@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/userstorage/-/userstorage-0.3.12.tgz#08fc2ab781c993ba408caf2520f92f63906b2652"
   dependencies:
-    "@theia/core" "0.4.0-next.e445a4cd"
-    "@theia/filesystem" "0.4.0-next.e445a4cd"
+    "@theia/core" "^0.3.12"
+    "@theia/filesystem" "^0.3.12"
 
-"@theia/variable-resolver@0.4.0-next.e445a4cd":
-  version "0.4.0-next.e445a4cd"
-  resolved "https://registry.yarnpkg.com/@theia/variable-resolver/-/variable-resolver-0.4.0-next.e445a4cd.tgz#4eb627d99ed859e031149e122dd5f3ddc0872c50"
+"@theia/variable-resolver@0.4.0-next.b9941f63":
+  version "0.4.0-next.b9941f63"
+  resolved "https://registry.yarnpkg.com/@theia/variable-resolver/-/variable-resolver-0.4.0-next.b9941f63.tgz#a09cd531dfd94a4b4356708306eab761b0887eb1"
   dependencies:
-    "@theia/core" "0.4.0-next.e445a4cd"
+    "@theia/core" "0.4.0-next.b9941f63"
 
-"@theia/workspace@0.4.0-next.e445a4cd", "@theia/workspace@next":
-  version "0.4.0-next.e445a4cd"
-  resolved "https://registry.yarnpkg.com/@theia/workspace/-/workspace-0.4.0-next.e445a4cd.tgz#9d950932073888269170d929c49cd80d247a0edc"
+"@theia/variable-resolver@^0.3.12", "@theia/variable-resolver@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/variable-resolver/-/variable-resolver-0.3.12.tgz#d2830dba0776da9e7b1965bc33d519d6d2f397af"
   dependencies:
-    "@theia/core" "0.4.0-next.e445a4cd"
-    "@theia/filesystem" "0.4.0-next.e445a4cd"
-    "@theia/variable-resolver" "0.4.0-next.e445a4cd"
+    "@theia/core" "^0.3.12"
+
+"@theia/workspace@0.4.0-next.b9941f63":
+  version "0.4.0-next.b9941f63"
+  resolved "https://registry.yarnpkg.com/@theia/workspace/-/workspace-0.4.0-next.b9941f63.tgz#6e44dfae7262f0e3b196b8d5da576ac86509f087"
+  dependencies:
+    "@theia/core" "0.4.0-next.b9941f63"
+    "@theia/filesystem" "0.4.0-next.b9941f63"
+    "@theia/variable-resolver" "0.4.0-next.b9941f63"
+    "@types/fs-extra" "^4.0.2"
+    fs-extra "^4.0.2"
+    valid-filename "^2.0.1"
+
+"@theia/workspace@^0.3.12", "@theia/workspace@latest":
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/@theia/workspace/-/workspace-0.3.12.tgz#fc02e0867c025551c21ebc00c4e9d8228c0e308b"
+  dependencies:
+    "@theia/core" "^0.3.12"
+    "@theia/filesystem" "^0.3.12"
+    "@theia/variable-resolver" "^0.3.12"
     "@types/fs-extra" "^4.0.2"
     fs-extra "^4.0.2"
     valid-filename "^2.0.1"
@@ -390,11 +750,21 @@
   version "0.12.1"
   resolved "https://registry.yarnpkg.com/@types/caseless/-/caseless-0.12.1.tgz#9794c69c8385d0192acc471a540d1f8e0d16218a"
 
+"@types/commander@^2.11.0":
+  version "2.12.2"
+  resolved "https://registry.yarnpkg.com/@types/commander/-/commander-2.12.2.tgz#183041a23842d4281478fa5d23c5ca78e6fd08ae"
+  dependencies:
+    commander "*"
+
 "@types/connect@*":
   version "3.4.32"
   resolved "https://registry.yarnpkg.com/@types/connect/-/connect-3.4.32.tgz#aa0e9616b9435ccad02bc52b5b454ffc2c70ba28"
   dependencies:
     "@types/node" "*"
+
+"@types/diff@^3.2.2":
+  version "3.5.1"
+  resolved "https://registry.yarnpkg.com/@types/diff/-/diff-3.5.1.tgz#30253f6e177564ad7da707b1ebe46d3eade71706"
 
 "@types/events@*":
   version "1.2.0"
@@ -428,13 +798,17 @@
   dependencies:
     "@types/node" "*"
 
-"@types/glob@*":
+"@types/glob@*", "@types/glob@^5.0.30":
   version "5.0.35"
   resolved "https://registry.yarnpkg.com/@types/glob/-/glob-5.0.35.tgz#1ae151c802cece940443b5ac246925c85189f32a"
   dependencies:
     "@types/events" "*"
     "@types/minimatch" "*"
     "@types/node" "*"
+
+"@types/highlight.js@^9.12.2":
+  version "9.12.3"
+  resolved "https://registry.yarnpkg.com/@types/highlight.js/-/highlight.js-9.12.3.tgz#b672cfaac25cbbc634a0fd92c515f66faa18dbca"
 
 "@types/lodash.debounce@4.0.3":
   version "4.0.3"
@@ -452,6 +826,16 @@
   version "4.14.112"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.112.tgz#4a8d8e5716b97a1ac01fe1931ad1e4cba719de5a"
 
+"@types/markdown-it-anchor@^4.0.1":
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/@types/markdown-it-anchor/-/markdown-it-anchor-4.0.1.tgz#f9607c56aaf608fcec26f7de0c4846e1baf80e68"
+  dependencies:
+    "@types/markdown-it" "*"
+
+"@types/markdown-it@*", "@types/markdown-it@^0.0.4":
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/@types/markdown-it/-/markdown-it-0.0.4.tgz#c5f67365916044b342dae8d702724788ba0b5b74"
+
 "@types/mime-types@^2.1.0":
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@types/mime-types/-/mime-types-2.1.0.tgz#9ca52cda363f699c69466c2a6ccdaad913ea7a73"
@@ -468,13 +852,9 @@
   version "10.5.2"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.5.2.tgz#f19f05314d5421fe37e74153254201a7bf00a707"
 
-"@types/node@^8.0.24":
+"@types/node@^8.0.24", "@types/node@^8.0.26":
   version "8.10.21"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-8.10.21.tgz#12b3f2359b27aa05a45d886c8ba1eb8d1a77e285"
-
-"@types/prop-types@*":
-  version "15.5.3"
-  resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.5.3.tgz#bef071852dca2a2dbb65fecdb7bfb30cedae2de2"
 
 "@types/range-parser@*":
   version "1.2.2"
@@ -485,13 +865,6 @@
   resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-16.0.6.tgz#f1a65a4e7be8ed5d123f8b3b9eacc913e35a1a3c"
   dependencies:
     "@types/node" "*"
-    "@types/react" "*"
-
-"@types/react-virtualized@^9.18.3":
-  version "9.18.4"
-  resolved "https://registry.yarnpkg.com/@types/react-virtualized/-/react-virtualized-9.18.4.tgz#467907cc6fd7a94fc2eeded3e8c67903a5d19643"
-  dependencies:
-    "@types/prop-types" "*"
     "@types/react" "*"
 
 "@types/react@*", "@types/react@^16.4.1":
@@ -520,6 +893,10 @@
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/@types/route-parser/-/route-parser-0.1.1.tgz#24b69588c68249f695122c230e547d3d6c8be095"
 
+"@types/sanitize-html@^1.13.31":
+  version "1.14.0"
+  resolved "https://registry.yarnpkg.com/@types/sanitize-html/-/sanitize-html-1.14.0.tgz#9a03ec58306e24feaa3fbdb8ab593934d53ecb05"
+
 "@types/semver@^5.4.0":
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/@types/semver/-/semver-5.5.0.tgz#146c2a29ee7d3bae4bf2fcb274636e264c813c45"
@@ -531,11 +908,25 @@
     "@types/express-serve-static-core" "*"
     "@types/mime" "*"
 
+"@types/showdown@^1.7.1":
+  version "1.7.5"
+  resolved "https://registry.yarnpkg.com/@types/showdown/-/showdown-1.7.5.tgz#91061f2f16d5bdf66b186185999ed675a8908b6a"
+
 "@types/tar-fs@^1.16.1":
   version "1.16.1"
   resolved "https://registry.yarnpkg.com/@types/tar-fs/-/tar-fs-1.16.1.tgz#6e3fba276c173e365ae91e55f7b797a0e64298e5"
   dependencies:
     "@types/node" "*"
+
+"@types/tar@4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@types/tar/-/tar-4.0.0.tgz#e3239d969eeb693a012200613860d0eb871c94f0"
+  dependencies:
+    "@types/node" "*"
+
+"@types/throttle-debounce@^1.0.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@types/throttle-debounce/-/throttle-debounce-1.1.0.tgz#26ce0bacaa51e2d2944386324fd124f0090543d2"
 
 "@types/touch@0.0.1":
   version "0.0.1"
@@ -882,7 +1273,7 @@ array-union@^1.0.1:
   dependencies:
     array-uniq "^1.0.1"
 
-array-uniq@^1.0.1:
+array-uniq@^1.0.1, array-uniq@^1.0.2:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/array-uniq/-/array-uniq-1.0.3.tgz#af6ac877a25cc7f74e058894753858dfdb24fdb6"
 
@@ -1597,6 +1988,10 @@ balanced-match@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
 
+base64-js@0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/base64-js/-/base64-js-0.0.8.tgz#1101e9544f4a76b1bc3b26d452ca96d7a35e7978"
+
 base64-js@^1.0.2, base64-js@^1.2.1:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/base64-js/-/base64-js-1.3.0.tgz#cab1e6118f051095e58b5281aea8c1cd22bfc0e3"
@@ -1630,6 +2025,10 @@ binary-extensions@^1.0.0:
 binaryextensions@2:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/binaryextensions/-/binaryextensions-2.1.1.tgz#3209a51ca4a4ad541a3b8d3d6a6d5b83a2485935"
+
+bintrees@1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/bintrees/-/bintrees-1.0.1.tgz#0e655c9b9c2435eaab68bf4027226d2b55a34524"
 
 bl@^1.0.0:
   version "1.2.2"
@@ -1805,6 +2204,10 @@ buffer-alloc@^1.1.0:
     buffer-alloc-unsafe "^1.1.0"
     buffer-fill "^1.0.0"
 
+buffer-crc32@~0.2.3:
+  version "0.2.13"
+  resolved "https://registry.yarnpkg.com/buffer-crc32/-/buffer-crc32-0.2.13.tgz#0d333e3f00eac50aa1454abd30ef8c2a5d9a7242"
+
 buffer-fill@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/buffer-fill/-/buffer-fill-1.0.0.tgz#f8f78b76789888ef39f205cd637f68e702122b2c"
@@ -1816,6 +2219,14 @@ buffer-from@^1.0.0:
 buffer-xor@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/buffer-xor/-/buffer-xor-1.0.3.tgz#26e61ed1422fb70dd42e6e36729ed51d855fe8d9"
+
+buffer@^3.0.1:
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/buffer/-/buffer-3.6.0.tgz#a72c936f77b96bf52f5f7e7b467180628551defb"
+  dependencies:
+    base64-js "0.0.8"
+    ieee754 "^1.1.4"
+    isarray "^1.0.0"
 
 buffer@^4.3.0:
   version "4.9.1"
@@ -1996,6 +2407,12 @@ chardet@^0.4.0:
   version "0.4.2"
   resolved "https://registry.yarnpkg.com/chardet/-/chardet-0.4.2.tgz#b5473b33dc97c424e5d98dc87d55d4d8a29c8bf2"
 
+checksum@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/checksum/-/checksum-0.1.1.tgz#dc6527d4c90be8560dbd1ed4cecf3297d528e9e9"
+  dependencies:
+    optimist "~0.3.5"
+
 chokidar@^2.0.2:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-2.0.4.tgz#356ff4e2b0e8e43e322d18a372460bbcf3accd26"
@@ -2054,10 +2471,6 @@ class-utils@^0.3.5:
     define-property "^0.2.5"
     isobject "^3.0.0"
     static-extend "^0.1.1"
-
-classnames@^2.2.3:
-  version "2.2.6"
-  resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.2.6.tgz#43935bffdd291f326dad0a205309b38d00f650ce"
 
 cli-boxes@^1.0.0:
   version "1.0.0"
@@ -2255,13 +2668,19 @@ command-join@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/command-join/-/command-join-2.0.0.tgz#52e8b984f4872d952ff1bdc8b98397d27c7144cf"
 
-commander@^2.11.0:
+commander@*, commander@^2.11.0:
   version "2.16.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.16.0.tgz#f16390593996ceb4f3eeb020b31d78528f7f8a50"
 
 commander@~2.13.0:
   version "2.13.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.13.0.tgz#6964bca67685df7c1f1430c584f07d7597885b9c"
+
+commander@~2.8.1:
+  version "2.8.1"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-2.8.1.tgz#06be367febfda0c330aa1e2a072d3dc9762425d4"
+  dependencies:
+    graceful-readlink ">= 1.0.0"
 
 commondir@^1.0.1:
   version "1.0.1"
@@ -2786,6 +3205,54 @@ decompress-response@^3.2.0, decompress-response@^3.3.0:
   dependencies:
     mimic-response "^1.0.0"
 
+decompress-tar@^4.0.0, decompress-tar@^4.1.0, decompress-tar@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/decompress-tar/-/decompress-tar-4.1.1.tgz#718cbd3fcb16209716e70a26b84e7ba4592e5af1"
+  dependencies:
+    file-type "^5.2.0"
+    is-stream "^1.1.0"
+    tar-stream "^1.5.2"
+
+decompress-tarbz2@^4.0.0:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/decompress-tarbz2/-/decompress-tarbz2-4.1.1.tgz#3082a5b880ea4043816349f378b56c516be1a39b"
+  dependencies:
+    decompress-tar "^4.1.0"
+    file-type "^6.1.0"
+    is-stream "^1.1.0"
+    seek-bzip "^1.0.5"
+    unbzip2-stream "^1.0.9"
+
+decompress-targz@^4.0.0:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/decompress-targz/-/decompress-targz-4.1.1.tgz#c09bc35c4d11f3de09f2d2da53e9de23e7ce1eee"
+  dependencies:
+    decompress-tar "^4.1.1"
+    file-type "^5.2.0"
+    is-stream "^1.1.0"
+
+decompress-unzip@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/decompress-unzip/-/decompress-unzip-4.0.1.tgz#deaaccdfd14aeaf85578f733ae8210f9b4848f69"
+  dependencies:
+    file-type "^3.8.0"
+    get-stream "^2.2.0"
+    pify "^2.3.0"
+    yauzl "^2.4.2"
+
+decompress@^4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/decompress/-/decompress-4.2.0.tgz#7aedd85427e5a92dacfe55674a7c505e96d01f9d"
+  dependencies:
+    decompress-tar "^4.0.0"
+    decompress-tarbz2 "^4.0.0"
+    decompress-targz "^4.0.0"
+    decompress-unzip "^4.0.1"
+    graceful-fs "^4.1.10"
+    make-dir "^1.0.0"
+    pify "^2.3.0"
+    strip-dirs "^2.0.0"
+
 dedent@^0.7.0:
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/dedent/-/dedent-0.7.0.tgz#2495ddbaf6eb874abb0e1be9df22d2e5a544326c"
@@ -2879,7 +3346,7 @@ detect-libc@^1.0.2, detect-libc@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/detect-libc/-/detect-libc-1.0.3.tgz#fa137c4bd698edf55cd5cd02ac559f91a4c4ba9b"
 
-diff@^3.3.1, diff@^3.5.0:
+diff@^3.3.1, diff@^3.4.0, diff@^3.5.0:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/diff/-/diff-3.5.0.tgz#800c0dd1e0a8bfbc95835c202ad220fe317e5a12"
 
@@ -2898,13 +3365,37 @@ dir-glob@^2.0.0:
     arrify "^1.0.1"
     path-type "^3.0.0"
 
-"dom-helpers@^2.4.0 || ^3.0.0":
-  version "3.3.1"
-  resolved "https://registry.yarnpkg.com/dom-helpers/-/dom-helpers-3.3.1.tgz#fc1a4e15ffdf60ddde03a480a9c0fece821dd4a6"
+dom-serializer@0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/dom-serializer/-/dom-serializer-0.1.0.tgz#073c697546ce0780ce23be4a28e293e40bc30c82"
+  dependencies:
+    domelementtype "~1.1.1"
+    entities "~1.1.1"
 
 domain-browser@^1.1.1:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/domain-browser/-/domain-browser-1.2.0.tgz#3d31f50191a6749dd1375a7f522e823d42e54eda"
+
+domelementtype@1, domelementtype@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/domelementtype/-/domelementtype-1.3.0.tgz#b17aed82e8ab59e52dd9c19b1756e0fc187204c2"
+
+domelementtype@~1.1.1:
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/domelementtype/-/domelementtype-1.1.3.tgz#bd28773e2642881aec51544924299c5cd822185b"
+
+domhandler@^2.3.0:
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/domhandler/-/domhandler-2.4.2.tgz#8805097e933d65e85546f726d60f5eb88b44f803"
+  dependencies:
+    domelementtype "1"
+
+domutils@^1.5.1:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/domutils/-/domutils-1.7.0.tgz#56ea341e834e06e6748af7a1cb25da67ea9f8c2a"
+  dependencies:
+    dom-serializer "0"
+    domelementtype "1"
 
 dot-prop@^3.0.0:
   version "3.0.0"
@@ -2924,11 +3415,32 @@ dtrace-provider@~0.8:
   dependencies:
     nan "^2.10.0"
 
+dugite-extra@0.0.1-alpha.23:
+  version "0.0.1-alpha.23"
+  resolved "https://registry.yarnpkg.com/dugite-extra/-/dugite-extra-0.0.1-alpha.23.tgz#9a227a59fc8edf6b95b54b4810de2aaa3abe13a1"
+  dependencies:
+    byline "^5.0.0"
+    dugite "1.42.0"
+    find-git-exec "0.0.1-alpha.2"
+    upath "^1.0.0"
+
+dugite@1.42.0:
+  version "1.42.0"
+  resolved "https://registry.yarnpkg.com/dugite/-/dugite-1.42.0.tgz#1d79b35741656006674fabbbf6b32b7e04bdf35c"
+  dependencies:
+    checksum "^0.1.1"
+    mkdirp "^0.5.1"
+    os-tmpdir "^1.0.1"
+    progress "^2.0.0"
+    request "^2.79.0"
+    rimraf "^2.5.4"
+    tar "^2.2.1"
+
 duplexer3@^0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/duplexer3/-/duplexer3-0.1.4.tgz#ee01dd1cac0ed3cbc7fdbea37dc0a8f1ce002ce2"
 
-duplexer@^0.1.1:
+duplexer@^0.1.1, duplexer@~0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/duplexer/-/duplexer-0.1.1.tgz#ace6ff808c1ce66b57d1ebf97977acb02334cfc1"
 
@@ -2950,6 +3462,17 @@ ecc-jsbn@~0.1.1:
 editions@^1.3.3:
   version "1.3.4"
   resolved "https://registry.yarnpkg.com/editions/-/editions-1.3.4.tgz#3662cb592347c3168eb8e498a0ff73271d67f50b"
+
+editorconfig@^0.15.0:
+  version "0.15.0"
+  resolved "https://registry.yarnpkg.com/editorconfig/-/editorconfig-0.15.0.tgz#b6dd4a0b6b9e76ce48e066bdc15381aebb8804fd"
+  dependencies:
+    "@types/commander" "^2.11.0"
+    "@types/semver" "^5.4.0"
+    commander "^2.11.0"
+    lru-cache "^4.1.1"
+    semver "^5.4.1"
+    sigmund "^1.0.1"
 
 ee-first@1.1.1:
   version "1.1.1"
@@ -3044,6 +3567,10 @@ enhanced-resolve@^4.0.0, enhanced-resolve@^4.1.0:
     memory-fs "^0.4.0"
     tapable "^1.0.0"
 
+entities@^1.1.1, entities@~1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/entities/-/entities-1.1.1.tgz#6e5c2d0a5621b5dadaecef80b90edfb5cd7772f0"
+
 errno@^0.1.1, errno@^0.1.3, errno@~0.1.7:
   version "0.1.7"
   resolved "https://registry.yarnpkg.com/errno/-/errno-0.1.7.tgz#4684d71779ad39af177e3f007996f7c67c852618"
@@ -3115,6 +3642,18 @@ esutils@^2.0.2:
 etag@~1.8.1:
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/etag/-/etag-1.8.1.tgz#41ae2eeb65efa62268aebfea83ac7d79299b0887"
+
+event-stream@~3.3.0:
+  version "3.3.4"
+  resolved "http://registry.npmjs.org/event-stream/-/event-stream-3.3.4.tgz#4ab4c9a0f5a54db9338b4c34d86bfce8f4b35571"
+  dependencies:
+    duplexer "~0.1.1"
+    from "~0"
+    map-stream "~0.1.0"
+    pause-stream "0.0.11"
+    split "0.3"
+    stream-combiner "~0.0.4"
+    through "~2.3.1"
 
 events@^1.0.0:
   version "1.1.1"
@@ -3352,6 +3891,12 @@ fd-slicer@~1.0.1:
   dependencies:
     pend "~1.2.0"
 
+fd-slicer@~1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/fd-slicer/-/fd-slicer-1.1.0.tgz#25c7c89cb1f9077f8891bbe61d8f390eae256f1e"
+  dependencies:
+    pend "~1.2.0"
+
 figures@^1.7.0:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/figures/-/figures-1.7.0.tgz#cbe1e3affcf1cd44b80cadfed28dc793a9701d2e"
@@ -3375,6 +3920,18 @@ file-loader@^1.1.11:
   dependencies:
     loader-utils "^1.0.2"
     schema-utils "^0.4.5"
+
+file-type@^3.8.0:
+  version "3.9.0"
+  resolved "https://registry.yarnpkg.com/file-type/-/file-type-3.9.0.tgz#257a078384d1db8087bc449d107d52a52672b9e9"
+
+file-type@^5.2.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/file-type/-/file-type-5.2.0.tgz#2ddbea7c73ffe36368dfae49dc338c058c2b8ad6"
+
+file-type@^6.1.0:
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/file-type/-/file-type-6.2.0.tgz#e50cd75d356ffed4e306dc4f5bcf52a79903a919"
 
 filename-regex@^2.0.0:
   version "2.0.1"
@@ -3422,6 +3979,18 @@ find-cache-dir@^1.0.0:
     commondir "^1.0.1"
     make-dir "^1.0.0"
     pkg-dir "^2.0.0"
+
+find-git-exec@0.0.1-alpha.2:
+  version "0.0.1-alpha.2"
+  resolved "https://registry.yarnpkg.com/find-git-exec/-/find-git-exec-0.0.1-alpha.2.tgz#02c266b3be6e411c19aa5fd6f813c96a73286fac"
+  dependencies:
+    "@types/node" "^8.0.26"
+
+find-git-repositories@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/find-git-repositories/-/find-git-repositories-0.1.0.tgz#1ac886f0f54a11f5f073bca3bcdfddc03486305a"
+  dependencies:
+    nan "^2.0.0"
 
 find-up@^1.0.0:
   version "1.1.2"
@@ -3519,6 +4088,10 @@ from2@^2.1.0, from2@^2.1.1:
   dependencies:
     inherits "^2.0.1"
     readable-stream "^2.0.0"
+
+from@~0:
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/from/-/from-0.1.7.tgz#83c60afc58b9c56997007ed1a768b3ab303a44fe"
 
 fs-constants@^1.0.0:
   version "1.0.0"
@@ -3641,6 +4214,13 @@ get-stdin@^4.0.1:
 get-stream@3.0.0, get-stream@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/get-stream/-/get-stream-3.0.0.tgz#8e943d1358dc37555054ecbe2edb05aa174ede14"
+
+get-stream@^2.2.0:
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/get-stream/-/get-stream-2.3.1.tgz#5f38f93f346009666ee0150a054167f91bdd95de"
+  dependencies:
+    object-assign "^4.0.1"
+    pinkie-promise "^2.0.0"
 
 get-value@^2.0.3, get-value@^2.0.6:
   version "2.0.6"
@@ -3869,9 +4449,13 @@ got@^8.2.0:
     url-parse-lax "^3.0.0"
     url-to-options "^1.0.1"
 
-graceful-fs@^4.1.11, graceful-fs@^4.1.2, graceful-fs@^4.1.6, graceful-fs@^4.1.9:
+graceful-fs@^4.1.10, graceful-fs@^4.1.11, graceful-fs@^4.1.2, graceful-fs@^4.1.6, graceful-fs@^4.1.9:
   version "4.1.11"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.1.11.tgz#0e8bdfe4d1ddb8854d64e04ea7c00e2a026e5658"
+
+"graceful-readlink@>= 1.0.0":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/graceful-readlink/-/graceful-readlink-1.0.1.tgz#4cafad76bc62f02fa039b2f94e9a3dd3a391a725"
 
 grouped-queue@^0.3.3:
   version "0.3.3"
@@ -4007,6 +4591,10 @@ hawk@~3.1.3:
     hoek "2.x.x"
     sntp "1.x.x"
 
+highlight.js@^9.12.0:
+  version "9.12.0"
+  resolved "https://registry.yarnpkg.com/highlight.js/-/highlight.js-9.12.0.tgz#e6d9dbe57cbefe60751f02af336195870c90c01e"
+
 hmac-drbg@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/hmac-drbg/-/hmac-drbg-1.0.1.tgz#d2745701025a6c775a6c545793ed502fc0c649a1"
@@ -4043,6 +4631,17 @@ hosted-git-info@^2.1.4, hosted-git-info@^2.5.0:
 html-comment-regex@^1.1.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/html-comment-regex/-/html-comment-regex-1.1.1.tgz#668b93776eaae55ebde8f3ad464b307a4963625e"
+
+htmlparser2@^3.9.0:
+  version "3.9.2"
+  resolved "https://registry.yarnpkg.com/htmlparser2/-/htmlparser2-3.9.2.tgz#1bdf87acca0f3f9e53fa4fcceb0f4b4cbb00b338"
+  dependencies:
+    domelementtype "^1.3.0"
+    domhandler "^2.3.0"
+    domutils "^1.5.1"
+    entities "^1.1.1"
+    inherits "^2.0.1"
+    readable-stream "^2.0.2"
 
 http-cache-semantics@3.8.1:
   version "3.8.1"
@@ -4393,6 +4992,10 @@ is-installed-globally@^0.1.0:
   dependencies:
     global-dirs "^0.1.0"
     is-path-inside "^1.0.0"
+
+is-natural-number@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/is-natural-number/-/is-natural-number-4.0.1.tgz#ab9d76e1db4ced51e35de0c72ebecf09f734cde8"
 
 is-npm@^1.0.0:
   version "1.0.0"
@@ -4829,6 +5432,12 @@ less@^2.7.2:
     request "2.81.0"
     source-map "^0.5.3"
 
+linkify-it@^2.0.0:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/linkify-it/-/linkify-it-2.0.3.tgz#d94a4648f9b1c179d64fa97291268bdb6ce9434f"
+  dependencies:
+    uc.micro "^1.0.1"
+
 listr-input@^0.1.1:
   version "0.1.3"
   resolved "https://registry.yarnpkg.com/listr-input/-/listr-input-0.1.3.tgz#0c313967b6d179ebe964a81e9363ce2a5a39d25c"
@@ -4996,13 +5605,29 @@ lodash.camelcase@^4.3.0:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/lodash.camelcase/-/lodash.camelcase-4.3.0.tgz#b28aa6288a2b9fc651035c7711f65ab6190331a6"
 
+lodash.clonedeep@^4.5.0:
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/lodash.clonedeep/-/lodash.clonedeep-4.5.0.tgz#e23f3f9c4f8fbdde872529c1071857a086e5ccef"
+
 lodash.debounce@^4.0.8:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/lodash.debounce/-/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
 
+lodash.escaperegexp@^4.1.2:
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/lodash.escaperegexp/-/lodash.escaperegexp-4.1.2.tgz#64762c48618082518ac3df4ccf5d5886dae20347"
+
 lodash.isinteger@^4.0.4:
   version "4.0.4"
   resolved "https://registry.yarnpkg.com/lodash.isinteger/-/lodash.isinteger-4.0.4.tgz#619c0af3d03f8b04c31f5882840b77b11cd68343"
+
+lodash.isplainobject@^4.0.6:
+  version "4.0.6"
+  resolved "https://registry.yarnpkg.com/lodash.isplainobject/-/lodash.isplainobject-4.0.6.tgz#7c526a52d89b45c45cc690b88163be0497f550cb"
+
+lodash.isstring@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/lodash.isstring/-/lodash.isstring-4.0.1.tgz#d527dfb5456eca7cc9bb95d5daeaf88ba54a5451"
 
 lodash.isundefined@^3.0.1:
   version "3.0.1"
@@ -5011,6 +5636,10 @@ lodash.isundefined@^3.0.1:
 lodash.memoize@^4.1.2:
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/lodash.memoize/-/lodash.memoize-4.1.2.tgz#bcc6c49a42a2840ed997f323eada5ecd182e0bfe"
+
+lodash.mergewith@^4.6.0:
+  version "4.6.1"
+  resolved "https://registry.yarnpkg.com/lodash.mergewith/-/lodash.mergewith-4.6.1.tgz#639057e726c3afbdb3e7d42741caa8d6e4335927"
 
 lodash.template@^4.0.2:
   version "4.4.0"
@@ -5068,7 +5697,7 @@ longest@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/longest/-/longest-1.0.1.tgz#30a0b2da38f73770e8294a0d22e6625ed77d0097"
 
-loose-envify@^1.0.0, loose-envify@^1.1.0, loose-envify@^1.3.0, loose-envify@^1.3.1:
+loose-envify@^1.0.0, loose-envify@^1.1.0, loose-envify@^1.3.1:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/loose-envify/-/loose-envify-1.4.0.tgz#71ee51fa7be4caec1a63839f7e682d8132d30caf"
   dependencies:
@@ -5118,11 +5747,31 @@ map-obj@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/map-obj/-/map-obj-2.0.0.tgz#a65cd29087a92598b8791257a523e021222ac1f9"
 
+map-stream@~0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/map-stream/-/map-stream-0.1.0.tgz#e56aa94c4c8055a16404a0674b78f215f7c8e194"
+
 map-visit@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/map-visit/-/map-visit-1.0.0.tgz#ecdca8f13144e660f1b5bd41f12f3479d98dfb8f"
   dependencies:
     object-visit "^1.0.0"
+
+markdown-it-anchor@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/markdown-it-anchor/-/markdown-it-anchor-4.0.0.tgz#e87fb5543e01965adf71506c6bf7b0491841b7e3"
+  dependencies:
+    string "^3.3.3"
+
+markdown-it@^8.4.0:
+  version "8.4.2"
+  resolved "https://registry.yarnpkg.com/markdown-it/-/markdown-it-8.4.2.tgz#386f98998dc15a37722aa7722084f4020bdd9b54"
+  dependencies:
+    argparse "^1.0.7"
+    entities "~1.1.1"
+    linkify-it "^2.0.0"
+    mdurl "^1.0.1"
+    uc.micro "^1.0.5"
 
 math-expression-evaluator@^1.2.14:
   version "1.2.17"
@@ -5138,6 +5787,10 @@ md5.js@^1.3.4:
   dependencies:
     hash-base "^3.0.0"
     inherits "^2.0.1"
+
+mdurl@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/mdurl/-/mdurl-1.0.1.tgz#fe85b2ec75a59037f2adfec100fd6c601761152e"
 
 media-typer@0.3.0:
   version "0.3.0"
@@ -5376,7 +6029,7 @@ modify-values@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/modify-values/-/modify-values-1.0.1.tgz#b3939fa605546474e3e3e3c63d64bd43b4ee6022"
 
-moment@^2.10.6, moment@^2.6.0:
+moment@^2.10.6, moment@^2.21.0, moment@^2.6.0:
   version "2.22.2"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.22.2.tgz#3c257f9839fc0e93ff53149632239eb90783ff66"
 
@@ -5392,6 +6045,10 @@ monaco-html@^2.0.2:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/monaco-html/-/monaco-html-2.1.1.tgz#464572924e3e0ab05a0e8e6abbbda166f400b25c"
 
+monaco-json@^2.0.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/monaco-json/-/monaco-json-2.1.1.tgz#7fde6c5e7dc577180e9063658c21dfdac9d2f72c"
+
 monaco-languageclient@0.6.3:
   version "0.6.3"
   resolved "https://registry.yarnpkg.com/monaco-languageclient/-/monaco-languageclient-0.6.3.tgz#ab652a9ac6803dc93414f601e32421b1bef20aac"
@@ -5400,6 +6057,10 @@ monaco-languageclient@0.6.3:
     monaco-editor-core "^0.12.0"
     vscode-base-languageclient "^0.0.1-alpha.5"
     vscode-languageserver-types "^3.7.0"
+
+monaco-languages@^1.0.4:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/monaco-languages/-/monaco-languages-1.3.1.tgz#758bfc2b46bd20ef8d58c02512eb3ca2ac76d742"
 
 monaco-textmate@^3.0.0:
   version "3.0.0"
@@ -5451,7 +6112,7 @@ mv@^2.1.1, mv@~2:
     ncp "~2.0.0"
     rimraf "~2.4.0"
 
-nan@2.10.0, nan@^2.0.0, nan@^2.0.9, nan@^2.10.0, nan@^2.9.2:
+nan@2.10.0, nan@^2.0.0, nan@^2.0.9, nan@^2.10.0, nan@^2.6.2, nan@^2.9.2:
   version "2.10.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.10.0.tgz#96d0cd610ebd58d4b4de9cc0c6828cda99c7548f"
 
@@ -5572,7 +6233,13 @@ node-pre-gyp@^0.10.0:
     semver "^5.3.0"
     tar "^4"
 
-node-pty@0.7.6:
+node-pty@0.7.4:
+  version "0.7.4"
+  resolved "https://registry.yarnpkg.com/node-pty/-/node-pty-0.7.4.tgz#07146b2b40b76e432e57ce6750bda40f0da5c99f"
+  dependencies:
+    nan "^2.6.2"
+
+node-pty@^0.7.0:
   version "0.7.6"
   resolved "https://registry.yarnpkg.com/node-pty/-/node-pty-0.7.6.tgz#bff6148c9c5836ca7e73c7aaaec067dcbdac2f7b"
   dependencies:
@@ -5764,6 +6431,12 @@ object.pick@^1.3.0:
   dependencies:
     isobject "^3.0.1"
 
+octicons@^7.1.0:
+  version "7.4.0"
+  resolved "https://registry.yarnpkg.com/octicons/-/octicons-7.4.0.tgz#0be0082ed75b81e680800ef978bf47078b670091"
+  dependencies:
+    object-assign "^4.1.1"
+
 on-finished@~2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/on-finished/-/on-finished-2.3.0.tgz#20f1336481b083cd75337992a16971aa2d906947"
@@ -5803,6 +6476,12 @@ optimist@^0.6.1:
   resolved "https://registry.yarnpkg.com/optimist/-/optimist-0.6.1.tgz#da3ea74686fa21a19a111c326e90eb15a0196686"
   dependencies:
     minimist "~0.0.1"
+    wordwrap "~0.0.2"
+
+optimist@~0.3.5:
+  version "0.3.7"
+  resolved "https://registry.yarnpkg.com/optimist/-/optimist-0.3.7.tgz#c90941ad59e4273328923074d2cf2e7cbc6ec0d9"
+  dependencies:
     wordwrap "~0.0.2"
 
 ora@^0.2.3:
@@ -6059,6 +6738,12 @@ path-type@^3.0.0:
   dependencies:
     pify "^3.0.0"
 
+pause-stream@0.0.11:
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/pause-stream/-/pause-stream-0.0.11.tgz#fe5a34b0cbce12b5aa6a2b403ee2e73b602f1445"
+  dependencies:
+    through "~2.3"
+
 pbkdf2@^3.0.3:
   version "3.0.16"
   resolved "https://registry.yarnpkg.com/pbkdf2/-/pbkdf2-3.0.16.tgz#7404208ec6b01b62d85bf83853a8064f8d9c2a5c"
@@ -6068,6 +6753,10 @@ pbkdf2@^3.0.3:
     ripemd160 "^2.0.1"
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
+
+pdfobject@^2.0.201604172:
+  version "2.0.201604172"
+  resolved "https://registry.yarnpkg.com/pdfobject/-/pdfobject-2.0.201604172.tgz#112edf93b98be121a5e780b06e7f5f78ad31ab3f"
 
 pend@~1.2.0:
   version "1.2.0"
@@ -6356,7 +7045,7 @@ postcss@^5.0.10, postcss@^5.0.11, postcss@^5.0.12, postcss@^5.0.13, postcss@^5.0
     source-map "^0.5.6"
     supports-color "^3.2.3"
 
-postcss@^6.0.1:
+postcss@^6.0.1, postcss@^6.0.14:
   version "6.0.23"
   resolved "https://registry.yarnpkg.com/postcss/-/postcss-6.0.23.tgz#61c82cc328ac60e677645f979054eb98bc0e3324"
   dependencies:
@@ -6410,6 +7099,16 @@ progress-stream@^1.1.0:
     speedometer "~0.1.2"
     through2 "~0.2.3"
 
+progress@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/progress/-/progress-2.0.0.tgz#8a1be366bf8fc23db2bd23f10c6fe920b4389d1f"
+
+prom-client@^10.2.0:
+  version "10.2.3"
+  resolved "https://registry.yarnpkg.com/prom-client/-/prom-client-10.2.3.tgz#a51bf21c239c954a6c5be4b1361fdd380218bb41"
+  dependencies:
+    tdigest "^0.1.1"
+
 promise-inflight@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/promise-inflight/-/promise-inflight-1.0.1.tgz#98472870bf228132fcbdd868129bad12c3c029e3"
@@ -6443,6 +7142,12 @@ proxy-addr@~2.0.3:
 prr@~1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/prr/-/prr-1.0.1.tgz#d3fc114ba06995a45ec6893f484ceb1d78f5f476"
+
+ps-tree@1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/ps-tree/-/ps-tree-1.1.0.tgz#b421b24140d6203f1ed3c76996b4427b08e8c014"
+  dependencies:
+    event-stream "~3.3.0"
 
 pseudomap@^1.0.2:
   version "1.0.2"
@@ -6599,21 +7304,6 @@ react-dom@^16.4.1:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
     prop-types "^15.6.0"
-
-react-lifecycles-compat@^3.0.4:
-  version "3.0.4"
-  resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
-
-react-virtualized@^9.20.0:
-  version "9.20.1"
-  resolved "https://registry.yarnpkg.com/react-virtualized/-/react-virtualized-9.20.1.tgz#02dc08fe9070386b8c48e2ac56bce7af0208d22d"
-  dependencies:
-    babel-runtime "^6.26.0"
-    classnames "^2.2.3"
-    dom-helpers "^2.4.0 || ^3.0.0"
-    loose-envify "^1.3.0"
-    prop-types "^15.6.0"
-    react-lifecycles-compat "^3.0.4"
 
 react@^16.4.1:
   version "16.4.1"
@@ -6912,7 +7602,7 @@ request@2.81.0, "request@>=2.9.0 <2.82.0":
     tunnel-agent "^0.6.0"
     uuid "^3.0.0"
 
-request@^2.45.0, request@^2.82.0:
+request@^2.45.0, request@^2.79.0, request@^2.82.0:
   version "2.87.0"
   resolved "https://registry.yarnpkg.com/request/-/request-2.87.0.tgz#32f00235cd08d482b4d0d68db93a829c0ed5756e"
   dependencies:
@@ -7002,7 +7692,7 @@ right-align@^0.1.1:
   dependencies:
     align-text "^0.1.1"
 
-rimraf@2, rimraf@^2.2.8, rimraf@^2.5.4, rimraf@^2.6.1, rimraf@^2.6.2, rimraf@next:
+rimraf@2, rimraf@^2.2.8, rimraf@^2.5.4, rimraf@^2.6.1, rimraf@^2.6.2, rimraf@latest:
   version "2.6.2"
   resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-2.6.2.tgz#2ed8150d24a16ea8651e6d6ef0f47c4158ce7a36"
   dependencies:
@@ -7091,6 +7781,21 @@ safe-regex@^1.1.0:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/safer-buffer/-/safer-buffer-2.1.2.tgz#44fa161b0187b9549dd84bb91802f9bd8385cd6a"
 
+sanitize-html@^1.14.1:
+  version "1.18.2"
+  resolved "https://registry.yarnpkg.com/sanitize-html/-/sanitize-html-1.18.2.tgz#61877ba5a910327e42880a28803c2fbafa8e4642"
+  dependencies:
+    chalk "^2.3.0"
+    htmlparser2 "^3.9.0"
+    lodash.clonedeep "^4.5.0"
+    lodash.escaperegexp "^4.1.2"
+    lodash.isplainobject "^4.0.6"
+    lodash.isstring "^4.0.1"
+    lodash.mergewith "^4.6.0"
+    postcss "^6.0.14"
+    srcset "^1.0.0"
+    xtend "^4.0.0"
+
 sax@^1.2.4, sax@~1.2.1:
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.4.tgz#2816234e2378bddc4e5354fab5caa895df7100d9"
@@ -7105,6 +7810,12 @@ schema-utils@^0.4.0, schema-utils@^0.4.3, schema-utils@^0.4.4, schema-utils@^0.4
 scoped-regex@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/scoped-regex/-/scoped-regex-1.0.0.tgz#a346bb1acd4207ae70bd7c0c7ca9e566b6baddb8"
+
+seek-bzip@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/seek-bzip/-/seek-bzip-1.0.5.tgz#cfe917cb3d274bcffac792758af53173eb1fabdc"
+  dependencies:
+    commander "~2.8.1"
 
 semver-diff@^2.0.0:
   version "2.1.0"
@@ -7213,6 +7924,16 @@ shelljs@^0.8.0:
     glob "^7.0.0"
     interpret "^1.0.0"
     rechoir "^0.6.2"
+
+showdown@^1.7.4:
+  version "1.8.6"
+  resolved "https://registry.yarnpkg.com/showdown/-/showdown-1.8.6.tgz#91ea4ee3b7a5448aaca6820a4e27e690c6ad771c"
+  dependencies:
+    yargs "^10.0.3"
+
+sigmund@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/sigmund/-/sigmund-1.0.1.tgz#3ff21f198cad2175f9f3b781853fd94d0d19b590"
 
 signal-exit@^3.0.0, signal-exit@^3.0.2:
   version "3.0.2"
@@ -7377,6 +8098,12 @@ split2@^2.0.0:
   dependencies:
     through2 "^2.0.2"
 
+split@0.3:
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/split/-/split-0.3.3.tgz#cd0eea5e63a211dfff7eb0f091c4133e2d0dd28f"
+  dependencies:
+    through "2"
+
 split@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/split/-/split-1.0.1.tgz#605bd9be303aa59fb35f9229fbea0ddec9ea07d9"
@@ -7386,6 +8113,13 @@ split@^1.0.0:
 sprintf-js@~1.0.2:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
+
+srcset@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/srcset/-/srcset-1.0.0.tgz#a5669de12b42f3b1d5e83ed03c71046fc48f41ef"
+  dependencies:
+    array-uniq "^1.0.2"
+    number-is-nan "^1.0.0"
 
 sshpk@^1.7.0:
   version "1.14.2"
@@ -7429,6 +8163,12 @@ stream-browserify@^2.0.1:
   dependencies:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
+
+stream-combiner@~0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/stream-combiner/-/stream-combiner-0.0.4.tgz#4d5e433c185261dde623ca3f44c586bcf5c4ad14"
+  dependencies:
+    duplexer "~0.1.1"
 
 stream-each@^1.1.0:
   version "1.2.2"
@@ -7488,6 +8228,10 @@ string-width@^1.0.1, string-width@^1.0.2:
     is-fullwidth-code-point "^2.0.0"
     strip-ansi "^4.0.0"
 
+string@^3.3.3:
+  version "3.3.3"
+  resolved "https://registry.yarnpkg.com/string/-/string-3.3.3.tgz#5ea211cd92d228e184294990a6cc97b366a77cb0"
+
 string_decoder@^1.0.0, string_decoder@~1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/string_decoder/-/string_decoder-1.1.1.tgz#9cf1611ba62685d7030ae9e4ba34149c3af03fc8"
@@ -7534,6 +8278,12 @@ strip-bom@^2.0.0:
 strip-bom@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/strip-bom/-/strip-bom-3.0.0.tgz#2334c18e9c759f7bdd56fdef7e9ae3d588e68ed3"
+
+strip-dirs@^2.0.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/strip-dirs/-/strip-dirs-2.1.0.tgz#4987736264fc344cf20f6c34aca9d13d1d4ed6c5"
+  dependencies:
+    is-natural-number "^4.0.1"
 
 strip-eof@^1.0.0:
   version "1.0.0"
@@ -7636,7 +8386,7 @@ tar-fs@^1.16.2:
     pump "^1.0.0"
     tar-stream "^1.1.2"
 
-tar-stream@^1.1.2:
+tar-stream@^1.1.2, tar-stream@^1.5.2:
   version "1.6.1"
   resolved "https://registry.yarnpkg.com/tar-stream/-/tar-stream-1.6.1.tgz#f84ef1696269d6223ca48f6e1eeede3f7e81f395"
   dependencies:
@@ -7648,7 +8398,7 @@ tar-stream@^1.1.2:
     to-buffer "^1.1.0"
     xtend "^4.0.0"
 
-tar@^2.0.0:
+tar@^2.0.0, tar@^2.2.1:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/tar/-/tar-2.2.1.tgz#8e4d2a256c0e2185c6b18ad694aec968b83cb1d1"
   dependencies:
@@ -7656,7 +8406,7 @@ tar@^2.0.0:
     fstream "^1.0.2"
     inherits "2"
 
-tar@^4:
+tar@^4, tar@^4.0.0:
   version "4.4.4"
   resolved "https://registry.yarnpkg.com/tar/-/tar-4.4.4.tgz#ec8409fae9f665a4355cc3b4087d0820232bb8cd"
   dependencies:
@@ -7667,6 +8417,12 @@ tar@^4:
     mkdirp "^0.5.0"
     safe-buffer "^5.1.2"
     yallist "^3.0.2"
+
+tdigest@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/tdigest/-/tdigest-0.1.1.tgz#2e3cb2c39ea449e55d1e6cd91117accca4588021"
+  dependencies:
+    bintrees "1.0.1"
 
 temp-dir@^1.0.0:
   version "1.0.0"
@@ -7715,6 +8471,14 @@ textextensions@2:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/textextensions/-/textextensions-2.2.0.tgz#38ac676151285b658654581987a0ce1a4490d286"
 
+throttle-debounce@1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/throttle-debounce/-/throttle-debounce-1.0.1.tgz#dad0fe130f9daf3719fdea33dc36a8e6ba7f30b5"
+
+throttle-debounce@^1.0.1:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/throttle-debounce/-/throttle-debounce-1.1.0.tgz#51853da37be68a155cb6e827b3514a3c422e89cd"
+
 throttleit@0.0.2:
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/throttleit/-/throttleit-0.0.2.tgz#cfedf88e60c00dd9697b61fdd2a8343a9b680eaf"
@@ -7733,7 +8497,7 @@ through2@~0.2.3:
     readable-stream "~1.1.9"
     xtend "~2.1.1"
 
-through@2, "through@>=2.2.7 <3", through@^2.3.4, through@^2.3.6, through@^2.3.8:
+through@2, "through@>=2.2.7 <3", through@^2.3.4, through@^2.3.6, through@^2.3.8, through@~2.3, through@~2.3.1:
   version "2.3.8"
   resolved "https://registry.yarnpkg.com/through/-/through-2.3.8.tgz#0dd4c9ffaabc357960b1b724115d7e0e86a2e1f5"
 
@@ -7880,6 +8644,10 @@ ua-parser-js@^0.7.18:
   version "0.7.18"
   resolved "https://registry.yarnpkg.com/ua-parser-js/-/ua-parser-js-0.7.18.tgz#a7bfd92f56edfb117083b69e31d2aa8882d4b1ed"
 
+uc.micro@^1.0.1, uc.micro@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/uc.micro/-/uc.micro-1.0.5.tgz#0c65f15f815aa08b560a61ce8b4db7ffc3f45376"
+
 uglify-es@^3.3.4:
   version "3.3.9"
   resolved "https://registry.yarnpkg.com/uglify-es/-/uglify-es-3.3.9.tgz#0c1c4f0700bed8dbc124cdb304d2592ca203e677"
@@ -7924,6 +8692,13 @@ umd-compat-loader@^2.1.1:
     ast-types "^0.9.2"
     loader-utils "^1.0.3"
     recast "^0.11.17"
+
+unbzip2-stream@^1.0.9:
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/unbzip2-stream/-/unbzip2-stream-1.2.5.tgz#73a033a567bbbde59654b193c44d48a7e4f43c47"
+  dependencies:
+    buffer "^3.0.1"
+    through "^2.3.6"
 
 underscore@~1.6.0:
   version "1.6.0"
@@ -7987,7 +8762,7 @@ unzip-response@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/unzip-response/-/unzip-response-2.0.1.tgz#d2f0f737d16b0615e72a6935ed04214572d56f97"
 
-upath@^1.0.5:
+upath@^1.0.0, upath@^1.0.5:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/upath/-/upath-1.1.0.tgz#35256597e46a581db4793d0ce47fa9aebfc9fabd"
 
@@ -8208,6 +8983,10 @@ vscode-nsfw@^1.0.17:
     lodash.isundefined "^3.0.1"
     nan "^2.0.0"
     promisify-node "^0.3.0"
+
+vscode-ripgrep@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.0.1.tgz#eff2f2b2a49921ac0acd3ff8dfecaaeebf0184cf"
 
 vscode-textmate@^4.0.1:
   version "4.0.1"
@@ -8454,7 +9233,7 @@ xtend@~2.1.1:
   dependencies:
     object-keys "~0.4.0"
 
-xterm@~3.5.0:
+xterm@^3.0.1:
   version "3.5.1"
   resolved "https://registry.yarnpkg.com/xterm/-/xterm-3.5.1.tgz#d2e62ab26108a771b7bd1b7be4f6578fb4aff922"
 
@@ -8486,11 +9265,34 @@ yargs-parser@^7.0.0:
   dependencies:
     camelcase "^4.1.0"
 
+yargs-parser@^8.1.0:
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-8.1.0.tgz#f1376a33b6629a5d063782944da732631e966950"
+  dependencies:
+    camelcase "^4.1.0"
+
 yargs-parser@^9.0.2:
   version "9.0.2"
   resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-9.0.2.tgz#9ccf6a43460fe4ed40a9bb68f48d43b8a68cc077"
   dependencies:
     camelcase "^4.1.0"
+
+yargs@^10.0.3:
+  version "10.1.2"
+  resolved "https://registry.yarnpkg.com/yargs/-/yargs-10.1.2.tgz#454d074c2b16a51a43e2fb7807e4f9de69ccb5c5"
+  dependencies:
+    cliui "^4.0.0"
+    decamelize "^1.1.1"
+    find-up "^2.1.0"
+    get-caller-file "^1.0.1"
+    os-locale "^2.0.0"
+    require-directory "^2.1.1"
+    require-main-filename "^1.0.1"
+    set-blocking "^2.0.0"
+    string-width "^2.0.0"
+    which-module "^2.0.0"
+    y18n "^3.2.1"
+    yargs-parser "^8.1.0"
 
 yargs@^11.0.0:
   version "11.1.0"
@@ -8583,6 +9385,13 @@ yauzl@2.4.1:
   resolved "https://registry.yarnpkg.com/yauzl/-/yauzl-2.4.1.tgz#9528f442dab1b2284e58b4379bb194e22e0c4005"
   dependencies:
     fd-slicer "~1.0.1"
+
+yauzl@^2.4.2:
+  version "2.10.0"
+  resolved "https://registry.yarnpkg.com/yauzl/-/yauzl-2.10.0.tgz#c7eb17c93e112cb1086fa6d8e51fb0667b79a5f9"
+  dependencies:
+    buffer-crc32 "~0.2.3"
+    fd-slicer "~1.1.0"
 
 yeoman-environment@^2.0.0, yeoman-environment@^2.0.5:
   version "2.3.1"
