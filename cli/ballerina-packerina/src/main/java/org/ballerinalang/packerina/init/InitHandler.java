@@ -141,7 +141,7 @@ public class InitHandler {
                         Path testFilePath = testDirPath.resolve(srcFile.getSrcFileType().getFileName());
                         if (!Files.exists(testFilePath)) {
                             Files.createFile(testFilePath);
-                            writeContent(testFilePath, srcFile.getContent());
+                            writeContent(testFilePath, srcFile.getSrcFileType().getContent());
                         }
                     }
                 } else {
@@ -151,7 +151,7 @@ public class InitHandler {
                     Path srcFilePath = packagePath.resolve(srcFile.getSrcFileType().getFileName());
                     if (!Files.exists(srcFilePath)) {
                         Files.createFile(srcFilePath);
-                        writeContent(srcFilePath, srcFile.getContent());
+                        writeContent(srcFilePath, srcFile.getSrcFileType().getContent());
                     }
                 }
             }
