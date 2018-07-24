@@ -1,7 +1,3 @@
-/*
- * NOTE - Do not modify.
- */
-
 parser grammar BallerinaParser;
 
 options {
@@ -14,7 +10,7 @@ options {
 // starting point for parsing a bal file
 compilationUnit
     :   (importDeclaration | namespaceDeclaration)*
-        (documentationAttachment? deprecatedAttachment? annotationAttachment* definition)*
+        ((documentationAttachment|documentationString)? deprecatedAttachment? annotationAttachment* definition)*
         EOF
     ;
 
@@ -57,7 +53,7 @@ serviceBody
     ;
 
 resourceDefinition
-    :   annotationAttachment* documentationAttachment? deprecatedAttachment? Identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS callableUnitBody
+    :   annotationAttachment* (documentationAttachment|documentationString)? deprecatedAttachment? Identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS callableUnitBody
     ;
 
 resourceParameterList
@@ -91,7 +87,7 @@ objectBody
     ;
 
 objectInitializer
-    :   annotationAttachment* documentationAttachment? (PUBLIC)? NEW objectInitializerParameterList callableUnitBody
+    :   annotationAttachment* (documentationAttachment|documentationString)? (PUBLIC)? NEW objectInitializerParameterList callableUnitBody
     ;
 
 objectInitializerParameterList
@@ -135,7 +131,7 @@ objectDefaultableParameter
     ;
 
 objectFunctionDefinition
-    :   annotationAttachment* documentationAttachment? deprecatedAttachment? (PUBLIC | PRIVATE)? (NATIVE)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   annotationAttachment* (documentationAttachment|documentationString)? deprecatedAttachment? (PUBLIC | PRIVATE)? (NATIVE)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 annotationDefinition
@@ -990,9 +986,6 @@ tripleBackTickDeprecatedInlineCode
     :   TBDeprecatedInlineCodeStart TripleBackTickInlineCode? TripleBackTickInlineCodeEnd
     ;
 
-
-// Documentation parsing.
-
 documentationAttachment
     :   DocumentationTemplateStart documentationTemplateContent? DocumentationTemplateEnd
     ;
@@ -1029,3 +1022,87 @@ tripleBackTickDocInlineCode
     :   TBDocInlineCodeStart TripleBackTickInlineCode? TripleBackTickInlineCodeEnd
     ;
 
+// Markdown documentation
+documentationString
+    :   documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine?
+    ;
+
+documentationLine
+    :   DocumentationLineStart documentationContent
+    ;
+
+parameterDocumentationLine
+    :   (ParameterDocumentationStart parameterDocumentation) (DocumentationLineStart parameterDescription)*
+    ;
+
+returnParameterDocumentationLine
+    :   (ReturnParameterDocumentationStart returnParameterDocumentation) (DocumentationLineStart returnParameterDescription)*
+    ;
+
+documentationContent
+    :   documentationText?
+    ;
+
+parameterDescription
+    :   documentationText?
+    ;
+
+returnParameterDescription
+    :   documentationText?
+    ;
+
+documentationText
+    :   (DocumentationText | ReferenceType | VARIABLE | MODULE | DocumentationEscapedCharacters | documentationReference | singleBacktickedBlock | doubleBacktickedBlock | tripleBacktickedBlock | DefinitionReference)+
+    ;
+
+documentationReference
+    :   definitionReference
+    ;
+
+definitionReference
+    :   definitionReferenceType singleBacktickedBlock
+    ;
+
+definitionReferenceType
+    :   DefinitionReference
+    ;
+
+parameterDocumentation
+    :   docParameterName DescriptionSeparator docParameterDescription
+    ;
+
+returnParameterDocumentation
+    :   docParameterDescription
+    ;
+
+docParameterName
+    :   ParameterName
+    ;
+
+docParameterDescription
+    :   documentationText?
+    ;
+
+singleBacktickedBlock
+    :   SingleBacktickStart singleBacktickedContent SingleBacktickEnd
+    ;
+
+singleBacktickedContent
+    :   SingleBacktickContent
+    ;
+
+doubleBacktickedBlock
+    :   DoubleBacktickStart doubleBacktickedContent DoubleBacktickEnd
+    ;
+
+doubleBacktickedContent
+    :   DoubleBacktickContent
+    ;
+
+tripleBacktickedBlock
+    :   TripleBacktickStart tripleBacktickedContent TripleBacktickEnd
+    ;
+
+tripleBacktickedContent
+    :   TripleBacktickContent
+    ;

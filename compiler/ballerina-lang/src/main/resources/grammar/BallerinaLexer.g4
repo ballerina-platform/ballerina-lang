@@ -17,7 +17,7 @@ IMPORT      : 'import' ;
 AS          : 'as' ;
 PUBLIC      : 'public' ;
 PRIVATE     : 'private' ;
-NATIVE      : 'native' ;
+EXTERN      : 'extern' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
@@ -187,7 +187,7 @@ OR          : '||' ;
 BITAND  : '&' ;
 BITXOR  : '^' ;
 
-// Additional symbols 
+// Additional symbols
 
 RARROW      : '->' ;
 LARROW      : '<-' ;
@@ -363,7 +363,7 @@ BooleanLiteral
     ;
 
 // §3.10.5 String Literals
-    
+
 QuotedStringLiteral
     :   '"' StringCharacters? '"'
     ;
@@ -378,7 +378,7 @@ StringCharacter
     :   ~["\\]
     |   EscapeSequence
     ;
-    
+
 // §3.10.6 Escape Sequences for Character and String Literals
 
 fragment
@@ -637,15 +637,15 @@ XML_COMMENT_START
     ;
 
 CDATA
-    :   '<![CDATA[' .*? ']]>' 
+    :   '<![CDATA[' .*? ']]>'
     ;
 
-DTD 
-    :   '<!' (~[-].|.~[-]).*? '>'    -> skip 
+DTD
+    :   '<!' (~[-].|.~[-]).*? '>'    -> skip
     ;
 
 EntityRef
-    :   '&' XMLQName ';' 
+    :   '&' XMLQName ';'
     ;
 
 CharRef
@@ -662,7 +662,7 @@ XML_TAG_OPEN            :   LT                              -> pushMode(XML_TAG)
 XML_TAG_OPEN_SLASH      :   '</'                            -> pushMode(XML_TAG) ;
 
 XML_TAG_SPECIAL_OPEN
-    :   '<?' (XMLQName QNAME_SEPARATOR)? XMLQName XML_WS    -> pushMode(XML_PI) 
+    :   '<?' (XMLQName QNAME_SEPARATOR)? XMLQName XML_WS    -> pushMode(XML_PI)
     ;
 
 XMLLiteralEnd
@@ -732,8 +732,8 @@ XMLTagExpressionStart
     ;
 
 fragment
-HEXDIGIT    
-    :   [a-fA-F0-9] 
+HEXDIGIT
+    :   [a-fA-F0-9]
     ;
 
 fragment
@@ -742,7 +742,7 @@ DIGIT
     ;
 
 fragment
-NameChar    
+NameChar
     :   NameStartChar
     |   '-' | '_' | '.' | DIGIT
     |   '\u00B7'
@@ -764,7 +764,7 @@ NameStartChar
 // Everything inside a double-quoted xml string (e.g: attribute values)
 mode DOUBLE_QUOTED_XML_STRING;
 
-DOUBLE_QUOTE_END    
+DOUBLE_QUOTE_END
     :   DOUBLE_QUOTE  -> popMode
     ;
 

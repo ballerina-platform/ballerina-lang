@@ -67,7 +67,7 @@ callableUnitBody
 
 
 functionDefinition
-    :   (PUBLIC)? (NATIVE)? FUNCTION ((Identifier | typeName) DOUBLE_COLON)? callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   (PUBLIC)? (EXTERN)? FUNCTION ((Identifier | typeName) DOUBLE_COLON)? callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 lambdaFunction
@@ -131,7 +131,7 @@ objectDefaultableParameter
     ;
 
 objectFunctionDefinition
-    :   annotationAttachment* (documentationAttachment|documentationString)? deprecatedAttachment? (PUBLIC | PRIVATE)? (NATIVE)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   annotationAttachment* (documentationAttachment|documentationString)? deprecatedAttachment? (PUBLIC | PRIVATE)? (EXTERN)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 annotationDefinition
@@ -230,7 +230,7 @@ valueTypeName
 
 builtInReferenceTypeName
     :   TYPE_MAP (LT typeName GT)?
-    |   TYPE_FUTURE (LT typeName GT)?    
+    |   TYPE_FUTURE (LT typeName GT)?
     |   TYPE_XML (LT (LEFT_BRACE xmlNamespaceName RIGHT_BRACE)? xmlLocalName GT)?
     |   TYPE_JSON (LT nameReference GT)?
     |   TYPE_TABLE (LT nameReference GT)?
@@ -525,7 +525,7 @@ invocation
 invocationArgList
     :   invocationArg (COMMA invocationArg)*
     ;
-    
+
 invocationArg
     :   expression  // required args
     |   namedArgs   // named args
@@ -1098,7 +1098,7 @@ doubleBacktickedBlock
 doubleBacktickedContent
     :   DoubleBacktickContent
     ;
-    
+
 tripleBacktickedBlock
     :   TripleBacktickStart tripleBacktickedContent TripleBacktickEnd
     ;
