@@ -11,9 +11,10 @@ export class BallerinaLanguageServerContribution extends BaseLanguageServerContr
     start(clientConnection: IConnection): void {
         const command = "java";
         const args: string[] = [
+            '-cp',
+            '/Users/kavithlokuhewage/ls/language-server-stdio-launcher-0.980.2-SNAPSHOT-jar-with-non-ballerina-dependencies.jar:/Library/Ballerina/ballerina-0.980.0/lib/resources/composer/services/*',
             '-Dballerina.home=/Library/Ballerina/ballerina-0.980.0', // TODO: Read this properly
-			'-jar',
-			'/Users/kavithlokuhewage/ls/ballerina-ls-with-deps.jar' // TODO: Read this properly
+			'org.ballerinalang.langserver.launchers.stdio.Main' // TODO: Read this properly
         ];
         const serverConnection = this.createProcessStreamConnection(command, args);
         this.forward(clientConnection, serverConnection);
