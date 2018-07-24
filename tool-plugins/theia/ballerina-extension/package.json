@@ -27,7 +27,8 @@
   },
   "theiaExtensions": [
     {
-      "frontend": "lib/browser/ballerina-frontend-module"
+      "frontend": "lib/browser/ballerina-frontend-module",
+      "backend": "lib/node/ballerina-backend-module"
     }
   ]
 }
