@@ -1238,7 +1238,6 @@ public class PackageInfoReader {
                 case InstructionCodes.S2XML:
                 case InstructionCodes.XML2S:
                 case InstructionCodes.S2JSONX:
-                case InstructionCodes.NULL2S:
                 case InstructionCodes.AWAIT:
                 case InstructionCodes.CHECK_CONVERSION:
                 case InstructionCodes.XMLLOADALL:

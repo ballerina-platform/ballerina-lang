@@ -525,7 +525,6 @@ public class CPU {
                     case InstructionCodes.JSON2F:
                     case InstructionCodes.JSON2S:
                     case InstructionCodes.JSON2B:
-                    case InstructionCodes.NULL2S:
                     case InstructionCodes.IS_ASSIGNABLE:
                     case InstructionCodes.CHECK_CONVERSION:
                         execTypeCastOpcodes(ctx, sf, opcode, operands);
@@ -2142,10 +2141,6 @@ public class CPU {
                 break;
             case InstructionCodes.JSON2B:
                 castJSONToBoolean(ctx, operands, sf);
-                break;
-            case InstructionCodes.NULL2S:
-                j = operands[1];
-                sf.stringRegs[j] = null;
                 break;
             case InstructionCodes.ARRAY2JSON:
                 convertArrayToJSON(ctx, operands, sf);
