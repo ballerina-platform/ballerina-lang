@@ -1610,6 +1610,9 @@
 
                 <module>misc/lib-creator</module>
 
+                <module>bir/ballerina-ir-parser</module>
+                <module>bir/ballerina-ir-model</module>
+
                 <module>bvm/ballerina-config</module>
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
@@ -1689,6 +1692,9 @@
 
                 <module>misc/lib-creator</module>
 
+                <module>bir/ballerina-ir-parser</module>
+                <module>bir/ballerina-ir-model</module>
+
                 <module>bvm/ballerina-config</module>
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
@@ -1764,6 +1770,9 @@
                 <module>stdlib/streams</module>
 
                 <module>misc/lib-creator</module>
+
+                <module>bir/ballerina-ir-parser</module>
+                <module>bir/ballerina-ir-model</module>
 
                 <module>bvm/ballerina-config</module>
                 <module>bvm/ballerina-core</module>

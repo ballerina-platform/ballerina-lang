@@ -1,0 +1,4 @@
+function "my-func"(){
+ bb0 {
+ }
+}
