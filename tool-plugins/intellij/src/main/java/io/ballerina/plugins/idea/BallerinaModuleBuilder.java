@@ -31,9 +31,17 @@ import com.intellij.util.containers.ContainerUtil;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkType;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+
+import static java.nio.file.StandardOpenOption.APPEND;
+import static java.nio.file.StandardOpenOption.CREATE;
 
 /**
  * Responsible for creating a Ballerina module.
@@ -41,8 +49,26 @@ import java.util.List;
 public class BallerinaModuleBuilder extends JavaModuleBuilder implements SourcePathsBuilder, ModuleBuilderListener {
 
     private static final Logger LOG = Logger.getInstance(BallerinaModuleBuilder.class);
+    private static final String SERVICE_CONTENT = "// A system package containing protocol access constructs\n"
+            + "// Package objects referenced with 'http:' in code\n" + "import ballerina/http;\n" + "\n"
+            + "documentation {\n" + "   A service endpoint represents a listener.\n" + "}\n"
+            + "endpoint http:Listener listener {\n" + "    port:9090\n" + "};\n" + "\n" + "documentation {\n"
+            + "   A service is a network-accessible API\n"
+            + "   Advertised on '/hello', port comes from listener endpoint\n" + "}\n"
+            + "service<http:Service> hello bind listener {\n" + "\n" + "    documentation {\n"
+            + "       A resource is an invokable API method\n" + "       Accessible at '/hello/sayHello\n"
+            + "       'caller' is the client invoking this resource\n" + "\n" + "       P{{caller}} Server Connector\n"
+            + "       P{{request}} Request\n" + "    }\n" + "    sayHello (endpoint caller, http:Request request) {\n"
+            + "\n" + "        // Create object to carry data back to caller\n"
+            + "        http:Response response = new;\n" + "\n"
+            + "        // Objects and structs can have function calls\n"
+            + "        response.setTextPayload(\"Hello Ballerina!\\n\");\n" + "\n"
+            + "        // Send a response back to caller\n" + "        // Errors are ignored with '_'\n"
+            + "        // -> indicates a synchronous network-bound call\n"
+            + "        _ = caller -> respond(response);\n" + "    }\n" + "}\n";
 
     @Override
+
     public void setupRootModel(ModifiableRootModel modifiableRootModel) throws ConfigurationException {
         addListener(this);
         super.setupRootModel(modifiableRootModel);
@@ -52,16 +78,27 @@ public class BallerinaModuleBuilder extends JavaModuleBuilder implements SourceP
     public List<Pair<String, String>> getSourcePaths() {
         String ballerinaCacheRoot = getContentEntryPath() + File.separator + ".ballerina";
         new File(ballerinaCacheRoot).mkdirs();
-        String ballerinaTomlFile = getContentEntryPath() + File.separator +
-                BallerinaConstants.BALLERINA_CONFIG_FILE_NAME;
-        File file = new File(ballerinaTomlFile);
+        String ballerinaTomlFile = getContentEntryPath() + File.separator + "Ballerina.toml";
+        File tomlFile = new File(ballerinaTomlFile);
+        String helloServiceFile = getContentEntryPath() + File.separator + "hello_service.bal";
+        File balFile = new File(helloServiceFile);
         try {
-            file.createNewFile();
             // Todo - Add some content to the toml file?
+            tomlFile.createNewFile();
+            balFile.createNewFile();
+            writeContent(balFile.toPath(), SERVICE_CONTENT);
+
         } catch (IOException e) {
             LOG.debug(e);
         }
         return ContainerUtil.emptyList();
+    }
+
+    private static void writeContent(Path file, String content) throws IOException {
+        byte data[] = content.getBytes(Charset.defaultCharset());
+        try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(file, CREATE, APPEND))) {
+            out.write(data, 0, data.length);
+        }
     }
 
     @NotNull

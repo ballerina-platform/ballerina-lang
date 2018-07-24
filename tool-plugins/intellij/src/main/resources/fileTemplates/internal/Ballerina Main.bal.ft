@@ -4,6 +4,9 @@ package ${PACKAGE_NAME};
 
 import ballerina/io;
 
+documentation {
+   Prints `Hello World`.
+}
 function main(string... args) {
-    io:println("Hello, World!");
+    io:println("Hello World!");
 }

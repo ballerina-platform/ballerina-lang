@@ -46,7 +46,7 @@ public class BallerinaCreateFileAction extends CreateFileFromTemplateAction impl
 
     @Override
     protected void buildDialog(Project project, PsiDirectory directory,
-                               @NotNull CreateFileFromTemplateDialog.Builder builder) {
+            @NotNull CreateFileFromTemplateDialog.Builder builder) {
         builder.setTitle(NEW_BALLERINA_FILE).addKind(BALLERINA_MAIN, BallerinaIcons.ICON, BALLERINA_MAIN)
                 .addKind(BALLERINA_SERVICE, BallerinaIcons.ICON, BALLERINA_SERVICE)
                 .addKind(BALLERINA_EMPTY_FILE, BallerinaIcons.ICON, BALLERINA_EMPTY_FILE);
@@ -63,7 +63,6 @@ public class BallerinaCreateFileAction extends CreateFileFromTemplateAction impl
     protected String getActionName(PsiDirectory directory, String newName, String templateName) {
         return NEW_BALLERINA_FILE;
     }
-
 
     @Override
     protected void postProcess(PsiFile createdElement, String templateName, Map<String, String> customProperties) {
