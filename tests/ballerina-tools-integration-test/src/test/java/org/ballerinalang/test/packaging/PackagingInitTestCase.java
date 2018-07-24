@@ -87,7 +87,6 @@ public class PackagingInitTestCase extends IntegrationTestCase {
         logLeecher = new LogLeecher("Hello World!");
         ballerinaServerForMain.addLogLeecher(logLeecher);
         ballerinaServerForMain.runMain(clientArgs, getEnvVariables(), "run");
-        ballerinaServerForMain.stopServer();
     }
 
     @Test(description = "Test creating a project with a service in a package")
@@ -145,7 +144,6 @@ public class PackagingInitTestCase extends IntegrationTestCase {
         logLeecher = new LogLeecher("Hello World!");
         ballerinaServerForMain.addLogLeecher(logLeecher);
         ballerinaServerForMain.runMain(clientArgs, getEnvVariables(), "run");
-        ballerinaServerForMain.stopServer();
 
         // Test for service
         ballerinaServerForService = ServerInstance.initBallerinaServer();
@@ -197,7 +195,6 @@ public class PackagingInitTestCase extends IntegrationTestCase {
         logLeecher = new LogLeecher("Hello World!");
         ballerinaServerForMain.addLogLeecher(logLeecher);
         ballerinaServerForMain.runMain(clientArgs, getEnvVariables(), "run");
-        ballerinaServerForMain.stopServer();
     }
 
     @Test(description = "Test running init on an already existing project and create a new package",
@@ -227,7 +224,6 @@ public class PackagingInitTestCase extends IntegrationTestCase {
         logLeecher = new LogLeecher("Hello World!");
         ballerinaServerForMain.addLogLeecher(logLeecher);
         ballerinaServerForMain.runMain(clientArgs, getEnvVariables(), "run");
-        ballerinaServerForMain.stopServer();
     }
 
     /**
