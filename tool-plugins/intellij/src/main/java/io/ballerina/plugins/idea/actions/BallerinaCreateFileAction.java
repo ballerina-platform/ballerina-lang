@@ -33,16 +33,12 @@ import java.util.Map;
  */
 public class BallerinaCreateFileAction extends CreateFileFromTemplateAction implements DumbAware {
 
-    public static final String BALLERINA_EMPTY_FILE = "Ballerina File";
-    public static final String BALLERINA_MAIN = "Ballerina Main";
-    public static final String BALLERINA_SERVICE = "Ballerina Service";
+    private static final String BALLERINA_EMPTY_FILE = "Ballerina File";
+    private static final String BALLERINA_MAIN = "Ballerina Main";
+    private static final String BALLERINA_SERVICE = "Ballerina Service";
 
-    public static final String NEW_BALLERINA_FILE = "New Ballerina File";
-    public static final String DEFAULT_BALLERINA_TEMPLATE_PROPERTY = "Empty file";
-
-    public BallerinaCreateFileAction(String name, String description) {
-        super(name, description, BallerinaIcons.ICON);
-    }
+    private static final String NEW_BALLERINA_FILE = "New Ballerina File";
+    private static final String DEFAULT_BALLERINA_TEMPLATE_PROPERTY = "Empty file";
 
     public BallerinaCreateFileAction() {
         super(NEW_BALLERINA_FILE, "", BallerinaIcons.ICON);
@@ -50,7 +46,7 @@ public class BallerinaCreateFileAction extends CreateFileFromTemplateAction impl
 
     @Override
     protected void buildDialog(Project project, PsiDirectory directory,
-                               @NotNull CreateFileFromTemplateDialog.Builder builder) {
+            @NotNull CreateFileFromTemplateDialog.Builder builder) {
         builder.setTitle(NEW_BALLERINA_FILE).addKind(BALLERINA_MAIN, BallerinaIcons.ICON, BALLERINA_MAIN)
                 .addKind(BALLERINA_SERVICE, BallerinaIcons.ICON, BALLERINA_SERVICE)
                 .addKind(BALLERINA_EMPTY_FILE, BallerinaIcons.ICON, BALLERINA_EMPTY_FILE);
@@ -67,7 +63,6 @@ public class BallerinaCreateFileAction extends CreateFileFromTemplateAction impl
     protected String getActionName(PsiDirectory directory, String newName, String templateName) {
         return NEW_BALLERINA_FILE;
     }
-
 
     @Override
     protected void postProcess(PsiFile createdElement, String templateName, Map<String, String> customProperties) {

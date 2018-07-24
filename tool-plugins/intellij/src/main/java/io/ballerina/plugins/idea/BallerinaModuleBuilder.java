@@ -16,7 +16,6 @@
 
 package io.ballerina.plugins.idea;
 
-import io.ballerina.plugins.idea.actions.BallerinaCreateFileAction;
 import com.intellij.compiler.CompilerWorkspaceConfiguration;
 import com.intellij.ide.util.projectWizard.JavaModuleBuilder;
 import com.intellij.ide.util.projectWizard.ModuleBuilderListener;
@@ -50,8 +49,26 @@ import static java.nio.file.StandardOpenOption.CREATE;
 public class BallerinaModuleBuilder extends JavaModuleBuilder implements SourcePathsBuilder, ModuleBuilderListener {
 
     private static final Logger LOG = Logger.getInstance(BallerinaModuleBuilder.class);
+    private static final String SERVICE_CONTENT = "// A system package containing protocol access constructs\n"
+            + "// Package objects referenced with 'http:' in code\n" + "import ballerina/http;\n" + "\n"
+            + "documentation {\n" + "   A service endpoint represents a listener.\n" + "}\n"
+            + "endpoint http:Listener listener {\n" + "    port:9090\n" + "};\n" + "\n" + "documentation {\n"
+            + "   A service is a network-accessible API\n"
+            + "   Advertised on '/hello', port comes from listener endpoint\n" + "}\n"
+            + "service<http:Service> hello bind listener {\n" + "\n" + "    documentation {\n"
+            + "       A resource is an invokable API method\n" + "       Accessible at '/hello/sayHello\n"
+            + "       'caller' is the client invoking this resource\n" + "\n" + "       P{{caller}} Server Connector\n"
+            + "       P{{request}} Request\n" + "    }\n" + "    sayHello (endpoint caller, http:Request request) {\n"
+            + "\n" + "        // Create object to carry data back to caller\n"
+            + "        http:Response response = new;\n" + "\n"
+            + "        // Objects and structs can have function calls\n"
+            + "        response.setTextPayload(\"Hello Ballerina!\\n\");\n" + "\n"
+            + "        // Send a response back to caller\n" + "        // Errors are ignored with '_'\n"
+            + "        // -> indicates a synchronous network-bound call\n"
+            + "        _ = caller -> respond(response);\n" + "    }\n" + "}\n";
 
     @Override
+
     public void setupRootModel(ModifiableRootModel modifiableRootModel) throws ConfigurationException {
         addListener(this);
         super.setupRootModel(modifiableRootModel);
@@ -66,9 +83,11 @@ public class BallerinaModuleBuilder extends JavaModuleBuilder implements SourceP
         String helloServiceFile = getContentEntryPath() + File.separator + "hello_service.bal";
         File balFile = new File(helloServiceFile);
         try {
-            tomlFile.createNewFile();
-            new BallerinaCreateFileAction(BallerinaCreateFileAction.BALLERINA_SERVICE,"");
             // Todo - Add some content to the toml file?
+            tomlFile.createNewFile();
+            balFile.createNewFile();
+            writeContent(balFile.toPath(), SERVICE_CONTENT);
+
         } catch (IOException e) {
             LOG.debug(e);
         }
