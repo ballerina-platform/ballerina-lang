@@ -55,8 +55,8 @@ public class SourceGenTest {
         this.ballerinaFiles = getExampleFiles();
     }
 
-    @Test(description = "Source gen test", dataProvider = "exampleFiles")
-    public void sourceGenTests(File file) throws IOException {
+    @Test(description = "Source gen test suit", dataProvider = "exampleFiles")
+    public void sourceGenTests(File file) throws IOException, InvocationTargetException, IllegalAccessException {
         LSServiceOperationContext formatContext = new LSServiceOperationContext();
         Path filePath = Paths.get(file.getPath());
         formatContext.put(DocumentServiceKeys.FILE_URI_KEY, filePath.toUri().toString());
@@ -65,17 +65,12 @@ public class SourceGenTest {
         byte[] encoded1 = Files.readAllBytes(filePath);
         String expected = new String(encoded1);
         documentManager.openFile(filePath, expected);
-        JsonObject ast = null;
-        try {
-            ast = TextDocumentFormatUtil.getAST(filePath.toUri().toString(), documentManager,
-                    formatContext);
-            SourceGen sourceGen = new SourceGen(0);
-            sourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
-            String actual = sourceGen.getSourceOf(ast.getAsJsonObject("model"), false, false);
-            Assert.assertEquals(actual, expected, "Error in generated source");
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            // Ignore
-        }
+        JsonObject ast = TextDocumentFormatUtil.getAST(filePath.toUri().toString(), documentManager,
+                formatContext);
+        SourceGen sourceGen = new SourceGen(0);
+        sourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
+        String actual = sourceGen.getSourceOf(ast.getAsJsonObject("model"), false, false);
+        Assert.assertEquals(actual, expected, "Generated source didn't match the expected");
     }
 
     @DataProvider
