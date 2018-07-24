@@ -405,24 +405,26 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 LSServiceOperationContext formatContext = new LSServiceOperationContext();
                 formatContext.put(DocumentServiceKeys.FILE_URI_KEY, params.getTextDocument().getUri());
 
-                LSDocument document = new LSDocument(params.getTextDocument().getUri());
-                String fileContent = documentManager.getFileContent(CommonUtil.getPath(document));
-                String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
-                int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"),
-                        fileContent.lastIndexOf("\r"));
-                int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
-                int totalLines = contentComponents.length;
+            LSDocument document = new LSDocument(params.getTextDocument().getUri());
+            Optional<Lock> lock = documentManager.lockFile(CommonUtil.getPath(document));
+            String fileContent = documentManager.getFileContent(CommonUtil.getPath(document));
+            String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
+            int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
+            int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
+            int totalLines = contentComponents.length;
 
-                Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
-                // Source generation for given ast.
-                JsonObject ast = TextDocumentFormatUtil.getAST(params, documentManager, formatContext);
-                SourceGen sourceGen = new SourceGen(0);
-                sourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
-                FormattingUtil formattingUtil = new FormattingUtil();
-                formattingUtil.accept(ast.getAsJsonObject("model"));
-                textEditContent = sourceGen.getSourceOf(ast.getAsJsonObject("model"), false, false);
-                textEdit = new TextEdit(range, textEditContent);
-                return Collections.singletonList(textEdit);
+            Range range = new Range(new Position(0, 0), new Position(totalLines, lastCharCol));
+            // Source generation for given ast.
+            JsonObject ast = TextDocumentFormatUtil.getAST(params.getTextDocument().getUri(), documentManager,
+                    formatContext);
+            SourceGen sourceGen = new SourceGen(0);
+            sourceGen.build(ast.getAsJsonObject("model"), null, "CompilationUnit");
+            FormattingUtil formattingUtil = new FormattingUtil();
+            formattingUtil.accept(ast.getAsJsonObject("model"));
+            textEditContent = sourceGen.getSourceOf(ast.getAsJsonObject("model"), false, false);
+            textEdit = new TextEdit(range, textEditContent);
+            lock.ifPresent(Lock::unlock);
+            return Collections.singletonList(textEdit);
             } catch (Exception e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
                     String msg = e.getMessage();

@@ -31,6 +31,7 @@ export const COMMANDS = {
     REFRESH_PATH_IN_EXPLORER: 'refresh-path-in-explorer',
     CREATE_PROJECT: 'create-project',
     SHOW_CREATE_PROJECT_WIZARD: 'create-project-wizard',
+    SHOW_EXTERNAL_LINK: 'show-external-link',
 };
 
 export const EVENTS = {
