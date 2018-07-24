@@ -39,7 +39,7 @@ import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 
 /**
- * extern function ballerina/io#writeInt16.
+ * Extern function ballerina/io#writeInt16.
  *
  * @since 0.973.1
  */

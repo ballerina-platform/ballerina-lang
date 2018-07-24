@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import java.io.PrintStream;
 
 /**
- * extern function ballerina/io:println.
+ * Extern function ballerina/io:println.
  *
  * @since 0.85
  */

@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * extern function ballerina.math:exp.
+ * Extern function ballerina.math:exp.
  *
  * @since 0.90
  */

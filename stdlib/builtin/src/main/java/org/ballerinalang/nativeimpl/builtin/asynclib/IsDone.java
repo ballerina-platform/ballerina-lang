@@ -25,7 +25,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * extern function future.isDone().
+ * Extern function future.isDone().
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "builtin",

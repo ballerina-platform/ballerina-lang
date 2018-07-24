@@ -25,7 +25,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
 
 /**
- * extern function ballerina.system:getUserHome.
+ * Extern function ballerina.system:getUserHome.
  *
  * @since 0.94.1
  */

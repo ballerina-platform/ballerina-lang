@@ -29,7 +29,7 @@ import java.io.PrintStream;
 
 
 /**
- * extern function print.
+ * Extern function print.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",

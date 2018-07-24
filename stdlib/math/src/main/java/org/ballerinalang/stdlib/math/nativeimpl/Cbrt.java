@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * extern function ballerina.math:cbrt.
+ * Extern function ballerina.math:cbrt.
  *
  * @since 0.94
  */

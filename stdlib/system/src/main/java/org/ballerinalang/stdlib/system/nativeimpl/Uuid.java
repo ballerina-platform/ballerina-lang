@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.UUID;
 
 /**
- * extern function ballerina.system:uuid.
+ * Extern function ballerina.system:uuid.
  *
  * @since 0.8.0
  */

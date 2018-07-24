@@ -31,7 +31,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SUBSCRIPTIO
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SUBSCRIPTION_DETAILS_TOPIC;
 
 /**
- * extern function to add a subscription to the default Ballerina Hub's underlying broker.
+ * Extern function to add a subscription to the default Ballerina Hub's underlying broker.
  *
  * @since 0.965.0
  */

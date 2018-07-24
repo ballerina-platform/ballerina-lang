@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.utils.Utils;
 
 /**
- * extern function ballerina/io:base64Decode.
+ * Extern function ballerina/io:base64Decode.
  *
  * @since 0.970.0
  */

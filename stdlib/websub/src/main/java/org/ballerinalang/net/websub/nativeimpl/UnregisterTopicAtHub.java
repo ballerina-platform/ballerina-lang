@@ -29,7 +29,7 @@ import org.ballerinalang.net.websub.BallerinaWebSubException;
 import org.ballerinalang.net.websub.hub.Hub;
 
 /**
- * extern function to unregister a topic in the Ballerina Hub.
+ * Extern function to unregister a topic in the Ballerina Hub.
  *
  * @since 0.965.0
  */

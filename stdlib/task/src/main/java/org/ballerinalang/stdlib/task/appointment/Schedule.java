@@ -40,7 +40,7 @@ import static org.ballerinalang.stdlib.task.TaskConstants.APPOINTMENT_ON_TRIGGER
 import static org.ballerinalang.stdlib.task.TaskConstants.APPOINTMENT_TASK_ID_FIELD;
 
 /**
- * extern function ballerina/task:Appointment.schedule.
+ * Extern function ballerina/task:Appointment.schedule.
  */
 @BallerinaFunction(
         orgName = "ballerina",

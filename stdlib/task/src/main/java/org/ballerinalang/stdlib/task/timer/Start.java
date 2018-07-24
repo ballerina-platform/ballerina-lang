@@ -41,7 +41,7 @@ import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_ON_TRIGGER_FIELD
 import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_TASK_ID_FIELD;
 
 /**
- * extern function ballerina/task:Timer.start.
+ * Extern function ballerina/task:Timer.start.
  */
 @BallerinaFunction(
         orgName = "ballerina",

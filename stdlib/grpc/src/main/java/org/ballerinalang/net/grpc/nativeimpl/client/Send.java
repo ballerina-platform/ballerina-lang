@@ -40,7 +40,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
- * extern function to respond the server.
+ * Extern function to respond the server.
  *
  * @since 1.0.0
  */

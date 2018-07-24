@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * extern function to clear map entries.
+ * Extern function to clear map entries.
  * ballerina.model.map:clear()
  */
 @BallerinaFunction(

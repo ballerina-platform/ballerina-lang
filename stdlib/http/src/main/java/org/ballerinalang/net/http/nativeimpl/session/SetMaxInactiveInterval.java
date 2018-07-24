@@ -33,7 +33,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.util.IllegalFormatException;
 
 /**
- * extern function to set session max inactive interval.
+ * Extern function to set session max inactive interval.
  *
  * @since 0.89
  */

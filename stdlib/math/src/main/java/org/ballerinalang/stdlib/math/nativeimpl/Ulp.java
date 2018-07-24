@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * extern function ballerina.math:ulp.
+ * Extern function ballerina.math:ulp.
  *
  * @since 0.94
  */

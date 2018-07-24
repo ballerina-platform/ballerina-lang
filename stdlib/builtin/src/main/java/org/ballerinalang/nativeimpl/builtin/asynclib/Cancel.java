@@ -25,7 +25,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * extern function future.cancel().
+ * Extern function future.cancel().
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "builtin",

@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * extern function ballerina.math:floorDiv.
+ * Extern function ballerina.math:floorDiv.
  *
  * @since 0.94
  */

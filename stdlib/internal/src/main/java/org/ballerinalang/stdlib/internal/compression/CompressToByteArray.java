@@ -32,7 +32,7 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 
 /**
- * extern function ballerina.compression:compressToByteArray.
+ * Extern function ballerina.compression:compressToByteArray.
  *
  * @since 0.970.0
  */

@@ -28,7 +28,7 @@ import org.ballerinalang.net.websub.BallerinaWebSubException;
 import org.ballerinalang.net.websub.hub.Hub;
 
 /**
- * extern function to stop the default Ballerina WebSub Hub, if started.
+ * Extern function to stop the default Ballerina WebSub Hub, if started.
  *
  * @since 0.965.0
  */

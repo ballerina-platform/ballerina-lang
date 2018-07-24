@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.transactions.TransactionResourceManager;
 
 /**
- * extern function ballerina.transactions:prepareResourceManagers.
+ * Extern function ballerina.transactions:prepareResourceManagers.
  *
  * @since 0.964.0
  */

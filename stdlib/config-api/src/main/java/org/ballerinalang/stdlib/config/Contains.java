@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * extern function ballerina.config:contains.
+ * Extern function ballerina.config:contains.
  *
  * @since 0.965.0
  */

@@ -33,7 +33,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 
 /**
- * extern function ballerina.compression:decompress.
+ * Extern function ballerina.compression:decompress.
  *
  * @since 0.970.0
  */

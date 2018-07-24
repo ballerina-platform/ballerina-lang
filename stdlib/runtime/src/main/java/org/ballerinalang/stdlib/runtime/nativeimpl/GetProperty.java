@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.runtime.utils.RuntimeUtils;
 
 /**
- * extern function ballerina.runtime:getProperty.
+ * Extern function ballerina.runtime:getProperty.
  *
  * @since 0.94.1
  */

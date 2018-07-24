@@ -31,7 +31,7 @@ import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * extern function to get session attribute key value pairs as a map.
+ * Extern function to get session attribute key value pairs as a map.
  *
  * @since 0.95.1
  */

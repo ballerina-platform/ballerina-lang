@@ -33,7 +33,7 @@ import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 /**
- * extern function ballerina/io#sprintf.
+ * Extern function ballerina/io#sprintf.
  *
  * @since 0.964.0
  */

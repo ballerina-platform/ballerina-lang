@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 import java.security.interfaces.RSAPublicKey;
 
 /**
- * extern function ballerinalang.jwt:verifySignature.
+ * Extern function ballerinalang.jwt:verifySignature.
  *
  * @since 0.964.0
  */

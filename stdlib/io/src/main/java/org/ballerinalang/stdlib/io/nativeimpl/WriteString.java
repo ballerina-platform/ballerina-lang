@@ -38,7 +38,7 @@ import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 
 /**
- * extern function ballerina.io#writeString.
+ * Extern function ballerina.io#writeString.
  *
  * @since 0.974.1
  */

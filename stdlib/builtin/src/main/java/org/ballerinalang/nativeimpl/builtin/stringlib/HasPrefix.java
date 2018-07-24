@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * extern function ballerina.model.strings:hasPrefix.
+ * Extern function ballerina.model.strings:hasPrefix.
  *
  * @since 0.8.0
  */

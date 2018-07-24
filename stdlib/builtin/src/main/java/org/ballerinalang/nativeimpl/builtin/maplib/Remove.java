@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * extern function to remove element from the map.
+ * Extern function to remove element from the map.
  * ballerina.model.map:remove(string)
  */
 @BallerinaFunction(

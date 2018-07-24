@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * extern function ballerina.model.strings:split(string, string).
+ * Extern function ballerina.model.strings:split(string, string).
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "builtin",

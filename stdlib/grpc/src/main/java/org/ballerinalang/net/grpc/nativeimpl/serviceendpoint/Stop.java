@@ -29,7 +29,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
 
 /**
- * extern function to stop gRPC server instance.
+ * Extern function to stop gRPC server instance.
  *
  * @since 1.0.0
  */

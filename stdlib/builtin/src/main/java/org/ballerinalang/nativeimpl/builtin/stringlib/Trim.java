@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * extern function ballerina.model.strings:trim.
+ * Extern function ballerina.model.strings:trim.
  *
  * @since 0.8.0
  */

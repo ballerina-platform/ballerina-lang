@@ -29,7 +29,7 @@ import java.nio.charset.Charset;
 import java.util.Scanner;
 
 /**
- * extern function ballerina/io:readln.
+ * Extern function ballerina/io:readln.
  *
  * @since 0.97
  */

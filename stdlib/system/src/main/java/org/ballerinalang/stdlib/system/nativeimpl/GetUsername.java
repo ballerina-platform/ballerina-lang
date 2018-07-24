@@ -25,7 +25,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.system.utils.SystemUtils;
 
 /**
- * extern function ballerina.system:getName.
+ * Extern function ballerina.system:getName.
  *
  * @since 0.94.1
  */

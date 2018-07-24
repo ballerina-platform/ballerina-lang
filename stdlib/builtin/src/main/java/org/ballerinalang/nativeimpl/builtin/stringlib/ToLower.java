@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.Locale;
 
 /**
- * extern function ballerina.model.strings:toLower.
+ * Extern function ballerina.model.strings:toLower.
  *
  * @since 0.8.0
  */

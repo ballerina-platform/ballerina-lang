@@ -32,7 +32,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * extern function ballerina.crypto:getHash.
+ * Extern function ballerina.crypto:getHash.
  *
  * @since 0.8.0
  */

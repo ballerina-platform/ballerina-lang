@@ -68,7 +68,7 @@ import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_SSL_VERIFY_CLI
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
 /**
- * extern function for initializing gRPC server endpoint.
+ * Extern function for initializing gRPC server endpoint.
  *
  * @since 1.0.0
  */

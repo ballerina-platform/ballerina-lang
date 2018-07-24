@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * extern function ballerina.model.json:getKeys. Returns an array of keys contained in the specified JSON.
+ * Extern function ballerina.model.json:getKeys. Returns an array of keys contained in the specified JSON.
  * If the JSON is not an object type element, then this method will return an empty array.
  * 
  * @since 0.90

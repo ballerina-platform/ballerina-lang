@@ -32,7 +32,7 @@ import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * extern function to get session attribute.
+ * Extern function to get session attribute.
  *
  * @since 0.89
  */

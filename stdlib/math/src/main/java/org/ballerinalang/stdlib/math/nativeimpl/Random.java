@@ -25,7 +25,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * extern function ballerina.math:random.
+ * Extern function ballerina.math:random.
  *
  * @since 0.90
  */

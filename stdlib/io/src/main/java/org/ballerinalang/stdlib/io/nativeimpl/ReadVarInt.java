@@ -39,7 +39,7 @@ import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 
 /**
- * extern function ballerina.io#readVarInt.
+ * Extern function ballerina.io#readVarInt.
  *
  * @since 0.975.1
  */

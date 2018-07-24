@@ -31,7 +31,7 @@ import java.net.UnknownHostException;
 import java.util.Enumeration;
 
 /**
- * extern function ballerina.transactions:getAvailablePort.
+ * Extern function ballerina.transactions:getAvailablePort.
  *
  * @since 0.964.0
  */

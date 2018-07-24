@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * extern function ballerina.math:scalb.
+ * Extern function ballerina.math:scalb.
  *
  * @since 0.94
  */

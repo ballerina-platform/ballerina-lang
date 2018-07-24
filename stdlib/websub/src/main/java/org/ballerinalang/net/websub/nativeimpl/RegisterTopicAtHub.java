@@ -29,7 +29,7 @@ import org.ballerinalang.net.websub.BallerinaWebSubException;
 import org.ballerinalang.net.websub.hub.Hub;
 
 /**
- * extern function to register a topic in the Ballerina Hub, to accept subscription requests against.
+ * Extern function to register a topic in the Ballerina Hub, to accept subscription requests against.
  *
  * @since 0.965.0
  */

@@ -36,7 +36,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
- * extern function ballerina.compression:decompressFromByteArray.
+ * Extern function ballerina.compression:decompressFromByteArray.
  *
  * @since 0.970.0
  */
