@@ -60,6 +60,7 @@ public class PackagingTestCase extends IntegrationTestCase {
     private Path tempProjectDirectory;
     private Path projectPath;
     private String packageName = "test";
+    private String datePushed;
 
     /**
      * Compress files.
@@ -179,8 +180,10 @@ public class PackagingTestCase extends IntegrationTestCase {
         String sourceRootPath = projectPath.toString();
         String[] clientArgs = {"--sourceroot", sourceRootPath, packageName};
 
-        String msg = "integrationtests/" + packageName + ":1.0.0 [project repo -> central]";
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd-EE");
+        datePushed = dtf.format(LocalDateTime.now());
 
+        String msg = "integrationtests/" + packageName + ":1.0.0 [project repo -> central]";
         LogLeecher clientLeecher = new LogLeecher(msg);
         ballerinaClient.addLogLeecher(clientLeecher);
         ballerinaClient.runMain(clientArgs, getEnvVariables(), "push");
@@ -223,10 +226,6 @@ public class PackagingTestCase extends IntegrationTestCase {
     public void testSearch() throws BallerinaTestException, IOException {
         ballerinaClient = new ServerInstance(serverZipPath);
         String[] clientArgs = {packageName};
-
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd-EE");
-        String date = dtf.format(LocalDateTime.now());
-
         String loggedMsg = "Ballerina Central\n" +
                 "=================\n" +
                 "\n" +
@@ -235,7 +234,7 @@ public class PackagingTestCase extends IntegrationTestCase {
                 "|------------------------------------------------------| -------------------------------------------" +
                 "---------------------------------------| ---------------| ---------------| --------|\n" +
                 "|integrationtests/" + packageName + "                             | Allows connecting Test REST API." +
-                "                                       |                | " + date + " | 1.0.0   |\n";
+                "                                       |                | " + datePushed + " | 1.0.0   |\n";
 
         LogLeecher clientLeecher = new LogLeecher(loggedMsg);
         ballerinaClient.addLogLeecher(clientLeecher);
