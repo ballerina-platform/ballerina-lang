@@ -37,11 +37,11 @@ import java.util.stream.Stream;
  *
  * @since 0.976.0
  */
-public class FileBasedProvider implements StorageProvider {
+public class FileStorageProvider implements StorageProvider {
 
     private static final String BASE_PATH = "states";
 
-    private static final Logger log = LoggerFactory.getLogger(FileBasedProvider.class);
+    private static final Logger log = LoggerFactory.getLogger(FileStorageProvider.class);
 
     @Override
     public void persistState(String instanceId, String stateString) {
@@ -50,8 +50,14 @@ public class FileBasedProvider implements StorageProvider {
             baseDir.mkdir();
         }
         try {
-            Files.write(Paths.get(baseDir.getPath() + File.separator + instanceId + ".json"),
-                        stateString.getBytes());
+            /*
+            save the context to a temp file and rename to json. This is to make the serializable state
+            is completely written to file before saving it as a json.
+             */
+            String fileName = baseDir.getPath() + File.separator + instanceId;
+            Path path = Paths.get(fileName + ".tmp");
+            Files.write(path, stateString.getBytes());
+            path.toFile().renameTo(new File(fileName + ".json"));
         } catch (IOException e) {
             log.error("Error while persisting the state for instance id: {}", instanceId, e);
         }
@@ -80,7 +86,12 @@ public class FileBasedProvider implements StorageProvider {
         try (Stream<Path> stream = Files.list(Paths.get(BASE_PATH))) {
             stream.forEach(path -> {
                 try {
-                    states.add(new String(Files.readAllBytes(path)));
+                    if (path.toString().endsWith(".json")) {
+                        states.add(new String(Files.readAllBytes(path)));
+                    } else {
+                        // Remove temp files which are partially written state files.
+                        Files.delete(path);
+                    }
                 } catch (IOException e) {
                     throw new BallerinaException("Error occurred while reading state from file path: " + path, e);
                 }

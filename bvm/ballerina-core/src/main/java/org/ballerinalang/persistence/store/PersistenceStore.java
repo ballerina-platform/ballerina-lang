@@ -22,7 +22,7 @@ import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.persistence.Deserializer;
 import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.states.State;
-import org.ballerinalang.persistence.store.impl.FileBasedProvider;
+import org.ballerinalang.persistence.store.impl.FileStorageProvider;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
@@ -39,7 +39,7 @@ import java.util.List;
  */
 public class PersistenceStore {
 
-    private static StorageProvider storageProvider = new FileBasedProvider();
+    private static StorageProvider storageProvider = new FileStorageProvider();
 
     public static void persistState(State state) {
         SerializableState sState = new SerializableState(state.getContext());
