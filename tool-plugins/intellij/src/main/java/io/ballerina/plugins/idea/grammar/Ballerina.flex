@@ -361,7 +361,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "map"                                       { return MAP; }
     "match"                                     { return MATCH; }
 
-    "native"                                    { return NATIVE; }
+    "extern"                                    { return EXTERN; }
     "new"                                       { return NEW; }
 
     "object"                                    { return OBJECT; }
