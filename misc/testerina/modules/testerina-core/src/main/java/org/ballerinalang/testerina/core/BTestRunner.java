@@ -145,6 +145,8 @@ public class BTestRunner {
      * @param sourceFilePaths List of @{@link Path} of ballerina files
      */
     private void compileAndBuildSuites(String sourceRoot, Path[] sourceFilePaths, boolean buildWithTests)  {
+        // We need a new line to show a clear separation between the outputs of 'Compiling Sources' and
+        // 'Compiling tests'
         if (buildWithTests) {
             outStream.println();
         }
@@ -207,6 +209,8 @@ public class BTestRunner {
         outStream.println("Running tests");
         if (testSuites.isEmpty()) {
             outStream.println("    No tests found");
+            // We need a new line to show a clear separation between the outputs of 'Running Tests' and
+            // 'Generating Executable'
             if (buildWithTests) {
                 outStream.println();
             }
