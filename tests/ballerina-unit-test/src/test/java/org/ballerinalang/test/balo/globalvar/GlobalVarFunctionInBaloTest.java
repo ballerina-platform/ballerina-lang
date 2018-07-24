@@ -175,6 +175,6 @@ public class GlobalVarFunctionInBaloTest {
 
     @AfterClass
     public void tearDown() {
-        BaloCreator.cleaPackageFromRepository("testorg", "foo");
+        BaloCreator.clearPackageFromRepository("testorg", "foo");
     }
 }
