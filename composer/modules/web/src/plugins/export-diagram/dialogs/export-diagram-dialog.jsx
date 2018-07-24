@@ -167,7 +167,7 @@ class ExportDiagramDialog extends React.Component {
      * @return {string} svg.
      * */
     getSVG() {
-        const tab = $(('#bal-file-editor-' + this.props.file.id).replace(/(:|\.|\[|\]|\/|,|=)/g, '\\$1'));
+        const tab = $(document.getElementById('bal-file-editor-' + this.props.file.id));
         const svgElement = tab.find('.svg-container');
         const svgElementClone = tab.find('.svg-container').clone(true);
 
@@ -378,7 +378,7 @@ class ExportDiagramDialog extends React.Component {
         if (fileType === 'SVG') {
             callServer(btoa(unescape(encodeURIComponent(svgContent))));
         } else if (fileType === 'PNG') {
-            const tab = $(('#bal-file-editor-' + this.props.file.id).replace(/(:|\.|\[|\]|\/|,|=)/g, '\\$1'));
+            const tab = $(document.getElementById('bal-file-editor-' + this.props.file.id));
             const svgElement = tab.find('.svg-container');
             const canvas = $(`<canvas width='${svgElement.width()}' height='${svgElement.height()}'/>`)[0];
             const ctx = canvas.getContext('2d');
