@@ -343,6 +343,15 @@ public class BByteValueTest {
         invokeBitwiseAndTestFunction(a, b, i, j);
     }
 
+    @Test(description = "Test bitwise and operator 4")
+    public void testBitwiseAndOperator4() {
+        byte a = (byte) 159;
+        byte b = (byte) 233;
+        int i = -456832;
+        int j = -3456;
+        invokeBitwiseAndTestFunction(a, b, i, j);
+    }
+
 
     private void invokeBitwiseAndTestFunction(byte a, byte b, int i, int j) {
         BValue[] args = {new BByte(a), new BByte(b), new BInteger(i), new BInteger(j)};
@@ -552,5 +561,40 @@ public class BByteValueTest {
         Assert.assertSame(returns[0].getClass(), BByte.class);
         BByte bByte = (BByte) returns[0];
         Assert.assertEquals(bByte.byteValue(), d, "Invalid byte value returned.");
+    }
+
+    @Test(description = "Test bitwise Complement operator 1")
+    public void testBitwiseComplementOperator1() {
+        byte a = 34;
+        int b = 234;
+        invokeBitwiseComplementOperatorFunction(a, b);
+    }
+
+    @Test(description = "Test bitwise Complement operator 2")
+    public void testBitwiseComplementOperator2() {
+        byte a = (byte) 156;
+        int b = -232224;
+        invokeBitwiseComplementOperatorFunction(a, b);
+    }
+
+    @Test(description = "Test bitwise Complement operator 3")
+    public void testBitwiseComplementOperator3() {
+        byte a = -112;
+        int b = 567849302;
+        invokeBitwiseComplementOperatorFunction(a, b);
+    }
+
+
+    private void invokeBitwiseComplementOperatorFunction(byte a, int b) {
+        BValue[] args = {new BByte(a), new BInteger(b)};
+        BValue[] returns = BRunUtil.invoke(result, "testBitwiseNotOperator", args);
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BByte.class);
+        Assert.assertSame(returns[1].getClass(), BInteger.class);
+        BByte bByte = (BByte) returns[0];
+        BInteger bInteger = (BInteger) returns[1];
+        byte a1 = (byte) ~a;
+        Assert.assertEquals(bByte.byteValue(), a1, "Invalid byte value returned.");
+        Assert.assertEquals(bInteger.intValue(), ~b, "Invalid int value returned.");
     }
 }

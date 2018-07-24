@@ -624,7 +624,8 @@ expression
     |	expression matchExpression										    # matchExprExpression
     |	CHECK expression										            # checkedExpression
     |   expression ELVIS expression                                         # elvisExpression
-    |   expression (BITAND | PIPE | BITXOR) expression                      # bitwiseExpression
+    |   expression (BIT_AND | PIPE | BIT_XOR) expression                    # bitwiseExpression
+    |   (BIT_COMPLEMENT) expression                                         # bitwiseComplementExpression
     |   expression (shiftExpression) expression                             # bitwiseShiftExpression
     |   typeName                                                            # typeAccessExpression
     ;

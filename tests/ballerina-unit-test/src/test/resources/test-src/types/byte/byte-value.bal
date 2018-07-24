@@ -264,3 +264,9 @@ function testByteShift() returns byte {
     byte d = c >> 1;
     return d;
 }
+
+function testBitwiseNotOperator(byte b, int i) returns (byte, int) {
+    byte a = ~b;
+    int j = ~i;
+    return (a, j);
+}
