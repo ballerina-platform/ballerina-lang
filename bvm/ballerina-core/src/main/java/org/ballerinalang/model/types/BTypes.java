@@ -39,7 +39,7 @@ public class BTypes {
     public static BType typeNull = new BNullType(TypeConstants.NULL_TNAME, null);
     public static BType typeXMLAttributes = new BXMLAttributesType(TypeConstants.XML_ATTRIBUTES_TNAME, null);
     public static BType typeIterator = new BIteratorType(TypeConstants.ITERATOR_TNAME, null);
-    public static BType typeChannel = new BStreamType(TypeConstants.STREAM_TNAME, null);
+    public static BType typeChannel = new BChannelType(TypeConstants.CHANNEL, null);
 
     private BTypes() {
     }
