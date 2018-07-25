@@ -30,7 +30,7 @@ import java.util.Map;
 /**
  * Basic URI Template implementation.
  *
- * @param <DataType> Data type stored in the  element.
+ * @param <DataType> Data type stored in the dataExpr element.
  * @param <InboundMsgType> Inbound message type for additional checks.
  **/
 public class URITemplate<DataType, InboundMsgType> {

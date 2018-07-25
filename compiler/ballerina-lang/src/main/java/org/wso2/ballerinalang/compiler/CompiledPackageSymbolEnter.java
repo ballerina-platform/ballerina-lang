@@ -388,7 +388,7 @@ public class CompiledPackageSymbolEnter {
             }
         }
 
-        // Read and ignore worker
+        // Read and ignore worker dataExpr
         int noOfWorkerDataBytes = dataInStream.readInt();
         byte[] workerData = new byte[noOfWorkerDataBytes];
         int bytesRead = dataInStream.read(workerData);
@@ -662,7 +662,7 @@ public class CompiledPackageSymbolEnter {
                 dataInStream.readInt();
             }
 
-            // Read and ignore worker
+            // Read and ignore worker dataExpr
             int noOfWorkerDataBytes = dataInStream.readInt();
             byte[] workerData = new byte[noOfWorkerDataBytes];
             int bytesRead = dataInStream.read(workerData);
@@ -738,7 +738,7 @@ public class CompiledPackageSymbolEnter {
      * Set parameter symbols to the invokable symbol.
      * 
      * @param invokableSymbol Invokable symbol
-     * @param attrDataMap Attribute  map
+     * @param attrDataMap Attribute dataExpr map
      * @throws IOException
      */
     private void setParamSymbols(BInvokableSymbol invokableSymbol, Map<AttributeInfo.Kind, byte[]> attrDataMap)
@@ -830,7 +830,7 @@ public class CompiledPackageSymbolEnter {
      * Set taint table to the invokable symbol.
      *
      * @param invokableSymbol Invokable symbol
-     * @param attrDataMap Attribute  map
+     * @param attrDataMap Attribute dataExpr map
      * @throws IOException
      */
     private void setTaintTable(BInvokableSymbol invokableSymbol, Map<AttributeInfo.Kind, byte[]> attrDataMap)

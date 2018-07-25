@@ -203,7 +203,7 @@ public class BalFileGenerationUtils {
     public static void saveFile(URL url, String file) {
         try (InputStream in = url.openStream(); FileOutputStream fos = new FileOutputStream(new File(file))) {
             int length;
-            byte[] buffer = new byte[1024]; // buffer for portion of  from
+            byte[] buffer = new byte[1024]; // buffer for portion of dataExpr from
             while ((length = in.read(buffer)) > -1) {
                 fos.write(buffer, 0, length);
             }

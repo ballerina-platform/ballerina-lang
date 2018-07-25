@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.StringJoiner;
 
 /**
- * The {@code BTable} represents a  set in Ballerina.
+ * The {@code BTable} represents a dataExpr set in Ballerina.
  *
  * @since 0.8.0
  */
@@ -86,7 +86,7 @@ public class BTable implements BRefType<Object>, BCollection {
         this.constraintType = (BStructureType) constrainedType;
         this.primaryKeys = keyColumns;
         this.indices = indexColumns;
-        //Insert initial
+        //Insert initial dataExpr
         if (dataRows != null) {
             insertInitialData(dataRows);
         }
@@ -120,7 +120,7 @@ public class BTable implements BRefType<Object>, BCollection {
 
     private String createStringValueDataEntry() {
         StringBuilder sb = new StringBuilder();
-        sb.append(": ");
+        sb.append("dataExpr: ");
         StringJoiner sj = new StringJoiner(", ", "[", "]");
         while (hasNext(false)) {
             BMap<?, ?> struct = getNext();
@@ -221,7 +221,7 @@ public class BTable implements BRefType<Object>, BCollection {
      * Performs Removal of records matching the condition defined by the provided lambda function.
      *
      * @param context The context which represents the runtime state of the program that called "table.remove"
-     * @param lambdaFunction The function that decides the condition of  removal
+     * @param lambdaFunction The function that decides the condition of dataExpr removal
      */
     public void performRemoveOperation(Context context, BFunctionPointer lambdaFunction) {
         try {
@@ -320,7 +320,7 @@ public class BTable implements BRefType<Object>, BCollection {
         int count = (int) data.size();
         for (int i = 0; i < count; i++) {
             if (!(data.get(i) instanceof BMap)) {
-                throw new BallerinaException("initial  should be in struct type");
+                throw new BallerinaException("initial dataExpr should be in struct type");
             }
             addData((BMap<String, BValue>) data.get(i));
         }

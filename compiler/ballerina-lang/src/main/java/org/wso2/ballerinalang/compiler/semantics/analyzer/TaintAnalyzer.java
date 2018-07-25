@@ -515,7 +515,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     return;
                 }
             }
-            // TODO: Re-evaluating the full -set (array) when a change occur.
+            // TODO: Re-evaluating the full dataExpr-set (array) when a change occur.
             if (varRefExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
                 overridingAnalysis = false;
                 updatedVarRefTaintedState(varRefExpr, varTaintedStatus);
@@ -1379,7 +1379,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public void visit(BLangChannelSend node) {
         List<BLangExpression> exprsList = new ArrayList<>();
         exprsList.add(node.getKey());
-        exprsList.add(node.);
+        exprsList.add(node.dataExpr);
         analyzeExprList(exprsList);
     }
 
@@ -1481,7 +1481,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS) {
             return;
         }
-        // Entry point input parameters are all tainted, since they contain user controlled .
+        // Entry point input parameters are all tainted, since they contain user controlled dataExpr.
         // If any value has been marked "sensitive" generate an error.
         if (isEntryPointParamsInvalid(invNode.requiredParams)) {
             return;

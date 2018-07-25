@@ -55,7 +55,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Iterator implementation for table  types.
+ * Iterator implementation for table dataExpr types.
  *
  * @since 0.963.0
  */
@@ -239,7 +239,7 @@ public class TableIterator implements DataIterator {
 
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in generating next row of  :" + e.getMessage());
+            throw new BallerinaException("error in generating next row of dataExpr :" + e.getMessage());
         }
         return bStruct;
     }

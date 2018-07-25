@@ -45,7 +45,7 @@ public class ForkJoinWorkerResponseContext extends SyncCallableWorkerResponseCon
 
     private Set<String> joinWorkerNames;
 
-    //Key - workerName, Value -  channel name;
+    //Key - workerName, Value - dataExpr channel name;
     private Map<String, String> channelNames;
 
     private final Map<String, BMap<String, BValue>> workerErrors;

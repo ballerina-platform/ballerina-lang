@@ -105,7 +105,7 @@ public class TestReusabilityOfRequest {
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
         Assert.assertEquals(response.getData(), "Hello from POST!Error occurred while retrieving text " +
-                " from entity : String payload is null", "Message content mismatched");
+                "dataExpr from entity : String payload is null", "Message content mismatched");
     }
 
     @AfterClass

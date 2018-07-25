@@ -20,7 +20,7 @@ package org.ballerinalang.util.codegen.cpentries;
 import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
 
 /**
- * {@code WorkerInfoPool} represents a table of worker  channels which workers use to pass  around.
+ * {@code WorkerInfoPool} represents a table of worker dataExpr channels which workers use to pass dataExpr around.
  *
  * @since 0.90
  */

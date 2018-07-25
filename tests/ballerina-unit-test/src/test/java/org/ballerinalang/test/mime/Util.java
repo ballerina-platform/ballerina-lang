@@ -436,7 +436,7 @@ public class Util {
      * Prepare carbon request message with multiparts.
      *
      * @param outboundRequest Represent outbound carbon request
-     * @param requestStruct   Ballerina request struct which contains multipart
+     * @param requestStruct   Ballerina request struct which contains multipart dataExpr
      */
     private static void prepareRequestWithMultiparts(HTTPCarbonMessage outboundRequest,
                                                      BMap<String, BValue> requestStruct) {
@@ -459,7 +459,7 @@ public class Util {
                     nettyEncoder.finalizeRequest();
                     requestStruct.addNativeData(MULTIPART_ENCODER, nettyEncoder);
                 } catch (HttpPostRequestEncoder.ErrorDataEncoderException e) {
-                    log.error("Error occurred while creating netty request encoder for multipart  binding",
+                    log.error("Error occurred while creating netty request encoder for multipart dataExpr binding",
                             e.getMessage());
                 }
             }
@@ -469,7 +469,7 @@ public class Util {
     /**
      * Encode a given body part and add it to multipart request encoder.
      *
-     * @param nettyEncoder Helps encode multipart/form-
+     * @param nettyEncoder Helps encode multipart/form-dataExpr
      * @param httpRequest  Represent top level http request that should hold multiparts
      * @param bodyPart     Represent a ballerina body part
      * @throws HttpPostRequestEncoder.ErrorDataEncoderException when an error occurs while encoding
@@ -528,7 +528,7 @@ public class Util {
     }
 
     /**
-     * Set the  factory that needs to be used for encoding body parts.
+     * Set the dataExpr factory that needs to be used for encoding body parts.
      *
      * @param dataFactory which enables creation of InterfaceHttpData objects
      */
@@ -564,7 +564,7 @@ public class Util {
 
     /**
      * Two body parts have been wrapped inside multipart/mixed which in turn acts as the child part for the parent
-     * multipart/form-.
+     * multipart/form-dataExpr.
      *
      * @param path Resource path
      * @return HTTPTestRequest with nested parts as the entity body
@@ -573,15 +573,15 @@ public class Util {
         List<Header> headers = new ArrayList<>();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
         String multipartMixedBoundary = MimeUtil.getNewMultipartDelimiter();
-        headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(), "multipart/form-; boundary=" +
+        headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(), "multipart/form-dataExpr; boundary=" +
                 multipartDataBoundary));
         String multipartBodyWithNestedParts = "--" + multipartDataBoundary + "\r\n" +
-                "Content-Disposition: form-; name=\"parent1\"" + "\r\n" +
+                "Content-Disposition: form-dataExpr; name=\"parent1\"" + "\r\n" +
                 "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
                 "\r\n" +
                 "Parent Part" + "\r\n" +
                 "--" + multipartDataBoundary + "\r\n" +
-                "Content-Disposition: form-; name=\"parent2\"" + "\r\n" +
+                "Content-Disposition: form-dataExpr; name=\"parent2\"" + "\r\n" +
                 "Content-Type: multipart/mixed; boundary=" + multipartMixedBoundary + "\r\n" +
                 "\r\n" +
                 "--" + multipartMixedBoundary + "\r\n" +

@@ -119,7 +119,7 @@ public class IterableCodeDesugar {
     }
 
     public void desugar(IterableContext ctx) {
-        // Gather required  for code generation.
+        // Gather required dataExpr for code generation.
         processIterableContext(ctx);
         // Generate Iterable Iteration.
         generateIteratorFunction(ctx);

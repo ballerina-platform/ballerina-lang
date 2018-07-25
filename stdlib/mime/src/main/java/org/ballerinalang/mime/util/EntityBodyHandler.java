@@ -66,9 +66,9 @@ import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYP
 public class EntityBodyHandler {
 
     /**
-     * Get a byte channel for a given text .
+     * Get a byte channel for a given text dataExpr.
      *
-     * @param textPayload Text  that needs to be wrapped in a byte channel
+     * @param textPayload Text dataExpr that needs to be wrapped in a byte channel
      * @return EntityBodyChannel which represent the given text
      */
     public static EntityWrapper getEntityWrapper(String textPayload) {
@@ -96,7 +96,7 @@ public class EntityBodyHandler {
     }
 
     /**
-     * Get the message  source associated with a given entity.
+     * Get the message dataExpr source associated with a given entity.
      *
      * @param entityStruct Represent a ballerina entity
      * @return MessageDataSource which represent the entity body in memory
@@ -107,7 +107,7 @@ public class EntityBodyHandler {
     }
 
     /**
-     * Associate a given message  source with a given entity.
+     * Associate a given message dataExpr source with a given entity.
      *
      * @param entityStruct      Represent the ballerina entity
      * @param messageDataSource which represent the entity body in memory
@@ -120,8 +120,8 @@ public class EntityBodyHandler {
      * Construct BlobDataSource from the underneath byte channel which is associated with the entity struct.
      *
      * @param entityStruct Represent an entity struct
-     * @return BlobDataSource Data source for binary  which is kept in memory
-     * @throws IOException In case an error occurred while creating blob  source
+     * @return BlobDataSource Data source for binary dataExpr which is kept in memory
+     * @throws IOException In case an error occurred while creating blob dataExpr source
      */
     public static BlobDataSource constructBlobDataSource(BMap<String, BValue> entityStruct) throws IOException {
         Channel byteChannel = getByteChannel(entityStruct);
@@ -137,7 +137,7 @@ public class EntityBodyHandler {
      * Construct JsonDataSource from the underneath byte channel which is associated with the entity struct.
      *
      * @param entityStruct Represent an entity struct
-     * @return BJSON  source which is kept in memory
+     * @return BJSON dataExpr source which is kept in memory
      */
     public static BJSON constructJsonDataSource(BMap<String, BValue> entityStruct) {
         try {
@@ -165,10 +165,10 @@ public class EntityBodyHandler {
     }
 
     /**
-     * Construct XMl  source from the underneath byte channel which is associated with the entity struct.
+     * Construct XMl dataExpr source from the underneath byte channel which is associated with the entity struct.
      *
      * @param entityStruct Represent an entity struct
-     * @return BXML  source which is kept in memory
+     * @return BXML dataExpr source which is kept in memory
      */
     public static BXML constructXmlDataSource(BMap<String, BValue> entityStruct) {
         try {
@@ -228,7 +228,7 @@ public class EntityBodyHandler {
 
     /**
      * Check whether the entity body is present. Entity body can either be a byte channel, fully constructed
-     * message  source or a set of body parts.
+     * message dataExpr source or a set of body parts.
      *
      * @param entityStruct Represent an 'Entity'
      * @return a boolean indicating entity body availability
@@ -266,7 +266,7 @@ public class EntityBodyHandler {
     }
 
     /**
-     * Write byte channel stream directly into outputstream without converting it to a  source.
+     * Write byte channel stream directly into outputstream without converting it to a dataExpr source.
      *
      * @param entityStruct        Represent a ballerina entity
      * @param messageOutputStream Represent the outputstream that the message should be written to
@@ -285,7 +285,7 @@ public class EntityBodyHandler {
     }
 
     /**
-     * Decode a given entity body to get a set of child parts and set them to parent entity's multipart  field.
+     * Decode a given entity body to get a set of child parts and set them to parent entity's multipart dataExpr field.
      *
      * @param context      Represent the ballerina context
      * @param entityStruct Parent entity that the nested parts reside

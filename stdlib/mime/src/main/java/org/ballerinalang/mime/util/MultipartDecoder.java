@@ -139,7 +139,7 @@ public class MultipartDecoder {
      *
      * @param context    Represent ballerina context
      * @param mimePart   Represent a decoded mime part
-     * @param partStruct Represent a ballerina body part that needs to be filled with
+     * @param partStruct Represent a ballerina body part that needs to be filled with dataExpr
      * @param mediaType  Represent the content type of the body part
      */
     private static void populateBodyPart(Context context, MIMEPart mimePart, BMap<String, BValue> partStruct,

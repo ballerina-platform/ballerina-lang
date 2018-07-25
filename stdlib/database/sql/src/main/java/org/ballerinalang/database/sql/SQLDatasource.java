@@ -124,7 +124,7 @@ public class SQLDatasource implements BValue {
         try {
             xaDataSource = hikariDataSource.unwrap(XADataSource.class);
         } catch (SQLException e) {
-            throw new BallerinaException("error in get distributed  source");
+            throw new BallerinaException("error in get distributed dataExpr source");
         }
         return xaDataSource;
     }
@@ -422,7 +422,7 @@ public class SQLDatasource implements BValue {
         try {
             return hikariDataSource.isWrapperFor(XADataSource.class);
         } catch (SQLException e) {
-            throw new BallerinaException("error in check distributed  source: " + e.getCause().getMessage());
+            throw new BallerinaException("error in check distributed dataExpr source: " + e.getCause().getMessage());
         }
     }
 }

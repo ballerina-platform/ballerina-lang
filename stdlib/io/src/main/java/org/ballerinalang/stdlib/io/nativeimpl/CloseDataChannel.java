@@ -56,7 +56,7 @@ public class CloseDataChannel implements NativeCallableUnit {
     private static final int DATA_CHANNEL_INDEX = 0;
 
     /**
-     * Close  channel.
+     * Close dataExpr channel.
      *
      * @param result the response received after the channel is closed.
      * @return the result of the close response.
@@ -76,7 +76,7 @@ public class CloseDataChannel implements NativeCallableUnit {
 
     /**
      * <p>
-     * Close  channel.
+     * Close dataExpr channel.
      * </p>
      * <p>
      * {@inheritDoc}

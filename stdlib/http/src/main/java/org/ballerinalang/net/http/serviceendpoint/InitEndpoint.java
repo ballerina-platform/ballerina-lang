@@ -75,7 +75,7 @@ public class InitEndpoint extends AbstractHttpNativeFunction {
                     HttpConnectionManager.getInstance().createHttpServerConnector(listenerConfiguration);
             serviceEndpoint.addNativeData(HttpConstants.HTTP_SERVER_CONNECTOR, httpServerConnector);
 
-            //Adding service registries to native
+            //Adding service registries to native dataExpr
             resetRegistry(serviceEndpoint);
 
             context.setReturnValues((BValue) null);

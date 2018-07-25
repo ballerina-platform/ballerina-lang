@@ -150,7 +150,7 @@ public class SQLDBUtils {
     }
 
     /**
-     * This class represents a database used for testing  clients.
+     * This class represents a database used for testing dataExpr clients.
      */
     public abstract static class TestDatabase {
         String jdbcUrl;
@@ -173,7 +173,7 @@ public class SQLDBUtils {
     }
 
     /**
-     * This class represents a container based database used for testing  clients.
+     * This class represents a container based database used for testing dataExpr clients.
      */
     public static class ContainerizedTestDatabase extends TestDatabase {
         private JdbcDatabaseContainer databaseContainer;
@@ -203,7 +203,7 @@ public class SQLDBUtils {
     }
 
     /**
-     * This class represents a file based database used for testing  clients.
+     * This class represents a file based database used for testing dataExpr clients.
      */
     public static class FileBasedTestDatabase extends TestDatabase {
         private String dbDirectory;
@@ -235,7 +235,7 @@ public class SQLDBUtils {
     }
 
     /**
-     * Database types used for testing  clients.
+     * Database types used for testing dataExpr clients.
      */
     public enum DBType {
         MYSQL, ORACLE, POSTGRES, HSQLDB, H2

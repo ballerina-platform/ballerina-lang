@@ -42,7 +42,7 @@ import static org.ballerinalang.stdlib.io.channels.base.Representation.BIT_32;
 import static org.ballerinalang.stdlib.io.channels.base.Representation.BIT_64;
 
 /**
- * Test  i/o.
+ * Test dataExpr i/o.
  */
 public class DataInputOutputTest {
     /**
@@ -129,7 +129,7 @@ public class DataInputOutputTest {
         Assert.assertEquals(readStr, content);
     }
 
-    @Test(description = "Test reading/writing mixed  input/output")
+    @Test(description = "Test reading/writing mixed dataExpr input/output")
     public void testMixedData() throws IOException {
         int writtenInt = 13;
         double writtenDouble = 48449.56f;

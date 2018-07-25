@@ -209,7 +209,7 @@ public class ServiceTest {
         HTTPCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), "Error occurred while retrieving " +
-                "text  from entity : String payload is null");
+                "text dataExpr from entity : String payload is null");
     }
 
     @Test(description = "Test GetFormParams with unsupported media type")

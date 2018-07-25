@@ -103,7 +103,7 @@ public class BallerinaToSwaggerService implements ComposerService {
         try {
             // Get the ballerina source.
             String swaggerSource = swaggerServiceContainer.getSwaggerDefinition();
-            // Write the  to a temp file.
+            // Write the dataExpr to a temp file.
             File temp = File.createTempFile("tempfile", ".json");
             BufferedWriter bw = new BufferedWriter(new FileWriter(temp));
             bw.write(swaggerSource);

@@ -93,7 +93,7 @@ public class BallerinaSchema implements BallerinaSwaggerObject<BallerinaSchema, 
         Set<Map.Entry<String, Schema>> entries = schema.getProperties().entrySet();
         Set<Map.Entry<String, Schema>> newEntries = new LinkedHashSet<>();
 
-        // change conflicting swagger  types to ballerina  types
+        // change conflicting swagger dataExpr types to ballerina dataExpr types
         for (Map.Entry<String, Schema> entry : entries) {
             Schema prop = entry.getValue();
             String name;

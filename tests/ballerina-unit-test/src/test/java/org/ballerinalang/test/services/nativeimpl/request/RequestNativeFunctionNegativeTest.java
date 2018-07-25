@@ -158,7 +158,7 @@ public class RequestNativeFunctionNegativeTest {
         BValue[] inputArg = { inRequest };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetTextPayload", inputArg);
         Assert.assertTrue(returnVals[0].stringValue()
-                .contains("Error occurred while retrieving text  from " + "entity : String payload is null"));
+                .contains("Error occurred while retrieving text dataExpr from " + "entity : String payload is null"));
     }
 
     @Test
@@ -171,7 +171,7 @@ public class RequestNativeFunctionNegativeTest {
         inRequest.put(REQUEST_ENTITY_FIELD, entity);
         BValue[] inputArg = { inRequest };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
-        Assert.assertTrue(returnVals[0].stringValue().contains("{message:\"Error occurred while retrieving xml  " +
+        Assert.assertTrue(returnVals[0].stringValue().contains("{message:\"Error occurred while retrieving xml dataExpr " +
                 "from entity : Empty xml payload\", cause:null}"));
     }
 

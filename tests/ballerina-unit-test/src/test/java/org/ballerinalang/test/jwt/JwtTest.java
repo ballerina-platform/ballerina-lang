@@ -55,7 +55,7 @@ public class JwtTest {
         compileResult = BCompileUtil.compile(sourceRoot.resolve("jwt-test.bal").toString());
     }
 
-    @Test(priority = 1, description = "Test case for issuing JWT token with valid ")
+    @Test(priority = 1, description = "Test case for issuing JWT token with valid dataExpr")
     public void testIssueJwt() throws Exception {
         BValue[] inputBValues = {new BString(keyStorePath)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testIssueJwt", inputBValues);

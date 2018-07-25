@@ -50,7 +50,7 @@ public class DataBindingTest {
         compileResult = BServiceUtil.setupProgramFile(this, "test-src/services/dispatching/data-binding-test.bal");
     }
 
-    @Test(description = "Test  binding with string payload")
+    @Test(description = "Test dataExpr binding with string payload")
     public void testDataBindingWithStringPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body1", "POST", "WSO2");
@@ -63,7 +63,7 @@ public class DataBindingTest {
                 , "Person variable not set properly.");
     }
 
-    @Test(description = "Test  binding when path param exists")
+    @Test(description = "Test dataExpr binding when path param exists")
     public void testDataBindingWhenPathParamExist() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body2/hello", "POST", "WSO2");
@@ -78,7 +78,7 @@ public class DataBindingTest {
                 , "Person variable not set properly.");
     }
 
-    @Test(description = "Test  binding with JSON payload")
+    @Test(description = "Test dataExpr binding with JSON payload")
     public void testDataBindingWithJSONPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body3", "POST", "{'name':'WSO2', 'team':'ballerina'}");
@@ -93,7 +93,7 @@ public class DataBindingTest {
                 , "Team variable not set properly.");
     }
 
-    @Test(description = "Test  binding with XML payload")
+    @Test(description = "Test dataExpr binding with XML payload")
     public void testDataBindingWithXMLPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body4", "POST", "<name>WSO2</name>");
@@ -108,7 +108,7 @@ public class DataBindingTest {
                 , "Team variable not set properly.");
     }
 
-    @Test(description = "Test  binding with binary payload")
+    @Test(description = "Test dataExpr binding with binary payload")
     public void testDataBindingWithBinaryPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body5", "POST", "WSO2");
@@ -121,7 +121,7 @@ public class DataBindingTest {
                 , "Key variable not set properly.");
     }
 
-    @Test(description = "Test  binding with global custom struct")
+    @Test(description = "Test dataExpr binding with global custom struct")
     public void testDataBindingWithGlobalStruct() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body6", "POST", "{'name':'wso2','age':12}");
@@ -136,7 +136,7 @@ public class DataBindingTest {
                 , "Age variable not set properly.");
     }
 
-    @Test(description = "Test  binding without content-type header")
+    @Test(description = "Test dataExpr binding without content-type header")
     public void testDataBindingWithoutContentType() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body1", "POST", "WSO2");
@@ -148,7 +148,7 @@ public class DataBindingTest {
                 , "Person variable not set properly.");
     }
 
-    @Test(description = "Test  binding with incompatible content-type")
+    @Test(description = "Test dataExpr binding with incompatible content-type")
     public void testDataBindingIncompatibleJSONPayloadType() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body3", "POST", "{'name':'WSO2', 'team':'EI'}");
@@ -163,7 +163,7 @@ public class DataBindingTest {
                 , "Team variable not set properly.");
     }
 
-    @Test(description = "Test  binding with compatible but type different payload")
+    @Test(description = "Test dataExpr binding with compatible but type different payload")
     public void testDataBindingCompatiblePayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body5", "POST", "{'name':'WSO2', 'team':'ballerina'}");
@@ -176,7 +176,7 @@ public class DataBindingTest {
                 , "Key variable not set properly.");
     }
 
-    @Test(description = "Test  binding without a payload", expectedExceptions = BallerinaConnectorException.class,
+    @Test(description = "Test dataExpr binding without a payload", expectedExceptions = BallerinaConnectorException.class,
             expectedExceptionsMessageRegExp = ".*Error in reading payload : String payload is null*")
     public void testDataBindingWithoutPayload() {
         HTTPTestRequest requestMsg = MessageUtils
@@ -188,7 +188,7 @@ public class DataBindingTest {
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = ".* binding failed: Error in reading payload : " +
+            expectedExceptionsMessageRegExp = ".*dataExpr binding failed: Error in reading payload : " +
                     "ParseError at .*")
     public void testDataBindingIncompatibleXMLPayload() {
         HTTPTestRequest requestMsg = MessageUtils

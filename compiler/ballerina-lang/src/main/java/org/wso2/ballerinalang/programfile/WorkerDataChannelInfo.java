@@ -20,7 +20,7 @@ package org.wso2.ballerinalang.programfile;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**
- * {@code WorkerDataChannelInfo} represents  channels used in Ballerina in order to communicate between workers.
+ * {@code WorkerDataChannelInfo} represents dataExpr channels used in Ballerina in order to communicate between workers.
  *
  * @since 0.90
  */

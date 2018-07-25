@@ -25,13 +25,13 @@ function main (string... args) {
     student5.name = args[0];
     secureFunction(student5["name"], student5["name"]);
 
-    // untainted Json - tainted assignment - replaced with untainted  - field access
+    // untainted Json - tainted assignment - replaced with untainted dataExpr - field access
     json student6 = {name:"Ballerina", address:"Colombo"};
     student6.name = args[0];
     student6.name = "BallerinaNew";
     secureFunction(student6.name, student6.name);
 
-    // untainted Json - tainted assignment - replaced with untainted  - index access
+    // untainted Json - tainted assignment - replaced with untainted dataExpr - index access
     json student7 = {name:"Ballerina", address:"Colombo"};
     student7.name = args[0];
     student7.name = "BallerinaNew";

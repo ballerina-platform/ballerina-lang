@@ -24,7 +24,7 @@ import org.testng.annotations.DataProvider;
  * Completion item tests for function definition.
  */
 public class FunctionDefinition extends CompletionTest {
-    @DataProvider(name = "completion--provider")
+    @DataProvider(name = "completion-dataExpr-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][] {

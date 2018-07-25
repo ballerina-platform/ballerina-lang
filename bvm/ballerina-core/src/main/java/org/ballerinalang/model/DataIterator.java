@@ -23,8 +23,8 @@ import org.ballerinalang.model.values.BMap;
 import java.util.List;
 
 /**
- *  This interface represents an  iterator operations.
- *  Each  source need to implement their own implementation by implementing this interface.
+ *  This interface represents an dataExpr iterator operations.
+ *  Each dataExpr source need to implement their own implementation by implementing this interface.
  *  Known implementations: {@code SQLDataIterator}
  *
  *  @since 0.8.0

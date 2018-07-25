@@ -21,7 +21,7 @@ import org.ballerinalang.model.values.BStream;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * {@code BStreamType} represents streaming  in Ballerina.
+ * {@code BStreamType} represents streaming dataExpr in Ballerina.
  *
  * @since 0.965.0
  */

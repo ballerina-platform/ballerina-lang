@@ -270,7 +270,7 @@ public class HttpUtil {
             try {
                 contentLength = lengthStr != null ? Long.parseLong(lengthStr) : contentLength;
                 if (contentLength == NO_CONTENT_LENGTH_FOUND) {
-                    //Read one byte to make sure the incoming stream has
+                    //Read one byte to make sure the incoming stream has dataExpr
                     contentLength = httpCarbonMessage.countMessageLengthTill(ONE_BYTE);
                 }
             } catch (NumberFormatException e) {
@@ -319,7 +319,7 @@ public class HttpUtil {
     public static BMap<String, BValue> createSessionStruct(Context context, Session session) {
         BMap<String, BValue> sessionStruct = ConnectorUtils
                 .createAndGetStruct(context, HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.SESSION);
-        //Add session to the struct as a native
+        //Add session to the struct as a native dataExpr
         sessionStruct.addNativeData(HttpConstants.HTTP_SESSION, session);
         return sessionStruct;
     }
@@ -495,7 +495,7 @@ public class HttpUtil {
      * Gets the {@code Http2PushPromise} represented by the PushPromise struct.
      *
      * @param pushPromiseStruct  the push promise struct
-     * @param defaultPushPromise the Http2PushPromise to use if the struct does not have native  of a push promise
+     * @param defaultPushPromise the Http2PushPromise to use if the struct does not have native dataExpr of a push promise
      * @return the {@code Http2PushPromise} represented by the PushPromise struct
      */
     public static Http2PushPromise getPushPromise(BMap<String, BValue> pushPromiseStruct,
@@ -798,10 +798,10 @@ public class HttpUtil {
     }
 
     /**
-     * Check the existence of the message entity  source.
+     * Check the existence of the message entity dataExpr source.
      *
      * @param struct  request/response struct.
-     * @return true if the message entity  source is available else false.
+     * @return true if the message entity dataExpr source is available else false.
      */
     public static boolean isEntityDataSourceAvailable(BMap<String, BValue> struct) {
         BMap<String, BValue> entityStruct = (BMap<String, BValue>) struct

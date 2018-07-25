@@ -38,7 +38,7 @@ public class BallerinaPackageNameDocGenTest {
         packageNames.add("ballerina/builtin");
         packageNames.add("ballerina/cache");
         packageNames.add("ballerina/config");
-        packageNames.add("ballerina/data.sql");
+        packageNames.add("ballerina/dataExpr.sql");
         packageNames.add("ballerina/file");
         packageNames.add("ballerina/io");
         packageNames.add("ballerina/log");
@@ -53,7 +53,7 @@ public class BallerinaPackageNameDocGenTest {
         Assert.assertEquals(((PackageName) packageNameList.get(0).caption).suffix, "builtin", "Invalid suffix name.");
         Assert.assertEquals(((PackageName) packageNameList.get(1).caption).suffix, "cache", "Invalid suffix name.");
         Assert.assertEquals(((PackageName) packageNameList.get(2).caption).suffix, "config", "Invalid suffix name.");
-        Assert.assertEquals(((PackageName) packageNameList.get(3).caption).suffix, ".sql", "Invalid suffix name.");
+        Assert.assertEquals(((PackageName) packageNameList.get(3).caption).suffix, "dataExpr.sql", "Invalid suffix name.");
         Assert.assertEquals(((PackageName) packageNameList.get(4).caption).suffix, "file", "Invalid suffix name.");
         Assert.assertEquals(((PackageName) packageNameList.get(5).caption).suffix, "io", "Invalid suffix name.");
         Assert.assertEquals(((PackageName) packageNameList.get(6).caption).suffix, "log", "Invalid suffix name.");

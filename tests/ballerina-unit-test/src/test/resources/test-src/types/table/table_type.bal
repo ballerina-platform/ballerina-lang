@@ -1086,7 +1086,7 @@ function testComplexTypeInsertAndRetrieval(string jdbcUrl, string userName, stri
     string xmlStr;
     string str;
 
-    //Insert data
+    //Insert dataExpr
     sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 100 };
     sql:Parameter para2 = { sqlType: sql:TYPE_BLOB, value: content };
     sql:Parameter para3 = { sqlType: sql:TYPE_CLOB, value: text };
