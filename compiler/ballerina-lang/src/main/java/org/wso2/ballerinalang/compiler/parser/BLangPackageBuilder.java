@@ -552,7 +552,6 @@ public class BLangPackageBuilder {
         addType(constrainedType);
     }
 
-
     void addConstraintTypeWithTypeName(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
         Set<Whitespace> refTypeWS = removeNthFromLast(ws, 2);
 

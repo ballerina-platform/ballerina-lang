@@ -190,7 +190,7 @@ public class TypeSignatureReader<T> {
     }
 
     public int createFunctionType(TypeCreater<T> typeCreater, char[] chars, int index, Stack<T> typeStack) {
-        // Skip the first parenthesis9
+        // Skip the first parenthesis
         index++;
 
         // Read function parameters

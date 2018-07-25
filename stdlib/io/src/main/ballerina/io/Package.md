@@ -190,7 +190,7 @@ function deserialize(io:ByteChannel channel) returns Person {
         boolean isMarried => person.isMarried = isMarried;
         error e =>log:printError("Error occurred while reading marital status",err = e);
     }
-    data
+    //Finally close the data channel
     var closeResult = dc.close();
     return person;
 }

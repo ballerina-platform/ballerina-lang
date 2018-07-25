@@ -385,7 +385,7 @@ public class TreeBuilder {
         return new BLangUserDefinedType();
     }
 
-    public static BuiltInReferenceTypeNode  createBuiltInReferenceTypeNode() {
+    public static BuiltInReferenceTypeNode createBuiltInReferenceTypeNode() {
         return new BLangBuiltInRefTypeNode();
     }
 
