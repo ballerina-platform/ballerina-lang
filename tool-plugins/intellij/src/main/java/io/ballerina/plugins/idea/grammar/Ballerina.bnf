@@ -151,9 +151,9 @@
 
 CompilationUnit ::=(ImportDeclaration | NamespaceDeclaration)* (DefinitionWithoutAnnotationAttachments |  DefinitionWithMultipleAnnotationAttachments | DefinitionWithSingleAnnotationAttachment)* <<eof>>
 
-DefinitionWithMultipleAnnotationAttachments ::= documentationAttachment? deprecatedAttachment? AnnotationAttachment AnnotationAttachment+ Definition {pin=4 elementType=Definition}
-DefinitionWithSingleAnnotationAttachment ::= documentationAttachment? deprecatedAttachment? AnnotationAttachment Definition {pin=3 elementType=Definition}
-DefinitionWithoutAnnotationAttachments ::= documentationAttachment? deprecatedAttachment? Definition {elementType=Definition}
+DefinitionWithMultipleAnnotationAttachments ::= (documentationAttachment | documentationString)? deprecatedAttachment? AnnotationAttachment AnnotationAttachment+ Definition {pin=4 elementType=Definition}
+DefinitionWithSingleAnnotationAttachment ::= (documentationAttachment | documentationString)? deprecatedAttachment? AnnotationAttachment Definition {pin=3 elementType=Definition}
+DefinitionWithoutAnnotationAttachments ::= (documentationAttachment | documentationString)? deprecatedAttachment? Definition {elementType=Definition}
 
 //PackageDeclaration ::= package CompletePackageName PackageVersion? SEMICOLON {
 //    pin=1
@@ -208,7 +208,7 @@ ServiceBody ::= LEFT_BRACE (/*ResourceDefinition+ | EndpointDefinition+ Resource
 
 // Note - Always sync with VariableDefinitionStatement
 VariableDefinitionStatementInService ::= /*<<isNotAResourceDefinition>> VariableDefinitionStatement*/ TypeName identifier VariableAssignment? SEMICOLON {pin(".*")=2 elementType=VariableDefinitionStatement}
-ResourceDefinition ::= AnnotationAttachment* documentationAttachment? deprecatedAttachment? identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS CallableUnitBody {pin=4}
+ResourceDefinition ::= AnnotationAttachment* (documentationAttachment | documentationString)? deprecatedAttachment? identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS CallableUnitBody {pin=4}
 resourceParameterList ::= endpointParameter | ParameterList
 endpointParameter ::= endpoint identifier (COMMA ParameterList)? {pin(".*")=1}
 
@@ -246,13 +246,13 @@ TypeDefinition ::= (public)? type identifier FiniteType SEMICOLON {
 
 ObjectBody ::= ObjectFieldDefinition* ObjectInitializer? ObjectFunctions?
 
-ObjectInitializer ::= AnnotationAttachment* documentationAttachment? (public)? new ObjectInitializerParameterList CallableUnitBody {pin=4}
+ObjectInitializer ::= AnnotationAttachment* (documentationAttachment | documentationString)? (public)? new ObjectInitializerParameterList CallableUnitBody {pin=4}
 
 ObjectInitializerParameterList ::= LEFT_PARENTHESIS ObjectParameterList? RIGHT_PARENTHESIS {pin=1}
 
 ObjectFunctions ::= ObjectFunctionDefinition+
 
-ObjectFieldDefinition ::= AnnotationAttachment* documentationAttachment? deprecatedAttachment? (public | private)? TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON) {pin=5}
+ObjectFieldDefinition ::= AnnotationAttachment* (documentationAttachment | documentationString)? deprecatedAttachment? (public | private)? TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON) {pin=5}
 
 FieldDefinition ::= AnnotationAttachment* TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON) {pin=3}
 
@@ -267,7 +267,7 @@ ObjectParameter ::= AnnotationAttachment* (TypeName identifier | identifier)
 
 ObjectDefaultableParameter ::= ObjectParameter ASSIGN Expression
 
-ObjectFunctionDefinition ::= AnnotationAttachment* documentationAttachment? deprecatedAttachment? (public)? (native)? function CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=6}
+ObjectFunctionDefinition ::= AnnotationAttachment* (documentationAttachment | documentationString)? deprecatedAttachment? (public)? (native)? function CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=6}
 
 //TODO merge with callableUnitSignature later
 ObjectCallableUnitSignature ::= AnyIdentifierName LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS ReturnParameter? {pin=1}
@@ -954,3 +954,17 @@ singleBackTickDocInlineCode ::= SB_DOC_INLINE_CODE_START SINGLE_BACK_TICK_INLINE
 doubleBackTickDocInlineCode ::= DB_DOC_INLINE_CODE_START DOUBLE_BACK_TICK_INLINE_CODE? DOUBLE_BACK_TICK_INLINE_CODE_END {pin=1}
 
 tripleBackTickDocInlineCode ::= TB_DOC_INLINE_CODE_START TRIPLE_BACK_TICK_INLINE_CODE? TRIPLE_BACK_TICK_INLINE_CODE_END {pin=1}
+
+
+// Markdown Documentation parsing
+
+documentationString ::= MARKDOWN_DOCUMENTATION_LINE_START markdownContent MARKDOWN_DOCUMENTATION_LINE_END {pin=1}
+markdownContent ::= markdownText? markdownParameterDescription+ | markdownText
+markdownParameterDescription ::= (RETURN_PARAMETER_DOCUMENTATION_START | PARAMETER_DOCUMENTATION_START) identifier?
+PARAMETER_DOCUMENTATION_END markdownText? {pin=1}
+markdownText ::= backtickedContent (MARKDOWN_DOCUMENTATION_TEXT | backtickedContent)*
+ | MARKDOWN_DOCUMENTATION_TEXT (MARKDOWN_DOCUMENTATION_TEXT | backtickedContent)*
+backtickedContent ::= singleBackTickedContent | doubleBackTickedContent | tripleBackTickedContent
+singleBackTickedContent ::= SINGLE_BACK_TICK_MARKDOWN_START SINGLE_BACK_TICK_CONTENT? SINGLE_BACK_TICK_MARKDOWN_END
+doubleBackTickedContent ::= DOUBLE_BACK_TICK_MARKDOWN_START DOUBLE_BACK_TICK_CONTENT? DOUBLE_BACK_TICK_MARKDOWN_END
+tripleBackTickedContent ::= TRIPLE_BACK_TICK_MARKDOWN_START TRIPLE_BACK_TICK_CONTENT? TRIPLE_BACK_TICK_MARKDOWN_END
