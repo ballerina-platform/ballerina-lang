@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * URITemplateParser parses the provided uri-template and build the tree.
  *
- * @param <DataType> Data type stored in the dataExpr element.
+ * @param <DataType> Data type stored in the  element.
  * @param <InboundMgsType> Inbound message type for additional checks.
  */
 public class URITemplateParser<DataType, InboundMgsType> {

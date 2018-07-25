@@ -21,7 +21,7 @@ import java.io.OutputStream;
 import java.util.Map;
 
 /**
- * This class holds the dataExpr related to carbon message once it is built.
+ * This class holds the  related to carbon message once it is built.
  */
 public class BallerinaMessageDataSource implements MessageDataSource {
 

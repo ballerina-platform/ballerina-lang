@@ -69,7 +69,7 @@ public class GetText extends BlockingNativeCallableUnit {
                     StringDataSource stringDataSource = EntityBodyHandler.constructStringDataSource(entityStruct);
                     result = new BString(stringDataSource.getMessageAsString());
                     EntityBodyHandler.addMessageDataSource(entityStruct, stringDataSource);
-                    //Set byte channel to null, once the message dataExpr source has been constructed
+                    //Set byte channel to null, once the message  source has been constructed
                     entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
                 }
                 context.setReturnValues(result);
@@ -79,7 +79,7 @@ public class GetText extends BlockingNativeCallableUnit {
             }
         } catch (Throwable e) {
             context.setReturnValues(MimeUtil.createError(context,
-                    "Error occurred while retrieving text dataExpr from entity : " + e.getMessage()));
+                    "Error occurred while retrieving text  from entity : " + e.getMessage()));
         }
     }
 }

@@ -82,7 +82,7 @@ public class GetMapMessageContent extends AbstractBlockinAction {
                     } else if (value instanceof byte[]) {
                         messageContent.put(key, new BByteArray((byte[]) value));
                     } else {
-                        log.error("Couldn't set invalid dataExpr type to map : " + value.getClass().getSimpleName());
+                        log.error("Couldn't set invalid  type to map : " + value.getClass().getSimpleName());
                     }
                 }
             } else {

@@ -60,7 +60,7 @@ public class MetricsTestCase {
                 REPLACE_EXISTING);
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         sqlServer = SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "observability" +
-                File.separator + "metrics" + File.separator + "dataExpr.sql");
+                File.separator + "metrics" + File.separator + ".sql");
         String balFile = new File(RESOURCE_LOCATION + "metrics-test.bal").getAbsolutePath();
         List<String> args = new ArrayList<>();
         args.add(balFile);

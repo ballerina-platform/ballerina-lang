@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * {@code Subscribe} is the function to subscribe to dataExpr from a stream.
+ * {@code Subscribe} is the function to subscribe to  from a stream.
  *
  * @since 0.964.0
  */

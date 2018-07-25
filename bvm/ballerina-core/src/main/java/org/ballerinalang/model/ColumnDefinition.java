@@ -20,7 +20,7 @@ package org.ballerinalang.model;
 import org.ballerinalang.model.types.TypeKind;
 
 /**
- * This  wraps the column name and type of a selected result set from a dataExpr source.
+ * This  wraps the column name and type of a selected result set from a  source.
  *
  * @since 0.95.0
  */

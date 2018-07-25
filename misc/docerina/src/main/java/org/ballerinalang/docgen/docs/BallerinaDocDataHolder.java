@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Holds ballerina doc generation dataExpr.
+ * Holds ballerina doc generation .
  */
 public class BallerinaDocDataHolder {
 

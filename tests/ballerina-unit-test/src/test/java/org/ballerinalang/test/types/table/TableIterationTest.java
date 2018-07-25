@@ -63,7 +63,7 @@ public class TableIterationTest {
                 41);
     }
 
-    @Test(groups = "TableIterTest", description = "Check accessing dataExpr using foreach iteration")
+    @Test(groups = "TableIterTest", description = "Check accessing  using foreach iteration")
     public void testForEachInTableWithStmt() {
         BValue[] returns = BRunUtil.invoke(result, "testForEachInTableWithStmt");
         Assert.assertEquals(returns.length, 4);
@@ -73,7 +73,7 @@ public class TableIterationTest {
         Assert.assertEquals(returns[3].stringValue(), "John");
     }
 
-    @Test(groups = "TableIterTest", description = "Check accessing dataExpr using foreach iteration")
+    @Test(groups = "TableIterTest", description = "Check accessing  using foreach iteration")
     public void testForEachInTable() {
         BValue[] returns = BRunUtil.invoke(result, "testForEachInTable");
         Assert.assertEquals(returns.length, 4);
@@ -115,7 +115,7 @@ public class TableIterationTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
 
-    @Test(groups = "TableIterTest", description = "Check accessing dataExpr using foreach iteration")
+    @Test(groups = "TableIterTest", description = "Check accessing  using foreach iteration")
     public void testMapTable() {
         BValue[] returns = BRunUtil.invoke(result, "testMapTable");
         Assert.assertEquals(returns.length, 1);

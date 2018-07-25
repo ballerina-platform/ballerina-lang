@@ -123,7 +123,7 @@ public class CharacterChannel implements IOChannel {
     }
 
     /**
-     * Appends dataExpr from CharBuffer to string.
+     * Appends  from CharBuffer to string.
      *
      * @param content        the char sequence which will be appended to final string.
      * @param characterCount the number of characters in the CharBuffer.

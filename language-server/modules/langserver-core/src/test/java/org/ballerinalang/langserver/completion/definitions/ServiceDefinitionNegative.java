@@ -24,7 +24,7 @@ import org.testng.annotations.DataProvider;
  * Negative completion tests for service definition.
  */
 public class ServiceDefinitionNegative extends CompletionNegativeTest {
-    @DataProvider(name = "completion-negative-dataExpr-provider")
+    @DataProvider(name = "completion-negative--provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][] {

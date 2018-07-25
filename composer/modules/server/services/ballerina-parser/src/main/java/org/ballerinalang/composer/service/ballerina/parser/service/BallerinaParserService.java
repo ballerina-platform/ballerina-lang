@@ -483,7 +483,7 @@ public class BallerinaParserService implements ComposerService {
     /**
      * Validates a given ballerina input.
      *
-     * @param bFileRequest - Object which holds dataExpr about Ballerina content.
+     * @param bFileRequest - Object which holds  about Ballerina content.
      * @return List of errors if any
      */
     private synchronized JsonObject validateAndParse(BFile bFileRequest) throws InvocationTargetException,

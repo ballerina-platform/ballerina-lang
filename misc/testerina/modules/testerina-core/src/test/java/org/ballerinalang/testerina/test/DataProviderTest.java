@@ -39,7 +39,7 @@ public class DataProviderTest {
     @Test
     public void testBefore() {
         BTestRunner runner = new BTestRunner();
-        runner.runTest(sourceRoot, new Path[]{Paths.get("dataExpr-provider-test.bal")}, new
+        runner.runTest(sourceRoot, new Path[]{Paths.get("-provider-test.bal")}, new
                 ArrayList<>());
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 5);
 
@@ -49,7 +49,7 @@ public class DataProviderTest {
             "function \\[invalidDataGen\\] should return an array of arrays.*")
     public void testInvalidDataProviderNonArrayOfArraysReturn() {
         new BTestRunner().runTest(sourceRoot, new Path[]{Paths.get
-                        ("invalid-dataExpr-provider-test.bal")},
+                        ("invalid--provider-test.bal")},
                 new ArrayList<>());
     }
 
@@ -58,14 +58,14 @@ public class DataProviderTest {
 //            + "\\[invalidDataGen\\] should have only one return type.*")
     public void testInvalidDataProviderMultiReturn() {
         new BTestRunner().runTest(sourceRoot, new Path[]{Paths.get
-                ("invalid-dataExpr-provider-test-2.bal")}, new ArrayList<>());
+                ("invalid--provider-test-2.bal")}, new ArrayList<>());
     }
 
     @Test(expectedExceptions = BallerinaException.class, expectedExceptionsMessageRegExp = ".*Data provider " +
             "function \\[invalidDataGen\\] should return an array of arrays.*")
     public void testInvalidDataProviderPrimitiveReturn() {
         new BTestRunner().runTest(sourceRoot, new Path[]{Paths.get
-                        ("invalid-dataExpr-provider-test-3.bal")}, new ArrayList<>());
+                        ("invalid--provider-test-3.bal")}, new ArrayList<>());
 
     }
 

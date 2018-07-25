@@ -157,7 +157,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
             return transportError == null;
         } finally {
             if (transportError != null) {
-                // Note we don't immediately report the transport error, instead we wait for more dataExpr on
+                // Note we don't immediately report the transport error, instead we wait for more  on
                 // the stream so we can accumulate more detail into the error before reporting it.
                 transportErrorMetadata = headers;
             }
@@ -268,9 +268,9 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
         }
 
         /**
-         * Processes the contents of a received dataExpr frame from the server.
+         * Processes the contents of a received  frame from the server.
          *
-         * @param httpContent the received dataExpr frame. Its ownership is transferred to this method.
+         * @param httpContent the received  frame. Its ownership is transferred to this method.
          */
         void inboundDataReceived(HttpContent httpContent) {
             deframe(httpContent);

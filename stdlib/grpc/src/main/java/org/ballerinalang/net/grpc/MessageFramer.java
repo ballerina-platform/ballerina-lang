@@ -213,7 +213,7 @@ public class MessageFramer {
     }
 
     /**
-     * Writes any pending buffered dataExpr in the framer to carbon message.
+     * Writes any pending buffered  in the framer to carbon message.
      */
     public void flush() {
         if (buffer != null && buffer.limit() > 0) {
@@ -303,7 +303,7 @@ public class MessageFramer {
     }
 
     /**
-     * Produce a collection of ByteBuffer instances from the dataExpr written to an
+     * Produce a collection of ByteBuffer instances from the  written to an
      * {@link OutputStream}.
      *
      * <p>

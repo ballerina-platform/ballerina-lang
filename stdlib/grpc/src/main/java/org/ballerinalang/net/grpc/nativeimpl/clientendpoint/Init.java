@@ -92,7 +92,7 @@ public class Init extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        // Creating client endpoint with channel as native dataExpr.
+        // Creating client endpoint with channel as native .
         BMap<String, BValue> endpointConfigStruct = (BMap<String, BValue>) context.getRefArgument(1);
         Struct endpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
         String urlString = endpointConfig.getStringField(GrpcConstants.CLIENT_ENDPOINT_URL);

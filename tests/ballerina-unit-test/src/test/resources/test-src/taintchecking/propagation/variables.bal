@@ -1,5 +1,5 @@
 function main (string... args) {
-    // untainted dataExpr replaced by tainted value, again replaced by untainted value.
+    // untainted  replaced by tainted value, again replaced by untainted value.
     string data = "sample";
     data = data + args[0];
     data = "replace";

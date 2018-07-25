@@ -60,7 +60,7 @@ public class BAnyTypeSuccessScenariosTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BTable.class);
         BTable table = (BTable) returns[0];
-        Assert.assertEquals(table.stringValue(), "table<Employee> {index: [], primaryKey: [], dataExpr: [{id:1, "
+        Assert.assertEquals(table.stringValue(), "table<Employee> {index: [], primaryKey: [], : [{id:1, "
                 + "name:\"Jane\"}, {id:2, name:\"Anne\"}]}");
     }
 

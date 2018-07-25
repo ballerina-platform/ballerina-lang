@@ -4018,7 +4018,7 @@ public class CPU {
 
     /**
      * Add the corresponding compensation function pointer of the given scope, to the compensations table. A copy of
-     * current worker dataExpr of the args also added to the table.
+     * current worker data of the args also added to the table.
      * @param scopeEnd current scope instruction
      * @param ctx current WorkerExecutionContext
      */

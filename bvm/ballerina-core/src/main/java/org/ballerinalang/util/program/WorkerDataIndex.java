@@ -18,7 +18,7 @@
 package org.ballerinalang.util.program;
 
 /**
- * This class stores index values related to worker dataExpr.
+ * This class stores index values related to worker .
  */
 public class WorkerDataIndex {
     public int[] retRegs;

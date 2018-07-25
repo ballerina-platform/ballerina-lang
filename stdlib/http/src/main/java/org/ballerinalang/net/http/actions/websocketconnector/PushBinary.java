@@ -44,7 +44,7 @@ import java.nio.ByteBuffer;
                              structPackage = "ballerina/http"),
         args = {
                 @Argument(name = "wsConnector", type = TypeKind.OBJECT),
-                @Argument(name = "dataExpr", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
+                @Argument(name = "", type = TypeKind.ARRAY, elementType = TypeKind.BYTE),
                 @Argument(name = "final", type = TypeKind.BOOLEAN)
         }
 )

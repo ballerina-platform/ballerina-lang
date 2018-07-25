@@ -18,7 +18,7 @@
 package org.ballerinalang.langserver.definition;
 
 /**
- * Class to hold the dataExpr for the definition tests.
+ * Class to hold the  for the definition tests.
  */
 public class DefinitionTestDataModel {
     private String expectedFileName;

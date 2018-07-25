@@ -54,10 +54,10 @@ public interface WorkerResponseContext {
     WorkerExecutionContext joinTargetContextInfo(WorkerExecutionContext targetCtx, int[] retRegIndexes);
     
     /**
-     * Creates and returns the dataExpr channels used to communicate between the workers.
+     * Creates and returns the  channels used to communicate between the workers.
      * 
-     * @param name the unique name of the dataExpr channel name requested
-     * @return the dataExpr channel
+     * @param name the unique name of the  channel name requested
+     * @return the  channel
      */
     WorkerDataChannel getWorkerDataChannel(String name);
     

@@ -21,7 +21,7 @@ package org.ballerinalang.net.uri.parser;
 /**
  * Interface to hold various node items.
  *
- * @param <DataType> Type of dataExpr which should be stored in the node.
+ * @param <DataType> Type of  which should be stored in the node.
  * @param <InboundMsgType> Inbound message type for additional checks.
  */
 public interface DataElement<DataType, InboundMsgType> {
@@ -29,22 +29,22 @@ public interface DataElement<DataType, InboundMsgType> {
     /**
      * Set the node item.
      *
-     * @param data dataExpr to be stored.
+     * @param data  to be stored.
      */
     void setData(DataType data);
 
     /**
-     * Check dataExpr availability.
+     * Check  availability.
      *
-     * @return true if dataExpr available.
+     * @return true if  available.
      */
     boolean hasData();
 
     /**
-     * Get the stored dataExpr.
+     * Get the stored .
      *
      * @param inboundMessage Checker for extra checks of the item.
-     * @return true correct dataExpr in the node is found.
+     * @return true correct  in the node is found.
      */
     boolean getData(InboundMsgType inboundMessage, DataReturnAgent<DataType> dataReturnAgent);
 }

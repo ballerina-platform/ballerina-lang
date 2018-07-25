@@ -79,14 +79,14 @@ public class GetByteArray extends BlockingNativeCallableUnit {
                 }
             } else {
                 result = EntityBodyHandler.constructBlobDataSource(entityStruct);
-                //Set byte channel to null, once the message dataExpr source has been constructed
+                //Set byte channel to null, once the message  source has been constructed
                 entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
             }
             EntityBodyHandler.addMessageDataSource(entityStruct, result);
             context.setReturnValues(new BByteArray(result != null ? result.getValue() : new byte[0]));
         } catch (Throwable e) {
             context.setReturnValues(MimeUtil.createError
-                    (context, "Error occurred while extracting blob dataExpr from entity : " + e.getMessage()));
+                    (context, "Error occurred while extracting blob  from entity : " + e.getMessage()));
         }
     }
 }

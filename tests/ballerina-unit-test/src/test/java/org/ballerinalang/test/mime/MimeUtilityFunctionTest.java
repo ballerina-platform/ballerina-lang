@@ -84,13 +84,13 @@ public class MimeUtilityFunctionTest {
 
     @Test(description = "Test 'getMediaType' function in ballerina/mime package")
     public void testGetMediaType() {
-        String contentType = "multipart/form-dataExpr; boundary=032a1ab685934650abbe059cb45d6ff3";
+        String contentType = "multipart/form-; boundary=032a1ab685934650abbe059cb45d6ff3";
         BValue[] args = {new BString(contentType)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetMediaType", args);
         Assert.assertEquals(returns.length, 1);
         BMap<String, BValue> mediaType = (BMap<String, BValue>) returns[0];
         Assert.assertEquals(mediaType.get(PRIMARY_TYPE_FIELD).stringValue(), "multipart");
-        Assert.assertEquals(mediaType.get(SUBTYPE_FIELD).stringValue(), "form-dataExpr");
+        Assert.assertEquals(mediaType.get(SUBTYPE_FIELD).stringValue(), "form-");
         Assert.assertEquals(mediaType.get(SUFFIX_FIELD).stringValue(), "");
         BMap map = (BMap) mediaType.get(PARAMETER_MAP_FIELD);
         Assert.assertEquals(map.get("boundary").stringValue(), "032a1ab685934650abbe059cb45d6ff3");
@@ -125,7 +125,7 @@ public class MimeUtilityFunctionTest {
 
     @Test(description = "Test 'getContentDispositionObject' function in ballerina/mime package")
     public void testGetContentDispositionObject() {
-        String contentType = "form-dataExpr; name=\"filepart\"; filename=\"file-01.txt\"";
+        String contentType = "form-; name=\"filepart\"; filename=\"file-01.txt\"";
         BValue[] args = {new BString(contentType)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetContentDispositionObject", args);
         Assert.assertEquals(returns.length, 1);
@@ -135,7 +135,7 @@ public class MimeUtilityFunctionTest {
         Assert.assertEquals(contentDisposition.get(CONTENT_DISPOSITION_NAME_FIELD).stringValue(),
                 "filepart");
         Assert.assertEquals(contentDisposition.get(DISPOSITION_FIELD).stringValue(),
-                "form-dataExpr");
+                "form-");
         BMap map = (BMap) contentDisposition.get(PARAMETER_MAP_FIELD);
         Assert.assertEquals(map.size(), 0);
     }
@@ -145,12 +145,12 @@ public class MimeUtilityFunctionTest {
         BMap<String, BValue> contentDisposition = BCompileUtil
                 .createAndGetStruct(compileResult.getProgFile(), protocolPackageMime, contentDispositionStruct);
         contentDisposition.put(CONTENT_DISPOSITION_FILENAME_FIELD, new BString("file-01.txt"));
-        contentDisposition.put(DISPOSITION_FIELD, new BString("form-dataExpr"));
+        contentDisposition.put(DISPOSITION_FIELD, new BString("form-"));
         contentDisposition.put(CONTENT_DISPOSITION_NAME_FIELD, new BString("test"));
         BValue[] args = {contentDisposition};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToStringOnContentDisposition", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "form-dataExpr;name=\"test\";filename=\"file-01.txt\"");
+        Assert.assertEquals(returns[0].stringValue(), "form-;name=\"test\";filename=\"file-01.txt\"");
     }
 
     @Test
@@ -230,7 +230,7 @@ public class MimeUtilityFunctionTest {
                 expectedValue);
     }
 
-    @Test(description = "Set json dataExpr to entity and get the content back from entity as json")
+    @Test(description = "Set json  to entity and get the content back from entity as json")
     public void testGetAndSetJson() {
         BJSON jsonContent = new BJSON("{'code':'123'}");
         BValue[] args = {jsonContent};
@@ -249,7 +249,7 @@ public class MimeUtilityFunctionTest {
                 "{\"concatContent\":[{\"code\":\"123\"},{\"code\":\"123\"},{\"code\":\"123\"}]}");
     }
 
-    @Test(description = "Set xml dataExpr to entity and get the content back from entity as xml")
+    @Test(description = "Set xml  to entity and get the content back from entity as xml")
     public void testGetAndSetXml() {
         BXML xmlContent = XMLUtils.parse("<name>ballerina</name>");
         BValue[] args = {xmlContent};
@@ -268,7 +268,7 @@ public class MimeUtilityFunctionTest {
                 "<name>ballerina</name><name>ballerina</name><name>ballerina</name>");
     }
 
-    @Test(description = "Set text dataExpr to entity and get the content back from entity as text")
+    @Test(description = "Set text  to entity and get the content back from entity as text")
     public void testGetAndSetText() {
         BString textContent = new BString("Hello Ballerina !");
         BValue[] args = {textContent};
@@ -287,7 +287,7 @@ public class MimeUtilityFunctionTest {
                 "Hello Ballerina !Hello Ballerina !Hello Ballerina !");
     }
 
-    @Test(description = "Set byte array dataExpr to entity and get the content back from entity as a byte array")
+    @Test(description = "Set byte array  to entity and get the content back from entity as a byte array")
     public void testGetAndSetByteArray() {
         String content = "ballerina";
         BByteArray byteContent = new BByteArray(content.getBytes());
@@ -426,7 +426,7 @@ public class MimeUtilityFunctionTest {
     }
 
     @Test(description = "An EntityError should be returned from 'getByteChannel()', in case the payload " +
-            "is in dataExpr source form")
+            "is in  source form")
     public void testByteChannelWhenPayloadInDataSource() {
         BJSON jsonContent = new BJSON("{'code':'123'}");
         BValue[] args = {jsonContent};
@@ -439,7 +439,7 @@ public class MimeUtilityFunctionTest {
     }
 
     @Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +
-            "as a text dataExpr source is empty")
+            "as a text  source is empty")
     public void testGetTextDataSource() {
         try {
             File file = File.createTempFile("testFile", ".tmp");
@@ -460,7 +460,7 @@ public class MimeUtilityFunctionTest {
     }
 
     @Test(description = "Once the byte channel is consumed by the user, check whether the content retrieved " +
-            "as a json dataExpr source return an error")
+            "as a json  source return an error")
     public void testGetJsonDataSource() {
         try {
             File file = File.createTempFile("testFile", ".tmp");
@@ -476,7 +476,7 @@ public class MimeUtilityFunctionTest {
             Assert.assertEquals(returns.length, 1);
             Assert.assertNotNull(returns[0]);
             Assert.assertTrue(returns[0].stringValue().contains("Error occurred while extracting json " +
-                    "dataExpr from entity: failed to create json: empty JSON document"));
+                    " from entity: failed to create json: empty JSON document"));
         } catch (IOException e) {
             log.error("Error occurred in testTempFileDeletion", e.getMessage());
         }
@@ -488,9 +488,9 @@ public class MimeUtilityFunctionTest {
         BMap<String, BValue> bodyPart = Util.getEntityStruct(compileResult);
         BMap<String, BValue> contentDispositionStruct = Util.getContentDispositionStruct(compileResult);
         MimeUtil.setContentDisposition(contentDispositionStruct, bodyPart,
-                "form-dataExpr; name=\"filepart\"; filename=\"file-01.txt\"");
+                "form-; name=\"filepart\"; filename=\"file-01.txt\"");
         String contentDispositionValue = MimeUtil.getContentDisposition(bodyPart);
-        Assert.assertEquals(contentDispositionValue, "form-dataExpr;name=\"filepart\";filename=\"file-01.txt\"");
+        Assert.assertEquals(contentDispositionValue, "form-;name=\"filepart\";filename=\"file-01.txt\"");
     }
 
     @Test
@@ -498,9 +498,9 @@ public class MimeUtilityFunctionTest {
         BMap<String, BValue> bodyPart = Util.getEntityStruct(compileResult);
         BMap<String, BValue> contentDispositionStruct = Util.getContentDispositionStruct(compileResult);
         MimeUtil.setContentDisposition(contentDispositionStruct, bodyPart,
-                "form-dataExpr; name=filepart; filename=file-01.txt");
+                "form-; name=filepart; filename=file-01.txt");
         String contentDispositionValue = MimeUtil.getContentDisposition(bodyPart);
-        Assert.assertEquals(contentDispositionValue, "form-dataExpr;name=\"filepart\";filename=\"file-01.txt\"");
+        Assert.assertEquals(contentDispositionValue, "form-;name=\"filepart\";filename=\"file-01.txt\"");
     }
 
     @Test
@@ -508,9 +508,9 @@ public class MimeUtilityFunctionTest {
         BMap<String, BValue> bodyPart = Util.getEntityStruct(compileResult);
         BMap<String, BValue> contentDispositionStruct = Util.getContentDispositionStruct(compileResult);
         MimeUtil.setContentDisposition(contentDispositionStruct, bodyPart,
-                "form-dataExpr");
+                "form-");
         String contentDispositionValue = MimeUtil.getContentDisposition(bodyPart);
-        Assert.assertEquals(contentDispositionValue, "form-dataExpr");
+        Assert.assertEquals(contentDispositionValue, "form-");
     }
 
     @Test

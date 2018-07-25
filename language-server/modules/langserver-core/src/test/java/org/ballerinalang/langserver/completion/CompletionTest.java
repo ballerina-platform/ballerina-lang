@@ -70,7 +70,7 @@ public abstract class CompletionTest {
         return CompletionTestUtil.getExpectedItemList(expectedItems);
     }
 
-    @DataProvider(name = "completion-dataExpr-provider")
+    @DataProvider(name = "completion--provider")
     public abstract Object[][] dataProvider();
 
     @AfterMethod

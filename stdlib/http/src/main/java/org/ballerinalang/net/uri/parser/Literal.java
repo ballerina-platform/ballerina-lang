@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * Literal represents literal path segments in the uri-template.
  *
- * @param <DataType> Type of dataExpr which should be stored in the node.
+ * @param <DataType> Type of  which should be stored in the node.
  * @param <InboundMsgType> Inbound message type for additional checks.
  */
 public class Literal<DataType, InboundMsgType> extends Node<DataType, InboundMsgType> {

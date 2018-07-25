@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 /**
- * Represents the close event of dataExpr channel.
+ * Represents the close event of  channel.
  */
 public class CloseDataChannelEvent implements Event {
     /**
@@ -57,11 +57,11 @@ public class CloseDataChannelEvent implements Event {
             channel.close();
             result = new BooleanResult(true, context);
         } catch (IOException e) {
-            log.error("Error occurred while closing dataExpr channel", e);
+            log.error("Error occurred while closing  channel", e);
             context.setError(e);
             result = new BooleanResult(context);
         } catch (Throwable e) {
-            log.error("Unidentified error occurred while closing dataExpr channel", e);
+            log.error("Unidentified error occurred while closing  channel", e);
             context.setError(e);
             result = new BooleanResult(context);
         }

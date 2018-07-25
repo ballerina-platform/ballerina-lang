@@ -52,11 +52,11 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 )
 public class WriteString implements NativeCallableUnit {
     /**
-     * Represents dataExpr channel.
+     * Represents  channel.
      */
     private static final int DATA_CHANNEL_INDEX = 0;
     /**
-     * Index which holds the value of the dataExpr to be written.
+     * Index which holds the value of the  to be written.
      */
     private static final int VALUE_INDEX = 0;
     /**

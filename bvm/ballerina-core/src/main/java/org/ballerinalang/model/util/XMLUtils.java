@@ -319,7 +319,7 @@ public class XMLUtils {
      * Create a processing instruction type BXML.
      *
      * @param tartget PI target
-     * @param data PI dataExpr
+     * @param data PI
      * @return BXML Processing instruction type BXML
      */
     public static BXML<?> createXMLProcessingInstruction(String tartget, String data) {

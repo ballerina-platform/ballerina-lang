@@ -76,7 +76,7 @@ public abstract class Channel implements IOChannel {
      * Will read/write bytes from the provided channel
      * </p>
      * <p>
-     * This operation will asynchronously read dataExpr from the channel.
+     * This operation will asynchronously read  from the channel.
      * </p>
      *
      * @param channel which will be used to read/write content.
@@ -201,7 +201,7 @@ public abstract class Channel implements IOChannel {
      *
      * @param content the buffer which holds the content.
      * @return the number of bytes written to the channel.
-     * @throws IOException errors occur during writing dataExpr to channel.
+     * @throws IOException errors occur during writing  to channel.
      */
     public int write(ByteBuffer content) throws IOException {
         return writer.write(content, channel);
@@ -225,7 +225,7 @@ public abstract class Channel implements IOChannel {
      * <p>
      * Reads specified amount of bytes from a given channel.
      * <p>
-     * Each time this method is called the dataExpr will be retrieved from the channels last read position.
+     * Each time this method is called the  will be retrieved from the channels last read position.
      * </P>
      * <p>
      * <b>Note : </b> This operation cannot be called in parallel invocations since the underlying ByteBuffer and the

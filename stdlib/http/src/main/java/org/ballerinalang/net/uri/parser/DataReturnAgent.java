@@ -22,8 +22,8 @@ package org.ballerinalang.net.uri.parser;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * This class is use to set and return dataExpr in the template tree.
- * @param <DataType> Type of dataExpr which should be set and returned.
+ * This class is use to set and return  in the template tree.
+ * @param <DataType> Type of  which should be set and returned.
  */
 public class DataReturnAgent<DataType> {
 
@@ -31,16 +31,16 @@ public class DataReturnAgent<DataType> {
     private BallerinaException ballerinaException;
 
     /**
-     * Set dataExpr.
-     * @param data dataExpr which should get returned.
+     * Set .
+     * @param data  which should get returned.
      */
     public void setData(DataType data) {
         this.data = data;
     }
 
     /**
-     * Get dataExpr.
-     * @return dataExpr stored in the Agent.
+     * Get .
+     * @return  stored in the Agent.
      */
     public DataType getData() {
         return data;

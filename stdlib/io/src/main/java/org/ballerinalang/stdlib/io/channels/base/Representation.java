@@ -21,7 +21,7 @@ package org.ballerinalang.stdlib.io.channels.base;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 
 /**
- * Defines how the bytes will be represented for different dataExpr types.
+ * Defines how the bytes will be represented for different  types.
  */
 public enum Representation {
     /**

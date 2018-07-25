@@ -30,7 +30,7 @@ service<http:Service> retryDemoService bind serviceEndpoint {
         path: "/"
     }
     // Parameters include a reference to the caller endpoint and an object of
-    // the request dataExpr.
+    // the request .
     invokeEndpoint(endpoint caller, http:Request request) {
         var backendResponse = backendClientEP->forward("/hello", request);
         // `match` is used to handle union-type returns.

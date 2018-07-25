@@ -23,7 +23,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 /**
- * This represents a worker dataExpr channel that is created for each worker to
+ * This represents a worker  channel that is created for each worker to
  * worker interaction for each function call.
  */
 public class WorkerDataChannel {

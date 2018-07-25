@@ -418,7 +418,7 @@ public class Main {
      *
      * @since 0.966.0
      */
-    @Parameters(commandNames = "encrypt", commandDescription = "encrypt sensitive dataExpr")
+    @Parameters(commandNames = "encrypt", commandDescription = "encrypt sensitive ")
     public static class EncryptCmd implements BLauncherCmd {
 
         @Parameter(names = "--java.debug", hidden = true)
@@ -481,7 +481,7 @@ public class Main {
 
         @Override
         public void printLongDesc(StringBuilder out) {
-            out.append("The encrypt command can be used to encrypt sensitive dataExpr.\n\n");
+            out.append("The encrypt command can be used to encrypt sensitive .\n\n");
             out.append("When the command is executed, the user will be prompted to\n");
             out.append("enter the value to be encrypted and a secret. The secret will be used in \n");
             out.append("encrypting the value.\n\n");

@@ -436,7 +436,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.dlog.error(annAttachmentNode.pos, DiagnosticCode.ANNOTATION_NOT_ALLOWED,
                     annotationSymbol, msg);
         }
-        // Validate Annotation Attachment dataExpr struct against Annotation Definition struct.
+        // Validate Annotation Attachment  struct against Annotation Definition struct.
         validateAnnotationAttachmentExpr(annAttachmentNode, annotationSymbol);
     }
 
