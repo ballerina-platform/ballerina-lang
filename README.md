@@ -1,4 +1,4 @@
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# Ballerina
   [![Jenkins Build Status](https://wso2.org/jenkins/view/All%20Builds/job/ballerina-platform/job/ballerina/badge/icon)](https://wso2.org/jenkins/view/All%20Builds/job/ballerina-platform/job/ballerina/)
   [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/97xlytm8di5l0pmb/branch/master?svg=true)](https://ci.appveyor.com/project/WSO2/ballerina-lang/branch/master)
   [![GitHub (pre-)release](https://img.shields.io/github/release/ballerina-platform/ballerina-lang/all.svg)](https://github.com/ballerina-platform/ballerina-lang/releases)
