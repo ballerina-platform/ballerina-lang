@@ -89,7 +89,9 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
                     CommonUtil.invocationsAndFieldsOnIdentifier(ctx, variableName, UtilSymbolKeys.DOT_SYMBOL_KEY)
                             .stream().filter(symbolInfo -> {
                 BSymbol symbol = symbolInfo.getScopeEntry().symbol;
-                return symbol instanceof BInvokableSymbol || symbol instanceof BVarSymbol;
+                return (symbol instanceof BInvokableSymbol
+                        || symbol instanceof BVarSymbol)
+                        && !symbol.getName().getValue().startsWith(UtilSymbolKeys.DOLLAR_SYMBOL_KEY);
             }).collect(Collectors.toList());
             filteredSymbols.forEach(symbolInfo -> {
                 BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
@@ -103,7 +105,9 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
             List<SymbolInfo> filteredSymbolInfo = symbolInfoList.stream()
                     .filter(symbolInfo -> {
                         BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-                        return bSymbol instanceof BVarSymbol || bSymbol instanceof BPackageSymbol;
+                        return (bSymbol instanceof BVarSymbol
+                                || bSymbol instanceof BPackageSymbol)
+                                && !bSymbol.getName().getValue().startsWith(UtilSymbolKeys.DOLLAR_SYMBOL_KEY);
                     })
                     .collect(Collectors.toList());
 

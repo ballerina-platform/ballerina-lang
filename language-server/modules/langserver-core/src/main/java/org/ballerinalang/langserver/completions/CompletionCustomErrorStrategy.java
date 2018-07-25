@@ -23,6 +23,7 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
+import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
@@ -44,11 +45,15 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 
     private int removeTokenCount = 0;
 
+    private Token removeStartToken = null;
+
     private Stack<Token> forceConsumedTokens = new Stack<>();
 
     private Token lastTerminationToken = null;
 
     private Token firstTokenOfCursorLine = null;
+
+    private enum TokenRemovalStrategy { MATCH, SYNC }
 
     public CompletionCustomErrorStrategy(LSContext context) {
         super(context);
@@ -57,47 +62,80 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 
     @Override
     public void reportInputMismatch(Parser parser, InputMismatchException e) {
+        if (!parser.getContext().start.getTokenSource().getSourceName()
+                .equals(context.get(DocumentServiceKeys.FILE_NAME_KEY))) {
+            return;
+        }
         this.context.put(CompletionKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
     }
 
     @Override
     public void reportMissingToken(Parser parser) {
+        if (!parser.getContext().start.getTokenSource().getSourceName()
+                .equals(context.get(DocumentServiceKeys.FILE_NAME_KEY))) {
+            return;
+        }
         this.context.put(CompletionKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
     }
 
     @Override
     public void reportNoViableAlternative(Parser parser, NoViableAltException e) {
+        if (!parser.getContext().start.getTokenSource().getSourceName()
+                .equals(context.get(DocumentServiceKeys.FILE_NAME_KEY))) {
+            return;
+        }
         this.context.put(CompletionKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
     }
 
     @Override
     public void reportUnwantedToken(Parser parser) {
+        if (!parser.getContext().start.getTokenSource().getSourceName()
+                .equals(context.get(DocumentServiceKeys.FILE_NAME_KEY))) {
+            return;
+        }
         this.context.put(CompletionKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
     }
 
     @Override
     public void reportMatch(Parser recognizer) {
-        removePendingTokensAfterThisToken(recognizer, lastTerminationToken);
+        if (!recognizer.getContext().start.getTokenSource().getSourceName()
+                .equals(context.get(DocumentServiceKeys.FILE_NAME_KEY))) {
+            super.reportMatch(recognizer);
+            return;
+        }
+        removePendingTokensAfterThisToken(recognizer, removeStartToken, TokenRemovalStrategy.MATCH);
+        boolean inFirstTokenOfCursorLine = isInFirstTokenOfCursorLine(recognizer);
+        boolean inLastTermination = isInLastTermination(recognizer);
         super.reportMatch(recognizer);
-        if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && isInLastTermination(recognizer)) {
-            deleteTokensUpToCursor(recognizer, true);
+        if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && inLastTermination) {
+            deleteTokensUpToCursor(recognizer, inLastTermination, inFirstTokenOfCursorLine);
         }
     }
 
     @Override
     public void sync(Parser recognizer) throws RecognitionException {
-        removePendingTokensAfterThisToken(recognizer, lastTerminationToken);
-        if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && isInFirstTokenOfCursorLine(recognizer)) {
-            deleteTokensUpToCursor(recognizer, false);
-        } else if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && isInLastTermination(recognizer)) {
-            deleteTokensUpToCursor(recognizer, true);
+        if (!recognizer.getContext().start.getTokenSource().getSourceName()
+                .equals(context.get(DocumentServiceKeys.FILE_NAME_KEY))) {
+            super.sync(recognizer);
+            return;
+        }
+        removePendingTokensAfterThisToken(recognizer, removeStartToken, TokenRemovalStrategy.SYNC);
+        boolean inFirstTokenOfCursorLine = isInFirstTokenOfCursorLine(recognizer);
+        boolean inLastTermination = isInLastTermination(recognizer);
+        if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && inFirstTokenOfCursorLine) {
+            deleteTokensUpToCursor(recognizer, inLastTermination, inFirstTokenOfCursorLine);
+        } else if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && inLastTermination) {
+            deleteTokensUpToCursor(recognizer, inLastTermination, inFirstTokenOfCursorLine);
         }
         super.sync(recognizer);
     }
 
-    private void removePendingTokensAfterThisToken(Parser recognizer, Token token) {
+    private void removePendingTokensAfterThisToken(Parser recognizer, Token token,
+                                                   TokenRemovalStrategy currentStrategy) {
         int currentTokenIndex = recognizer.getCurrentToken().getTokenIndex();
-        if (token != null && currentTokenIndex <= token.getTokenIndex()) {
+        if (token != null && (isInLastTermination(recognizer) ||
+                TokenRemovalStrategy.SYNC.equals(currentStrategy) && currentTokenIndex < token.getTokenIndex()
+                || TokenRemovalStrategy.MATCH.equals(currentStrategy) && currentTokenIndex <= token.getTokenIndex())) {
             return;
         }
         while (removeTokenCount > 0) {
@@ -123,7 +161,8 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         return lastTerminationToken != null && currentToken.getTokenIndex() == lastTerminationToken.getTokenIndex();
     }
 
-    private void deleteTokensUpToCursor(Parser recognizer, boolean isInLastTermination) {
+    private void deleteTokensUpToCursor(Parser recognizer, boolean isInLastTermination,
+                                        boolean isInFirstTokenOfCursorLine) {
         Position cursorPosition = this.context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         int cursorLine = cursorPosition.getLine() + 1;
         int cursorCol = cursorPosition.getCharacter() + 1;
@@ -134,7 +173,10 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         int tLine = beforeCursorToken.getLine();
         int tCol = beforeCursorToken.getCharPositionInLine();
 
-        int needToRemoveTokenCount = -1;
+        boolean noTerminationToken = ((isInFirstTokenOfCursorLine && lastTerminationToken == null)
+                || (firstTokenOfCursorLine != null && lastTerminationToken.getTokenIndex()
+                > firstTokenOfCursorLine.getTokenIndex()));
+        int needToRemoveTokenCount = noTerminationToken ? 0 : -1;
         while (type != BallerinaParser.EOF && ((tLine < cursorLine) || (tLine == cursorLine && tCol < cursorCol))) {
             index++;
             needToRemoveTokenCount++;
@@ -146,6 +188,11 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 
         if (isInLastTermination) {
             removeTokenCount = needToRemoveTokenCount;
+            removeStartToken = lastTerminationToken;
+        } else if (noTerminationToken) {
+            removeTokenCount = needToRemoveTokenCount;
+            removeStartToken = recognizer.getInputStream().LT(1);
+            removePendingTokensAfterThisToken(recognizer, removeStartToken, TokenRemovalStrategy.SYNC);
         }
     }
 
@@ -168,7 +215,9 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         firstCursorLineToken = (tLine == cursorLine) ? beforeCursorToken : null;
 
         while (type != BallerinaParser.EOF && (tLine <= cursorLine)) {
-            if (tLine == cursorLine) {
+            int tokenIndex = beforeCursorToken.getTokenIndex();
+            if (tLine == cursorLine &&
+                    (firstCursorLineToken == null || firstCursorLineToken.getTokenIndex() > tokenIndex)) {
                 firstCursorLineToken = beforeCursorToken;
             }
             index++;
@@ -192,9 +241,13 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         int tCol = beforeCursorToken.getCharPositionInLine();
 
         while (type != BallerinaParser.EOF && ((tLine < cursorLine) || (tLine == cursorLine && tCol < cursorCol))) {
-            if (beforeCursorToken.getTokenIndex() == 1 || type == BallerinaParser.SEMICOLON ||
-                    type == BallerinaParser.LEFT_BRACE || type == BallerinaParser.RIGHT_BRACE ||
-                    type == BallerinaParser.COMMA) {
+            // Checking for terminating tokens with the type number is inconsistent. Thus, uses string comparisons
+            String tokenText = beforeCursorToken.getText();
+            if (beforeCursorToken.getTokenIndex() == 1 ||
+                    UtilSymbolKeys.SEMI_COLON_SYMBOL_KEY.equals(tokenText) ||
+                    UtilSymbolKeys.OPEN_BRACE_KEY.equals(tokenText) ||
+                    UtilSymbolKeys.CLOSE_BRACE_KEY.equals(tokenText) ||
+                    UtilSymbolKeys.COMMA_SYMBOL_KEY.equals(tokenText)) {
                 lastTerminationToken = beforeCursorToken;
             }
             index++;

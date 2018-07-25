@@ -27,7 +27,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.ballerina.swagger.convertor.Constants;
 import org.ballerinalang.ballerina.swagger.convertor.SwaggerConverterException;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.composer.service.ballerina.parser.service.model.BFile;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.workspace.ExtendedWorkspaceDocumentManagerImpl;
@@ -68,13 +67,10 @@ public class SwaggerConverterUtils {
      * @throws IOException when error occur while processing input swagger and ballerina definitions.
      */
     public static String generateSwaggerDefinitions(String ballerinaSource, String serviceName) throws IOException {
-        // Get the ballerina model using the ballerina source code.
-        BFile balFile = new BFile();
-        balFile.setContent(ballerinaSource);
         //Create empty swagger object.
         Swagger swagger = new Swagger();
-        BallerinaFile ballerinaFile = lsCompiler.compileContent(balFile.getContent(), CompilerPhase.DEFINE);
-        BLangCompilationUnit topCompilationUnit  = ballerinaFile.getBLangPackage().getCompilationUnits().get(0);
+        BallerinaFile ballerinaFile = lsCompiler.compileContent(ballerinaSource, CompilerPhase.DEFINE);
+        BLangCompilationUnit topCompilationUnit = ballerinaFile.getBLangPackage().getCompilationUnits().get(0);
         String httpAlias = getAlias(topCompilationUnit, Constants.BALLERINA_HTTP_PACKAGE_NAME);
         String swaggerAlias = getAlias(topCompilationUnit, Constants.SWAGGER_PACKAGE_NAME);
         SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper(httpAlias, swaggerAlias);
@@ -119,13 +115,10 @@ public class SwaggerConverterUtils {
      */
     public static String generateOAS3Definitions(String ballerinaSource, String serviceName)
             throws IOException, SwaggerConverterException {
-        // Get the ballerina model using the ballerina source code.
-        BFile balFile = new BFile();
-        balFile.setContent(ballerinaSource);
         //Create empty swagger object.
         Swagger swagger = new Swagger();
         String swaggerSource;
-        BallerinaFile ballerinaFile = lsCompiler.compileContent(balFile.getContent(), CompilerPhase.DEFINE);
+        BallerinaFile ballerinaFile = lsCompiler.compileContent(ballerinaSource, CompilerPhase.DEFINE);
         BLangCompilationUnit topCompilationUnit = ballerinaFile.getBLangPackage().getCompilationUnits().get(0);
         String httpAlias = getAlias(topCompilationUnit, Constants.BALLERINA_HTTP_PACKAGE_NAME);
         String swaggerAlias = getAlias(topCompilationUnit, Constants.SWAGGER_PACKAGE_NAME);

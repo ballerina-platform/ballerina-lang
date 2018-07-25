@@ -30,13 +30,12 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.DataChannel;
 import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventManager;
+import org.ballerinalang.stdlib.io.events.EventRegister;
 import org.ballerinalang.stdlib.io.events.EventResult;
+import org.ballerinalang.stdlib.io.events.Register;
 import org.ballerinalang.stdlib.io.events.data.CloseDataChannelEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Native function ballerina.io#DataChannel.close().
@@ -74,6 +73,7 @@ public class CloseDataChannel implements NativeCallableUnit {
         callback.notifySuccess();
         return result;
     }
+
     /**
      * <p>
      * Close dataExpr channel.
@@ -87,8 +87,9 @@ public class CloseDataChannel implements NativeCallableUnit {
         DataChannel channel = (DataChannel) dataChannelStruct.getNativeData(IOConstants.DATA_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
         CloseDataChannelEvent dataChannelCloseEvt = new CloseDataChannelEvent(channel, eventContext);
-        CompletableFuture<EventResult> publish = EventManager.getInstance().publish(dataChannelCloseEvt);
-        publish.thenApply(CloseDataChannel::closeResponse);
+        Register register = EventRegister.getFactory().register(dataChannelCloseEvt, CloseDataChannel::closeResponse);
+        eventContext.setRegister(register);
+        register.submit();
     }
 
     @Override

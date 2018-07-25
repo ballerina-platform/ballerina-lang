@@ -18,7 +18,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ActionInvocationDecorator from '../decorators/action-invocation-decorator';
-import ActiveArbiter from '../decorators/active-arbiter';
 import TreeUtil from '../../../../../model/tree-util';
 
 /**
@@ -70,7 +69,6 @@ InvocationNode.propTypes = {
 };
 
 InvocationNode.contextTypes = {
-    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
     designer: PropTypes.instanceOf(Object).isRequired,
 };
 

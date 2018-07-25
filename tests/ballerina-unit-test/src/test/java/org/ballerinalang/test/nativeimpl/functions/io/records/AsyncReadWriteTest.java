@@ -22,10 +22,12 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
+import org.ballerinalang.stdlib.io.events.EventContext;
 import org.ballerinalang.stdlib.io.events.EventManager;
 import org.ballerinalang.stdlib.io.events.EventResult;
 import org.ballerinalang.stdlib.io.events.records.DelimitedRecordReadEvent;
 import org.ballerinalang.stdlib.io.events.records.DelimitedRecordWriteEvent;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.testng.Assert;
@@ -73,23 +75,23 @@ public class AsyncReadWriteTest {
         String[] readRecord = (String[]) eventResult.getResponse();
         Assert.assertEquals(readRecord.length, expectedFieldCount);
 
-        event = new DelimitedRecordReadEvent(recordChannel);
+        event = new DelimitedRecordReadEvent(recordChannel, new EventContext());
         future = eventManager.publish(event);
         eventResult = future.get();
         readRecord = (String[]) eventResult.getResponse();
         Assert.assertEquals(readRecord.length, expectedFieldCount);
 
-        event = new DelimitedRecordReadEvent(recordChannel);
+        event = new DelimitedRecordReadEvent(recordChannel, new EventContext());
         future = eventManager.publish(event);
         eventResult = future.get();
         readRecord = (String[]) eventResult.getResponse();
         Assert.assertEquals(readRecord.length, expectedFieldCount);
 
-        event = new DelimitedRecordReadEvent(recordChannel);
+        event = new DelimitedRecordReadEvent(recordChannel, new EventContext());
         future = eventManager.publish(event);
         eventResult = future.get();
-        readRecord = (String[]) eventResult.getResponse();
-        Assert.assertEquals(readRecord.length, 0);
+        Throwable error = ((EventContext) eventResult.getContext()).getError();
+        Assert.assertTrue(IOConstants.IO_EOF.equals(error.getMessage()));
 
         recordChannel.close();
     }

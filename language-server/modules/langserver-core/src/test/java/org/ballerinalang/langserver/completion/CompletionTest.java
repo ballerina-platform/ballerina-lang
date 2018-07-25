@@ -48,7 +48,7 @@ public abstract class CompletionTest {
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         List<CompletionItem> responseItemList = getResponseItemList(configJsonObject);
         List<CompletionItem> expectedList = getExpectedList(configJsonObject);
-        Assert.assertEquals(true, CompletionTestUtil.isSubList(expectedList, responseItemList));
+        Assert.assertTrue(CompletionTestUtil.isSubList(expectedList, responseItemList));
     }
 
     protected List<CompletionItem> getResponseItemList(JsonObject configJsonObject) {

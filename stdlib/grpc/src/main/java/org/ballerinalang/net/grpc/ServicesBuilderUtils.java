@@ -24,7 +24,6 @@ import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.listener.ServerCallHandler;
 import org.ballerinalang.net.grpc.listener.StreamingServerCallHandler;
 import org.ballerinalang.net.grpc.listener.UnaryServerCallHandler;
-import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
 import org.ballerinalang.net.grpc.proto.ServiceProtoUtils;
 
 import java.util.HashMap;
@@ -47,20 +46,8 @@ public class ServicesBuilderUtils {
     
     private static ServerServiceDefinition getServiceDefinition(Service service, Descriptors.ServiceDescriptor
             serviceDescriptor) throws GrpcServerException {
-        // Generate full service name for the service definition. <package>.<service>
-        final String serviceName;
-        if (ServiceProtoConstants.CLASSPATH_SYMBOL.equals(service.getPackage())) {
-            serviceName = service.getName();
-        } else {
-            String servicePackage = service.getPackage();
-            String serviceVersion = service.getPackageVersion();
-            if (servicePackage != null && servicePackage.endsWith(serviceVersion)) {
-                String[] pkgInfo = servicePackage.split(":");
-                servicePackage = pkgInfo.length > 1 ? pkgInfo[0] : servicePackage;
-            }
-
-            serviceName = servicePackage + ServiceProtoConstants.CLASSPATH_SYMBOL + service.getName();
-        }
+        // Get full service name for the service definition. <package>.<service>
+        final String serviceName = serviceDescriptor.getFullName();
         // Server Definition Builder for the service.
         ServerServiceDefinition.Builder serviceDefBuilder = ServerServiceDefinition.builder(serviceName);
         

@@ -82,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStructFieldAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangTupleAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -1189,7 +1190,11 @@ public class Desugar extends BLangNodeVisitor {
             targetVarRef = new BLangArrayAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         } else if (varRefType.tag == TypeTags.XML) {
-            targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr, indexAccessExpr.indexExpr);
+            targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos,
+                    indexAccessExpr.expr, indexAccessExpr.indexExpr);
+        } else if (varRefType.tag == TypeTags.TUPLE) {
+            targetVarRef = new BLangTupleAccessExpr(indexAccessExpr.pos,
+                    indexAccessExpr.expr, indexAccessExpr.indexExpr);
         }
 
         targetVarRef.lhsVar = indexAccessExpr.lhsVar;
@@ -1541,6 +1546,11 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrayAccessExpr arrayIndexAccessExpr) {
+        result = arrayIndexAccessExpr;
+    }
+
+    @Override
+    public void visit(BLangTupleAccessExpr arrayIndexAccessExpr) {
         result = arrayIndexAccessExpr;
     }
 
@@ -2352,40 +2362,44 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         switch (type.tag) {
-        case TypeTags.INT:
-            return getIntLiteral(0);
-        case TypeTags.FLOAT:
-            return getFloatLiteral(0);
-        case TypeTags.BOOLEAN:
-            return getBooleanLiteral(false);
-        case TypeTags.STRING:
-            return getStringLiteral("");
-        case TypeTags.XML:
-            return new BLangXMLSequenceLiteral(type);
-        case TypeTags.MAP:
-            return new BLangMapLiteral(new ArrayList<>(), type);
-        case TypeTags.STREAM:
-            return new BLangStreamLiteral(type, name);
-        case TypeTags.OBJECT:
-            return createTypeInitNode(type);
-        case TypeTags.RECORD:
-            return new BLangStructLiteral(new ArrayList<>(), type);
-        case TypeTags.TABLE:
-            if (((BTableType) type).getConstraint().tag == TypeTags.RECORD) {
-                BLangTableLiteral table = new BLangTableLiteral();
-                table.type = type;
-                return rewriteExpr(table);
-            }
-            break;
-        case TypeTags.ARRAY:
-            BLangArrayLiteral array = new BLangArrayLiteral();
-            array.exprs = new ArrayList<>();
-            array.type = type;
-            return rewriteExpr(array);
-        case TypeTags.CHANNEL:
-            return createChannelTable(name.getValue());
-        default:
-            break;
+            case TypeTags.INT:
+                return getIntLiteral(0);
+            case TypeTags.FLOAT:
+                return getFloatLiteral(0);
+            case TypeTags.BOOLEAN:
+                return getBooleanLiteral(false);
+            case TypeTags.STRING:
+                return getStringLiteral("");
+            case TypeTags.XML:
+                return new BLangXMLSequenceLiteral(type);
+            case TypeTags.MAP:
+                return new BLangMapLiteral(new ArrayList<>(), type);
+            case TypeTags.STREAM:
+                return new BLangStreamLiteral(type, name);
+            case TypeTags.OBJECT:
+                return createTypeInitNode(type);
+            case TypeTags.RECORD:
+                return new BLangStructLiteral(new ArrayList<>(), type);
+            case TypeTags.TABLE:
+                if (((BTableType) type).getConstraint().tag == TypeTags.RECORD) {
+                    BLangTableLiteral table = new BLangTableLiteral();
+                    table.type = type;
+                    return rewriteExpr(table);
+                }
+                break;
+            case TypeTags.ARRAY:
+                BLangArrayLiteral array = new BLangArrayLiteral();
+                array.exprs = new ArrayList<>();
+                array.type = type;
+                return rewriteExpr(array);
+            case TypeTags.TUPLE:
+                BLangBracedOrTupleExpr tuple = new BLangBracedOrTupleExpr();
+                tuple.type = type;
+                return rewriteExpr(tuple);
+            case TypeTags.CHANNEL:
+                return createChannelTable(name.getValue());
+            default:
+                break;
         }
         return null;
     }
@@ -2733,6 +2747,7 @@ public class Desugar extends BLangNodeVisitor {
         dupFuncSymbol.taintTable = invokableSymbol.taintTable;
         dupFuncSymbol.tainted = invokableSymbol.tainted;
         dupFuncSymbol.closure = invokableSymbol.closure;
+        dupFuncSymbol.documentation = invokableSymbol.documentation;
         dupFuncSymbol.scope = invokableSymbol.scope;
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;

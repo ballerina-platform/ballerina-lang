@@ -207,6 +207,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private Set<TaintRecord.TaintError> taintErrorSet = new LinkedHashSet<>();
     private List<BlockedNode> blockedNodeList = new ArrayList<>();
     private List<BlockedNode> blockedEntryPointNodeList = new ArrayList<>();
+    private BInvokableSymbol ignoredInvokableSymbol = null;
     private Map<BLangIdentifier, TaintedStatus> workerInteractionTaintedStatusMap;
     private BLangIdentifier currWorkerIdentifier;
     private BLangIdentifier currForkIdentifier;
@@ -926,9 +927,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         } else {
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
             if (invokableSymbol.taintTable == null) {
-                if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS) {
+                if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS
+                        || (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE
+                        && ignoredInvokableSymbol == invokableSymbol)) {
                     // If a looping invocation is being analyzed, skip analysis of invokable that does not have taint
                     // table already attached. This will prevent the analyzer to go in to a loop unnecessarily.
+                    ignoredInvokableSymbol = invokableSymbol;
                     this.taintedStatus = TaintedStatus.IGNORED;
                     analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS_COMPLETE;
                 } else {
@@ -1291,6 +1295,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangIndexBasedAccess.BLangTupleAccessExpr arrayIndexAccessExpr) {
+        /* ignore */
+    }
+
+    @Override
     public void visit(BLangIndexBasedAccess.BLangXMLAccessExpr xmlIndexAccessExpr) {
         /* ignore */
     }
@@ -1634,6 +1643,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeReturnTaintedStatus(BLangInvokableNode invokableNode, SymbolEnv symbolEnv) {
+        ignoredInvokableSymbol = null;
         invokableNode.endpoints.forEach(endpoint -> endpoint.accept(this));
         if (invokableNode.workers.isEmpty()) {
             analyzeNode(invokableNode.body, symbolEnv);

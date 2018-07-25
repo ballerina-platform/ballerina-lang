@@ -30,13 +30,12 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.io.channels.base.DataChannel;
 import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventManager;
+import org.ballerinalang.stdlib.io.events.EventRegister;
 import org.ballerinalang.stdlib.io.events.EventResult;
+import org.ballerinalang.stdlib.io.events.Register;
 import org.ballerinalang.stdlib.io.events.data.WriteBoolEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Native function ballerina/io#writeBool.
@@ -84,9 +83,10 @@ public class WriteBool implements NativeCallableUnit {
         DataChannel channel = (DataChannel) dataChannelStruct.getNativeData(IOConstants.DATA_CHANNEL_NAME);
         boolean value = context.getBooleanArgument(VALUE_INDEX);
         EventContext eventContext = new EventContext(context, callback);
-        WriteBoolEvent writeIntegerEvent = new WriteBoolEvent(channel, value, eventContext);
-        CompletableFuture<EventResult> publish = EventManager.getInstance().publish(writeIntegerEvent);
-        publish.thenApply(WriteBool::writeBooleanResponse);
+        WriteBoolEvent writeBoolEvent = new WriteBoolEvent(channel, value, eventContext);
+        Register register = EventRegister.getFactory().register(writeBoolEvent, WriteBool::writeBooleanResponse);
+        eventContext.setRegister(register);
+        register.submit();
     }
 
     @Override

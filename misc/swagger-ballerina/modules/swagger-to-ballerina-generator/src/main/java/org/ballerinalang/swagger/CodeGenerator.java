@@ -163,6 +163,7 @@ public class CodeGenerator {
     }
 
     private Template compileTemplate(String defaultTemplateDir, String templateName) throws IOException {
+        defaultTemplateDir = defaultTemplateDir.replaceAll("\\\\", "/");
         String templatesDirPath = System.getProperty(GeneratorConstants.TEMPLATES_DIR_PATH_KEY, defaultTemplateDir);
         ClassPathTemplateLoader cpTemplateLoader = new ClassPathTemplateLoader((templatesDirPath));
         FileTemplateLoader fileTemplateLoader = new FileTemplateLoader(templatesDirPath);

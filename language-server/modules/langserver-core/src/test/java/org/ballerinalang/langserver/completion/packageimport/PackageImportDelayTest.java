@@ -20,11 +20,14 @@ package org.ballerinalang.langserver.completion.packageimport;
 import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.completion.CompletionTest;
 import org.ballerinalang.langserver.completion.util.FileUtils;
+import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -35,7 +38,13 @@ import java.util.concurrent.TimeUnit;
 public class PackageImportDelayTest extends CompletionTest {
     private static final long MAX_DELAY_THRESHOLD = 1L;
 
-    @DataProvider(name = "completion-dataExpr-provider")
+    @BeforeClass
+    private void initLSIndex() {
+        String indexDumpPath = Paths.get("target/lang-server-index.sql").toAbsolutePath().toString();
+        LSIndexImpl.getInstance().initFromIndexDump(indexDumpPath);
+    }
+
+    @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{

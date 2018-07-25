@@ -1700,6 +1700,25 @@ public class TypeChecker extends BLangNodeVisitor {
         return ((BRecordType) structType).restFieldType;
     }
 
+    private BType checkTupleFieldType(BLangIndexBasedAccess indexBasedAccessExpr, BType varRefType, int indexValue) {
+        List<BType> tupleTypes = ((BTupleType) varRefType.tsymbol.type).tupleTypes;
+        if (indexValue < 0 || tupleTypes.size() <= indexValue) {
+            dlog.error(indexBasedAccessExpr.pos,
+                    DiagnosticCode.TUPLE_INDEX_OUT_OF_RANGE, indexValue, tupleTypes.size());
+            return symTable.errType;
+        }
+        return tupleTypes.get(indexValue);
+    }
+
+    private BType checkIndexExprForTupleFieldAccess(BLangExpression indexExpr) {
+        if (indexExpr.getKind() != NodeKind.LITERAL) {
+            dlog.error(indexExpr.pos, DiagnosticCode.INVALID_INDEX_EXPR_TUPLE_FIELD_ACCESS);
+            return symTable.errType;
+        }
+
+        return checkExpr(indexExpr, this.env, symTable.intType);
+    }
+
     private void validateTags(BLangXMLElementLiteral bLangXMLElementLiteral, SymbolEnv xmlElementEnv) {
         // check type for start and end tags
         BLangExpression startTagName = bLangXMLElementLiteral.startTagName;
@@ -2020,6 +2039,13 @@ public class TypeChecker extends BLangNodeVisitor {
 
                 checkExpr(indexExpr, this.env);
                 actualType = symTable.xmlType;
+                break;
+            case TypeTags.TUPLE:
+                indexExprType = checkIndexExprForTupleFieldAccess(indexExpr);
+                if (indexExprType.tag == TypeTags.INT) {
+                    int indexValue = ((Long) ((BLangLiteral) indexExpr).value).intValue();
+                    actualType = checkTupleFieldType(indexBasedAccessExpr, varRefType, indexValue);
+                }
                 break;
             case TypeTags.ERROR:
                 // Do nothing

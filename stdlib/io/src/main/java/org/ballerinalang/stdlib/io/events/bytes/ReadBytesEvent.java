@@ -22,7 +22,9 @@ import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.events.Event;
 import org.ballerinalang.stdlib.io.events.EventContext;
 import org.ballerinalang.stdlib.io.events.EventResult;
+import org.ballerinalang.stdlib.io.events.EventType;
 import org.ballerinalang.stdlib.io.events.result.NumericResult;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,10 +89,18 @@ public class ReadBytesEvent implements Event {
     public EventResult get() {
         NumericResult result;
         try {
-            int numberOfBytesRead = channel.read(content);
-            byte[] content = getContentData();
-            context.getProperties().put(CONTENT_PROPERTY, content);
-            result = new NumericResult(numberOfBytesRead, context);
+            if (channel.hasReachedEnd()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Channel " + channel.hashCode() + " reached it's end");
+                }
+                context.setError(new Throwable(IOConstants.IO_EOF));
+                result = new NumericResult(context);
+            } else {
+                int numberOfBytesRead = channel.read(content);
+                byte[] content = getContentData();
+                context.getProperties().put(CONTENT_PROPERTY, content);
+                result = new NumericResult(numberOfBytesRead, context);
+            }
         } catch (IOException e) {
             log.error("Error occurred while reading bytes", e);
             context.setError(e);
@@ -101,5 +111,25 @@ public class ReadBytesEvent implements Event {
             result = new NumericResult(context);
         }
         return result;
+    }
+
+    @Override
+    public int getChannelId() {
+        return channel.id();
+    }
+
+    @Override
+    public boolean isSelectable() {
+        return channel.isSelectable();
+    }
+
+    @Override
+    public EventType getType() {
+        return EventType.READ;
+    }
+
+    @Override
+    public Channel getChannel() {
+        return channel;
     }
 }

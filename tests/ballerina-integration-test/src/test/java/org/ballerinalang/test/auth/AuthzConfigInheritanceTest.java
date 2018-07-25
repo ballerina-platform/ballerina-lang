@@ -33,6 +33,7 @@ import java.util.Map;
 /**
  * Test cases for authorization config inheritance scenarios.
  */
+@Test(groups = "broken")
 public class AuthzConfigInheritanceTest {
     private ServerInstance ballerinaServer;
 

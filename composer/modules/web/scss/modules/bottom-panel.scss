@@ -3,13 +3,15 @@
         border-bottom: none;
         .rc-tabs-bar {
             border-bottom: none;
+            padding: 0 5px;
+            
             & .actions {
                 padding: 8px;
                 & i {
                     color: #6D6D6D;
-                    padding:10px;
+                    padding: 10px 13px;
                     font-size: 11px;
-                    margin-top: -10px;
+
                     &:hover{
                         cursor: pointer;
                         color: $rc-tabs-hover-color;
@@ -34,7 +36,9 @@
             @extend .unseletable-content;
             text-transform: uppercase;
             color: #6D6D6D;
-            min-width: 120px;
+            margin: 0;
+            padding: 15px;
+
             &:hover{
                 color: $rc-tabs-hover-color;
             }

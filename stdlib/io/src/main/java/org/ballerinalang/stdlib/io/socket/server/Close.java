@@ -58,7 +58,9 @@ public class Close extends BlockingNativeCallableUnit {
             ServerSocketChannel serverSocket = (ServerSocketChannel) serverSocketStruct
                     .getNativeData(SocketConstants.SERVER_SOCKET_KEY);
             final SelectionKey selectionKey = serverSocket.keyFor(SelectorManager.getInstance());
-            selectionKey.cancel();
+            if (selectionKey != null) {
+                selectionKey.cancel();
+            }
             serverSocket.close();
         } catch (Throwable e) {
             String message = "Failed to close the ServerSocket: " + e.getMessage();
