@@ -82,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStructFieldAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangTupleAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -1205,6 +1206,9 @@ public class Desugar extends BLangNodeVisitor {
         } else if (varRefType.tag == TypeTags.XML) {
             targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos,
                     indexAccessExpr.expr, indexAccessExpr.indexExpr);
+        } else if (varRefType.tag == TypeTags.TUPLE) {
+            targetVarRef = new BLangTupleAccessExpr(indexAccessExpr.pos,
+                    indexAccessExpr.expr, indexAccessExpr.indexExpr);
         }
 
         targetVarRef.lhsVar = indexAccessExpr.lhsVar;
@@ -1557,6 +1561,11 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrayAccessExpr arrayIndexAccessExpr) {
+        result = arrayIndexAccessExpr;
+    }
+
+    @Override
+    public void visit(BLangTupleAccessExpr arrayIndexAccessExpr) {
         result = arrayIndexAccessExpr;
     }
 
@@ -2392,6 +2401,10 @@ public class Desugar extends BLangNodeVisitor {
                 array.exprs = new ArrayList<>();
                 array.type = type;
                 return rewriteExpr(array);
+            case TypeTags.TUPLE:
+                BLangBracedOrTupleExpr tuple = new BLangBracedOrTupleExpr();
+                tuple.type = type;
+                return rewriteExpr(tuple);
             default:
                 break;
         }
@@ -2740,6 +2753,7 @@ public class Desugar extends BLangNodeVisitor {
         dupFuncSymbol.taintTable = invokableSymbol.taintTable;
         dupFuncSymbol.tainted = invokableSymbol.tainted;
         dupFuncSymbol.closure = invokableSymbol.closure;
+        dupFuncSymbol.documentation = invokableSymbol.documentation;
         dupFuncSymbol.scope = invokableSymbol.scope;
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;

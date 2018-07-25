@@ -45,6 +45,11 @@
 
     <files>
         <file>
+            <source>gen/version.js</source>
+            <outputDirectory>src</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+        <file>
             <source>package.json</source>
             <outputDirectory>/</outputDirectory>
         </file>

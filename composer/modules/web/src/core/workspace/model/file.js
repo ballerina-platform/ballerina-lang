@@ -76,7 +76,9 @@ class File extends EventChannel {
      * Sets fullPath
      */
     set fullPath(newPath) {
+        const oldPath = this._fullPath;
         this._fullPath = newPath;
+        this.trigger(EVENTS.FILE_PATH_CHANGED, { oldPath, newPath });
         this.trigger(EVENTS.FILE_UPDATED, this);
     }
 
