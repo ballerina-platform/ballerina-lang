@@ -262,9 +262,6 @@ public class TextDocumentFormatUtil {
                 }
             } else if (prop != null) {
                 nodeJson.addProperty(jsonName, prop.toString());
-                String message = "Node " + node.getClass().getSimpleName() +
-                        " contains unknown type prop: " + jsonName + " of type " + prop.getClass();
-                logger.error(message);
             }
         }
         return nodeJson;

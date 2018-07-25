@@ -15,20 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+export const DIALOG = {
+    IMPORT_RECORD: 'composer.dialog.import.record',
+};
 
-import { COMMANDS } from './constants';
+export const COMMANDS = {
+    SHOW_IMPORT_RECORD_DIALOG: 'show-import-record-dialog',
+    IMPORT_RECORD: 'import-record',
+};
 
-/**
- * Provides command definitions of help plugin.
- * @returns {Object[]} command definitions.
- */
-export function getCommandDefinitions(plugin) {
-    return [
-        {
-            id: COMMANDS.SHOW_IMPORT_STRUCT_DIALOG,
-        },
-        {
-            id: COMMANDS.IMPORT_STRUCT,
-        },
-    ];
-}
+export const MENUS = {
+    IMPORT_RECORD_MENU: 'composer.menu.import.record',
+};
+
+export const LABELS = {
+    IMPORT_RECORD_MENU_TITLE: 'Import Record',
+};
+
+
+export const PLUGIN_ID = 'import.record';
