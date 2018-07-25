@@ -111,7 +111,7 @@ public class BStream implements BRefType<Object> {
     /**
      * Method to publish to a topic representing the stream in the broker.
      *
-     * @param data the dataExpr to publish to the stream
+     * @param data the data to publish to the stream
      */
     public void publish(BValue data) {
         BType dataType = data.getType();
@@ -241,7 +241,7 @@ public class BStream implements BRefType<Object> {
                         event[index] = data.get(field.fieldName).stringValue();
                         break;
                     default:
-                        throw new BallerinaException("Fields in streams do not support dataExpr types other than int, " +
+                        throw new BallerinaException("Fields in streams do not support data types other than int, " +
                                 "float, boolean and string");
                 }
             }

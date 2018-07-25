@@ -67,13 +67,13 @@ public class RetrySampleTestCase extends IntegrationTestCase {
     public void testMultiPart() throws IOException {
         String multipartDataBoundary = Long.toHexString(PlatformDependent.threadLocalRandom().nextLong());
         String multipartBody = "--" + multipartDataBoundary + "\r\n" +
-                "Content-Disposition: form-dataExpr; name=\"foo\"" + "\r\n" +
+                "Content-Disposition: form-data; name=\"foo\"" + "\r\n" +
                 "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
                 "\r\n" +
                 "Part1" +
                 "\r\n" +
                 "--" + multipartDataBoundary + "\r\n" +
-                "Content-Disposition: form-dataExpr; name=\"filepart\"; filename=\"file-01.txt\"" + "\r\n" +
+                "Content-Disposition: form-data; name=\"filepart\"; filename=\"file-01.txt\"" + "\r\n" +
                 "Content-Type: text/plain" + "\r\n" +
                 "Content-Transfer-Encoding: binary" + "\r\n" +
                 "\r\n" +
@@ -81,18 +81,18 @@ public class RetrySampleTestCase extends IntegrationTestCase {
                 "\r\n" +
                 "--" + multipartDataBoundary + "--" + "\r\n";
         Map<String, String> headers = new HashMap<>();
-        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), "multipart/form-dataExpr; boundary=" + multipartDataBoundary);
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), "multipart/form-data; boundary=" + multipartDataBoundary);
         HttpResponse response = HttpClientRequest.doPost(ballerinaServer
                         .getServiceURLHttp("retry")
                 , multipartBody, headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertTrue(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
-                        .contains("multipart/form-dataExpr;boundary=" + multipartDataBoundary),
+                        .contains("multipart/form-data;boundary=" + multipartDataBoundary),
                 "Response is not form of multipart");
-        Assert.assertTrue(response.getData().contains("form-dataExpr;name=\"foo\"content-id: 0Part1")
+        Assert.assertTrue(response.getData().contains("form-data;name=\"foo\"content-id: 0Part1")
                 , "Message content mismatched");
         Assert.assertTrue(response.getData().
-                        contains("form-dataExpr;name=\"filepart\";filename=\"file-01.txt\"content-id: 1Part2")
+                        contains("form-data;name=\"filepart\";filename=\"file-01.txt\"content-id: 1Part2")
                 , "Message content mismatched");
     }
 
@@ -101,12 +101,12 @@ public class RetrySampleTestCase extends IntegrationTestCase {
         String multipartDataBoundary = Long.toHexString(PlatformDependent.threadLocalRandom().nextLong());
         String multipartMixedBoundary = Long.toHexString(PlatformDependent.threadLocalRandom().nextLong());
         String nestedMultipartBody = "--" + multipartDataBoundary + "\r\n" +
-                "Content-Disposition: form-dataExpr; name=\"parent1\"" + "\r\n" +
+                "Content-Disposition: form-data; name=\"parent1\"" + "\r\n" +
                 "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
                 "\r\n" +
                 "Parent Part" + "\r\n" +
                 "--" + multipartDataBoundary + "\r\n" +
-                "Content-Disposition: form-dataExpr; name=\"parent2\"" + "\r\n" +
+                "Content-Disposition: form-data; name=\"parent2\"" + "\r\n" +
                 "Content-Type: multipart/mixed; boundary=" + multipartMixedBoundary + "\r\n" +
                 "\r\n" +
                 "--" + multipartMixedBoundary + "\r\n" +
@@ -135,12 +135,12 @@ public class RetrySampleTestCase extends IntegrationTestCase {
                 "content-disposition: attachment;filename=\"file-02.txt\"content-id: 1" +
                 "Child Part 2";
         Map<String, String> headers = new HashMap<>();
-        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), "multipart/form-dataExpr; boundary=" + multipartDataBoundary);
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), "multipart/form-data; boundary=" + multipartDataBoundary);
         HttpResponse response = HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("retry")
                 , nestedMultipartBody, headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertTrue(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
-                        .contains("multipart/form-dataExpr;boundary=" + multipartDataBoundary),
+                        .contains("multipart/form-data;boundary=" + multipartDataBoundary),
                 "Response is not form of multipart");
         Assert.assertTrue(response.getData().contains(expectedChildPart1), "Message content mismatched");
         Assert.assertTrue(response.getData().contains(expectedChildPart2), "Message content mismatched");

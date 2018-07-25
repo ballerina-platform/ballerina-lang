@@ -57,12 +57,12 @@ public class BCursorTable extends BTable {
     }
 
     public void addData(BMap<String, BValue> data, Context context) {
-        throw new BallerinaException("dataExpr cannot be added to a table returned from a database");
+        throw new BallerinaException("data cannot be added to a table returned from a database");
     }
 
     public void performRemoveOperation(Context context, BFunctionPointer lambdaFunction) {
         context.setReturnValues(TableUtils.createTableOperationError(context,
-                new BallerinaException("dataExpr cannot be deleted from a table returned from a database")));
+                new BallerinaException("data cannot be deleted from a table returned from a database")));
     }
 
     protected boolean isIteratorGenerationConditionMet() {

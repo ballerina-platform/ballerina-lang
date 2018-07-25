@@ -932,7 +932,7 @@ public class PackageInfoReader {
             throw new ProgramFileFormatException("unknown attribute kind " + attribNameCPEntry.getValue());
         }
 
-        // The length of the attribute dataExpr in bytes. Ignoring this value for now.
+        // The length of the attribute data in bytes. Ignoring this value for now.
         dataInStream.readInt();
 
         switch (attribKind) {

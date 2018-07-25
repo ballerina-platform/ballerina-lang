@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * Represents a channel which will allow performing dataExpr i/o operations.
+ * Represents a channel which will allow performing data i/o operations.
  */
 public class DataChannel implements IOChannel {
     /**

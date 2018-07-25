@@ -95,7 +95,7 @@ public class StreamingRuntimeManager {
             @Override
             public void receive(Event[] events) {
                 for (Event event : events) {
-                    // Here it is assumed that an event dataExpr will contain all the fields
+                    // Here it is assumed that an event data will contain all the fields
                     // of the record. Otherwise, some fields will be missing from the record value.
                     BMap<String, BValue> output = new BMap<String, BValue>(structType);
                     BField[] fields = structType.getFields();

@@ -44,7 +44,7 @@ import java.nio.ByteBuffer;
                              structPackage = "ballerina/http"),
         args = {
                 @Argument(name = "wsConnector", type = TypeKind.OBJECT),
-                @Argument(name = "dataExpr", type = TypeKind.ARRAY, elementType = TypeKind.BYTE)
+                @Argument(name = "data", type = TypeKind.ARRAY, elementType = TypeKind.BYTE)
         }
 )
 public class Ping implements NativeCallableUnit {

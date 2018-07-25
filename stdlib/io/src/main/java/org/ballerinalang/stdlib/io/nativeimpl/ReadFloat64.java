@@ -53,7 +53,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 )
 public class ReadFloat64 implements NativeCallableUnit {
     /**
-     * Represents dataExpr channel.
+     * Represents data channel.
      */
     private static final int DATA_CHANNEL_INDEX = 0;
 

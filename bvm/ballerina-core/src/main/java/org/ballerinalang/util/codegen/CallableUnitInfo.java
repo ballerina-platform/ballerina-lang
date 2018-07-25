@@ -55,7 +55,7 @@ public class CallableUnitInfo implements AttributeInfoPool, WorkerInfoPool {
 
     protected Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
     
-    // Key - dataExpr channel name
+    // Key - data channel name
     private Map<String, WorkerDataChannelInfo> dataChannelInfoMap = new HashMap<>();
 
     private PackageInfo packageInfo;

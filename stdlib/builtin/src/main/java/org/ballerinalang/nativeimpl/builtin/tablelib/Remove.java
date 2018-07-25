@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * {@code Remove} is the function to remove dataExpr from a table.
+ * {@code Remove} is the function to remove data from a table.
  *
  * @since 0.970.0
  */

@@ -123,7 +123,7 @@ public class ResponseNativeFunctionNegativeTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0].stringValue()
-                .contains("Error occurred while retrieving text" + " dataExpr from entity : String payload is null"));
+                .contains("Error occurred while retrieving text" + " data from entity : String payload is null"));
     }
 
     @Test
@@ -137,7 +137,7 @@ public class ResponseNativeFunctionNegativeTest {
         BValue[] inputArg = { inResponse };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
         String errMsg = ((BMap<String, BValue>) returnVals[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
-        Assert.assertTrue(errMsg.contains("Error occurred while retrieving xml dataExpr from entity : Empty xml payload"));
+        Assert.assertTrue(errMsg.contains("Error occurred while retrieving xml data from entity : Empty xml payload"));
     }
 
     @Test(description = "Test getEntity method on a response without a entity")

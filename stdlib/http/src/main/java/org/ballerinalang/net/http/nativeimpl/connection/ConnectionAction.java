@@ -118,7 +118,7 @@ public abstract class ConnectionAction implements NativeCallableUnit {
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
             }
         } catch (IOException e) {
-            throw new BallerinaException("Error occurred while serializing message dataExpr source : " + e.getMessage());
+            throw new BallerinaException("Error occurred while serializing message data source : " + e.getMessage());
         }
     }
 

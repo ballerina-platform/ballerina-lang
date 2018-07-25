@@ -42,7 +42,7 @@ public class OnErrorWebSocketTest extends WebSocketIntegrationTest {
 
     @BeforeClass(description = "Initializes the Ballerina server with the error_log_service.bal file")
     public void setup() throws InterruptedException, BallerinaTestException, URISyntaxException {
-        String expectingErrorLog = "error occurred: received continuation dataExpr frame outside fragmented message";
+        String expectingErrorLog = "error occurred: received continuation data frame outside fragmented message";
         logLeecher = new LogLeecher(expectingErrorLog);
         initBallerinaServer("error_log_service.bal", logLeecher);
 

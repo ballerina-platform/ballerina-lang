@@ -29,7 +29,7 @@ public abstract class AbstractRegexFunction extends BlockingNativeCallableUnit {
 
     /**
      * Validate Regex struct in Ballerina. Validate whether the string is in compiled form if not
-     * compile it and store as native dataExpr for later reference.
+     * compile it and store as native data for later reference.
      *
      * @param regex a regex string
      * @return Pattern compiled Pattern

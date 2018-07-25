@@ -293,7 +293,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
         try {
             outputStream.write(stringValue().getBytes(Charset.defaultCharset()));
         } catch (IOException e) {
-            throw new BallerinaException("Error occurred while serializing dataExpr", e);
+            throw new BallerinaException("Error occurred while serializing data", e);
         }
     }
 
@@ -333,20 +333,20 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     }
 
     /**
-     * Add natively accessible dataExpr.
+     * Add natively accessible data.
      *
-     * @param key key to store dataExpr with
-     * @param data dataExpr to be stored
+     * @param key key to store data with
+     * @param data data to be stored
      */
     public void addNativeData(String key, Object data) {
         this.nativeData.put(key, data);
     }
 
     /**
-     * Get natively accessible dataExpr.
+     * Get natively accessible data.
      *
-     * @param key key by which dataExpr was stored
-     * @return dataExpr which was stored with given key or null if no value corresponding to key
+     * @param key key by which data was stored
+     * @return data which was stored with given key or null if no value corresponding to key
      */
     public Object getNativeData(String key) {
         return this.nativeData.get(key);

@@ -24,7 +24,7 @@ import org.testng.annotations.DataProvider;
  * Negative completion tests for resource definition.
  */
 public class ResourceDefinitionNegative extends CompletionNegativeTest {
-    @DataProvider(name = "completion-negative-dataExpr-provider")
+    @DataProvider(name = "completion-negative-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][] {

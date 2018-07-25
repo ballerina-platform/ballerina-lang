@@ -126,7 +126,7 @@ public final class Status implements Serializable {
         UNAVAILABLE(14),
 
         /**
-         * Unrecoverable dataExpr loss or corruption.
+         * Unrecoverable data loss or corruption.
          */
         DATA_LOSS(15),
 

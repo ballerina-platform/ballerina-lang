@@ -32,7 +32,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test dataExpr io operations.
+ * Test data io operations.
  */
 public class DataChannelTest {
     private CompileResult dataChannel;

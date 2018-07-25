@@ -24,7 +24,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import java.util.Set;
 
 /**
- * Temporary dataExpr structure for storing name-reference;.
+ * Temporary data structure for storing name-reference;.
  *
  * @since 0.94
  */

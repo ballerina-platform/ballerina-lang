@@ -23,7 +23,7 @@ import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
- * {@code BTableType} represents tabular dataExpr in Ballerina.
+ * {@code BTableType} represents tabular data in Ballerina.
  *
  * @since 0.961.0
  */

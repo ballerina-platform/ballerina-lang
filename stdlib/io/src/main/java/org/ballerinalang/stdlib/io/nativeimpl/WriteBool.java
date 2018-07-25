@@ -51,11 +51,11 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 )
 public class WriteBool implements NativeCallableUnit {
     /**
-     * Represents dataExpr channel.
+     * Represents data channel.
      */
     private static final int DATA_CHANNEL_INDEX = 0;
     /**
-     * Index which holds the value of the dataExpr read.
+     * Index which holds the value of the data read.
      */
     private static final int VALUE_INDEX = 0;
 

@@ -41,7 +41,7 @@ public class PingPongSupportTestCase extends WebSocketIntegrationTest {
     private WebSocketTestClient client;
     private static final String URL = "ws://localhost:9090/pingpong/ws";
     private static final ByteBuffer SENDING_BYTE_BUFFER = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
-    private static final ByteBuffer RECEIVING_BYTE_BUFFER = ByteBuffer.wrap("dataExpr".getBytes(StandardCharsets.UTF_8));
+    private static final ByteBuffer RECEIVING_BYTE_BUFFER = ByteBuffer.wrap("data".getBytes(StandardCharsets.UTF_8));
 
     @BeforeClass(description = "Initializes the Ballerina server with the ping_pong.bal file")
     public void setup() throws InterruptedException, BallerinaTestException, URISyntaxException {

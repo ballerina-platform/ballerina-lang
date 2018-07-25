@@ -72,7 +72,7 @@ public class GetJson extends BlockingNativeCallableUnit {
                 } else {
                     result = EntityBodyHandler.constructJsonDataSource(entityStruct);
                     EntityBodyHandler.addMessageDataSource(entityStruct, result);
-                    //Set byte channel to null, once the message dataExpr source has been constructed
+                    //Set byte channel to null, once the message data source has been constructed
                     entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
                 }
                 context.setReturnValues(result);
@@ -82,7 +82,7 @@ public class GetJson extends BlockingNativeCallableUnit {
             }
         } catch (Throwable e) {
             context.setReturnValues(MimeUtil.createError(context,
-                    "Error occurred while extracting json dataExpr from entity: " + e.getMessage()));
+                    "Error occurred while extracting json data from entity: " + e.getMessage()));
         }
     }
 }

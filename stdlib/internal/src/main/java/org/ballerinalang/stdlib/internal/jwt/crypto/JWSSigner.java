@@ -26,7 +26,7 @@ package org.ballerinalang.stdlib.internal.jwt.crypto;
 public interface JWSSigner {
 
     /**
-     * Signs the specified input dataExpr.
+     * Signs the specified input data.
      *
      * @param data      This input should contain the header and body part of the JWT.
      *                  BASE64URL(UTF8(JOSE header)) || '.' || BASE64URL(JWS payload)

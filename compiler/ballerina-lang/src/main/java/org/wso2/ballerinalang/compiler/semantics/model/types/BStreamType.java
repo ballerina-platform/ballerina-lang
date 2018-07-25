@@ -24,7 +24,7 @@ import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
- * {@code BStreamType} represents stream dataExpr in Ballerina.
+ * {@code BStreamType} represents stream data in Ballerina.
  *
  * @since 0.965.0
  */

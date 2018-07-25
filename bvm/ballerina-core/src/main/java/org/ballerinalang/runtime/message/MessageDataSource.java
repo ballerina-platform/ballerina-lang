@@ -49,27 +49,27 @@ public interface MessageDataSource {
     public Object getValue(String path);
 
     /**
-     * Returns the dataExpr-object of the dataExpr source.
-     * @return dataExpr-object
+     * Returns the data-object of the data source.
+     * @return data-object
      */
     public Object getDataObject();
 
     /**
-     * Reruns the content-type of the dataExpr.
+     * Reruns the content-type of the data.
      * @return content-type
      */
     public String getContentType();
 
     /**
-     * Set the content type of the dataExpr.
+     * Set the content type of the data.
      * @param type content-type
      */
     public void setContentType(String type);
 
     /**
-     * Serialize dataExpr in to a byte stream.
+     * Serialize data in to a byte stream.
      *
-     * @param outputStream Represent the outputstream that the dataExpr will be written to
+     * @param outputStream Represent the outputstream that the data will be written to
      */
     public void serializeData(OutputStream outputStream);
 

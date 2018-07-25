@@ -37,7 +37,7 @@ public interface Compressor {
     /**
      * Wraps an existing output stream with a compressing output stream.
      *
-     * @param os The output stream of uncompressed dataExpr
+     * @param os The output stream of uncompressed data
      * @return An output stream that compresses
      */
     OutputStream compress(OutputStream os) throws IOException;

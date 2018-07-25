@@ -383,7 +383,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTransaction transactionNode) {
         this.checkStatementExecutionValidity(transactionNode);
         //Check whether transaction is within a handler function or retry block. This can check for single level only.
-        // We need dataExpr flow analysis to check for further levels.
+        // We need data flow analysis to check for further levels.
         if (!isValidTransactionBlock()) {
             this.dlog.error(transactionNode.pos, DiagnosticCode.TRANSACTION_CANNOT_BE_USED_WITHIN_HANDLER);
             return;

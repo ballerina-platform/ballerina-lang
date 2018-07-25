@@ -20,7 +20,7 @@
 package org.ballerinalang.stdlib.io.channels.base.data;
 
 /**
- * Represents a long read though the dataExpr channel.
+ * Represents a long read though the data channel.
  */
 public class LongResult {
     /**

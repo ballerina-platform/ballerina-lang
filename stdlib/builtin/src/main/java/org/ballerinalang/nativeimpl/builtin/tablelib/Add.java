@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * {@code Add} is the function to add dataExpr to a table.
+ * {@code Add} is the function to add data to a table.
  *
  * @since 0.963.0
  */
@@ -36,7 +36,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                    args = {
                            @Argument(name = "dt",
                                      type = TypeKind.TABLE),
-                           @Argument(name = "dataExpr",
+                           @Argument(name = "data",
                                      type = TypeKind.ANY)
                    },
                    isPublic = true)

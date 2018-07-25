@@ -61,7 +61,7 @@ public class GetBodyParts extends BlockingNativeCallableUnit {
             String baseType = HeaderUtil.getBaseType(entityStruct);
             if (baseType != null && (baseType.toLowerCase(Locale.getDefault()).startsWith(MULTIPART_AS_PRIMARY_TYPE) ||
                     baseType.toLowerCase(Locale.getDefault()).startsWith(MESSAGE_AS_PRIMARY_TYPE))) {
-                //Get the body parts from entity's multipart dataExpr field, if they've been already been decoded
+                //Get the body parts from entity's multipart data field, if they've been already been decoded
                 partsArray = EntityBodyHandler.getBodyPartArray(entityStruct);
                 if (partsArray == null || partsArray.size() < 1) {
                     Channel byteChannel = EntityBodyHandler.getByteChannel(entityStruct);

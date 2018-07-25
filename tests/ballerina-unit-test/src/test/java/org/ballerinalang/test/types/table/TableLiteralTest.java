@@ -112,7 +112,7 @@ public class TableLiteralTest {
             System.setOut(new PrintStream(outContent));
             BRunUtil.invoke(result, "testPrintData");
             Assert.assertEquals(outContent.toString().replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
-                    "table<Person> {index: [], primaryKey: [\"id\", \"age\"], dataExpr: [{id:1, age:30, "
+                    "table<Person> {index: [], primaryKey: [\"id\", \"age\"], data: [{id:1, age:30, "
                             + "salary:300.5, name:\"jane\", married:true}, {id:2, age:20, salary:200.5, "
                             + "name:\"martin\", married:true}, {id:3, age:32, salary:100.5, name:\"john\", "
                             + "married:false}]}\n");
@@ -130,7 +130,7 @@ public class TableLiteralTest {
             System.setOut(new PrintStream(outContent));
             BRunUtil.invoke(result, "testPrintDataEmptyTable");
             Assert.assertEquals(outContent.toString().replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
-                    "table<Person> {index: [], primaryKey: [], dataExpr: []}\n");
+                    "table<Person> {index: [], primaryKey: [], data: []}\n");
         } finally {
             outContent.close();
             System.setOut(original);
@@ -334,7 +334,7 @@ public class TableLiteralTest {
     }
 
     @Test(priority = 1,
-          description = "Test add dataExpr with  mismatched types")
+          description = "Test add data with  mismatched types")
     public void testTableAddInvalid() {
         BValue[] returns = BRunUtil.invoke(result, "testTableAddInvalid");
         Assert.assertEquals((returns[0]).stringValue(),
@@ -342,7 +342,7 @@ public class TableLiteralTest {
     }
 
     @Test(priority = 1,
-          description = "Test remove dataExpr with mismatched record types")
+          description = "Test remove data with mismatched record types")
     public void testRemoveWithInvalidRecordType() {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveWithInvalidRecordType");
         Assert.assertEquals((returns[0]).stringValue(),
@@ -351,7 +351,7 @@ public class TableLiteralTest {
     }
 
     @Test(priority = 1,
-          description = "Test remove dataExpr with mismatched input parameter types")
+          description = "Test remove data with mismatched input parameter types")
     public void testRemoveWithInvalidParamType() {
         BValue[] returns = BRunUtil.invoke(result, "testRemoveWithInvalidParamType");
         Assert.assertEquals((returns[0]).stringValue(),

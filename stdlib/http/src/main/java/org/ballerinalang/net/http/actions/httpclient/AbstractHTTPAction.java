@@ -318,7 +318,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
      * Send outbound request through the client connector. If the Content-Type is multipart, check whether the boundary
      * exist. If not get a new boundary string and add it as a parameter to Content-Type, just before sending header
      * info through wire. If a boundary string exist at this point, serialize multipart entity body, else serialize
-     * entity body which can either be a message dataExpr source or a byte channel.
+     * entity body which can either be a message data source or a byte channel.
      *
      * @param dataContext        holds the ballerina context and callback
      * @param outboundRequestMsg Outbound request that needs to be sent across the wire

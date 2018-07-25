@@ -24,7 +24,7 @@ import org.testng.annotations.DataProvider;
  * Completion item tests for Top Level Resolving.
  */
 public class TopLevel extends CompletionTest {
-    @DataProvider(name = "completion-dataExpr-provider")
+    @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][] {

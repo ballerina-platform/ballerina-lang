@@ -102,7 +102,7 @@ public class TableSqlQueryTest {
                   + "keys")
     public void testTableToString() throws Exception {
         BValue[] returns = BRunUtil.invoke(result, "testTableToString");
-        Assert.assertEquals(returns[0].stringValue(), "table<Person> {index: [], primaryKey: [], dataExpr: [{id:1, "
+        Assert.assertEquals(returns[0].stringValue(), "table<Person> {index: [], primaryKey: [], data: [{id:1, "
                 + "age:25, salary:300.5, name:\"jane\", married:true}, {id:2, age:26, salary:400.5, name:\"kane\", "
                 + "married:false}, {id:3, age:27, salary:500.5, name:\"jack\", married:true}, {id:4, age:28, "
                 + "salary:600.5, name:\"alex\", married:false}]}");

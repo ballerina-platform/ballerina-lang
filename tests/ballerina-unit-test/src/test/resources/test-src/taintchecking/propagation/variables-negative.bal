@@ -1,5 +1,5 @@
 function main (string... args) {
-    // untainted dataExpr - replaced by tainted value.
+    // untainted data - replaced by tainted value.
     string data = "sample";
     data = data + args[0];
     secureFunction(data, data);

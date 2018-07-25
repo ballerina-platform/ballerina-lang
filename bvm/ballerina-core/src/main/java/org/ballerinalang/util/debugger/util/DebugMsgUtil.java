@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Contains util methods to convert dataExpr objects to json and vise versa.
+ * Contains util methods to convert data objects to json and vise versa.
  *
  * @since 0.95.5
  */

@@ -18,7 +18,7 @@
 package org.ballerinalang.langserver.references;
 
 /**
- * DTO to hold the dataExpr for the references tests.
+ * DTO to hold the data for the references tests.
  */
 public class ReferencesTestDTO {
     private String expectedFileName;

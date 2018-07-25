@@ -221,7 +221,7 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
         attributeInfoMap.put(attributeKind, attributeInfo);
         if (attributeKind == AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE) {
             // TODO Move this out of the program file to a program context.. Runtime representation of a program.
-            // TODO ProgramFile is the static program dataExpr.
+            // TODO ProgramFile is the static program data.
             VarTypeCountAttributeInfo varTypeCountAttribInfo = (VarTypeCountAttributeInfo) attributeInfo;
             int[] globalVarCount = varTypeCountAttribInfo.getVarTypeCount();
 

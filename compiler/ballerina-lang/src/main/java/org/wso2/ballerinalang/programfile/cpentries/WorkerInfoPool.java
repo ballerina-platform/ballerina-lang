@@ -22,7 +22,7 @@ import org.wso2.ballerinalang.programfile.WorkerDataChannelInfo;
 import java.util.Map;
 
 /**
- * {@code WorkerInfoPool} represents a table of worker dataExpr channels which workers use to pass dataExpr around.
+ * {@code WorkerInfoPool} represents a table of worker data channels which workers use to pass data around.
  *
  * @since 0.90
  */

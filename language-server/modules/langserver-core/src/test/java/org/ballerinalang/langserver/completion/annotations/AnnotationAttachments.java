@@ -32,7 +32,7 @@ public class AnnotationAttachments extends CompletionTest {
         LSAnnotationCache.initiate();
     }
 
-    @DataProvider(name = "completion-dataExpr-provider")
+    @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][] {

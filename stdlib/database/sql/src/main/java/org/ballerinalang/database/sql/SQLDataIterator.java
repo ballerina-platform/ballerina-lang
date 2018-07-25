@@ -57,7 +57,7 @@ import javax.sql.rowset.CachedRowSet;
 
 /**
  * This iterator mainly wrap java.sql.ResultSet. This will provide table operations
- * related to ballerina.dataExpr.actions.sql connector.
+ * related to ballerina.data.actions.sql connector.
  *
  * @since 0.8.0
  */
@@ -316,13 +316,13 @@ public class SQLDataIterator extends TableIterator {
                                 createUserDefinedType((Struct) value, (BStructureType) internalField.fieldType));
                         break;
                     default:
-                        throw new BallerinaException("error in retrieving UDT dataExpr for unsupported type:" + type);
+                        throw new BallerinaException("error in retrieving UDT data for unsupported type:" + type);
                     }
                     ++index;
                 }
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error in retrieving UDT dataExpr:" + e.getMessage());
+            throw new BallerinaException("error in retrieving UDT data:" + e.getMessage());
         }
         return struct;
     }

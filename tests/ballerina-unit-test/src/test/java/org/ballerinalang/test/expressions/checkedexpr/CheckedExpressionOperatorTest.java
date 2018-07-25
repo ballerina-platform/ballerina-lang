@@ -36,7 +36,7 @@ public class CheckedExpressionOperatorTest {
 
     private CompileResult result;
     private static final String ERROR_MESSAGE_FIELD = "message";
-    private static final String ERROR_DATA_FIELD = "dataExpr";
+    private static final String ERROR_DATA_FIELD = "data";
 
     @BeforeClass
     public void setup() {

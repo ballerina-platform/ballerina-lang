@@ -214,7 +214,7 @@ public class MessageDeframer implements Closeable {
         int missingBytes;
         while ((missingBytes = requiredLength - nextFrame.readableBytes()) > 0) {
             if (unprocessed.readableBytes() == 0) {
-                // No more dataExpr is available.
+                // No more data is available.
                 return false;
             }
             int toRead = Math.min(missingBytes, unprocessed.readableBytes());

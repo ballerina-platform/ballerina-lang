@@ -762,10 +762,10 @@ public class SQLDatasourceUtils {
                 }
                 return new Object[] { arrayData, Constants.SQLDataTypes.BLOB };
             } else {
-                throw new BallerinaException("unsupported dataExpr type for array parameter");
+                throw new BallerinaException("unsupported data type for array parameter");
             }
         default:
-            throw new BallerinaException("unsupported dataExpr type for array parameter");
+            throw new BallerinaException("unsupported data type for array parameter");
         }
     }
 
@@ -832,7 +832,7 @@ public class SQLDatasourceUtils {
                     structData[i] = ((BByteArray) bValue).getBytes();
                     break;
                 } else {
-                    throw new BallerinaException("unsupported dataExpr type for struct parameter: " + structuredSQLType);
+                    throw new BallerinaException("unsupported data type for struct parameter: " + structuredSQLType);
                 }
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
@@ -846,7 +846,7 @@ public class SQLDatasourceUtils {
                 structData[i] = structValue;
                 break;
             default:
-                throw new BallerinaException("unsupported dataExpr type for struct parameter: " + structuredSQLType);
+                throw new BallerinaException("unsupported data type for struct parameter: " + structuredSQLType);
             }
         }
         return new Object[] { structData, structuredSQLType };
@@ -926,7 +926,7 @@ public class SQLDatasourceUtils {
     }
 
     /**
-     * This method will return equal ballerina dataExpr type for SQL type.
+     * This method will return equal ballerina data type for SQL type.
      *
      * @param sqlType SQL type in column
      * @return TypeKind that represent respective ballerina type.
@@ -989,14 +989,14 @@ public class SQLDatasourceUtils {
             return Constants.SQLDataTypes.BOOLEAN;
         default:
             throw new BallerinaException(
-                    "unsupported dataExpr type as direct value for sql operation, use sql:Parameter: " + value.getName());
+                    "unsupported data type as direct value for sql operation, use sql:Parameter: " + value.getName());
         }
     }
 
     /**
      * This will retrieve the string value for the given clob.
      *
-     * @param data clob dataExpr
+     * @param data clob data
      */
     public static String getString(Clob data) {
         if (data == null) {
@@ -1017,7 +1017,7 @@ public class SQLDatasourceUtils {
     /**
      * This will retrieve the string value for the given blob.
      *
-     * @param data blob dataExpr
+     * @param data blob data
      */
     public static String getString(Blob data) {
         // Directly allocating full length arrays for decode byte arrays since anyway we are building
@@ -1039,9 +1039,9 @@ public class SQLDatasourceUtils {
     }
 
     /**
-     * This will retrieve the string value for the given binary dataExpr.
+     * This will retrieve the string value for the given binary data.
      *
-     * @param data binary dataExpr
+     * @param data binary data
      */
     public static String getString(byte[] data) {
         if (data == null) {
@@ -1075,7 +1075,7 @@ public class SQLDatasourceUtils {
     }
 
     /**
-     * This will retrieve the string value for the given array dataExpr.
+     * This will retrieve the string value for the given array data.
      */
     public static String getString(Array dataArray) throws SQLException {
         if (dataArray == null) {
@@ -1092,7 +1092,7 @@ public class SQLDatasourceUtils {
     }
 
     /**
-     * This will retrieve the string value for the given struct dataExpr.
+     * This will retrieve the string value for the given struct data.
      */
     public static String getString(Struct udt) throws SQLException {
         if (udt.getAttributes() != null) {
@@ -1247,7 +1247,7 @@ public class SQLDatasourceUtils {
             appendTimeZone(calendar, datetimeString);
             break;
         default:
-            throw new BallerinaException("invalid type for datetime dataExpr: " + type);
+            throw new BallerinaException("invalid type for datetime data: " + type);
         }
         return datetimeString.toString();
     }
