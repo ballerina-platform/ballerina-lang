@@ -200,7 +200,8 @@ Definition ::= ( TypeDefinition
     recoverWhile=TopLevelDefinitionRecover
 }
 
-private TopLevelDefinitionRecover ::= !(DOCUMENTATION_TEMPLATE_START|DEPRECATED_TEMPLATE_START|'@'|native|public|type|typedesc|service|function|enum|annotation|endpoint|int|float|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|future|identifier|'{')
+private TopLevelDefinitionRecover ::= !(DOCUMENTATION_TEMPLATE_START|MARKDOWN_DOCUMENTATION_LINE_START|DEPRECATED_TEMPLATE_START|'@'|native|public
+|type|typedesc|service|function|enum|annotation|endpoint|int|float|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|future|identifier|'{')
 
 ServiceDefinition ::= service (LT NameReference GT)? identifier ServiceEndpointAttachments?  ServiceBody {pin=1}
 ServiceEndpointAttachments ::= bind (NameReference (COMMA NameReference)* | RecordLiteral) {pin=1}
@@ -957,14 +958,23 @@ tripleBackTickDocInlineCode ::= TB_DOC_INLINE_CODE_START TRIPLE_BACK_TICK_INLINE
 
 
 // Markdown Documentation parsing
-
-documentationString ::= MARKDOWN_DOCUMENTATION_LINE_START markdownContent MARKDOWN_DOCUMENTATION_LINE_END {pin=1}
-markdownContent ::= markdownText? markdownParameterDescription+ | markdownText
-markdownParameterDescription ::= (RETURN_PARAMETER_DOCUMENTATION_START | PARAMETER_DOCUMENTATION_START) identifier?
-PARAMETER_DOCUMENTATION_END markdownText? {pin=1}
-markdownText ::= backtickedContent (MARKDOWN_DOCUMENTATION_TEXT | backtickedContent)*
- | MARKDOWN_DOCUMENTATION_TEXT (MARKDOWN_DOCUMENTATION_TEXT | backtickedContent)*
-backtickedContent ::= singleBackTickedContent | doubleBackTickedContent | tripleBackTickedContent
-singleBackTickedContent ::= SINGLE_BACKTICK_MARKDOWN_START SINGLE_BACK_TICK_CONTENT? SINGLE_BACKTICK_MARKDOWN_END {pin=1}
-doubleBackTickedContent ::= DOUBLE_BACKTICK_MARKDOWN_START DOUBLE_BACK_TICK_CONTENT? DOUBLE_BACKTICK_MARKDOWN_END {pin=1}
-tripleBackTickedContent ::= TRIPLE_BACKTICK_MARKDOWN_START TRIPLE_BACK_TICK_CONTENT? TRIPLE_BACKTICK_MARKDOWN_END {pin=1}
+documentationString ::= documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine?
+documentationLine ::= MARKDOWN_DOCUMENTATION_LINE_START documentationContent {pin=1}
+parameterDocumentationLine ::= (PARAMETER_DOCUMENTATION_START parameterDocumentation) (MARKDOWN_DOCUMENTATION_LINE_START parameterDescription)*
+returnParameterDocumentationLine ::= (RETURN_PARAMETER_DOCUMENTATION_START returnParameterDocumentation) (MARKDOWN_DOCUMENTATION_LINE_START returnParameterDescription)*
+documentationContent ::= documentationText?
+parameterDescription ::= documentationText?
+returnParameterDescription ::= documentationText?
+//TODO:Finalize the order of the expression
+documentationText ::= (MARKDOWN_DOCUMENTATION_TEXT | REFERENCE_TYPE | DOCUMENTATION_ESCAPED_CHARACTERS
+| documentationReference | backtickedBlock | DEFINITION_REFERENCE)+
+documentationReference ::= documentationDefinitionReference
+documentationDefinitionReference ::= definitionReferenceType singleBacktickedBlock
+definitionReferenceType ::= DEFINITION_REFERENCE
+parameterDocumentation ::=  PARAMETER_NAME DESCRIPTION_SEPARATOR documentationText? {pin=2}
+returnParameterDocumentation ::= docParameterDescription
+docParameterDescription ::= documentationText?
+backtickedBlock ::=  tripleBacktickedBlock | doubleBacktickedBlock | singleBacktickedBlock
+singleBacktickedBlock ::= SINGLE_BACKTICK_MARKDOWN_START SINGLE_BACKTICK_CONTENT? SINGLE_BACKTICK_MARKDOWN_END {pin=1}
+doubleBacktickedBlock ::= DOUBLE_BACKTICK_MARKDOWN_START DOUBLE_BACKTICK_CONTENT? DOUBLE_BACKTICK_MARKDOWN_END {pin=1}
+tripleBacktickedBlock ::= TRIPLE_BACKTICK_MARKDOWN_START TRIPLE_BACKTICK_CONTENT? TRIPLE_BACKTICK_MARKDOWN_END {pin=1}
