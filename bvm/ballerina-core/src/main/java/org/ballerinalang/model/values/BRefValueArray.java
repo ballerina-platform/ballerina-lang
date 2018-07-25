@@ -94,6 +94,11 @@ public class BRefValueArray extends BNewArray {
     }
 
     @Override
+    public int getTag() {
+        return TypeTags.REF_ARRAY_TAG;
+    }
+
+    @Override
     public BValue copy() {
         BRefValueArray refValueArray = new BRefValueArray(Arrays.copyOf(values, values.length), arrayType);
         refValueArray.size = this.size;

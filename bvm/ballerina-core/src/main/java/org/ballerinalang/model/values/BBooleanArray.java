@@ -20,6 +20,7 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.TypeTags;
 
 import java.util.Arrays;
 import java.util.StringJoiner;
@@ -68,6 +69,11 @@ public class BBooleanArray extends BNewArray {
     @Override
     public void grow(int newLength) {
         values = Arrays.copyOf(values, newLength);
+    }
+
+    @Override
+    public int getTag() {
+        return TypeTags.BOOLEAN_ARRAY_TAG;
     }
 
     @Override

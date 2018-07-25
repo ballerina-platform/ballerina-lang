@@ -44,6 +44,8 @@ public abstract class BNewArray implements BRefType, BCollection {
 
     public abstract void grow(int newLength);
 
+    public abstract int getTag();
+
     @Override
     public String stringValue() {
         return null;
