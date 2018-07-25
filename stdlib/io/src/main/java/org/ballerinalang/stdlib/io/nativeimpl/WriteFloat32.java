@@ -53,11 +53,11 @@ import java.util.concurrent.CompletableFuture;
 )
 public class WriteFloat32 implements NativeCallableUnit {
     /**
-     * Represents data channel.
+     * Represents dataExpr channel.
      */
     private static final int DATA_CHANNEL_INDEX = 0;
     /**
-     * Index which holds the value of the data to be written.
+     * Index which holds the value of the dataExpr to be written.
      */
     private static final int VALUE_INDEX = 0;
 

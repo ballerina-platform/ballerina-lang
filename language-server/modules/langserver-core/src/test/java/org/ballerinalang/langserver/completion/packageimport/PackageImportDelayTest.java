@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 public class PackageImportDelayTest extends CompletionTest {
     private static final long MAX_DELAY_THRESHOLD = 1L;
 
-    @DataProvider(name = "completion-data-provider")
+    @DataProvider(name = "completion-dataExpr-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{

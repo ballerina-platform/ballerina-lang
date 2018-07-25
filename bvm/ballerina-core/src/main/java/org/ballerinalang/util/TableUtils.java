@@ -169,7 +169,7 @@ public class TableUtils {
             }
             break;
         default:
-            throw new BallerinaException("unsupported data type for array parameter");
+            throw new BallerinaException("unsupported dataExpr type for array parameter");
         }
         return arrayData;
     }

@@ -72,7 +72,7 @@ public class TesterinaSamplesTest {
     @Test
     public void dataProviderSampleTest() {
         BTestRunner runner = new BTestRunner();
-        runner.runTest(testerinaRoot + "/features/", new Path[]{Paths.get("data-providers.bal")},
+        runner.runTest(testerinaRoot + "/features/", new Path[]{Paths.get("dataExpr-providers.bal")},
                        new ArrayList<>());
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 4);
     }

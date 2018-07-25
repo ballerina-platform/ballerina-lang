@@ -932,7 +932,7 @@ public class PackageInfoReader {
             throw new ProgramFileFormatException("unknown attribute kind " + attribNameCPEntry.getValue());
         }
 
-        // The length of the attribute data in bytes. Ignoring this value for now.
+        // The length of the attribute dataExpr in bytes. Ignoring this value for now.
         dataInStream.readInt();
 
         switch (attribKind) {
@@ -1422,6 +1422,28 @@ public class PackageInfoReader {
                     BType bType = getParamTypes(packageInfo, sigCPEntry.getValue())[0];
                     packageInfo.addInstruction(new InstructionWRKSendReceive(opcode, channelRefCPIndex,
                             channelRefCPEntry.getWorkerDataChannelInfo(), sigCPIndex, bType, codeStream.readInt()));
+                    break;
+                case InstructionCodes.CHNRECEIVE:
+                    String channelName = ((UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt())).getValue();
+                    UTF8CPEntry receiverSigCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt());
+                    BType chnReceiveType = getParamTypes(packageInfo, receiverSigCPEntry.getValue())[0];
+                    int receiverIndex = codeStream.readInt();
+                    UTF8CPEntry keySigCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt());
+                    BType keyType = getParamTypes(packageInfo, keySigCPEntry.getValue())[0];
+                    int keyIndex = codeStream.readInt();
+                    packageInfo.addInstruction(new Instruction.InstructionCHNReceive(opcode, channelName,
+                            chnReceiveType, receiverIndex, keyType, keyIndex));
+                    break;
+                case InstructionCodes.CHNSEND:
+                    String chnName = ((UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt())).getValue();
+                    keyIndex = codeStream.readInt();
+                    keySigCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt());
+                    keyType = getParamTypes(packageInfo, keySigCPEntry.getValue())[0];
+                    int dataIndex = codeStream.readInt();
+                    UTF8CPEntry dataSigCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt());
+                    BType dataType = getParamTypes(packageInfo, dataSigCPEntry.getValue())[0];
+                    packageInfo.addInstruction(new Instruction.InstructionCHNSend(opcode, chnName, dataType,
+                            dataIndex, keyType, keyIndex));
                     break;
                 case InstructionCodes.FORKJOIN:
                     int forkJoinIndexCPIndex = codeStream.readInt();

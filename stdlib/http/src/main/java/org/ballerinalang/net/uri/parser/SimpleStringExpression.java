@@ -25,7 +25,7 @@ import java.util.Map;
  * SimpleStringExpression represents path segments that have single path param.
  * ex - /{foo}/
  *
- * @param <DataType> Type of data which should be stored in the node.
+ * @param <DataType> Type of dataExpr which should be stored in the node.
  * @param <InboundMsgType> Inbound message type for additional checks.
  */
 public class SimpleStringExpression<DataType, InboundMsgType> extends Expression<DataType, InboundMsgType> {

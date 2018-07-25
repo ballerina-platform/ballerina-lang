@@ -161,7 +161,7 @@ public class MultipartEncoderTest {
      *
      * @param mimeParts List of decoded body parts
      * @param bodyPart  Ballerina body part
-     * @throws IOException When an exception occurs during binary data decoding
+     * @throws IOException When an exception occurs during binary dataExpr decoding
      */
     private void validateBodyPartContent(List<MIMEPart> mimeParts, BMap<String, BValue> bodyPart) throws IOException {
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(0));
@@ -187,12 +187,12 @@ public class MultipartEncoderTest {
     }
 
     @Test(description = "Test whether the body part builds the ContentDisposition struct properly for " +
-            "multipart/form-data")
+            "multipart/form-dataExpr")
     public void testContentDispositionForFormData() {
         BMap<String, BValue> bodyPart = Util.getEntityStruct(result);
         BMap<String, BValue> contentDispositionStruct = Util.getContentDispositionStruct(result);
         MimeUtil.setContentDisposition(contentDispositionStruct, bodyPart,
-                "form-data; name=\"filepart\"; filename=\"file-01.txt\"");
+                "form-dataExpr; name=\"filepart\"; filename=\"file-01.txt\"");
         BMap<String, BValue> contentDisposition =
                 (BMap<String, BValue>) bodyPart.get(CONTENT_DISPOSITION_FIELD);
         Assert.assertEquals(contentDisposition.get(CONTENT_DISPOSITION_FILENAME_FIELD).stringValue(),
@@ -200,7 +200,7 @@ public class MultipartEncoderTest {
         Assert.assertEquals(contentDisposition.get(CONTENT_DISPOSITION_NAME_FIELD).stringValue(),
                 "filepart");
         Assert.assertEquals(contentDisposition.get(DISPOSITION_FIELD).stringValue(),
-                "form-data");
+                "form-dataExpr");
     }
 
     @Test(description = "Test whether the encoded body parts can be sent through Response, with a given boundary")

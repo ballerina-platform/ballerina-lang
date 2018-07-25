@@ -20,17 +20,15 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
- * Interface for channel receive statement node.
+ * Interface for the channel send statement node.
  * @since 0.981
  */
-public interface ChannelReceiveNode extends StatementNode {
-
+public interface ChannelSendNode extends StatementNode {
     ExpressionNode getKey();
 
-    ExpressionNode getReceiverExpr();
+    ExpressionNode getDataExpr();
 
     IdentifierNode getChannelName();
 
     void setChannelName(IdentifierNode identifierNode);
 }
-

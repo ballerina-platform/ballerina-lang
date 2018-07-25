@@ -28,10 +28,10 @@ public class Field extends Variable {
      * Constructor.
      *
      * @param name         variable name.
-     * @param dataType     data type of the variable.
+     * @param dataType     dataExpr type of the variable.
      * @param description  description of the variable.
      * @param defaultValue default value of this field.
-     * @param href         link of the data type.
+     * @param href         link of the dataExpr type.
      */
     public Field(String name, String dataType, String description, String defaultValue, String href) {
         super(name, removeOrg(dataType), description, href);

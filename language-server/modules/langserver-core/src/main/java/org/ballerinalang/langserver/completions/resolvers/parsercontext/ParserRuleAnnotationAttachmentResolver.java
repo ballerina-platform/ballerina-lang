@@ -46,7 +46,7 @@ public class ParserRuleAnnotationAttachmentResolver extends AbstractItemResolver
     }
 
     /**
-     * Filter the annotations from the data model.
+     * Filter the annotations from the dataExpr model.
      * 
      * @return {@link List}
      */

@@ -77,6 +77,8 @@ import org.ballerinalang.util.codegen.ForkjoinInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.Instruction;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
+import org.ballerinalang.util.codegen.Instruction.InstructionCHNReceive;
+import org.ballerinalang.util.codegen.Instruction.InstructionCHNSend;
 import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
@@ -445,6 +447,18 @@ public class CPU {
                             return;
                         }
                         break;
+                    case InstructionCodes.CHNRECEIVE:
+                        InstructionCHNReceive chnReceiveIns = (InstructionCHNReceive) instruction;
+                        if (!handleCHNReceive(ctx, chnReceiveIns.channelName, chnReceiveIns.receiverType,
+                                chnReceiveIns.receiverReg, chnReceiveIns.keyType, chnReceiveIns.keyReg)) {
+                            return;
+                        }
+                        break;
+                    case InstructionCodes.CHNSEND:
+                        InstructionCHNSend chnSendIns = (InstructionCHNSend) instruction;
+                        handleCHNSend(ctx, chnSendIns.channelName, chnSendIns.dataType,
+                                chnSendIns.dataReg, chnSendIns.keyType, chnSendIns.keyReg);
+                        break;
                     case InstructionCodes.FORKJOIN:
                         InstructionFORKJOIN forkJoinIns = (InstructionFORKJOIN) instruction;
                         ctx = invokeForkJoin(ctx, forkJoinIns);
@@ -793,6 +807,30 @@ public class CPU {
                 handleError(ctx);
             }
         }
+    }
+
+    private static void handleCHNSend(WorkerExecutionContext ctx, String channelName, BType dataType, int dataReg,
+            BType keyType, int keyReg) {
+        BValue keyVal = extractValue(ctx.workerLocal, keyType, keyReg);
+        BValue dataVal = extractValue(ctx.workerLocal, dataType, dataReg);
+        WorkerExecutionContext pendingCtx = ChannelManager.channelSenderActioon(channelName, keyVal);
+        if (pendingCtx != null) {
+            //inject the value to the ctx
+            BLangScheduler.resume(pendingCtx);
+        }
+        return;
+    }
+
+    private static boolean handleCHNReceive(WorkerExecutionContext ctx, String channelName, BType receiverType,
+            int receiverReg, BType keyType, int keyIndex) {
+        BValue keyVal = extractValue(ctx.workerLocal, keyType, keyIndex);
+        BValue value = ChannelManager.channelReceiverAction(channelName, keyVal, ctx);
+        if (value != null) {
+            //todo:assign value to the receiver index
+            return true;
+        }
+
+        return false;
     }
 
     private static WorkerExecutionContext invokeCallable(WorkerExecutionContext ctx, BFunctionPointer fp,
@@ -3980,7 +4018,7 @@ public class CPU {
 
     /**
      * Add the corresponding compensation function pointer of the given scope, to the compensations table. A copy of
-     * current worker data of the args also added to the table.
+     * current worker dataExpr of the args also added to the table.
      * @param scopeEnd current scope instruction
      * @param ctx current WorkerExecutionContext
      */

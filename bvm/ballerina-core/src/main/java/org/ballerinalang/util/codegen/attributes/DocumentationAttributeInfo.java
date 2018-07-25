@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code DocumentationAttributeInfo} holds documentation attachment data.
+ * {@code DocumentationAttributeInfo} holds documentation attachment dataExpr.
  *
  * @since 0.970.0
  */

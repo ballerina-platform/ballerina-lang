@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * Expression represents a expression path segment in uri.
  *
- * @param <DataType> Type of data which should be stored in the node.
+ * @param <DataType> Type of dataExpr which should be stored in the node.
  * @param <InboundMsgType> Inbound message type for additional checks.
  */
 public abstract class Expression<DataType, InboundMsgType> extends Node<DataType, InboundMsgType> {

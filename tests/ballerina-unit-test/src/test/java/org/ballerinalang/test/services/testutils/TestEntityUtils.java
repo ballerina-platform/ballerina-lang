@@ -34,7 +34,7 @@ public class TestEntityUtils {
     private static final String CONTENT_TYPE = "Content-Type";
 
     /**
-     * Enriches the mime entity with the provided data.
+     * Enriches the mime entity with the provided dataExpr.
      *
      * @param entity      mime entity to be enriched.
      * @param contentType content-type header value.

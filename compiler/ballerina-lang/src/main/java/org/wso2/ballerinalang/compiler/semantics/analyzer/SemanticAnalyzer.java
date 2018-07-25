@@ -123,6 +123,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangChannelReceive;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangChannelSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
@@ -435,7 +436,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             this.dlog.error(annAttachmentNode.pos, DiagnosticCode.ANNOTATION_NOT_ALLOWED,
                     annotationSymbol, msg);
         }
-        // Validate Annotation Attachment data struct against Annotation Definition struct.
+        // Validate Annotation Attachment dataExpr struct against Annotation Definition struct.
         validateAnnotationAttachmentExpr(annAttachmentNode, annotationSymbol);
     }
 
@@ -1506,6 +1507,34 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 .getValue()), SymTag.SCOPE))) {
             dlog.error(node.pos, DiagnosticCode.UNDEFINED_SYMBOL, node.getScopeName().getValue());
         }
+    }
+
+    public void visit(BLangChannelReceive node) {
+        BSymbol channelSymbol = symResolver.lookupSymbol(env, names.fromString(node.getChannelName()
+                .getValue()), SymTag.VARIABLE);
+        if (symTable.notFoundSymbol.equals(channelSymbol)) {
+            dlog.error(node.pos, DiagnosticCode.UNDEFINED_SYMBOL, node.getChannelName().getValue());
+        }
+        if (TypeTags.CHANNEL != channelSymbol.type.tag) {
+            dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.channelType, channelSymbol.type);
+        }
+        typeChecker.checkExpr(node.getReceiverExpr(), env);
+        typeChecker.checkExpr(node.getKey(), env);
+
+    }
+
+    public void visit(BLangChannelSend node) {
+        BSymbol channelSymbol = symResolver.lookupSymbol(env, names.fromString(node.getChannelName()
+                .getValue()), SymTag.VARIABLE);
+        if (symTable.notFoundSymbol.equals(channelSymbol)) {
+            dlog.error(node.pos, DiagnosticCode.UNDEFINED_SYMBOL, node.getChannelName().getValue());
+        }
+        if (TypeTags.CHANNEL != channelSymbol.type.tag) {
+            dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.channelType, channelSymbol.type);
+        }
+        typeChecker.checkExpr(node.getKey(), env);
+        typeChecker.checkExpr(node.getDataExpr(), env);
+
     }
 
     // Private methods

@@ -223,7 +223,7 @@ public class HttpDispatcher {
                                                                    signatureParams.getEntityBody().getVarType());
         } catch (BallerinaException ex) {
             httpCarbonMessage.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpConstants.HTTP_BAD_REQUEST);
-            throw new BallerinaConnectorException("data binding failed: " + ex.getMessage());
+            throw new BallerinaConnectorException("dataExpr binding failed: " + ex.getMessage());
         }
         return bValues;
     }

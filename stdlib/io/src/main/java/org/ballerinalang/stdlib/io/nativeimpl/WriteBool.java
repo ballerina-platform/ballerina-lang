@@ -52,11 +52,11 @@ import java.util.concurrent.CompletableFuture;
 )
 public class WriteBool implements NativeCallableUnit {
     /**
-     * Represents data channel.
+     * Represents dataExpr channel.
      */
     private static final int DATA_CHANNEL_INDEX = 0;
     /**
-     * Index which holds the value of the data read.
+     * Index which holds the value of the dataExpr read.
      */
     private static final int VALUE_INDEX = 0;
 

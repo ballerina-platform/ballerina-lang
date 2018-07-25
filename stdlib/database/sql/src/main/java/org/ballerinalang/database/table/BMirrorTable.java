@@ -45,7 +45,7 @@ import java.util.Calendar;
 import java.util.List;
 
 /**
- * Represents a reflection of a database table. Through a Mirrored table it is possible to add/remove data to/from a
+ * Represents a reflection of a database table. Through a Mirrored table it is possible to add/remove dataExpr to/from a
  * database.
  *
  * @since 0.970.0
@@ -136,7 +136,7 @@ public class BMirrorTable extends BTable {
             TableUtils.prepareAndExecuteStatement(stmt, data);
         } finally {
             // Shouldn't close the connection at this point, as it has to be handled at the higher level to delete
-            // data transactional way
+            // dataExpr transactional way
             if (stmt != null) {
                 stmt.close();
             }

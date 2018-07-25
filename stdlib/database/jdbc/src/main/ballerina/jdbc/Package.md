@@ -107,7 +107,7 @@ type Student record {
     string name,
 };
 
-// Select the data from the table.
+dataExpr
 var selectRet = testDB->select("SELECT * FROM Students WHERE id = 1", Student);
 table<Student> dt;
 match selectRet {

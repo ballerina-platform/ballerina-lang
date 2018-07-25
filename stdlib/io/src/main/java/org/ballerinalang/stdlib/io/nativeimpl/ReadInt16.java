@@ -52,7 +52,7 @@ import java.util.concurrent.CompletableFuture;
 )
 public class ReadInt16 implements NativeCallableUnit {
     /**
-     * Represents data channel.
+     * Represents dataExpr channel.
      */
     private static final int DATA_CHANNEL_INDEX = 0;
 

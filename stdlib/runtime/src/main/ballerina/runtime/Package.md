@@ -24,7 +24,7 @@ The following sample shows how to access the Invocation Context, set data to it 
 import ballerina/runtime;
 import ballerina/io;
 
-// set data to the Invocation Context
+dataExpr
 // set the username ‘tom’ as the user name
 runtime:getInvocationContext().userPrincipal.username = "tom";
 // set claims
@@ -38,7 +38,7 @@ runtime:getInvocationContext().authContext.scheme = "jwt";
 // set auth token
 runtime:getInvocationContext().authContext.authToken = "abc.pqr.xyz";
 
-// retrieve data from the invocation context
+dataExpr
 // retrieve user name
 string userName = runtime:getInvocationContext().userPrincipal.username;
 io:println(userName);

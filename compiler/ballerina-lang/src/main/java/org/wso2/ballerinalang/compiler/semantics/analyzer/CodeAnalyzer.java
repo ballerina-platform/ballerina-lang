@@ -96,6 +96,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangChannelReceive;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangChannelSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
@@ -381,7 +383,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTransaction transactionNode) {
         this.checkStatementExecutionValidity(transactionNode);
         //Check whether transaction is within a handler function or retry block. This can check for single level only.
-        // We need data flow analysis to check for further levels.
+        // We need dataExpr flow analysis to check for further levels.
         if (!isValidTransactionBlock()) {
             this.dlog.error(transactionNode.pos, DiagnosticCode.TRANSACTION_CANNOT_BE_USED_WITHIN_HANDLER);
             return;
@@ -847,6 +849,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         this.workerActionSystemStack.peek().addWorkerAction(workerReceiveNode);
         analyzeExpr(workerReceiveNode.expr);
+    }
+
+    public void visit(BLangChannelReceive channelReceive) {
+        this.checkStatementExecutionValidity(channelReceive);
+        analyzeExpr(channelReceive.getKey());
+        analyzeExpr(channelReceive.getReceiverExpr());
+    }
+
+    public void visit(BLangChannelSend channelSend) {
+        this.checkStatementExecutionValidity(channelSend);
+        analyzeExpr(channelSend.getKey());
+        analyzeExpr(channelSend.getDataExpr());
     }
 
     public void visit(BLangLiteral literalExpr) {

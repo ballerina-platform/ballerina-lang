@@ -131,6 +131,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangChannelReceive;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangChannelSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
@@ -2633,6 +2635,74 @@ public class CodeGenerator extends BLangNodeVisitor {
         lhrExpr.regIndex = rhsExpr.regIndex;
         genNode(lhrExpr, this.env);
         varAssignment = false;
+    }
+
+    public void visit(BLangChannelReceive channelReceive) {
+        genNode(channelReceive.keyExpr, this.env);
+        RegIndex keyReg = channelReceive.keyExpr.regIndex;
+        BType keyType = channelReceive.keyExpr.type;
+        UTF8CPEntry keyCPEntry = new UTF8CPEntry(this.generateSig(new BType[] { keyType }));
+        Operand keyCPIndex = getOperand(this.currentPkgInfo.addCPEntry(keyCPEntry));
+
+        BLangExpression lExpr = channelReceive.getReceiverExpr();
+        RegIndex regIndex;
+        BType bType;
+        if (lExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && lExpr instanceof BLangLocalVarRef) {
+            lExpr.regIndex = ((BLangLocalVarRef) lExpr).varSymbol.varIndex;
+            regIndex = lExpr.regIndex;
+        } else {
+            lExpr.regIndex = getRegIndex(lExpr.type.tag);
+            lExpr.regIndex.isLHSIndex = true;
+            regIndex = lExpr.regIndex;
+        }
+        bType = lExpr.type;
+
+        UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(new BType[] { bType }));
+        Operand sigCPIndex = getOperand(currentPkgInfo.addCPEntry(sigCPEntry));
+
+        // WRKRECEIVE  receivertypesCPIndex regIndex keyTypeCPindex jeyregIndex
+        Operand[] chnReceiveArgRegs = new Operand[5];
+        int i = 0;
+        int chnName = addUTF8CPEntry(currentPkgInfo, channelReceive.getChannelName().getValue());
+        chnReceiveArgRegs[i++] = getOperand(chnName);
+        chnReceiveArgRegs[i++] = sigCPIndex;
+        chnReceiveArgRegs[i++] = regIndex;
+        chnReceiveArgRegs[i++] = keyCPIndex;
+        chnReceiveArgRegs[i++] = keyReg;
+
+        emit(InstructionCodes.CHNRECEIVE, chnReceiveArgRegs);
+
+        if (!(lExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                lExpr instanceof BLangLocalVarRef)) {
+            this.varAssignment = true;
+            this.genNode(lExpr, this.env);
+            this.varAssignment = false;
+        }
+    }
+
+    public void visit(BLangChannelSend channelSend) {
+        genNode(channelSend.keyExpr, this.env);
+        RegIndex keyReg = channelSend.keyExpr.regIndex;
+        BType keyType = channelSend.keyExpr.type;
+        UTF8CPEntry keyCPEntry = new UTF8CPEntry(this.generateSig(new BType[] { keyType }));
+        Operand keyCPIndex = getOperand(this.currentPkgInfo.addCPEntry(keyCPEntry));
+
+        genNode(channelSend.dataExpr, this.env);
+        RegIndex dataReg = channelSend.dataExpr.regIndex;
+        BType dataType = channelSend.keyExpr.type;
+        UTF8CPEntry dataCPEntry = new UTF8CPEntry(this.generateSig(new BType[] { dataType }));
+        Operand dataCPIndex = getOperand(this.currentPkgInfo.addCPEntry(dataCPEntry));
+
+        int channelName = addUTF8CPEntry(currentPkgInfo, channelSend.getChannelName().getValue());
+        int i = 0;
+        Operand[] argRegs = new Operand[5];
+        argRegs[i++] = getOperand(channelName);
+        argRegs[i++] = keyReg;
+        argRegs[i++] = keyCPIndex;
+        argRegs[i++] = dataReg;
+        argRegs[i++] = dataCPIndex;
+
+        emit(InstructionCodes.CHNSEND, argRegs);
     }
 
     public void visit(BLangContinue continueNode) {

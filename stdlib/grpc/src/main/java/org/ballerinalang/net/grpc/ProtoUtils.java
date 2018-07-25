@@ -107,7 +107,7 @@ public class ProtoUtils {
     }
 
     /**
-     * Copies the data from input stream to output stream.
+     * Copies the dataExpr from input stream to output stream.
      */
     static long copy(InputStream from, OutputStream to) throws IOException {
         byte[] buf = new byte[BUF_SIZE];

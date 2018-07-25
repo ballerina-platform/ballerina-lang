@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * Node represents different types of path segments in the uri-template.
  *
- * @param <DataType> Type of data which should be stored in the node.
+ * @param <DataType> Type of dataExpr which should be stored in the node.
  * @param <InboundMsgType> Inbound message type for additional checks.
  */
 public abstract class Node<DataType, InboundMsgType> {

@@ -152,7 +152,7 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
     }
 
     /**
-     * @return the binary data received from the server.
+     * @return the binary dataExpr received from the server.
      */
     ByteBuffer getBufferReceived() {
         ByteBuffer temp = bufferReceived;

@@ -61,13 +61,13 @@ public class ReadBytesEvent implements Event {
 
     /**
      * <p>
-     * Return an array which contains read data.
+     * Return an array which contains read dataExpr.
      * </p>
      * <p>
      * If the buffer is not filled will shrink the array to fit for what's filled
      * </p>
      *
-     * @return array which contains data read from the channel.
+     * @return array which contains dataExpr read from the channel.
      */
     private byte[] getContentData() {
         int bufferSize = content.limit();

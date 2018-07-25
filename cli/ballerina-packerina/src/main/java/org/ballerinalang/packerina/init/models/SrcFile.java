@@ -50,7 +50,7 @@ public class SrcFile {
                                                   "    }\n" +
                                                   "    sayHello (endpoint caller, http:Request request) {\n" +
                                                   "\n" +
-                                                  "        // Create object to carry data back to caller\n" +
+                                                  "        // Create object to carry dataExpr back to caller\n" +
                                                   "        http:Response response = new;\n" +
                                                   "\n" +
                                                   "        // Objects and structs can have function calls\n" +

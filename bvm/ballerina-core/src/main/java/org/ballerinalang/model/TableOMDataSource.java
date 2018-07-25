@@ -170,11 +170,11 @@ public class TableOMDataSource extends AbstractPushOMDataSource {
                 }
             }
             if (structError) {
-                throw new BallerinaException("error in constructing the xml element from struct type data");
+                throw new BallerinaException("error in constructing the xml element from struct type dataExpr");
             }
         } catch (SQLException e) {
             throw new BallerinaException(
-                    "error in retrieving struct data to construct the inner xml element:" + e.getMessage());
+                    "error in retrieving struct dataExpr to construct the inner xml element:" + e.getMessage());
         }
     }
 

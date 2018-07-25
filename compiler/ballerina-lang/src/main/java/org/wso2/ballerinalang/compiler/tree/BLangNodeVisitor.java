@@ -107,6 +107,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangChannelReceive;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangChannelSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
@@ -744,6 +745,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangChannelReceive channelReceiveNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangChannelSend channelSendNode) {
         throw new AssertionError();
     }
 

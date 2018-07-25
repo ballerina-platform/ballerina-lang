@@ -21,7 +21,7 @@ import org.ballerinalang.model.values.BValue;
 
 /**
  * /**
- * {@code BChannelType} represents BChannelType data in Ballerina.
+ * {@code BChannelType} represents BChannelType dataExpr in Ballerina.
  *
  * @since 0.981.0
  */

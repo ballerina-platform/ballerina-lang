@@ -35,7 +35,7 @@ public class ResourceDefinition extends CompletionTest {
         LSIndexImpl.getInstance().initFromIndexDump(indexDumpPath);
     }
 
-    @DataProvider(name = "completion-data-provider")
+    @DataProvider(name = "completion-dataExpr-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][] {

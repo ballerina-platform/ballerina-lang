@@ -163,7 +163,7 @@ public class IdleTimeoutResponseTestCase {
     }
 
     /**
-     * Writes data as a chunk while keeping a delay between first and second chunks.
+     * Writes dataExpr as a chunk while keeping a delay between first and second chunks.
      *
      * @param socketChannel the channel to write to.
      * @throws IOException          if there's an error when writing.
@@ -209,12 +209,12 @@ public class IdleTimeoutResponseTestCase {
 
         count = socketChannel.read(buffer);
         Assert.assertTrue(count > 0);
-        // Loop while data is available; channel is non-blocking
+        // Loop while dataExpr is available; channel is non-blocking
         do {
             // Make buffer readable
             buffer.flip();
 
-            // Send the data; don't assume it goes all at once
+            // Send the dataExpr; don't assume it goes all at once
             while (buffer.hasRemaining()) {
                 inboundContent.append((char) buffer.get());
             }

@@ -82,21 +82,21 @@ public class MultipartDecoderTest {
         Assert.assertEquals(ResponseReader.getReturnValue(response), " -- Part1 -- Part2" + StringUtil.NEWLINE);
     }
 
-    @Test(description = "Test sending a multipart request as multipart/form-data with multiple body parts")
+    @Test(description = "Test sending a multipart request as multipart/form-dataExpr with multiple body parts")
     public void testMultiplePartsForFormData() {
         String path = "/test/multipleparts";
         List<Header> headers = new ArrayList<>();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
         headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
-                "multipart/form-data; boundary=" + multipartDataBoundary));
+                "multipart/form-dataExpr; boundary=" + multipartDataBoundary));
         String multipartBody = "--" + multipartDataBoundary + "\r\n" +
-                "Content-Disposition: form-data; name=\"foo\"" + "\r\n" +
+                "Content-Disposition: form-dataExpr; name=\"foo\"" + "\r\n" +
                 "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
                 "\r\n" +
                 "Part1" +
                 "\r\n" +
                 "--" + multipartDataBoundary + "\r\n" +
-                "Content-Disposition: form-data; name=\"filepart\"; filename=\"file-01.txt\"" + "\r\n" +
+                "Content-Disposition: form-dataExpr; name=\"filepart\"; filename=\"file-01.txt\"" + "\r\n" +
                 "Content-Type: text/plain" + "\r\n" +
                 "Content-Transfer-Encoding: binary" + "\r\n" +
                 "\r\n" +
@@ -119,7 +119,7 @@ public class MultipartDecoderTest {
         headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
                 "multipart/new-sub-type; boundary=" + multipartDataBoundary));
         String multipartBody = "--" + multipartDataBoundary + "\r\n" +
-                "Content-Disposition: form-data; name=\"foo\"" + "\r\n" +
+                "Content-Disposition: form-dataExpr; name=\"foo\"" + "\r\n" +
                 "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
                 "\r\n" +
                 "Part1" +

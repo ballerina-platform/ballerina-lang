@@ -1572,7 +1572,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.addChannelReceiveStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
+        this.pkgBuilder.addChannelSendStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
     }
 
     /**

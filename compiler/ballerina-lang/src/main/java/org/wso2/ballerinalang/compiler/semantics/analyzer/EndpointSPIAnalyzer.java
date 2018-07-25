@@ -298,7 +298,7 @@ public class EndpointSPIAnalyzer {
     }
 
     /**
-     * Temporary data holder to hold endpoint related validation.
+     * Temporary dataExpr holder to hold endpoint related validation.
      *
      * @since 0.965.0
      */

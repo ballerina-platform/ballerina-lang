@@ -43,6 +43,6 @@ public abstract class CompletionNegativeTest extends CompletionTest {
     }
 
     @Override
-    @DataProvider(name = "completion-negative-data-provider")
+    @DataProvider(name = "completion-negative-dataExpr-provider")
     public abstract Object[][] dataProvider();
 }

@@ -99,6 +99,7 @@ import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.BreakNode;
 import org.ballerinalang.model.tree.statements.CatchNode;
 import org.ballerinalang.model.tree.statements.ChannelReceiveNode;
+import org.ballerinalang.model.tree.statements.ChannelSendNode;
 import org.ballerinalang.model.tree.statements.CompensateNode;
 import org.ballerinalang.model.tree.statements.CompoundAssignmentNode;
 import org.ballerinalang.model.tree.statements.ContinueNode;
@@ -222,6 +223,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangChannelReceive;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangChannelSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
@@ -762,5 +764,9 @@ public class TreeBuilder {
 
     public static ChannelReceiveNode createChannelReceiveNode() {
         return new BLangChannelReceive();
+    }
+
+    public static ChannelSendNode createChannelSendNode() {
+        return new BLangChannelSend();
     }
 }

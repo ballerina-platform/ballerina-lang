@@ -107,7 +107,7 @@ public class HTTPVerbsPassthruTestCases extends IntegrationTestCase {
         Assert.assertEquals(response.getData(), "ballerina", "Message content mismatched");
     }
 
-    @Test(description = "Test HTTP data binding with JSON payload with URL. /getQuote/employee")
+    @Test(description = "Test HTTP dataExpr binding with JSON payload with URL. /getQuote/employee")
     public void testDataBindingJsonPayload() throws IOException {
         String payload = "{\"name\":\"WSO2\",\"team\":\"ballerina\"}";
         Map<String, String> headers = new HashMap<>();
@@ -120,7 +120,7 @@ public class HTTPVerbsPassthruTestCases extends IntegrationTestCase {
         Assert.assertEquals(response.getData(), payload);
     }
 
-    @Test(description = "Test HTTP data binding with incompatible payload with URL. /getQuote/employee")
+    @Test(description = "Test HTTP dataExpr binding with incompatible payload with URL. /getQuote/employee")
     public void testDataBindingWithIncompatiblePayload() throws IOException {
         String payload = "name:WSO2,team:ballerina";
         Map<String, String> headers = new HashMap<>();
@@ -131,7 +131,7 @@ public class HTTPVerbsPassthruTestCases extends IntegrationTestCase {
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 400, "Response code mismatched");
         Assert.assertTrue(response.getData()
-                .contains("data binding failed: Error in reading payload : failed to create json: unrecognized " +
+                .contains("dataExpr binding failed: Error in reading payload : failed to create json: unrecognized " +
                         "token 'name:WSO2,team:ballerina'"));
     }
 

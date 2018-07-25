@@ -61,10 +61,10 @@ public class BalGenerationUtils {
     }
     
     /**
-     * This function returns the ballerina data type which is mapped to  protobuf data type.
+     * This function returns the ballerina dataExpr type which is mapped to  protobuf dataExpr type.
      *
-     * @param protoType .proto data type
-     * @return Ballerina data type.
+     * @param protoType .proto dataExpr type
+     * @return Ballerina dataExpr type.
      */
     public static String getMappingBalType(String protoType) {
         switch (protoType) {
@@ -124,7 +124,7 @@ public class BalGenerationUtils {
     }
     
     /**
-     * Method is for getting ballerina data type which is map to the .proto data type.
+     * Method is for getting ballerina dataExpr type which is map to the .proto dataExpr type.
      *
      * @param num .
      * @return .
@@ -163,7 +163,7 @@ public class BalGenerationUtils {
     }
     
     /**
-     * Method is for getting ballerina data type which is map to the .proto data type.
+     * Method is for getting ballerina dataExpr type which is map to the .proto dataExpr type.
      *
      * @param num .
      * @return .

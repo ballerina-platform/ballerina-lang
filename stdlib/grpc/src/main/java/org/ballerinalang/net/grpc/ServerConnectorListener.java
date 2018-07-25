@@ -208,7 +208,7 @@ public class ServerConnectorListener implements HttpConnectorListener {
          * client.
          *
          * @param httpContent Http content.
-         * @param endOfStream {@code true} if no more data will be received on the stream.
+         * @param endOfStream {@code true} if no more dataExpr will be received on the stream.
          */
         void inboundDataReceived(HttpContent httpContent, boolean endOfStream) {
             // Deframe the message. If a failure occurs, deframeFailed will be called.

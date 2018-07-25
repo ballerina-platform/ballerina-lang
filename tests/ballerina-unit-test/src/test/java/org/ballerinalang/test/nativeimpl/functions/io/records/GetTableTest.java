@@ -48,7 +48,7 @@ public class GetTableTest {
         recordsInputOutputProgramFile = BCompileUtil.compile("test-src/io/csv_io.bal");
     }
 
-    @Test(description = "Test successful data load")
+    @Test(description = "Test successful dataExpr load")
     public void loadRecordFromFile() throws URISyntaxException {
         String resourceToRead = "datafiles/io/records/sample5.csv";
         BValue[] args = {

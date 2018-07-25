@@ -30,7 +30,7 @@ public class IOConstants {
     public static final String BYTE_CHANNEL_NAME = "channel";
 
     /**
-     * Represents the name of the data channel.
+     * Represents the name of the dataExpr channel.
      */
     public static final String DATA_CHANNEL_NAME = "data_channel";
 

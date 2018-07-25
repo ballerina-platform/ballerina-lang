@@ -334,20 +334,20 @@ public final class GlobalMemoryBlock implements BRefType, LockableStructureType 
     }
 
     /**
-     * Add natively accessible data to a struct.
+     * Add natively accessible dataExpr to a struct.
      *
-     * @param key  key to store data with
-     * @param data data to be stored
+     * @param key  key to store dataExpr with
+     * @param data dataExpr to be stored
      */
     public void addNativeData(String key, Object data) {
         nativeData.put(key, data);
     }
 
     /**
-     * Get natively accessible data from struct.
+     * Get natively accessible dataExpr from struct.
      *
-     * @param key key by which data was stored
-     * @return data which was stored with given key or null if no value corresponding to key
+     * @param key key by which dataExpr was stored
+     * @return dataExpr which was stored with given key or null if no value corresponding to key
      */
     public Object getNativeData(String key) {
         return nativeData.get(key);

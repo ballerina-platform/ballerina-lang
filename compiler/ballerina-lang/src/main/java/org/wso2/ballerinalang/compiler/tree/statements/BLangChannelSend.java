@@ -18,51 +18,46 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.statements.ChannelReceiveNode;
+import org.ballerinalang.model.tree.statements.ChannelSendNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 
 /**
  * Implementation of channel receive statement.
  * @since 0.981
  */
-public class BLangChannelReceive extends BLangStatement implements ChannelReceiveNode {
-    public BLangVariableReference receiverExpr;
+public class BLangChannelSend extends BLangStatement implements ChannelSendNode {
+    public BLangExpression dataExpr;
     public BLangExpression keyExpr;
     public IdentifierNode channelIdentifier;
 
     @Override
+    public BLangExpression getKey() {
+        return keyExpr;
+    }
+
+    @Override
+    public BLangExpression getDataExpr() {
+        return dataExpr;
+    }
+
+    @Override
+    public IdentifierNode getChannelName() {
+        return channelIdentifier;
+    }
+
+    @Override
+    public void setChannelName(IdentifierNode identifierNode) {
+        this.channelIdentifier = identifierNode;
+    }
+
+    @Override
     public NodeKind getKind() {
-        return NodeKind.CHANNEL_RECEIVE;
+        return NodeKind.CHANNEL_SEND;
     }
 
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    public BLangVariableReference getReceiverExpr() {
-        return receiverExpr;
-    }
-
-    public void setReceiverExpr(BLangVariableReference receiverExpr) {
-        this.receiverExpr = receiverExpr;
-    }
-
-    public BLangExpression getKey() {
-        return keyExpr;
-    }
-
-    public void setKey(BLangExpression keyExpr) {
-        this.keyExpr = keyExpr;
-    }
-
-    public IdentifierNode getChannelName() {
-        return channelIdentifier;
-    }
-
-    public void setChannelName(IdentifierNode channelIdentifier) {
-        this.channelIdentifier = channelIdentifier;
     }
 }

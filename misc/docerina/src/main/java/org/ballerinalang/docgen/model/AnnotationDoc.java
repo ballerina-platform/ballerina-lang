@@ -33,8 +33,8 @@ public class AnnotationDoc extends Documentable {
      *
      * @param name        annotation name.
      * @param description description.
-     * @param dataType    data type if any.
-     * @param href        link to data type.
+     * @param dataType    dataExpr type if any.
+     * @param href        link to dataExpr type.
      * @param attachments attachment points of this annotation.
      */
     public AnnotationDoc(String name, String description, String dataType, String href, String attachments) {

@@ -21,7 +21,7 @@ import org.ballerinalang.model.values.BFuture;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * {@code BTableType} represents tabular data in Ballerina.
+ * {@code BTableType} represents tabular dataExpr in Ballerina.
  *
  * @since 0.8.0
  */

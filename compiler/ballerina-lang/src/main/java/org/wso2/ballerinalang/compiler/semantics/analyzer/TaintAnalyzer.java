@@ -121,6 +121,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangChannelReceive;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangChannelSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
@@ -512,7 +514,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     return;
                 }
             }
-            // TODO: Re-evaluating the full data-set (array) when a change occur.
+            // TODO: Re-evaluating the full dataExpr-set (array) when a change occur.
             if (varRefExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
                 overridingAnalysis = false;
                 updatedVarRefTaintedState(varRefExpr, varTaintedStatus);
@@ -1358,6 +1360,20 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
+    public void visit(BLangChannelReceive node) {
+       List<BLangExpression> exprList = new ArrayList<>();
+       exprList.add(node.getKey());
+       exprList.add(node.getReceiverExpr());
+       analyzeExprList(exprList);
+    }
+
+    public void visit(BLangChannelSend node) {
+        List<BLangExpression> exprsList = new ArrayList<>();
+        exprsList.add(node.getKey());
+        exprsList.add(node.dataExpr);
+        analyzeExprList(exprsList);
+    }
+
     // Private
 
     private <T extends BLangNode, U extends SymbolEnv> void analyzeNode(T t, U u) {
@@ -1456,7 +1472,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS) {
             return;
         }
-        // Entry point input parameters are all tainted, since they contain user controlled data.
+        // Entry point input parameters are all tainted, since they contain user controlled dataExpr.
         // If any value has been marked "sensitive" generate an error.
         if (isEntryPointParamsInvalid(invNode.requiredParams)) {
             return;

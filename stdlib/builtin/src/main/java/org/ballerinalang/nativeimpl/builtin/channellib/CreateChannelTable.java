@@ -18,6 +18,7 @@ package org.ballerinalang.nativeimpl.builtin.channellib;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.bvm.ChannelManager;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -39,7 +40,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class CreateChannelTable extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        context.getStringArgument(0);
-
+        ChannelManager.addNewChannel(context.getStringArgument(0));
     }
 }

@@ -60,7 +60,7 @@ public class SwaggerConverterUtils {
     /**
      * This method will generate ballerina string from swagger definition. Since ballerina service definition is super
      * set of swagger definition we will take both swagger and ballerina definition and merge swagger changes to
-     * ballerina definition selectively to prevent data loss
+     * ballerina definition selectively to prevent dataExpr loss
      *
      * @param ballerinaSource ballerina definition to be process as ballerina definition
      * @param serviceName service name

@@ -34,7 +34,7 @@ import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 import static org.ballerinalang.mime.util.MimeConstants.SECOND_PARAMETER_INDEX;
 
 /**
- * Set the entity body with text data.
+ * Set the entity body with text dataExpr.
  *
  * @since 0.963.0
  */

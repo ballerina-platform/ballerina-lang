@@ -230,7 +230,7 @@ public class SignatureHelpUtil {
     }
 
     /**
-     * Parameter information model to hold the parameter information meta data.
+     * Parameter information model to hold the parameter information meta dataExpr.
      */
     private static class ParameterInfoModel {
 

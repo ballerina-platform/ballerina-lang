@@ -41,7 +41,7 @@ import static org.ballerinalang.mime.util.MimeConstants.CONTENT_TRANSFER_ENCODIN
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_FORM_DATA;
 
 /**
- * Test cases for multipart/form-data handling.
+ * Test cases for multipart/form-dataExpr handling.
  *
  * @since 0.962.0
  */
@@ -159,7 +159,7 @@ public class MultipartFormDataDecoderTest {
         Assert.assertEquals(ResponseReader.getReturnValue(response), "Ballerina binary file part");
     }
 
-    @Test(description = "Test sending a multipart request as multipart/form-data with multiple body parts")
+    @Test(description = "Test sending a multipart request as multipart/form-dataExpr with multiple body parts")
     public void testMultiplePartsForFormData() {
         String path = "/test/multipleparts";
         Map<String, Object> messageMap = Util.createPrerequisiteMessages(path, MULTIPART_FORM_DATA, result);

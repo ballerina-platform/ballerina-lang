@@ -118,7 +118,7 @@ public class CharacterChannel {
     }
 
     /**
-     * Appends data from CharBuffer to string.
+     * Appends dataExpr from CharBuffer to string.
      *
      * @param content        the char sequence which will be appended to final string.
      * @param characterCount the number of characters in the CharBuffer.

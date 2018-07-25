@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * {@code Publish} is the function to publish data to a stream.
+ * {@code Publish} is the function to publish dataExpr to a stream.
  *
  * @since 0.964.0
  */
@@ -35,7 +35,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         functionName = "stream.publish",
         args = {
                 @Argument(name = "s", type = TypeKind.STREAM),
-                @Argument(name = "data", type = TypeKind.ANY)
+                @Argument(name = "dataExpr", type = TypeKind.ANY)
         },
         isPublic = true)
 public class Publish extends BlockingNativeCallableUnit {

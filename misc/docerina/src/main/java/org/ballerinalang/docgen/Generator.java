@@ -574,7 +574,7 @@ public class Generator {
      * Get the type of the variable.
      *
      * @param bLangVariable
-     * @return data type of the variable.
+     * @return dataExpr type of the variable.
      */
     private static String type(final BLangVariable bLangVariable) {
         return bLangVariable.type != null ? bLangVariable.type.toString() : "null";

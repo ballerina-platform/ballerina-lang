@@ -37,9 +37,9 @@
 
 }
 
-/// Encodes a SVG data URL so IE doesn't choke (via codepen.io/jakob-e/pen/YXXBrp).
-/// @param {string} $svg SVG data URL.
-/// @return {string} Encoded SVG data URL.
+/// Encodes a SVG dataExpr URL so IE doesn't choke (via codepen.io/jakob-e/pen/YXXBrp).
+/// @param {string} $svg SVG dataExpr URL.
+/// @return {string} Encoded SVG dataExpr URL.
 @function svg-url($svg) {
 
 	$svg: str-replace($svg, '"', '\'');

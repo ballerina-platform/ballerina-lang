@@ -61,14 +61,14 @@ public class GetBodyAsString extends BlockingNativeCallableUnit {
                 StringDataSource stringDataSource = EntityBodyHandler.constructStringDataSource(entityStruct);
                 result = new BString(stringDataSource.getMessageAsString());
                 EntityBodyHandler.addMessageDataSource(entityStruct, stringDataSource);
-                //Set byte channel to null, once the message data source has been constructed
+                //Set byte channel to null, once the message dataExpr source has been constructed
                 entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
             }
             context.setReturnValues(result);
 
         } catch (Throwable e) {
             context.setReturnValues(MimeUtil.createError(context,
-                    "Error occurred while retrieving text data from entity : " + e.getMessage()));
+                    "Error occurred while retrieving text dataExpr from entity : " + e.getMessage()));
         }
     }
 }

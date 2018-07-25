@@ -159,6 +159,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangChannelReceive;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangChannelSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
@@ -3302,9 +3303,19 @@ public class BLangPackageBuilder {
         BLangChannelReceive channelReceiveNode = (BLangChannelReceive) TreeBuilder.createChannelReceiveNode();
         channelReceiveNode.setChannelName(this.createIdentifier(channelName));
         channelReceiveNode.setKey((BLangExpression) exprNodeStack.pop());
-        channelReceiveNode.setReceiverExpr((BLangExpression) exprNodeStack.pop());
+        channelReceiveNode.setReceiverExpr((BLangVariableReference) exprNodeStack.pop());
         channelReceiveNode.pos = currentPos;
         channelReceiveNode.addWS(ws);
         addStmtToCurrentBlock(channelReceiveNode);
+    }
+
+    void addChannelSendStmt(DiagnosticPos currentPos, Set<Whitespace> ws, String channel) {
+        BLangChannelSend channelSendNode = (BLangChannelSend) TreeBuilder.createChannelSendNode();
+        channelSendNode.setChannelName(this.createIdentifier(channel));
+        channelSendNode.keyExpr = (BLangExpression) exprNodeStack.pop();
+        channelSendNode.dataExpr = (BLangExpression) exprNodeStack.pop();
+        channelSendNode.pos = currentPos;
+        channelSendNode.addWS(ws);
+        addStmtToCurrentBlock(channelSendNode);
     }
 }

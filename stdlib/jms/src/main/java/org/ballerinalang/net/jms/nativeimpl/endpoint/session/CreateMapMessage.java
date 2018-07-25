@@ -92,7 +92,7 @@ public class CreateMapMessage extends AbstractBlockinAction {
                     } else if (value instanceof BFloat) {
                         jmsMessage.setDouble(key, ((BFloat) value).floatValue());
                     } else {
-                        LOGGER.error("Couldn't set invalid data type to MapMessage : " + value.getType().getName());
+                        LOGGER.error("Couldn't set invalid dataExpr type to MapMessage : " + value.getType().getName());
                     }
                 } catch (JMSException e) {
                     BallerinaAdapter.returnError("Failed to create map message", context, e);

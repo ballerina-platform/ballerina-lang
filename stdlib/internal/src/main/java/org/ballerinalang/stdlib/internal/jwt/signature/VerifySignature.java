@@ -45,7 +45,7 @@ import java.security.interfaces.RSAPublicKey;
         orgName = "ballerina", packageName = "internal",
         functionName = "verifySignature",
         args = {
-                @Argument(name = "data", type = TypeKind.STRING),
+                @Argument(name = "dataExpr", type = TypeKind.STRING),
                 @Argument(name = "signature", type = TypeKind.STRING),
                 @Argument(name = "algorithm", type = TypeKind.STRING),
                 @Argument(name = "trustStore", type = TypeKind.RECORD, structType = "TrustStoreHolder",
