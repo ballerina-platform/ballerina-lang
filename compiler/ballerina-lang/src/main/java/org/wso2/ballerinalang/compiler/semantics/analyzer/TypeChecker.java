@@ -834,7 +834,10 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             List<BType> results = new ArrayList<>();
             for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {
-                results.add(checkExpr(bracedOrTupleExpr.expressions.get(i), env, expTypes.get(i)));
+                // TODO: Need to fix with tuple casting
+                BType expType = expTypes.get(i);
+                BType actualType = checkExpr(bracedOrTupleExpr.expressions.get(i), env, expType);
+                results.add(expType.tag == TypeTags.NONE ? actualType : expType);
             }
             resultType = new BTupleType(results);
             return;

@@ -1393,7 +1393,10 @@ public class Desugar extends BLangNodeVisitor {
             result = rewriteExpr(bracedOrTupleExpr.expressions.get(0));
             return;
         }
-        bracedOrTupleExpr.expressions.forEach(expr -> types.setImplicitCastExpr(expr, expr.type, symTable.anyType));
+        bracedOrTupleExpr.expressions.forEach(expr -> {
+            BType expType = expr.impConversionExpr == null ? expr.type : expr.impConversionExpr.type;
+            types.setImplicitCastExpr(expr, expType, symTable.anyType);
+        });
         bracedOrTupleExpr.expressions = rewriteExprs(bracedOrTupleExpr.expressions);
         result = bracedOrTupleExpr;
     }
