@@ -497,7 +497,7 @@ DeprecatedTemplateStart
     ;
 
 ExpressionEnd
-    :   {inTemplate}? RIGHT_BRACE WS* RIGHT_BRACE   ->  popMode
+    :   {inTemplate}? RIGHT_BRACE RIGHT_BRACE   ->  popMode
     ;
 
 DocumentationTemplateAttributeEnd
