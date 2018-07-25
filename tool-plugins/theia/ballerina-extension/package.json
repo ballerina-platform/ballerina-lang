@@ -9,6 +9,7 @@
     "src"
   ],
   "dependencies": {
+    "@theia/preview": "latest",
     "@theia/callhierarchy": "latest",
     "@theia/core": "latest",
     "@theia/languages": "latest",
@@ -17,8 +18,7 @@
     "vscode-textmate": "^4.0.1"
   },
   "devDependencies": {
-    "rimraf": "latest",
-    "typescript": "latest"
+    "rimraf": "latest"
   },
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
