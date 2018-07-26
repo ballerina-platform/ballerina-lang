@@ -103,8 +103,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         @Override
         public void notifySuccess() {
             if (!webSocketInitMessage.isCancelled() && !webSocketInitMessage.isHandshakeStarted()) {
-                WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketInitMessage, null,
-                                              null);
+                WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketInitMessage, null, null);
             } else {
                 if (!webSocketInitMessage.isCancelled()) {
                     Resource onOpenResource = wsService.getResourceByName(
@@ -168,8 +167,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
 
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
-        WebSocketDispatcher.dispatchIdleTimeout(connectionManager.getConnectionInfo(getConnectionId(controlMessage))
-        );
+        WebSocketDispatcher.dispatchIdleTimeout(connectionManager.getConnectionInfo(getConnectionId(controlMessage)));
     }
 
     private String getConnectionId(WebSocketMessage webSocketMessage) {
