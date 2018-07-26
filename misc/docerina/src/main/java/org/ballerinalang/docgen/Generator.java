@@ -604,20 +604,7 @@ public class Generator {
      */
     private static String paramAnnotation(BLangNode node, BLangVariable param) {
         String subName = param.getName() == null ? param.type.tsymbol.name.value : param.getName().getValue();
-
-        if (isDocumentAttached(node)) {
-            BLangMarkdownDocumentation documentationAttachment =
-                    ((DocumentableNode) node).getMarkdownDocumentationAttachment();
-            Map<String, BLangMarkdownParameterDocumentation> parameterDocumentations =
-                    documentationAttachment.getParameterDocumentations();
-            if (parameterDocumentations != null && !parameterDocumentations.isEmpty()) {
-                BLangMarkdownParameterDocumentation documentation = parameterDocumentations.get(subName);
-                if (documentation != null) {
-                    return BallerinaDocUtils.mdToHtml(documentation.getParameterDocumentation());
-                }
-            }
-        }
-        return "";
+        return getParameterDocumentation(node, subName);
     }
 
     /**
@@ -649,20 +636,7 @@ public class Generator {
             subName = (paramVariable.getName() == null) ?
                     paramVariable.type.tsymbol.name.value : paramVariable.getName().getValue();
         }
-
-        if (isDocumentAttached(node)) {
-            BLangMarkdownDocumentation documentationAttachment =
-                    ((DocumentableNode) node).getMarkdownDocumentationAttachment();
-            Map<String, BLangMarkdownParameterDocumentation> parameterDocumentations =
-                    documentationAttachment.getParameterDocumentations();
-            if (parameterDocumentations != null && !parameterDocumentations.isEmpty()) {
-                BLangMarkdownParameterDocumentation documentation = parameterDocumentations.get(subName);
-                if (documentation != null) {
-                    return BallerinaDocUtils.mdToHtml(documentation.getParameterDocumentation());
-                }
-            }
-        }
-        return "";
+        return getParameterDocumentation(node, subName);
     }
 
     /**
@@ -676,6 +650,22 @@ public class Generator {
             BLangMarkdownDocumentation documentationAttachment =
                     ((DocumentableNode) node).getMarkdownDocumentationAttachment();
             return BallerinaDocUtils.mdToHtml(documentationAttachment.getDocumentation());
+        }
+        return "";
+    }
+
+    private static String getParameterDocumentation(BLangNode node, String subName) {
+        if (isDocumentAttached(node)) {
+            BLangMarkdownDocumentation documentationAttachment =
+                    ((DocumentableNode) node).getMarkdownDocumentationAttachment();
+            Map<String, BLangMarkdownParameterDocumentation> parameterDocumentations =
+                    documentationAttachment.getParameterDocumentations();
+            if (parameterDocumentations != null && !parameterDocumentations.isEmpty()) {
+                BLangMarkdownParameterDocumentation documentation = parameterDocumentations.get(subName);
+                if (documentation != null) {
+                    return BallerinaDocUtils.mdToHtml(documentation.getParameterDocumentation());
+                }
+            }
         }
         return "";
     }
