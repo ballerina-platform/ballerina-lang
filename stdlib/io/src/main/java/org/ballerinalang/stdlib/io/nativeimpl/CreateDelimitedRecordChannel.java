@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Native function ballerina/io#createDelimitedRecordChannel.
+ * Extern function ballerina/io#createDelimitedRecordChannel.
  *
  * @since 0.963.0
  */

@@ -19,29 +19,29 @@ documentation {
     Logs the specified value at DEBUG level.
     P{{msg}} The message to be logged
 }
-public native function printDebug(string msg);
+public extern function printDebug(string msg);
 
 documentation {
     Logs the specified message at ERROR level.
     P{{msg}} The message to be logged
     P{{err}} The error struct to be logged
 }
-public native function printError(string msg, error? err = ());
+public extern function printError(string msg, error? err = ());
 
 documentation {
     Logs the specified message at INFO level.
     P{{msg}} The message to be logged.
 }
-public native function printInfo(string msg);
+public extern function printInfo(string msg);
 
 documentation {
     Logs the specified message at TRACE level.
     P{{msg}} The message to be logged
 }
-public native function printTrace(string msg);
+public extern function printTrace(string msg);
 
 documentation {
     Logs the specified message at WARN level.
     P{{msg}} The message to be logged
 }
-public native function printWarn(string msg);
+public extern function printWarn(string msg);

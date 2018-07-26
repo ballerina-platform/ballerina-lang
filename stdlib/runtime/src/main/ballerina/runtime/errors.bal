@@ -56,7 +56,7 @@ documentation {
 
     R{{}} Array of `CallStackElement` elements
 }
-public native function getCallStack() returns (CallStackElement[]);
+public extern function getCallStack() returns (CallStackElement[]);
 
 documentation {
     Retrieves the Call Stack Frame for a particular error
@@ -64,7 +64,7 @@ documentation {
     P{{e}} optional `error` instance
     R{{}} `CallStackElement` instance
 }
-public native function getErrorCallStackFrame(error? e) returns (CallStackElement);
+public extern function getErrorCallStackFrame(error? e) returns (CallStackElement);
 
 documentation {
     Representation of `CallFailedException`

@@ -26,7 +26,7 @@ public type Client object {
 
         P{{config}} - The ClientEndpointConfig of the endpoint.
     }
-    public native function init(ClientEndpointConfig config);
+    public extern function init(ClientEndpointConfig config);
 
     documentation {
         Gets called every time a service attaches itself to this endpoint - also happens at package init time.
@@ -34,24 +34,24 @@ public type Client object {
 
         P{{serviceType}} - The type of the service to be registered.
     }
-    public native function register(typedesc serviceType);
+    public extern function register(typedesc serviceType);
 
     documentation {
         Starts the registered service. Not supported in client endpoint.
     }
-    public native function start();
+    public extern function start();
 
     documentation {
         Stops the registered. Not supported in client endpoint.
     }
-    public native function stop();
+    public extern function stop();
 
     documentation {
         Returns the client connection which is used to send message to server.
 
         R{{}} - Client connection.
     }
-    public native function getCallerActions() returns GrpcClient;
+    public extern function getCallerActions() returns GrpcClient;
 };
 
 documentation {

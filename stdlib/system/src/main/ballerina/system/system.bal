@@ -21,32 +21,32 @@ documentation {
     P{{name}} Name of the environment variable
     R{{}} Environment variable value if it exists, otherwise an empty string
 }
-public native function getEnv(@sensitive string name) returns string;
+public extern function getEnv(@sensitive string name) returns string;
 
 documentation {
     Returns the current working directory.
 
     R{{}} Current working directory or an empty string if the current working directory cannot be determined
 }
-public native function getCurrentDirectory() returns string;
+public extern function getCurrentDirectory() returns string;
 
 documentation {
     Returns the current user's name.
 
     R{{}} Current user's name if it can be determined, an empty string otherwise
 }
-public native function getUsername() returns string;
+public extern function getUsername() returns string;
 
 documentation {
     Returns the current user's home directory path.
 
     R{{}} Current user's home directory if it can be determined, an empty string otherwise
 }
-public native function getUserHome() returns string;
+public extern function getUserHome() returns string;
 
 documentation {
     Returns a random UUID string.
 
     R{{}} The random string
 }
-public native function uuid() returns string;
+public extern function uuid() returns string;

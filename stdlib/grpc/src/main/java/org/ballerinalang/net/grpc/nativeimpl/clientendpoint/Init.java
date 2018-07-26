@@ -72,7 +72,7 @@ import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_ENABLE_SESSION
 import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED;
 
 /**
- * Native function for initializing gRPC client endpoint.
+ * Extern function for initializing gRPC client endpoint.
  *
  * @since 1.0.0
  */

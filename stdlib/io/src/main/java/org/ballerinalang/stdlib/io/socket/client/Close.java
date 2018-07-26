@@ -38,7 +38,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
 /**
- * Native function to close a Client socket.
+ * Extern function to close a Client socket.
  *
  * @since 0.963.0
  */
