@@ -19,6 +19,8 @@ documentation {
 }
 @final string PROTOBUF_STRING_ENCODING = "UTF-8";
 
+public type WireType "VARINT"|"BIT64"|"LD"|"BIT32";
+
 documentation {
     ProtoChannel represents capabilities to encode/decode bytes based on protobuf specification.
 }
@@ -29,7 +31,7 @@ public type ProtoChannel object {
         dc = new DataChannel(byteChannel, bOrder = BIG_ENDIAN);
     }
 
-    public function readBool() returns boolean|error {
+    public function readBool() returns boolean|error? {
         return dc.readBool();
     }
 
@@ -37,7 +39,7 @@ public type ProtoChannel object {
         return dc.writeBool(value);
     }
 
-    public function readDouble() returns float|error {
+    public function readDouble() returns float|error? {
         return dc.readFloat64();
     }
 
@@ -45,7 +47,7 @@ public type ProtoChannel object {
         return dc.writeFloat64(value);
     }
 
-    public function readFixed32() returns int|error {
+    public function readFixed32() returns int|error? {
         return dc.readInt32();
     }
 
@@ -53,7 +55,7 @@ public type ProtoChannel object {
         return dc.writeInt32(value);
     }
 
-    public function readFixed64() returns int|error {
+    public function readFixed64() returns int|error? {
         return dc.readInt64();
     }
 
@@ -61,7 +63,7 @@ public type ProtoChannel object {
         return dc.writeInt64(value);
     }
 
-    public function readFloat() returns float|error {
+    public function readFloat() returns float|error? {
         return dc.readFloat32();
     }
 
@@ -69,7 +71,7 @@ public type ProtoChannel object {
         return dc.writeFloat32(value);
     }
 
-    public function readInt() returns int|error {
+    public function readInt() returns int|error? {
         return dc.readVarInt();
     }
 
@@ -77,28 +79,71 @@ public type ProtoChannel object {
         return dc.writeVarInt(value);
     }
 
-    public function readFixed64() returns int|error {
-        return dc.readInt64();
+    public function readString() returns string|error? {
+        match dc.readVarInt() {
+            int length => {
+                return dc.readString(length, PROTOBUF_STRING_ENCODING);
+            }
+            error e => {
+                return e;
+            }
+            () => {
+                return {message:"error occurred while reading string"};
+            }
+        }
     }
 
-    public function readString() returns string|error {
-        int length = check dc.readVarInt();
-        return dc.readString(length, PROTOBUF_STRING_ENCODING);
-    }
-
-    public function writeString(string value) returns error? {
-        byte[] bytes = statement.toByteArray(PROTOBUF_STRING_ENCODING);
+    public function writeString(string value) returns error?|() {
+        byte[] bytes = value.toByteArray(PROTOBUF_STRING_ENCODING);
         int length = lengthof bytes;
-        dc.writeVarInt(length);
-        dc.writeString(value, PROTOBUF_STRING_ENCODING);
+        var lengthWriteResult = dc.writeVarInt(length);
+        match lengthWriteResult {
+            () => {
+                var contentWriteResult = dc.writeString(value, PROTOBUF_STRING_ENCODING);
+                match lengthWriteResult {
+                    () => {
+                        return ();
+                    }
+                    error e => {return e;}
+                }
+            }
+            error e => {return e;}
+        }
     }
 
     public function readTag() returns int|error {
-        int value =check dc.readVarInt();
-        return value >> 3;
+        match dc.readVarInt() {
+            int value => {
+                return value >> 3;
+            }
+            error e => {
+                return e;
+            }
+            () => {
+                return {message:"error occurred while reading string"};
+            }
+        }
     }
 
-    public function close() returns error? {
-        dc.close();
+    public function writeTag(int fieldNumber, WireType wireType) returns error? {
+        error? result;
+        if (wireType == "VARINT"){
+            int tag = (fieldNumber << 3) | 0;
+            result = dc.writeVarInt(tag);
+        } else if (wireType == "BIT64"){
+            int tag = (fieldNumber << 3) | 1;
+            result = dc.writeVarInt(tag);
+        } else if (wireType == "LD"){
+            int tag = (fieldNumber << 3) | 2;
+            result = dc.writeVarInt(tag);
+        } else if (wireType == "BIT32"){
+            int tag = (fieldNumber << 3) | 5;
+            result = dc.writeVarInt(tag);
+        }
+        return result;
+    }
+
+    public function close() returns error?|() {
+        return dc.close();
     }
 };
