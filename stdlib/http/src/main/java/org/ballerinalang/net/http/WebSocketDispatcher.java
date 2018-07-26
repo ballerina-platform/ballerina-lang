@@ -74,12 +74,7 @@ public class WebSocketDispatcher {
             Map<String, String> pathParams = new HashMap<>();
             String serviceUri = webSocketMessage.getTarget();
             serviceUri = WebSocketUtil.refactorUri(serviceUri);
-            URI requestUri;
-            try {
-                requestUri = URI.create(serviceUri);
-            } catch (IllegalArgumentException e) {
-                throw new BallerinaConnectorException(e.getMessage());
-            }
+            URI requestUri = URI.create(serviceUri);
             WebSocketService service = servicesRegistry.getUriTemplate().matches(requestUri.getPath(), pathParams,
                                                                                  webSocketMessage);
             if (service == null) {
@@ -89,10 +84,12 @@ public class WebSocketDispatcher {
             msg.setProperty(HttpConstants.QUERY_STR, requestUri.getRawQuery());
             msg.setProperty(HttpConstants.RESOURCE_ARGS, pathParams);
             return service;
-        } catch (Throwable throwable) {
+        } catch (IllegalArgumentException e) {
+            throw new BallerinaConnectorException(e.getMessage());
+        } catch (Exception e) {
             String message = "No Service found to handle the service request";
             webSocketMessage.cancelHandshake(404, message);
-            throw new BallerinaConnectorException(message, throwable);
+            throw new BallerinaConnectorException(message, e);
         }
     }
 
@@ -213,7 +210,7 @@ public class WebSocketDispatcher {
 
             @Override
             public void notifyFailure(BMap<String, BValue> error) {
-                ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+                ErrorHandlerUtils.printError(BLangVMErrors.getPrintableStackTrace(error));
                 WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
             }
         };
@@ -241,7 +238,7 @@ public class WebSocketDispatcher {
 
             @Override
             public void notifyFailure(BMap<String, BValue> error) {
-                ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+                ErrorHandlerUtils.printError(BLangVMErrors.getPrintableStackTrace(error));
             }
         };
         Executor.submit(onErrorResource, onErrorCallback, null, null, bValues);
@@ -264,8 +261,7 @@ public class WebSocketDispatcher {
         return !(throwable instanceof CorruptedFrameException);
     }
 
-    static void dispatchIdleTimeout(WebSocketOpenConnectionInfo connectionInfo,
-                                    WebSocketControlMessage controlMessage) {
+    static void dispatchIdleTimeout(WebSocketOpenConnectionInfo connectionInfo) {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         WebSocketService wsService = connectionInfo.getService();
         Resource onIdleTimeoutResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT);
@@ -276,7 +272,6 @@ public class WebSocketDispatcher {
         List<ParamDetail> paramDetails = onIdleTimeoutResource.getParamDetails();
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
-        //TODO handle BallerinaConnectorException
         CallableUnitCallback onIdleTimeoutCallback = new CallableUnitCallback() {
             @Override
             public void notifySuccess() {
@@ -285,7 +280,7 @@ public class WebSocketDispatcher {
 
             @Override
             public void notifyFailure(BMap<String, BValue> error) {
-                ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+                ErrorHandlerUtils.printError(BLangVMErrors.getPrintableStackTrace(error));
                 WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
             }
         };
@@ -304,13 +299,6 @@ public class WebSocketDispatcher {
         });
     }
 
-    public static void setPathParams(BValue[] bValues, List<ParamDetail> paramDetails, Map<String, String> pathParams,
-                                     int defaultArgSize) {
-        int parameterDetailsSize = paramDetails.size();
-        if (parameterDetailsSize > defaultArgSize) {
-            for (int i = defaultArgSize; i < parameterDetailsSize; i++) {
-                bValues[i] = new BString(pathParams.get(paramDetails.get(i).getVarName()));
-            }
-        }
+    private WebSocketDispatcher() {
     }
 }

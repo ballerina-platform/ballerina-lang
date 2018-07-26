@@ -74,9 +74,9 @@ public class CancelWebSocketUpgrade implements NativeCallableUnit {
                 }
                 callback.notifySuccess();
             });
-        } catch (Throwable throwable) {
+        } catch (Exception e) {
             //Return this error.
-            context.setReturnValues(HttpUtil.getError(context, throwable));
+            context.setReturnValues(HttpUtil.getError(context, e));
             callback.notifySuccess();
         }
     }
