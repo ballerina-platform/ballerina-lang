@@ -2725,7 +2725,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         genNode(channelSend.dataExpr, this.env);
         RegIndex dataReg = channelSend.dataExpr.regIndex;
-        BType dataType = channelSend.keyExpr.type;
+        BType dataType = channelSend.dataExpr.type;
         UTF8CPEntry dataCPEntry = new UTF8CPEntry(this.generateSig(new BType[] { dataType }));
         Operand dataCPIndex = getOperand(this.currentPkgInfo.addCPEntry(dataCPEntry));
 

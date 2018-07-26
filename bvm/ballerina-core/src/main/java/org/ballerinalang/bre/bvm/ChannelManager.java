@@ -29,16 +29,15 @@ public class ChannelManager {
     }
 
     public static synchronized BValue channelReceiverAction(String channelName, BValue key, WorkerExecutionContext
-            ctx) {
+            ctx, int regIndex) {
         //todo:check it in DB, following is when the value is not in DB
-        ChannelRegistry.getInstance().addWaitingContext(channelName, key, ctx);
-        ctx.ip--; // we are going to execute the same worker receive operation later
+        ChannelRegistry.getInstance().addWaitingContext(channelName, key, ctx, regIndex);
         BLangScheduler.workerWaitForResponse(ctx);
-        return null;
+        return null; //need to return data retrieved from DB
     }
 
-    public static synchronized WorkerExecutionContext channelSenderActioon(String channelName, BValue key) {
-        WorkerExecutionContext ctx = ChannelRegistry.getInstance().pollOnChannel(channelName, key);
+    public static synchronized ChannelRegistry.PendingContext channelSenderAction(String channelName, BValue key) {
+        ChannelRegistry.PendingContext ctx = ChannelRegistry.getInstance().pollOnChannel(channelName, key);
         if (ctx != null) {
             return ctx;
         }

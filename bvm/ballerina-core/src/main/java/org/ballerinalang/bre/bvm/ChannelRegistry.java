@@ -29,7 +29,7 @@ import java.util.Map;
  */
 public class ChannelRegistry {
     private static ChannelRegistry channelRegistry = null;
-    private Map<String, Map<BValue, LinkedList<WorkerExecutionContext>>> channelList;
+    private Map<String, Map<BValue, LinkedList<PendingContext>>> channelList;
 
     private ChannelRegistry() {
         channelList = new HashMap<>();
@@ -50,16 +50,32 @@ public class ChannelRegistry {
         channelList.put(name, new HashMap<>());
     }
 
-    public void addWaitingContext(String channel, BValue key, WorkerExecutionContext ctx) {
-        Map<BValue, LinkedList<WorkerExecutionContext>> channelEntries = channelList.get(channel);
-        LinkedList<WorkerExecutionContext> ctxList = channelEntries.get(key);
+    public void addWaitingContext(String channel, BValue key, WorkerExecutionContext ctx, int regIndex) {
+        Map<BValue, LinkedList<PendingContext>> channelEntries = channelList.get(channel);
+        LinkedList<PendingContext> ctxList = channelEntries.get(key);
         if (ctxList == null) {
             ctxList = new LinkedList<>();
         }
-        ctxList.add(ctx);
+        PendingContext pContext = new PendingContext();
+        pContext.regIndex = regIndex;
+        pContext.context = ctx;
+        ctxList.add(pContext);
+        channelEntries.put(key, ctxList);
     }
 
-    public WorkerExecutionContext pollOnChannel(String channel, BValue key) {
-        return channelList.get(channel).get(key).poll();
+    public PendingContext pollOnChannel(String channel, BValue key) {
+        LinkedList<PendingContext> pendingCtxs = channelList.get(channel).get(key);
+        if (pendingCtxs != null) {
+            return pendingCtxs.poll();
+        }
+        return null;
+    }
+
+    /**
+     * Represents a worker waiting for a data from a Channel.
+     */
+    public static class PendingContext {
+        int regIndex;
+        WorkerExecutionContext context;
     }
 }

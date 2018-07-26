@@ -811,12 +811,13 @@ public class CPU {
 
     private static void handleCHNSend(WorkerExecutionContext ctx, String channelName, BType dataType, int dataReg,
             BType keyType, int keyReg) {
-        BValue keyVal = extractValue(ctx.workerLocal, keyType, keyReg);
-        BValue dataVal = extractValue(ctx.workerLocal, dataType, dataReg);
-        WorkerExecutionContext pendingCtx = ChannelManager.channelSenderActioon(channelName, keyVal);
+        BRefType keyVal = extractValue(ctx.workerLocal, keyType, keyReg);
+        BRefType dataVal = extractValue(ctx.workerLocal, dataType, dataReg);
+        ChannelRegistry.PendingContext pendingCtx = ChannelManager.channelSenderAction(channelName, keyVal);
         if (pendingCtx != null) {
             //inject the value to the ctx
-            BLangScheduler.resume(pendingCtx);
+            copyArgValueForWorkerReceive(pendingCtx.context.workerLocal, pendingCtx.regIndex, dataType, dataVal);
+            BLangScheduler.resume(pendingCtx.context);
         }
         return;
     }
@@ -824,7 +825,7 @@ public class CPU {
     private static boolean handleCHNReceive(WorkerExecutionContext ctx, String channelName, BType receiverType,
             int receiverReg, BType keyType, int keyIndex) {
         BValue keyVal = extractValue(ctx.workerLocal, keyType, keyIndex);
-        BValue value = ChannelManager.channelReceiverAction(channelName, keyVal, ctx);
+        BValue value = ChannelManager.channelReceiverAction(channelName, keyVal, ctx, receiverReg);
         if (value != null) {
             //todo:assign value to the receiver index
             return true;
