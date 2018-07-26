@@ -33,7 +33,7 @@ import org.ballerinalang.net.http.session.SessionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.NoSuchElementException;
 
@@ -60,7 +60,7 @@ public class CreateSessionIfAbsent extends BlockingNativeCallableUnit {
         try {
             BMap<String, BValue> requestStruct  = ((BMap<String, BValue>) context.getRefArgument(0));
             //TODO check below line
-            HTTPCarbonMessage httpCarbonMessage = HttpUtil
+            HttpCarbonMessage httpCarbonMessage = HttpUtil
                     .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
             String cookieHeader = httpCarbonMessage.getHeader(HttpConstants.COOKIE_HEADER);
             String path = (String) httpCarbonMessage.getProperty(HttpConstants.BASE_PATH);

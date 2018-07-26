@@ -32,7 +32,7 @@ import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
@@ -48,9 +48,9 @@ import static org.ballerinalang.net.http.HttpUtil.extractEntity;
  */
 public abstract class ConnectionAction implements NativeCallableUnit {
 
-    protected void sendOutboundResponseRobust(DataContext dataContext, HTTPCarbonMessage requestMessage,
+    protected void sendOutboundResponseRobust(DataContext dataContext, HttpCarbonMessage requestMessage,
                                               BMap<String, BValue> outboundResponseStruct,
-                                              HTTPCarbonMessage responseMessage) {
+                                              HttpCarbonMessage responseMessage) {
         String contentType = HttpUtil.getContentTypeFromTransportMessage(responseMessage);
         String boundaryString = null;
         if (HeaderUtil.isMultipart(contentType)) {
@@ -122,7 +122,7 @@ public abstract class ConnectionAction implements NativeCallableUnit {
         }
     }
 
-    protected HttpMessageDataStreamer getMessageDataStreamer(HTTPCarbonMessage outboundResponse) {
+    protected HttpMessageDataStreamer getMessageDataStreamer(HttpCarbonMessage outboundResponse) {
         final HttpMessageDataStreamer outboundMsgDataStreamer;
         final PooledDataStreamerFactory pooledDataStreamerFactory = (PooledDataStreamerFactory)
                 outboundResponse.getProperty(HttpConstants.POOLED_BYTE_BUFFER_FACTORY);
@@ -154,7 +154,7 @@ public abstract class ConnectionAction implements NativeCallableUnit {
         }
 
         @Override
-        public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
+        public void onMessage(HttpCarbonMessage httpCarbonMessage) {
             this.dataContext.notifyOutboundResponseStatus(null);
         }
 
