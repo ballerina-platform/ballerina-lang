@@ -82,4 +82,10 @@ public type TopicPublisherActions object {
         P{{message}} Message to be sent to the JMS provider
     }
     public native function send(Message message) returns error?;
+    
+    documentation { Sends a message to the JMS provider
+        P{{destination}} destination used for the message sender
+        P{{message}} message to be sent to the JMS provider
+    }
+    public native function sendTo(Destination destination, Message message) returns error?;
 };
