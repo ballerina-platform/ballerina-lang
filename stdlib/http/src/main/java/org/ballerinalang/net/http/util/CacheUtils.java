@@ -20,7 +20,7 @@ package org.ballerinalang.net.http.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -49,7 +49,7 @@ public class CacheUtils {
      * @param inboundRequest   The request received from downstream
      * @return Returns true if the cached response is still valid
      */
-    public static boolean isValidCachedResponse(HTTPCarbonMessage outboundResponse, HTTPCarbonMessage inboundRequest) {
+    public static boolean isValidCachedResponse(HttpCarbonMessage outboundResponse, HttpCarbonMessage inboundRequest) {
         String outgoingETag = outboundResponse.getHeader(ETAG_HEADER);
         String incomingETags = inboundRequest.getHeader(IF_NONE_MATCH_HEADER);
 

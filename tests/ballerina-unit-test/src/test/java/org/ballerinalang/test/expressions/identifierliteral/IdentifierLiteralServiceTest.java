@@ -28,7 +28,7 @@ import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 /**
@@ -48,7 +48,7 @@ public class IdentifierLiteralServiceTest {
     @Test(description = "Test using identifier literals in service and resource names")
     public void testUsingIdentifierLiteralsInServiceAndResourceNames() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/identifierLiteral/resource", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(application, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invokeNew(application, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
         BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(bJson.value().get("key").asText(), "keyVal");
@@ -58,7 +58,7 @@ public class IdentifierLiteralServiceTest {
     @Test(description = "Test identifier literals payload")
     public void testIdentifierLiteralsInPayload() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/identifierLiteral/resource2", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(application, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invokeNew(application, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
         String payload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
