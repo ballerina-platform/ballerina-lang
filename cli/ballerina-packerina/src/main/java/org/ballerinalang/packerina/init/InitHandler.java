@@ -130,19 +130,17 @@ public class InitHandler {
         if (null != srcFiles && srcFiles.size() > 0) {
             for (SrcFile srcFile : srcFiles) {
                 Path packagePath = projectPath.resolve(srcFile.getName());
-                if (srcFile.getSrcFileType().equals(FileType.MAIN_TEST) || srcFile.getSrcFileType()
-                                                                                  .equals(FileType.SERVICE_TEST)) {
-                    // Ignore top level tests created
-                    if (!Files.isSameFile(projectPath, packagePath)) {
-                        Path testDirPath = packagePath.resolve("tests");
-                        if (!Files.exists(testDirPath)) {
-                            Files.createDirectory(testDirPath);
-                        }
-                        Path testFilePath = testDirPath.resolve(srcFile.getSrcFileType().getFileName());
-                        if (!Files.exists(testFilePath)) {
-                            Files.createFile(testFilePath);
-                            writeContent(testFilePath, srcFile.getSrcFileType().getContent());
-                        }
+                if ((srcFile.getSrcFileType().equals(FileType.MAIN_TEST) ||
+                        srcFile.getSrcFileType().equals(FileType.SERVICE_TEST)) &&
+                        !Files.isSameFile(projectPath, packagePath)) {
+                    Path testDirPath = packagePath.resolve("tests");
+                    if (!Files.exists(testDirPath)) {
+                        Files.createDirectory(testDirPath);
+                    }
+                    Path testFilePath = testDirPath.resolve(srcFile.getSrcFileType().getFileName());
+                    if (!Files.exists(testFilePath)) {
+                        Files.createFile(testFilePath);
+                        writeContent(testFilePath, srcFile.getSrcFileType().getContent());
                     }
                 } else {
                     if (!Files.exists(packagePath)) {
