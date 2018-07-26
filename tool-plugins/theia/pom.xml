@@ -14,6 +14,16 @@
     <name>Ballerina - Theia Plugin - Parent</name>
     <url>http://ballerinalang.org</url>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-composer-web</artifactId>
+            <classifier>ballerina-composer-library</classifier>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+    </dependencies>
+
     <modules>
         <module>parser</module>
     </modules>
