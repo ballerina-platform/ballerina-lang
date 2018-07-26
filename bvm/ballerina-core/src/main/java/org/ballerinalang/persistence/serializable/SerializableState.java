@@ -41,15 +41,15 @@ import java.util.Map;
  */
 public class SerializableState {
 
-    private String id;
+    public String instanceId;
 
-    private String currentContextKey;
+    public String currentContextKey;
 
-    private Map<String, SerializableContext> sContexts = new HashMap<>();
+    public Map<String, SerializableContext> sContexts = new HashMap<>();
 
-    private Map<String, SerializableRespContext> sRespContexts = new HashMap<>();
+    public Map<String, SerializableRespContext> sRespContexts = new HashMap<>();
 
-    private Map<String, SerializableRefType> sRefTypes = new HashMap<>();
+    public Map<String, SerializableRefType> sRefTypes = new HashMap<>();
 
     public HashMap<String, Object> globalProps = new HashMap<>();
 
@@ -63,7 +63,7 @@ public class SerializableState {
 
     public static SerializableState deserialize(String json) {
         StateSerializer stateSerializer = Serializer.getStateSerializer();
-        return stateSerializer.deserialize(json.getBytes());
+        return stateSerializer.deserialize(json.getBytes(StandardCharsets.UTF_8));
     }
 
     public SerializableState(WorkerExecutionContext executionContext, int ip) {

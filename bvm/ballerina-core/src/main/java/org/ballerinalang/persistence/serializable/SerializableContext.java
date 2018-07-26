@@ -43,15 +43,13 @@ import static org.ballerinalang.util.program.BLangVMUtils.SERVICE_INFO_KEY;
  */
 public class SerializableContext {
 
-    private String contextKey;
+    public String contextKey;
 
     public String parent;
 
-    private String respContextKey;
+    public String respContextKey;
 
     public WorkerState state = WorkerState.CREATED;
-
-    public HashMap<String, Object> globalProps = new HashMap<>();
 
     public HashMap<String, Object> localProps = new HashMap<>();
 
@@ -59,19 +57,19 @@ public class SerializableContext {
 
     public SerializableWorkerData workerLocal;
 
-    private SerializableWorkerData workerResult;
+    public SerializableWorkerData workerResult;
 
     public int[] retRegIndexes;
 
-    private boolean runInCaller;
+    public boolean runInCaller;
 
     public boolean interruptible;
 
-    private String enclosingServiceName;
+    public String enclosingServiceName;
 
-    private String callableUnitName;
+    public String callableUnitName;
 
-    private String callableUnitPkgPath;
+    public String callableUnitPkgPath;
 
     public String workerName;
 
