@@ -14,6 +14,8 @@ interface ParserReply {
 
 const { renderDiagram } = require('../../../../../../../lib/ballerina-diagram-library');
 
+let lastRenderedAST: Object | undefined = undefined;
+
 @injectable()
 export class BallerinaPreviewHandler implements PreviewHandler {
 
@@ -37,6 +39,12 @@ export class BallerinaPreviewHandler implements PreviewHandler {
         contentElement.classList.add('ballerina-editor');
         contentElement.classList.add('design-view-container');
 
+        if (lastRenderedAST) {
+            renderDiagram(contentElement, lastRenderedAST, {
+                width: 600, height: 600
+            });
+        }
+
         axios.post('https://parser.playground.preprod.ballerina.io/api/parser', parseOpts,
         { 
             headers: {
@@ -51,11 +59,11 @@ export class BallerinaPreviewHandler implements PreviewHandler {
             }
             renderDiagram(contentElement, jsonModel, {
                 width: 600, height: 600
-            });  
+            });
+            lastRenderedAST = jsonModel;
         })
         .catch((e: Error) => {
             console.log(e);
-            
         });
         return contentElement;
     }

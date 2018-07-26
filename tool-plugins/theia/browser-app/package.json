@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "browser-app",
+  "name": "ballerina-composer",
   "version": "0.0.1",
   "dependencies": {
     "@theia/callhierarchy": "latest",
