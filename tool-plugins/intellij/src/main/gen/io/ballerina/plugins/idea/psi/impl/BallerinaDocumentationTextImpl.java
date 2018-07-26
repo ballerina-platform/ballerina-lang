@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaObjectInitializerImpl extends BallerinaCompositeElementImpl implements BallerinaObjectInitializer {
+public class BallerinaDocumentationTextImpl extends BallerinaCompositeElementImpl implements BallerinaDocumentationText {
 
-  public BallerinaObjectInitializerImpl(ASTNode node) {
+  public BallerinaDocumentationTextImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitObjectInitializer(this);
+    visitor.visitDocumentationText(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,38 +43,14 @@ public class BallerinaObjectInitializerImpl extends BallerinaCompositeElementImp
 
   @Override
   @NotNull
-  public List<BallerinaAnnotationAttachment> getAnnotationAttachmentList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaAnnotationAttachment.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaCallableUnitBody getCallableUnitBody() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaCallableUnitBody.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaObjectInitializerParameterList getObjectInitializerParameterList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaObjectInitializerParameterList.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaDocumentationString getDocumentationString() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaDocumentationString.class);
+  public List<BallerinaBacktickedBlock> getBacktickedBlockList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaBacktickedBlock.class);
   }
 
   @Override
   @NotNull
-  public PsiElement getNew() {
-    return notNullChild(findChildByType(NEW));
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getPublic() {
-    return findChildByType(PUBLIC);
+  public List<BallerinaDocumentationReference> getDocumentationReferenceList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaDocumentationReference.class);
   }
 
 }

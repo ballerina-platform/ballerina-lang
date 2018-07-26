@@ -21,24 +21,15 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaObjectInitializer extends BallerinaCompositeElement {
+public interface BallerinaParameterDocumentation extends BallerinaCompositeElement {
+
+  @Nullable
+  BallerinaDocumentationText getDocumentationText();
 
   @NotNull
-  List<BallerinaAnnotationAttachment> getAnnotationAttachmentList();
-
-  @Nullable
-  BallerinaCallableUnitBody getCallableUnitBody();
-
-  @Nullable
-  BallerinaObjectInitializerParameterList getObjectInitializerParameterList();
-
-  @Nullable
-  BallerinaDocumentationString getDocumentationString();
+  PsiElement getDescriptionSeparator();
 
   @NotNull
-  PsiElement getNew();
-
-  @Nullable
-  PsiElement getPublic();
+  PsiElement getParameterName();
 
 }

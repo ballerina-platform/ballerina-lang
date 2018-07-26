@@ -67,8 +67,8 @@ public class BallerinaObjectFunctionDefinitionImpl extends BallerinaCompositeEle
 
   @Override
   @Nullable
-  public BallerinaDocumentationAttachment getDocumentationAttachment() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaDocumentationAttachment.class);
+  public BallerinaDocumentationString getDocumentationString() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaDocumentationString.class);
   }
 
   @Override

@@ -937,25 +937,25 @@ doubleBackTickDeprecatedInlineCode ::= DB_DEPRECATED_INLINE_CODE_START DOUBLE_BA
 tripleBackTickDeprecatedInlineCode ::= TB_DEPRECATED_INLINE_CODE_START TRIPLE_BACK_TICK_INLINE_CODE? TRIPLE_BACK_TICK_INLINE_CODE_END {pin=1}
 
 
-//// Documentation parsing.
-//
-//documentationAttachment ::= DOCUMENTATION_TEMPLATE_START documentationTemplateContent? DOCUMENTATION_TEMPLATE_END {pin=1}
-//
-//documentationTemplateContent ::= docText? documentationTemplateAttributeDescription+ | docText
-//
-//documentationTemplateAttributeDescription ::= DOCUMENTATION_TEMPLATE_ATTRIBUTE_START identifier? DOCUMENTATION_TEMPLATE_ATTRIBUTE_END docText? {pin=1}
-//
-//docText ::= documentationTemplateInlineCode (DOCUMENTATION_TEMPLATE_TEXT | documentationTemplateInlineCode)*
-//            | DOCUMENTATION_TEMPLATE_TEXT  (DOCUMENTATION_TEMPLATE_TEXT | documentationTemplateInlineCode)*
-//
-//documentationTemplateInlineCode ::= singleBackTickDocInlineCode | doubleBackTickDocInlineCode | tripleBackTickDocInlineCode
-//
-//singleBackTickDocInlineCode ::= SB_DOC_INLINE_CODE_START SINGLE_BACK_TICK_INLINE_CODE? SINGLE_BACK_TICK_INLINE_CODE_END {pin=1}
-//
-//doubleBackTickDocInlineCode ::= DB_DOC_INLINE_CODE_START DOUBLE_BACK_TICK_INLINE_CODE? DOUBLE_BACK_TICK_INLINE_CODE_END {pin=1}
-//
-//tripleBackTickDocInlineCode ::= TB_DOC_INLINE_CODE_START TRIPLE_BACK_TICK_INLINE_CODE? TRIPLE_BACK_TICK_INLINE_CODE_END {pin=1}
-//
+// Documentation parsing.
+
+documentationAttachment ::= DOCUMENTATION_TEMPLATE_START documentationTemplateContent? DOCUMENTATION_TEMPLATE_END {pin=1}
+
+documentationTemplateContent ::= docText? documentationTemplateAttributeDescription+ | docText
+
+documentationTemplateAttributeDescription ::= DOCUMENTATION_TEMPLATE_ATTRIBUTE_START identifier? DOCUMENTATION_TEMPLATE_ATTRIBUTE_END docText? {pin=1}
+
+docText ::= documentationTemplateInlineCode (DOCUMENTATION_TEMPLATE_TEXT | documentationTemplateInlineCode)*
+            | DOCUMENTATION_TEMPLATE_TEXT  (DOCUMENTATION_TEMPLATE_TEXT | documentationTemplateInlineCode)*
+
+documentationTemplateInlineCode ::= singleBackTickDocInlineCode | doubleBackTickDocInlineCode | tripleBackTickDocInlineCode
+
+singleBackTickDocInlineCode ::= SB_DOC_INLINE_CODE_START SINGLE_BACK_TICK_INLINE_CODE? SINGLE_BACK_TICK_INLINE_CODE_END {pin=1}
+
+doubleBackTickDocInlineCode ::= DB_DOC_INLINE_CODE_START DOUBLE_BACK_TICK_INLINE_CODE? DOUBLE_BACK_TICK_INLINE_CODE_END {pin=1}
+
+tripleBackTickDocInlineCode ::= TB_DOC_INLINE_CODE_START TRIPLE_BACK_TICK_INLINE_CODE? TRIPLE_BACK_TICK_INLINE_CODE_END {pin=1}
+
 
 // Markdown Documentation parsing
 documentationString ::= documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine?

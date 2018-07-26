@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaObjectInitializerImpl extends BallerinaCompositeElementImpl implements BallerinaObjectInitializer {
+public class BallerinaReturnParameterDocumentationLineImpl extends BallerinaCompositeElementImpl implements BallerinaReturnParameterDocumentationLine {
 
-  public BallerinaObjectInitializerImpl(ASTNode node) {
+  public BallerinaReturnParameterDocumentationLineImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitObjectInitializer(this);
+    visitor.visitReturnParameterDocumentationLine(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,38 +43,20 @@ public class BallerinaObjectInitializerImpl extends BallerinaCompositeElementImp
 
   @Override
   @NotNull
-  public List<BallerinaAnnotationAttachment> getAnnotationAttachmentList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaAnnotationAttachment.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaCallableUnitBody getCallableUnitBody() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaCallableUnitBody.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaObjectInitializerParameterList getObjectInitializerParameterList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaObjectInitializerParameterList.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaDocumentationString getDocumentationString() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaDocumentationString.class);
+  public List<BallerinaReturnParameterDescription> getReturnParameterDescriptionList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaReturnParameterDescription.class);
   }
 
   @Override
   @NotNull
-  public PsiElement getNew() {
-    return notNullChild(findChildByType(NEW));
+  public BallerinaReturnParameterDocumentation getReturnParameterDocumentation() {
+    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaReturnParameterDocumentation.class));
   }
 
   @Override
-  @Nullable
-  public PsiElement getPublic() {
-    return findChildByType(PUBLIC);
+  @NotNull
+  public PsiElement getReturnParameterDocumentationStart() {
+    return notNullChild(findChildByType(RETURN_PARAMETER_DOCUMENTATION_START));
   }
 
 }
