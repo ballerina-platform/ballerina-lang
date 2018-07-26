@@ -17,9 +17,12 @@
  */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.util.Flags;
 import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -229,48 +232,36 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection {
     @Override
     public String stringValue() {
         readLock.lock();
+        StringJoiner sj = new StringJoiner(", ", "{", "}");
         try {
-            if (type.getTag() == TypeTags.JSON_TAG) {
-                return getJSONString();
-            }
-
-            String keySeparator = type.getTag() == TypeTags.MAP_TAG ? "\"" : "";
-            StringJoiner sj = new StringJoiner(", ", "{", "}");
-            for (Iterator<Map.Entry<K, V>> i = map.entrySet().iterator(); i.hasNext();) {
-    
-                String key;
-                String stringValue;
-    
-                Map.Entry<K, V> e = i.next();
-                key = keySeparator + (String) e.getKey() + keySeparator;
-                V value = e.getValue();
-    
-                if (value == null) {
-                    stringValue = null;
-                } else if (value instanceof BString) {
-                    stringValue = "\"" + value.stringValue() + "\"";
-                } else {
-                    stringValue = value.stringValue();
-                }
-    
-                sj.add(key + ":" + stringValue);
+            switch (type.getTag()) {
+                case TypeTags.OBJECT_TYPE_TAG:
+                    for (BField field : ((BStructureType) this.type).getFields()) {
+                        if (!Flags.isFlagOn(field.flags, Flags.PUBLIC)) {
+                            continue;
+                        }
+                        String fieldName = field.getFieldName();
+                        V fieldVal = get((K) fieldName);
+                        sj.add(fieldName + ":" + getStringValue(fieldVal));
+                    }
+                    break;
+                case TypeTags.JSON_TAG:
+                    return getJSONString();
+                default:
+                    String keySeparator = type.getTag() == TypeTags.MAP_TAG ? "\"" : "";
+                    for (Iterator<Map.Entry<K, V>> i = map.entrySet().iterator(); i.hasNext();) {
+                        String key;
+                        Map.Entry<K, V> e = i.next();
+                        key = keySeparator + (String) e.getKey() + keySeparator;
+                        V value = e.getValue();
+                        sj.add(key + ":" + getStringValue(value));
+                    }
+                    break;
             }
             return sj.toString();
         } finally {
             readLock.unlock();
         }
-    }
-
-    private String getJSONString() {
-        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        JsonGenerator gen = new JsonGenerator(byteOut);
-        try {
-            gen.serialize(this);
-            gen.flush();
-        } catch (IOException e) {
-            throw new BallerinaException("Error in converting JSON to a string: " + e.getMessage(), e);
-        }
-        return new String(byteOut.toByteArray());
     }
 
     @Override
@@ -352,5 +343,26 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection {
     public String toString() {
         return stringValue();
     }
-}
 
+    private String getStringValue(V value) {
+        if (value == null) {
+            return null;
+        } else if (value instanceof BString) {
+            return "\"" + value.stringValue() + "\"";
+        } else {
+            return value.stringValue();
+        }
+    }
+
+    private String getJSONString() {
+        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+        JsonGenerator gen = new JsonGenerator(byteOut);
+        try {
+            gen.serialize(this);
+            gen.flush();
+        } catch (IOException e) {
+            throw new BallerinaException("Error in converting JSON to a string: " + e.getMessage(), e);
+        }
+        return new String(byteOut.toByteArray());
+    }
+}

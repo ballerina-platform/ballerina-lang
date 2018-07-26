@@ -141,17 +141,17 @@ function processJSONSchema(schema, topLevelNodes, rootRecord, schemaPath = '', r
 export function getHandlerDefinitions(plugin) {
     return [
         {
-            cmdID: COMMANDS.SHOW_IMPORT_STRUCT_DIALOG,
+            cmdID: COMMANDS.SHOW_IMPORT_RECORD_DIALOG,
             handler: () => {
                 const topLevelNodes = plugin.appContext.editor.getActiveEditor().getProperty('ast');
                 // Create record with available white spaces in default node.
                 const RecordNode = DefaultNodeFactory.createRecord(true);
 
-                const onImport = (json, structName, removeDefaults) => {
+                const onImport = (json, recordName, removeDefaults) => {
                     let success = true;
 
-                    if (structName && structName !== '') {
-                        RecordNode.name.setValue(structName);
+                    if (recordName && recordName !== '') {
+                        RecordNode.name.setValue(recordName);
                     }
 
                     if (json === '') {
@@ -171,7 +171,7 @@ export function getHandlerDefinitions(plugin) {
                 };
 
                 const { command: { dispatch } } = plugin.appContext;
-                const id = DIALOG.IMPORT_STRUCT;
+                const id = DIALOG.IMPORT_RECORD;
 
                 dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
                     id,
