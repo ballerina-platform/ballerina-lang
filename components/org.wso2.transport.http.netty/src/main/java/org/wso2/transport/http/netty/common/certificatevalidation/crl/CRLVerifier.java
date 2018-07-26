@@ -75,7 +75,7 @@ public class CRLVerifier implements RevocationVerifier {
         //check with distributions points in the list one by one. if one fails move to the other.
         for (String crlUrl : list) {
             if (log.isInfoEnabled()) {
-                log.info("Trying to get CRL for URL: " + crlUrl);
+                log.info("Trying to get CRL for URL: {}", crlUrl);
             }
 
             if (cache != null) {
@@ -122,10 +122,8 @@ public class CRLVerifier implements RevocationVerifier {
      * @throws CertificateVerificationException If an error occurs in CRL download process.
      */
     protected X509CRL downloadCRLFromWeb(String crlURL) throws IOException, CertificateVerificationException {
-        InputStream crlStream = null;
-        try {
-            URL url = new URL(crlURL);
-            crlStream = url.openStream();
+        URL url = new URL(crlURL);
+        try (InputStream crlStream = url.openStream()) {
             CertificateFactory cf = CertificateFactory.getInstance(Constants.X_509);
             return (X509CRL) cf.generateCRL(crlStream);
         } catch (MalformedURLException e) {
@@ -136,10 +134,6 @@ public class CRLVerifier implements RevocationVerifier {
             throw new CertificateVerificationException(e);
         } catch (CRLException e) {
             throw new CertificateVerificationException("Cannot generate X509CRL from the stream data", e);
-        } finally {
-            if (crlStream != null) {
-                crlStream.close();
-            }
         }
     }
 
@@ -163,13 +157,7 @@ public class CRLVerifier implements RevocationVerifier {
         try {
             DEROctetString crlDEROctetString = (DEROctetString) asn1In.readObject();
             //Get Input stream in octets.
-            try (ASN1InputStream asn1InOctets = new ASN1InputStream(crlDEROctetString.getOctets());) {
-                ASN1Primitive crlDERObject = asn1InOctets.readObject();
-                distPoint = CRLDistPoint.getInstance(crlDERObject);
-
-            } catch (IOException e) {
-                throw new CertificateVerificationException("Cannot read certificate to get CRL URLs", e);
-            }
+            distPoint = getOctetInputStream(crlDEROctetString);
         } catch (IOException e) {
             throw new CertificateVerificationException("Cannot read certificate to get CRL URLs", e);
         } finally {
@@ -180,7 +168,7 @@ public class CRLVerifier implements RevocationVerifier {
             }
         }
 
-        List<String> crlUrls = new ArrayList<String>();
+        List<String> crlUrls = new ArrayList<>();
         //Loop through ASN1Encodable DistributionPoints.
         for (DistributionPoint dp : distPoint.getDistributionPoints()) {
             //get ASN1Encodable DistributionPointName.
@@ -204,5 +192,15 @@ public class CRLVerifier implements RevocationVerifier {
             throw new CertificateVerificationException("Cant get CRL urls from certificate");
         }
         return crlUrls;
+    }
+
+    private CRLDistPoint getOctetInputStream(DEROctetString crlDEROctetString) throws CertificateVerificationException {
+        try (ASN1InputStream asn1InOctets = new ASN1InputStream(crlDEROctetString.getOctets())) {
+            ASN1Primitive crlDERObject = asn1InOctets.readObject();
+            return CRLDistPoint.getInstance(crlDERObject);
+
+        } catch (IOException e) {
+            throw new CertificateVerificationException("Cannot read certificate to get CRL URLs", e);
+        }
     }
 }

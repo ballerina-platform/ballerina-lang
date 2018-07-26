@@ -46,7 +46,7 @@ public class PoolableTargetChannelFactoryPerSrcHndlr implements PoolableObjectFa
     public void destroyObject(Object o) throws Exception {
         if (((TargetChannel) o).getChannel().isActive()) {
             if (log.isDebugEnabled()) {
-                log.debug("Original Channel " + ((TargetChannel) o).getChannel().id() + " is returned to the pool. ");
+                log.debug("Original Channel {} is returned to the pool. ", ((TargetChannel) o).getChannel().id());
             }
             this.genericObjectPool.returnObject(o);
         } else {
@@ -68,8 +68,8 @@ public class PoolableTargetChannelFactoryPerSrcHndlr implements PoolableObjectFa
     }
 
     @Override
-    public void activateObject(Object o) throws Exception {}
+    public void activateObject(Object o) {}
 
     @Override
-    public void passivateObject(Object o) throws Exception {}
+    public void passivateObject(Object o) {}
 }

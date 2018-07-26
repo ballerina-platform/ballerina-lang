@@ -48,11 +48,11 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.message.DefaultListener;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.Http2Reset;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
@@ -75,7 +75,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
     }
 
     @Override
-    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+    public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
         if (msg instanceof OutboundMsgHolder) {
             OutboundMsgHolder outboundMsgHolder = (OutboundMsgHolder) msg;
             new Http2TargetHandler.Http2RequestWriter(outboundMsgHolder).writeContent(ctx);
@@ -115,25 +115,13 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
     }
 
     /**
-     * Gets the next available stream id in the connection.
-     *
-     * @return next available stream id
-     */
-    private synchronized int getNextStreamId() throws Http2Exception {
-        int nextStreamId = connection.local().incrementAndGetNextStreamId();
-        connection.local().createStream(nextStreamId, false);
-        log.debug("Stream created streamId: {}", nextStreamId);
-        return nextStreamId;
-    }
-
-    /**
      * {@code Http2RequestWriter} is used to write Http2 content to the connection.
      */
     private class Http2RequestWriter {
 
         // whether headers are written already
         boolean isHeadersWritten = false;
-        HTTPCarbonMessage httpOutboundRequest;
+        HttpCarbonMessage httpOutboundRequest;
         OutboundMsgHolder outboundMsgHolder;
         int streamId;
 
@@ -142,7 +130,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
             httpOutboundRequest = outboundMsgHolder.getRequest();
         }
 
-        void writeContent(ChannelHandlerContext ctx) throws Http2Exception {
+        void writeContent(ChannelHandlerContext ctx) {
             // Write Content
             httpOutboundRequest.getHttpContentAsync().
                     setMessageListener((httpContent ->
@@ -225,11 +213,23 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         }
 
         private int initiateStream(ChannelHandlerContext ctx) throws Http2Exception {
-            int streamId = getNextStreamId();
-            http2ClientChannel.putInFlightMessage(streamId, outboundMsgHolder);
+            int id = getNextStreamId();
+            http2ClientChannel.putInFlightMessage(id, outboundMsgHolder);
             http2ClientChannel.getDataEventListeners().
-                    forEach(dataEventListener -> dataEventListener.onStreamInit(ctx, streamId));
-            return streamId;
+                    forEach(dataEventListener -> dataEventListener.onStreamInit(ctx, id));
+            return id;
+        }
+
+        /**
+         * Gets the next available stream id in the connection.
+         *
+         * @return next available stream id
+         */
+        private synchronized int getNextStreamId() throws Http2Exception {
+            int nextStreamId = connection.local().incrementAndGetNextStreamId();
+            connection.local().createStream(nextStreamId, false);
+            log.debug("Stream created streamId: {}", nextStreamId);
+            return nextStreamId;
         }
 
         private void writeOutboundRequestHeaders(ChannelHandlerContext ctx, HttpMessage httpMsg, int streamId,
@@ -284,7 +284,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (msg instanceof Http2HeadersFrame) {
             onHeadersRead(ctx, (Http2HeadersFrame) msg);
         } else if (msg instanceof Http2DataFrame) {
@@ -296,7 +296,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         }
     }
 
-    private void onHeadersRead(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame) throws Http2Exception {
+    private void onHeadersRead(ChannelHandlerContext ctx, Http2HeadersFrame http2HeadersFrame) {
         int streamId = http2HeadersFrame.getStreamId();
         boolean endOfStream = http2HeadersFrame.isEndOfStream();
 
@@ -307,8 +307,8 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
             if (outboundMsgHolder != null) {
                 isServerPush = true;
             } else {
-                log.warn("Header Frame received on channel: {} with invalid stream id: {} ",
-                         http2ClientChannel.toString(), streamId);
+                log.warn("Header Frame received on channel: {} with invalid stream id: {} ", http2ClientChannel,
+                         streamId);
                 return;
             }
         }
@@ -316,7 +316,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         if (isServerPush) {
             if (endOfStream) {
                  // Retrieve response message.
-                HTTPCarbonMessage responseMessage = outboundMsgHolder.getPushResponse(streamId);
+                HttpCarbonMessage responseMessage = outboundMsgHolder.getPushResponse(streamId);
                 if (responseMessage != null) {
                     onTrailersRead(streamId, http2HeadersFrame.getHeaders(), outboundMsgHolder, responseMessage);
                 } else if (http2HeadersFrame.getHeaders().contains(Constants.HTTP2_METHOD)) {
@@ -329,14 +329,14 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                 http2ClientChannel.removePromisedMessage(streamId);
             } else {
                 // Create response carbon message.
-                HTTPCarbonMessage responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame
+                HttpCarbonMessage responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame
                         .getHeaders(), outboundMsgHolder);
                 outboundMsgHolder.addPushResponse(streamId, (HttpCarbonResponse) responseMessage);
             }
         } else {
             if (endOfStream) {
                 // Retrieve response message.
-                HTTPCarbonMessage responseMessage = outboundMsgHolder.getResponse();
+                HttpCarbonMessage responseMessage = outboundMsgHolder.getResponse();
                 if (responseMessage != null) {
                     onTrailersRead(streamId, http2HeadersFrame.getHeaders(), outboundMsgHolder, responseMessage);
                 } else if (http2HeadersFrame.getHeaders().contains(Constants.HTTP2_METHOD)) {
@@ -349,7 +349,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                 http2ClientChannel.removeInFlightMessage(streamId);
             } else {
                 // Create response carbon message.
-                HTTPCarbonMessage responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame
+                HttpCarbonMessage responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame
                         .getHeaders(), outboundMsgHolder);
                 outboundMsgHolder.setResponse((HttpCarbonResponse) responseMessage);
             }
@@ -357,7 +357,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
     }
 
     private void onTrailersRead(int streamId, Http2Headers headers, OutboundMsgHolder outboundMsgHolder,
-                                HTTPCarbonMessage responseMessage) {
+                                HttpCarbonMessage responseMessage) {
 
         HttpVersion version = new HttpVersion(Constants.HTTP_VERSION_2_0, true);
         LastHttpContent lastHttpContent = new DefaultLastHttpContent();
@@ -373,7 +373,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         responseMessage.addHttpContent(lastHttpContent);
     }
 
-    private void onDataRead(Http2DataFrame dataFrame) throws Http2Exception {
+    private void onDataRead(Http2DataFrame dataFrame) {
         int streamId = dataFrame.getStreamId();
         ByteBuf data = dataFrame.getData();
         boolean endOfStream = dataFrame.isEndOfStream();
@@ -385,13 +385,12 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
             if (outboundMsgHolder != null) {
                 isServerPush = true;
             } else {
-                log.warn("Data Frame received on channel: {} with invalid stream id: {}",
-                         http2ClientChannel.toString(), streamId);
+                log.warn("Data Frame received on channel: {} with invalid stream id: {}", http2ClientChannel, streamId);
                 return;
             }
         }
         if (isServerPush) {
-            HTTPCarbonMessage responseMessage = outboundMsgHolder.getPushResponse(streamId);
+            HttpCarbonMessage responseMessage = outboundMsgHolder.getPushResponse(streamId);
             if (endOfStream) {
                 responseMessage.addHttpContent(new DefaultLastHttpContent(data.retain()));
                 http2ClientChannel.removePromisedMessage(streamId);
@@ -399,7 +398,7 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                 responseMessage.addHttpContent(new DefaultHttpContent(data.retain()));
             }
         } else {
-            HTTPCarbonMessage responseMessage = outboundMsgHolder.getResponse();
+            HttpCarbonMessage responseMessage = outboundMsgHolder.getResponse();
             if (endOfStream) {
                 responseMessage.addHttpContent(new DefaultLastHttpContent(data.retain()));
                 http2ClientChannel.removeInFlightMessage(streamId);
@@ -409,19 +408,18 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         }
     }
 
-    private void onPushPromiseRead(Http2PushPromise pushPromise) throws Http2Exception {
+    private void onPushPromiseRead(Http2PushPromise pushPromise) {
         int streamId = pushPromise.getStreamId();
         int promisedStreamId = pushPromise.getPromisedStreamId();
 
         if (log.isDebugEnabled()) {
             log.debug("Received a push promise on channel: {} over stream id: {}, promisedStreamId: {}",
-                      http2ClientChannel.toString(), streamId, promisedStreamId);
+                      http2ClientChannel, streamId, promisedStreamId);
         }
 
         OutboundMsgHolder outboundMsgHolder = http2ClientChannel.getInFlightMessage(streamId);
         if (outboundMsgHolder == null) {
-            log.warn("Push promise received in channel: {} over invalid stream id : {}",
-                     http2ClientChannel.toString(), streamId);
+            log.warn("Push promise received in channel: {} over invalid stream id : {}", http2ClientChannel, streamId);
             return;
         }
         http2ClientChannel.putPromisedMessage(promisedStreamId, outboundMsgHolder);

@@ -38,7 +38,6 @@ import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableEntryException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -49,12 +48,13 @@ import java.util.List;
  * A class for generating OCSP response.
  */
 public class OCSPResponseBuilder {
+    private OCSPResponseBuilder() {
+    }
 
     private static OCSPResp response = null;
 
     public static OCSPResp generatetOcspResponse(SSLConfig sslConfig, int cacheAllcatedSize, int cacheDelay)
-            throws IOException, KeyStoreException, UnrecoverableEntryException, NoSuchAlgorithmException,
-            CertificateVerificationException {
+            throws IOException, KeyStoreException, CertificateVerificationException {
 
         Certificate[] certificateChain;
         X509Certificate userCertificate = null;
@@ -83,8 +83,9 @@ public class OCSPResponseBuilder {
             String alias = "";
             boolean isAliasWithPrivateKey = false;
             while (aliases.hasMoreElements()) {
-                alias = (String) aliases.nextElement();
-                if (isAliasWithPrivateKey = keyStore.isKeyEntry(alias)) {
+                alias = aliases.nextElement();
+                isAliasWithPrivateKey = keyStore.isKeyEntry(alias);
+                if (isAliasWithPrivateKey) {
                     break;
                 }
             }
@@ -96,14 +97,14 @@ public class OCSPResponseBuilder {
                 //issuer certificate is in the last position of a certificate chain.
                 issuer = (X509Certificate) certificateChain[certificateChain.length - 1];
             }
-            List<String> locations = null;
+            List<String> locations;
             if (userCertificate != null) {
                 //Check whether the ocsp response is still there in the cache.
                 // If it is there, we don't need to get it from CA.
                 if (ocspCache.getOCSPCacheValue(userCertificate.getSerialNumber()) != null) {
                     return ocspCache.getOCSPCacheValue(userCertificate.getSerialNumber());
                 } else {
-                    OCSPReq request = null;
+                    OCSPReq request;
                     try {
                         request = OCSPVerifier.generateOCSPRequest(issuer, userCertificate.getSerialNumber());
                     } catch (CertificateVerificationException e) {
@@ -149,7 +150,7 @@ public class OCSPResponseBuilder {
      */
     public static List<String> getAIALocations(X509Certificate userCertificate)
             throws CertificateVerificationException {
-        List<String> locations = null;
+        List<String> locations;
         //List the AIA locations from the certificate. Those are the URL's of CA s.
         try {
             locations = OCSPVerifier.getAIALocations(userCertificate);
@@ -160,7 +161,7 @@ public class OCSPResponseBuilder {
     }
 
     /**
-     * Get OCSP response from cache
+     * Get OCSP response from cache.
      *
      * @param locations       CA locations
      * @param request         OCSP request
@@ -171,9 +172,9 @@ public class OCSPResponseBuilder {
      */
     public static OCSPResp getOCSPResponse(List<String> locations, OCSPReq request, X509Certificate userCertificate,
             OCSPCache ocspCache) throws CertificateVerificationException {
-        SingleResp[] responses = null;
+        SingleResp[] responses;
         BasicOCSPResp basicResponse;
-        CertificateStatus certificateStatus = null;
+        CertificateStatus certificateStatus;
         for (String serviceUrl : locations) {
             try {
                 response = OCSPVerifier.getOCSPResponce(serviceUrl, request);

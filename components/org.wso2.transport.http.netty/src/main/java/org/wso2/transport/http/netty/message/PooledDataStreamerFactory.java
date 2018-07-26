@@ -21,7 +21,7 @@ package org.wso2.transport.http.netty.message;
 import io.netty.buffer.ByteBufAllocator;
 
 /**
- * Provide data streamers for writing using pooled buffers
+ * Provide data streamers for writing using pooled buffers.
  */
 public class PooledDataStreamerFactory {
 
@@ -31,7 +31,7 @@ public class PooledDataStreamerFactory {
         this.byteBufAllocator = byteBufAllocator;
     }
 
-    public HttpMessageDataStreamer createHttpDataStreamer(HTTPCarbonMessage httpCarbonMessage) {
+    public HttpMessageDataStreamer createHttpDataStreamer(HttpCarbonMessage httpCarbonMessage) {
         return new HttpMessageDataStreamer(httpCarbonMessage, this.byteBufAllocator);
     }
 }

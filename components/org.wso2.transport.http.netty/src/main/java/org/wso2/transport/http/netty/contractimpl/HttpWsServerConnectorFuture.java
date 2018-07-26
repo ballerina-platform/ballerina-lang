@@ -26,14 +26,15 @@ import org.wso2.transport.http.netty.contract.PortBindingEventListener;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnectorFuture;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
- * Server connector future implementation
+ * Server connector future implementation.
  */
 public class HttpWsServerConnectorFuture extends DefaultWebSocketConnectorFuture implements ServerConnectorFuture {
 
+    private static final String HTTP_CONNECTOR_LISTENER_IS_NOT_SET = "HTTP connector listener is not set";
     private HttpConnectorListener httpConnectorListener;
     private PortBindingEventListener portBindingEventListener;
 
@@ -64,18 +65,18 @@ public class HttpWsServerConnectorFuture extends DefaultWebSocketConnectorFuture
     }
 
     @Override
-    public void notifyHttpListener(HTTPCarbonMessage httpMessage) throws ServerConnectorException {
+    public void notifyHttpListener(HttpCarbonMessage httpMessage) throws ServerConnectorException {
         if (httpConnectorListener == null) {
-            throw new ServerConnectorException("HTTP connector listener is not set");
+            throw new ServerConnectorException(HTTP_CONNECTOR_LISTENER_IS_NOT_SET);
         }
         httpConnectorListener.onMessage(httpMessage);
     }
 
     @Override
-    public void notifyHttpListener(HTTPCarbonMessage httpMessage, Http2PushPromise pushPromise)
+    public void notifyHttpListener(HttpCarbonMessage httpMessage, Http2PushPromise pushPromise)
             throws ServerConnectorException {
         if (httpConnectorListener == null) {
-            throw new ServerConnectorException("HTTP connector listener is not set");
+            throw new ServerConnectorException(HTTP_CONNECTOR_LISTENER_IS_NOT_SET);
         }
         httpConnectorListener.onPushResponse(pushPromise.getPromisedStreamId(), httpMessage);
     }
@@ -83,7 +84,7 @@ public class HttpWsServerConnectorFuture extends DefaultWebSocketConnectorFuture
     @Override
     public void notifyHttpListener(Http2PushPromise pushPromise) throws ServerConnectorException {
         if (httpConnectorListener == null) {
-            throw new ServerConnectorException("HTTP connector listener is not set");
+            throw new ServerConnectorException(HTTP_CONNECTOR_LISTENER_IS_NOT_SET);
         }
         httpConnectorListener.onPushPromise(pushPromise);
     }
@@ -99,7 +100,7 @@ public class HttpWsServerConnectorFuture extends DefaultWebSocketConnectorFuture
     @Override
     public void notifyErrorListener(Throwable cause) throws ServerConnectorException {
         if (httpConnectorListener == null) {
-            throw new ServerConnectorException("HTTP connector listener is not set", new Exception(cause));
+            throw new ServerConnectorException(HTTP_CONNECTOR_LISTENER_IS_NOT_SET, new Exception(cause));
         }
         httpConnectorListener.onError(cause);
     }

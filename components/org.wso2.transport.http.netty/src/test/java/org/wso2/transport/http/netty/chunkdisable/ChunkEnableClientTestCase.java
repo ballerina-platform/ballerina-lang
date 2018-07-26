@@ -23,7 +23,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ChunkConfig;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -42,7 +42,7 @@ public class ChunkEnableClientTestCase extends ChunkClientTemplate {
     @Test
     public void postTest() {
         try {
-            HTTPCarbonMessage response = sendRequest(TestUtil.largeEntity);
+            HttpCarbonMessage response = sendRequest(TestUtil.largeEntity);
             assertEquals(response.getHeader(HttpHeaderNames.TRANSFER_ENCODING.toString()), Constants.CHUNKED);
 
             response = sendRequest(TestUtil.smallEntity);

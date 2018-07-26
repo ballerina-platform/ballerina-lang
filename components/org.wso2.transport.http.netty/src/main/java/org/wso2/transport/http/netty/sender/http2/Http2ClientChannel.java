@@ -43,7 +43,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Http2ClientChannel {
 
-    private ConcurrentHashMap<Integer, OutboundMsgHolder> inFlightMessages, promisedMessages;
+    private ConcurrentHashMap<Integer, OutboundMsgHolder> inFlightMessages;
+    private ConcurrentHashMap<Integer, OutboundMsgHolder> promisedMessages;
     private Channel channel;
     private Http2Connection connection;
     private ChannelFuture channelFuture;
@@ -125,7 +126,7 @@ public class Http2ClientChannel {
      */
     public void putInFlightMessage(int streamId, OutboundMsgHolder inFlightMessage) {
         if (log.isDebugEnabled()) {
-            log.debug("In flight message added to channel: {} with stream id: {}  ", this.toString(), streamId);
+            log.debug("In flight message added to channel: {} with stream id: {}  ", this, streamId);
         }
         inFlightMessages.put(streamId, inFlightMessage);
     }
@@ -138,7 +139,7 @@ public class Http2ClientChannel {
      */
     public OutboundMsgHolder getInFlightMessage(int streamId) {
         if (log.isDebugEnabled()) {
-            log.debug("Getting in flight message for stream id: {} from channel: {}", streamId, this.toString());
+            log.debug("Getting in flight message for stream id: {} from channel: {}", streamId, this);
         }
         return inFlightMessages.get(streamId);
     }
@@ -150,7 +151,7 @@ public class Http2ClientChannel {
      */
     void removeInFlightMessage(int streamId) {
         if (log.isDebugEnabled()) {
-            log.debug("In flight message for stream id: {} removed from channel: {}", streamId, this.toString());
+            log.debug("In flight message for stream id: {} removed from channel: {}", streamId, this);
         }
         inFlightMessages.remove(streamId);
     }
@@ -257,7 +258,7 @@ public class Http2ClientChannel {
         public StreamCloseListener(Http2ClientChannel http2ClientChannel) {
             this.http2ClientChannel = http2ClientChannel;
         }
-
+        @Override
         public void onStreamClosed(Http2Stream stream) {
             // Channel is no longer exhausted, so we can return it back to the pool
             http2ClientChannel.removeInFlightMessage(stream.id());

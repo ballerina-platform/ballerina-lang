@@ -48,9 +48,9 @@ public class HttpMessageDataStreamer {
 
     private static final Logger log = LoggerFactory.getLogger(HttpMessageDataStreamer.class);
 
-    private HTTPCarbonMessage httpCarbonMessage;
+    private HttpCarbonMessage httpCarbonMessage;
 
-    private final int contentBufferSize = 8192;
+    private static final int CONTENT_BUFFER_SIZE = 8192;
     private ByteBufAllocator pooledByteBufAllocator;
     private HttpMessageDataStreamer.ByteBufferInputStream byteBufferInputStream;
     private HttpMessageDataStreamer.ByteBufferOutputStream byteBufferOutputStream;
@@ -59,11 +59,11 @@ public class HttpMessageDataStreamer {
     // Lock to synchronize  byte stream write operation
     private Lock byteStreamWriteLock = new ReentrantLock();
 
-    public HttpMessageDataStreamer(HTTPCarbonMessage httpCarbonMessage) {
+    public HttpMessageDataStreamer(HttpCarbonMessage httpCarbonMessage) {
         this.httpCarbonMessage = httpCarbonMessage;
     }
 
-    public HttpMessageDataStreamer(HTTPCarbonMessage httpCarbonMessage, ByteBufAllocator pooledByteBufAllocator) {
+    public HttpMessageDataStreamer(HttpCarbonMessage httpCarbonMessage, ByteBufAllocator pooledByteBufAllocator) {
         this.httpCarbonMessage = httpCarbonMessage;
         this.pooledByteBufAllocator = pooledByteBufAllocator;
     }
@@ -82,7 +82,7 @@ public class HttpMessageDataStreamer {
         private HttpContent httpContent;
 
         @Override
-        public int read() throws IOException, DecoderException {
+        public int read() {
             if ((httpContent instanceof LastHttpContent) && chunkFinished) {
                 return -1;
             } else if (chunkFinished) {
@@ -108,7 +108,7 @@ public class HttpMessageDataStreamer {
             return byteBuffer.get() & 0xff;
         }
 
-        private void validateHttpContent() throws DecoderException {
+        private void validateHttpContent() {
             if (httpContent == null) {
                 throw new DecoderException("No entity was added to the queue before the timeout");
             } else if (httpContent.decoderResult().isFailure()) {
@@ -128,7 +128,7 @@ public class HttpMessageDataStreamer {
         private ByteBuf dataHolder;
 
         @Override
-        public void write(int b) throws IOException, EncoderException {
+        public void write(int b) {
             if (dataHolder == null) {
                 dataHolder = getBuffer();
             }
@@ -146,7 +146,7 @@ public class HttpMessageDataStreamer {
         }
 
         @Override
-        public void flush() throws IOException, EncoderException {
+        public void flush() {
             // We don't have to support flush
         }
 
@@ -164,6 +164,14 @@ public class HttpMessageDataStreamer {
                 log.error("Error while closing output stream but underlying resources are reset", e);
             } finally {
                 byteBufferOutputStream = null;
+            }
+        }
+
+        private ByteBuf getBuffer() {
+            if (pooledByteBufAllocator ==  null) {
+                return Unpooled.buffer(CONTENT_BUFFER_SIZE);
+            } else {
+                return pooledByteBufAllocator.directBuffer(CONTENT_BUFFER_SIZE);
             }
         }
     }
@@ -195,21 +203,13 @@ public class HttpMessageDataStreamer {
                 } else if (contentEncodingHeader.equalsIgnoreCase(Constants.ENCODING_DEFLATE)) {
                     return new InflaterInputStream(createInputStreamIfNull());
                 } else if (!contentEncodingHeader.equalsIgnoreCase(Constants.HTTP_TRANSFER_ENCODING_IDENTITY)) {
-                    log.warn("Unknown Content-Encoding: " + contentEncodingHeader);
+                    log.warn("Unknown Content-Encoding: {}", contentEncodingHeader);
                 }
             } catch (IOException e) {
                 log.error("Error while creating inputStream for content-encoding: " + contentEncodingHeader, e);
             }
         }
         return createInputStreamIfNull();
-    }
-
-    private ByteBuf getBuffer() {
-        if (pooledByteBufAllocator ==  null) {
-            return Unpooled.buffer(contentBufferSize);
-        } else {
-            return pooledByteBufAllocator.directBuffer(contentBufferSize);
-        }
     }
 
     public void setIoException(IOException ioException) {

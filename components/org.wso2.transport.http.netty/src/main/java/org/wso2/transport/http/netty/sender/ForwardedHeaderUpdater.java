@@ -21,7 +21,7 @@ package org.wso2.transport.http.netty.sender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.net.InetSocketAddress;
 import java.util.Locale;
@@ -46,9 +46,9 @@ public class ForwardedHeaderUpdater {
     private final String xForwardedByHeader;
     private final String xForwardedHostHeader;
     private final String xForwardedProtoHeader;
-    private final HTTPCarbonMessage httpOutboundRequest;
+    private final HttpCarbonMessage httpOutboundRequest;
 
-    public ForwardedHeaderUpdater(HTTPCarbonMessage httpOutboundRequest, String localAddress) {
+    public ForwardedHeaderUpdater(HttpCarbonMessage httpOutboundRequest, String localAddress) {
         this.httpOutboundRequest = httpOutboundRequest;
         this.localAddress = localAddress;
         this.forwardedHeader = httpOutboundRequest.getHeader(Constants.FORWARDED);
@@ -91,16 +91,16 @@ public class ForwardedHeaderUpdater {
             Object remoteAddressProperty = httpOutboundRequest.getProperty(Constants.REMOTE_ADDRESS);
             if (remoteAddressProperty != null) {
                 String remoteAddress = ((InetSocketAddress) remoteAddressProperty).getAddress().getHostAddress();
-                headerValue.append(FOR + resolveIP(remoteAddress) + SEMI_COLON + " ");
+                headerValue.append(FOR).append(resolveIP(remoteAddress)).append(SEMI_COLON).append(" ");
             }
-            headerValue.append(BY + resolveIP(localAddress));
+            headerValue.append(BY).append(resolveIP(localAddress));
             Object hostHeader = httpOutboundRequest.getProperty(Constants.ORIGIN_HOST);
             if (hostHeader != null) {
-                headerValue.append(SEMI_COLON + " " + HOST + hostHeader.toString());
+                headerValue.append(SEMI_COLON + " " + HOST).append(hostHeader.toString());
             }
             Object protocolHeader = httpOutboundRequest.getProperty(Constants.PROTOCOL);
             if (protocolHeader != null) {
-                headerValue.append(SEMI_COLON + " " + PROTO + protocolHeader.toString());
+                headerValue.append(SEMI_COLON + " " + PROTO).append(protocolHeader.toString());
             }
             httpOutboundRequest.setHeader(Constants.FORWARDED, headerValue.toString());
             return;
@@ -128,13 +128,13 @@ public class ForwardedHeaderUpdater {
                     previousByValue == null ? previousForValue : previousForValue + COMMA + " " + FOR + previousByValue;
         }
         headerValue.append(previousForValue != null ? previousForValue + SEMI_COLON + " " : null);
-        headerValue.append(BY + resolveIP(localAddress));
+        headerValue.append(BY).append(resolveIP(localAddress));
 
         if (previousHostValue != null) {
-            headerValue.append(SEMI_COLON + " " + HOST + previousHostValue);
+            headerValue.append(SEMI_COLON + " " + HOST).append(previousHostValue);
         }
         if (previousProtoValue != null) {
-            headerValue.append(SEMI_COLON + " " + PROTO + previousProtoValue);
+            headerValue.append(SEMI_COLON + " " + PROTO).append(previousProtoValue);
         }
         httpOutboundRequest.setHeader(Constants.FORWARDED, headerValue.toString());
     }
@@ -154,22 +154,22 @@ public class ForwardedHeaderUpdater {
         if (xForwardedForHeader != null) {
             String[] parts = xForwardedForHeader.split(COMMA);
             for (String part : parts) {
-                headerValue.append(FOR + resolveIP(part.trim()) + COMMA + " ");
+                headerValue.append(FOR).append(resolveIP(part.trim())).append(COMMA).append(" ");
             }
             headerValue.replace(headerValue.length() - 2, headerValue.length(), SEMI_COLON + " ");
             httpOutboundRequest.removeHeader(Constants.X_FORWARDED_FOR);
         }
         if (xForwardedByHeader != null) {
-            headerValue.append(FOR + resolveIP(xForwardedByHeader.trim()) + SEMI_COLON + " ");
+            headerValue.append(FOR).append(resolveIP(xForwardedByHeader.trim())).append(SEMI_COLON).append(" ");
             httpOutboundRequest.removeHeader(Constants.X_FORWARDED_BY);
         }
-        headerValue.append(BY + resolveIP(localAddress));
+        headerValue.append(BY).append(resolveIP(localAddress));
         if (xForwardedHostHeader != null) {
-            headerValue.append(SEMI_COLON + " " + HOST + xForwardedHostHeader);
+            headerValue.append(SEMI_COLON + " " + HOST).append(xForwardedHostHeader);
             httpOutboundRequest.removeHeader(Constants.X_FORWARDED_HOST);
         }
         if (xForwardedProtoHeader != null) {
-            headerValue.append(SEMI_COLON + " " + PROTO + xForwardedProtoHeader);
+            headerValue.append(SEMI_COLON + " " + PROTO).append(xForwardedProtoHeader);
             httpOutboundRequest.removeHeader(Constants.X_FORWARDED_PROTO);
         }
         httpOutboundRequest.setHeader(Constants.FORWARDED, headerValue.toString());

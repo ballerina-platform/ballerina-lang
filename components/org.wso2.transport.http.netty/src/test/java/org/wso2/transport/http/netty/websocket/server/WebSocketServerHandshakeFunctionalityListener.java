@@ -66,9 +66,16 @@ public class WebSocketServerHandshakeFunctionalityListener implements WebSocketC
             handshakeFuture = initMessage.handshake(null, true, -1, httpHeaders);
         } else if (getBooleanValueOfHeader(initMessage, "x-set-connection-timeout")) {
             handshakeFuture = initMessage.handshake(null, true, 4000);
-        }  else if (getBooleanValueOfHeader(initMessage, "x-wait-for-frame-read")) {
+        } else if (getBooleanValueOfHeader(initMessage, "x-wait-for-frame-read")) {
             handshakeFuture = initMessage.handshake();
         } else if (getBooleanValueOfHeader(initMessage, "x-handshake")) {
+            handshakeFuture = initMessage.handshake();
+        } else if (getBooleanValueOfHeader(initMessage, "x-cancel-and-handshake")) {
+            initMessage.cancelHandshake(404, "Not Found").addListener(future -> {
+                if (!future.isSuccess() && future.cause() != null) {
+                    log.error("Error canceling handshake", future.cause());
+                }
+            }).channel().close();
             handshakeFuture = initMessage.handshake();
         } else {
             initMessage.cancelHandshake(404, "Not Found").addListener(future -> {

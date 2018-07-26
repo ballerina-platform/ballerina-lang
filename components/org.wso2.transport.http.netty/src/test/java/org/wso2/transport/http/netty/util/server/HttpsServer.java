@@ -28,7 +28,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.util.TestUtil;
-import org.wso2.transport.http.netty.util.server.initializers.HTTPServerInitializer;
+import org.wso2.transport.http.netty.util.server.initializers.HttpServerInitializer;
 
 import java.io.FileInputStream;
 import java.net.InetSocketAddress;
@@ -43,7 +43,7 @@ public class HttpsServer implements TestServer {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpsServer.class);
 
-    private int port = TestUtil.HTTPS_SERVER_PORT;
+    private int port;
     private int bossGroupSize = Runtime.getRuntime().availableProcessors();
     private int workerGroupSize = Runtime.getRuntime().availableProcessors() * 2;
     private EventLoopGroup bossGroup;
@@ -78,7 +78,7 @@ public class HttpsServer implements TestServer {
 
             sslContext = SSLContext.getInstance("TLS");
             sslContext.init(kmf.getKeyManagers(), null, null);
-            ((HTTPServerInitializer) channelInitializer).setSslContext(sslContext);
+            ((HttpServerInitializer) channelInitializer).setSslContext(sslContext);
 
             b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).childHandler(channelInitializer);
             ChannelFuture ch = b.bind(new InetSocketAddress(TestUtil.TEST_HOST, port));

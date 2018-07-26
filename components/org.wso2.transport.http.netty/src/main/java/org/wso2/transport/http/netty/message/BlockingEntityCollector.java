@@ -112,20 +112,18 @@ public class BlockingEntityCollector implements EntityCollector {
             readWriteLock.lock();
             List<HttpContent> contentList = new ArrayList<>();
             while (state == EntityBodyState.CONSUMABLE || state == EntityBodyState.EXPECTING) {
-                try {
-                    waitForEntity();
-                    HttpContent httpContent = httpContentQueue.poll();
-                    size += httpContent.content().readableBytes();
-                    contentList.add(httpContent);
-                    if ((httpContent instanceof LastHttpContent)) {
-                        state = EntityBodyState.CONSUMED;
-                    }
-                } catch (InterruptedException e) {
-                    LOG.warn("Error while getting full message length", e);
+                waitForEntity();
+                HttpContent httpContent = httpContentQueue.poll();
+                size += httpContent.content().readableBytes();
+                contentList.add(httpContent);
+                if ((httpContent instanceof LastHttpContent)) {
+                    state = EntityBodyState.CONSUMED;
                 }
             }
             httpContentQueue.addAll(contentList);
             state = EntityBodyState.CONSUMABLE;
+        } catch (InterruptedException e) {
+            LOG.warn("Error while getting full message length", e);
         } catch (Exception e) {
             LOG.error("Error while retrieving http content length", e);
         } finally {
@@ -141,25 +139,23 @@ public class BlockingEntityCollector implements EntityCollector {
             readWriteLock.lock();
             List<HttpContent> contentList = new ArrayList<>();
             while (state == EntityBodyState.CONSUMABLE || state == EntityBodyState.EXPECTING) {
-                try {
-                    waitForEntity();
-                    HttpContent httpContent = httpContentQueue.poll();
-                    size += httpContent.content().readableBytes();
-                    contentList.add(httpContent);
-                    if (size >= maxSize) {
-                        while (!httpContentQueue.isEmpty()) {
-                            contentList.add(httpContentQueue.poll());
-                        }
-                        break;
-                    } else if ((httpContent instanceof LastHttpContent)) {
-                        state = EntityBodyState.CONSUMED;
+                waitForEntity();
+                HttpContent httpContent = httpContentQueue.poll();
+                size += httpContent.content().readableBytes();
+                contentList.add(httpContent);
+                if (size >= maxSize) {
+                    while (!httpContentQueue.isEmpty()) {
+                        contentList.add(httpContentQueue.poll());
                     }
-                } catch (InterruptedException e) {
-                    LOG.warn("Error while getting full message length", e);
+                    break;
+                } else if ((httpContent instanceof LastHttpContent)) {
+                    state = EntityBodyState.CONSUMED;
                 }
             }
             httpContentQueue.addAll(contentList);
             state = EntityBodyState.CONSUMABLE;
+        } catch (InterruptedException e) {
+            LOG.warn("Error while getting full message length", e);
         } catch (Exception e) {
             LOG.error("Error while retrieving http content length", e);
         } finally {
@@ -183,21 +179,19 @@ public class BlockingEntityCollector implements EntityCollector {
             if (state == EntityBodyState.CONSUMABLE) {
                 boolean isEndOfMessageProcessed = false;
                 while (!isEndOfMessageProcessed) {
-                    try {
-                        waitForEntity();
-                        HttpContent httpContent = httpContentQueue.poll();
-                        if (httpContent instanceof LastHttpContent) {
-                            isEndOfMessageProcessed = true;
-                            state = EntityBodyState.CONSUMED;
-                            httpContentQueue.clear();
-                        }
-                        httpContent.release();
-                    } catch (InterruptedException e) {
-                        LOG.error("Error while getting content from queue", e);
+                    waitForEntity();
+                    HttpContent httpContent = httpContentQueue.poll();
+                    if (httpContent instanceof LastHttpContent) {
+                        isEndOfMessageProcessed = true;
+                        state = EntityBodyState.CONSUMED;
+                        httpContentQueue.clear();
                     }
+                    httpContent.release();
                 }
             }
             state = EntityBodyState.EXPECTING;
+        } catch (InterruptedException e) {
+            LOG.error("Error while getting content from queue", e);
         } catch (Exception e) {
             LOG.error("Error while waiting and releasing the content", e);
         } finally {

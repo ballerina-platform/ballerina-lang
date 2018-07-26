@@ -62,9 +62,9 @@ import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
-import org.wso2.transport.http.netty.util.HTTPConnectorListener;
+import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.BufferedReader;
@@ -77,7 +77,6 @@ import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
@@ -258,12 +257,11 @@ class Utils {
      * @param request OCSP request which asks if the certificate is revoked.
      * @param caPrivateKey PrivateKey of the fake CA.
      * @return Created OCSP response by the fake CA.
-     * @throws NoSuchProviderException   If an error occurs when registering bouncy castle as the security provider.
      * @throws OCSPException If an error occurs when generating ocsp response.
      * @throws OperatorCreationException If an error occurs when creating bouncy castle operator.
      */
     private static OCSPResp generateOCSPResponse(OCSPReq request, X509CertificateHolder certificateHolder,
-            PrivateKey caPrivateKey) throws NoSuchProviderException, OCSPException, OperatorCreationException {
+            PrivateKey caPrivateKey) throws OCSPException, OperatorCreationException {
 
         BasicOCSPRespBuilder basicOCSPRespBuilder = new BasicOCSPRespBuilder(
                 new RespID(certificateHolder.getSubject()));
@@ -342,16 +340,16 @@ class Utils {
     static void testResponse() {
         try {
             String testValue = "Test";
-            HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.SERVER_PORT3, testValue, "");
+            HttpCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.SERVER_PORT3, testValue, "");
 
             CountDownLatch latch = new CountDownLatch(1);
-            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
+            DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
             HttpResponseFuture responseFuture = httpClientConnector.send(msg);
             responseFuture.setHttpConnectorListener(listener);
 
             latch.await(30, TimeUnit.SECONDS);
 
-            HTTPCarbonMessage response = listener.getHttpResponseMessage();
+            HttpCarbonMessage response = listener.getHttpResponseMessage();
             assertNotNull(response);
             String result = new BufferedReader(
                     new InputStreamReader(new HttpMessageDataStreamer(response).getInputStream())).lines()

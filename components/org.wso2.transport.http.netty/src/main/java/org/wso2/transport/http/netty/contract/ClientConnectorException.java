@@ -24,16 +24,19 @@ package org.wso2.transport.http.netty.contract;
  */
 public class ClientConnectorException extends Exception {
 
-    private int httpStatusCode = -1;
-    private String outboundChannelID = null;
+    private final int httpStatusCode;
+    private final String outboundChannelID;
 
     public ClientConnectorException(String outboundChannelID, String message) {
         super(message);
+        httpStatusCode = -1;
+        this.outboundChannelID = outboundChannelID;
     }
 
     public ClientConnectorException(String message, int httpStatusCode) {
         super(message);
         this.httpStatusCode = httpStatusCode;
+        this.outboundChannelID = null;
     }
 
     public ClientConnectorException(String outboundChannelID, String message, int httpStatusCode) {

@@ -30,7 +30,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.TestUtil;
 
@@ -51,14 +51,14 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
-    public void onMessage(HTTPCarbonMessage httpRequest) {
+    public void onMessage(HttpCarbonMessage httpRequest) {
         executor.execute(() -> {
             try {
                 HttpMessageDataStreamer streamer = new HttpMessageDataStreamer(httpRequest);
                 InputStream inputStream = streamer.getInputStream();
                 byte[] bytes = IOUtils.toByteArray(inputStream);
 
-                HTTPCarbonMessage newMsg = httpRequest.cloneCarbonMessageWithOutData();
+                HttpCarbonMessage newMsg = httpRequest.cloneCarbonMessageWithOutData();
                 OutputStream outputStream = new HttpMessageDataStreamer(newMsg).getOutputStream();
                 outputStream.write(bytes);
                 outputStream.flush();
@@ -72,9 +72,9 @@ public class RequestResponseCreationStreamingListener implements HttpConnectorLi
                 HttpResponseFuture future = clientConnector.send(newMsg);
                 future.setHttpConnectorListener(new HttpConnectorListener() {
                     @Override
-                    public void onMessage(HTTPCarbonMessage httpMessage) {
+                    public void onMessage(HttpCarbonMessage httpMessage) {
                         executor.execute(() -> {
-                            HTTPCarbonMessage newMsg = httpMessage.cloneCarbonMessageWithOutData();
+                            HttpCarbonMessage newMsg = httpMessage.cloneCarbonMessageWithOutData();
                             OutputStream outputStream = new HttpMessageDataStreamer(newMsg).getOutputStream();
                             try {
                                 HttpMessageDataStreamer streamer = new HttpMessageDataStreamer(httpMessage);

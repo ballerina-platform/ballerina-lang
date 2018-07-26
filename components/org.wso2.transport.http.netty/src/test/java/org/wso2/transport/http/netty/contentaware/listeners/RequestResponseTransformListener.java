@@ -32,7 +32,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.TestUtil;
 
@@ -58,7 +58,7 @@ public class RequestResponseTransformListener implements HttpConnectorListener {
     }
 
     @Override
-    public void onMessage(HTTPCarbonMessage httpRequest) {
+    public void onMessage(HttpCarbonMessage httpRequest) {
         executor.execute(() -> {
             try {
                 requestValue = TestUtil.getStringFromInputStream(
@@ -82,7 +82,7 @@ public class RequestResponseTransformListener implements HttpConnectorListener {
                 HttpResponseFuture future = clientConnector.send(httpRequest);
                 future.setHttpConnectorListener(new HttpConnectorListener() {
                     @Override
-                    public void onMessage(HTTPCarbonMessage httpMessage) {
+                    public void onMessage(HttpCarbonMessage httpMessage) {
                         executor.execute(() -> {
                             String content = TestUtil.getStringFromInputStream(
                                     new HttpMessageDataStreamer(httpMessage).getInputStream());
@@ -92,7 +92,7 @@ public class RequestResponseTransformListener implements HttpConnectorListener {
                                 byte[] array = new byte[0];
                                 try {
                                     array = responseValue.getBytes("UTF-8");
-                                } catch (UnsupportedEncodingException e) {
+                                } catch (UnsupportedEncodingException ignored) {
 
                                 }
                                 ByteBuffer byteBuff = ByteBuffer.allocate(array.length);

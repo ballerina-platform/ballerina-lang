@@ -31,10 +31,10 @@ import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
-import org.wso2.transport.http.netty.util.HTTPConnectorListener;
+import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.BufferedReader;
@@ -60,17 +60,17 @@ public class ProxyServerUtil {
     private static Logger log = LoggerFactory.getLogger(ProxyServerUtil.class);
     private static SenderConfiguration senderConfiguration;
 
-    protected static void sendRequest(HTTPCarbonMessage msg, String testValue) {
+    protected static void sendRequest(HttpCarbonMessage msg, String testValue) {
 
         try {
             CountDownLatch latch = new CountDownLatch(1);
-            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
+            DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
             HttpResponseFuture responseFuture = httpClientConnector.send(msg);
             responseFuture.setHttpConnectorListener(listener);
 
             latch.await(5, TimeUnit.SECONDS);
 
-            HTTPCarbonMessage response = listener.getHttpResponseMessage();
+            HttpCarbonMessage response = listener.getHttpResponseMessage();
             assertNotNull(response);
             String result = new BufferedReader(
                     new InputStreamReader(new HttpMessageDataStreamer(response).getInputStream())).lines()
@@ -103,8 +103,8 @@ public class ProxyServerUtil {
         future.setHttpConnectorListener(new EchoMessageListener());
         future.sync();
 
-        httpClientConnector = httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(),
-                HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, scheme));
+        httpClientConnector = httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), HttpConnectorUtil
+                .getSenderConfiguration(transportsConfiguration, scheme));
     }
 
     static void shutDown() {

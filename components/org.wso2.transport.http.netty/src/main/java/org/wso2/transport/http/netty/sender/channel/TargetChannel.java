@@ -29,11 +29,11 @@ import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.ForwardedExtensionConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
-import org.wso2.transport.http.netty.listener.HTTPTraceLoggingHandler;
+import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
+import org.wso2.transport.http.netty.listener.HttpTraceLoggingHandler;
 import org.wso2.transport.http.netty.listener.SourceHandler;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.sender.ConnectionAvailabilityFuture;
 import org.wso2.transport.http.netty.sender.ForwardedHeaderUpdater;
 import org.wso2.transport.http.netty.sender.HttpClientChannelInitializer;
@@ -67,7 +67,6 @@ public class TargetChannel {
     private boolean requestHeaderWritten = false;
     private String httpVersion;
     private ChunkConfig chunkConfig;
-    private HttpResponseFuture httpInboundResponseFuture;
     private HandlerExecutor handlerExecutor;
     private Http2ClientChannel http2ClientChannel;
 
@@ -80,7 +79,7 @@ public class TargetChannel {
                          HttpRoute httpRoute, ConnectionAvailabilityFuture connectionAvailabilityFuture) {
         this.httpClientChannelInitializer = httpClientChannelInitializer;
         this.channelFuture = channelFuture;
-        this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
+        this.handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
         this.httpRoute = httpRoute;
         if (httpClientChannelInitializer != null) {
             http2ClientChannel =
@@ -148,17 +147,16 @@ public class TargetChannel {
         this.chunkConfig = chunkConfig;
     }
 
-    public void configTargetHandler(HTTPCarbonMessage httpCarbonMessage, HttpResponseFuture httpInboundResponseFuture) {
+    public void configTargetHandler(HttpCarbonMessage httpCarbonMessage, HttpResponseFuture httpInboundResponseFuture) {
         this.setTargetHandler(this.getHttpClientChannelInitializer().getTargetHandler());
-        TargetHandler targetHandler = this.getTargetHandler();
-        targetHandler.setHttpResponseFuture(httpInboundResponseFuture);
-        targetHandler.setOutboundRequestMsg(httpCarbonMessage);
-        targetHandler.setConnectionManager(connectionManager);
-        targetHandler.setTargetChannel(this);
+        TargetHandler handler = this.getTargetHandler();
+        handler.setHttpResponseFuture(httpInboundResponseFuture);
+        handler.setOutboundRequestMsg(httpCarbonMessage);
+        handler.setConnectionManager(connectionManager);
+        handler.setTargetChannel(this);
 
-        targetErrorHandler = targetHandler.getTargetErrorHandler();
+        targetErrorHandler = handler.getTargetErrorHandler();
         targetErrorHandler.setResponseFuture(httpInboundResponseFuture);
-        this.httpInboundResponseFuture = httpInboundResponseFuture;
     }
 
     public void setEndPointTimeout(int socketIdleTimeout) {
@@ -172,7 +170,7 @@ public class TargetChannel {
         ChannelPipeline pipeline = this.getChannel().pipeline();
         SourceHandler srcHandler = this.getCorrelatedSource();
         if (srcHandler != null && pipeline.get(Constants.HTTP_TRACE_LOG_HANDLER) != null) {
-            HTTPTraceLoggingHandler loggingHandler = (HTTPTraceLoggingHandler)
+            HttpTraceLoggingHandler loggingHandler = (HttpTraceLoggingHandler)
                     pipeline.get(Constants.HTTP_TRACE_LOG_HANDLER);
             loggingHandler.setCorrelatedSourceId(srcHandler.getInboundChannelContext().channel().id().asShortText());
         }
@@ -190,7 +188,7 @@ public class TargetChannel {
         return http2ClientChannel;
     }
 
-    public void writeContent(HTTPCarbonMessage httpOutboundRequest) {
+    public void writeContent(HttpCarbonMessage httpOutboundRequest) {
         if (handlerExecutor != null) {
             handlerExecutor.executeAtTargetRequestReceiving(httpOutboundRequest);
         }
@@ -210,7 +208,7 @@ public class TargetChannel {
                 })));
     }
 
-    private void writeOutboundRequest(HTTPCarbonMessage httpOutboundRequest, HttpContent httpContent) throws Exception {
+    private void writeOutboundRequest(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) throws Exception {
         targetErrorHandler.setState(SENDING_ENTITY_BODY);
         if (Util.isLastHttpContent(httpContent)) {
             if (!this.requestHeaderWritten) {
@@ -265,7 +263,7 @@ public class TargetChannel {
         contentLength = 0;
     }
 
-    private String getHttpMethod(HTTPCarbonMessage httpOutboundRequest) throws Exception {
+    private String getHttpMethod(HttpCarbonMessage httpOutboundRequest) throws Exception {
         String httpMethod = (String) httpOutboundRequest.getProperty(Constants.HTTP_METHOD);
         if (httpMethod == null) {
             throw new Exception("Couldn't get the HTTP method from the outbound request");
@@ -273,7 +271,7 @@ public class TargetChannel {
         return httpMethod;
     }
 
-    private void writeOutboundRequestHeaders(HTTPCarbonMessage httpOutboundRequest) {
+    private void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest) {
         this.setHttpVersionProperty(httpOutboundRequest);
         HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
         this.setRequestHeaderWritten(true);
@@ -281,7 +279,7 @@ public class TargetChannel {
         targetErrorHandler.notifyIfHeaderFailure(outboundHeaderFuture);
     }
 
-    private void setHttpVersionProperty(HTTPCarbonMessage httpOutboundRequest) {
+    private void setHttpVersionProperty(HttpCarbonMessage httpOutboundRequest) {
         if (Float.valueOf(httpVersion) == Constants.HTTP_2_0) {
             // Upgrade request of HTTP/2 should be a HTTP/1.1 request
             httpOutboundRequest.setProperty(Constants.HTTP_VERSION, String.valueOf(Constants.HTTP_1_1));
@@ -290,7 +288,7 @@ public class TargetChannel {
         }
     }
 
-    public void setForwardedExtension(ForwardedExtensionConfig forwardedConfig, HTTPCarbonMessage httpOutboundRequest) {
+    public void setForwardedExtension(ForwardedExtensionConfig forwardedConfig, HttpCarbonMessage httpOutboundRequest) {
         if (forwardedConfig == ForwardedExtensionConfig.DISABLE) {
             return;
         }

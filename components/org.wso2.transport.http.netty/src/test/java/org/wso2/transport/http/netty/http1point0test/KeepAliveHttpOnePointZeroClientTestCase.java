@@ -25,7 +25,7 @@ import org.wso2.transport.http.netty.chunkdisable.ChunkClientTemplate;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -46,7 +46,7 @@ public class KeepAliveHttpOnePointZeroClientTestCase extends ChunkClientTemplate
     @Test
     public void postTest() {
         try {
-            HTTPCarbonMessage response = sendRequest(TestUtil.largeEntity);
+            HttpCarbonMessage response = sendRequest(TestUtil.largeEntity);
             assertEquals(response.getHeader(HttpHeaderNames.CONNECTION.toString()), Constants.CONNECTION_KEEP_ALIVE);
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running postTest", e);

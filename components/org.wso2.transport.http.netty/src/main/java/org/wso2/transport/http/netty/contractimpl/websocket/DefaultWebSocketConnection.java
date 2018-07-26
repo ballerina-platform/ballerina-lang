@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
@@ -18,6 +19,8 @@ import org.wso2.transport.http.netty.listener.MessageQueueHandler;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+
+import static org.wso2.transport.http.netty.common.Constants.MESSAGE_QUEUE_HANDLER;
 
 /**
  * Default implementation of {@link WebSocketConnection}.
@@ -84,15 +87,20 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
 
     @Override
     public void startReadingFrames() {
-        ctx.pipeline().remove(Constants.MESSAGE_QUEUE_HANDLER);
+        ChannelPipeline pipeline = ctx.pipeline();
+        if (pipeline.get(MESSAGE_QUEUE_HANDLER) != null) {
+            ctx.pipeline().remove(MESSAGE_QUEUE_HANDLER);
+        }
         ctx.channel().config().setAutoRead(true);
     }
 
     @Override
     public void stopReadingFrames() {
         ctx.channel().config().setAutoRead(false);
-        ctx.pipeline().addBefore(Constants.WEBSOCKET_FRAME_HANDLER, Constants.MESSAGE_QUEUE_HANDLER,
-                                 messageQueueHandler = new MessageQueueHandler());
+        ChannelPipeline pipeline = ctx.pipeline();
+        if (pipeline.get(MESSAGE_QUEUE_HANDLER) == null) {
+            ctx.pipeline().addBefore(Constants.WEBSOCKET_FRAME_HANDLER, MESSAGE_QUEUE_HANDLER, messageQueueHandler);
+        }
     }
 
     @Override
@@ -106,7 +114,7 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
             throw new IllegalStateException("Cannot interrupt WebSocket binary frame continuation");
         }
         if (closeFrameSent) {
-            throw new IllegalStateException("Already sent close frame. Cannot push text data!");
+            throw new IllegalStateException("Close frame already sent. Cannot push text data!");
         }
         if (continuationFrameType != null) {
             if (finalFrame) {
@@ -131,7 +139,7 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
             throw new IllegalStateException("Cannot interrupt WebSocket text frame continuation");
         }
         if (closeFrameSent) {
-            throw new IllegalStateException("Already sent close frame. Cannot push binary data!");
+            throw new IllegalStateException("Close frame already sent. Cannot push binary data.");
         }
         if (continuationFrameType != null) {
             if (finalFrame) {
@@ -158,7 +166,7 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
     @Override
     public ChannelFuture initiateConnectionClosure(int statusCode, String reason) {
         if (closeFrameSent) {
-            throw new IllegalStateException("Already sent close frame. Cannot send close frame again!");
+            throw new IllegalStateException("Close frame already sent. Cannot send close frame again.");
         }
         closeFrameSent = true;
         closeInitiatedStatusCode = statusCode;
@@ -198,6 +206,10 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
 
     @Override
     public ChannelFuture terminateConnection(int statusCode, String reason) {
+        if (closeFrameSent) {
+            throw new IllegalStateException("Close frame already sent. Cannot send close frame again.");
+        }
+        closeFrameSent = true;
         ChannelPromise closePromise = ctx.newPromise();
         ctx.writeAndFlush(new CloseWebSocketFrame(statusCode, reason)).addListener(writeFuture -> {
             frameHandler.setCloseInitialized(true);

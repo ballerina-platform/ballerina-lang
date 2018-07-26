@@ -22,7 +22,7 @@ package org.wso2.transport.http.netty.contractimpl;
 import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.ResponseHandle;
 import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 
@@ -43,11 +43,13 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     private ConcurrentHashMap<Integer, HttpConnectorListener> pushResponseListeners;
     private ConcurrentHashMap<Integer, Throwable> pushResponseListenerErrors;
 
-    private HTTPCarbonMessage httpCarbonMessage;
+    private HttpCarbonMessage httpCarbonMessage;
     private ResponseHandle responseHandle;
     private OutboundMsgHolder outboundMsgHolder;
 
-    private Throwable throwable, responseHandleError, returnError;
+    private Throwable throwable;
+    private Throwable responseHandleError;
+    private Throwable returnError;
     private Semaphore executionWaitSem;
 
     // Lock to synchronize response related operations
@@ -95,7 +97,7 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     }
 
     @Override
-    public void notifyHttpListener(HTTPCarbonMessage httpCarbonMessage) {
+    public void notifyHttpListener(HttpCarbonMessage httpCarbonMessage) {
         responseLock.lock();
         try {
             this.httpCarbonMessage = httpCarbonMessage;
@@ -285,7 +287,7 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
         pushResponseLock.lock();
         try {
             pushResponseListeners.put(promiseId, pushResponseListener);
-            HTTPCarbonMessage pushResponse = outboundMsgHolder.getPushResponse(promiseId);
+            HttpCarbonMessage pushResponse = outboundMsgHolder.getPushResponse(promiseId);
             if (pushResponse != null) {
                 notifyPushResponse(promiseId, pushResponse);
             }
@@ -303,7 +305,7 @@ public class DefaultHttpResponseFuture implements HttpResponseFuture {
     }
 
     @Override
-    public void notifyPushResponse(int streamId, HTTPCarbonMessage pushResponse) {
+    public void notifyPushResponse(int streamId, HttpCarbonMessage pushResponse) {
         pushResponseLock.lock();
         try {
             HttpConnectorListener listener = pushResponseListeners.get(streamId);

@@ -28,7 +28,7 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.util.TestUtil;
@@ -42,8 +42,8 @@ import java.nio.charset.Charset;
  */
 public class MessageGenerator {
 
-    public static HTTPCarbonMessage generateRequest(HttpMethod httpMethod, String payload) {
-        HTTPCarbonMessage httpCarbonMessage = new HttpCarbonRequest(new DefaultHttpRequest(
+    public static HttpCarbonMessage generateRequest(HttpMethod httpMethod, String payload) {
+        HttpCarbonMessage httpCarbonMessage = new HttpCarbonRequest(new DefaultHttpRequest(
                 new HttpVersion(Constants.DEFAULT_VERSION_HTTP_1_1, true), httpMethod,
                 "http://" + TestUtil.TEST_HOST + ":" + TestUtil.HTTP_SERVER_PORT));
         httpCarbonMessage.setProperty(Constants.HTTP_METHOD, httpMethod.toString());
@@ -59,16 +59,16 @@ public class MessageGenerator {
         return httpCarbonMessage;
     }
 
-    public static HTTPCarbonMessage generateResponse(String response) throws UnsupportedEncodingException {
+    public static HttpCarbonMessage generateResponse(String response) throws UnsupportedEncodingException {
         return generateResponse(response, null);
     }
 
-    public static HTTPCarbonMessage generateResponse(String response, HttpResponseStatus status)
+    public static HttpCarbonMessage generateResponse(String response, HttpResponseStatus status)
             throws UnsupportedEncodingException {
         if (status == null) {
             status = HttpResponseStatus.OK;
         }
-        HTTPCarbonMessage httpResponse =
+        HttpCarbonMessage httpResponse =
                 new HttpCarbonResponse(new DefaultHttpResponse(HttpVersion.HTTP_1_1, status));
         httpResponse.setHeader(HttpHeaderNames.CONNECTION.toString(), HttpHeaderValues.KEEP_ALIVE.toString());
         httpResponse.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), Constants.TEXT_PLAIN);

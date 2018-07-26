@@ -124,11 +124,10 @@ public class SSLHandlerFactory {
 
     public ReferenceCountedOpenSslContext getServerReferenceCountedOpenSslContext(boolean enableOcsp)
             throws SSLException {
-        ReferenceCountedOpenSslContext context = (ReferenceCountedOpenSslContext) SslContextBuilder
+        return (ReferenceCountedOpenSslContext) SslContextBuilder
                 .forServer(kmf).sslProvider(SslProvider.OPENSSL).enableOcsp(true)
                 .keyManager(kmf).trustManager(tmf).protocols(sslConfig.getEnableProtocols()).enableOcsp(enableOcsp)
                 .clientAuth(needClientAuth ? ClientAuth.REQUIRE : ClientAuth.NONE).build();
-        return context;
     }
 
     /**
@@ -162,14 +161,13 @@ public class SSLHandlerFactory {
     }
 
     public ReferenceCountedOpenSslContext buildClientReferenceCountedOpenSslContext() throws SSLException {
-        ReferenceCountedOpenSslContext context = (ReferenceCountedOpenSslContext) SslContextBuilder.forClient()
+        return (ReferenceCountedOpenSslContext) SslContextBuilder.forClient()
                 .sslProvider(SslProvider.OPENSSL).enableOcsp(true).keyManager(kmf)
                 .trustManager(tmf).protocols(sslConfig.getEnableProtocols()).build();
-        return context;
     }
 
     /**
-     * This method will provide netty ssl context which supports HTTP2 over TLS using
+     * This method will provide netty ssl context which supports HTTP2 over TLS using.
      * Application Layer Protocol Negotiation (ALPN)
      *
      * @param enableOcsp whether ocsp is enabled or not (true/false)

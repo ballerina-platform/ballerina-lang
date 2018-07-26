@@ -84,17 +84,18 @@ public class WebSocketClientHandshakeHandler extends ChannelInboundHandlerAdapte
             ctx.channel().config().setAutoRead(false);
             handshaker.finishHandshake(ctx.channel(), handshakeResponse);
             Channel channel = ctx.channel();
-            if (!autoRead) {
-                channel.pipeline().addLast(Constants.MESSAGE_QUEUE_HANDLER, messageQueueHandler);
-            }
-            WebSocketInboundFrameHandler inboundFrameHandler = new WebSocketInboundFrameHandler(false, secure,
-                    requestedUri, handshaker.actualSubprotocol(), connectorFuture, messageQueueHandler);
+            WebSocketInboundFrameHandler inboundFrameHandler = new WebSocketInboundFrameHandler(
+                    false, secure, requestedUri, handshaker.actualSubprotocol(), connectorFuture, messageQueueHandler);
             channel.pipeline().addLast(Constants.WEBSOCKET_FRAME_HANDLER, inboundFrameHandler);
             channel.pipeline().remove(Constants.WEBSOCKET_CLIENT_HANDSHAKE_HANDLER);
-            ctx.fireChannelActive();
             DefaultWebSocketConnection webSocketConnection = inboundFrameHandler.getWebSocketConnection();
+            if (autoRead) {
+                webSocketConnection.startReadingFrames();
+            } else {
+                webSocketConnection.stopReadingFrames();
+            }
             handshakeFuture.notifySuccess(webSocketConnection, httpCarbonResponse);
-            channel.config().setAutoRead(autoRead);
+            ctx.fireChannelActive();
             log.debug("WebSocket Client connected");
         } finally {
             handshakeResponse.release();

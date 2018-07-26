@@ -30,9 +30,9 @@ public class MessageFuture {
 
     private static final Logger log = LoggerFactory.getLogger(MessageFuture.class);
     private MessageListener messageListener;
-    private final HTTPCarbonMessage httpCarbonMessage;
+    private final HttpCarbonMessage httpCarbonMessage;
 
-    public MessageFuture(HTTPCarbonMessage httpCarbonMessage) {
+    public MessageFuture(HttpCarbonMessage httpCarbonMessage) {
         this.httpCarbonMessage = httpCarbonMessage;
     }
 

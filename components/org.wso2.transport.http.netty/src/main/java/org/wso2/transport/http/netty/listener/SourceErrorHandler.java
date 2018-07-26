@@ -41,7 +41,7 @@ import org.wso2.transport.http.netty.common.SourceInteractiveState;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
@@ -73,7 +73,7 @@ public class SourceErrorHandler {
 
     private static Logger log = LoggerFactory.getLogger(SourceErrorHandler.class);
 
-    private HTTPCarbonMessage inboundRequestMsg;
+    private HttpCarbonMessage inboundRequestMsg;
     private final ServerConnectorFuture serverConnectorFuture;
     private SourceInteractiveState state;
     private String serverName;
@@ -83,7 +83,7 @@ public class SourceErrorHandler {
         this.serverName = serverName;
     }
 
-    void handleErrorCloseScenario(HTTPCarbonMessage inboundRequestMsg) {
+    void handleErrorCloseScenario(HttpCarbonMessage inboundRequestMsg) {
         this.inboundRequestMsg = inboundRequestMsg;
         try {
             switch (state) {
@@ -115,14 +115,14 @@ public class SourceErrorHandler {
                 case ENTITY_BODY_SENT:
                     break;
                 default:
-                    log.error("Unexpected state detected ", state);
+                    log.error("Unexpected state detected {}", state);
             }
         } catch (ServerConnectorException e) {
             log.error("Error while notifying error state to server-connector listener");
         }
     }
 
-    ChannelFuture handleIdleErrorScenario(HTTPCarbonMessage inboundRequestMsg, ChannelHandlerContext ctx,
+    ChannelFuture handleIdleErrorScenario(HttpCarbonMessage inboundRequestMsg, ChannelHandlerContext ctx,
                                           IdleStateEvent evt) {
         this.inboundRequestMsg = inboundRequestMsg;
         try {
@@ -164,7 +164,7 @@ public class SourceErrorHandler {
                 case ENTITY_BODY_SENT:
                     break;
                 default:
-                    log.error("Unexpected state detected ", state);
+                    log.error("Unexpected state detected {}", state);
             }
         } catch (ServerConnectorException e) {
             log.error("Error while notifying error state to server-connector listener");
@@ -180,7 +180,7 @@ public class SourceErrorHandler {
     }
 
     public void exceptionCaught(Throwable cause) {
-        log.warn("Exception occurred in SourceHandler :" + cause.getMessage());
+        log.warn("Exception occurred in SourceHandler : {}", cause.getMessage());
     }
 
     public void setState(SourceInteractiveState state) {
@@ -191,7 +191,7 @@ public class SourceErrorHandler {
         return state;
     }
 
-    public void checkForResponseWriteStatus(HTTPCarbonMessage inboundRequestMsg,
+    public void checkForResponseWriteStatus(HttpCarbonMessage inboundRequestMsg,
                                             HttpResponseFuture outboundRespStatusFuture, ChannelFuture channelFuture) {
         channelFuture.addListener(writeOperationPromise -> {
             Throwable throwable = writeOperationPromise.cause();

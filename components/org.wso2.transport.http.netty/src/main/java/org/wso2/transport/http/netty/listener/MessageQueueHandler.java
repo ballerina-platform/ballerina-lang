@@ -21,8 +21,8 @@ package org.wso2.transport.http.netty.listener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
+import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * This Handler is responsible for issuing frame by frame when the WebSocket connection is asked to read next frame
@@ -35,16 +35,16 @@ public class MessageQueueHandler extends ChannelInboundHandlerAdapter {
     private boolean readNext;
 
     public MessageQueueHandler() {
-        this.messageQueue = new ConcurrentLinkedQueue<>();
+        this.messageQueue = new LinkedList<>();
     }
 
     @Override
-    public void handlerAdded(ChannelHandlerContext ctx) {
+    public synchronized void handlerAdded(ChannelHandlerContext ctx) {
         this.ctx = ctx;
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) {
+    public synchronized void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (readNext) {
             readNext = false;
             ctx.fireChannelRead(msg);
@@ -53,11 +53,10 @@ public class MessageQueueHandler extends ChannelInboundHandlerAdapter {
         messageQueue.add(msg);
     }
 
-    public void readNextFrame() {
+    public synchronized void readNextFrame() {
         if (ctx == null) {
             throw new IllegalStateException("Cannot call readNextFrame() without an initialized ChannelHandlerContext");
         }
-
         if (messageQueue.isEmpty()) {
             readNext = true;
             ctx.channel().read();

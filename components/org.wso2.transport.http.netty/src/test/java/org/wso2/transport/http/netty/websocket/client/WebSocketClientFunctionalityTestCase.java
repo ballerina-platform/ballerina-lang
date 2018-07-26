@@ -160,6 +160,82 @@ public class WebSocketClientFunctionalityTestCase {
         }
     }
 
+    @Test(description = "See if an error is thrown if a binary message is sent during text continuation.",
+          expectedExceptions = IllegalStateException.class,
+          expectedExceptionsMessageRegExp = "Cannot interrupt WebSocket text frame continuation")
+    public void testIllegalTextFrameContinuation() throws Throwable {
+        WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
+        WebSocketConnection webSocketConnection = getWebSocketConnection(connectorListener);
+
+        ByteBuffer buffer = ByteBuffer.wrap("continuation text 1".getBytes(StandardCharsets.UTF_8));
+        String text = "continuation text 2";
+
+        sendTextMessageAndReceiveResponse(text, false, connectorListener, webSocketConnection);
+        sendAndReceiveBinaryMessage(buffer, false, connectorListener, webSocketConnection);
+    }
+
+    @Test(description = "See if an error is thrown if a text message is sent during binary continuation.",
+          expectedExceptions = IllegalStateException.class,
+          expectedExceptionsMessageRegExp = "Cannot interrupt WebSocket binary frame continuation")
+    public void testIllegalBinaryFrameContinuation() throws Throwable {
+        WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
+        WebSocketConnection webSocketConnection = getWebSocketConnection(connectorListener);
+
+        ByteBuffer buffer = ByteBuffer.wrap("continuation text 1".getBytes(StandardCharsets.UTF_8));
+        String text = "continuation text 2";
+
+        sendAndReceiveBinaryMessage(buffer, false, connectorListener, webSocketConnection);
+        sendTextMessageAndReceiveResponse(text, false, connectorListener, webSocketConnection);
+    }
+
+    @Test(description = "Push text after connection closure should throw an exception.",
+          expectedExceptions = IllegalStateException.class,
+          expectedExceptionsMessageRegExp = "Close frame already sent. Cannot push binary data.")
+    public void testPushBinaryAfterConnectionClosure() throws Throwable {
+        WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
+        WebSocketConnection webSocketConnection = getWebSocketConnection(connectorListener);
+
+        webSocketConnection.terminateConnection(1000, "");
+
+        ByteBuffer buffer = ByteBuffer.wrap("continuation text 1".getBytes(StandardCharsets.UTF_8));
+        sendAndReceiveBinaryMessage(buffer, true, connectorListener, webSocketConnection);
+    }
+
+    @Test(description = "Push text after connection closure should throw an exception.",
+          expectedExceptions = IllegalStateException.class,
+          expectedExceptionsMessageRegExp = "Close frame already sent. Cannot push text data.")
+    public void testPushTextAfterConnectionClosure() throws Throwable {
+        WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
+        WebSocketConnection webSocketConnection = getWebSocketConnection(connectorListener);
+
+        webSocketConnection.terminateConnection(1000, "");
+
+        String text = "continuation text 1";
+        sendTextMessageAndReceiveResponse(text, true, connectorListener, webSocketConnection);
+    }
+
+    @Test(description = "Closing connection twice leads to illegal state.",
+          expectedExceptions = IllegalStateException.class,
+          expectedExceptionsMessageRegExp = "Close frame already sent. Cannot send close frame again.")
+    public void testConnectionClosureTwice() throws Throwable {
+        WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
+        WebSocketConnection webSocketConnection = getWebSocketConnection(connectorListener);
+
+        webSocketConnection.terminateConnection(1000, "");
+        webSocketConnection.initiateConnectionClosure(1000, "");
+    }
+
+    @Test(description = "Closing connection twice leads to illegal state.",
+          expectedExceptions = IllegalStateException.class,
+          expectedExceptionsMessageRegExp = "Close frame already sent. Cannot send close frame again.")
+    public void testTerminateConnectionClosureTwice() throws Throwable {
+        WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
+        WebSocketConnection webSocketConnection = getWebSocketConnection(connectorListener);
+
+        webSocketConnection.terminateConnection(1000, "");
+        webSocketConnection.terminateConnection(1000, "");
+    }
+
     private void assetMessageProperties(WebSocketMessage webSocketMessage) {
         Assert.assertEquals(webSocketMessage.getTarget(), "ws://localhost:9010/websocket");
         Assert.assertFalse(webSocketMessage.isServerMessage());
@@ -167,7 +243,8 @@ public class WebSocketClientFunctionalityTestCase {
 
 
     private void sendAndReceiveBinaryMessage(ByteBuffer bufferSent,
-            WebSocketTestClientConnectorListener connectorListener, WebSocketConnection webSocketConnection)
+                                             WebSocketTestClientConnectorListener connectorListener,
+                                             WebSocketConnection webSocketConnection)
             throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         connectorListener.setCountDownLatch(countDownLatch);
@@ -176,7 +253,8 @@ public class WebSocketClientFunctionalityTestCase {
     }
 
     private void sendAndReceiveBinaryMessage(ByteBuffer bufferSent, boolean finalFragment,
-            WebSocketTestClientConnectorListener connectorListener, WebSocketConnection webSocketConnection)
+                                             WebSocketTestClientConnectorListener connectorListener,
+                                             WebSocketConnection webSocketConnection)
             throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         connectorListener.setCountDownLatch(countDownLatch);
@@ -193,7 +271,8 @@ public class WebSocketClientFunctionalityTestCase {
     }
 
     private void sendTextMessageAndReceiveResponse(String textSent,
-            WebSocketTestClientConnectorListener connectorListener, WebSocketConnection webSocketConnection)
+                                                   WebSocketTestClientConnectorListener connectorListener,
+                                                   WebSocketConnection webSocketConnection)
             throws Throwable {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         connectorListener.setCountDownLatch(countDownLatch);
@@ -202,7 +281,8 @@ public class WebSocketClientFunctionalityTestCase {
     }
 
     private void sendTextMessageAndReceiveResponse(String textSent, boolean finalFragment,
-            WebSocketTestClientConnectorListener connectorListener, WebSocketConnection webSocketConnection)
+                                                   WebSocketTestClientConnectorListener connectorListener,
+                                                   WebSocketConnection webSocketConnection)
             throws Throwable {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         connectorListener.setCountDownLatch(countDownLatch);

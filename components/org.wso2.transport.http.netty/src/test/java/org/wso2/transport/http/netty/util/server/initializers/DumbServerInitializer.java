@@ -24,7 +24,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 /**
  * An initializer class for HTTP Server
  */
-public class DumbServerInitializer extends HTTPServerInitializer {
+public class DumbServerInitializer extends HttpServerInitializer {
 
     protected void addBusinessLogicHandler(Channel channel) {
         channel.pipeline().addLast("handler", new DumbServerHandler());

@@ -163,7 +163,7 @@ public class Http2ConnectionManager {
          * @return active TargetChannel
          */
         Http2ClientChannel fetchTargetChannel() {
-            if (http2ClientChannels.size() != 0) {
+            if (!http2ClientChannels.isEmpty()) {
                 Http2ClientChannel http2ClientChannel = http2ClientChannels.peek();
                 Channel channel = http2ClientChannel.getChannel();
                 if (!channel.isActive()) {  // if channel is not active, forget it and fetch next one

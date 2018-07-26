@@ -165,12 +165,11 @@ public class OCSPVerifier implements RevocationVerifier {
                 connection.setRequestProperty("Accept", "application/ocsp-response");
                 connection.setDoOutput(true);
                 try (OutputStream out = connection.getOutputStream();
-                        DataOutputStream dataOut = new DataOutputStream(new BufferedOutputStream(out));) {
+                        DataOutputStream dataOut = new DataOutputStream(new BufferedOutputStream(out))) {
 
                     dataOut.write(array);
 
                     dataOut.flush();
-                    dataOut.close();
 
                     //Check errors in response:
                     if (connection.getResponseCode() / 100 != 2) {
@@ -272,7 +271,7 @@ public class OCSPVerifier implements RevocationVerifier {
             }
         }
 
-        List<String> ocspUrlList = new ArrayList<String>();
+        List<String> ocspUrlList = new ArrayList<>();
         AccessDescription[] accessDescriptions = authorityInformationAccess.getAccessDescriptions();
         for (AccessDescription accessDescription : accessDescriptions) {
 

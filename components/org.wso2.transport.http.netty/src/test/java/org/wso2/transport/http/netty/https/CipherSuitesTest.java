@@ -34,7 +34,7 @@ import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.TestUtil;
 
@@ -76,8 +76,6 @@ public class CipherSuitesTest {
                         "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", true, TestUtil.HTTPS_SERVER_PORT } };
     }
 
-    @Test(dataProvider = "ciphers")
-
     /**
      * Set up the client and the server
      * @param clientCiphers ciphers given by client
@@ -85,6 +83,7 @@ public class CipherSuitesTest {
      * @param hasException expecting an exception true/false
      * @param serverPort port
      */
+    @Test(dataProvider = "ciphers")
     public void setup(String clientCiphers, String serverCiphers, boolean hasException, int serverPort)
             throws InterruptedException {
 
@@ -111,14 +110,14 @@ public class CipherSuitesTest {
     private void testCiphersuites(boolean hasException, int serverPort) {
         try {
             String testValue = "successful";
-            HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(serverPort, testValue, "");
+            HttpCarbonMessage msg = TestUtil.createHttpsPostReq(serverPort, testValue, "");
 
             CountDownLatch latch = new CountDownLatch(1);
             SSLConnectorListener listener = new SSLConnectorListener(latch);
             HttpResponseFuture responseFuture = httpClientConnector.send(msg);
             responseFuture.setHttpConnectorListener(listener);
             latch.await(5, TimeUnit.SECONDS);
-            HTTPCarbonMessage response = listener.getHttpResponseMessage();
+            HttpCarbonMessage response = listener.getHttpResponseMessage();
 
             if (hasException) {
                 assertNotNull(listener.getThrowables());

@@ -25,8 +25,14 @@ import java.util.Map;
  */
 public class ServerBootstrapConfiguration {
 
-    private boolean tcpNoDelay, keepAlive, socketReuse;
-    private int connectTimeOut, receiveBufferSize, sendBufferSize, soBackLog, socketTimeOut;
+    private boolean tcpNoDelay;
+    private boolean keepAlive;
+    private boolean socketReuse;
+    private int connectTimeOut;
+    private int receiveBufferSize;
+    private int sendBufferSize;
+    private int soBackLog;
+    private int socketTimeOut;
 
     public ServerBootstrapConfiguration(Map<String, Object> properties) {
 

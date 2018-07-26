@@ -19,7 +19,7 @@
 package org.wso2.transport.http.netty.unitfunction;
 
 /**
- * A unit test class for message/HTTPCarbonMessage functions.
+ * A unit test class for message/HttpCarbonMessage functions.
  */
 public class HttpCarbonMessageTestCase {
 
@@ -29,12 +29,12 @@ public class HttpCarbonMessageTestCase {
 //        HttpHeaders headers = new DefaultHttpHeaders();
 //        headers.set("aaa", "123");
 //        headers.add("aaa", "xyz");
-//        HTTPCarbonMessage outboundRequestMsg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+//        HttpCarbonMessage outboundRequestMsg = new HttpCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
 //                HttpMethod.POST, "", headers));
 //        outboundRequestMsg.setProperty(Constants.TO, "/hello");
 //        outboundRequestMsg.addHttpContent(new DefaultLastHttpContent(
 //                Unpooled.wrappedBuffer("testRequestHeaders".getBytes(Charset.defaultCharset()))));
-//        HTTPCarbonMessage clonedMsg = outboundRequestMsg.cloneCarbonMessageWithData();
+//        HttpCarbonMessage clonedMsg = outboundRequestMsg.cloneCarbonMessageWithData();
 //
 //        Assert.assertEquals(clonedMsg.getNettyHttpRequest().method(), HttpMethod.POST);
 //        Assert.assertEquals(clonedMsg.getNettyHttpRequest().protocolVersion(), HttpVersion.HTTP_1_1);
@@ -49,9 +49,9 @@ public class HttpCarbonMessageTestCase {
 //        HttpHeaders headers = new DefaultHttpHeaders();
 //        headers.set("aaa", "123");
 //        headers.add("aaa", "xyz");
-//        HTTPCarbonMessage outboundResponseMsg = new HTTPCarbonMessage(new DefaultHttpResponse(HttpVersion.HTTP_1_1,
+//        HttpCarbonMessage outboundResponseMsg = new HttpCarbonMessage(new DefaultHttpResponse(HttpVersion.HTTP_1_1,
 //                HttpResponseStatus.OK, headers));
-//        HTTPCarbonMessage clonedMsg = outboundResponseMsg.cloneCarbonMessageWithOutData();
+//        HttpCarbonMessage clonedMsg = outboundResponseMsg.cloneCarbonMessageWithOutData();
 //
 //        Assert.assertEquals(clonedMsg.getNettyHttpResponse().protocolVersion(), HttpVersion.HTTP_1_1);
 //        Assert.assertEquals(clonedMsg.getNettyHttpResponse().status(), HttpResponseStatus.OK);

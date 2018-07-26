@@ -19,8 +19,8 @@
 
 package org.wso2.transport.http.netty.contract;
 
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.ResponseHandle;
 
 /**
@@ -37,10 +37,10 @@ public interface HttpClientConnector {
     /**
      * Send httpMessages to the back-end in asynchronous manner.
      *
-     * @param httpCarbonMessage {@link HTTPCarbonMessage} which should be sent to the remote server.
+     * @param httpCarbonMessage {@link HttpCarbonMessage} which should be sent to the remote server.
      * @return the status of the asynchronous send action.
      */
-    HttpResponseFuture send(HTTPCarbonMessage httpCarbonMessage);
+    HttpResponseFuture send(HttpCarbonMessage httpCarbonMessage);
 
     /**
      * Close the connection related to this connector.

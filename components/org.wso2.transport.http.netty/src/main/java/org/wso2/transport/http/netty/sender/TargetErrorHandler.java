@@ -31,7 +31,7 @@ import org.wso2.transport.http.netty.common.SourceInteractiveState;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
@@ -62,7 +62,7 @@ public class TargetErrorHandler {
         this.state = CONNECTED;
     }
 
-    protected void handleErrorCloseScenario(HTTPCarbonMessage inboundResponseMsg) {
+    protected void handleErrorCloseScenario(HttpCarbonMessage inboundResponseMsg) {
         switch (state) {
             case CONNECTED:
                 httpResponseFuture.notifyHttpListener(
@@ -85,28 +85,29 @@ public class TargetErrorHandler {
             case ENTITY_BODY_RECEIVED:
                 break;
             default:
-                log.error(CLIENT_ERROR + "Unexpected state detected ", state);
+                log.error("{} Unexpected state detected {}", CLIENT_ERROR, state);
         }
     }
 
-    protected void handleErrorIdleScenarios(HTTPCarbonMessage inboundResponseMsg, String channelID) {
+    protected void handleErrorIdleScenarios(HttpCarbonMessage inboundResponseMsg, String channelID) {
+        String logStr = "{} {}";
         switch (state) {
             case CONNECTED:
                 httpResponseFuture.notifyHttpListener(new EndpointTimeOutException(channelID,
                         IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_REQUEST,
                         HttpResponseStatus.GATEWAY_TIMEOUT.code()));
                 // Error is notified to server connector. Debug log is to make transport layer aware
-                log.debug(CLIENT_ERROR + IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_REQUEST);
+                log.debug(logStr, CLIENT_ERROR, IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_REQUEST);
                 break;
             case SENDING_ENTITY_BODY:
                 // HttpResponseFuture will be notified asynchronously via Target channel.
-                log.error(CLIENT_ERROR + IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST);
+                log.error(logStr, CLIENT_ERROR, IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST);
                 break;
             case ENTITY_BODY_SENT:
                 httpResponseFuture.notifyHttpListener(new EndpointTimeOutException(channelID,
                         IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
                         HttpResponseStatus.GATEWAY_TIMEOUT.code()));
-                log.error(CLIENT_ERROR + IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE);
+                log.error(logStr, CLIENT_ERROR, IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE);
                 break;
             case RECEIVING_ENTITY_BODY:
                 handleIncompleteInboundResponse(inboundResponseMsg,
@@ -115,11 +116,11 @@ public class TargetErrorHandler {
             case ENTITY_BODY_RECEIVED:
                 break;
             default:
-                log.error(CLIENT_ERROR + "Unexpected state detected ", state);
+                log.error("{} Unexpected state detected {}", CLIENT_ERROR, state);
         }
     }
 
-    private void handleIncompleteInboundResponse(HTTPCarbonMessage inboundResponseMsg, String errorMessage) {
+    private void handleIncompleteInboundResponse(HttpCarbonMessage inboundResponseMsg, String errorMessage) {
         LastHttpContent lastHttpContent = new DefaultLastHttpContent();
         lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(errorMessage)));
         inboundResponseMsg.addHttpContent(lastHttpContent);
@@ -127,7 +128,7 @@ public class TargetErrorHandler {
     }
 
     public void exceptionCaught(Throwable cause) {
-        log.warn("Exception occurred in TargetHandler : " + cause.getMessage());
+        log.warn("Exception occurred in TargetHandler : {}", cause.getMessage());
     }
 
     public void setState(SourceInteractiveState state) {

@@ -28,7 +28,7 @@ import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.util.HTTPConnectorListener;
+import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.initializers.SendChannelIDServerInitializer;
@@ -70,7 +70,7 @@ public class ConnectionPoolMaxConnTestCase {
             int noOfRequests = 15;
             Set<String> channelIDs = new HashSet<>();
             CountDownLatch[] countDownLatches = getLatchesArray(noOfRequests);
-            HTTPConnectorListener[] responseListeners = new HTTPConnectorListener[noOfRequests];
+            DefaultHttpConnectorListener[] responseListeners = new DefaultHttpConnectorListener[noOfRequests];
 
             // Send multiple requests asynchronously to force the creation of multiple connections
             for (int i = 0; i < countDownLatches.length; i++) {

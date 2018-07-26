@@ -20,8 +20,8 @@ package org.wso2.transport.http.netty.sender.http2;
 
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpResponseFuture;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
 import java.util.concurrent.BlockingQueue;
@@ -33,8 +33,8 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class OutboundMsgHolder {
 
-    // Outbound request HTTPCarbonMessage
-    private HTTPCarbonMessage requestCarbonMessage;
+    // Outbound request HttpCarbonMessage
+    private HttpCarbonMessage requestCarbonMessage;
     private BlockingQueue<Http2PushPromise> promises;
     private ConcurrentHashMap<Integer, HttpCarbonResponse> pushResponsesMap;
     private HttpCarbonResponse response;
@@ -47,7 +47,7 @@ public class OutboundMsgHolder {
     private long lastReadWriteTime;
     private boolean requestWritten;
 
-    public OutboundMsgHolder(HTTPCarbonMessage httpCarbonMessage) {
+    public OutboundMsgHolder(HttpCarbonMessage httpCarbonMessage) {
         this.requestCarbonMessage = httpCarbonMessage;
         promises = new LinkedBlockingQueue<>();
         pushResponsesMap = new ConcurrentHashMap<>();
@@ -59,11 +59,11 @@ public class OutboundMsgHolder {
     }
 
     /**
-     * Gets the outbound request {@code HTTPCarbonMessage}.
+     * Gets the outbound request {@code HttpCarbonMessage}.
      *
-     * @return request HTTPCarbonMessage
+     * @return request HttpCarbonMessage
      */
-    public HTTPCarbonMessage getRequest() {
+    public HttpCarbonMessage getRequest() {
         return requestCarbonMessage;
     }
 
@@ -209,7 +209,7 @@ public class OutboundMsgHolder {
         this.requestWritten = requestWritten;
     }
 
-    void updateRequest(HTTPCarbonMessage requestCarbonMessage) {
+    void updateRequest(HttpCarbonMessage requestCarbonMessage) {
         this.requestCarbonMessage = requestCarbonMessage;
     }
 }

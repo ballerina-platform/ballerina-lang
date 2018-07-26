@@ -37,6 +37,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TransportsConfiguration {
 
+    /**
+     * @deprecated
+     * @return the default transport configuration.
+     */
     @Deprecated
     public static TransportsConfiguration getDefault() {
         TransportsConfiguration defaultConfig = new TransportsConfiguration();
@@ -78,7 +82,7 @@ public class TransportsConfiguration {
 
     public Set<ListenerConfiguration> getListenerConfigurations() {
         if (listenerConfigurations == null) {
-            return Collections.<ListenerConfiguration>emptySet();
+            return Collections.emptySet();
         }
 
         return Collections.unmodifiableSet(listenerConfigurations);
@@ -86,7 +90,7 @@ public class TransportsConfiguration {
 
     public Set<SenderConfiguration> getSenderConfigurations() {
         if (senderConfigurations == null) {
-            return Collections.<SenderConfiguration>emptySet();
+            return Collections.emptySet();
         }
         return Collections.unmodifiableSet(senderConfigurations);
     }

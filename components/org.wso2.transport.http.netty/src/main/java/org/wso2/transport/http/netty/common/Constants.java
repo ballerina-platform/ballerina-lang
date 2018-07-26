@@ -18,7 +18,7 @@ package org.wso2.transport.http.netty.common;
 import io.netty.util.AttributeKey;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpClientConnector;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 
 /**
@@ -237,7 +237,7 @@ public final class Constants {
     public static final AttributeKey<Integer> REDIRECT_COUNT = AttributeKey.valueOf("REDIRECT_COUNT");
     public static final AttributeKey<String> RESOLVED_REQUESTED_URI_ATTR = AttributeKey
             .valueOf("RESOLVED_REQUESTED_URI_ATTR");
-    public static final AttributeKey<HTTPCarbonMessage> ORIGINAL_REQUEST = AttributeKey.valueOf("ORIGINAL_REQUEST");
+    public static final AttributeKey<HttpCarbonMessage> ORIGINAL_REQUEST = AttributeKey.valueOf("ORIGINAL_REQUEST");
     public static final AttributeKey<HttpResponseFuture> RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL = AttributeKey
             .valueOf("RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL");
     public static final AttributeKey<Long> ORIGINAL_CHANNEL_START_TIME = AttributeKey

@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 /**
  * Util class that provides common functionality.
  */
-public class HTTPConnectorUtil {
+public class HttpConnectorUtil {
 
     /**
      * Extract sender configuration from transport configuration.
@@ -70,5 +70,8 @@ public class HTTPConnectorUtil {
         }
         // Create Bootstrap Configuration from listener parameters
         return new ServerBootstrapConfiguration(transportProperties);
+    }
+
+    private HttpConnectorUtil() {
     }
 }

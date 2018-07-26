@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class CacheManager {
 
-    private final boolean doNotInterruptIfRunning = false;
+    private static final boolean DO_NOT_INTERRUPT_IF_RUNNING = false;
     private ScheduledExecutorService scheduler;
     private ScheduledFuture scheduledFuture = null;
     private ManageableCache cache;
@@ -69,7 +69,7 @@ public class CacheManager {
         if (scheduledFuture == null || scheduledFuture.isCancelled()) {
             scheduledFuture = scheduler.scheduleWithFixedDelay(cacheManagingTask, delay, delay, TimeUnit.MINUTES);
             if (log.isDebugEnabled()) {
-                log.debug(cache.getClass().getSimpleName() + " Cache Manager Started.");
+                log.debug("{} Cache Manager Started.", cache.getClass().getSimpleName());
             }
             return true;
         }
@@ -85,18 +85,18 @@ public class CacheManager {
     public boolean wakeUpNow() {
         if (scheduledFuture != null) {
             if (!scheduledFuture.isCancelled()) {
-                scheduledFuture.cancel(doNotInterruptIfRunning);
+                scheduledFuture.cancel(DO_NOT_INTERRUPT_IF_RUNNING);
             }
             scheduledFuture = scheduler.scheduleWithFixedDelay(cacheManagingTask, 0, delay, TimeUnit.MINUTES);
             if (log.isDebugEnabled()) {
-                log.debug(cache.getClass().getSimpleName() + " Cache Manager woke up.");
+                log.debug("{} Cache Manager woke up.", cache.getClass().getSimpleName());
             }
             return true;
         }
         return false;
     }
 
-    public boolean changeDelay(int delay) throws IllegalArgumentException {
+    public boolean changeDelay(int delay) {
         int min = Constants.CACHE_MIN_DELAY_MINS;
         int max = Constants.CACHE_MAX_DELAY_MINS;
         if (delay < min || delay > max) {
@@ -117,9 +117,9 @@ public class CacheManager {
      */
     public boolean stop() {
         if (scheduledFuture != null && !scheduledFuture.isCancelled()) {
-            scheduledFuture.cancel(doNotInterruptIfRunning);
+            scheduledFuture.cancel(DO_NOT_INTERRUPT_IF_RUNNING);
             if (log.isDebugEnabled()) {
-                log.debug(cache.getClass().getSimpleName() + " Cache Manager stopped.");
+                log.debug("{} Cache Manager stopped.", cache.getClass().getSimpleName());
             }
             return true;
         }
@@ -140,7 +140,7 @@ public class CacheManager {
 
             long start = System.currentTimeMillis();
             if (log.isDebugEnabled()) {
-                log.debug(cache.getClass().getSimpleName() + " Cache Manager Task Started.");
+                log.debug("{} Cache Manager Task Started.", cache.getClass().getSimpleName());
             }
 
             ManageableCacheValue nextCacheValue;
@@ -148,7 +148,7 @@ public class CacheManager {
             int cacheSize = cache.getCacheSize();
             int numberToRemove = (cacheSize > cacheMaxSize) ? cacheSize - cacheMaxSize : 0;
 
-            List<ManageableCacheValue> entriesToRemove = new ArrayList<ManageableCacheValue>();
+            List<ManageableCacheValue> entriesToRemove = new ArrayList<>();
             LRUEntryCollector lruEntryCollector = new LRUEntryCollector(entriesToRemove, numberToRemove);
 
             //Start looking at cache entries from the beginning.
@@ -218,10 +218,10 @@ public class CacheManager {
                 }
                 entriesToRemove.remove(j);
                 entriesToRemove.add(j, value);
-                /**
-                 * First entry in the list will be the oldest. Last is the earliest in the list.
-                 * So remove the earliest since we need to collect the old (LRU) values to remove
-                 * from cache later
+                /*
+                  First entry in the list will be the oldest. Last is the earliest in the list.
+                  So remove the earliest since we need to collect the old (LRU) values to remove
+                  from cache later
                  */
                 if (entriesToRemove.size() > listMaxSize) {
                     entriesToRemove.remove(entriesToRemove.size() - 1);
@@ -230,4 +230,3 @@ public class CacheManager {
         }
     }
 }
-

@@ -155,7 +155,7 @@ public class ConnectionManager {
                 log.debug("Channel {} is inactive hence not returning to connection pool", channelID);
             }
         } catch (Exception e) {
-            throw new Exception("Couldn't return channel {} to pool", e);
+            throw new Exception("Couldn't return channel to pool", e);
         }
     }
 
@@ -198,7 +198,7 @@ public class ConnectionManager {
         config.maxWait = poolConfiguration.getMaxWaitTime();
 
         if (log.isDebugEnabled()) {
-            log.debug("Creating a pool with {}", config.toString());
+            log.debug("Creating a pool with {}", config);
         }
         return config;
     }

@@ -42,9 +42,9 @@ import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
-import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.net.SocketAddress;
 import java.util.Map;
@@ -65,7 +65,7 @@ import static org.wso2.transport.http.netty.common.Util.is100ContinueRequest;
 public class SourceHandler extends ChannelInboundHandlerAdapter {
     private static Logger log = LoggerFactory.getLogger(SourceHandler.class);
 
-    private HTTPCarbonMessage inboundRequestMsg;
+    private HttpCarbonMessage inboundRequestMsg;
     private HandlerExecutor handlerExecutor;
     private Map<String, GenericObjectPool> targetChannelPool;
     private ChunkConfig chunkConfig;
@@ -141,7 +141,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                     }
                 } catch (RuntimeException ex) {
                     httpContent.release();
-                    log.warn("Response already received before completing the inbound request" + ex.getMessage());
+                    log.warn("Response already received before completing the inbound request. {}", ex.getMessage());
                 }
             }
         } else {
@@ -149,7 +149,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private void notifyRequestListener(HTTPCarbonMessage httpRequestMsg, ChannelHandlerContext ctx) {
+    private void notifyRequestListener(HttpCarbonMessage httpRequestMsg, ChannelHandlerContext ctx) {
 
         if (handlerExecutor != null) {
             handlerExecutor.executeAtSourceRequestReceiving(httpRequestMsg);
@@ -170,20 +170,15 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private boolean isDiffered(HTTPCarbonMessage sourceReqCmsg) {
-        //Http resource stored in the HTTPCarbonMessage means execution waits till payload.
+    private boolean isDiffered(HttpCarbonMessage sourceReqCmsg) {
+        //Http resource stored in the HttpCarbonMessage means execution waits till payload.
         return sourceReqCmsg.getProperty(Constants.HTTP_RESOURCE) != null;
-    }
-
-    @Override
-    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-        super.handlerAdded(ctx);
     }
 
     @Override
     public void channelActive(final ChannelHandlerContext ctx) {
         allChannels.add(ctx.channel());
-        this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
+        this.handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
         if (this.handlerExecutor != null) {
             this.handlerExecutor.executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
         }
@@ -237,7 +232,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                     sourceErrorHandler.setState(ENTITY_BODY_SENT);
                     Throwable cause = channelFuture.cause();
                     if (cause != null) {
-                        log.warn("Failed to send: " + cause.getMessage());
+                        log.warn("Failed to send: {}", cause.getMessage());
                     }
                     this.channelInactive(ctx);
                     if (inCompleteRequest) {
@@ -246,7 +241,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                     }
                 });
             }
-            log.debug("Idle timeout has reached hence closing the connection {}", ctx.channel().id().asShortText());
+            String channelId = ctx.channel().id().asShortText();
+            log.debug("Idle timeout has reached hence closing the connection {}", channelId);
         } else if (evt instanceof HttpServerUpgradeHandler.UpgradeEvent) {
             log.debug("Server upgrade event received");
         } else if (evt instanceof SslCloseCompletionEvent) {
@@ -259,7 +255,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             // When closing the channel, if it is already closed it will trigger this event. So we can ignore this.
             log.debug("Input side of the connection is already shutdown");
         } else {
-            log.warn("Unexpected user event {} triggered", evt.toString());
+            log.warn("Unexpected user event {} triggered", evt);
         }
     }
 

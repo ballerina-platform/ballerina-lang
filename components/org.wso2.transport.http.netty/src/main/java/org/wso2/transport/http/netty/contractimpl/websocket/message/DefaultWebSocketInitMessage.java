@@ -151,7 +151,8 @@ public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage impleme
         return handshakeStarted;
     }
 
-    @Override public boolean isSecure() {
+    @Override
+    public boolean isSecure() {
         return secureConnection;
     }
 
@@ -164,7 +165,7 @@ public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage impleme
                                                   HttpHeaders headers) {
         DefaultServerHandshakeFuture handshakeFuture = new DefaultServerHandshakeFuture();
         if (cancelled) {
-            Throwable e = new IllegalAccessException("Handshake is already cancelled!");
+            Throwable e = new IllegalAccessException("Handshake is already cancelled.");
             handshakeFuture.notifyError(e);
             return handshakeFuture;
         }
@@ -172,11 +173,9 @@ public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage impleme
                 handshaker.handshake(ctx.channel(), httpRequest, headers, ctx.channel().newPromise());
         channelFuture.addListener(future -> {
             if (future.isSuccess() && future.cause() == null) {
-                MessageQueueHandler messageQueueHandler = new MessageQueueHandler();
                 WebSocketInboundFrameHandler frameHandler = new WebSocketInboundFrameHandler(true, secureConnection,
-                        target, handshaker.selectedSubprotocol(), connectorFuture,
-                        messageQueueHandler);
-                configureFrameHandlingPipeline(idleTimeout, messageQueueHandler, frameHandler);
+                        target, handshaker.selectedSubprotocol(), connectorFuture, new MessageQueueHandler());
+                configureFrameHandlingPipeline(idleTimeout, frameHandler);
                 handshakeFuture.notifySuccess(frameHandler.getWebSocketConnection());
             } else {
                 handshakeFuture.notifyError(future.cause());
@@ -186,8 +185,7 @@ public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage impleme
         return handshakeFuture;
     }
 
-    private void configureFrameHandlingPipeline(int idleTimeout, MessageQueueHandler messageQueueHandler,
-                                                WebSocketInboundFrameHandler frameHandler) {
+    private void configureFrameHandlingPipeline(int idleTimeout, WebSocketInboundFrameHandler frameHandler) {
         ChannelPipeline pipeline = ctx.pipeline();
         pipeline.remove(Constants.WEBSOCKET_SERVER_HANDSHAKE_HANDLER);
         if (idleTimeout > 0) {
@@ -197,8 +195,8 @@ public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage impleme
         } else {
             pipeline.remove(Constants.IDLE_STATE_HANDLER);
         }
-        pipeline.addLast(Constants.MESSAGE_QUEUE_HANDLER, messageQueueHandler);
         pipeline.addLast(Constants.WEBSOCKET_FRAME_HANDLER, frameHandler);
+        frameHandler.getWebSocketConnection().stopReadingFrames();
         pipeline.fireChannelActive();
     }
 

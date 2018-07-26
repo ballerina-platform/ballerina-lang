@@ -39,6 +39,10 @@ public class ListenerConfiguration {
 
     public static final String DEFAULT_KEY = "default";
 
+    /**
+     * @deprecated
+     * @return the default listener configuration.
+     */
     @Deprecated
     public static ListenerConfiguration getDefault() {
         ListenerConfiguration defaultConfig;
@@ -288,8 +292,7 @@ public class ListenerConfiguration {
     }
 
     private List<Parameter> getDefaultParameters() {
-        List<Parameter> defaultParams = new ArrayList<>();
-        return defaultParams;
+        return new ArrayList<>();
 
     }
 

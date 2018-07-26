@@ -32,14 +32,14 @@ import javax.net.ssl.SSLEngine;
 /**
  * An initializer class for HTTP Server
  */
-public abstract class HTTPServerInitializer extends ChannelInitializer {
+public abstract class HttpServerInitializer extends ChannelInitializer {
 
-    private static final Logger logger = LoggerFactory.getLogger(HTTPServerInitializer.class);
+    private static final Logger logger = LoggerFactory.getLogger(HttpServerInitializer.class);
 
     private SSLContext sslContext;
 
     @Override
-    protected void initChannel(Channel channel) throws Exception {
+    protected void initChannel(Channel channel) {
 
         logger.debug("Server connection established");
         ChannelPipeline serverPipeline = channel.pipeline();

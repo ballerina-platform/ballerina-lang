@@ -11,7 +11,7 @@ import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
-import org.wso2.transport.http.netty.util.HTTPConnectorListener;
+import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.initializers.SendChannelIDServerInitializer;
@@ -58,7 +58,7 @@ public class ConnectionPoolWaitingTimeoutTestCase {
                 countDownLatches[i] = new CountDownLatch(1);
             }
 
-            HTTPConnectorListener[] responseListeners = new HTTPConnectorListener[noOfRequests];
+            DefaultHttpConnectorListener[] responseListeners = new DefaultHttpConnectorListener[noOfRequests];
             for (int i = 0; i < countDownLatches.length; i++) {
                 responseListeners[i] = TestUtil.sendRequestAsync(countDownLatches[i], httpClientConnector);
             }
@@ -71,10 +71,10 @@ public class ConnectionPoolWaitingTimeoutTestCase {
             // Check the responses.
             Throwable throwable = null;
             HashSet<String> channelIds = new HashSet<>();
-            for (HTTPConnectorListener responseListener : responseListeners) {
+            for (DefaultHttpConnectorListener responseListener : responseListeners) {
                 if (responseListener.getHttpErrorMessage() != null) {
                     if (throwable != null) {
-                        Assert.assertTrue(false, "Cannot have more than one error");
+                        Assert.fail("Cannot have more than one error");
                     }
                     throwable = responseListener.getHttpErrorMessage();
                 } else {

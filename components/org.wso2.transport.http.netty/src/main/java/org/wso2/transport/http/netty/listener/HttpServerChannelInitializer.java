@@ -56,8 +56,6 @@ import org.wso2.transport.http.netty.sender.CertificateValidationHandler;
 
 import java.io.IOException;
 import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableEntryException;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLEngine;
 
@@ -127,9 +125,8 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         }
     }
 
-    private OCSPResp getOcspResponse()
-            throws IOException, KeyStoreException, UnrecoverableEntryException, NoSuchAlgorithmException,
-            CertificateVerificationException {
+    private OCSPResp getOcspResponse() throws IOException, KeyStoreException,
+                   CertificateVerificationException {
         OCSPResp response = OCSPResponseBuilder.generatetOcspResponse(sslConfig, cacheSize, cacheDelay);
         if (!OpenSsl.isAvailable()) {
             throw new IllegalStateException("OpenSSL is not available!");
@@ -141,8 +138,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
     }
 
     private void configureSslForHttp(ChannelPipeline serverPipeline, SocketChannel ch)
-            throws NoSuchAlgorithmException, CertificateVerificationException, UnrecoverableEntryException,
-            KeyStoreException, IOException {
+            throws CertificateVerificationException, KeyStoreException, IOException {
 
         if (ocspStaplingEnabled) {
             OCSPResp response = getOcspResponse();
@@ -185,7 +181,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
             serverPipeline.addLast(Constants.HTTP_CHUNK_WRITER, new ChunkedWriteHandler());
 
             if (httpTraceLogEnabled) {
-                serverPipeline.addLast(HTTP_TRACE_LOG_HANDLER, new HTTPTraceLoggingHandler(TRACE_LOG_DOWNSTREAM));
+                serverPipeline.addLast(HTTP_TRACE_LOG_HANDLER, new HttpTraceLoggingHandler(TRACE_LOG_DOWNSTREAM));
             }
             if (httpAccessLogEnabled) {
                 serverPipeline.addLast(HTTP_ACCESS_LOG_HANDLER, new HttpAccessLoggingHandler(ACCESS_LOG));
@@ -237,7 +233,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         pipeline.addLast(Constants.HTTP_COMPRESSOR, new CustomHttpContentCompressor());
         if (httpTraceLogEnabled) {
             pipeline.addLast(HTTP_TRACE_LOG_HANDLER,
-                             new HTTPTraceLoggingHandler(TRACE_LOG_DOWNSTREAM));
+                             new HttpTraceLoggingHandler(TRACE_LOG_DOWNSTREAM));
         }
         if (httpAccessLogEnabled) {
             pipeline.addLast(HTTP_ACCESS_LOG_HANDLER, new HttpAccessLoggingHandler(ACCESS_LOG));
@@ -336,10 +332,10 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         }
 
         /**
-         *  Configure pipeline after SSL handshake
+         *  Configure pipeline after SSL handshake.
          */
         @Override
-        protected void configurePipeline(ChannelHandlerContext ctx, String protocol) throws Exception {
+        protected void configurePipeline(ChannelHandlerContext ctx, String protocol) {
             if (ApplicationProtocolNames.HTTP_2.equals(protocol)) {
                 // handles pipeline for HTTP/2 requests after SSL handshake
                 ctx.pipeline().addLast(
@@ -355,7 +351,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         }
 
         @Override
-        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
             if (ctx != null && ctx.channel().isActive()) {
                 ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
             }

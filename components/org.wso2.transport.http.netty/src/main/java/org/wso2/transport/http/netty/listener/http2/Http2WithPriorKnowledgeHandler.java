@@ -54,7 +54,8 @@ public class Http2WithPriorKnowledgeHandler extends ChannelInboundHandlerAdapter
         this.serverChannelInitializer = serverChannelInitializer;
     }
 
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (msg instanceof ByteBuf) {
             ByteBuf inputData = (ByteBuf) msg;
             ByteBuf clientPrefaceString = Http2CodecUtil.connectionPrefaceBuf();
