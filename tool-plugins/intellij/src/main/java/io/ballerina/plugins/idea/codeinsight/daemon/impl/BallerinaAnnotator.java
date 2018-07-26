@@ -57,8 +57,8 @@ public class BallerinaAnnotator implements Annotator {
             PsiReference reference = ((BallerinaNameReference) element).getIdentifier().getReference();
             if (reference != null) {
                 PsiElement resolvedElement = reference.resolve();
-                if (resolvedElement != null
-                        && resolvedElement.getParent() instanceof BallerinaGlobalVariableDefinition) {
+                if (resolvedElement != null && resolvedElement
+                        .getParent() instanceof BallerinaGlobalVariableDefinition) {
                     Annotation annotation = holder.createInfoAnnotation(element, null);
                     annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.GLOBAL_VARIABLE);
                 }
@@ -93,63 +93,42 @@ public class BallerinaAnnotator implements Annotator {
                     elementType == BallerinaTypes.DEPRECATED_TEMPLATE_START) {
                 // This uses an overloaded method so that the color can be easily changeable if required.
                 annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.DOCUMENTATION);
-            } else if (elementType == BallerinaTypes.DOCUMENTATION_TEMPLATE_ATTRIBUTE_START) {
-                // Doc type.
-                String msg = null;
-                switch (element.getText().charAt(0)) {
-                    case 'T':
-                        msg = "Receiver";
-                        break;
-                    case 'P':
-                        msg = "Parameter";
-                        break;
-                    case 'R':
-                        msg = "Return Value";
-                        break;
-                    case 'F':
-                        msg = "Field";
-                        break;
-                    case 'V':
-                        msg = "Variable";
-                        break;
-                    case 'E':
-                        msg = "Endpoint";
-                        break;
-                }
+            } else if (elementType == BallerinaTypes.PARAMETER_DOCUMENTATION_START) {
+
                 // Highlight type
                 TextRange textRange = element.getTextRange();
-                TextRange newTextRange = new TextRange(textRange.getStartOffset(), textRange.getEndOffset() - 2);
-                Annotation annotation = holder.createInfoAnnotation(newTextRange, msg);
+                TextRange newTextRange = new TextRange(textRange.getStartOffset()+1, textRange.getEndOffset());
+                Annotation annotation = holder.createInfoAnnotation(newTextRange, "Parameter Name");
                 annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION_INLINE_CODE);
-                newTextRange = new TextRange(textRange.getEndOffset() - 2, textRange.getEndOffset());
                 // Highlight {{
+                newTextRange = new TextRange(textRange.getEndOffset(), textRange.getEndOffset()+1);
                 annotation = holder.createInfoAnnotation(newTextRange, null);
                 annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.STRING);
             } else if (elementType == BallerinaTypes.DOCUMENTATION_TEMPLATE_ATTRIBUTE_END) {
                 annotateText(element, holder);
-            } else if (elementType == BallerinaTypes.SINGLE_BACK_TICK_INLINE_CODE
-                    || elementType == BallerinaTypes.DOUBLE_BACK_TICK_INLINE_CODE
-                    || elementType == BallerinaTypes.TRIPLE_BACK_TICK_INLINE_CODE
+            } else if (elementType == BallerinaTypes.SINGLE_BACKTICK_CONTENT
+                    || elementType == BallerinaTypes.DOUBLE_BACKTICK_CONTENT
+                    || elementType == BallerinaTypes.TRIPLE_BACKTICK_CONTENT
                     || elementType == BallerinaTypes.SINGLE_BACK_TICK_DEPRECATED_INLINE_CODE
                     || elementType == BallerinaTypes.DOUBLE_BACK_TICK_DEPRECATED_INLINE_CODE
                     || elementType == BallerinaTypes.TRIPLE_BACK_TICK_DEPRECATED_INLINE_CODE) {
                 annotateInlineCode(element, holder);
-            } else if (elementType == BallerinaTypes.DOCUMENTATION_TEMPLATE_TEXT
+            } else if (elementType == BallerinaTypes.MARKDOWN_DOCUMENTATION_TEXT
                     || elementType == BallerinaTypes.DEPRECATED_TEMPLATE_TEXT) {
                 Annotation annotation = holder.createInfoAnnotation(element, null);
                 annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION);
             } else if (elementType == BallerinaTypes.IDENTIFIER) {
-                if (parent.getNode().getElementType() == BallerinaTypes.DOCUMENTATION_TEMPLATE_ATTRIBUTE_DESCRIPTION) {
+                if (parent.getNode().getElementType() == BallerinaTypes.PARAMETER_DOCUMENTATION) {
                     Annotation annotation = holder.createInfoAnnotation(element, null);
                     annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION_INLINE_CODE);
                 } else if (parent instanceof BallerinaGlobalVariableDefinition) {
                     Annotation annotation = holder.createInfoAnnotation(element, null);
                     annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.GLOBAL_VARIABLE);
                 } else if ("self".equals(element.getText())) {
-                    BallerinaTypeDefinition typeDefinition = PsiTreeUtil.getParentOfType(element,
-                            BallerinaTypeDefinition.class);
-                    BallerinaFunctionDefinition functionDefinition = PsiTreeUtil.getParentOfType(element,
-                            BallerinaFunctionDefinition.class);
+                    BallerinaTypeDefinition typeDefinition = PsiTreeUtil
+                            .getParentOfType(element, BallerinaTypeDefinition.class);
+                    BallerinaFunctionDefinition functionDefinition = PsiTreeUtil
+                            .getParentOfType(element, BallerinaFunctionDefinition.class);
                     if (typeDefinition == null && (functionDefinition == null
                             || functionDefinition.getAttachedObject() == null)) {
                         return;
@@ -198,7 +177,7 @@ public class BallerinaAnnotator implements Annotator {
     }
 
     private void annotateKeyword(@NotNull PsiElement element, @NotNull AnnotationHolder holder,
-                                 @NotNull TextAttributesKey textAttributesKey) {
+            @NotNull TextAttributesKey textAttributesKey) {
         TextRange textRange = element.getTextRange();
         TextRange newTextRange = new TextRange(textRange.getStartOffset(), textRange.getEndOffset() - 1);
         Annotation annotation = holder.createInfoAnnotation(newTextRange, null);
