@@ -16,15 +16,282 @@
  */
 package org.ballerinalang.persistence.serializable.serializer;
 
+import com.google.common.collect.Lists;
+import org.ballerinalang.model.util.JsonNode;
+import org.ballerinalang.persistence.serializable.SerializableContext;
+import org.ballerinalang.persistence.serializable.SerializableRespContext;
 import org.ballerinalang.persistence.serializable.SerializableState;
+import org.ballerinalang.persistence.serializable.SerializableWorkerData;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Serialize @{@link SerializableState} into JSON and back.
  */
 public class JsonSerializer implements StateSerializer {
+
     @Override
     public byte[] serialize(SerializableState sState) {
-        return new byte[0];
+        JsonNode jsonState = convertToJson(sState);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            jsonState.serialize(outputStream);
+        } catch (IOException e) {
+            // it's ByteArrayOutputStream, no IO here.
+        }
+
+        return outputStream.toByteArray();
+    }
+
+    private JsonNode convertToJson(SerializableState sState) {
+        if (sState == null) {
+            return new JsonNode(JsonNode.Type.NULL);
+        }
+        JsonNode stateObj = new JsonNode(JsonNode.Type.OBJECT);
+        stateObj.set("instanceId", sState.getInstanceId());
+        stateObj.set("currentContextKey", sState.currentContextKey);
+        stateObj.set("sContexts", convertToJson((Map) sState.sContexts,
+                SerializableContext.class.getSimpleName()));
+        stateObj.set("sRespContext", convertToJson((Map) sState.sRespContexts,
+                SerializableRespContext.class.getSimpleName()));
+
+        JsonNode wrappedStateObj = wrapObject(SerializableState.class.getSimpleName(), stateObj);
+        return wrappedStateObj;
+    }
+
+    private JsonNode convertToJson(SerializableContext serializableContext) {
+        if (serializableContext == null) {
+            return new JsonNode(JsonNode.Type.NULL);
+        }
+        JsonNode sContext = new JsonNode(JsonNode.Type.OBJECT);
+        sContext.set("contextKey", serializableContext.contextKey);
+        sContext.set("parent", serializableContext.parent);
+        sContext.set("respContextKey", serializableContext.respContextKey);
+        // state variable is initialized to CREATED and never changed.
+        sContext.set("localProps", convertToJson(serializableContext.localProps, Object.class.getSimpleName()));
+        sContext.set("ip", serializableContext.ip);
+        sContext.set("workerLocal", convertToJson(serializableContext.workerLocal));
+        sContext.set("workerResult", convertToJson(serializableContext.workerResult));
+        sContext.set("retRegIndexes", convertToJson(serializableContext.retRegIndexes));
+        sContext.set("renInCaller", serializableContext.runInCaller);
+        sContext.set("interruptible", serializableContext.interruptible);
+        sContext.set("enclosingServiceName", serializableContext.enclosingServiceName);
+        sContext.set("callableUnitName", serializableContext.callableUnitName);
+        sContext.set("callableUnitPkgPath", serializableContext.callableUnitPkgPath);
+        sContext.set("workerName", serializableContext.workerName);
+
+        JsonNode wrappedContext = wrapObject(SerializableContext.class.getSimpleName(), sContext);
+        return wrappedContext;
+    }
+
+    private JsonNode convertToJson(SerializableWorkerData data) {
+        if (data == null) {
+            return new JsonNode(JsonNode.Type.NULL);
+        }
+        JsonNode workerData = new JsonNode(JsonNode.Type.OBJECT);
+        workerData.set("longResg", convertToJson(data.longRegs));
+        workerData.set("doubleRegs", convertToJson(data.doubleRegs));
+        workerData.set("stringRegs", convertToJson(data.stringRegs));
+        workerData.set("intRegs", convertToJson(data.intRegs));
+        workerData.set("byteRegs", convertToJson(data.byteRegs));
+        workerData.set("refFields", convertToJson(data.refFields));
+
+        JsonNode wrappedWorkerData = wrapObject(SerializableWorkerData.class.getSimpleName(), workerData);
+        return wrappedWorkerData;
+    }
+
+    private JsonNode convertToJson(Map<String, Object> map, String valueType) {
+        if (map == null) {
+            return new JsonNode(JsonNode.Type.NULL);
+        }
+        JsonNode jsonMap = new JsonNode(JsonNode.Type.OBJECT);
+        for (String key : map.keySet()) {
+            Object value = map.get(key);
+            jsonMap.set(key, convertToJson(value));
+        }
+
+        JsonNode mapInfo = wrapMap("string", valueType, jsonMap);
+        return mapInfo;
+    }
+
+    private JsonNode convertToJson(int[] array) {
+        if (array == null) {
+            return new JsonNode(JsonNode.Type.NULL);
+        }
+        JsonNode node = new JsonNode(JsonNode.Type.ARRAY);
+        for (int i : array) {
+            node.add(i);
+        }
+        return node;
+    }
+
+    private JsonNode convertToJson(long[] array) {
+        if (array == null) {
+            return new JsonNode(JsonNode.Type.NULL);
+        }
+        JsonNode node = new JsonNode(JsonNode.Type.ARRAY);
+        for (long i : array) {
+            node.add(i);
+        }
+        return node;
+    }
+
+    private JsonNode convertToJson(double[] array) {
+        if (array == null) {
+            return new JsonNode(JsonNode.Type.NULL);
+        }
+        JsonNode node = new JsonNode(JsonNode.Type.ARRAY);
+        for (double i : array) {
+            node.add(i);
+        }
+        return node;
+    }
+
+    private JsonNode convertToJson(String[] array) {
+        if (array == null) {
+            return new JsonNode(JsonNode.Type.NULL);
+        }
+        JsonNode node = new JsonNode(JsonNode.Type.ARRAY);
+        for (String i : array) {
+            node.add(i);
+        }
+        return node;
+    }
+
+    private JsonNode convertToJson(Byte[][] array) {
+        if (array == null) {
+            return new JsonNode(JsonNode.Type.NULL);
+        }
+        JsonNode node = new JsonNode(JsonNode.Type.ARRAY);
+        for (Byte[] i : array) {
+            node.add(convertToJson(i));
+        }
+        return node;
+    }
+
+    private JsonNode convertToJson(Byte[] array) {
+        if (array == null) {
+            return new JsonNode(JsonNode.Type.NULL);
+        }
+        JsonNode node = new JsonNode(JsonNode.Type.ARRAY);
+        for (Byte i : array) {
+            node.add(i);
+        }
+        return node;
+    }
+
+    private JsonNode convertToJson(List list) {
+        return null;
+    }
+
+
+    private JsonNode convertToJson(Object obj) {
+        if (obj == null) {
+            return new JsonNode(JsonNode.Type.NULL);
+        }
+        if (obj instanceof SerializableContext) {
+            return convertToJson((SerializableContext) obj);
+        }
+        if (obj instanceof SerializableState) {
+            return convertToJson((SerializableState) obj);
+        }
+        if (obj instanceof SerializableWorkerData) {
+            return convertToJson((SerializableWorkerData) obj);
+        }
+        if (obj instanceof int[]) {
+            return convertToJson((int[]) obj);
+        }
+        if (obj instanceof long[]) {
+            return convertToJson((long[]) obj);
+        }
+        if (obj instanceof double[]) {
+            return convertToJson((double[]) obj);
+        }
+        if (obj instanceof String[]) {
+            return convertToJson((String[]) obj);
+        }
+        if (obj instanceof Byte[][]) {
+            return convertToJson((Byte[][]) obj);
+        }
+        if (obj instanceof Byte[]) {
+            return convertToJson((Byte[]) obj);
+        }
+        if (obj instanceof Integer) {
+            return new JsonNode(((Integer) obj).longValue());
+        }
+        if (obj instanceof Long) {
+            return new JsonNode((Long) obj);
+        }
+        if (obj instanceof Float) {
+            return new JsonNode(((Float) obj).doubleValue());
+        }
+        if (obj instanceof Double) {
+            return new JsonNode((Double) obj);
+        }
+        if (obj instanceof Boolean) {
+            return new JsonNode((Boolean) obj);
+        }
+        return convertObjToJson(obj);
+    }
+
+    private JsonNode convertObjToJson(Object obj) {
+        if (obj == null) {
+            return new JsonNode(JsonNode.Type.NULL);
+        }
+        if (obj instanceof Map) {
+            return convertToJson((Map) obj, Object.class.getSimpleName());
+        }
+        if (obj instanceof List) {
+            return convertToJson((List) obj);
+        }
+
+        return convertToJsonViaReflection(obj);
+    }
+
+    private JsonNode convertToJsonViaReflection(Object obj) {
+        Class objClass = obj.getClass();
+        JsonNode jsonNode = new JsonNode(JsonNode.Type.OBJECT);
+
+        for (Field field : getAllFields(objClass, obj)) {
+            field.setAccessible(true);
+            try {
+                jsonNode.set(field.getName(), convertToJson(field.get(obj)));
+            } catch (IllegalAccessException e) {
+                // field is set to be accessible
+            }
+        }
+
+        return wrapObject(objClass.getSimpleName(), jsonNode);
+    }
+
+    private List<Field> getAllFields(Class clazz, Object instance) {
+        ArrayList<Field> fields = Lists.newArrayList(clazz.getDeclaredFields());
+
+        for (Class parent = clazz.getSuperclass(); parent != Object.class; parent = parent.getSuperclass()) {
+            fields.addAll(Lists.newArrayList(parent.getDeclaredFields()));
+        }
+        return fields;
+    }
+
+    private JsonNode wrapObject(String type, JsonNode payload) {
+        JsonNode objInfo = new JsonNode(JsonNode.Type.OBJECT);
+        objInfo.set("type", type);
+        objInfo.set("payload", payload);
+        return objInfo;
+    }
+
+    private JsonNode wrapMap(String keyType, String valType, JsonNode payload) {
+        JsonNode mapInfo = new JsonNode(JsonNode.Type.OBJECT);
+        mapInfo.set("type", "map");
+        mapInfo.set("keyType", keyType);
+        mapInfo.set("valType", valType);
+        mapInfo.set("payload", payload);
+        return mapInfo;
     }
 
     @Override
