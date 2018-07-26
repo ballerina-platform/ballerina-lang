@@ -1,0 +1,55 @@
+{
+  "private": true,
+  "name": "browser-app",
+  "version": "0.0.1",
+  "dependencies": {
+    "@theia/callhierarchy": "latest",
+    "@theia/core": "latest",
+    "@theia/cpp": "latest",
+    "@theia/editor": "latest",
+    "@theia/editorconfig": "latest",
+    "@theia/extension-manager": "latest",
+    "@theia/file-search": "latest",
+    "@theia/filesystem": "latest",
+    "@theia/git": "latest",
+    "@theia/java": "latest",
+    "@theia/keymaps": "latest",
+    "@theia/languages": "latest",
+    "@theia/markers": "latest",
+    "@theia/merge-conflicts": "latest",
+    "@theia/messages": "latest",
+    "@theia/metrics": "latest",
+    "@theia/mini-browser": "latest",
+    "@theia/monaco": "latest",
+    "@theia/navigator": "latest",
+    "@theia/outline-view": "latest",
+    "@theia/output": "latest",
+    "@theia/plugin-ext": "latest",
+    "@theia/plugin-ext-vscode": "latest",
+    "@theia/preferences": "latest",
+    "@theia/preview": "latest",
+    "@theia/process": "latest",
+    "@theia/python": "latest",
+    "@theia/search-in-workspace": "latest",
+    "@theia/task": "latest",
+    "@theia/terminal": "latest",
+    "@theia/textmate-grammars": "latest",
+    "@theia/typescript": "latest",
+    "@theia/userstorage": "latest",
+    "@theia/variable-resolver": "latest",
+    "@theia/workspace": "latest",
+    "ballerina-extension": "0.0.1"
+  },
+  "devDependencies": {
+    "raw-loader": "^0.5.1",
+    "@theia/cli": "latest"
+  },
+  "scripts": {
+    "prepare": "theia build --mode development",
+    "start": "theia start",
+    "watch": "theia build --watch --mode development"
+  },
+  "theia": {
+    "target": "browser"
+  }
+}
