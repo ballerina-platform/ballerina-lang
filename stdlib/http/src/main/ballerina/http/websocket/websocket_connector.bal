@@ -23,26 +23,26 @@ public type WebSocketConnector object {
     # + text - Text to be sent
     # + final - True if this is a final frame of a (long) message
     # + return - `error` if an error occurs when sending
-    public native function pushText(string text, boolean final = true) returns error?;
+    public extern function pushText(string text, boolean final = true) returns error?;
 
     # Push binary data to the connection.
     #
     # + data - Binary data to be sent
     # + final - True if this is a final frame of a (long) message
     # + return - `error` if an error occurs when sending
-    public native function pushBinary(byte[] data, boolean final = true) returns error?;
+    public extern function pushBinary(byte[] data, boolean final = true) returns error?;
 
     # Ping the connection.
     #
     # + data - Binary data to be sent.
     # + return - `error` if an error occurs when sending
-    public native function ping(byte[] data) returns error?;
+    public extern function ping(byte[] data) returns error?;
 
     # Send pong message to the connection.
     #
     # + data - Binary data to be sent
     # + return - `error` if an error occurs when sending
-    public native function pong(byte[] data) returns error?;
+    public extern function pong(byte[] data) returns error?;
 
     # Close the connection.
     #
@@ -54,12 +54,12 @@ public type WebSocketConnector object {
     #                   until a close frame is received. If WebSocket frame is received from the remote endpoint
     #                   within waiting period the connection is terminated immediately.
     # + return - `error` if an error occurs when sending
-    public native function close(int statusCode, string reason, int timeoutInSecs = 60) returns error?;
+    public extern function close(int statusCode, string reason, int timeoutInSecs = 60) returns error?;
 
     # Called when the endpoint is ready to receive messages. Can be called only once per endpoint. For the
     # WebSocketListener can be called only in upgrade or onOpen resources.
     #
     # + return - `error` if an error occurs when sending
-    public native function ready() returns error?;
+    public extern function ready() returns error?;
 
 };

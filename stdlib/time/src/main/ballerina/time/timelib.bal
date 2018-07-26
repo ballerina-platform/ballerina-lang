@@ -41,60 +41,60 @@ public type Time object {
     # Returns ISO 8601 string representation of the given time.
     #
     # + return - The ISO 8601 formatted string of the given time
-    public native function toString() returns (string);
+    public extern function toString() returns (string);
 
     # Returns formatted string representation of the given time.
     #
     # + format - The format which is used to format the time represented by this object
     # + return - The formatted string of the given time
-    public native function format(string|TimeFormat format) returns (string);
+    public extern function format(string|TimeFormat format) returns (string);
 
     # Returns the year representation of the given time.
     #
     # + return - The year representation
-    public native function year() returns (int);
+    public extern function year() returns (int);
 
     # Returns the month representation of the given time.
     #
     # + return - The month-of-year, from 1 (January) to 12 (December)
-    public native function month() returns (int);
+    public extern function month() returns (int);
 
     # Returns the date representation of the given time.
     #
     # + return - The day-of-month, from 1 to 31
-    public native function day() returns (int);
+    public extern function day() returns (int);
 
     # Returns the weekday representation of the given time.
     #
     # + return - The weekday representation from SUNDAY to SATURDAY
-    public native function weekday() returns (string);
+    public extern function weekday() returns (string);
 
     # Returns the hour representation of the given time.
     #
     # + return - The hour-of-day, from 0 to 23
-    public native function hour() returns (int);
+    public extern function hour() returns (int);
 
     # Returns the minute representation of the given time.
     #
     # + return - The minute-of-hour to represent, from 0 to 59
-    public native function minute() returns (int);
+    public extern function minute() returns (int);
 
     # Returns the second representation of the given time.
     #
     # + return - The second-of-minute, from 0 to 59
-    public native function second() returns (int);
+    public extern function second() returns (int);
 
     # Returns the millisecond representation of the given time.
     #
     # + return - The milli-of-second, from 0 to 999
-    public native function milliSecond() returns (int);
+    public extern function milliSecond() returns (int);
 
     # Returns the date representation of the given time.
     #
     # + return - The year representation.
     #            The month-of-year, from 1 (January) to 12 (December).
     #            The day-of-month, from 1 to 31.
-    public native function getDate() returns (int, int, int);
+    public extern function getDate() returns (int, int, int);
 
     # Returns the time representation of the given time.
     #
@@ -102,7 +102,7 @@ public type Time object {
     #            The minute-of-hour to represent, from 0 to 59.
     #            The second-of-minute, from 0 to 59.
     #            The milli-of-second, from 0 to 999.
-    public native function getTime() returns (int, int, int, int);
+    public extern function getTime() returns (int, int, int, int);
 
     # Add specified durations to the given time value.
     #
@@ -115,7 +115,7 @@ public type Time object {
     # + milliSeconds - The milli-of-second to represent, from 0 to 999
     # + return - Time object containing time and zone information after the addition
 
-    public native function addDuration(int years, int months, int days, int hours, int minutes, int seconds,
+    public extern function addDuration(int years, int months, int days, int hours, int minutes, int seconds,
                                        int milliSeconds) returns (Time);
 
     # Subtract specified durations from the given time value.
@@ -128,25 +128,25 @@ public type Time object {
     # + seconds - The second-of-minute to represent, from 0 to 59
     # + milliSeconds - The milli-of-second to represent, from 0 to 999
     # + return - Time object containing time and zone information after the subtraction
-    public native function subtractDuration(int years, int months, int days, int hours, int minutes, int seconds,
+    public extern function subtractDuration(int years, int months, int days, int hours, int minutes, int seconds,
                                             int milliSeconds) returns (Time);
 
     # Change the timezone of the given time.
     #
     # + zoneId - The new timezone id
     # + return - Time object containing time and zone information after the conversion
-    public native function toTimezone(string zoneId) returns (Time);
+    public extern function toTimezone(string zoneId) returns (Time);
 };
 
 # Returns the current time value with the system default timezone.
 #
 # + return - Time object containing the time and zone information
-public native function currentTime() returns (Time);
+public extern function currentTime() returns (Time);
 
 # Returns the current system time in nano seconds.
 #
 # + return - Int value of the current system time in nano seconds
-public native function nanoTime() returns (int);
+public extern function nanoTime() returns (int);
 
 # Returns the Time object correspoding to the given time components and timezone.
 #
@@ -159,7 +159,7 @@ public native function nanoTime() returns (int);
 # + milliSecond - The milli-of-second to represent, from 0 to 999
 # + zoneId - The zone id of the required timezone.If empty the system local timezone will be used
 # + return - Time object containing time and zone information
-public native function createTime(int year, int month, int date, int hour, int minute, int second, int milliSecond,
+public extern function createTime(int year, int month, int date, int hour, int minute, int second, int milliSecond,
                                   string zoneId) returns (Time);
 
 # Returns the time for the given string representation based on the given format string.
@@ -167,4 +167,4 @@ public native function createTime(int year, int month, int date, int hour, int m
 # + data - The time text to parse
 # + format - The format which is used to parse the given text
 # + return - Time object containing time and zone information
-public native function parse(string data, string|TimeFormat format) returns (Time);
+public extern function parse(string data, string|TimeFormat format) returns (Time);

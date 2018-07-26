@@ -27,7 +27,7 @@ import ballerina/http;
 # + return - `WebSubHub` The WebSubHub object representing the newly started up hub, or `HubStartedUpError` indicating
 #            that the hub is already started, and including the WebSubHub object representing the
 #            already started up hub
-native function startUpHubService(boolean topicRegistrationRequired, string publicUrl)
+extern function startUpHubService(boolean topicRegistrationRequired, string publicUrl)
                                                                             returns WebSubHub|HubStartedUpError;
 
 # Stop the Ballerina Hub, if started.
@@ -35,25 +35,25 @@ native function startUpHubService(boolean topicRegistrationRequired, string publ
 # + hubUrl - The URL of the Hub service
 # + return - `boolean` True if the Ballerina Hub had been started up and was stopped now, false if the Hub had not been
 #            started up
-native function stopHubService(string hubUrl) returns boolean;
+extern function stopHubService(string hubUrl) returns boolean;
 
 # Adds a new subscription for the specified topic in the Ballerina Hub.
 #
 # + subscriptionDetails - The details of the subscription including WebSub specifics
-native function addSubscription(SubscriptionDetails subscriptionDetails);
+extern function addSubscription(SubscriptionDetails subscriptionDetails);
 
 # Publishes an update against the topic in the Ballerina Hub.
 #
 # + topic - The topic for which the update should happen
 # + content - The content to send to subscribers, with the payload and content-type specified
 # + return - `error` if an error occurred during publishing
-native function publishToInternalHub(string topic, WebSubContent content) returns error?;
+extern function publishToInternalHub(string topic, WebSubContent content) returns error?;
 
 # Removes a subscription added for the specified topic in the Ballerina Hub.
 #
 # + topic - The topic for which the subscription was added
 # + callback - The callback registered for this subscription
-native function removeSubscription(string topic, string callback);
+extern function removeSubscription(string topic, string callback);
 
 # Registers a topic in the Ballerina Hub.
 #
@@ -61,26 +61,26 @@ native function removeSubscription(string topic, string callback);
 # + secret - The secret to use to identify the registration
 # + loadingOnStartUp - Whether registration is being called on loading from the database at start up
 # + return - `error` if an error occurred with registration
-native function registerTopicAtHub(string topic, string secret, boolean loadingOnStartUp = false) returns error?;
+extern function registerTopicAtHub(string topic, string secret, boolean loadingOnStartUp = false) returns error?;
 
 # Unregisters a topic in the Ballerina Hub.
 #
 # + topic - The topic to unregister
 # + secret - The secret specified at registration
 # + return - `error` if an error occurred with unregistration
-native function unregisterTopicAtHub(string topic, string secret) returns error?;
+extern function unregisterTopicAtHub(string topic, string secret) returns error?;
 
 # Retrieves whether a topic is registered with the Ballerina Hub.
 #
 # + topic - The topic to check
 # + return - `boolean` True if the topic has been registered by a publisher, false if not
-native function isTopicRegistered(string topic) returns boolean;
+extern function isTopicRegistered(string topic) returns boolean;
 
 # Retrieves secret for a topic registered with the Ballerina Hub.
 #
 # + topic - The topic for which the publisher's secret needs to be retrieved
 # + return - `string` The secret specified at registration
-native function retrievePublisherSecret(string topic) returns string;
+extern function retrievePublisherSecret(string topic) returns string;
 
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Publisher Natives /////////////////////
@@ -91,6 +91,6 @@ native function retrievePublisherSecret(string topic) returns string;
 # + topic - The topic for which the update should happen
 # + content - The content to send to subscribers, with the payload and content-type specified
 # + return - `error` if an error occurred during publishing
-native function validateAndPublishToInternalHub(string hubUrl, string topic, WebSubContent content) returns error?;
+extern function validateAndPublishToInternalHub(string hubUrl, string topic, WebSubContent content) returns error?;
 
-native function constructByteArray(io:ByteChannel byteChannel) returns byte[];
+extern function constructByteArray(io:ByteChannel byteChannel) returns byte[];

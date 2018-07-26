@@ -40,7 +40,7 @@ public type TopicPublisher object {
         }
     }
 
-    public native function initTopicPublisher(Session session);
+    public extern function initTopicPublisher(Session session);
 
     # Register topic publisher endpoint
     #
@@ -80,5 +80,5 @@ public type TopicPublisherActions object {
     # Sends a message to the JMS provider
     #
     # + message - Message to be sent to the JMS provider
-    public native function send(Message message) returns error?;
+    public extern function send(Message message) returns error?;
 };

@@ -21,14 +21,14 @@ import { PLUGIN_ID, DIALOG } from './constants';
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
 import { getMenuDefinitions } from './menus';
-import ImportStructDialog from './dialogs/import-struct-dialog';
+import ImportRecordDialog from './dialogs/import-record-dialog';
 
 /**
  * Help plugin.
  *
  * @class HelpPlugin
  */
-class ImportStructPlugin extends Plugin {
+class ImportRecordPlugin extends Plugin {
 
     /**
      * @inheritdoc
@@ -48,11 +48,11 @@ class ImportStructPlugin extends Plugin {
             [MENUS]: getMenuDefinitions(this),
             [DIALOGS]: [
                 {
-                    id: DIALOG.IMPORT_STRUCT,
-                    component: ImportStructDialog,
+                    id: DIALOG.IMPORT_RECORD,
+                    component: ImportRecordDialog,
                     propsProvider: () => {
                         return {
-                            importStructPlugin: this,
+                            ImportRecordPlugin: this,
                             extensions: ['json'],
                         };
                     },
@@ -62,4 +62,4 @@ class ImportStructPlugin extends Plugin {
     }
 }
 
-export default ImportStructPlugin;
+export default ImportRecordPlugin;

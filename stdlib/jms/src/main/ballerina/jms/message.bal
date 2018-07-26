@@ -24,142 +24,142 @@ public type Message object {
     # Gets text content of the JMS message
     #
     # + return - the string containing this message's data or an JMS error
-    public native function getTextMessageContent() returns @tainted string|error;
+    public extern function getTextMessageContent() returns @tainted string|error;
 
     # Gets map content of the JMS message
     #
     # + return - the string containing this message's data or an JMS error
-    public native function getMapMessageContent() returns @tainted map|error;
+    public extern function getMapMessageContent() returns @tainted map|error;
 
     # Sets a JMS transport string property from the message
     #
     # + key - The string property name
     # + value - The string property value
     # + return - nil or an JMS error
-    public native function setStringProperty(@sensitive string key, string value) returns error?;
+    public extern function setStringProperty(@sensitive string key, string value) returns error?;
 
     # Gets a JMS transport string property from the message
     #
     # + key - The string property name
     # + return - The string property value, JMS error or nil if there is no property by this name
-    public native function getStringProperty(@sensitive string key) returns @tainted (string|error)?;
+    public extern function getStringProperty(@sensitive string key) returns @tainted (string|error)?;
 
     # Sets a JMS transport integer property from the message
     #
     # + key - The integer property name
     # + value - The integer property value
     # + return - nil or an JMS error
-    public native function setIntProperty(@sensitive string key, int value) returns error?;
+    public extern function setIntProperty(@sensitive string key, int value) returns error?;
 
     # Gets a JMS transport integer property from the message
     #
     # + key - The integer property name
     # + return - The integer property value or JMS error
-    public native function getIntProperty(@sensitive string key) returns @tainted int|error;
+    public extern function getIntProperty(@sensitive string key) returns @tainted int|error;
 
     # Sets a JMS transport boolean property from the message
     #
     # + key - The boolean property name
     # + value - The boolean property value
     # + return - nil or an JMS error
-    public native function setBooleanProperty(@sensitive string key, boolean value) returns error?;
+    public extern function setBooleanProperty(@sensitive string key, boolean value) returns error?;
 
     # Gets a JMS transport boolean property from the message
     #
     # + key - The boolean property name
     # + return - The boolean property value or JMS error
-    public native function getBooleanProperty(@sensitive string key) returns @tainted boolean|error;
+    public extern function getBooleanProperty(@sensitive string key) returns @tainted boolean|error;
 
     # Sets a JMS transport float property from the message
     #
     # + key - The float property name
     # + value - The float property value
     # + return - nil or an JMS error
-    public native function setFloatProperty(@sensitive string key, float value) returns error?;
+    public extern function setFloatProperty(@sensitive string key, float value) returns error?;
 
     # Gets a JMS transport float property from the message
     #
     # + key - The float property name
     # + return - The float property value or JMS error
-    public native function getFloatProperty(@sensitive string key) returns @tainted float|error;
+    public extern function getFloatProperty(@sensitive string key) returns @tainted float|error;
 
     # Gets JMS transport header MessageID from the message
     #
     # + return - The header value or JMS error
-    public native function getMessageID() returns @tainted string|error;
+    public extern function getMessageID() returns @tainted string|error;
 
     # Gets JMS transport header Timestamp from the message
     #
     # + return - The timestamp header value or JMS error
-    public native function getTimestamp() returns @tainted int|error;
+    public extern function getTimestamp() returns @tainted int|error;
 
     # Sets DeliveryMode JMS transport header to the message
     #
     # + mode - The header value
     # + return - nil or an JMS error
-    public native function setDeliveryMode(int mode) returns error?;
+    public extern function setDeliveryMode(int mode) returns error?;
 
     # Get JMS transport header DeliveryMode from the message
     #
     # + return - The delivery mode header value or JMS error
-    public native function getDeliveryMode() returns @tainted int|error;
+    public extern function getDeliveryMode() returns @tainted int|error;
 
     # Sets Expiration JMS transport header to the message
     #
     # + value - The header value
     # + return - nil or an JMS error
-    public native function setExpiration(int value) returns error?;
+    public extern function setExpiration(int value) returns error?;
 
     # Gets JMS transport header Expiration from the message
     #
     # + return - The expiration header value or JMS error
-    public native function getExpiration() returns @tainted int|error;
+    public extern function getExpiration() returns @tainted int|error;
 
     # Sets Type JMS transport header to the message
     #
     # + messageType - The message type header value
     # + return - nil or an JMS error if any JMS provider level internal error occur
-    public native function setType(string messageType) returns error?;
+    public extern function setType(string messageType) returns error?;
 
     # Gets JMS transport header Type from the message
     #
     # + return - The JMS message type header value or JMS error
-    public native function getType() returns @tainted string|error;
+    public extern function getType() returns @tainted string|error;
 
     # Clears JMS properties of the message
     #
     # + return - nil or error if any JMS provider level internal error occur
-    public native function clearProperties() returns error?;
+    public extern function clearProperties() returns error?;
 
     # Clears body of the JMS message
     #
     # + return - nil or an JMS error
-    public native function clearBody() returns error?;
+    public extern function clearBody() returns error?;
 
     # Sets priority JMS transport header to the message
     #
     # + value - The header value
     # + return - nil or an JMS error
-    public native function setPriority(int value) returns error?;
+    public extern function setPriority(int value) returns error?;
 
     # Gets JMS transport header Priority from the message
     #
     # + return - The JMS priority header value or error
-    public native function getPriority() returns @tainted int|error;
+    public extern function getPriority() returns @tainted int|error;
 
     # Gets JMS transport header Redelivered from the message
     #
     # + return - The JMS redelivered header value or JMS error
-    public native function getRedelivered() returns @tainted boolean|error;
+    public extern function getRedelivered() returns @tainted boolean|error;
 
     # Sets CorrelationID JMS transport header to the message
     #
     # + value - The header value
     # + return - nil or an JMS error
-    public native function setCorrelationID(string value) returns error?;
+    public extern function setCorrelationID(string value) returns error?;
 
     # Gets JMS transport header CorrelationID from the message
     #
     # + return - The JMS correlation ID header value or JMS error or nil if header is not set
-    public native function getCorrelationID() returns @tainted (string|error)?;
+    public extern function getCorrelationID() returns @tainted (string|error)?;
 };

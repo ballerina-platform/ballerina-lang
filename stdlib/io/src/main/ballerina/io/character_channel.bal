@@ -31,44 +31,44 @@ public type CharacterChannel object {
     #
     # + byteChannel - ByteChannel which should be used to initalize the character channel
     # + cs - Character-set (i.e UTF-8) which should be used to encode/decode
-    native function init(ByteChannel byteChannel, string cs);
+    extern function init(ByteChannel byteChannel, string cs);
 
     # Reads a given number of characters.
     #
     # + numberOfChars - Number of characters which should be read
     # + return - Content which is read or an error
-    public native function read(@sensitive int numberOfChars) returns @tainted string|error;
+    public extern function read(@sensitive int numberOfChars) returns @tainted string|error;
 
     # Writes a given sequence of characters (string).
     #
     # + content - Content which should be written
     # + startOffset - Number of characters which should be offset when writing content
-    public native function write(string content, int startOffset) returns int|error;
+    public extern function write(string content, int startOffset) returns int|error;
 
     # Reads a json from the given channel.
     #
     # + return - Read json string or an error
-    public native function readJson() returns @tainted json|error;
+    public extern function readJson() returns @tainted json|error;
 
     # Reads a XML from the given channel.
     #
     # + return - Read xml or an error
-    public native function readXml() returns @tainted xml|error;
+    public extern function readXml() returns @tainted xml|error;
 
     # Writes a given json to the given channel.
     #
     # + content - The json which should be written
     # + return - If an error occurred while writing
-    public native function writeJson(json content) returns error?;
+    public extern function writeJson(json content) returns error?;
 
     # Writes a given xml to the channel.
     #
     # + content - The XML which should be written
     # + return - If an error occurred while writing
-    public native function writeXml(xml content) returns error?;
+    public extern function writeXml(xml content) returns error?;
 
     # Closes a given character channel.
     #
     # + return - If an error occurred while writing
-    public native function close() returns error?;
+    public extern function close() returns error?;
 };

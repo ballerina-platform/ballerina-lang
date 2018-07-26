@@ -19,4 +19,4 @@
 # + content - Byte array content to be converted
 # + encoding - Encoding to used in byte array conversion to string
 # + return - String representation of the given byte array
-public native function byteArrayToString(byte[] content, string encoding) returns string;
+public extern function byteArrayToString(byte[] content, string encoding) returns string;

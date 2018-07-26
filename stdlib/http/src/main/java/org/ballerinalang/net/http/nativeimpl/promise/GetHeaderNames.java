@@ -33,7 +33,7 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 import java.util.Set;
 
 /**
- * {@code GetHeaderNames} is the ballerina native function to get all transport header names in a Push Promise.
+ * {@code GetHeaderNames} is the ballerina extern function to get all transport header names in a Push Promise.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",

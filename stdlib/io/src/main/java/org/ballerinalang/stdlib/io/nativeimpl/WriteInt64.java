@@ -39,7 +39,7 @@ import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 
 /**
- * Native function ballerina/io#writeInt64.
+ * Extern function ballerina/io#writeInt64.
  *
  * @since 0.973.1
  */

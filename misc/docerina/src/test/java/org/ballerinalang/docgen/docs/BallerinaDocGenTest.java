@@ -46,7 +46,8 @@ public class BallerinaDocGenTest {
 
     @BeforeClass()
     public void setup() {
-        testResourceRoot = BallerinaDocGenTest.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        testResourceRoot = new File(BallerinaDocGenTest.class.getProtectionDomain().getCodeSource().getLocation()
+                .getPath()).getAbsolutePath();
     }
 
     @AfterTest
@@ -72,7 +73,7 @@ public class BallerinaDocGenTest {
     public void testSingleBalFile() {
         try {
             Map<String, PackageDoc> docsMap = BallerinaDocGenerator
-                    .generatePackageDocsFromBallerina(testResourceRoot + "balFiles", "helloWorld.bal");
+                    .generatePackageDocsFromBallerina(testResourceRoot + "/balFiles", "helloWorld.bal");
 
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);
@@ -87,7 +88,7 @@ public class BallerinaDocGenTest {
     @Test(description = "Test a folder with Bal files")
     public void testFolderWithBalFile() {
         try {
-            String path = testResourceRoot + "balFiles/balFolder";
+            String path = testResourceRoot + "/balFiles/balFolder";
             createDir(path);
             setUserDir(path);
             SourceDirectory srcDirectory = new FileSystemProjectDirectory(Paths.get(path));
@@ -111,7 +112,7 @@ public class BallerinaDocGenTest {
     @Test(description = "Test doc creation for a package")
     public void testBalPackage() {
         try {
-            String path = testResourceRoot + "balFiles/balFolder";
+            String path = testResourceRoot + "/balFiles/balFolder";
             createDir(path);
             setUserDir(path);
             BallerinaDocGenerator.generateApiDocs(path, testResourceRoot + File.separator + "api-docs2", null, false,

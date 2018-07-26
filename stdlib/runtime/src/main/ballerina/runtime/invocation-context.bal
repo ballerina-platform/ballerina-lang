@@ -39,4 +39,4 @@ public type UserPrincipal record {
 # Creates a InvocationContext instance.
 #
 # + return - InvocationContext instance
-public native function getInvocationContext() returns InvocationContext;
+public extern function getInvocationContext() returns InvocationContext;

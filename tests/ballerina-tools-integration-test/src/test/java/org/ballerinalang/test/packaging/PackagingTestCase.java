@@ -17,13 +17,12 @@
  */
 package org.ballerinalang.test.packaging;
 
+import org.awaitility.Duration;
 import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerInstance;
-import org.ballerinalang.test.util.HttpClientRequest;
-import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -40,22 +39,28 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.awaitility.Awaitility.given;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 /**
- * Testing pushing a package to central.
+ * Testing pushing, pulling, searching a package from central and installing package to home repository.
  */
-public class PackagingPushTestCase extends IntegrationTestCase {
+public class PackagingTestCase extends IntegrationTestCase {
     private ServerInstance ballerinaClient;
     private String serverZipPath;
     private Path tempHomeDirectory;
     private Path tempProjectDirectory;
     private Path projectPath;
     private String packageName = "test";
+    private String datePushed;
 
     /**
      * Compress files.
@@ -175,19 +180,66 @@ public class PackagingPushTestCase extends IntegrationTestCase {
         String sourceRootPath = projectPath.toString();
         String[] clientArgs = {"--sourceroot", sourceRootPath, packageName};
 
-        String msg = "integrationtests/" + packageName + ":1.0.0 [project repo -> central]";
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd-EE");
+        datePushed = dtf.format(LocalDateTime.now());
 
+        String msg = "integrationtests/" + packageName + ":1.0.0 [project repo -> central]";
         LogLeecher clientLeecher = new LogLeecher(msg);
         ballerinaClient.addLogLeecher(clientLeecher);
         ballerinaClient.runMain(clientArgs, getEnvVariables(), "push");
         clientLeecher.waitForText(5000);
+    }
 
-        // Check if package Exists
-        String stagingURL = "https://api.staging-central.ballerina.io/packages/";
-        HttpResponse response = HttpClientRequest.doGet(stagingURL + "integrationtests/" + packageName
-                                                                + "/1.0.0");
-        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+    @Test(description = "Test pushing a package to the home repository (installing a package)")
+    public void testInstall() throws Exception {
+        ballerinaClient = new ServerInstance(serverZipPath);
+        String sourceRootPath = projectPath.toString();
 
+        String[] clientArgs = {"--sourceroot", sourceRootPath, packageName};
+        ballerinaClient.runMain(clientArgs, getEnvVariables(), "install");
+
+        Path dirPath = Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, "integrationtests",
+                                 packageName, "1.0.0");
+        Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(dirPath)));
+        Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(dirPath).resolve(packageName + ".zip")));
+    }
+
+    @Test(description = "Test pulling a package from central", dependsOnMethods = "testPush")
+    public void testPull() throws Exception {
+        Path dirPath = Paths.get(ProjectDirConstants.CACHES_DIR_NAME,
+                                 ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME,
+                                 "integrationtests", packageName, "1.0.0");
+
+        given().with().pollInterval(Duration.TEN_SECONDS).and()
+               .with().pollDelay(Duration.FIVE_SECONDS)
+               .await().atMost(60, SECONDS).until(() -> {
+            ballerinaClient = new ServerInstance(serverZipPath);
+            String[] clientArgs = {"integrationtests/" + packageName + ":1.0.0"};
+            ballerinaClient.runMain(clientArgs, getEnvVariables(), "pull");
+            return Files.exists(tempHomeDirectory.resolve(dirPath).resolve(packageName + ".zip"));
+        });
+
+        Assert.assertTrue(Files.exists(tempHomeDirectory.resolve(dirPath).resolve(packageName + ".zip")));
+    }
+
+    @Test(description = "Test searching a package from central", dependsOnMethods = "testPush")
+    public void testSearch() throws BallerinaTestException, IOException {
+        ballerinaClient = new ServerInstance(serverZipPath);
+        String[] clientArgs = {packageName};
+        String loggedMsg = "Ballerina Central\n" +
+                "=================\n" +
+                "\n" +
+                "|NAME                                                  | DESCRIPTION                                " +
+                "                                       | AUTHOR         | DATE           | VERSION |\n" +
+                "|------------------------------------------------------| -------------------------------------------" +
+                "---------------------------------------| ---------------| ---------------| --------|\n" +
+                "|integrationtests/" + packageName + "                             | Allows connecting Test REST API." +
+                "                                       |                | " + datePushed + " | 1.0.0   |\n";
+
+        LogLeecher clientLeecher = new LogLeecher(loggedMsg);
+        ballerinaClient.addLogLeecher(clientLeecher);
+        ballerinaClient.runMain(clientArgs, getEnvVariables(), "search");
+        clientLeecher.waitForText(3000);
     }
 
     /**
@@ -226,7 +278,6 @@ public class PackagingPushTestCase extends IntegrationTestCase {
 
     @AfterClass
     private void cleanup() throws Exception {
-        ballerinaClient.stopServer();
         deleteFiles(tempHomeDirectory);
         deleteFiles(tempProjectDirectory);
     }

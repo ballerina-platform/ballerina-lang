@@ -49,19 +49,19 @@ public type Connection object {
     #
     # + promise - Push promise message
     # + return - An `error` in case of failures
-    public native function promise(PushPromise promise) returns error?;
+    public extern function promise(PushPromise promise) returns error?;
 
     # Sends a promised push response to the caller.
     #
     # + promise - Push promise message
     # + response - The outbound response
     # + return - An `error` in case of failures while responding with the promised response
-    public native function pushPromisedResponse(PushPromise promise, Response response) returns error?;
+    public extern function pushPromisedResponse(PushPromise promise, Response response) returns error?;
 
     # Sends an upgrade request with custom headers.
     #
     # + headers - A `map` of custom headers for handshake
-    public native function acceptWebSocketUpgrade(map headers) returns WebSocketListener;
+    public extern function acceptWebSocketUpgrade(map headers) returns WebSocketListener;
 
     # Cancels the handshake.
     #
@@ -69,7 +69,7 @@ public type Connection object {
     #            This error status code need to be 4xx or 5xx else the default status code would be 400.
     # + reason - Reason for cancelling the upgrade
     # + return - An `error` if an error occurs during cancelling the upgrade or nil
-    public native function cancelWebSocketUpgrade(int status, string reason) returns error|();
+    public extern function cancelWebSocketUpgrade(int status, string reason) returns error|();
 
     # Sends a `100-continue` response to the caller.
     #
@@ -85,7 +85,7 @@ public type Connection object {
     public function redirect(Response response, RedirectCode code, string[] locations) returns error?;
 };
 
-native function nativeRespond(Connection connection, Response response) returns error?;
+extern function nativeRespond(Connection connection, Response response) returns error?;
 
 /////////////////////////////////
 /// Ballerina Implementations ///

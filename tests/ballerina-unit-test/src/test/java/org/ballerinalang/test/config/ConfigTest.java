@@ -33,7 +33,7 @@ import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.File;
 import java.io.IOException;
@@ -233,7 +233,7 @@ public class ConfigTest {
         CompileResult configuredService = BServiceUtil.setupProgramFile(this, serviceFile);
 
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/hello", "GET");
-        HTTPCarbonMessage responseMsg = Services.invokeNew(configuredService, "backendEP", requestMsg);
+        HttpCarbonMessage responseMsg = Services.invokeNew(configuredService, "backendEP", requestMsg);
 
         Assert.assertNotNull(responseMsg);
     }

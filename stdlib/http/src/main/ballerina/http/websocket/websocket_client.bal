@@ -42,7 +42,7 @@ public type WebSocketClient object {
     }
 
     # Initializes the endpoint.
-    public native function initEndpoint();
+    public extern function initEndpoint();
 
     # Allows access to connector that the client endpoint uses.
     #

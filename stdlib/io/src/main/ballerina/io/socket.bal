@@ -35,32 +35,32 @@ public type Socket object {
     }
 
     # Initializes a socket.
-    native function init();
+    extern function init();
 
     # Binds socket to a local port.
     #
     # + return - An error if could not bind to the port
-    public native function bindAddress(@sensitive int port, @sensitive string? interface = ()) returns error?;
+    public extern function bindAddress(@sensitive int port, @sensitive string? interface = ()) returns error?;
 
     # Open a connection with remote server.
     #
     # + return - An error if could not connect with the remote server.
-    public native function connect(@sensitive string host, @sensitive int port) returns error?;
+    public extern function connect(@sensitive string host, @sensitive int port) returns error?;
 
     # Closes a socket connection.
     #
     # + return - An error if the connection could not be closed properly
-    public native function close() returns error?;
+    public extern function close() returns error?;
 
     # Shutdown the connection from reading. In this case content cannot be read from the server.
     #
     # + return - An error if the connection could not be shutdown properly
-    public native function shutdownInput() returns error?;
+    public extern function shutdownInput() returns error?;
 
     # Shutdown the connection from writing. In this case content cannot be written to the server.
     #
     # + return - An error if the connection could not be shutdown properly
-    public native function shutdownOutput() returns error?;
+    public extern function shutdownOutput() returns error?;
 };
 
 # Represents a TCP server socket.
@@ -71,22 +71,22 @@ public type ServerSocket object {
     }
 
     # Initializes a server socket.
-    native function init();
+    extern function init();
 
     # Binds socket to a local port.
     #
     # + return - An error if could not bind to the port
-    public native function bindAddress(@sensitive int port, @sensitive string? interface = ()) returns error?;
+    public extern function bindAddress(@sensitive int port, @sensitive string? interface = ()) returns error?;
 
     # This blocking function will wait until new client socket connect.
     #
     # + return - An error if could not create new socket.
-    public native function accept() returns Socket|error;
+    public extern function accept() returns Socket|error;
 
     # Closes a socket connection.
     #
     # + return - An error if the connection could not be closed properly
-    public native function close() returns error?;
+    public extern function close() returns error?;
 };
 
 # SocketProperties represents the properties which are used to configure TCP connection.

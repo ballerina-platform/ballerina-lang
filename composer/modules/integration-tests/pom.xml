@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>composer</artifactId>
-        <version>0.980.1-SNAPSHOT</version>
+        <version>0.980.2-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <packaging>pom</packaging>
@@ -31,6 +31,12 @@
             <artifactId>composer-server-distribution</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-examples</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -47,6 +53,19 @@
                         <configuration>
                             <includeClassifiers>ballerina-binary-repo</includeClassifiers>
                             <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack-examples</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeArtifactIds>
+                                ballerina-examples
+                            </includeArtifactIds>
+                            <outputDirectory>src/test/resources/ballerina-examples</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -125,7 +144,6 @@
                                 </copy>
                             </target>
                         </configuration>
-
                     </execution>
                     <execution>
                         <id>set-npm-executable</id>
@@ -141,6 +159,18 @@
                                 </condition>
                             </target>
                             <exportAntProperties>true</exportAntProperties>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>delete-examples</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <delete dir="src/test/resources/ballerina-examples" includeemptydirs="true" deleteonexit="true" />
+                            </target>
                         </configuration>
                     </execution>
                 </executions>

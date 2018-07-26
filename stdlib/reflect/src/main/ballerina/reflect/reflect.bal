@@ -20,7 +20,7 @@
 # + value1 - The first value for equality.
 # + value2 - The second value for equality.
 # + return - TRUE if values are deeply equal, else FALSE.
-public native function equals(any value1, any value2) returns (boolean);
+public extern function equals(any value1, any value2) returns (boolean);
 
 public type anyStruct record {};
 
@@ -31,12 +31,12 @@ public type annotationData record {
     anyStruct value,
 };
 
-public native function getServiceAnnotations(typedesc serviceType) returns (annotationData[]);
+public extern function getServiceAnnotations(typedesc serviceType) returns (annotationData[]);
 
-public native function getResourceAnnotations(typedesc serviceType, string resourceName) returns (annotationData[]);
+public extern function getResourceAnnotations(typedesc serviceType, string resourceName) returns (annotationData[]);
 
-public native function getStructAnnotations(typedesc structType) returns (annotationData[]);
+public extern function getStructAnnotations(typedesc structType) returns (annotationData[]);
 
-public native function getStructFieldAnnotations(typedesc structType, string fieldName) returns (annotationData[]);
+public extern function getStructFieldAnnotations(typedesc structType, string fieldName) returns (annotationData[]);
 
-public native function getFunctionAnnotations(any functionPointer) returns (annotationData[]);
+public extern function getFunctionAnnotations(any functionPointer) returns (annotationData[]);

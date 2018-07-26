@@ -33,17 +33,8 @@ class ConnectorDeclarationDecorator extends React.Component {
      */
     constructor(props) {
         super(props);
-        this.onDelete = this.onDelete.bind(this);
         this.getConnectorName = this.getConnectorName.bind(this);
         this.setConnectorName = this.setConnectorName.bind(this);
-    }
-
-    /**
-     * Removes self on delete button click.
-     * @returns {void}
-     */
-    onDelete() {
-        this.props.model.remove();
     }
 
     /**
@@ -107,7 +98,6 @@ class ConnectorDeclarationDecorator extends React.Component {
                     classes={connectorClasses}
                     icon={ImageUtil.getCodePoint('endpoint')}
                     editorOptions={this.editorOptions}
-                    onDelete={this.onDelete}
                 />
             </g>
         );

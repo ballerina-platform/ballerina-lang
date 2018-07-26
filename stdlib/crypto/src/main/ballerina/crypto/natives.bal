@@ -29,7 +29,7 @@ public type Algorithm "SHA1"|"SHA256"|"MD5";
 # + baseString - The string to be hashed
 # + algorithm - The hashing algorithm to be used
 # + return - The hashed string
-public native function hash(string baseString, Algorithm algorithm) returns (string);
+public extern function hash(string baseString, Algorithm algorithm) returns (string);
 
 # Returns the HMAC value of the provided base string.
 #
@@ -37,10 +37,10 @@ public native function hash(string baseString, Algorithm algorithm) returns (str
 # + keyString - The key string
 # + algorithm - The hashing algorithm to be used
 # + return - The hashed string
-public native function hmac(string baseString, string keyString, Algorithm algorithm) returns (string);
+public extern function hmac(string baseString, string keyString, Algorithm algorithm) returns (string);
 
 # Returns the CRC32 hash for the provided element. This accepts `string`, `byte[]`, `json` and `xml` content.
 #
 # + content - The content to be hashed
 # + return - The generated hash
-public native function crc32(any content) returns (string);
+public extern function crc32(any content) returns (string);

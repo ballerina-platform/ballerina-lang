@@ -48,13 +48,13 @@ public type CallStackElement record {
 # Retrieves the Call Stack
 #
 # + return - Array of `CallStackElement` elements
-public native function getCallStack() returns CallStackElement[];
+public extern function getCallStack() returns CallStackElement[];
 
 # Retrieves the Call Stack Frame for a particular error
 #
 # + e - optional `error` instance
 # + return - `CallStackElement` instance
-public native function getErrorCallStackFrame(error? e) returns CallStackElement;
+public extern function getErrorCallStackFrame(error? e) returns CallStackElement;
 
 # Representation of `CallFailedException`
 #

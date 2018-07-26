@@ -15,13 +15,13 @@
 // under the License.
 
 # Prints 'any' value to the STDOUT.
-public native function print(any... a);
+public extern function print(any... a);
 
 # Prints an any value to the STDOUT in a new line.
-public native function println(any... a);
+public extern function println(any... a);
 
 # Returns a formatted string using the specified format string and arguments.
 #
 # + format - Represent the format of the string which should be returned
 # + return - Formatted string
-public native function sprintf(string format, any... args) returns (string);
+public extern function sprintf(string format, any... args) returns (string);

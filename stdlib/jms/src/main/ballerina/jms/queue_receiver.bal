@@ -47,9 +47,9 @@ public type QueueReceiver object {
         self.registerListener(serviceType, consumerActions);
     }
 
-    native function registerListener(typedesc serviceType, QueueReceiverActions actions);
+    extern function registerListener(typedesc serviceType, QueueReceiverActions actions);
 
-    native function createQueueReceiver(Session session, string messageSelector);
+    extern function createQueueReceiver(Session session, string messageSelector);
 
     # Starts the endpoint. Function is ignored by the receiver endpoint
     public function start() {
@@ -68,7 +68,7 @@ public type QueueReceiver object {
         self.closeQueueReceiver(consumerActions);
     }
 
-    native function closeQueueReceiver(QueueReceiverActions actions);
+    extern function closeQueueReceiver(QueueReceiverActions actions);
 };
 
 # Configurations related to the QueueReceiver endpoint
@@ -90,11 +90,11 @@ public type QueueReceiverActions object {
     # Acknowledges a received message
     #
     # + message - JMS message to be acknowledged
-    public native function acknowledge(Message message) returns error?;
+    public extern function acknowledge(Message message) returns error?;
 
     # Synchronously receive a message from the JMS provider
     #
     # + timeoutInMilliSeconds - time to wait until a message is received
     # + return - Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
-    public native function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
+    public extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };

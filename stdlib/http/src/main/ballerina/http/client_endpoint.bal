@@ -92,9 +92,9 @@ public type ClientEndpointConfig record {
     AuthConfig? auth,
 };
 
-native function createHttpClient(string uri, ClientEndpointConfig config) returns CallerActions;
+extern function createHttpClient(string uri, ClientEndpointConfig config) returns CallerActions;
 
-native function createSimpleHttpClient(string uri, ClientEndpointConfig config) returns CallerActions;
+extern function createSimpleHttpClient(string uri, ClientEndpointConfig config) returns CallerActions;
 
 # Provides configurations for controlling the retry behaviour in failure scenarios.
 #

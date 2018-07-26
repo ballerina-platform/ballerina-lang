@@ -41,7 +41,7 @@ public type QueueSender object {
         }
     }
 
-    native function initQueueSender(Session session);
+    extern function initQueueSender(Session session);
 
     # Registers the endpoint in the service.
     # This method is not used since QueueSender is a non-service endpoint.
@@ -82,5 +82,5 @@ public type QueueSenderActions object {
     # Sends a message to the JMS provider
     #
     # + message - message to be sent to the JMS provider
-    public native function send(Message message) returns error?;
+    public extern function send(Message message) returns error?;
 };

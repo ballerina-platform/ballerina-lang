@@ -22,24 +22,24 @@ public type Client object {
     # record is used for endpoint initialization.
     #
     # + config - - The ClientEndpointConfig of the endpoint.
-    public native function init(ClientEndpointConfig config);
+    public extern function init(ClientEndpointConfig config);
 
     # Gets called every time a service attaches itself to this endpoint - also happens at package init time.
     # Not supported in client endpoint.
     #
     # + serviceType - - The type of the service to be registered.
-    public native function register(typedesc serviceType);
+    public extern function register(typedesc serviceType);
 
     # Starts the registered service. Not supported in client endpoint.
-    public native function start();
+    public extern function start();
 
     # Stops the registered. Not supported in client endpoint.
-    public native function stop();
+    public extern function stop();
 
     # Returns the client connection which is used to send message to server.
     #
     # + return - - Client connection.
-    public native function getCallerActions() returns GrpcClient;
+    public extern function getCallerActions() returns GrpcClient;
 };
 
 # Represents client endpoint configuration.

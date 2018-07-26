@@ -31,7 +31,7 @@ public type Mode "r"|"w"|"rw"|"a";
 # + path - Relative/absolute path string to locate the file
 # + accessMode - Permission to open the file
 # + return - ByteChannel representation of the file resource
-public native function openFile(@sensitive string path, @sensitive Mode accessMode) returns @tainted ByteChannel;
+public extern function openFile(@sensitive string path, @sensitive Mode accessMode) returns @tainted ByteChannel;
 
 # Opens a secure socket connection with a remote server.
 #
@@ -39,7 +39,7 @@ public native function openFile(@sensitive string path, @sensitive Mode accessMo
 # + port - Remote server port
 # + options - Mata data to initialize the connection(i.e security information)
 # + return - Socket which will represent the network object or an error
-public native function openSecureSocket(@sensitive string host,
+public extern function openSecureSocket(@sensitive string host,
                                         @sensitive int port,
                                         SocketProperties options) returns @tainted Socket|error;
 
@@ -47,7 +47,7 @@ public native function openSecureSocket(@sensitive string host,
 #
 # + content - Content which should be exposed as channel
 # + return - ByteChannel represenation to read the memory content
-public native function createMemoryChannel(byte[] content) returns ByteChannel;
+public extern function createMemoryChannel(byte[] content) returns ByteChannel;
 
 # Retrieves a CSV channel from a give file path.
 #

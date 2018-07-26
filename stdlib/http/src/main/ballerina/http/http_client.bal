@@ -129,7 +129,7 @@ public type CallerActions object {
     # + path - Request path
     # + request - An HTTP inbound request message
     # + return - The response for the request or an `error` if failed to establish communication with the upstream server
-    public native function forward(@sensitive string path, Request request) returns Response|error;
+    public extern function forward(@sensitive string path, Request request) returns Response|error;
 
     # Submits an HTTP request to a service with the specified HTTP verb.
     # The `submit()` function does not give out a `Response` as the result,
@@ -150,31 +150,31 @@ public type CallerActions object {
     #
     # + httpFuture - The `HttpFuture` related to a previous asynchronous invocation
     # + return - An HTTP response message, or an `error` if the invocation fails
-    public native function getResponse(HttpFuture httpFuture) returns Response|error;
+    public extern function getResponse(HttpFuture httpFuture) returns Response|error;
 
     # Checks whether a `PushPromise` exists for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - A `boolean` that represents whether a `PushPromise` exists
-    public native function hasPromise(HttpFuture httpFuture) returns (boolean);
+    public extern function hasPromise(HttpFuture httpFuture) returns (boolean);
 
     # Retrieves the next available `PushPromise` for a previously submitted request.
     #
     # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
     # + return - An HTTP Push Promise message, or an `error` if the invocation fails
-    public native function getNextPromise(HttpFuture httpFuture) returns PushPromise|error;
+    public extern function getNextPromise(HttpFuture httpFuture) returns PushPromise|error;
 
     # Retrieves the promised server push `Response` message.
     #
     # + promise - The related `PushPromise`
     # + return - A promised HTTP `Response` message, or an `error` if the invocation fails
-    public native function getPromisedResponse(PushPromise promise) returns Response|error;
+    public extern function getPromisedResponse(PushPromise promise) returns Response|error;
 
     # Rejects a `PushPromise`. When a `PushPromise` is rejected, there is no chance of fetching a promised
     # response using the rejected promise.
     #
     # + promise - The Push Promise to be rejected
-    public native function rejectPromise(PushPromise promise);
+    public extern function rejectPromise(PushPromise promise);
 };
 
 # Defines a timeout error occurred during service invocation.
@@ -189,22 +189,22 @@ public type HttpTimeoutError record {
 };
 
 //Since the struct equivalency doesn't work with private keyword, following functions are defined outside the object
-native function nativePost(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
+extern function nativePost(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
 
-native function nativeHead(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
+extern function nativeHead(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
 
-native function nativePut(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
+extern function nativePut(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
 
-native function nativeExecute(CallerActions callerActions, @sensitive string httpVerb, @sensitive string path,
+extern function nativeExecute(CallerActions callerActions, @sensitive string httpVerb, @sensitive string path,
                                                                                 Request req) returns Response|error;
 
-native function nativePatch(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
+extern function nativePatch(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
 
-native function nativeDelete(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
+extern function nativeDelete(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
 
-native function nativeGet(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
+extern function nativeGet(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
 
-native function nativeOptions(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
+extern function nativeOptions(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
 
-native function nativeSubmit(CallerActions callerActions, @sensitive string httpVerb, string path, Request req)
+extern function nativeSubmit(CallerActions callerActions, @sensitive string httpVerb, string path, Request req)
                                                                                             returns HttpFuture|error;

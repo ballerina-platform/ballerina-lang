@@ -21,38 +21,38 @@ public type Headers object {
     #
     # + headerName - The header name.
     # + return - Returns true if header exists, false otherwise.
-    public native function exists(string headerName) returns boolean;
+    public extern function exists(string headerName) returns boolean;
 
     # Returns the header value with the specified header name. If there are more than one header value for the
     # specified header name, the first value is returned.
     #
     # + headerName - The header name.
     # + return - Returns first header value if exists, nil otherwise.
-    public native function get(string headerName) returns string?;
+    public extern function get(string headerName) returns string?;
 
     # Gets all transport headers with the specified header name.
     #
     # + headerName - The header name.
     # + return - Returns header value array.
-    public native function getAll(string headerName) returns string[];
+    public extern function getAll(string headerName) returns string[];
 
     # Sets the value of a transport header.
     #
     # + headerName - The header name.
     # + headerValue - The header value.
-    public native function setEntry(string headerName, string headerValue);
+    public extern function setEntry(string headerName, string headerValue);
 
     # Adds the specified key/value pair as an HTTP header to the request.
     #
     # + headerName - The header name.
     # + headerValue - The header value.
-    public native function addEntry(string headerName, string headerValue);
+    public extern function addEntry(string headerName, string headerValue);
 
     # Removes a transport header from the request.
     #
     # + headerName - The header name.
-    public native function remove(string headerName);
+    public extern function remove(string headerName);
 
     # Removes all transport headers from the message.
-    public native function removeAll();
+    public extern function removeAll();
 };

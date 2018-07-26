@@ -18,11 +18,11 @@
 # Halts the current worker for a predefined amount of time.
 #
 # + millis - Amount of time to sleep in milliseconds
-public native function sleep(int millis);
+public extern function sleep(int millis);
 
 // Todo - Remove
 # Returns the value associated with the specified property name.
 #
 # + name - Name of the property
 # + return - Value of the property if the property exists, an empty string otherwise
-public native function getProperty(@sensitive string name) returns string;
+public extern function getProperty(@sensitive string name) returns string;

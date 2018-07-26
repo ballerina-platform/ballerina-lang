@@ -25,82 +25,82 @@ public type Path object {
     }
 
     # Constructs the path.
-    native function init(string r);
+    extern function init(string r);
 
     # Retrieves the absolute path from the provided location.
     #
     # + return - Returns the absolute path reference or an error if the path cannot be derived
-    native function toAbsolutePath() returns Path;
+    extern function toAbsolutePath() returns Path;
 
     # Retreives the absolute path from the provided location.
     #
     # + return - Returns the absolute path as a string
-    public native function getPathValue() returns string;
+    public extern function getPathValue() returns string;
 
     # Retreives the name of the file from the provided location.
     #
     # + return - Returns the name of the file
-    public native function getName() returns string;
+    public extern function getName() returns string;
 
     # Retreives the extension of the file from the provided location.
     #
     # + return - Returns the extension of the file. Empty string if no extension.
-    public native function getExtension() returns string;
+    public extern function getExtension() returns string;
 
     # Check for existance of the file.
     #
     # + return - True if the file exists, else false
-    public native function exists() returns boolean;
+    public extern function exists() returns boolean;
 
     # Returns the files of folders in the directory.
     #
     # + return - True if the given file path is a directory. It is false otherwise
-    public native function list() returns Path[]|error;
+    public extern function list() returns Path[]|error;
 
     # Check if given file is a directory
     #
     # + return - True if directory, else false
-    public native function isDirectory() returns boolean;
+    public extern function isDirectory() returns boolean;
 
     # Deletes a file/directory.
     #
     # + return - Error if the directory/file could not be deleted
-    public native function delete() returns error?;
+    public extern function delete() returns error?;
 
     # Creates a directory.
     #
     # + return - Error if the directory could not be created
-    public native function createDirectory() returns error?;
+    public extern function createDirectory() returns error?;
 
     # Creates a file.
     #
     # + return - Error if the file could not be created
-    public native function createFile() returns error?;
+    public extern function createFile() returns error?;
 
     # Retrieves the last modified time of the file of directory.
     #
     # + return - Last modified time or an error if the path cannot be resolved
-    public native function getModifiedTime() returns time:Time|error;
+    public extern function getModifiedTime() returns time:Time|error;
 
     # Copy file or directory to another path.
     #
     # + target - The location to copy file or directory
     # + return - Error if the file could not be copied
-    public native function copyTo(@sensitive Path target) returns error?;
+    public extern function copyTo(@sensitive Path target) returns error?;
 
     # Move file or directory to another path.
     #
     # + target - The location to move file or directory
     # + return - Error if the file could not be moved
-    public native function moveTo(@sensitive Path target) returns error?;
+    public extern function moveTo(@sensitive Path target) returns error?;
 
     # Get the enclosing parent directory.
     #
     # + return - Path of parent folder or error occurred while getting parent directory
-    public native function getParentDirectory() returns Path|error;
+    public extern function getParentDirectory() returns Path|error;
 
     # Resolve given path.
     #
     # + return - Resolved path
-    public native function resolve(string... paths) returns Path;
+    public extern function resolve(string... paths) returns Path;
 };

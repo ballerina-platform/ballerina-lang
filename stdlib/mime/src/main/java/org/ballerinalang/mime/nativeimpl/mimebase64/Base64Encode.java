@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.utils.Utils;
 
 /**
- * Native function 'mime:base64Encode' that can encode a a given string, blob or a byte channel.
+ * Extern function 'mime:base64Encode' that can encode a a given string, blob or a byte channel.
  *
  * @since 0.970.0
  */

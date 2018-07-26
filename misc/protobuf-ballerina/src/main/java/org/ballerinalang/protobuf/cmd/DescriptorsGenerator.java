@@ -77,7 +77,7 @@ public class DescriptorsGenerator {
                     if (!parentFile.exists() && !parentFile.mkdirs()) {
                         throw new IllegalStateException("Couldn't create directory " + dependentDesc);
                     }
-                    try (InputStream initialStream = classLoader.getResourceAsStream(depPath);
+                    try (InputStream initialStream = new FileInputStream(new File(depPath));
                          OutputStream outStream = new FileOutputStream(dependentDesc)) {
                         byte[] buffer = new byte[initialStream.available()];
                         int read = initialStream.read(buffer);

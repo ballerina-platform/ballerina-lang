@@ -24,7 +24,7 @@ public type CallerActions object {
     # + recordType - Array of record types of the returned tables if there is any
     # + return - A `table[]` if there are tables returned by the call action and else nil,
     #            `error` will be returned if there is any error
-    public native function call(@sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
+    public extern function call(@sensitive string sqlQuery, typedesc[]? recordType, Param... parameters)
         returns @tainted table[]|()|error;
 
     # The select operation implementation for SQL connector to select data from tables.
@@ -33,14 +33,14 @@ public type CallerActions object {
     # + recordType - Type of the returned table
     # + loadToMemory - Indicates whether to load the retrieved data to memory or not
     # + return - A `table` returned by the sql query statement else `error` will be returned if there is any error
-    public native function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
+    public extern function select(@sensitive string sqlQuery, typedesc? recordType, boolean loadToMemory = false,
                                   Param... parameters) returns @tainted table|error;
 
     # The update operation implementation for SQL connector to update data and schema of the database.
     #
     # + sqlQuery - SQL statement to execute
     # + return - `int` number of rows updated by the statement and else `error` will be returned if there is any error
-    public native function update(@sensitive string sqlQuery, Param... parameters) returns int|error;
+    public extern function update(@sensitive string sqlQuery, Param... parameters) returns int|error;
 
     # The batchUpdate operation implementation for SQL connector to batch data insert.
     #
@@ -53,7 +53,7 @@ public type CallerActions object {
     #                            is unknown
     #            A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
     #                            continues to process commands after a command fails
-    public native function batchUpdate(@sensitive string sqlQuery, Param[]... parameters) returns int[]|error;
+    public extern function batchUpdate(@sensitive string sqlQuery, Param[]... parameters) returns int[]|error;
 
     # The updateWithGeneratedKeys operation implementation for SQL connector which returns the auto
     # generated keys during the update action.
@@ -63,7 +63,7 @@ public type CallerActions object {
     # + return - A `Tuple` will be returned and would represent updated row count during the query exectuion,
     #            aray of auto generated key values during the query execution, in order.
     #            Else `error` will be returned if there is any error.
-    public native function updateWithGeneratedKeys(@sensitive string sqlQuery, string[]? keyColumns,
+    public extern function updateWithGeneratedKeys(@sensitive string sqlQuery, string[]? keyColumns,
                                                    Param... parameters) returns (int, string[])|error;
 
     # The getProxyTable operation implementation for SQL connector which acts as a proxy for a database
@@ -72,10 +72,10 @@ public type CallerActions object {
     # + tableName - The name of the table to be retrieved
     # + recordType - The record type of the returned table
     # + return - A `table` returned by the operation or else `error` will be returned if there is any error
-    public native function getProxyTable(@sensitive string tableName, typedesc recordType) returns @tainted table|error;
+    public extern function getProxyTable(@sensitive string tableName, typedesc recordType) returns @tainted table|error;
 };
 
 # An internal function used by clients to shutdown the connection pool.
 #
 # + callerActions - The CallerActions object which represents the connection pool.
-public native function close(CallerActions callerActions);
+public extern function close(CallerActions callerActions);

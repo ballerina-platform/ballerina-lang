@@ -33,7 +33,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import java.util.IllegalFormatException;
 
 /**
- * Native function to set session attributes to the message.
+ * Extern function to set session attributes to the message.
  *
  * @since 0.89
  */
