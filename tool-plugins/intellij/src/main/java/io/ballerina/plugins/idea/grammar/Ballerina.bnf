@@ -151,9 +151,9 @@
 
 CompilationUnit ::=(ImportDeclaration | NamespaceDeclaration)* (DefinitionWithoutAnnotationAttachments |  DefinitionWithMultipleAnnotationAttachments | DefinitionWithSingleAnnotationAttachment)* <<eof>>
 
-DefinitionWithMultipleAnnotationAttachments ::= (documentationAttachment | documentationString)? deprecatedAttachment? AnnotationAttachment AnnotationAttachment+ Definition {pin=4 elementType=Definition}
-DefinitionWithSingleAnnotationAttachment ::= (documentationAttachment | documentationString)? deprecatedAttachment? AnnotationAttachment Definition {pin=3 elementType=Definition}
-DefinitionWithoutAnnotationAttachments ::= (documentationAttachment | documentationString)? deprecatedAttachment? Definition {elementType=Definition}
+DefinitionWithMultipleAnnotationAttachments ::=  documentationString? deprecatedAttachment? AnnotationAttachment AnnotationAttachment+ Definition {pin=4 elementType=Definition}
+DefinitionWithSingleAnnotationAttachment ::= documentationString? deprecatedAttachment? AnnotationAttachment Definition {pin=3 elementType=Definition}
+DefinitionWithoutAnnotationAttachments ::= documentationString? deprecatedAttachment? Definition {elementType=Definition}
 
 //PackageDeclaration ::= package CompletePackageName PackageVersion? SEMICOLON {
 //    pin=1
@@ -200,7 +200,7 @@ Definition ::= ( TypeDefinition
     recoverWhile=TopLevelDefinitionRecover
 }
 
-private TopLevelDefinitionRecover ::= !(DOCUMENTATION_TEMPLATE_START|MARKDOWN_DOCUMENTATION_LINE_START|DEPRECATED_TEMPLATE_START|'@'|native|public
+private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|DEPRECATED_TEMPLATE_START|'@'|native|public
 |type|typedesc|service|function|enum|annotation|endpoint|int|float|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|future|identifier|'{')
 
 ServiceDefinition ::= service (LT NameReference GT)? identifier ServiceEndpointAttachments?  ServiceBody {pin=1}
@@ -209,7 +209,7 @@ ServiceBody ::= LEFT_BRACE (/*ResourceDefinition+ | EndpointDefinition+ Resource
 
 // Note - Always sync with VariableDefinitionStatement
 VariableDefinitionStatementInService ::= /*<<isNotAResourceDefinition>> VariableDefinitionStatement*/ TypeName identifier VariableAssignment? SEMICOLON {pin(".*")=2 elementType=VariableDefinitionStatement}
-ResourceDefinition ::= AnnotationAttachment* (documentationAttachment | documentationString)? deprecatedAttachment? identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS CallableUnitBody {pin=4}
+ResourceDefinition ::= AnnotationAttachment* documentationString? deprecatedAttachment? identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS CallableUnitBody {pin=4}
 resourceParameterList ::= endpointParameter | ParameterList
 endpointParameter ::= endpoint identifier (COMMA ParameterList)? {pin(".*")=1}
 
@@ -247,13 +247,13 @@ TypeDefinition ::= (public)? type identifier FiniteType SEMICOLON {
 
 ObjectBody ::= ObjectFieldDefinition* ObjectInitializer? ObjectFunctions?
 
-ObjectInitializer ::= AnnotationAttachment* (documentationAttachment | documentationString)? (public)? new ObjectInitializerParameterList CallableUnitBody {pin=4}
+ObjectInitializer ::= AnnotationAttachment* documentationString? (public)? new ObjectInitializerParameterList CallableUnitBody {pin=4}
 
 ObjectInitializerParameterList ::= LEFT_PARENTHESIS ObjectParameterList? RIGHT_PARENTHESIS {pin=1}
 
 ObjectFunctions ::= ObjectFunctionDefinition+
 
-ObjectFieldDefinition ::= AnnotationAttachment* (documentationAttachment | documentationString)? deprecatedAttachment? (public | private)? TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON) {pin=5}
+ObjectFieldDefinition ::= AnnotationAttachment* documentationString? deprecatedAttachment? (public | private)? TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON) {pin=5}
 
 FieldDefinition ::= AnnotationAttachment* TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON) {pin=3}
 
@@ -268,7 +268,7 @@ ObjectParameter ::= AnnotationAttachment* (TypeName identifier | identifier)
 
 ObjectDefaultableParameter ::= ObjectParameter ASSIGN Expression
 
-ObjectFunctionDefinition ::= AnnotationAttachment* (documentationAttachment | documentationString)? deprecatedAttachment? (public)? (native)? function CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=6}
+ObjectFunctionDefinition ::= AnnotationAttachment* documentationString? deprecatedAttachment? (public)? (native)? function CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=6}
 
 //TODO merge with callableUnitSignature later
 ObjectCallableUnitSignature ::= AnyIdentifierName LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS ReturnParameter? {pin=1}
@@ -937,25 +937,25 @@ doubleBackTickDeprecatedInlineCode ::= DB_DEPRECATED_INLINE_CODE_START DOUBLE_BA
 tripleBackTickDeprecatedInlineCode ::= TB_DEPRECATED_INLINE_CODE_START TRIPLE_BACK_TICK_INLINE_CODE? TRIPLE_BACK_TICK_INLINE_CODE_END {pin=1}
 
 
-// Documentation parsing.
-
-documentationAttachment ::= DOCUMENTATION_TEMPLATE_START documentationTemplateContent? DOCUMENTATION_TEMPLATE_END {pin=1}
-
-documentationTemplateContent ::= docText? documentationTemplateAttributeDescription+ | docText
-
-documentationTemplateAttributeDescription ::= DOCUMENTATION_TEMPLATE_ATTRIBUTE_START identifier? DOCUMENTATION_TEMPLATE_ATTRIBUTE_END docText? {pin=1}
-
-docText ::= documentationTemplateInlineCode (DOCUMENTATION_TEMPLATE_TEXT | documentationTemplateInlineCode)*
-            | DOCUMENTATION_TEMPLATE_TEXT  (DOCUMENTATION_TEMPLATE_TEXT | documentationTemplateInlineCode)*
-
-documentationTemplateInlineCode ::= singleBackTickDocInlineCode | doubleBackTickDocInlineCode | tripleBackTickDocInlineCode
-
-singleBackTickDocInlineCode ::= SB_DOC_INLINE_CODE_START SINGLE_BACK_TICK_INLINE_CODE? SINGLE_BACK_TICK_INLINE_CODE_END {pin=1}
-
-doubleBackTickDocInlineCode ::= DB_DOC_INLINE_CODE_START DOUBLE_BACK_TICK_INLINE_CODE? DOUBLE_BACK_TICK_INLINE_CODE_END {pin=1}
-
-tripleBackTickDocInlineCode ::= TB_DOC_INLINE_CODE_START TRIPLE_BACK_TICK_INLINE_CODE? TRIPLE_BACK_TICK_INLINE_CODE_END {pin=1}
-
+//// Documentation parsing.
+//
+//documentationAttachment ::= DOCUMENTATION_TEMPLATE_START documentationTemplateContent? DOCUMENTATION_TEMPLATE_END {pin=1}
+//
+//documentationTemplateContent ::= docText? documentationTemplateAttributeDescription+ | docText
+//
+//documentationTemplateAttributeDescription ::= DOCUMENTATION_TEMPLATE_ATTRIBUTE_START identifier? DOCUMENTATION_TEMPLATE_ATTRIBUTE_END docText? {pin=1}
+//
+//docText ::= documentationTemplateInlineCode (DOCUMENTATION_TEMPLATE_TEXT | documentationTemplateInlineCode)*
+//            | DOCUMENTATION_TEMPLATE_TEXT  (DOCUMENTATION_TEMPLATE_TEXT | documentationTemplateInlineCode)*
+//
+//documentationTemplateInlineCode ::= singleBackTickDocInlineCode | doubleBackTickDocInlineCode | tripleBackTickDocInlineCode
+//
+//singleBackTickDocInlineCode ::= SB_DOC_INLINE_CODE_START SINGLE_BACK_TICK_INLINE_CODE? SINGLE_BACK_TICK_INLINE_CODE_END {pin=1}
+//
+//doubleBackTickDocInlineCode ::= DB_DOC_INLINE_CODE_START DOUBLE_BACK_TICK_INLINE_CODE? DOUBLE_BACK_TICK_INLINE_CODE_END {pin=1}
+//
+//tripleBackTickDocInlineCode ::= TB_DOC_INLINE_CODE_START TRIPLE_BACK_TICK_INLINE_CODE? TRIPLE_BACK_TICK_INLINE_CODE_END {pin=1}
+//
 
 // Markdown Documentation parsing
 documentationString ::= documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine?
