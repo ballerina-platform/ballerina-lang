@@ -612,11 +612,11 @@ expression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   (ADD | SUB | NOT | LENGTHOF | UNTAINT) expression                   # unaryExpression
     |   LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS   # bracedOrTupleExpression
+    |	CHECK expression										            # checkedExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
     |   expression (ADD | SUB) expression                                   # binaryAddSubExpression
     |   expression (LT_EQUAL | GT_EQUAL | GT | LT) expression               # binaryCompareExpression
     |   expression (EQUAL | NOT_EQUAL) expression                           # binaryEqualExpression
-    |	CHECK expression										            # checkedExpression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression
     |   expression (ELLIPSIS | HALF_OPEN_RANGE) expression                  # integerRangeExpression

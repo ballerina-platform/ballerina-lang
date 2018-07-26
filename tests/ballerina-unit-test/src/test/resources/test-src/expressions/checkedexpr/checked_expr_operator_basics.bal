@@ -172,10 +172,28 @@ function testCheckedExprAsFuncParam1() returns string | error  {
                     check bar(check foo(check foo(check foo("M"))), "done"));
 }
 
-function testCheckInBinaryExpression() returns boolean {
+function testCheckInBinaryAndExpression() returns boolean {
     string s = "Ballerina";
     if (check s.matches("B.*") && check s.matches(".*a")) {
         return true;
     }
     return false;
+}
+
+function testCheckInBinaryAddExpression() returns int {
+    int|error a = 10;
+    int|error b = 20;
+    return check a + check b;
+}
+
+function testCheckInBinaryDivExpression() returns int {
+    int|error a = 10;
+    int|error b = 20;
+    return check b / check a;
+}
+
+function testCheckInBinaryLTExpression() returns boolean {
+    int|error a = 10;
+    int|error b = 20;
+    return check b < check a;
 }

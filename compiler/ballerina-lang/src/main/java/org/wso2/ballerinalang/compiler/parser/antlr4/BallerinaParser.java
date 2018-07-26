@@ -10414,7 +10414,7 @@ public class BallerinaParser extends Parser {
 				setState(1727);
 				match(CHECK);
 				setState(1728);
-				expression(11);
+				expression(15);
 				}
 				break;
 			case 16:
@@ -10453,7 +10453,7 @@ public class BallerinaParser extends Parser {
 						_localctx = new BinaryDivMulModExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(1733);
-						if (!(precpred(_ctx, 15))) throw new FailedPredicateException(this, "precpred(_ctx, 15)");
+						if (!(precpred(_ctx, 14))) throw new FailedPredicateException(this, "precpred(_ctx, 14)");
 						setState(1734);
 						_la = _input.LA(1);
 						if ( !(((((_la - 140)) & ~0x3f) == 0 && ((1L << (_la - 140)) & ((1L << (MUL - 140)) | (1L << (DIV - 140)) | (1L << (MOD - 140)))) != 0)) ) {
@@ -10462,7 +10462,7 @@ public class BallerinaParser extends Parser {
 							consume();
 						}
 						setState(1735);
-						expression(16);
+						expression(15);
 						}
 						break;
 					case 2:
@@ -10470,7 +10470,7 @@ public class BallerinaParser extends Parser {
 						_localctx = new BinaryAddSubExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(1736);
-						if (!(precpred(_ctx, 14))) throw new FailedPredicateException(this, "precpred(_ctx, 14)");
+						if (!(precpred(_ctx, 13))) throw new FailedPredicateException(this, "precpred(_ctx, 13)");
 						setState(1737);
 						_la = _input.LA(1);
 						if ( !(_la==ADD || _la==SUB) ) {
@@ -10479,7 +10479,7 @@ public class BallerinaParser extends Parser {
 							consume();
 						}
 						setState(1738);
-						expression(15);
+						expression(14);
 						}
 						break;
 					case 3:
@@ -10487,7 +10487,7 @@ public class BallerinaParser extends Parser {
 						_localctx = new BinaryCompareExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(1739);
-						if (!(precpred(_ctx, 13))) throw new FailedPredicateException(this, "precpred(_ctx, 13)");
+						if (!(precpred(_ctx, 12))) throw new FailedPredicateException(this, "precpred(_ctx, 12)");
 						setState(1740);
 						_la = _input.LA(1);
 						if ( !(((((_la - 146)) & ~0x3f) == 0 && ((1L << (_la - 146)) & ((1L << (GT - 146)) | (1L << (LT - 146)) | (1L << (GT_EQUAL - 146)) | (1L << (LT_EQUAL - 146)))) != 0)) ) {
@@ -10496,7 +10496,7 @@ public class BallerinaParser extends Parser {
 							consume();
 						}
 						setState(1741);
-						expression(14);
+						expression(13);
 						}
 						break;
 					case 4:
@@ -10504,7 +10504,7 @@ public class BallerinaParser extends Parser {
 						_localctx = new BinaryEqualExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(1742);
-						if (!(precpred(_ctx, 12))) throw new FailedPredicateException(this, "precpred(_ctx, 12)");
+						if (!(precpred(_ctx, 11))) throw new FailedPredicateException(this, "precpred(_ctx, 11)");
 						setState(1743);
 						_la = _input.LA(1);
 						if ( !(_la==EQUAL || _la==NOT_EQUAL) ) {
@@ -10513,7 +10513,7 @@ public class BallerinaParser extends Parser {
 							consume();
 						}
 						setState(1744);
-						expression(13);
+						expression(12);
 						}
 						break;
 					case 5:
@@ -17403,13 +17403,13 @@ public class BallerinaParser extends Parser {
 	private boolean expression_sempred(ExpressionContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 8:
-			return precpred(_ctx, 15);
-		case 9:
 			return precpred(_ctx, 14);
-		case 10:
+		case 9:
 			return precpred(_ctx, 13);
-		case 11:
+		case 10:
 			return precpred(_ctx, 12);
+		case 11:
+			return precpred(_ctx, 11);
 		case 12:
 			return precpred(_ctx, 10);
 		case 13:
@@ -18197,23 +18197,23 @@ public class BallerinaParser extends Parser {
 		"\u06b9\7\u0083\2\2\u06b9\u06bb\5\u00f8}\2\u06ba\u06b8\3\2\2\2\u06bb\u06be"+
 		"\3\2\2\2\u06bc\u06ba\3\2\2\2\u06bc\u06bd\3\2\2\2\u06bd\u06bf\3\2\2\2\u06be"+
 		"\u06bc\3\2\2\2\u06bf\u06c0\7\u0087\2\2\u06c0\u06c6\3\2\2\2\u06c1\u06c2"+
-		"\7y\2\2\u06c2\u06c6\5\u00f8}\r\u06c3\u06c6\5\u00fa~\2\u06c4\u06c6\5R*"+
-		"\2\u06c5\u069c\3\2\2\2\u06c5\u069e\3\2\2\2\u06c5\u069f\3\2\2\2\u06c5\u06a0"+
-		"\3\2\2\2\u06c5\u06a1\3\2\2\2\u06c5\u06a2\3\2\2\2\u06c5\u06a4\3\2\2\2\u06c5"+
-		"\u06a7\3\2\2\2\u06c5\u06a8\3\2\2\2\u06c5\u06a9\3\2\2\2\u06c5\u06aa\3\2"+
-		"\2\2\u06c5\u06ab\3\2\2\2\u06c5\u06b4\3\2\2\2\u06c5\u06b6\3\2\2\2\u06c5"+
-		"\u06c1\3\2\2\2\u06c5\u06c3\3\2\2\2\u06c5\u06c4\3\2\2\2\u06c6\u06f0\3\2"+
-		"\2\2\u06c7\u06c8\f\21\2\2\u06c8\u06c9\t\r\2\2\u06c9\u06ef\5\u00f8}\22"+
-		"\u06ca\u06cb\f\20\2\2\u06cb\u06cc\t\16\2\2\u06cc\u06ef\5\u00f8}\21\u06cd"+
-		"\u06ce\f\17\2\2\u06ce\u06cf\t\17\2\2\u06cf\u06ef\5\u00f8}\20\u06d0\u06d1"+
-		"\f\16\2\2\u06d1\u06d2\t\20\2\2\u06d2\u06ef\5\u00f8}\17\u06d3\u06d4\f\f"+
-		"\2\2\u06d4\u06d5\7\u0098\2\2\u06d5\u06ef\5\u00f8}\r\u06d6\u06d7\f\13\2"+
-		"\2\u06d7\u06d8\7\u0099\2\2\u06d8\u06ef\5\u00f8}\f\u06d9\u06da\f\n\2\2"+
-		"\u06da\u06db\t\21\2\2\u06db\u06ef\5\u00f8}\13\u06dc\u06dd\f\t\2\2\u06dd"+
-		"\u06de\7\u008a\2\2\u06de\u06df\5\u00f8}\2\u06df\u06e0\7\u0080\2\2\u06e0"+
-		"\u06e1\5\u00f8}\n\u06e1\u06ef\3\2\2\2\u06e2\u06e3\f\6\2\2\u06e3\u06e4"+
-		"\7\u00a4\2\2\u06e4\u06ef\5\u00f8}\7\u06e5\u06e6\f\5\2\2\u06e6\u06e7\t"+
-		"\22\2\2\u06e7\u06ef\5\u00f8}\6\u06e8\u06e9\f\4\2\2\u06e9\u06ea\5\u00fc"+
+		"\7y\2\2\u06c2\u06c6\5\u00f8}\21\u06c3\u06c6\5\u00fa~\2\u06c4\u06c6\5R"+
+		"*\2\u06c5\u069c\3\2\2\2\u06c5\u069e\3\2\2\2\u06c5\u069f\3\2\2\2\u06c5"+
+		"\u06a0\3\2\2\2\u06c5\u06a1\3\2\2\2\u06c5\u06a2\3\2\2\2\u06c5\u06a4\3\2"+
+		"\2\2\u06c5\u06a7\3\2\2\2\u06c5\u06a8\3\2\2\2\u06c5\u06a9\3\2\2\2\u06c5"+
+		"\u06aa\3\2\2\2\u06c5\u06ab\3\2\2\2\u06c5\u06b4\3\2\2\2\u06c5\u06b6\3\2"+
+		"\2\2\u06c5\u06c1\3\2\2\2\u06c5\u06c3\3\2\2\2\u06c5\u06c4\3\2\2\2\u06c6"+
+		"\u06f0\3\2\2\2\u06c7\u06c8\f\20\2\2\u06c8\u06c9\t\r\2\2\u06c9\u06ef\5"+
+		"\u00f8}\21\u06ca\u06cb\f\17\2\2\u06cb\u06cc\t\16\2\2\u06cc\u06ef\5\u00f8"+
+		"}\20\u06cd\u06ce\f\16\2\2\u06ce\u06cf\t\17\2\2\u06cf\u06ef\5\u00f8}\17"+
+		"\u06d0\u06d1\f\r\2\2\u06d1\u06d2\t\20\2\2\u06d2\u06ef\5\u00f8}\16\u06d3"+
+		"\u06d4\f\f\2\2\u06d4\u06d5\7\u0098\2\2\u06d5\u06ef\5\u00f8}\r\u06d6\u06d7"+
+		"\f\13\2\2\u06d7\u06d8\7\u0099\2\2\u06d8\u06ef\5\u00f8}\f\u06d9\u06da\f"+
+		"\n\2\2\u06da\u06db\t\21\2\2\u06db\u06ef\5\u00f8}\13\u06dc\u06dd\f\t\2"+
+		"\2\u06dd\u06de\7\u008a\2\2\u06de\u06df\5\u00f8}\2\u06df\u06e0\7\u0080"+
+		"\2\2\u06e0\u06e1\5\u00f8}\n\u06e1\u06ef\3\2\2\2\u06e2\u06e3\f\6\2\2\u06e3"+
+		"\u06e4\7\u00a4\2\2\u06e4\u06ef\5\u00f8}\7\u06e5\u06e6\f\5\2\2\u06e6\u06e7"+
+		"\t\22\2\2\u06e7\u06ef\5\u00f8}\6\u06e8\u06e9\f\4\2\2\u06e9\u06ea\5\u00fc"+
 		"\177\2\u06ea\u06eb\5\u00f8}\5\u06eb\u06ef\3\2\2\2\u06ec\u06ed\f\7\2\2"+
 		"\u06ed\u06ef\5\u0100\u0081\2\u06ee\u06c7\3\2\2\2\u06ee\u06ca\3\2\2\2\u06ee"+
 		"\u06cd\3\2\2\2\u06ee\u06d0\3\2\2\2\u06ee\u06d3\3\2\2\2\u06ee\u06d6\3\2"+
