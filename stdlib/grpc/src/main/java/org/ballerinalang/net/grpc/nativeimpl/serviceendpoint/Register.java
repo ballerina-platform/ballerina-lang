@@ -42,7 +42,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
 
 /**
- * Native function to register service to service endpoint.
+ * Extern function to register service to service endpoint.
  *
  * @since 1.0.0
  */

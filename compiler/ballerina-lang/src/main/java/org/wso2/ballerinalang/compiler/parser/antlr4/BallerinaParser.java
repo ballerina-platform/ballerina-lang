@@ -17,7 +17,7 @@ public class BallerinaParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		IMPORT=1, AS=2, PUBLIC=3, PRIVATE=4, NATIVE=5, SERVICE=6, RESOURCE=7, 
+		IMPORT=1, AS=2, PUBLIC=3, PRIVATE=4, EXTERN=5, SERVICE=6, RESOURCE=7, 
 		FUNCTION=8, OBJECT=9, RECORD=10, ANNOTATION=11, PARAMETER=12, TRANSFORMER=13, 
 		WORKER=14, ENDPOINT=15, BIND=16, XMLNS=17, RETURNS=18, VERSION=19, DOCUMENTATION=20, 
 		DEPRECATED=21, FROM=22, ON=23, SELECT=24, GROUP=25, BY=26, HAVING=27, 
@@ -215,7 +215,7 @@ public class BallerinaParser extends Parser {
 	};
 
 	private static final String[] _LITERAL_NAMES = {
-		null, "'import'", "'as'", "'public'", "'private'", "'native'", "'service'", 
+		null, "'import'", "'as'", "'public'", "'private'", "'extern'", "'service'", 
 		"'resource'", "'function'", "'object'", "'record'", "'annotation'", "'parameter'", 
 		"'transformer'", "'worker'", "'endpoint'", "'bind'", "'xmlns'", "'returns'", 
 		"'version'", "'documentation'", "'deprecated'", "'from'", "'on'", null, 
@@ -246,7 +246,7 @@ public class BallerinaParser extends Parser {
 		null, "'\"'", "'''"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
-		null, "IMPORT", "AS", "PUBLIC", "PRIVATE", "NATIVE", "SERVICE", "RESOURCE", 
+		null, "IMPORT", "AS", "PUBLIC", "PRIVATE", "EXTERN", "SERVICE", "RESOURCE", 
 		"FUNCTION", "OBJECT", "RECORD", "ANNOTATION", "PARAMETER", "TRANSFORMER", 
 		"WORKER", "ENDPOINT", "BIND", "XMLNS", "RETURNS", "VERSION", "DOCUMENTATION", 
 		"DEPRECATED", "FROM", "ON", "SELECT", "GROUP", "BY", "HAVING", "ORDER", 
@@ -442,7 +442,7 @@ public class BallerinaParser extends Parser {
 			setState(477);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << PUBLIC) | (1L << NATIVE) | (1L << SERVICE) | (1L << FUNCTION) | (1L << OBJECT) | (1L << RECORD) | (1L << ANNOTATION) | (1L << ENDPOINT))) != 0) || ((((_la - 71)) & ~0x3f) == 0 && ((1L << (_la - 71)) & ((1L << (TYPE_INT - 71)) | (1L << (TYPE_BYTE - 71)) | (1L << (TYPE_FLOAT - 71)) | (1L << (TYPE_BOOL - 71)) | (1L << (TYPE_STRING - 71)) | (1L << (TYPE_MAP - 71)) | (1L << (TYPE_JSON - 71)) | (1L << (TYPE_XML - 71)) | (1L << (TYPE_TABLE - 71)) | (1L << (TYPE_STREAM - 71)) | (1L << (TYPE_ANY - 71)) | (1L << (TYPE_DESC - 71)) | (1L << (TYPE - 71)) | (1L << (TYPE_FUTURE - 71)) | (1L << (LEFT_PARENTHESIS - 71)))) != 0) || ((((_la - 157)) & ~0x3f) == 0 && ((1L << (_la - 157)) & ((1L << (AT - 157)) | (1L << (Identifier - 157)) | (1L << (DocumentationLineStart - 157)) | (1L << (DocumentationTemplateStart - 157)) | (1L << (DeprecatedTemplateStart - 157)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << PUBLIC) | (1L << EXTERN) | (1L << SERVICE) | (1L << FUNCTION) | (1L << OBJECT) | (1L << RECORD) | (1L << ANNOTATION) | (1L << ENDPOINT))) != 0) || ((((_la - 71)) & ~0x3f) == 0 && ((1L << (_la - 71)) & ((1L << (TYPE_INT - 71)) | (1L << (TYPE_BYTE - 71)) | (1L << (TYPE_FLOAT - 71)) | (1L << (TYPE_BOOL - 71)) | (1L << (TYPE_STRING - 71)) | (1L << (TYPE_MAP - 71)) | (1L << (TYPE_JSON - 71)) | (1L << (TYPE_XML - 71)) | (1L << (TYPE_TABLE - 71)) | (1L << (TYPE_STREAM - 71)) | (1L << (TYPE_ANY - 71)) | (1L << (TYPE_DESC - 71)) | (1L << (TYPE - 71)) | (1L << (TYPE_FUTURE - 71)) | (1L << (LEFT_PARENTHESIS - 71)))) != 0) || ((((_la - 157)) & ~0x3f) == 0 && ((1L << (_la - 157)) & ((1L << (AT - 157)) | (1L << (Identifier - 157)) | (1L << (DocumentationLineStart - 157)) | (1L << (DocumentationTemplateStart - 157)) | (1L << (DeprecatedTemplateStart - 157)))) != 0)) {
 				{
 				{
 				setState(463);
@@ -460,7 +460,7 @@ public class BallerinaParser extends Parser {
 					}
 					break;
 				case PUBLIC:
-				case NATIVE:
+				case EXTERN:
 				case SERVICE:
 				case FUNCTION:
 				case OBJECT:
@@ -1556,7 +1556,7 @@ public class BallerinaParser extends Parser {
 		}
 		public TerminalNode SEMICOLON() { return getToken(BallerinaParser.SEMICOLON, 0); }
 		public TerminalNode PUBLIC() { return getToken(BallerinaParser.PUBLIC, 0); }
-		public TerminalNode NATIVE() { return getToken(BallerinaParser.NATIVE, 0); }
+		public TerminalNode EXTERN() { return getToken(BallerinaParser.EXTERN, 0); }
 		public TerminalNode DOUBLE_COLON() { return getToken(BallerinaParser.DOUBLE_COLON, 0); }
 		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
 		public TypeNameContext typeName() {
@@ -1594,10 +1594,10 @@ public class BallerinaParser extends Parser {
 
 			setState(623);
 			_la = _input.LA(1);
-			if (_la==NATIVE) {
+			if (_la==EXTERN) {
 				{
 				setState(622);
-				match(NATIVE);
+				match(EXTERN);
 				}
 			}
 
@@ -1926,7 +1926,7 @@ public class BallerinaParser extends Parser {
 			}
 			setState(676);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << PUBLIC) | (1L << PRIVATE) | (1L << NATIVE) | (1L << FUNCTION))) != 0) || ((((_la - 157)) & ~0x3f) == 0 && ((1L << (_la - 157)) & ((1L << (AT - 157)) | (1L << (DocumentationLineStart - 157)) | (1L << (DocumentationTemplateStart - 157)) | (1L << (DeprecatedTemplateStart - 157)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << PUBLIC) | (1L << PRIVATE) | (1L << EXTERN) | (1L << FUNCTION))) != 0) || ((((_la - 157)) & ~0x3f) == 0 && ((1L << (_la - 157)) & ((1L << (AT - 157)) | (1L << (DocumentationLineStart - 157)) | (1L << (DocumentationTemplateStart - 157)) | (1L << (DeprecatedTemplateStart - 157)))) != 0)) {
 				{
 				setState(675);
 				objectFunctions();
@@ -2144,7 +2144,7 @@ public class BallerinaParser extends Parser {
 				setState(704); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << PUBLIC) | (1L << PRIVATE) | (1L << NATIVE) | (1L << FUNCTION))) != 0) || ((((_la - 157)) & ~0x3f) == 0 && ((1L << (_la - 157)) & ((1L << (AT - 157)) | (1L << (DocumentationLineStart - 157)) | (1L << (DocumentationTemplateStart - 157)) | (1L << (DeprecatedTemplateStart - 157)))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << PUBLIC) | (1L << PRIVATE) | (1L << EXTERN) | (1L << FUNCTION))) != 0) || ((((_la - 157)) & ~0x3f) == 0 && ((1L << (_la - 157)) & ((1L << (AT - 157)) | (1L << (DocumentationLineStart - 157)) | (1L << (DocumentationTemplateStart - 157)) | (1L << (DeprecatedTemplateStart - 157)))) != 0) );
 			}
 		}
 		catch (RecognitionException re) {
@@ -2803,7 +2803,7 @@ public class BallerinaParser extends Parser {
 		public DeprecatedAttachmentContext deprecatedAttachment() {
 			return getRuleContext(DeprecatedAttachmentContext.class,0);
 		}
-		public TerminalNode NATIVE() { return getToken(BallerinaParser.NATIVE, 0); }
+		public TerminalNode EXTERN() { return getToken(BallerinaParser.EXTERN, 0); }
 		public TerminalNode PUBLIC() { return getToken(BallerinaParser.PUBLIC, 0); }
 		public TerminalNode PRIVATE() { return getToken(BallerinaParser.PRIVATE, 0); }
 		public ObjectFunctionDefinitionContext(ParserRuleContext parent, int invokingState) {
@@ -2857,7 +2857,7 @@ public class BallerinaParser extends Parser {
 				break;
 			case PUBLIC:
 			case PRIVATE:
-			case NATIVE:
+			case EXTERN:
 			case FUNCTION:
 			case DeprecatedTemplateStart:
 				break;
@@ -2889,10 +2889,10 @@ public class BallerinaParser extends Parser {
 
 			setState(809);
 			_la = _input.LA(1);
-			if (_la==NATIVE) {
+			if (_la==EXTERN) {
 				{
 				setState(808);
-				match(NATIVE);
+				match(EXTERN);
 				}
 			}
 
@@ -10424,22 +10424,22 @@ public class BallerinaParser extends Parser {
 				break;
 			case 15:
 				{
-				_localctx = new AwaitExprExpressionContext(_localctx);
+				_localctx = new CheckedExpressionContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
 				setState(1727);
-				awaitExpression();
+				match(CHECK);
+				setState(1728);
+				expression(16);
 				}
 				break;
 			case 16:
 				{
-				_localctx = new CheckedExpressionContext(_localctx);
+				_localctx = new AwaitExprExpressionContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(1728);
-				match(CHECK);
 				setState(1729);
-				expression(6);
+				awaitExpression();
 				}
 				break;
 			case 17:
@@ -10482,7 +10482,7 @@ public class BallerinaParser extends Parser {
 						_localctx = new BinaryDivMulModExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(1735);
-						if (!(precpred(_ctx, 16))) throw new FailedPredicateException(this, "precpred(_ctx, 16)");
+						if (!(precpred(_ctx, 15))) throw new FailedPredicateException(this, "precpred(_ctx, 15)");
 						setState(1736);
 						_la = _input.LA(1);
 						if ( !(((((_la - 140)) & ~0x3f) == 0 && ((1L << (_la - 140)) & ((1L << (MUL - 140)) | (1L << (DIV - 140)) | (1L << (MOD - 140)))) != 0)) ) {
@@ -10491,7 +10491,7 @@ public class BallerinaParser extends Parser {
 							consume();
 						}
 						setState(1737);
-						expression(17);
+						expression(16);
 						}
 						break;
 					case 2:
@@ -10499,7 +10499,7 @@ public class BallerinaParser extends Parser {
 						_localctx = new BinaryAddSubExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(1738);
-						if (!(precpred(_ctx, 15))) throw new FailedPredicateException(this, "precpred(_ctx, 15)");
+						if (!(precpred(_ctx, 14))) throw new FailedPredicateException(this, "precpred(_ctx, 14)");
 						setState(1739);
 						_la = _input.LA(1);
 						if ( !(_la==ADD || _la==SUB) ) {
@@ -10508,7 +10508,7 @@ public class BallerinaParser extends Parser {
 							consume();
 						}
 						setState(1740);
-						expression(16);
+						expression(15);
 						}
 						break;
 					case 3:
@@ -10516,7 +10516,7 @@ public class BallerinaParser extends Parser {
 						_localctx = new BinaryCompareExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(1741);
-						if (!(precpred(_ctx, 14))) throw new FailedPredicateException(this, "precpred(_ctx, 14)");
+						if (!(precpred(_ctx, 13))) throw new FailedPredicateException(this, "precpred(_ctx, 13)");
 						setState(1742);
 						_la = _input.LA(1);
 						if ( !(((((_la - 146)) & ~0x3f) == 0 && ((1L << (_la - 146)) & ((1L << (GT - 146)) | (1L << (LT - 146)) | (1L << (GT_EQUAL - 146)) | (1L << (LT_EQUAL - 146)))) != 0)) ) {
@@ -10525,7 +10525,7 @@ public class BallerinaParser extends Parser {
 							consume();
 						}
 						setState(1743);
-						expression(15);
+						expression(14);
 						}
 						break;
 					case 4:
@@ -10533,7 +10533,7 @@ public class BallerinaParser extends Parser {
 						_localctx = new BinaryEqualExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(1744);
-						if (!(precpred(_ctx, 13))) throw new FailedPredicateException(this, "precpred(_ctx, 13)");
+						if (!(precpred(_ctx, 12))) throw new FailedPredicateException(this, "precpred(_ctx, 12)");
 						setState(1745);
 						_la = _input.LA(1);
 						if ( !(_la==EQUAL || _la==NOT_EQUAL) ) {
@@ -10542,7 +10542,7 @@ public class BallerinaParser extends Parser {
 							consume();
 						}
 						setState(1746);
-						expression(14);
+						expression(13);
 						}
 						break;
 					case 5:
@@ -10550,11 +10550,11 @@ public class BallerinaParser extends Parser {
 						_localctx = new BinaryAndExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(1747);
-						if (!(precpred(_ctx, 12))) throw new FailedPredicateException(this, "precpred(_ctx, 12)");
+						if (!(precpred(_ctx, 11))) throw new FailedPredicateException(this, "precpred(_ctx, 11)");
 						setState(1748);
 						match(AND);
 						setState(1749);
-						expression(13);
+						expression(12);
 						}
 						break;
 					case 6:
@@ -10562,11 +10562,11 @@ public class BallerinaParser extends Parser {
 						_localctx = new BinaryOrExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(1750);
-						if (!(precpred(_ctx, 11))) throw new FailedPredicateException(this, "precpred(_ctx, 11)");
+						if (!(precpred(_ctx, 10))) throw new FailedPredicateException(this, "precpred(_ctx, 10)");
 						setState(1751);
 						match(OR);
 						setState(1752);
-						expression(12);
+						expression(11);
 						}
 						break;
 					case 7:
@@ -10574,7 +10574,7 @@ public class BallerinaParser extends Parser {
 						_localctx = new IntegerRangeExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(1753);
-						if (!(precpred(_ctx, 10))) throw new FailedPredicateException(this, "precpred(_ctx, 10)");
+						if (!(precpred(_ctx, 9))) throw new FailedPredicateException(this, "precpred(_ctx, 9)");
 						setState(1754);
 						_la = _input.LA(1);
 						if ( !(_la==ELLIPSIS || _la==HALF_OPEN_RANGE) ) {
@@ -10583,7 +10583,7 @@ public class BallerinaParser extends Parser {
 							consume();
 						}
 						setState(1755);
-						expression(11);
+						expression(10);
 						}
 						break;
 					case 8:
@@ -10591,7 +10591,7 @@ public class BallerinaParser extends Parser {
 						_localctx = new TernaryExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(1756);
-						if (!(precpred(_ctx, 9))) throw new FailedPredicateException(this, "precpred(_ctx, 9)");
+						if (!(precpred(_ctx, 8))) throw new FailedPredicateException(this, "precpred(_ctx, 8)");
 						setState(1757);
 						match(QUESTION_MARK);
 						setState(1758);
@@ -10599,7 +10599,7 @@ public class BallerinaParser extends Parser {
 						setState(1759);
 						match(COLON);
 						setState(1760);
-						expression(10);
+						expression(9);
 						}
 						break;
 					case 9:
@@ -10650,7 +10650,7 @@ public class BallerinaParser extends Parser {
 						_localctx = new MatchExprExpressionContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(1772);
-						if (!(precpred(_ctx, 7))) throw new FailedPredicateException(this, "precpred(_ctx, 7)");
+						if (!(precpred(_ctx, 6))) throw new FailedPredicateException(this, "precpred(_ctx, 6)");
 						setState(1773);
 						matchExpression();
 						}
@@ -17433,21 +17433,21 @@ public class BallerinaParser extends Parser {
 	private boolean expression_sempred(ExpressionContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 8:
-			return precpred(_ctx, 16);
-		case 9:
 			return precpred(_ctx, 15);
-		case 10:
+		case 9:
 			return precpred(_ctx, 14);
-		case 11:
+		case 10:
 			return precpred(_ctx, 13);
-		case 12:
+		case 11:
 			return precpred(_ctx, 12);
-		case 13:
+		case 12:
 			return precpred(_ctx, 11);
-		case 14:
+		case 13:
 			return precpred(_ctx, 10);
-		case 15:
+		case 14:
 			return precpred(_ctx, 9);
+		case 15:
+			return precpred(_ctx, 8);
 		case 16:
 			return precpred(_ctx, 5);
 		case 17:
@@ -17455,7 +17455,7 @@ public class BallerinaParser extends Parser {
 		case 18:
 			return precpred(_ctx, 2);
 		case 19:
-			return precpred(_ctx, 7);
+			return precpred(_ctx, 6);
 		}
 		return true;
 	}
@@ -18226,26 +18226,26 @@ public class BallerinaParser extends Parser {
 		"\u06c8\5\u00f8}\24\u06b6\u06b7\7\u0086\2\2\u06b7\u06bc\5\u00f8}\2\u06b8"+
 		"\u06b9\7\u0083\2\2\u06b9\u06bb\5\u00f8}\2\u06ba\u06b8\3\2\2\2\u06bb\u06be"+
 		"\3\2\2\2\u06bc\u06ba\3\2\2\2\u06bc\u06bd\3\2\2\2\u06bd\u06bf\3\2\2\2\u06be"+
-		"\u06bc\3\2\2\2\u06bf\u06c0\7\u0087\2\2\u06c0\u06c8\3\2\2\2\u06c1\u06c8"+
-		"\5\u00fa~\2\u06c2\u06c3\7y\2\2\u06c3\u06c8\5\u00f8}\b\u06c4\u06c5\7\u009c"+
+		"\u06bc\3\2\2\2\u06bf\u06c0\7\u0087\2\2\u06c0\u06c8\3\2\2\2\u06c1\u06c2"+
+		"\7y\2\2\u06c2\u06c8\5\u00f8}\22\u06c3\u06c8\5\u00fa~\2\u06c4\u06c5\7\u009c"+
 		"\2\2\u06c5\u06c8\5\u00f8}\5\u06c6\u06c8\5R*\2\u06c7\u069c\3\2\2\2\u06c7"+
 		"\u069e\3\2\2\2\u06c7\u069f\3\2\2\2\u06c7\u06a0\3\2\2\2\u06c7\u06a1\3\2"+
 		"\2\2\u06c7\u06a2\3\2\2\2\u06c7\u06a4\3\2\2\2\u06c7\u06a7\3\2\2\2\u06c7"+
 		"\u06a8\3\2\2\2\u06c7\u06a9\3\2\2\2\u06c7\u06aa\3\2\2\2\u06c7\u06ab\3\2"+
 		"\2\2\u06c7\u06b4\3\2\2\2\u06c7\u06b6\3\2\2\2\u06c7\u06c1\3\2\2\2\u06c7"+
-		"\u06c2\3\2\2\2\u06c7\u06c4\3\2\2\2\u06c7\u06c6\3\2\2\2\u06c8\u06f2\3\2"+
-		"\2\2\u06c9\u06ca\f\22\2\2\u06ca\u06cb\t\r\2\2\u06cb\u06f1\5\u00f8}\23"+
-		"\u06cc\u06cd\f\21\2\2\u06cd\u06ce\t\16\2\2\u06ce\u06f1\5\u00f8}\22\u06cf"+
-		"\u06d0\f\20\2\2\u06d0\u06d1\t\17\2\2\u06d1\u06f1\5\u00f8}\21\u06d2\u06d3"+
-		"\f\17\2\2\u06d3\u06d4\t\20\2\2\u06d4\u06f1\5\u00f8}\20\u06d5\u06d6\f\16"+
-		"\2\2\u06d6\u06d7\7\u0098\2\2\u06d7\u06f1\5\u00f8}\17\u06d8\u06d9\f\r\2"+
-		"\2\u06d9\u06da\7\u0099\2\2\u06da\u06f1\5\u00f8}\16\u06db\u06dc\f\f\2\2"+
-		"\u06dc\u06dd\t\21\2\2\u06dd\u06f1\5\u00f8}\r\u06de\u06df\f\13\2\2\u06df"+
+		"\u06c3\3\2\2\2\u06c7\u06c4\3\2\2\2\u06c7\u06c6\3\2\2\2\u06c8\u06f2\3\2"+
+		"\2\2\u06c9\u06ca\f\21\2\2\u06ca\u06cb\t\r\2\2\u06cb\u06f1\5\u00f8}\22"+
+		"\u06cc\u06cd\f\20\2\2\u06cd\u06ce\t\16\2\2\u06ce\u06f1\5\u00f8}\21\u06cf"+
+		"\u06d0\f\17\2\2\u06d0\u06d1\t\17\2\2\u06d1\u06f1\5\u00f8}\20\u06d2\u06d3"+
+		"\f\16\2\2\u06d3\u06d4\t\20\2\2\u06d4\u06f1\5\u00f8}\17\u06d5\u06d6\f\r"+
+		"\2\2\u06d6\u06d7\7\u0098\2\2\u06d7\u06f1\5\u00f8}\16\u06d8\u06d9\f\f\2"+
+		"\2\u06d9\u06da\7\u0099\2\2\u06da\u06f1\5\u00f8}\r\u06db\u06dc\f\13\2\2"+
+		"\u06dc\u06dd\t\21\2\2\u06dd\u06f1\5\u00f8}\f\u06de\u06df\f\n\2\2\u06df"+
 		"\u06e0\7\u008a\2\2\u06e0\u06e1\5\u00f8}\2\u06e1\u06e2\7\u0080\2\2\u06e2"+
-		"\u06e3\5\u00f8}\f\u06e3\u06f1\3\2\2\2\u06e4\u06e5\f\7\2\2\u06e5\u06e6"+
+		"\u06e3\5\u00f8}\13\u06e3\u06f1\3\2\2\2\u06e4\u06e5\f\7\2\2\u06e5\u06e6"+
 		"\7\u00a5\2\2\u06e6\u06f1\5\u00f8}\b\u06e7\u06e8\f\6\2\2\u06e8\u06e9\t"+
 		"\22\2\2\u06e9\u06f1\5\u00f8}\7\u06ea\u06eb\f\4\2\2\u06eb\u06ec\5\u00fc"+
-		"\177\2\u06ec\u06ed\5\u00f8}\5\u06ed\u06f1\3\2\2\2\u06ee\u06ef\f\t\2\2"+
+		"\177\2\u06ec\u06ed\5\u00f8}\5\u06ed\u06f1\3\2\2\2\u06ee\u06ef\f\b\2\2"+
 		"\u06ef\u06f1\5\u0100\u0081\2\u06f0\u06c9\3\2\2\2\u06f0\u06cc\3\2\2\2\u06f0"+
 		"\u06cf\3\2\2\2\u06f0\u06d2\3\2\2\2\u06f0\u06d5\3\2\2\2\u06f0\u06d8\3\2"+
 		"\2\2\u06f0\u06db\3\2\2\2\u06f0\u06de\3\2\2\2\u06f0\u06e4\3\2\2\2\u06f0"+

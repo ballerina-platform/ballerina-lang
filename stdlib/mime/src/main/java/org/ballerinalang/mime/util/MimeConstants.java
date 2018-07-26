@@ -128,7 +128,7 @@ public class MimeConstants {
     public static final String CONTENT_DISPOSITION_NAME_FIELD = "name";
     public static final String CONTENT_DISPOSITION_PARA_MAP_FIELD = "parameters";
 
-    //Native function indexes
+    //extern function indexes
     public static final int STRING_INDEX = 0;
 
     public static final int FIRST_ELEMENT = 0;

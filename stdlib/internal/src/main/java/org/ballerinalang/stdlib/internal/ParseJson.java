@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.utils.Utils;
 
 /**
- * Native function ballerina/internal:parseJson.
+ * Extern function ballerina/internal:parseJson.
  *
  * @since 0.980.0
  */

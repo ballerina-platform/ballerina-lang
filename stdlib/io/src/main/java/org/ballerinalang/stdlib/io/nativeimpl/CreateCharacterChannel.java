@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Native function ballerina/io#createCharacterChannel.
+ * Extern function ballerina/io#createCharacterChannel.
  *
  * @since 0.94
  */

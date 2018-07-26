@@ -117,5 +117,5 @@ public type CSVChannel object {
         P{{structType}} The object the CSV records should be deserialized
         R{{}} Table which represents CSV records or error
     }
-    public native function getTable(typedesc structType) returns @tainted table|error;
+    public extern function getTable(typedesc structType) returns @tainted table|error;
 };

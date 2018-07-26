@@ -38,7 +38,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import java.util.NoSuchElementException;
 
 /**
- * Native function to get session if valid session id exist.
+ * Extern function to get session if valid session id exist.
  *
  * @since 0.89
  */

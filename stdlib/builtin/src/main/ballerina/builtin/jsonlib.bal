@@ -19,21 +19,21 @@ documentation {
 
     P{{key}} Key of the field to remove
 }
-public native function json::remove(string key);
+public extern function json::remove(string key);
 
 documentation {
     Converts a JSON object to a string representation.
 
     R{{}} String value of the converted JSON
 }
-public native function json::toString() returns (string);
+public extern function json::toString() returns (string);
 
 documentation {
     Returns an array of keys contained in the specified JSON.
 
     R{{}} A string array of keys contained in the specified JSON
 }
-public native function json::getKeys() returns (string[]);
+public extern function json::getKeys() returns (string[]);
 
 documentation {
     Converts a JSON object to a XML representation.
@@ -41,7 +41,7 @@ documentation {
     P{{options}} jsonOptions struct for JSON to XML conversion properties
     R{{}} The XML representation of the JSON
 }
-public native function json::toXML(record {
+public extern function json::toXML(record {
                                          string attributePrefix = "@",
                                          string arrayEntryTag = "item",
                                      } options) returns (xml|error);
