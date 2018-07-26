@@ -18,15 +18,13 @@
 
 package org.ballerinalang.packerina.cmd;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.packerina.init.InitHandler;
 import org.ballerinalang.packerina.init.models.FileType;
 import org.ballerinalang.packerina.init.models.PackageMdFile;
 import org.ballerinalang.packerina.init.models.SrcFile;
 import org.ballerinalang.toml.model.Manifest;
+import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -45,18 +43,18 @@ import java.util.regex.Pattern;
 /**
  * Init command for creating a ballerina project.
  */
-@Parameters(commandNames = "init", commandDescription = "initialize ballerina project")
+@CommandLine.Command(name = "init", description = "initialize ballerina project")
 public class InitCommand implements BLauncherCmd {
 
     public static final String DEFAULT_VERSION = "0.0.1";
     private static final String USER_DIR = "user.dir";
     private static final PrintStream outStream = System.err;
-    private JCommander parentCmdParser;
+    private CommandLine parentCmdParser;
 
-    @Parameter(names = {"--interactive", "-i"})
+    @CommandLine.Option(names = {"--interactive", "-i"})
     private boolean interactiveFlag;
 
-    @Parameter(names = {"--help", "-h"}, hidden = true)
+    @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
     private static boolean isDirEmpty(final Path directory) throws IOException {
@@ -189,7 +187,7 @@ public class InitCommand implements BLauncherCmd {
      * {@inheritDoc}
      */
     @Override
-    public void setParentCmdParser(JCommander parentCmdParser) {
+    public void setParentCmdParser(CommandLine parentCmdParser) {
         this.parentCmdParser = parentCmdParser;
     }
 
@@ -197,7 +195,7 @@ public class InitCommand implements BLauncherCmd {
      * {@inheritDoc}
      */
     @Override
-    public void setSelfCmdParser(JCommander selfCmdParser) {
+    public void setSelfCmdParser(CommandLine selfCmdParser) {
 
     }
 

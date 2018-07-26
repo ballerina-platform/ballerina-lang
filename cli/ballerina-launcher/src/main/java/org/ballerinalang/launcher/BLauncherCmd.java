@@ -17,14 +17,10 @@
  */
 package org.ballerinalang.launcher;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.ParameterDescription;
-
 import org.ballerinalang.launcher.util.BCompileUtil;
+import picocli.CommandLine;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * {@code BLauncherCmd} represents a Ballerina launcher command.
@@ -41,77 +37,79 @@ public interface BLauncherCmd {
 
     void printUsage(StringBuilder out);
 
-    void setParentCmdParser(JCommander parentCmdParser);
+    void setParentCmdParser(CommandLine parentCmdParser);
 
-    void setSelfCmdParser(JCommander selfCmdParser);
+    void setSelfCmdParser(CommandLine selfCmdParser);
 
     @Deprecated
-    static String getCommandUsageInfo(JCommander cmdParser, String commandName) {
+    static String getCommandUsageInfo(CommandLine cmdParser, String commandName) {
         return getCommandUsageInfo(commandName);
     }
 
-    static void printCommandList(JCommander cmdParser, StringBuilder out) {
-        int longestNameLen = 0;
-        for (JCommander commander : cmdParser.getCommands().values()) {
-            BLauncherCmd cmd = (BLauncherCmd) commander.getObjects().get(0);
-            if (cmd.getName().equals(BallerinaCliCommands.DEFAULT) || cmd.getName().equals(BallerinaCliCommands.HELP)) {
-                continue;
-            }
-
-            int length = cmd.getName().length() + 2;
-            if (length > longestNameLen) {
-                longestNameLen = length;
-            }
-        }
-
-        for (JCommander commander : cmdParser.getCommands().values()) {
-            BLauncherCmd cmd = (BLauncherCmd) commander.getObjects().get(0);
-            if (cmd.getName().equals(BallerinaCliCommands.DEFAULT) || cmd.getName().equals(BallerinaCliCommands.HELP)) {
-                continue;
-            }
-
-            String cmdName = cmd.getName();
-            String cmdDesc = cmdParser.getCommandDescription(cmdName);
-
-            int noOfSpaces = longestNameLen - (cmd.getName().length() + 2);
-            char[] charArray = new char[noOfSpaces + 4];
-            Arrays.fill(charArray, ' ');
-            out.append("  ").append(cmdName).append(new String(charArray)).append(cmdDesc).append("\n");
-        }
-    }
-
-    static void printFlags(List<ParameterDescription> paramDescs, StringBuilder out) {
-        int longestNameLen = 0;
-        int count = 0;
-        for (ParameterDescription parameterDesc : paramDescs) {
-            if (parameterDesc.getParameter().hidden()) {
-                continue;
-            }
-
-            String names = parameterDesc.getNames();
-            int length = names.length() + 2;
-            if (length > longestNameLen) {
-                longestNameLen = length;
-            }
-            count++;
-        }
-
-        if (count == 0) {
-            return;
-        }
-        out.append("Flags:\n");
-        for (ParameterDescription parameterDesc : paramDescs) {
-            if (parameterDesc.getParameter().hidden()) {
-                continue;
-            }
-            String names = parameterDesc.getNames();
-            String desc = parameterDesc.getDescription();
-            int noOfSpaces = longestNameLen - (names.length() + 2);
-            char[] charArray = new char[noOfSpaces + 4];
-            Arrays.fill(charArray, ' ');
-            out.append("  ").append(names).append(new String(charArray)).append(desc).append("\n");
-        }
-    }
+//    static void printCommandList(JCommander cmdParser, StringBuilder out) {
+//        int longestNameLen = 0;
+//        for (JCommander commander : cmdParser.getCommands().values()) {
+//            BLauncherCmd cmd = (BLauncherCmd) commander.getObjects().get(0);
+//            if (cmd.getName().equals(BallerinaCliCommands.DEFAULT) || cmd.getName().equals(
+// BallerinaCliCommands.HELP)) {
+//                continue;
+//            }
+//
+//            int length = cmd.getName().length() + 2;
+//            if (length > longestNameLen) {
+//                longestNameLen = length;
+//            }
+//        }
+//
+//        for (JCommander commander : cmdParser.getCommands().values()) {
+//            BLauncherCmd cmd = (BLauncherCmd) commander.getObjects().get(0);
+//            if (cmd.getName().equals(BallerinaCliCommands.DEFAULT) || cmd.getName().equals(
+// BallerinaCliCommands.HELP)) {
+//                continue;
+//            }
+//
+//            String cmdName = cmd.getName();
+//            String cmdDesc = cmdParser.getCommandDescription(cmdName);
+//
+//            int noOfSpaces = longestNameLen - (cmd.getName().length() + 2);
+//            char[] charArray = new char[noOfSpaces + 4];
+//            Arrays.fill(charArray, ' ');
+//            out.append("  ").append(cmdName).append(new String(charArray)).append(cmdDesc).append("\n");
+//        }
+//    }
+//
+//    static void printFlags(List<ParameterDescription> paramDescs, StringBuilder out) {
+//        int longestNameLen = 0;
+//        int count = 0;
+//        for (ParameterDescription parameterDesc : paramDescs) {
+//            if (parameterDesc.getParameter().hidden()) {
+//                continue;
+//            }
+//
+//            String names = parameterDesc.getNames();
+//            int length = names.length() + 2;
+//            if (length > longestNameLen) {
+//                longestNameLen = length;
+//            }
+//            count++;
+//        }
+//
+//        if (count == 0) {
+//            return;
+//        }
+//        out.append("Flags:\n");
+//        for (ParameterDescription parameterDesc : paramDescs) {
+//            if (parameterDesc.getParameter().hidden()) {
+//                continue;
+//            }
+//            String names = parameterDesc.getNames();
+//            String desc = parameterDesc.getDescription();
+//            int noOfSpaces = longestNameLen - (names.length() + 2);
+//            char[] charArray = new char[noOfSpaces + 4];
+//            Arrays.fill(charArray, ' ');
+//            out.append("  ").append(names).append(new String(charArray)).append(desc).append("\n");
+//        }
+//    }
 
     public static String getCommandUsageInfo(String commandName) {
         if (commandName == null) {

@@ -17,14 +17,12 @@
  */
 package org.ballerinalang.packerina.cmd;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.ListUtils;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -37,20 +35,20 @@ import java.util.List;
  *
  * @since 0.970
  */
-@Parameters(commandNames = "list", commandDescription = "list dependencies of packages")
+@CommandLine.Command(name = "list", description = "list dependencies of packages")
 public class ListCommand implements BLauncherCmd {
     private static final String USER_DIR = "user.dir";
     private static PrintStream outStream = System.err;
 
-    private JCommander parentCmdParser;
+    private CommandLine parentCmdParser;
 
-    @Parameter(arity = 1)
+    @CommandLine.Parameters
     private List<String> argList;
 
-    @Parameter(names = {"--help", "-h"}, hidden = true)
+    @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @Parameter(names = "--java.debug", hidden = true)
+    @CommandLine.Option(names = "--java.debug", hidden = true)
     private String debugPort;
 
     public void execute() {
@@ -97,11 +95,11 @@ public class ListCommand implements BLauncherCmd {
     }
 
     @Override
-    public void setParentCmdParser(JCommander parentCmdParser) {
+    public void setParentCmdParser(CommandLine parentCmdParser) {
         this.parentCmdParser = parentCmdParser;
     }
 
     @Override
-    public void setSelfCmdParser(JCommander selfCmdParser) {
+    public void setSelfCmdParser(CommandLine selfCmdParser) {
     }
 }

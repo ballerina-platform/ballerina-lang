@@ -17,9 +17,6 @@
  */
 package org.ballerinalang.protobuf.cmd;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.net.grpc.builder.BallerinaFileBuilder;
 import org.ballerinalang.net.grpc.exception.BalGenerationException;
@@ -27,6 +24,7 @@ import org.ballerinalang.protobuf.exception.BalGenToolException;
 import org.ballerinalang.protobuf.utils.BalFileGenerationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import picocli.CommandLine;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -65,24 +63,24 @@ import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.saveFile;
  * Class to implement "grpc" command for ballerina.
  * Ex: ballerina grpc  --proto_path (proto-file-path)  --exe_path (protoc-executor-path)
  */
-@Parameters(
-        commandNames = "grpc",
-        commandDescription = "Generates ballerina gRPC client stub for gRPC service for a given grpc protoc " +
+@CommandLine.Command(
+        name = "grpc",
+        description = "Generates ballerina gRPC client stub for gRPC service for a given grpc protoc " +
                 "definition.")
 public class GrpcCmd implements BLauncherCmd {
     private static final Logger LOG = LoggerFactory.getLogger(GrpcCmd.class);
     
     private static final PrintStream outStream = System.out;
     
-    private JCommander parentCmdParser;
+    private CommandLine parentCmdParser;
     
-    @Parameter(names = {"--input"},
+    @CommandLine.Option(names = {"--input"},
             description = "Input .proto file",
             required = true
     )
     private String protoPath;
-    
-    @Parameter(names = {"--output"},
+
+    @CommandLine.Option(names = {"--output"},
             description = "Generated Ballerina source files location"
     )
     private String balOutPath = "";
@@ -91,13 +89,13 @@ public class GrpcCmd implements BLauncherCmd {
     
     private String protocVersion = "3.4.0";
     
-    @Parameter(names = {"-h", "--help"}, hidden = true)
+    @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
     private boolean helpFlag;
     
-    @Parameter(names = "--debug", hidden = true)
+    @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
     
-    @Parameter(names = "--java.debug", hidden = true, description = "remote java debugging port")
+    @CommandLine.Option(names = "--java.debug", hidden = true, description = "remote java debugging port")
     private String javaDebugPort;
     
     @Override
@@ -302,12 +300,12 @@ public class GrpcCmd implements BLauncherCmd {
     }
     
     @Override
-    public void setParentCmdParser(JCommander parentCmdParser) {
+    public void setParentCmdParser(CommandLine parentCmdParser) {
         this.parentCmdParser = parentCmdParser;
     }
     
     @Override
-    public void setSelfCmdParser(JCommander selfCmdParser) {
+    public void setSelfCmdParser(CommandLine selfCmdParser) {
     
     }
     

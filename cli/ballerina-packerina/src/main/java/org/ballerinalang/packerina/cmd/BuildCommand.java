@@ -17,12 +17,10 @@
  */
 package org.ballerinalang.packerina.cmd;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.BuilderUtils;
+import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -34,35 +32,35 @@ import java.util.List;
  *
  * @since 0.90
  */
-@Parameters(commandNames = "build", commandDescription = "compile Ballerina program")
+@CommandLine.Command(name = "build", description = "compile Ballerina program")
 public class BuildCommand implements BLauncherCmd {
     private static final String USER_DIR = "user.dir";
     private static PrintStream outStream = System.err;
 
-    private JCommander parentCmdParser;
+    private CommandLine parentCmdParser;
 
-    @Parameter(names = {"-c"}, description = "build a compiled package")
+    @CommandLine.Option(names = {"-c"}, description = "build a compiled package")
     private boolean buildCompiledPkg;
 
-    @Parameter(names = {"-o"}, description = "write output to the given file")
+    @CommandLine.Option(names = {"-o"}, description = "write output to the given file")
     private String outputFileName;
 
-    @Parameter(names = {"--offline"})
+    @CommandLine.Option(names = {"--offline"})
     private boolean offline;
 
-    @Parameter(names = {"--lockEnabled"})
+    @CommandLine.Option(names = {"--lockEnabled"})
     private boolean lockEnabled;
 
-    @Parameter(names = {"--skiptests"})
+    @CommandLine.Option(names = {"--skiptests"})
     private boolean skiptests;
 
-    @Parameter(arity = 1)
+    @CommandLine.Parameters
     private List<String> argList;
 
-    @Parameter(names = {"--help", "-h"}, hidden = true)
+    @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @Parameter(names = "--java.debug", hidden = true)
+    @CommandLine.Option(names = "--java.debug", hidden = true)
     private String debugPort;
 
     public void execute() {
@@ -122,11 +120,11 @@ public class BuildCommand implements BLauncherCmd {
     }
 
     @Override
-    public void setParentCmdParser(JCommander parentCmdParser) {
+    public void setParentCmdParser(CommandLine parentCmdParser) {
         this.parentCmdParser = parentCmdParser;
     }
 
     @Override
-    public void setSelfCmdParser(JCommander selfCmdParser) {
+    public void setSelfCmdParser(CommandLine selfCmdParser) {
     }
 }

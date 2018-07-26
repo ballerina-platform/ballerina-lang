@@ -17,12 +17,10 @@
 */
 package org.ballerinalang.packerina.cmd;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.UserRepositoryUtils;
+import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.util.List;
@@ -32,19 +30,19 @@ import java.util.List;
  *
  * @since 0.90
  */
-@Parameters(commandNames = "uninstall", commandDescription = "uninstall packages from the user repository")
+@CommandLine.Command(name = "uninstall", description = "uninstall packages from the user repository")
 public class UninstallCommand implements BLauncherCmd {
 
     private static PrintStream outStream = System.err;
-    private JCommander parentCmdParser;
+    private CommandLine parentCmdParser;
 
-    @Parameter(arity = 1)
+    @CommandLine.Parameters
     private List<String> argList;
 
-    @Parameter(names = {"--help", "-h"}, hidden = true)
+    @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @Parameter(names = "--java.debug", hidden = true)
+    @CommandLine.Option(names = "--java.debug", hidden = true)
     private String debugPort;
 
     @Override
@@ -82,11 +80,11 @@ public class UninstallCommand implements BLauncherCmd {
     }
 
     @Override
-    public void setParentCmdParser(JCommander parentCmdParser) {
+    public void setParentCmdParser(CommandLine parentCmdParser) {
         this.parentCmdParser = parentCmdParser;
     }
 
     @Override
-    public void setSelfCmdParser(JCommander selfCmdParser) {
+    public void setSelfCmdParser(CommandLine selfCmdParser) {
     }
 }

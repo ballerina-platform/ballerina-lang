@@ -17,12 +17,10 @@
 */
 package org.ballerinalang.packerina.cmd;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.packerina.PushUtils;
+import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.util.List;
@@ -34,28 +32,29 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
  *
  * @since 0.964
  */
-@Parameters(commandNames = "push", commandDescription = "pushes a package source and binaries available" +
+@CommandLine.Command(name = "push", description = "pushes a package source and binaries available" +
         "locally to ballerina central,")
 public class PushCommand implements BLauncherCmd {
     private static PrintStream outStream = System.err;
-    private JCommander parentCmdParser;
+    private CommandLine parentCmdParser;
 
-    @Parameter(arity = 1)
+    @CommandLine.Parameters
     private List<String> argList;
 
-    @Parameter(names = {"--help", "-h"}, hidden = true)
+    @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @Parameter(names = "--java.debug", hidden = true, description = "remote java debugging port")
+    @CommandLine.Option(names = "--java.debug", hidden = true, description = "remote java debugging port")
     private String javaDebugPort;
 
-    @Parameter(names = "--debug", hidden = true)
+    @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
 
-    @Parameter(names = "--repository", hidden = true)
+    @CommandLine.Option(names = "--repository", hidden = true)
     private String repositoryHome;
 
-    @Parameter(names = {"--sourceroot"}, description = "path to the directory containing source files and packages")
+    @CommandLine.Option(names = {"--sourceroot"},
+            description = "path to the directory containing source files and packages")
     private String sourceRoot;
 
     @Override
@@ -98,11 +97,11 @@ public class PushCommand implements BLauncherCmd {
     }
 
     @Override
-    public void setParentCmdParser(JCommander parentCmdParser) {
+    public void setParentCmdParser(CommandLine parentCmdParser) {
         this.parentCmdParser = parentCmdParser;
     }
 
     @Override
-    public void setSelfCmdParser(JCommander selfCmdParser) {
+    public void setSelfCmdParser(CommandLine selfCmdParser) {
     }
 }
