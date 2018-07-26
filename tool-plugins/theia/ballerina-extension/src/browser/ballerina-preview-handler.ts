@@ -1,3 +1,7 @@
+import '../../../../../../../lib/bundle.css';
+import '../../../../../../../lib/theme.css';
+import '../../../../../../../lib/less.css';
+
 import { injectable } from "inversify";
 import axios from "axios";
 import URI from "@theia/core/lib/common/uri";
@@ -8,7 +12,7 @@ interface ParserReply {
     model?: Object
 }
 
-const bundleJsContent = require('raw-loader!../../../../../../../lib/ballerina-diagram-library.txt');
+const { renderDiagram } = require('../../../../../../../lib/ballerina-diagram-library');
 
 @injectable()
 export class BallerinaPreviewHandler implements PreviewHandler {
@@ -30,7 +34,8 @@ export class BallerinaPreviewHandler implements PreviewHandler {
         }
         const contentElement = document.createElement('div');
         contentElement.classList.add(this.contentClass);
-        contentElement.innerHTML = '<div id="diagram" />';;
+        contentElement.classList.add('ballerina-editor');
+        contentElement.classList.add('design-view-container');
 
         axios.post('https://parser.playground.preprod.ballerina.io/api/parser', parseOpts,
         { 
@@ -44,43 +49,9 @@ export class BallerinaPreviewHandler implements PreviewHandler {
             if (body.model) {
                 jsonModel = body.model;
             }
-            const bundleCss = document.createElement("link");
-            bundleCss.type = "text/css";
-            bundleCss.rel = "stylesheet";
-            bundleCss.href = "http://localhost:5000/bundle.css";
-
-            const bundleTheme = document.createElement("link");
-            bundleTheme.type = "text/css";
-            bundleTheme.rel = "stylesheet";
-            bundleTheme.href = "http://localhost:5000/theme.css";
-
-            const bundleLess = document.createElement("link");
-            bundleLess.type = "text/css";
-            bundleLess.rel = "stylesheet";
-            bundleLess.href = "http://localhost:5000/less.css";
-
-            const bundleJs = document.createElement( 'script' );
-            bundleJs.innerHTML = bundleJsContent;
-
-            const renderScript = document.createElement( 'script' );
-
-            document.head.appendChild(bundleCss);
-            document.head.appendChild(bundleTheme);
-            document.head.appendChild(bundleLess);
-            contentElement.appendChild(bundleJs);
-            contentElement.appendChild(renderScript);
-
-            renderScript.innerHTML = `
-                function draw() {
-                    const json = ${JSON.stringify(jsonModel)};
-                    const test = document.getElementById("diagram");
-                    ballerinaDiagram.renderDiagram(test, json, {
-                        width: 600, height: 600
-                    });
-                }
-                draw();
-            `;
-            
+            renderDiagram(contentElement, jsonModel, {
+                width: 600, height: 600
+            });  
         })
         .catch((e: Error) => {
             console.log(e);
