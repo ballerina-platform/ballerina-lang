@@ -1304,6 +1304,7 @@ public class PackageInfoReader {
                 case InstructionCodes.BIRSHIFT:
                 case InstructionCodes.IRSHIFT:
                 case InstructionCodes.ILSHIFT:
+                case InstructionCodes.IURSHIFT:
                 case InstructionCodes.XMLATTRLOAD:
                 case InstructionCodes.XMLATTRSTORE:
                 case InstructionCodes.S2QNAME:

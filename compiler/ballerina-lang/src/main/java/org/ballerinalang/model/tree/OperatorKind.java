@@ -51,6 +51,7 @@ public enum OperatorKind {
     BITWISE_COMPLEMENT("~"),
     BITWISE_LEFT_SHIFT("<<"),
     BITWISE_RIGHT_SHIFT(">>"),
+    BITWISE_UNSIGNED_RIGHT_SHIFT(">>>"),
     CLOSED_RANGE("..."),
     HALF_OPEN_RANGE("..<");
 

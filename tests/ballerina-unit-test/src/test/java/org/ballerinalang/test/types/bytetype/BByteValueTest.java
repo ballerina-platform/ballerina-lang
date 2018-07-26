@@ -486,10 +486,10 @@ public class BByteValueTest {
         BByte bByte1 = (BByte) returns[0];
         BInteger bInteger2 = (BInteger) returns[1];
         BByte bByte2 = (BByte) returns[2];
-        Assert.assertEquals(bByte1.byteValue(), (byte) (a >>> b), "Invalid result");
-        Assert.assertEquals(bByte1.intValue(), Byte.toUnsignedInt((byte) (a >>> b)), "Invalid result");
-        Assert.assertEquals(bInteger2.intValue(), ((long) i >>> (long) j), "Invalid result");
-        Assert.assertEquals(bByte2.intValue(), Byte.toUnsignedInt((byte) (a >>> j)), "Invalid result");
+        Assert.assertEquals(bByte1.byteValue(), (byte) (a >> b), "Invalid result");
+        Assert.assertEquals(bByte1.intValue(), Byte.toUnsignedInt((byte) (a >> b)), "Invalid result");
+        Assert.assertEquals(bInteger2.intValue(), ((long) i >> (long) j), "Invalid result");
+        Assert.assertEquals(bByte2.intValue(), Byte.toUnsignedInt((byte) (a >> j)), "Invalid result");
     }
 
     private void invokeRightShiftOperatorTestFunction2(byte a, byte b, int i, int j) {
@@ -499,9 +499,35 @@ public class BByteValueTest {
         BInteger bInteger1 = (BInteger) returns[0];
         BInteger bInteger2 = (BInteger) returns[1];
         BInteger bInteger3 = (BInteger) returns[2];
-        Assert.assertEquals(bInteger1.intValue(), Byte.toUnsignedInt((byte) (a >>> b)), "Invalid result");
-        Assert.assertEquals(bInteger2.intValue(), ((long) i >>> (long) j), "Invalid result");
-        Assert.assertEquals(bInteger3.intValue(), Byte.toUnsignedInt((byte) (a >>> j)), "Invalid result");
+        Assert.assertEquals(bInteger1.intValue(), Byte.toUnsignedInt((byte) (a >> b)), "Invalid result");
+        Assert.assertEquals(bInteger2.intValue(), ((long) i >> (long) j), "Invalid result");
+        Assert.assertEquals(bInteger3.intValue(), Byte.toUnsignedInt((byte) (a >> j)), "Invalid result");
+    }
+
+    @Test(description = "Test bitwise unsigned right shift operator 1")
+    public void testBitwiseUnsignedRightShiftOperator1() {
+        byte a = 12;
+        int i = 234736486;
+        int j = 6;
+        invokeUnsignedRightShiftOperatorTestFunction(a, i, j);
+    }
+
+    @Test(description = "Test bitwise unsigned right shift operator 2")
+    public void testBitwiseUnsignedRightShiftOperator2() {
+        byte a = 12;
+        long i = -23445834;
+        long j = 5;
+        invokeUnsignedRightShiftOperatorTestFunction(a, i, j);
+    }
+
+    private void invokeUnsignedRightShiftOperatorTestFunction(byte a, long i, long j) {
+        BValue[] args = {new BByte(a), new BInteger(i), new BInteger(j)};
+        BValue[] returns = BRunUtil.invoke(result, "testBitwiseUnsignedRightShiftOperator", args);
+        Assert.assertEquals(returns.length, 2);
+        BInteger bInteger1 = (BInteger) returns[0];
+        BInteger bInteger2 = (BInteger) returns[1];
+        Assert.assertEquals(bInteger1.intValue(), i >>> j, "Invalid result");
+        Assert.assertEquals(bInteger2.intValue(), i >>> a, "Invalid result");
     }
 
     @Test(description = "Test bitwise left shift operator 1")

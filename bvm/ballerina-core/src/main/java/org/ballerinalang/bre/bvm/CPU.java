@@ -353,6 +353,7 @@ public class CPU {
                     case InstructionCodes.BIRSHIFT:
                     case InstructionCodes.IRSHIFT:
                     case InstructionCodes.ILSHIFT:
+                    case InstructionCodes.IURSHIFT:
                         execBinaryOpCodes(ctx, sf, opcode, operands);
                         break;
     
@@ -1844,13 +1845,19 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.longRegs[k] = sf.longRegs[i] >>> sf.longRegs[j];
+                sf.longRegs[k] = sf.longRegs[i] >> sf.longRegs[j];
                 break;
             case InstructionCodes.ILSHIFT:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
                 sf.longRegs[k] = sf.longRegs[i] << sf.longRegs[j];
+                break;
+            case InstructionCodes.IURSHIFT:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.longRegs[k] = sf.longRegs[i] >>> sf.longRegs[j];
                 break;
             default:
                 throw new UnsupportedOperationException();
