@@ -51,9 +51,9 @@ public class StringTemplateLiteralNegativeTest {
         BAssertUtil.validateError(resultNegative, 1,
                 "mismatched input ';'. expecting {'[', '?', '|', Identifier}", 5, 13);
         BAssertUtil.validateError(resultNegative, 2, "mismatched input 'returns'. expecting {'[', '?', '|', " +
-                "Identifier}", 8, 31);
+                "Identifier}", 8, 36);
         BAssertUtil.validateError(resultNegative, 3, "mismatched input '{'. expecting {'[', '?', '|', Identifier}",
-                8, 48);
+                8, 53);
         BAssertUtil.validateError(resultNegative, 4, "invalid token '}'", 10, 36);
         BAssertUtil.validateError(resultNegative, 5, "mismatched input '}'. expecting {'[', '?', '|', Identifier}",
                 10, 36);
