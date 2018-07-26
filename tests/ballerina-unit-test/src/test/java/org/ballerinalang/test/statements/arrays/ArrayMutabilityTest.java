@@ -91,6 +91,29 @@ public class ArrayMutabilityTest {
         BRunUtil.invoke(compileResult, "testCovarianceBooleanOrFloatOrRecordArray");
     }
 
+    @Test(description = "",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp =
+                    ".*message: array index out of range: index: 3, size: 3.*")
+    public void testSealedArrays() {
+        BRunUtil.invoke(compileResult, "testSealedArrays");
+    }
+
+    @Test(description = "",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp =
+                    ".*message: array index out of range: index: 3, size: 3.*")
+    public void testMultiDimensionalSealedArrays() {
+        BRunUtil.invoke(compileResult, "testMultiDimensionalSealedArrays");
+    }
+
+    @Test(description = "",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp =
+                    ".*message: array index out of range: index: 4, size: 4.*")
+    public void testOpenSealedArrays() {
+        BRunUtil.invoke(compileResult, "testOpenSealedArrays");
+    }
 
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
@@ -105,5 +128,9 @@ public class ArrayMutabilityTest {
                 "incompatible types: expected 'Person[][][]', found 'Employee[][]'", 44, 24);
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'int|Person[]', found 'int|Person?[]'", 48, 26);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'int[3]', found 'int[]'", 51, 18);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'int[3][3]', found 'int[3][]'", 54, 21);
     }
 }

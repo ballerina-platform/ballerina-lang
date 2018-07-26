@@ -90,3 +90,22 @@ function testCovarianceBooleanOrFloatOrRecordArray() {
     y[0] = 1;
     y[1] = person1;  // Runtime Exception
 }
+
+function testSealedArrays() {
+    int[3] x;
+    int[] y = x;
+    y[3] = 12; // Runtime Exception
+}
+
+function testMultiDimensionalSealedArrays() {
+    int[3][3] x;
+    int[3][] y = x;
+    y[0][0] = 10;
+    y[0][3] = 12; // Runtime Exception
+}
+
+function testOpenSealedArrays() {
+    int[!...] x19 = [1, 2, 3, 4];
+    int[] x20 = x19;
+    x20[4] = 5; // Runtime Exception
+}

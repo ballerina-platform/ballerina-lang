@@ -46,4 +46,10 @@ function mismatchingCovariace() {
     (int|Person?)[] x12;
     (int|Person|boolean?)[] x13 = x12;
     (int|Person)[] x14 = x12; // Compile Error
+
+    int[] x15;
+    int[3] x16 = x15; // Compile Error
+
+    int[3][] x17;
+    int[3][3] x18 = x17; // Compile Error
 }
