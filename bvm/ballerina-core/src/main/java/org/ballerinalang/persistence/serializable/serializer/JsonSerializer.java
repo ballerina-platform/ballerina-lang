@@ -60,8 +60,7 @@ public class JsonSerializer implements StateSerializer {
         stateObj.set("sRespContext", convertToJson((Map) sState.sRespContexts,
                 SerializableRespContext.class.getSimpleName()));
 
-        JsonNode wrappedStateObj = wrapObject(SerializableState.class.getSimpleName(), stateObj);
-        return wrappedStateObj;
+        return wrapObject(SerializableState.class.getSimpleName(), stateObj);
     }
 
     private JsonNode convertToJson(SerializableContext serializableContext) {
@@ -85,8 +84,7 @@ public class JsonSerializer implements StateSerializer {
         sContext.set("callableUnitPkgPath", serializableContext.callableUnitPkgPath);
         sContext.set("workerName", serializableContext.workerName);
 
-        JsonNode wrappedContext = wrapObject(SerializableContext.class.getSimpleName(), sContext);
-        return wrappedContext;
+        return wrapObject(SerializableContext.class.getSimpleName(), sContext);
     }
 
     private JsonNode convertToJson(SerializableWorkerData data) {
@@ -101,8 +99,7 @@ public class JsonSerializer implements StateSerializer {
         workerData.set("byteRegs", convertToJson(data.byteRegs));
         workerData.set("refFields", convertToJson(data.refFields));
 
-        JsonNode wrappedWorkerData = wrapObject(SerializableWorkerData.class.getSimpleName(), workerData);
-        return wrappedWorkerData;
+        return wrapObject(SerializableWorkerData.class.getSimpleName(), workerData);
     }
 
     private JsonNode convertToJson(Map<String, Object> map, String valueType) {
@@ -115,8 +112,7 @@ public class JsonSerializer implements StateSerializer {
             jsonMap.set(key, convertToJson(value));
         }
 
-        JsonNode mapInfo = wrapMap("string", valueType, jsonMap);
-        return mapInfo;
+        return wrapMap("string", valueType, jsonMap);
     }
 
     private JsonNode convertToJson(int[] array) {
@@ -186,7 +182,11 @@ public class JsonSerializer implements StateSerializer {
     }
 
     private JsonNode convertToJson(List list) {
-        return null;
+        JsonNode jsonArray = new JsonNode(JsonNode.Type.ARRAY);
+        for (Object item : list) {
+            jsonArray.add(convertToJson(item));
+        }
+        return wrapObject("list", jsonArray);
     }
 
 
@@ -249,7 +249,6 @@ public class JsonSerializer implements StateSerializer {
         if (obj instanceof List) {
             return convertToJson((List) obj);
         }
-
         return convertToJsonViaReflection(obj);
     }
 
@@ -257,7 +256,7 @@ public class JsonSerializer implements StateSerializer {
         Class objClass = obj.getClass();
         JsonNode jsonNode = new JsonNode(JsonNode.Type.OBJECT);
 
-        for (Field field : getAllFields(objClass, obj)) {
+        for (Field field : getAllFields(objClass)) {
             field.setAccessible(true);
             try {
                 jsonNode.set(field.getName(), convertToJson(field.get(obj)));
@@ -265,11 +264,10 @@ public class JsonSerializer implements StateSerializer {
                 // field is set to be accessible
             }
         }
-
         return wrapObject(objClass.getSimpleName(), jsonNode);
     }
 
-    private List<Field> getAllFields(Class clazz, Object instance) {
+    private List<Field> getAllFields(Class clazz) {
         ArrayList<Field> fields = Lists.newArrayList(clazz.getDeclaredFields());
 
         for (Class parent = clazz.getSuperclass(); parent != Object.class; parent = parent.getSuperclass()) {
