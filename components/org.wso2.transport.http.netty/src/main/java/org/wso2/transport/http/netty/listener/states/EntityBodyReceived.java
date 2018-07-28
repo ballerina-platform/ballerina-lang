@@ -50,12 +50,12 @@ public class EntityBodyReceived implements ListenerState {
     }
 
     @Override
-    public void readInboundRequestHeaders(ChannelHandlerContext ctx, HttpRequest inboundRequestHeaders) {
+    public void readInboundRequestHeaders(HTTPCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
         // Not a dependant action of this state.
     }
 
     @Override
-    public void readInboundReqEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
+    public void readInboundRequestEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
         // Not a dependant action of this state.
     }
 
@@ -65,8 +65,8 @@ public class EntityBodyReceived implements ListenerState {
     }
 
     @Override
-    public void writeOutboundResponse(HttpOutboundRespListener outboundResponseListener,
-                                      HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
+    public void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundResponseListener,
+                                                HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
         stateContext.setState(new SendingHeaders(outboundResponseListener, stateContext));
         stateContext.getState().writeOutboundResponseHeaders(outboundResponseMsg, httpContent);
     }
@@ -83,8 +83,8 @@ public class EntityBodyReceived implements ListenerState {
 
     @Override
     public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
-                                                            ChannelHandlerContext ctx,
-                                                            IdleStateEvent evt) {
+                                                            ChannelHandlerContext ctx, IdleStateEvent evt) {
+        // Not a dependant action of this state.
         return null;
     }
 }

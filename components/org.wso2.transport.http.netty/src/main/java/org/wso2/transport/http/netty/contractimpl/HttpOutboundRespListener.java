@@ -49,8 +49,8 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     private static final Logger log = LoggerFactory.getLogger(HttpOutboundRespListener.class);
     private final SourceErrorHandler sourceErrorHandler;
     private final boolean headRequest;
-    private final ListenerStateContext stateContext;
     private final SourceHandler sourceHandler;
+    private final ListenerStateContext stateContext;
 
     private ChannelHandlerContext sourceContext;
     private RequestDataHolder requestDataHolder;
@@ -78,7 +78,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         this.sourceErrorHandler = sourceHandler.getSourceErrorHandler();
         this.headRequest = requestDataHolder.getHttpMethod().equalsIgnoreCase(Constants.HTTP_HEAD_METHOD);
         this.continueRequest = continueRequest;
-        this.stateContext = sourceHandler.getStateContext();
+        this.stateContext = requestMsg.getStateContext();
     }
 
     @Override
@@ -121,7 +121,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
     private void writeOutboundResponse(HTTPCarbonMessage outboundResponseMsg, boolean keepAlive,
             HttpContent httpContent) {
-        stateContext.getState().writeOutboundResponse(this, outboundResponseMsg, httpContent);
+        stateContext.getState().writeOutboundResponseEntityBody(this, outboundResponseMsg, httpContent);
 //        ChunkConfig responseChunkConfig = outboundResponseMsg.getProperty(CHUNKING_CONFIG) != null ?
 //                (ChunkConfig) outboundResponseMsg.getProperty(CHUNKING_CONFIG) : null;
 //        if (responseChunkConfig != null) {
@@ -222,10 +222,6 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
     public void setChunkConfig(ChunkConfig chunkConfig) {
         this.chunkConfig = chunkConfig;
-    }
-
-    private int incrementWriteCount(AtomicInteger writeCounter) {
-        return writeCounter.incrementAndGet();
     }
 
     public boolean isContinueRequest() {

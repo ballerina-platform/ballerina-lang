@@ -47,6 +47,7 @@ import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED;
 import static org.wso2.transport.http.netty.common.Util.createFullHttpResponse;
@@ -86,12 +87,12 @@ public class SendingEntityBody implements ListenerState {
     }
 
     @Override
-    public void readInboundRequestHeaders(ChannelHandlerContext ctx, HttpRequest inboundRequestHeaders) {
+    public void readInboundRequestHeaders(HTTPCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
         // Not a dependant action of this state.
     }
 
     @Override
-    public void readInboundReqEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
+    public void readInboundRequestEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
         // Not a dependant action of this state.
     }
 
@@ -101,8 +102,8 @@ public class SendingEntityBody implements ListenerState {
     }
 
     @Override
-    public void writeOutboundResponse(HttpOutboundRespListener outboundRespListener,
-                                      HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
+    public void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundRespListener,
+                                                HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
         headRequest = outboundRespListener.getRequestDataHolder().getHttpMethod().equalsIgnoreCase(Constants.HTTP_HEAD_METHOD);
         inboundRequestMsg = outboundRespListener.getInboundRequestMsg();
         sourceContext = outboundRespListener.getSourceContext();
@@ -151,6 +152,8 @@ public class SendingEntityBody implements ListenerState {
     public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
                                                             ChannelHandlerContext ctx,
                                                             IdleStateEvent evt) {
+        // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
+        log.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE);
         return null;
     }
 

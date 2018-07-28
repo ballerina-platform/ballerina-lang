@@ -36,19 +36,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
+import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
-import org.wso2.transport.http.netty.listener.states.Connected;
-import org.wso2.transport.http.netty.listener.states.ListenerState;
 import org.wso2.transport.http.netty.listener.states.ListenerStateContext;
+import org.wso2.transport.http.netty.listener.states.ReceivingHeaders;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.net.SocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST;
-import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_SENT;
-import static org.wso2.transport.http.netty.common.SourceInteractiveState.RECEIVING_ENTITY_BODY;
+import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST;
+import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST;
+import static org.wso2.transport.http.netty.common.Util.createInboundReqCarbonMsg;
 
 /**
  * A Class responsible for handle  incoming message through netty inbound pipeline.
@@ -56,13 +60,14 @@ import static org.wso2.transport.http.netty.common.SourceInteractiveState.RECEIV
 public class SourceHandler extends ChannelInboundHandlerAdapter {
     private static Logger log = LoggerFactory.getLogger(SourceHandler.class);
 
+    private HTTPCarbonMessage inboundRequestMsg;
+    private List<HTTPCarbonMessage> requestList = new ArrayList<>();
     private HandlerExecutor handlerExecutor;
     private Map<String, GenericObjectPool> targetChannelPool;
     private ChunkConfig chunkConfig;
+
     private KeepAliveConfig keepAliveConfig;
-
     private ServerConnectorFuture serverConnectorFuture;
-
     private String interfaceId;
     private String serverName;
     private boolean idleTimeout;
@@ -70,7 +75,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     protected ChannelHandlerContext ctx;
     private SocketAddress remoteAddress;
     private SourceErrorHandler sourceErrorHandler;
-    private ListenerStateContext stateContext;
 
     public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId, ChunkConfig chunkConfig,
                          KeepAliveConfig keepAliveConfig, String serverName, ChannelGroup allChannels) {
@@ -83,15 +87,26 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         this.serverName = serverName;
         this.allChannels = allChannels;
         this.sourceErrorHandler = new SourceErrorHandler(this.serverConnectorFuture, serverName);
+
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpRequest) {
-            execute().readInboundRequestHeaders(ctx, (HttpRequest) msg);
+            inboundRequestMsg = createInboundReqCarbonMsg((HttpRequest) msg, ctx, this);
+            requestList.add(inboundRequestMsg);
+
+            ListenerStateContext stateContext = new ListenerStateContext();
+            inboundRequestMsg.setStateContext(stateContext);
+            stateContext.setState(new ReceivingHeaders(this, stateContext));
+            stateContext.getState().readInboundRequestHeaders(inboundRequestMsg, (HttpRequest) msg);
         } else {
-            execute().readInboundReqEntityBody(msg);
+            if (inboundRequestMsg != null) {
+                inboundRequestMsg.getStateContext().getState().readInboundRequestEntityBody(msg);
+            } else {
+                log.warn("Inconsistent state detected : inboundRequestMsg is null for channel read event");
+            }
         }
     }
 
@@ -103,17 +118,26 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(final ChannelHandlerContext ctx) {
         this.ctx = ctx;
-        stateContext = new ListenerStateContext();
-        stateContext.setState(new Connected(this, stateContext));
-        execute().channelActive(ctx);
+//        execute().channelActive(ctx);
+
+        this.allChannels.add(ctx.channel());
+        handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
+        if (handlerExecutor != null) {
+            handlerExecutor.executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
+        }
+        this.remoteAddress = ctx.channel().remoteAddress();
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
         ctx.close();
-        if (!idleTimeout && stateContext != null) {
-            execute().handleAbruptChannelClosure(serverConnectorFuture);
-//            sourceErrorHandler.handleErrorCloseScenario(inboundRequestMsg);
+        if (!idleTimeout) {
+            if (!requestList.isEmpty()) {
+                requestList.forEach(inboundMsg -> inboundMsg.getStateContext().getState()
+                        .handleAbruptChannelClosure(serverConnectorFuture));
+            } else {
+                notifyErrorListenerAtConnectedState(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST);
+            }
         }
         closeTargetChannels();
         if (handlerExecutor != null) {
@@ -144,29 +168,18 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {
         if (evt instanceof IdleStateEvent) {
             this.idleTimeout = true;
-            boolean inCompleteRequest = sourceErrorHandler.getState() == RECEIVING_ENTITY_BODY;
-//            ChannelFuture outboundRespFuture = sourceErrorHandler.handleIdleErrorScenario(inboundRequestMsg, ctx, (IdleStateEvent) evt);
 
-            ChannelFuture outboundRespFuture = null;
-            if (stateContext != null) {
-                outboundRespFuture = execute()
-                        .handleIdleTimeoutConnectionClosure(serverConnectorFuture, ctx, (IdleStateEvent) evt);
-            }
-            if (outboundRespFuture == null) {
-                this.channelInactive(ctx);
-            } else {
-                outboundRespFuture.addListener((ChannelFutureListener) channelFuture -> {
-                    sourceErrorHandler.setState(ENTITY_BODY_SENT);
-                    Throwable cause = channelFuture.cause();
-                    if (cause != null) {
-                        log.warn("Failed to send: " + cause.getMessage());
-                    }
-                    this.channelInactive(ctx);
-                    if (inCompleteRequest) {
-                        sourceErrorHandler.handleIncompleteInboundRequest(
-                                IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST);
+            if (!requestList.isEmpty()) {
+                requestList.forEach(inboundMsg -> {
+                    ChannelFuture outboundRespFuture = inboundMsg.getStateContext().getState()
+                            .handleIdleTimeoutConnectionClosure(serverConnectorFuture, ctx, (IdleStateEvent) evt);
+                    if (outboundRespFuture == null) {
+                        this.channelInactive(ctx);
                     }
                 });
+            } else {
+                this.channelInactive(ctx);
+                notifyErrorListenerAtConnectedState(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST);
             }
             log.debug("Idle timeout has reached hence closing the connection {}", ctx.channel().id().asShortText());
         } else if (evt instanceof HttpServerUpgradeHandler.UpgradeEvent) {
@@ -185,8 +198,14 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private ListenerState execute() {
-        return this.stateContext.getState();
+    private void notifyErrorListenerAtConnectedState(String errorMsg) {
+        try {
+            serverConnectorFuture.notifyErrorListener(new ServerConnectorException(errorMsg));
+            // Error is notified to server connector. Debug log is to make transport layer aware
+            log.debug(errorMsg);
+        } catch (ServerConnectorException e) {
+            log.error("Error while notifying error state to server-connector listener");
+        }
     }
 
     public EventLoop getEventLoop() {
@@ -199,18 +218,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
     public ChannelHandlerContext getInboundChannelContext() {
         return ctx;
-    }
-
-    public ChannelGroup getAllChannels() {
-        return allChannels;
-    }
-
-    public void setHandlerExecutor(HandlerExecutor handlerExecutor) {
-        this.handlerExecutor = handlerExecutor;
-    }
-
-    public void setRemoteAddress(SocketAddress remoteAddress) {
-        this.remoteAddress = remoteAddress;
     }
 
     public SocketAddress getRemoteAddress() {
@@ -241,7 +248,4 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         return sourceErrorHandler;
     }
 
-    public ListenerStateContext getStateContext() {
-        return stateContext;
-    }
 }

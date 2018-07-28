@@ -63,8 +63,8 @@ public class ReceivingEntityBody implements ListenerState {
     private final SourceHandler sourceHandler;
     private HTTPCarbonMessage inboundRequestMsg;
 
-    public ReceivingEntityBody(ListenerStateContext stateContext,
-                               HTTPCarbonMessage inboundRequestMsg, SourceHandler sourceHandler) {
+    public ReceivingEntityBody(ListenerStateContext stateContext, HTTPCarbonMessage inboundRequestMsg,
+                               SourceHandler sourceHandler) {
         this.stateContext = stateContext;
         this.inboundRequestMsg = inboundRequestMsg;
         this.sourceHandler = sourceHandler;
@@ -78,36 +78,32 @@ public class ReceivingEntityBody implements ListenerState {
     }
 
     @Override
-    public void readInboundRequestHeaders(ChannelHandlerContext ctx, HttpRequest inboundRequestHeaders) {
+    public void readInboundRequestHeaders(HTTPCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
         // Not a dependant action of this state.
     }
 
     @Override
-    public void readInboundReqEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
-        if (inboundRequestMsg != null) {
-            if (inboundRequestEntityBody instanceof HttpContent) {
+    public void readInboundRequestEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
+        if (inboundRequestEntityBody instanceof HttpContent) {
 //                sourceErrorHandler.setState(RECEIVING_ENTITY_BODY);
-                HttpContent httpContent = (HttpContent) inboundRequestEntityBody;
-                try {
-                    inboundRequestMsg.addHttpContent(httpContent);
-                    if (Util.isLastHttpContent(httpContent)) {
-                        if (handlerExecutor != null) {
-                            handlerExecutor.executeAtSourceRequestSending(inboundRequestMsg);
-                        }
-                        if (isDiffered(inboundRequestMsg)) {
-                            serverConnectorFuture.notifyHttpListener(inboundRequestMsg);
-                        }
-                        inboundRequestMsg = null;
-                        stateContext.setState(new EntityBodyReceived(stateContext));
-//                        sourceErrorHandler.setState(ENTITY_BODY_RECEIVED);
+            HttpContent httpContent = (HttpContent) inboundRequestEntityBody;
+            try {
+                inboundRequestMsg.addHttpContent(httpContent);
+                if (Util.isLastHttpContent(httpContent)) {
+                    if (handlerExecutor != null) {
+                        handlerExecutor.executeAtSourceRequestSending(inboundRequestMsg);
                     }
-                } catch (RuntimeException ex) {
-                    httpContent.release();
-                    log.warn("Response already received before completing the inbound request" + ex.getMessage());
+                    if (isDiffered(inboundRequestMsg)) {
+                        serverConnectorFuture.notifyHttpListener(inboundRequestMsg);
+                    }
+                    inboundRequestMsg = null;
+                    stateContext.setState(new EntityBodyReceived(stateContext));
+//                        sourceErrorHandler.setState(ENTITY_BODY_RECEIVED);
                 }
+            } catch (RuntimeException ex) {
+                httpContent.release();
+                log.warn("Response already received before completing the inbound request" + ex.getMessage());
             }
-        } else {
-            log.warn("Inconsistent state detected : inboundRequestMsg is null for channel read event");
         }
     }
 
@@ -117,8 +113,8 @@ public class ReceivingEntityBody implements ListenerState {
     }
 
     @Override
-    public void writeOutboundResponse(HttpOutboundRespListener outboundResponseListener,
-                                      HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
+    public void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundResponseListener,
+                                                HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
         // If this method is called, it is an application error. we need to close connection once response is sent.
         outboundResponseListener.setKeepAliveConfig(KeepAliveConfig.NEVER);
         stateContext.setState(new SendingHeaders(outboundResponseListener, stateContext));
@@ -132,9 +128,9 @@ public class ReceivingEntityBody implements ListenerState {
 
     @Override
     public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
-                                                            ChannelHandlerContext ctx,
-                                                            IdleStateEvent evt) {
-        ChannelFuture outboundRespFuture = sendRequestTimeoutResponse(ctx, HttpResponseStatus.REQUEST_TIMEOUT, Unpooled.EMPTY_BUFFER, 0);
+                                                            ChannelHandlerContext ctx, IdleStateEvent evt) {
+        ChannelFuture outboundRespFuture = sendRequestTimeoutResponse(ctx, HttpResponseStatus.REQUEST_TIMEOUT,
+                                                                      Unpooled.EMPTY_BUFFER, 0);
 
         outboundRespFuture.addListener((ChannelFutureListener) channelFuture -> {
             Throwable cause = channelFuture.cause();
@@ -144,7 +140,7 @@ public class ReceivingEntityBody implements ListenerState {
             sourceHandler.channelInactive(ctx);
             handleIncompleteInboundRequest(IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST);
         });
-        return null;
+        return outboundRespFuture;
     }
 
     private boolean isDiffered(HTTPCarbonMessage sourceReqCmsg) {

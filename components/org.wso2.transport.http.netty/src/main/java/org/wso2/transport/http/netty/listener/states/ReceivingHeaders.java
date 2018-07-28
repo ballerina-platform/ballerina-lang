@@ -75,9 +75,8 @@ public class ReceivingHeaders implements ListenerState {
     }
 
     @Override
-    public void readInboundRequestHeaders(ChannelHandlerContext ctx, HttpRequest inboundRequestHeaders) {
-//        sourceErrorHandler.setState(CONNECTED);
-        inboundRequestMsg = createInboundReqCarbonMsg(inboundRequestHeaders, ctx, sourceHandler);
+    public void readInboundRequestHeaders(HTTPCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
+        this.inboundRequestMsg = inboundRequestMsg;
         continueRequest = is100ContinueRequest(inboundRequestMsg);
         if (continueRequest) {
 //            sourceErrorHandler.setState(EXPECT_100_CONTINUE_HEADER_RECEIVED);
@@ -113,9 +112,9 @@ public class ReceivingHeaders implements ListenerState {
     }
 
     @Override
-    public void readInboundReqEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
+    public void readInboundRequestEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
         stateContext.setState(new ReceivingEntityBody(stateContext, inboundRequestMsg, sourceHandler));
-        stateContext.getState().readInboundReqEntityBody(inboundRequestEntityBody);
+        stateContext.getState().readInboundRequestEntityBody(inboundRequestEntityBody);
     }
 
     @Override
@@ -124,8 +123,8 @@ public class ReceivingHeaders implements ListenerState {
     }
 
     @Override
-    public void writeOutboundResponse(HttpOutboundRespListener outboundResponseMsg, HTTPCarbonMessage keepAlive,
-                                      HttpContent httpContent) {
+    public void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundResponseMsg, HTTPCarbonMessage keepAlive,
+                                                HttpContent httpContent) {
         // Not a dependant action of this state.
     }
 
@@ -136,8 +135,7 @@ public class ReceivingHeaders implements ListenerState {
 
     @Override
     public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
-                                                            ChannelHandlerContext ctx,
-                                                            IdleStateEvent evt) {
+                                                            ChannelHandlerContext ctx, IdleStateEvent evt) {
         ChannelFuture outboundRespFuture = sendRequestTimeoutResponse(ctx, HttpResponseStatus.REQUEST_TIMEOUT, Unpooled.EMPTY_BUFFER, 0);
 
         outboundRespFuture.addListener((ChannelFutureListener) channelFuture -> {
@@ -148,7 +146,7 @@ public class ReceivingHeaders implements ListenerState {
             sourceHandler.channelInactive(ctx);
             handleIncompleteInboundRequest(IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST);
         });
-        return null;
+        return outboundRespFuture;
     }
 
     private ChannelFuture sendRequestTimeoutResponse(ChannelHandlerContext ctx, HttpResponseStatus status,

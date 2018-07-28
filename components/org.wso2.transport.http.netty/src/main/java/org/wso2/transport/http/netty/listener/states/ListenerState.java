@@ -35,18 +35,17 @@ public interface ListenerState {
 
     void channelActive(final ChannelHandlerContext ctx);
 
-    void readInboundRequestHeaders(ChannelHandlerContext ctx, HttpRequest inboundRequestHeaders);
+    void readInboundRequestHeaders(HTTPCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders);
 
-    void readInboundReqEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException;
+    void readInboundRequestEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException;
 
     void writeOutboundResponseHeaders(HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent);
 
-    void writeOutboundResponse(HttpOutboundRespListener outboundResponseListener, HTTPCarbonMessage outboundResponseMsg,
-                               HttpContent httpContent);
+    void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundResponseListener,
+                                         HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent);
 
     void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture);
 
     ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
-                                                     ChannelHandlerContext ctx,
-                                                     IdleStateEvent evt);
+                                                     ChannelHandlerContext ctx, IdleStateEvent evt);
 }

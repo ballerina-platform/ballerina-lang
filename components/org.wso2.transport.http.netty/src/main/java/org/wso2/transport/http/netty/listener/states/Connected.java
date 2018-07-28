@@ -29,8 +29,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
-import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
-import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -53,25 +51,17 @@ public class Connected implements ListenerState {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        sourceHandler.getAllChannels().add(ctx.channel());
-        HandlerExecutor handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
-        sourceHandler.setHandlerExecutor(handlerExecutor);
-        if (handlerExecutor != null) {
-            handlerExecutor.executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
-        }
-        sourceHandler.setRemoteAddress(ctx.channel().remoteAddress());
-//        sourceErrorHandler.setState(CONNECTED);
 
     }
 
     @Override
-    public void readInboundRequestHeaders(ChannelHandlerContext ctx, HttpRequest inboundRequestHeaders) {
+    public void readInboundRequestHeaders(HTTPCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
         stateContext.setState(new ReceivingHeaders(sourceHandler, stateContext));
-        stateContext.getState().readInboundRequestHeaders(ctx, inboundRequestHeaders);
+        stateContext.getState().readInboundRequestHeaders(inboundRequestMsg, inboundRequestHeaders);
     }
 
     @Override
-    public void readInboundReqEntityBody(Object inboundRequestEntityBody) {
+    public void readInboundRequestEntityBody(Object inboundRequestEntityBody) {
         // Not a dependant action of this state.
     }
 
@@ -81,8 +71,8 @@ public class Connected implements ListenerState {
     }
 
     @Override
-    public void writeOutboundResponse(HttpOutboundRespListener outboundResponseListener,
-                                      HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
+    public void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundResponseListener,
+                                                HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
         // Not a dependant action of this state.
     }
 
@@ -100,8 +90,7 @@ public class Connected implements ListenerState {
 
     @Override
     public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
-                                                            ChannelHandlerContext ctx,
-                                                            IdleStateEvent evt) {
+                                                            ChannelHandlerContext ctx, IdleStateEvent evt) {
         try {
             serverConnectorFuture.notifyErrorListener(
                     new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST));

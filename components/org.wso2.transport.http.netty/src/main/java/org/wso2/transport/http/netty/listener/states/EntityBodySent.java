@@ -23,8 +23,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.timeout.IdleStateEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
@@ -51,13 +49,13 @@ public class EntityBodySent implements ListenerState {
     }
 
     @Override
-    public void readInboundRequestHeaders(ChannelHandlerContext ctx, HttpRequest inboundRequestHeaders) {
+    public void readInboundRequestHeaders(HTTPCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
         stateContext.setState(new ReceivingHeaders(sourceHandler, stateContext));
-        stateContext.getState().readInboundRequestHeaders(ctx, inboundRequestHeaders);
+        stateContext.getState().readInboundRequestHeaders(inboundRequestMsg, inboundRequestHeaders);
     }
 
     @Override
-    public void readInboundReqEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
+    public void readInboundRequestEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
         // Not a dependant action of this state.
     }
 
@@ -67,8 +65,8 @@ public class EntityBodySent implements ListenerState {
     }
 
     @Override
-    public void writeOutboundResponse(HttpOutboundRespListener outboundRespListener,
-                                      HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
+    public void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundRespListener,
+                                                HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
         // Not a dependant action of this state.
     }
 
@@ -79,8 +77,8 @@ public class EntityBodySent implements ListenerState {
 
     @Override
     public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
-                                                            ChannelHandlerContext ctx,
-                                                            IdleStateEvent evt) {
+                                                            ChannelHandlerContext ctx, IdleStateEvent evt) {
+        // Not a dependant action of this state.
         return null;
     }
 }
