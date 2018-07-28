@@ -42,7 +42,7 @@ public class CompilerUtils {
     
     public static boolean isMainFunction(BLangFunction funcNode) {
         return (MAIN_FUNCTION_NAME.equals(funcNode.name.value) && funcNode.symbol.retType.tag == TypeTags.NIL
-                         && !Symbols.isPublic(funcNode.symbol) && funcNode.defaultableParams.size() == 0);
+                         && !Symbols.isPublic(funcNode.symbol));
     }
     
 }
