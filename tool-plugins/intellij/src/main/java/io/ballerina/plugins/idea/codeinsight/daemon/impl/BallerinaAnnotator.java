@@ -89,23 +89,17 @@ public class BallerinaAnnotator implements Annotator {
                 annotateExpressionTemplateStart(element, holder);
             } else if (elementType == BallerinaTypes.EXPRESSION_END) {
                 annotateStringLiteralTemplateEnd(element, holder);
-            } else if (elementType == BallerinaTypes.DOCUMENTATION_TEMPLATE_START ||
-                    elementType == BallerinaTypes.DEPRECATED_TEMPLATE_START) {
+            } else if (elementType == BallerinaTypes.MARKDOWN_DOCUMENTATION_LINE_START
+                    || elementType == BallerinaTypes.DEPRECATED_TEMPLATE_START) {
                 // This uses an overloaded method so that the color can be easily changeable if required.
                 annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.DOCUMENTATION);
-            } else if (elementType == BallerinaTypes.PARAMETER_DOCUMENTATION_START) {
-
-                // Highlight type
+            } else if (elementType == BallerinaTypes.PARAMETER_DOCUMENTATION_START
+                    || elementType == BallerinaTypes.RETURN_PARAMETER_DOCUMENTATION_START) {
+                // Highlights "#"
                 TextRange textRange = element.getTextRange();
-                TextRange newTextRange = new TextRange(textRange.getStartOffset()+1, textRange.getEndOffset());
-                Annotation annotation = holder.createInfoAnnotation(newTextRange, "Parameter Name");
-                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION_INLINE_CODE);
-                // Highlight {{
-                newTextRange = new TextRange(textRange.getEndOffset(), textRange.getEndOffset()+1);
-                annotation = holder.createInfoAnnotation(newTextRange, null);
-                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.STRING);
-            } else if (elementType == BallerinaTypes.DOCUMENTATION_TEMPLATE_ATTRIBUTE_END) {
-                annotateText(element, holder);
+                TextRange newTextRange = new TextRange(textRange.getStartOffset(), textRange.getStartOffset() + 2);
+                Annotation annotation = holder.createInfoAnnotation(newTextRange, null);
+                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION);
             } else if (elementType == BallerinaTypes.SINGLE_BACKTICK_CONTENT
                     || elementType == BallerinaTypes.DOUBLE_BACKTICK_CONTENT
                     || elementType == BallerinaTypes.TRIPLE_BACKTICK_CONTENT
@@ -117,11 +111,15 @@ public class BallerinaAnnotator implements Annotator {
                     || elementType == BallerinaTypes.DEPRECATED_TEMPLATE_TEXT) {
                 Annotation annotation = holder.createInfoAnnotation(element, null);
                 annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION);
+            } else if (elementType == BallerinaTypes.SINGLE_BACKTICK_MARKDOWN_START
+                    || elementType == BallerinaTypes.DOUBLE_BACKTICK_MARKDOWN_START
+                    || elementType == BallerinaTypes.TRIPLE_BACKTICK_MARKDOWN_START
+                    || elementType == BallerinaTypes.SINGLE_BACKTICK_MARKDOWN_END
+                    || elementType == BallerinaTypes.DOUBLE_BACKTICK_MARKDOWN_END
+                    || elementType == BallerinaTypes.TRIPLE_BACKTICK_MARKDOWN_END) {
+                annotateInlineCode(element, holder);
             } else if (elementType == BallerinaTypes.IDENTIFIER) {
-                if (parent.getNode().getElementType() == BallerinaTypes.PARAMETER_DOCUMENTATION) {
-                    Annotation annotation = holder.createInfoAnnotation(element, null);
-                    annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION_INLINE_CODE);
-                } else if (parent instanceof BallerinaGlobalVariableDefinition) {
+                if (parent instanceof BallerinaGlobalVariableDefinition) {
                     Annotation annotation = holder.createInfoAnnotation(element, null);
                     annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.GLOBAL_VARIABLE);
                 } else if ("self".equals(element.getText())) {
