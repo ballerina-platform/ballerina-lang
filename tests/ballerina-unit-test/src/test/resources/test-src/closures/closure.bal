@@ -3,7 +3,7 @@ int globalA = 5;
 function basicTest() returns (function (int) returns (int)) {
     int methodInt = 8;
     int anotherMethodInt = 3;
-    var addFunc = (int funcInt) => (int) {
+    var addFunc = function (int funcInt) returns (int) {
         return funcInt + methodInt + anotherMethodInt;
     };
     return addFunc;
@@ -16,9 +16,9 @@ function test1() returns int {
 
 function twoLevelTest() returns (function (int) returns (int)) {
     int methodInt1 = 2;
-    var addFunc1 = (int funcInt1) => (int) {
+    var addFunc1 = function (int funcInt1) returns (int) {
         int methodInt2 = 23;
-        var addFunc2 = (int funcInt2) => (int) {
+        var addFunc2 = function (int funcInt2) returns (int) {
             return funcInt2 + methodInt1 + methodInt2;
         };
         return addFunc2(5) + funcInt1;
@@ -33,11 +33,11 @@ function test2() returns int {
 
 function threeLevelTest() returns (function (int) returns (int)) {
     int methodInt1 = 2;
-    var addFunc1 = (int funcInt1) => (int) {
+    var addFunc1 = function (int funcInt1) returns (int) {
         int methodInt2 = 23;
-        var addFunc2 = (int funcInt2) => (int) {
+        var addFunc2 = function (int funcInt2) returns (int) {
             int methodInt3 = 7;
-            var addFunc3 = (int funcInt3) => (int) {
+            var addFunc3 = function (int funcInt3) returns (int) {
                 return funcInt3 + methodInt1 + methodInt2 + methodInt3;
             };
             return addFunc3(8) + funcInt2;
@@ -54,7 +54,7 @@ function test3() returns int {
 
 function closureWithIfBlock() returns (function (int) returns (int)) {
     int a = 3;
-    var addFunc =  (int b) => (int) {
+    var addFunc =  function (int b) returns (int) {
         int c = 34;
         if (b == 3) {
             int e = 34;
@@ -72,8 +72,8 @@ function test4() returns int {
 
 
 function getFunc1(int functionIntX) returns (function (int) returns (function (int) returns (int))) {
-    return (int functionIntY) => (function (int) returns (int)) {
-        return (int functionIntZ) => (int) {
+    return function (int functionIntY) returns (function (int) returns (int)) {
+        return function (int functionIntZ) returns (int) {
             return functionIntX + functionIntY + functionIntZ;
         };
     };
@@ -86,7 +86,7 @@ function test5() returns (int){
 }
 
 function getIncFunc(int x) returns (function (int) returns (int)) {
-    return (int y) => (int) {
+    return function (int y) returns (int) {
         return x + y;
     };
 }
@@ -104,8 +104,8 @@ function out2ndFunc(int out2ndParam) returns (function (int) returns int) {
     int e = 45;
     int out2ndFuncLocal = 8;
     int f = 45;
-    var out1stFunc = (int out1stParam) => (int) {
-        var inner1Func = (int inner1Param) => (int) {
+    var out1stFunc = function (int out1stParam) returns (int) {
+        var inner1Func = function (int inner1Param) returns (int) {
                 int g = out2ndFuncLocal + out2ndParam;
                 int h = out1stParam + inner1Param;
                 return g + h;
@@ -121,9 +121,9 @@ function test7() returns int {
 }
 
 function testMultiLevelFunction() returns (int) {
-    var addFunc1 = (int funcInt1) => (int) {
-        var addFunc2 = (int funcInt2) => (int) {
-            var addFunc3 =  (int methodInt3, int methodInt2, int methodInt1, int funcInt3) => (int) {
+    var addFunc1 = function (int funcInt1) returns (int) {
+        var addFunc2 = function (int funcInt2) returns (int) {
+            var addFunc3 =  function (int methodInt3, int methodInt2, int methodInt1, int funcInt3) returns (int) {
                 return funcInt3 + methodInt1 + methodInt2 + methodInt3;
             };
             return addFunc3(7, 23, 2, 8) + funcInt2;
@@ -140,7 +140,7 @@ function test8() returns int {
 function globalVarAccessTest() returns (function (int) returns (int)) {
     int methodInt = 8;
     int anotherMethodInt = 3;
-    var addFunc = (int funcInt) => (int) {
+    var addFunc = function (int funcInt) returns (int) {
         return funcInt + methodInt + globalA + anotherMethodInt;
     };
     return addFunc;
@@ -154,7 +154,7 @@ function test9() returns int {
 function testDifferentTypeArgs1() returns (function (int, float) returns (int)) {
     int methodInt = 8;
     int anotherMethodInt = 3;
-    var addFunc = (int funcInt, float funcFloat) => (int) {
+    var addFunc = function (int funcInt, float funcFloat) returns (int) {
         int f2i = <int>funcFloat;
         return funcInt + methodInt + anotherMethodInt + f2i;
     };
@@ -167,8 +167,8 @@ function test10() returns int {
 }
 
 function testDifferentTypeArgs2(int functionIntX) returns (function (float) returns (function (boolean) returns (int))) {
-    return (float functionFloatY) => (function (boolean) returns (int)) {
-        return (boolean functionBoolZ) => (int) {
+    return function (float functionFloatY) returns (function (boolean) returns (int)) {
+        return function (boolean functionBoolZ) returns (int) {
             if (functionBoolZ) {
                 return functionIntX + <int>functionFloatY;
             }
@@ -185,8 +185,8 @@ function test11() returns int {
 
 
 function testDifferentTypeArgs3(int a1, float a2) returns (function (boolean, float) returns (function () returns (int))) {
-    return (boolean b1, float b2) => (function () returns (int)) {
-        var foo = () => (int) {
+    return function (boolean b1, float b2) returns (function () returns (int)) {
+        var foo = function () returns (int) {
             if (b1) {
                 return a1 + <int>a2;
             }
@@ -209,8 +209,8 @@ function test13() returns int {
 }
 
 function getStringFunc1(string functionX) returns (function (string) returns (function (string) returns (string))) {
-    return (string functionY) => (function (string) returns (string)) {
-        return  (string functionZ) => (string) {
+    return function (string functionY) returns (function (string) returns (string)) {
+        return function (string functionZ) returns (string) {
             return functionX + functionY + functionZ;
         };
     };
@@ -225,7 +225,7 @@ function test14() returns (string){
 function testWithVarArgs() returns (function (int) returns (int)) {
     int methodInt = 8;
     int anotherMethodInt = 3;
-    var addFunc = (int funcInt) => (int) {
+    var addFunc = function (int funcInt) returns (int) {
         return funcInt + methodInt + anotherMethodInt;
     };
     return addFunc;
@@ -237,7 +237,7 @@ function test15() returns int {
 }
 
 function testClosureWithTupleTypes((string, float, string) g) returns (function (string, (string, float, string)) returns (string)){
-    return (string x, (string, float, string) y) => (string) {
+    return function (string x, (string, float, string) y) returns (string) {
        var (i, j, k) = y;
        var (l, m, n) = g;
        return x + i + j + k + l + m + n;
@@ -261,7 +261,7 @@ function testClosureWithTupleTypesOrder((string, float, string) g) returns (func
     string k = "World Inner!!!";
     (string, float, string) r = (i, j, k);
 
-    return ((string, float, string) y, string x) => (string) {
+    return function ((string, float, string) y, string x) returns (string) {
        var (a, b, c) = g;
        var (d, e, f) = y;
        var (i1, j1, k1) = r;
@@ -287,7 +287,7 @@ function globalVarAccessAndModifyTest() returns (int) {
     int a = 3;
     a = 6;
     globalA = 7;
-    var addFunc = (int b) => (int) {
+    var addFunc = function (int b) returns (int) {
         return b + globalA + a;
     };
     return addFunc(3);
@@ -306,7 +306,7 @@ type Person object {
 
     function getAttachedFn() returns string {
         int b = 4;
-        var foo = (float w) => (string) {
+        var foo = function (float w) returns (string) {
            return name + w + "K" + b + self.age;
         };
         return foo(7.4);
@@ -314,7 +314,7 @@ type Person object {
 
     function getAttachedFP() returns function (float) returns (string) {
         int b = 4;
-        var foo = (float w) => (string) {
+        var foo = function (float w) returns (string) {
             return w + self.year + b + "Ballerina !!!";
         };
         return foo;
@@ -326,7 +326,7 @@ type Person object {
 
 function Person::externalAttachedFP() returns (function (float) returns (string)) {
      int b = 4;
-     var foo = (float w) => (string) {
+     var foo = function (float w) returns (string) {
         string d = w + "T" + b + self.year + self.name + self.age;
         return d;
      };
@@ -354,10 +354,10 @@ public function test21() returns (string) {
 function testDifferentArgs() returns (function (float) returns (function (float) returns (string))) {
     int outerInt = 4;
     boolean booOuter = false;
-    var outerFoo = (float fOut) => (function (float) returns (string)) {
+    var outerFoo = function (float fOut) returns (function (float) returns (string)) {
         int innerInt = 7;
         boolean booInner = true;
-        var innerFoo = (float fIn) => (string) {
+        var innerFoo = function (float fIn) returns (string) {
             string str = "Plain";
             if (!booOuter && booInner) {
                 str = innerInt + "InnerInt" + outerInt + fOut + "InnerFloat" + fIn + "Ballerina !!!";
@@ -383,7 +383,7 @@ function testVariableShadowingInClosure1(int a) returns function (float) returns
         b = a + b + <int>f;
     }
 
-    var foo = (float f) => (string) {
+    var foo = function (float f) returns (string) {
         if (a > 8) {
             b = a + <int>f + b;
         }
@@ -408,13 +408,13 @@ function testVariableShadowingInClosure2(int a) returns function (float) returns
         b = a + b + <int>f;
     }
 
-    var fooOut = (float f) => (function (float, boolean) returns (string)) {
+    var fooOut = function (float f) returns (function (float, boolean) returns (string)) {
         if (a > 8) {
             b = a + <int>f + b;
         }
         string s = "Out" + b;
 
-        var fooIn = (float f, boolean boo) => (string) {
+        var fooIn = function (float f, boolean boo) returns (string) {
             if (a > 8 && !boo) {
                 b = a + <int>f + b;
             }
@@ -443,19 +443,19 @@ function testVariableShadowingInClosure3(int a) returns (function (float) return
         b = a + b + <int>f;
     }
 
-    var fooOutMost = (float f) => (function (float) returns (function (float, boolean) returns (string))) {
+    var fooOutMost = function (float f) returns (function (float) returns (function (float, boolean) returns (string))) {
         if (a > 8) {
             b = a + <int>f + b;
         }
         string sOut = "OutMost" + b;
 
-        var fooOut = (float f) => (function (float, boolean) returns (string)) {
+        var fooOut = function (float f) returns (function (float, boolean) returns (string)) {
             if (a == 9) {
                 b = a + <int>f + b;
             }
             string s = sOut + "Out" + b;
 
-            var fooIn = (float f, boolean boo) => (string) {
+            var fooIn = function (float f, boolean boo) returns (string) {
                 if (a > 8 && !boo) {
                     b = a + <int>f + b;
                 }
@@ -484,13 +484,13 @@ function testVariableShadowingInClosure4() returns (function (float) returns (fu
     float f = 5.6;
     boolean boo = true;
 
-    var fooOutMost = (float f) => (function (float) returns (function (float, boolean) returns (string))) {
+    var fooOutMost = function (float f) returns (function (float) returns (function (float, boolean) returns (string))) {
         string sOut = "OutMost" + b + a;
 
-        var fooOut = (float f) => (function (float, boolean) returns (string)) {
+        var fooOut = function (float f) returns (function (float, boolean) returns (string)) {
             string s = sOut + "Out" + b + a;
 
-            var fooIn = (float f, boolean boo) => (string) {
+            var fooIn = function (float f, boolean boo) returns (string) {
                 b = a + <int>f + b;
                 return s + "In" + b + "Ballerina!!!";
             };
@@ -512,7 +512,7 @@ function test26() returns string {
 function testLocalVarModifyWithinClosureScope() returns (float){
     float fadd = 0;
     float[] fa = [1.1, 2.2, -3.3, 4.4, 5.5];
-    fa.foreach((float i) => { fadd = fadd + i;});
+    fa.foreach(function (float i) returns { fadd = fadd + i;});
     float fsum = fadd;
     return (fsum);
 }
@@ -520,9 +520,9 @@ function testLocalVarModifyWithinClosureScope() returns (float){
 function testByteAndBoolean() returns (function (int, byte) returns
                     ((function (byte, int, boolean) returns byte[][]))) {
     boolean boo1 = true;
-    return (int a, byte b) => (function (byte, int, boolean) returns byte[][]) {
+    return function (int a, byte b) returns (function (byte, int, boolean) returns byte[][]) {
         boolean boo2 = false;
-        return (byte c, int f, boolean booF) => (byte[][]) {
+        return function (byte c, int f, boolean booF) returns (byte[][]) {
             byte i = check <byte> f;
             byte[][] bArr = [];
             if !boo2 {
@@ -550,9 +550,9 @@ function test27() returns byte[][] {
 
 function testMultiLevelBlockStatements1() returns (function () returns (function(int) returns int)) {
     int sum1 = 23;
-    var bar = () => (function (int) returns int) {
+    var bar = function () returns (function (int) returns int) {
         float f = 23.7;
-        var foo = (int i) => (int) {
+        var foo = function (int i) returns (int) {
             int sum2 = 7;
             if (i < 7) {
                 if (i < 6) {
@@ -572,7 +572,7 @@ function testMultiLevelBlockStatements1() returns (function () returns (function
 
 function testMultiLevelBlockStatements2() returns (function(int[], int[], int[]) returns int) {
     int sum = 23;
-    var foo = (int[] i, int[] j, int[] k) => int {
+    var foo = function (int[] i, int[] j, int[] k) returns int {
         foreach x in i {
             foreach y in j {
                 foreach z in k {

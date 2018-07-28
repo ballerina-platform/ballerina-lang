@@ -71,7 +71,7 @@ functionDefinition
     ;
 
 lambdaFunction
-    :  LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS EQUAL_GT lambdaReturnParameter? callableUnitBody
+    :  FUNCTION LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS RETURNS lambdaReturnParameter? callableUnitBody
     ;
 
 callableUnitSignature

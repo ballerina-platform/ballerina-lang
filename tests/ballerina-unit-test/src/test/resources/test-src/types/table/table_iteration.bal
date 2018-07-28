@@ -71,7 +71,7 @@ function testForEachInTable() returns (int, int, float, string) {
 
     table<Person> dt = check testDB->select("SELECT * from Person where id = 1", Person);
 
-    dt.foreach((Person p) => {
+    dt.foreach(function (Person p) returns {
             idValue = untaint p.id;
             ageValue = untaint p.age;
             salValue = untaint p.salary;
@@ -123,7 +123,7 @@ function testFilterWithAnnonymousFuncOnTable() returns (int, int, int) {
     };
 
     table<Person> dt = check testDB->select("SELECT * from Person", Person);
-    Person[] personBelow35 = dt.filter((Person p) => (boolean) {
+    Person[] personBelow35 = dt.filter(function (Person p) returns (boolean) {
             return p.age < 35;
         });
     int count = lengthof personBelow35;

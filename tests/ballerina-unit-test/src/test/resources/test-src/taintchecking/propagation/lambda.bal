@@ -1,6 +1,6 @@
 function main (string... args) {
     function (string, string) returns (string) testLambda =
-    (string x, string y) => (string) {
+    function (string x, string y) returns (string) {
         string r = x + y;
         return r;
     };
