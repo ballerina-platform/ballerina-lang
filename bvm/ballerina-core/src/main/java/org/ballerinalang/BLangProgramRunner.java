@@ -141,7 +141,7 @@ public class BLangProgramRunner {
 
         if (restParamCount == 1) {
             bValueArgs[paramTypes.length - 1] = getRestArgArray(paramTypes[paramTypes.length - 1],
-                                                                paramTypes.length - 1, args);
+                                                                paramTypes.length - 1 - defaultableParamsCount, args);
         }
 
         return bValueArgs;
