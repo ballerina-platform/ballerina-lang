@@ -12,7 +12,7 @@ interface ParserReply {
     model?: Object
 }
 
-const { renderDiagram } = require('../../../../../../../lib/ballerina-diagram-library');
+const { renderEditableDiagram } = require('../../../../../../../lib/ballerina-diagram-library');
 
 let lastRenderedAST: Object | undefined = undefined;
 
@@ -40,8 +40,8 @@ export class BallerinaPreviewHandler implements PreviewHandler {
         contentElement.classList.add('design-view-container');
 
         if (lastRenderedAST) {
-            renderDiagram(contentElement, lastRenderedAST, {
-                width: 600, height: 600
+            renderEditableDiagram(contentElement, lastRenderedAST, {
+                width: 600, height: 600, mode: 'default'
             });
         }
 
@@ -57,8 +57,8 @@ export class BallerinaPreviewHandler implements PreviewHandler {
             if (body.model) {
                 jsonModel = body.model;
             }
-            renderDiagram(contentElement, jsonModel, {
-                width: 600, height: 600
+            renderEditableDiagram(contentElement, jsonModel, {
+                width: 600, height: 600, mode: 'default'
             });
             lastRenderedAST = jsonModel;
         })
