@@ -28,17 +28,17 @@ public type Session object {
         self.initEndpoint(connection);
     }
 
-    native function initEndpoint(Connection connection);
+    extern function initEndpoint(Connection connection);
 
     documentation { Creates a JMS message which holds text content
         P{{content}} the text content used to initialize this message
     }
-    public native function createTextMessage(string content) returns Message|error;
+    public extern function createTextMessage(string content) returns Message|error;
 
     documentation { Creates a JMS message which holds Map content
         P{{content}} the Map content used to initialize this message
     }
-    public native function createMapMessage(map content) returns Message|error;
+    public extern function createMapMessage(map content) returns Message|error;
 
     documentation { Unsubscribes a durable subscription that has been created by a client.
         It is erroneous for a client to delete a durable subscription while there is an active (not closed) consumer
@@ -47,7 +47,7 @@ public type Session object {
 
         P{{subscriptionId}} the name used to identify this subscription
     }
-    public native function unsubscribe(string subscriptionId) returns error?;
+    public extern function unsubscribe(string subscriptionId) returns error?;
 };
 
 documentation { Configurations related to a JMS session

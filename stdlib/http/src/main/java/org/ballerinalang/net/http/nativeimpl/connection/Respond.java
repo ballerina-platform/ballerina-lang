@@ -37,7 +37,7 @@ import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.ballerinalang.util.observability.ObserverContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Optional;
 
@@ -47,7 +47,7 @@ import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIEL
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
 
 /**
- * Native function to respond back the caller with outbound response.
+ * Extern function to respond back the caller with outbound response.
  *
  * @since 0.96
  */
@@ -68,11 +68,11 @@ public class Respond extends ConnectionAction {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         BMap<String, BValue> connectionStruct = (BMap<String, BValue>) context.getRefArgument(0);
-        HTTPCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
+        HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
         HttpUtil.checkFunctionValidity(connectionStruct, inboundRequestMsg);
         DataContext dataContext = new DataContext(context, callback, inboundRequestMsg);
         BMap<String, BValue> outboundResponseStruct = (BMap<String, BValue>) context.getRefArgument(1);
-        HTTPCarbonMessage outboundResponseMsg = HttpUtil
+        HttpCarbonMessage outboundResponseMsg = HttpUtil
                 .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
 
         setCacheControlHeader(outboundResponseStruct, outboundResponseMsg);
@@ -99,7 +99,7 @@ public class Respond extends ConnectionAction {
         }
     }
 
-    private void setCacheControlHeader(BMap<String, BValue> outboundRespStruct, HTTPCarbonMessage outboundResponse) {
+    private void setCacheControlHeader(BMap<String, BValue> outboundRespStruct, HttpCarbonMessage outboundResponse) {
         BMap<String, BValue> cacheControl =
                 (BMap<String, BValue>) outboundRespStruct.get(RESPONSE_CACHE_CONTROL_FIELD);
         if (cacheControl != null &&

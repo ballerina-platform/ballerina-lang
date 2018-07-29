@@ -37,7 +37,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Native function ballerina/io#readJson.
+ * Extern function ballerina/io#readJson.
  *
  * @since 0.971.0
  */

@@ -23,7 +23,7 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import java.util.regex.Pattern;
 
 /**
- * Abstract native function which serves as base class for writing Regex related native functions.
+ * Abstract extern function which serves as base class for writing Regex related extern functions.
  */
 public abstract class AbstractRegexFunction extends BlockingNativeCallableUnit {
 

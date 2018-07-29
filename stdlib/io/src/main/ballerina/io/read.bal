@@ -20,4 +20,4 @@ documentation {
     P{{a}} Any value to be printed
     R{{}} Input read from STDIN
 }
-public native function readln(any a) returns (string);
+public extern function readln(any a) returns (string);

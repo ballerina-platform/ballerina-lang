@@ -24,7 +24,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -35,13 +35,13 @@ import java.util.concurrent.TimeUnit;
 public class TestCallableUnitCallback implements CallableUnitCallback {
 
     private volatile Semaphore executionWaitSem;
-    private HTTPCarbonMessage requestMessage;
+    private HttpCarbonMessage requestMessage;
     private BValue request;
 
-    private HTTPCarbonMessage responseMsg;
+    private HttpCarbonMessage responseMsg;
     private int timeOut = 120;
 
-    public TestCallableUnitCallback(HTTPCarbonMessage requestMessage) {
+    public TestCallableUnitCallback(HttpCarbonMessage requestMessage) {
         executionWaitSem = new Semaphore(0);
         this.requestMessage = requestMessage;
     }
@@ -68,7 +68,7 @@ public class TestCallableUnitCallback implements CallableUnitCallback {
 //    @Override
 //    public void notifyReply(BValue... response) {
 //        //TODO check below line
-//        HTTPCarbonMessage responseMessage = HttpUtil.getCarbonMsg((BStruct) response[0], null);
+//        HttpCarbonMessage responseMessage = HttpUtil.getCarbonMsg((BStruct) response[0], null);
 //        this.responseMsg = responseMessage;
 //        this.executionWaitSem.release();
 //    }
@@ -81,12 +81,12 @@ public class TestCallableUnitCallback implements CallableUnitCallback {
         }
     }
 
-    public void setResponseMsg(HTTPCarbonMessage httpCarbonMessage) {
+    public void setResponseMsg(HttpCarbonMessage httpCarbonMessage) {
         this.responseMsg = httpCarbonMessage;
         executionWaitSem.release();
     }
 
-    public HTTPCarbonMessage getResponseMsg() {
+    public HttpCarbonMessage getResponseMsg() {
         return responseMsg;
     }
 }

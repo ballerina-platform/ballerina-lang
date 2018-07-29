@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.stdlib.io.socket.SelectorManager;
 import org.ballerinalang.stdlib.io.socket.SocketConstants;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.slf4j.Logger;
@@ -37,7 +38,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 
 /**
- * Native function for ServerSocket bind address.
+ * Extern function for ServerSocket bind address.
  *
  * @since 0.971.1
  */

@@ -131,6 +131,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -1451,7 +1452,11 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(iExpr.pos, DiagnosticCode.NOT_ENOUGH_ARGS_FUNC_CALL, iExpr.name.value);
             return actualType;
         } else if (invocableSymbol.restParam == null && (vararg != null || !iExpr.restArgs.isEmpty())) {
-            dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
+            if (invocableSymbol.defaultableParams.isEmpty()) {
+                dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
+            } else {
+                dlog.error(iExpr.pos, DiagnosticCode.DEFAULTABLE_ARG_PASSED_AS_REQUIRED_ARG, iExpr.name.value);
+            }
             return actualType;
         }
 
@@ -1480,10 +1485,10 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkNamedArgs(List<BLangExpression> namedArgExprs, List<BVarSymbol> defaultableParams) {
         for (BLangExpression expr : namedArgExprs) {
             BLangIdentifier argName = ((NamedArgNode) expr).getName();
-            BVarSymbol varSym = defaultableParams.stream().filter(param -> {
-                return param.getName().value.equals(argName.value);
-            })
-                    .findAny().orElse(null);
+            BVarSymbol varSym = defaultableParams.stream()
+                    .filter(param -> param.getName().value.equals(argName.value))
+                    .findAny()
+                    .orElse(null);
             if (varSym == null) {
                 dlog.error(expr.pos, DiagnosticCode.UNDEFINED_PARAMETER, argName);
                 break;
@@ -1676,7 +1681,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (structType.tag == TypeTags.OBJECT) {
             // check if it is an attached function pointer call
             Name objFuncName = names.fromString(Symbols.getAttachedFuncSymbolName(structType.tsymbol.name.value,
-                                                                                  fieldName.value));
+                    fieldName.value));
             fieldSymbol = symResolver.resolveObjectField(varReferExpr.pos, env, objFuncName, structType.tsymbol);
 
             if (fieldSymbol == symTable.notFoundSymbol) {

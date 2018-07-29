@@ -33,7 +33,7 @@ import org.ballerinalang.test.services.testutils.TestEntityUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_XML;
@@ -179,7 +179,7 @@ public class RequestNativeFunctionNegativeTest {
     public void testGetMethodNegative() {
         BMap<String, BValue> inRequest =
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
-        HTTPCarbonMessage inRequestMsg = HttpUtil.createHttpCarbonMessage(true);
+        HttpCarbonMessage inRequestMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(inRequest, inRequestMsg);
         BValue[] inputArg = { inRequest };
         BValue[] returnVals = BRunUtil.invoke(result, "testGetMethod", inputArg);
@@ -192,7 +192,7 @@ public class RequestNativeFunctionNegativeTest {
     public void testGetRequestURLNegative() {
         BMap<String, BValue> inRequest =
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
-        HTTPCarbonMessage inRequestMsg = HttpUtil.createHttpCarbonMessage(true);
+        HttpCarbonMessage inRequestMsg = HttpUtil.createHttpCarbonMessage(true);
         HttpUtil.addCarbonMsg(inRequest, inRequestMsg);
         BValue[] inputArg = {inRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetRequestURL", inputArg);

@@ -25,7 +25,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Native function to clear connection resources in the table.
+ * Extern function to clear connection resources in the table.
  *
  * @since 0.8.0
  */
