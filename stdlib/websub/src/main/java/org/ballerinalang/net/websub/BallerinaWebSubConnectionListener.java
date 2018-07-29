@@ -142,9 +142,9 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
     protected void extractPropertiesAndStartResourceExecution(HttpCarbonMessage httpCarbonMessage,
                                                               HttpResource httpResource) {
         BValue subscriberServiceEndpoint = getSubscriberServiceEndpoint(httpResource, httpCarbonMessage);
-        BValue httpRequest;
+        BMap<String, BValue>  httpRequest;
         if (httpCarbonMessage.getProperty(ENTITY_ACCESSED_REQUEST) != null) {
-            httpRequest = (BValue) httpCarbonMessage.getProperty(ENTITY_ACCESSED_REQUEST);
+            httpRequest = (BMap<String, BValue> ) httpCarbonMessage.getProperty(ENTITY_ACCESSED_REQUEST);
         } else {
             httpRequest = getHttpRequest(httpResource.getBalResource().getResourceInfo().getServiceInfo()
                                                              .getPackageInfo().getProgramFile(), httpCarbonMessage);
@@ -179,12 +179,10 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
             intentVerificationRequestStruct.put(VERIFICATION_REQUEST_REQUEST, (BRefType) httpRequest);
             signatureParams[1] = intentVerificationRequestStruct;
         } else { //Notification Resource
+            //validate signature for requests received at the callback
+            validateSignature(httpCarbonMessage, httpResource, httpRequest);
             BMap<String, BValue> notificationRequestStruct = createNotificationStruct(balResource, httpRequest);
-            //validate signature for requests received at the callback
-            validateSignature(httpCarbonMessage, httpResource, notificationRequestStruct);
 
-            //validate signature for requests received at the callback
-            validateSignature(httpCarbonMessage, httpResource, (BMap<String, BValue>) httpRequest);
             HttpCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
             response.waitAndReleaseAllEntities();
             response.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpResponseStatus.ACCEPTED.code());
@@ -200,11 +198,11 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
     }
 
     private void validateSignature(HttpCarbonMessage httpCarbonMessage, HttpResource httpResource,
-                                   BMap<String, BValue> notificationRequestStruct) {
+                                   BMap<String, BValue> requestStruct) {
         //invoke processWebSubNotification function
         PackageInfo packageInfo = context.getProgramFile().getPackageInfo(WEBSUB_PACKAGE);
         FunctionInfo functionInfo = packageInfo.getFunctionInfo("processWebSubNotification");
-        BValue[] returnValues = BLangFunctions.invokeCallable(functionInfo, new BValue[]{notificationRequestStruct,
+        BValue[] returnValues = BLangFunctions.invokeCallable(functionInfo, new BValue[]{requestStruct,
                 new BTypeDescValue(httpResource.getBalResource().getResourceInfo().getServiceInfo().getType())});
 
         BMap<String, BValue> errorStruct = (BMap<String, BValue>) returnValues[0];
