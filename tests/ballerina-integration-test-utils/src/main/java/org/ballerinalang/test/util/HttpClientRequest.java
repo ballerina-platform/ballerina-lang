@@ -53,6 +53,19 @@ public class HttpClientRequest {
      * Sends an HTTP GET request to a url.
      *
      * @param requestUrl - The URL of the service. (Example: "http://www.yahoo.com/search?params=value")
+     * @param readTimeout - The read timeout of the request
+     * @return - HttpResponse from the end point
+     * @throws IOException If an error occurs while sending the GET request
+     */
+    public static HttpResponse doGet(String requestUrl, int readTimeout)
+            throws IOException {
+        return executeRequestWithoutRequestBody(TestConstant.HTTP_METHOD_GET, requestUrl, new HashMap<>(), readTimeout);
+    }
+
+    /**
+     * Sends an HTTP GET request to a url.
+     *
+     * @param requestUrl - The URL of the service. (Example: "http://www.yahoo.com/search?params=value")
      * @return - HttpResponse from the end point
      * @throws IOException If an error occurs while sending the GET request
      */
@@ -140,11 +153,16 @@ public class HttpClientRequest {
         }
     }
 
-    public static HttpResponse executeRequestWithoutRequestBody(String method, String requestUrl, Map<String
+    private static HttpResponse executeRequestWithoutRequestBody(String method, String requestUrl, Map<String
             , String> headers) throws IOException {
+        return executeRequestWithoutRequestBody(method, requestUrl, headers, 30000);
+    }
+
+    private static HttpResponse executeRequestWithoutRequestBody(String method, String requestUrl,
+            Map<String, String> headers, int readTimeout) throws IOException {
         HttpURLConnection conn = null;
         try {
-            conn = getURLConnection(requestUrl);
+            conn = getURLConnection(requestUrl, readTimeout);
             setHeadersAndMethod(conn, headers, method);
             conn.connect();
             return buildResponse(conn);
@@ -156,10 +174,14 @@ public class HttpClientRequest {
     }
 
     private static HttpURLConnection getURLConnection(String requestUrl) throws IOException {
+        return getURLConnection(requestUrl, 30000);
+    }
+
+    private static HttpURLConnection getURLConnection(String requestUrl, int readTimeout) throws IOException {
         URL url = new URL(requestUrl);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setDoOutput(true);
-        conn.setReadTimeout(30000);
+        conn.setReadTimeout(readTimeout);
         conn.setConnectTimeout(15000);
         conn.setDoInput(true);
         conn.setUseCaches(false);

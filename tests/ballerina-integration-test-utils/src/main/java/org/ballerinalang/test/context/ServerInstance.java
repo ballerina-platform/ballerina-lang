@@ -30,6 +30,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
@@ -41,6 +42,7 @@ public class ServerInstance implements Server {
     private String serverHome;
     private String serverDistribution;
     private String[] args;
+    private Map<String, String> envProperties;
     private Process process;
     private ServerLogReader serverInfoLogReader;
     private ServerLogReader serverErrorLogReader;
@@ -101,6 +103,14 @@ public class ServerInstance implements Server {
         startServer();
     }
 
+    public void startBallerinaServer(String balFile, Map<String, String> envProperties) throws BallerinaTestException {
+        String[] args = {balFile};
+        setArguments(args);
+        setEnvProperties(envProperties);
+
+        startServer();
+    }
+
     public void startBallerinaServer(String balFile, String[] args) throws BallerinaTestException {
         String[] newArgs = {balFile};
         newArgs = ArrayUtils.addAll(args, newArgs);
@@ -142,7 +152,7 @@ public class ServerInstance implements Server {
 
         log.info("Starting server..");
 
-        startServer(args);
+        startServer(args, envProperties);
 
         serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
         tmpLeechers.forEach(leacher -> serverInfoLogReader.addLeecher(leacher));
@@ -295,6 +305,9 @@ public class ServerInstance implements Server {
         this.args = args;
     }
 
+    public void setEnvProperties(Map<String, String> envProperties) {
+        this.envProperties = envProperties;
+    }
     /**
      * to change the server configuration if required. This method can be overriding when initialising
      * the object of this class.
@@ -379,30 +392,44 @@ public class ServerInstance implements Server {
      * Executing the sh or bat file to start the server.
      *
      * @param args - command line arguments to pass when executing the sh or bat file
+     * @Param envProperties - environmental properties to be appended to the environment
+     *
      * @throws BallerinaTestException if starting services failed
      */
-    private void startServer(String[] args) throws BallerinaTestException {
+    private void startServer(String[] args, Map<String, String> envProperties) throws BallerinaTestException {
         String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
         String[] cmdArray;
         File commandDir = new File(serverHome);
-
         try {
             if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
                 commandDir = new File(serverHome + File.separator + "bin");
-                cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat", "run"};
-                String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
-                                         .toArray(String[]::new);
-                process = Runtime.getRuntime().exec(cmdArgs, null, commandDir);
+                cmdArray = new String[] { "cmd.exe", "/c", scriptName + ".bat", "run" };
 
             } else {
-                cmdArray = new String[]{"bash", "bin/" + scriptName, "run"};
-                String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
-                                         .toArray(String[]::new);
-                process = Runtime.getRuntime().exec(cmdArgs, null, commandDir);
+                cmdArray = new String[] { "bash", "bin/" + scriptName, "run" };
             }
+            String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
+            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(commandDir);
+            if (envProperties != null) {
+                Map<String, String> env = processBuilder.environment();
+                for (Map.Entry<String, String> entry: envProperties.entrySet()) {
+                    env.put(entry.getKey(), entry.getValue());
+                }
+            }
+            process = processBuilder.start();
         } catch (IOException e) {
             throw new BallerinaTestException("Error starting services", e);
         }
+    }
+
+    /**
+     * Executing the sh or bat file to start the server.
+     *
+     * @param args - command line arguments to pass when executing the sh or bat file
+     * @throws BallerinaTestException if starting services failed
+     */
+    private void startServer(String[] args) throws BallerinaTestException {
+        startServer(args, null);
     }
 
     /**

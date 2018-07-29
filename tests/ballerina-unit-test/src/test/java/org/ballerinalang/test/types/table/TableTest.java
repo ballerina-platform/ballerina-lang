@@ -32,10 +32,10 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.test.utils.SQLDBUtils;
-import org.ballerinalang.test.utils.SQLDBUtils.ContainerizedTestDatabase;
-import org.ballerinalang.test.utils.SQLDBUtils.FileBasedTestDatabase;
-import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
+import org.ballerinalang.test.database.utils.SQLDBUtils;
+import org.ballerinalang.test.database.utils.SQLDBUtils.ContainerizedTestDatabase;
+import org.ballerinalang.test.database.utils.SQLDBUtils.FileBasedTestDatabase;
+import org.ballerinalang.test.database.utils.SQLDBUtils.TestDatabase;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
@@ -52,10 +52,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import static org.ballerinalang.test.utils.SQLDBUtils.DBType.H2;
-import static org.ballerinalang.test.utils.SQLDBUtils.DBType.MYSQL;
-import static org.ballerinalang.test.utils.SQLDBUtils.DBType.POSTGRES;
-import static org.ballerinalang.test.utils.SQLDBUtils.DB_DIRECTORY;
+import static org.ballerinalang.test.database.utils.SQLDBUtils.DBType;
+import static org.ballerinalang.test.database.utils.SQLDBUtils.DBType.H2;
+import static org.ballerinalang.test.database.utils.SQLDBUtils.DBType.MYSQL;
+import static org.ballerinalang.test.database.utils.SQLDBUtils.DBType.POSTGRES;
+import static org.ballerinalang.test.database.utils.SQLDBUtils.DB_DIRECTORY;
 
 /**
  * Class to test functionality of tables.
@@ -68,7 +69,7 @@ public class TableTest {
     private static final String DB_NAME = "TEST_DATA_TABLE_DB";
     private static final String DB_NAME_H2 = "TEST_DATA_TABLE_H2";
     private static final String DB_DIRECTORY_H2 = "./target/H2Client/";
-    private SQLDBUtils.DBType dbType;
+    private DBType dbType;
     private TestDatabase testDatabase;
     private BValue[] connectionArgs = new BValue[3];
     private static final String TABLE_TEST = "TableTest";

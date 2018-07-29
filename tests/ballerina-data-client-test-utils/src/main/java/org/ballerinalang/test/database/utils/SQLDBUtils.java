@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test.utils;
+package org.ballerinalang.test.database.utils;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.slf4j.Logger;

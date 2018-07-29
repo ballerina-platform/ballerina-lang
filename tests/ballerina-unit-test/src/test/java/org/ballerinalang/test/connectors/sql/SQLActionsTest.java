@@ -28,11 +28,11 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.utils.SQLDBUtils;
-import org.ballerinalang.test.utils.SQLDBUtils.ContainerizedTestDatabase;
-import org.ballerinalang.test.utils.SQLDBUtils.DBType;
-import org.ballerinalang.test.utils.SQLDBUtils.FileBasedTestDatabase;
-import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
+import org.ballerinalang.test.database.utils.SQLDBUtils;
+import org.ballerinalang.test.database.utils.SQLDBUtils.ContainerizedTestDatabase;
+import org.ballerinalang.test.database.utils.SQLDBUtils.DBType;
+import org.ballerinalang.test.database.utils.SQLDBUtils.FileBasedTestDatabase;
+import org.ballerinalang.test.database.utils.SQLDBUtils.TestDatabase;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
@@ -42,10 +42,10 @@ import org.testng.annotations.Test;
 
 import java.util.Calendar;
 
-import static org.ballerinalang.test.utils.SQLDBUtils.DBType.H2;
-import static org.ballerinalang.test.utils.SQLDBUtils.DBType.HSQLDB;
-import static org.ballerinalang.test.utils.SQLDBUtils.DBType.MYSQL;
-import static org.ballerinalang.test.utils.SQLDBUtils.DBType.POSTGRES;
+import static org.ballerinalang.test.database.utils.SQLDBUtils.DBType.H2;
+import static org.ballerinalang.test.database.utils.SQLDBUtils.DBType.HSQLDB;
+import static org.ballerinalang.test.database.utils.SQLDBUtils.DBType.MYSQL;
+import static org.ballerinalang.test.database.utils.SQLDBUtils.DBType.POSTGRES;
 
 /**
  * Test class for SQL Connector actions test.
