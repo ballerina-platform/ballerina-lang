@@ -1,7 +1,3 @@
-/*
- * NOTE - Do not modify.
- */
-
 lexer grammar BallerinaLexer;
 
 @members {
@@ -159,6 +155,11 @@ RIGHT_PARENTHESIS   : ')' ;
 LEFT_BRACKET        : '[' ;
 RIGHT_BRACKET       : ']' ;
 QUESTION_MARK       : '?' ;
+
+// Documentation markdown
+
+fragment
+HASH                : '#' ;
 
 // Arithmetic operators
 
@@ -475,6 +476,18 @@ StringTemplateLiteralStart
     :   TYPE_STRING WS* BACKTICK   { inTemplate = true; } -> pushMode(STRING_TEMPLATE)
     ;
 
+DocumentationLineStart
+    :   HASH DocumentationSpace? -> pushMode(MARKDOWN_DOCUMENTATION)
+    ;
+
+ParameterDocumentationStart
+    :   HASH DocumentationSpace? ADD DocumentationSpace* -> pushMode(MARKDOWN_DOCUMENTATION_PARAM)
+    ;
+
+ReturnParameterDocumentationStart
+    :   HASH DocumentationSpace? ADD DocumentationSpace* RETURN DocumentationSpace* SUB DocumentationSpace* -> pushMode(MARKDOWN_DOCUMENTATION)
+    ;
+
 DocumentationTemplateStart
     :   DOCUMENTATION WS* LEFT_BRACE   { inDocTemplate = true; } -> pushMode(DOCUMENTATION_TEMPLATE)
     ;
@@ -517,6 +530,100 @@ IdentifierLiteralEscapeSequence
     : '\\' [|"\\/]
     | '\\\\' [btnfr]
     | UnicodeEscape
+    ;
+
+mode MARKDOWN_DOCUMENTATION;
+
+VARIABLE    : 'variable';
+MODULE      : 'module';
+
+ReferenceType
+    :   TYPE|ENDPOINT|SERVICE|VARIABLE|VAR|ANNOTATION|MODULE|FUNCTION|PARAMETER
+    ;
+
+DocumentationText
+    :   DocumentationTextCharacter+
+    ;
+
+SingleBacktickStart
+    :   BACKTICK -> pushMode(SINGLE_BACKTICKED_DOCUMENTATION)
+    ;
+
+DoubleBacktickStart
+    :   BACKTICK BACKTICK -> pushMode(DOUBLE_BACKTICKED_DOCUMENTATION)
+    ;
+
+TripleBacktickStart
+    :   BACKTICK BACKTICK BACKTICK -> pushMode(TRIPLE_BACKTICKED_DOCUMENTATION)
+    ;
+
+DefinitionReference
+    :   ReferenceType DocumentationSpace+
+    ;
+
+fragment
+DocumentationTextCharacter
+    :   ~[`\n+\- ]
+    |   '\\' BACKTICK
+    ;
+
+DocumentationEscapedCharacters
+    :   DocumentationSpace | [+-]
+    ;
+
+DocumentationSpace
+    :   [ ]
+    ;
+
+DocumentationEnd
+    :   [\n] -> channel(HIDDEN), popMode
+    ;
+
+mode MARKDOWN_DOCUMENTATION_PARAM;
+
+ParameterName
+    :   Identifier
+    ;
+
+DescriptionSeparator
+    :   DocumentationSpace* SUB DocumentationSpace* -> popMode, pushMode(MARKDOWN_DOCUMENTATION)
+    ;
+
+DocumentationParamEnd
+    :   [\n] -> channel(HIDDEN), popMode
+    ;
+
+mode SINGLE_BACKTICKED_DOCUMENTATION;
+
+SingleBacktickContent
+    :   ((~[`\n] | '\\' BACKTICK)* [\n])? (DocumentationLineStart (~[`\n] | '\\' BACKTICK)* [\n]?)+
+    |   (~[`\n] | '\\' BACKTICK)+
+    ;
+
+SingleBacktickEnd
+    :   BACKTICK -> popMode
+    ;
+
+mode DOUBLE_BACKTICKED_DOCUMENTATION;
+
+DoubleBacktickContent
+    :   ((~[`\n] | BACKTICK ~[`])* [\n])? (DocumentationLineStart (~[`\n] | BACKTICK ~[`])* [\n]?)+
+    |   (~[`\n] | BACKTICK ~[`])+
+    ;
+
+DoubleBacktickEnd
+    :   BACKTICK BACKTICK -> popMode
+    ;
+
+mode TRIPLE_BACKTICKED_DOCUMENTATION;
+
+TripleBacktickContent
+    :   ((~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])* [\n])? (DocumentationLineStart (~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])* [\n]?)+
+    |   (~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])+
+    ;
+
+TripleBacktickEnd
+    :   BACKTICK BACKTICK BACKTICK -> popMode
     ;
 
 
