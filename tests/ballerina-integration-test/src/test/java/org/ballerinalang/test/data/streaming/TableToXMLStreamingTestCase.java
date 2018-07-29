@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.test.data.streaming;
 
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.database.utils.SQLDBUtils;
 import org.ballerinalang.test.util.HttpClientRequest;
@@ -28,6 +26,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.BufferedReader;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -45,7 +44,6 @@ import static org.ballerinalang.test.database.utils.SQLDBUtils.TestDatabase;
 public class TableToXMLStreamingTestCase {
     private ServerInstance ballerinaServer;
     private TestDatabase testDatabase;
-    private BValue[] connectionArgs = new BValue[3];
 
     @BeforeClass
     private void setup() throws Exception {
@@ -62,24 +60,21 @@ public class TableToXMLStreamingTestCase {
         testDatabase = new SQLDBUtils.FileBasedTestDatabase(SQLDBUtils.DBType.H2,
                 "data/streaming/datafiles/streaming_test_data.sql",
                 DB_DIRECTORY, "STREAMING_XML_TEST_DB");
-        connectionArgs[0] = new BString(testDatabase.getJDBCUrl());
-        connectionArgs[1] = new BString(testDatabase.getUsername());
-        connectionArgs[2] = new BString(testDatabase.getPassword());
         insertDummyData(testDatabase.getJDBCUrl(), testDatabase.getUsername(), testDatabase.getPassword());
     }
 
-    @Test(description = "Tests streaming a large amount of data from a table, converted to XML. With this test we can"
-            + " only verify that the full payload is not built at server side before it is sent to the client.")
+    @Test(description = "Tests streaming a large amount of data from a table, converted to XML")
     public void testStreamingLargeXML() throws Exception {
         HttpResponse response = HttpClientRequest
-                .doGet(ballerinaServer.getServiceURLHttp("dataService/getData"), 60000);
+                .doGet(ballerinaServer.getServiceURLHttp("dataService/getData"), 60000, responseBuilder);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200);
+        Assert.assertEquals(Integer.parseInt(response.getData()), 211288909);
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     private void cleanup() throws Exception {
-         ballerinaServer.stopServer();
+        ballerinaServer.stopServer();
         if (testDatabase != null) {
             testDatabase.stop();
         }
@@ -105,4 +100,15 @@ public class TableToXMLStreamingTestCase {
             ps.executeBatch();
         }
     }
+
+    /**
+     * This reads a buffered stream and returns the number of characters.
+     */
+    private static HttpClientRequest.CheckedFunction<BufferedReader, String> responseBuilder = ((bufferedReader) -> {
+        int count = 0;
+        while (bufferedReader.read() != -1) {
+            count++;
+        }
+        return String.valueOf(count);
+    });
 }

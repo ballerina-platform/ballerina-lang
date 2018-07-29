@@ -104,7 +104,7 @@ public class ServerInstance implements Server {
     }
 
     public void startBallerinaServer(String balFile, Map<String, String> envProperties) throws BallerinaTestException {
-        String[] args = {balFile};
+        String[] args = { balFile };
         setArguments(args);
         setEnvProperties(envProperties);
 

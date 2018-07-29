@@ -1494,7 +1494,6 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-data-client-test-utils</artifactId>
                 <version>${ballerina.version}</version>
-                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -1804,6 +1803,7 @@
                 <module>distribution/zip/ballerina-tools</module>
 
                 <module>tests/observability-test-utils</module>
+                <module>tests/ballerina-data-client-test-utils</module>
                 <module>tests/ballerina-integration-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
                 <module>tests/ballerina-tools-integration-test</module>
