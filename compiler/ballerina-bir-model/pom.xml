@@ -22,15 +22,15 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.976.1-SNAPSHOT</version>
+        <version>0.980.2-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>ballerina-ir-model</artifactId>
+    <artifactId>ballerina-bir-model</artifactId>
     <packaging>jar</packaging>
 
-    <name>Ballerina - IR Model</name>
+    <name>Ballerina - BIR Model</name>
     <url>http://ballerinalang.org</url>
 
     <dependencies>
