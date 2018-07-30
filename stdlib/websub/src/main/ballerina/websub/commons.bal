@@ -643,15 +643,13 @@ documentation {
     P{{response}} The response being sent
     P{{hubs}} The hubs the publisher advertises as the hubs that it publishes updates to
     P{{topic}} The topic to which subscribers need to subscribe to, to receive updates for the resource
-    R{{}} `http:Response` Response with the link header added
 }
-public function addWebSubLinkHeader(http:Response response, string[] hubs, string topic) returns http:Response {
+public function addWebSubLinkHeader(http:Response response, string[] hubs, string topic) {
     string hubLinkHeader = "";
     foreach hub in hubs {
         hubLinkHeader = hubLinkHeader + "<" + hub + ">; rel=\"hub\", ";
     }
     response.setHeader("Link", hubLinkHeader + "<" + topic + ">; rel=\"self\"");
-    return response;
 }
 
 documentation {
