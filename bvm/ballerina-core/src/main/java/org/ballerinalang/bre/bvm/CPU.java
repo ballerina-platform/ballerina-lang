@@ -515,7 +515,6 @@ public class CPU {
                     case InstructionCodes.ANY2C:
                     case InstructionCodes.ANY2DT:
                     case InstructionCodes.CHECKCAST:
-                    case InstructionCodes.B2JSON:
                     case InstructionCodes.JSON2I:
                     case InstructionCodes.JSON2F:
                     case InstructionCodes.JSON2S:
@@ -2049,11 +2048,6 @@ public class CPU {
                     sf.intRegs[j] = 0;
                 }
                 break;
-            case InstructionCodes.B2JSON:
-                i = operands[0];
-                j = operands[1];
-                sf.refRegs[j] = new BBoolean(sf.intRegs[i] == 1);
-                break;
             case InstructionCodes.JSON2I:
                 castJSONToInt(ctx, operands, sf);
                 break;
@@ -2317,7 +2311,18 @@ public class CPU {
                     handleNullRefError(ctx);
                     return;
                 } else if (!(collection instanceof BCollection)) {
-                    sf.refRegs[j] = null;
+                    // Value is a value-type JSON.
+                    sf.refRegs[j] = new BIterator() {
+                        @Override
+                        public boolean hasNext() {
+                            return false;
+                        }
+
+                        @Override
+                        public BValue[] getNext(int arity) {
+                            return null;
+                        }
+                    };
                     break;
                 }
 
