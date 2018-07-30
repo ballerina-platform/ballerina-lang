@@ -127,7 +127,7 @@ public class JsonSerializer implements StateSerializer {
     private JsonNode convertToJson(List list) {
         JsonNode jsonArray = new JsonNode(JsonNode.Type.ARRAY);
         for (Object item : list) {
-            jsonArray.add(convertToJson(item));
+            jsonArray.add(convertToJson((Object) item));
         }
         return wrapObject("list", jsonArray);
     }
@@ -170,7 +170,19 @@ public class JsonSerializer implements StateSerializer {
         if (obj instanceof Boolean) {
             return new JsonNode((Boolean) obj);
         }
+        if (obj instanceof String) {
+            return new JsonNode((String) obj);
+        }
+        if (obj instanceof Enum) {
+            return convertToJson((Enum) obj);
+        }
         return convertObjToJson(obj);
+    }
+
+    private JsonNode convertToJson(Enum obj) {
+        String fullEnumName = obj.getClass().getSimpleName() + "." + obj.toString();
+        JsonNode jsonNode = new JsonNode(fullEnumName);
+        return wrapObject("enum", jsonNode);
     }
 
     private JsonNode convertObjToJson(Object obj) {
