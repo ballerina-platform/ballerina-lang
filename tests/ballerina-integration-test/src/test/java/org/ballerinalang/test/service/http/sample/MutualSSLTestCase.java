@@ -31,7 +31,6 @@ import java.io.File;
  */
 public class MutualSSLTestCase extends IntegrationTestCase {
 
-    private ServerInstance ballerinaServer;
     private ServerInstance ballerinaClient;
 
     @Test
@@ -39,8 +38,7 @@ public class MutualSSLTestCase extends IntegrationTestCase {
         String serverBal = new File(
                 "src" + File.separator + "test" + File.separator + "resources" + File.separator + "mutualSSL"
                         + File.separator + "mutualSSLServer.bal").getAbsolutePath();
-        ballerinaServer = ServerInstance.initBallerinaServer();
-        ballerinaServer.startBallerinaServer(serverBal);
+        serverInstance.startBallerinaServer(serverBal);
     }
 
     @Test (description = "Test mutual ssl")
@@ -50,7 +48,7 @@ public class MutualSSLTestCase extends IntegrationTestCase {
         String serverResponse = "hello world";
 
         LogLeecher serverLeecher = new LogLeecher(serverMessage);
-        ballerinaServer.addLogLeecher(serverLeecher);
+        serverInstance.addLogLeecher(serverLeecher);
 
         String[] clientArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "mutualSSL" + File.separator + "mutualSSLClient.bal").getAbsolutePath()};
@@ -65,7 +63,7 @@ public class MutualSSLTestCase extends IntegrationTestCase {
 
     @AfterClass
     private void cleanup() throws Exception {
-        ballerinaServer.stopServer();
+        serverInstance.stopServer();
         ballerinaClient.stopServer();
     }
 }

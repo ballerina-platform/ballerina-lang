@@ -42,23 +42,19 @@ public class ServiceChainingSampleTestCase extends IntegrationTestCase {
     private static final String responseMessage = "{\"ABC Bank\":{\"Address\":\"111 River Oaks Pkwy" +
                                                   ", San Jose, CA 95999\"}}";
 
-    private ServerInstance ballerinaServer;
-
     @BeforeClass
     private void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer();
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "httpService" + File.separator + "ATMLocatorService.bal").getAbsolutePath();
-        ballerinaServer.startBallerinaServer(balFile);
+        serverInstance.startBallerinaServer(balFile);
     }
 
     @Test(description = "Test service chaining sample")
     public void testEchoServiceByBasePath() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(ballerinaServer
-                        .getServiceURLHttp("ABCBank/locator"), requestMessage
-                , headers);
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp("ABCBank/locator"),
+                requestMessage, headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
@@ -67,6 +63,6 @@ public class ServiceChainingSampleTestCase extends IntegrationTestCase {
 
     @AfterClass
     private void cleanup() throws Exception {
-        ballerinaServer.stopServer();
+        serverInstance.stopServer();
     }
 }

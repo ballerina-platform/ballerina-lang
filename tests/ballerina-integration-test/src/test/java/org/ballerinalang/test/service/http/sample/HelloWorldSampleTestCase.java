@@ -36,19 +36,17 @@ import java.io.IOException;
  * ballerina_home/samples/helloWorldService/helloWorldService.bal.
  */
 public class HelloWorldSampleTestCase extends IntegrationTestCase {
-    private ServerInstance ballerinaServer;
 
     @BeforeClass
     private void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer();
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "httpService" + File.separator + "helloWorldService.bal").getAbsolutePath();
-        ballerinaServer.startBallerinaServer(balFile);
+        serverInstance.startBallerinaServer(balFile);
     }
 
     @Test(description = "Test hello world sample test case invoking base path")
     public void testHelloWorldServiceByBasePath() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("hello"));
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp("hello"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
@@ -57,6 +55,6 @@ public class HelloWorldSampleTestCase extends IntegrationTestCase {
 
     @AfterClass
     private void cleanup() throws Exception {
-        ballerinaServer.stopServer();
+        serverInstance.stopServer();
     }
 }

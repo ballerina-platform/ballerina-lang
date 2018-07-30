@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.service.http.sample;
 
+import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
@@ -37,7 +38,7 @@ import java.nio.channels.SocketChannel;
  *
  * @since 0.975.1
  */
-public class IdleTimeoutResponseTestCase {
+public class IdleTimeoutResponseTestCase extends IntegrationTestCase {
 
     /**
      * A larger client payload to be sent in chunks.
@@ -117,16 +118,14 @@ public class IdleTimeoutResponseTestCase {
             + "</soapenv:Envelope>\r\n"
             + "0\r\n"
             + "\r\n";
-    private ServerInstance ballerinaServer;
     private static final int BUFFER_SIZE = 1024;
 
     @BeforeClass(description = "Sets up the ballerina server with the file")
     private void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer();
         String balFile = new File(
                 "src" + File.separator + "test" + File.separator + "resources" + File.separator + "httpService" +
                         File.separator + "idle_timeout.bal").getAbsolutePath();
-        ballerinaServer.startBallerinaServer(balFile);
+        serverInstance.startBallerinaServer(balFile);
     }
 
     @Test(description = "Tests if 408 response is returned when the request times out. In this case a delay is " +
@@ -236,13 +235,13 @@ public class IdleTimeoutResponseTestCase {
     @Test(description = "Tests if 500 response is returned when the server times out. In this case a sleep is " +
             "introduced in the server.")
     public void test500Response() throws Exception {
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("idle/timeout500"));
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp("idle/timeout500"));
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
     }
 
     @AfterClass
     private void cleanup() throws Exception {
-        ballerinaServer.stopServer();
+        serverInstance.stopServer();
     }
 }

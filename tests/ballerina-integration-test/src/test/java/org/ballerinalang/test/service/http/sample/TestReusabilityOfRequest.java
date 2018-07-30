@@ -19,6 +19,7 @@
 package org.ballerinalang.test.service.http.sample;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
@@ -38,22 +39,19 @@ import java.util.Map;
  *
  * @since 0.970.0
  */
-public class TestReusabilityOfRequest {
-
-    private ServerInstance ballerinaServer;
+public class TestReusabilityOfRequest extends IntegrationTestCase {
 
     @BeforeClass
     private void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer();
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "httpService" + File.separator + "test-reusability-of-request.bal")
                 .getAbsolutePath();
-        ballerinaServer.startBallerinaServer(balFile);
+        serverInstance.startBallerinaServer(balFile);
     }
 
     @Test
     public void reuseRequestWithoutEntity() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer
+        HttpResponse response = HttpClientRequest.doGet(serverInstance
                 .getServiceURLHttp("reuseObj/request_without_entity"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -64,7 +62,7 @@ public class TestReusabilityOfRequest {
 
     @Test
     public void reuseRequestWithEmptyEntity() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer
+        HttpResponse response = HttpClientRequest.doGet(serverInstance
                 .getServiceURLHttp("reuseObj/request_with_empty_entity"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -75,7 +73,7 @@ public class TestReusabilityOfRequest {
 
     @Test
     public void twoRequestsSameEntity() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer
+        HttpResponse response = HttpClientRequest.doGet(serverInstance
                 .getServiceURLHttp("reuseObj/two_request_same_entity"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -86,7 +84,7 @@ public class TestReusabilityOfRequest {
 
     @Test
     public void sameRequestWithADatasource() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer
+        HttpResponse response = HttpClientRequest.doGet(serverInstance
                 .getServiceURLHttp("reuseObj/request_with_datasource"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -99,7 +97,7 @@ public class TestReusabilityOfRequest {
     public void sameRequestWithByteChannel() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), "text/plain");
-        HttpResponse response = HttpClientRequest.doPost(ballerinaServer
+        HttpResponse response = HttpClientRequest.doPost(serverInstance
                 .getServiceURLHttp("reuseObj/request_with_bytechannel"), "Hello from POST!", headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -110,6 +108,6 @@ public class TestReusabilityOfRequest {
 
     @AfterClass
     private void cleanup() throws Exception {
-        ballerinaServer.stopServer();
+        serverInstance.stopServer();
     }
 }

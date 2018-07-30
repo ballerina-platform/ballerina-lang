@@ -27,6 +27,7 @@ import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.TestUtils;
 import org.ballerinalang.test.util.client.HttpClient;
@@ -42,17 +43,14 @@ import java.util.List;
 /**
  * Test case for verifying the server-side 100-continue behaviour.
  */
-public class ExpectContinueTestCase {
-
-    private ServerInstance ballerinaServer;
+public class ExpectContinueTestCase extends IntegrationTestCase {
 
     @BeforeClass
     public void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer();
         String resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath())
                 .getAbsolutePath();
         String balFile = Paths.get(resourceRoot, "httpService", "100_continue.bal").toAbsolutePath().toString();
-        ballerinaServer.startBallerinaServer(balFile);
+        serverInstance.startBallerinaServer(balFile);
     }
 
     @Test
@@ -84,7 +82,7 @@ public class ExpectContinueTestCase {
     }
 
     @AfterClass
-    public void cleanup() throws Exception {
-        ballerinaServer.stopServer();
+    private void cleanup() throws Exception {
+        serverInstance.stopServer();
     }
 }

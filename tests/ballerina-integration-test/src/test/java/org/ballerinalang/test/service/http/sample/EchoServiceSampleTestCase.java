@@ -25,6 +25,7 @@ import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -37,7 +38,6 @@ import java.util.Map;
  * Request message should be returned as response message
  */
 public class EchoServiceSampleTestCase extends IntegrationTestCase {
-    private ServerInstance ballerinaServer;
     private final String requestMessage = "{\"exchange\":\"nyse\",\"name\":\"WSO2\",\"value\":\"127.50\"}";
 
     @Test(description = "Test echo service sample test case invoking base path")
@@ -48,8 +48,8 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
             startServer(relativePath);
             Map<String, String> headers = new HashMap<>();
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
-            HttpResponse response = HttpClientRequest.doPost(ballerinaServer
-                    .getServiceURLHttp("echo"), requestMessage, headers);
+            HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp("echo"), requestMessage,
+                    headers);
             Assert.assertNotNull(response);
             Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
             Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -57,7 +57,7 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
             //request should be returned as response
             Assert.assertEquals(response.getData(), requestMessage, "Message content mismatched");
         } finally {
-            ballerinaServer.stopServer();
+            serverInstance.stopServer();
         }
     }
 
@@ -83,7 +83,7 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
             String respMsg = "hello world";
             Assert.assertEquals(response.getData(), respMsg, "Message content mismatched");
         } finally {
-            ballerinaServer.stopServer();
+            serverInstance.stopServer();
         }
 
     }
@@ -110,7 +110,7 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
             String respMsg = "hello world";
             Assert.assertEquals(response.getData(), respMsg, "Message content mismatched");
         } finally {
-            ballerinaServer.stopServer();
+            serverInstance.stopServer();
         }
 
     }
@@ -124,7 +124,7 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
             Map<String, String> headers = new HashMap<>();
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
             String serviceUrl = "https://localhost:9095/echo";
-            String serverHome = getServerInstance().getServerHome();
+            String serverHome = serverInstance.getServerHome();
             String requestMsg = "{\"key\":\"value\"}";
             HttpResponse response = HttpsClientRequest.doPost(serviceUrl, requestMsg, headers, serverHome);
             if (response == null) {
@@ -138,7 +138,7 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
             String respMsg = "hello world";
             Assert.assertEquals(response.getData(), respMsg, "Message content mismatched");
         } finally {
-            ballerinaServer.stopServer();
+            serverInstance.stopServer();
         }
 
     }
@@ -152,7 +152,7 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
             Map<String, String> headers = new HashMap<>();
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
             String serviceUrl = "https://localhost:9095/echoOne/abc";
-            String serverHome = getServerInstance().getServerHome();
+            String serverHome = serverInstance.getServerHome();
             String requestMsg = "{\"key\":\"value\"}";
             HttpResponse response = HttpsClientRequest.doPost(serviceUrl, requestMsg, headers, serverHome);
             if (response == null) {
@@ -166,7 +166,7 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
             String respMsg = "hello world";
             Assert.assertEquals(response.getData(), respMsg, "Message content mismatched");
         } finally {
-            ballerinaServer.stopServer();
+            serverInstance.stopServer();
         }
 
     }
@@ -179,8 +179,8 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
             startServer(relativePath);
             Map<String, String> headers = new HashMap<>();
             headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
-            HttpResponse response = HttpClientRequest.doPost(ballerinaServer
-                    .getServiceURLHttp("echo"), requestMessage, headers);
+            HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp("echo"), requestMessage,
+                    headers);
             Assert.assertNotNull(response);
             Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
             Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString()),
@@ -188,14 +188,11 @@ public class EchoServiceSampleTestCase extends IntegrationTestCase {
             //request should be returned as response
             Assert.assertEquals(response.getData(), requestMessage, "Message content mismatched");
         } finally {
-            ballerinaServer.stopServer();
+            serverInstance.stopServer();
         }
     }
 
     private void startServer(String balFile) throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer();
-        ballerinaServer.startBallerinaServer(balFile);
+        serverInstance.startBallerinaServer(balFile);
     }
-
-
 }

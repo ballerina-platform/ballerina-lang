@@ -33,19 +33,17 @@ import java.io.IOException;
  * Testing the Http headers availability in pass-through scenarios.
  */
 public class HttpHeaderTestCases extends IntegrationTestCase {
-    private ServerInstance ballerinaServer;
 
     @BeforeClass
     private void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer();
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "httpService" + File.separator + "httpHeaderTest.bal").getAbsolutePath();
-        ballerinaServer.startBallerinaServer(balFile);
+        serverInstance.startBallerinaServer(balFile);
     }
 
     @Test(description = "Test outbound request headers availability at backend with URL. /product/value")
     public void testOutboundRequestHeaders() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("product/value"));
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp("product/value"));
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "{\"header1\":\"aaa\",\"header2\":\"bbb\"}");
@@ -53,13 +51,13 @@ public class HttpHeaderTestCases extends IntegrationTestCase {
 
     @Test(description = "Test inbound response headers availability with URL. /product/id")
     public void testInboundResponseHeaders() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("product/id"));
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp("product/id"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "{\"header1\":\"kkk\",\"header2\":\"jjj\"}");
     }
 
     @AfterClass
     private void cleanup() throws Exception {
-        ballerinaServer.stopServer();
+        serverInstance.stopServer();
     }
 }

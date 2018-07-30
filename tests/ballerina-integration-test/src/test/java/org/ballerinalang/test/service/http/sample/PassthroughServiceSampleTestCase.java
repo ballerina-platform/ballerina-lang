@@ -36,30 +36,26 @@ import java.io.IOException;
  * ballerina_home/samples/passthroughService/passthroughService.bal.
  */
 public class PassthroughServiceSampleTestCase extends IntegrationTestCase {
-    private final String responseMessage = "{\"exchange\":\"nyse\",\"name\":\"IBM\",\"value\":\"127.50\"}";
-
-    private ServerInstance ballerinaServer;
 
     @BeforeClass
     private void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer();
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "httpService" + File.separator + "passthrough_service.bal").getAbsolutePath();
-        ballerinaServer.startBallerinaServer(balFile);
+        serverInstance.startBallerinaServer(balFile);
     }
 
     @Test(description = "Test Passthrough sample test case invoking base path")
     public void testPassthroughServiceByBasePath() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer
-                .getServiceURLHttp("passthrough"));
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp("passthrough"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
+        String responseMessage = "{\"exchange\":\"nyse\",\"name\":\"IBM\",\"value\":\"127.50\"}";
         Assert.assertEquals(response.getData(), responseMessage, "Message content mismatched");
     }
 
     @AfterClass
     private void cleanup() throws Exception {
-        ballerinaServer.stopServer();
+        serverInstance.stopServer();
     }
 }

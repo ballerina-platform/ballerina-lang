@@ -19,6 +19,7 @@
 package org.ballerinalang.test.service.http.sample;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
@@ -41,21 +42,19 @@ import static org.ballerinalang.test.util.TestConstant.ENCODING_GZIP;
  *
  * @since 0.966.0
  */
-public class CompressionTestCase {
-    private ServerInstance ballerinaServer;
+public class CompressionTestCase extends IntegrationTestCase {
 
     @BeforeClass
     private void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer();
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "httpService" + File.separator + "compression-annotation-test.bal")
                 .getAbsolutePath();
-        ballerinaServer.startBallerinaServer(balFile);
+        serverInstance.startBallerinaServer(balFile);
     }
 
     @Test(description = "Test Compression.AUTO, with no Accept-Encoding header.")
     public void testAutoCompress() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(
                 "autoCompress"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -68,7 +67,7 @@ public class CompressionTestCase {
     public void testAutoCompressWithAcceptEncoding() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.ACCEPT_ENCODING.toString(), ENCODING_GZIP);
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(
                 "autoCompress"), headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -81,7 +80,7 @@ public class CompressionTestCase {
     public void testAcceptEncodingWithQValueZero() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.ACCEPT_ENCODING.toString(), "gzip;q=0");
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(
                 "autoCompress"), headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -92,7 +91,7 @@ public class CompressionTestCase {
 
     @Test(description = "Test Compression.ALWAYS, with no Accept-Encoding header.")
     public void testAlwaysCompress() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(
                 "alwaysCompress"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -105,7 +104,7 @@ public class CompressionTestCase {
     public void testAlwaysCompressWithAcceptEncoding() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.ACCEPT_ENCODING.toString(), "deflate;q=1.0, gzip;q=0.8");
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(
                 "alwaysCompress"), headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -116,7 +115,7 @@ public class CompressionTestCase {
 
     @Test(description = "Test Compression.NEVER, with no Accept-Encoding header.")
     public void testNeverCompress() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(
                 "neverCompress"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -129,7 +128,7 @@ public class CompressionTestCase {
     public void testNeverCompressWithAcceptEncoding() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.ACCEPT_ENCODING.toString(), "deflate;q=1.0, gzip;q=0.8");
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(
                 "neverCompress"), headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -142,7 +141,7 @@ public class CompressionTestCase {
     public void testNeverCompressWithUserOverridenValue() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.ACCEPT_ENCODING.toString(), "deflate;q=1.0, gzip;q=0.8");
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(
                 "userOverridenValue"), headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -153,6 +152,6 @@ public class CompressionTestCase {
 
     @AfterClass
     private void cleanup() throws Exception {
-        ballerinaServer.stopServer();
+        serverInstance.stopServer();
     }
 }

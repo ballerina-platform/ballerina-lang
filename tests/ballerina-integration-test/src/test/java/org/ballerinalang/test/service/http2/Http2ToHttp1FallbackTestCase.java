@@ -18,6 +18,7 @@
 package org.ballerinalang.test.service.http2;
 
 import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
@@ -34,27 +35,24 @@ import java.io.IOException;
  */
 public class Http2ToHttp1FallbackTestCase extends IntegrationTestCase {
 
-    private ServerInstance ballerinaServer;
-
     @BeforeClass
     private void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer();
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "http2" + File.separator + "http_2.0_to_http_1.0_fallback_test.bal")
                 .getAbsolutePath();
-        ballerinaServer.startBallerinaServer(balFile);
+        serverInstance.startBallerinaServer(balFile);
     }
 
     @Test(description = "Test HTTP/2.0 to HTTP/1.1 server fallback scenario")
     public void testFallback() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("hello"));
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp("hello"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         String responseData = response.getData();
         Assert.assertTrue(responseData.contains("1.1"), responseData);
     }
 
     @AfterClass
-    private void cleanup() throws Exception {
-        ballerinaServer.stopServer();
+    private void cleanup() throws BallerinaTestException {
+        serverInstance.stopServer();
     }
 }

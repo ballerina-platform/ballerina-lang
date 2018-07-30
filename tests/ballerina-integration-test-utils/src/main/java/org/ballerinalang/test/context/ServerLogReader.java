@@ -81,6 +81,10 @@ public class ServerLogReader implements Runnable {
         leechers.add(leecher);
     }
 
+    public void removeAllLeechers() {
+        leechers.forEach(e -> leechers.remove(e));
+    }
+
     /**
      * Feed the current log line to all the leechers to validate.
      *

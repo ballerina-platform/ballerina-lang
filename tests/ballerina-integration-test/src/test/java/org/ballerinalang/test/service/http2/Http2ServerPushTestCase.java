@@ -18,6 +18,7 @@
 package org.ballerinalang.test.service.http2;
 
 import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
@@ -33,26 +34,24 @@ import java.io.IOException;
  * Test case for HTTP/2.0 server push scenario.
  */
 public class Http2ServerPushTestCase extends IntegrationTestCase {
-    private ServerInstance ballerinaServer;
 
     @BeforeClass
     private void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer();
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "http2" + File.separator + "http-2.0-server-push-test.bal").getAbsolutePath();
-        ballerinaServer.startBallerinaServer(balFile);
+        serverInstance.startBallerinaServer(balFile);
     }
 
     @Test(description = "Test HTTP/2.0 Server Push scenario")
     public void testPushPromise() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("frontend"));
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp("frontend"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         String responseData = response.getData();
         Assert.assertTrue(responseData.contains("successful"), responseData);
     }
 
     @AfterClass
-    private void cleanup() throws Exception {
-        ballerinaServer.stopServer();
+    private void cleanup() throws BallerinaTestException {
+        serverInstance.stopServer();
     }
 }

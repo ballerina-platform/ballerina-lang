@@ -28,21 +28,21 @@ public interface Server {
      *
      * @throws BallerinaTestException if services start fails
      */
-    public void startServer() throws BallerinaTestException;
+    void startServer() throws BallerinaTestException;
 
     /**
      * Stops the server started by startServer method.
      *
      * @throws BallerinaTestException if service stop fails
      */
-    public void stopServer() throws BallerinaTestException;
+    void stopServer() throws BallerinaTestException;
 
     /**
      * Stop the server and start it again.
      *
      * @throws BallerinaTestException if restart fails
      */
-    public void restartServer() throws BallerinaTestException;
+    void restartServer() throws BallerinaTestException;
 
     /**
      * Executes main function of ballerina files.
@@ -52,12 +52,12 @@ public interface Server {
      * @param command Command to be executed
      * @throws BallerinaTestException if any exception is thrown when running the main function
      */
-    public void runMain(String[] args, String[] envVariables, String command) throws BallerinaTestException;
+    void runMain(String[] args, String[] envVariables, String command) throws BallerinaTestException;
 
     /**
      * Checks if the server is already running.
      *
      * @return True if the server is running
      */
-    public boolean isRunning();
+    boolean isRunning();
 }

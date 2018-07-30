@@ -38,19 +38,17 @@ import java.util.Map;
  * ballerina_home/samples/restfulService/ecommerceService.bal.
  */
 public class EcommerceSampleTestCase extends IntegrationTestCase {
-    private ServerInstance ballerinaServer;
 
     @BeforeClass
     private void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer();
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "httpService" + File.separator + "ecommerceService.bal").getAbsolutePath();
-        ballerinaServer.startBallerinaServer(balFile);
+        serverInstance.startBallerinaServer(balFile);
     }
 
     @Test(description = "Test resource GET products in E-Commerce sample", groups = {"broken"})
     public void testGetProducts() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer
+        HttpResponse response = HttpClientRequest.doGet(serverInstance
                 .getServiceURLHttp("ecommerceservice/products/123001"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString()),
@@ -62,7 +60,7 @@ public class EcommerceSampleTestCase extends IntegrationTestCase {
 
     @Test(description = "Test resource GET orders in E-Commerce sample")
     public void testGetOrders() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer
+        HttpResponse response = HttpClientRequest.doGet(serverInstance
                 .getServiceURLHttp("ecommerceservice/orders"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -74,7 +72,7 @@ public class EcommerceSampleTestCase extends IntegrationTestCase {
 
     @Test(description = "Test resource GET customers in E-Commerce sample")
     public void testGetCustomers() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer
+        HttpResponse response = HttpClientRequest.doGet(serverInstance
                 .getServiceURLHttp("ecommerceservice/customers"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -88,7 +86,7 @@ public class EcommerceSampleTestCase extends IntegrationTestCase {
     public void testPostOrder() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(ballerinaServer
+        HttpResponse response = HttpClientRequest.doPost(serverInstance
                         .getServiceURLHttp("ecommerceservice/orders")
                 , "{\"Order\":{\"ID\":\"111222\",\"Name\":\"XYZ123\"}}", headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
@@ -102,7 +100,7 @@ public class EcommerceSampleTestCase extends IntegrationTestCase {
     public void testPostProduct() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(ballerinaServer
+        HttpResponse response = HttpClientRequest.doPost(serverInstance
                         .getServiceURLHttp("ecommerceservice/products")
                 , "{\"Product\":{\"ID\":\"123345\",\"Name\":\"PQR\"}}", headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
@@ -116,7 +114,7 @@ public class EcommerceSampleTestCase extends IntegrationTestCase {
     public void testPostCustomers() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(ballerinaServer
+        HttpResponse response = HttpClientRequest.doPost(serverInstance
                         .getServiceURLHttp("ecommerceservice/customers")
                 , "{\"Customer\":{\"ID\":\"97453\",\"Name\":\"ABC XYZ\"}}", headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
@@ -128,6 +126,6 @@ public class EcommerceSampleTestCase extends IntegrationTestCase {
 
     @AfterClass
     private void cleanup() throws Exception {
-        ballerinaServer.stopServer();
+        serverInstance.stopServer();
     }
 }

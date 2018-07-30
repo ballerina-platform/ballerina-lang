@@ -18,6 +18,7 @@
 package org.ballerinalang.test.service.http.sample;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
@@ -34,15 +35,13 @@ import java.util.Map;
 /**
  * Test class for HTTP options request's content length and payload handling behavior.
  */
-public class HttpOptionsTestCase {
-    private ServerInstance ballerinaServer;
+public class HttpOptionsTestCase extends IntegrationTestCase {
 
     @BeforeClass
     private void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer();
         String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "httpService" + File.separator + "http_echo_service.bal").getAbsolutePath();
-        ballerinaServer.startBallerinaServer(relativePath);
+        serverInstance.startBallerinaServer(relativePath);
     }
 
     @Test(description = "Test OPTIONS content length header sample test case")
@@ -77,6 +76,6 @@ public class HttpOptionsTestCase {
 
     @AfterClass
     private void cleanup() throws Exception {
-        ballerinaServer.stopServer();
+        serverInstance.stopServer();
     }
 }

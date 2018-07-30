@@ -18,30 +18,33 @@
 package org.ballerinalang.test;
 
 
+import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.listener.TestExecutionListener;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeSuite;
 
 /**
  * Parent test class of all integration test and this will provide basic functionality for integration test.
  */
 public abstract class IntegrationTestCase {
-    private ServerInstance serverInstance;
+    protected static ServerInstance serverInstance;
+
+    @BeforeSuite
+    public void setupServer() throws BallerinaTestException {
+        // assigning the running server instance started by TestExecutionListener
+        serverInstance = ServerInstance.initBallerinaServer();
+    }
 
     @BeforeClass(alwaysRun = true)
     public void init() {
-        // assigning the running server instance started by TestExecutionListener
-        serverInstance = (ServerInstance) TestExecutionListener.getServerInstance();
+
     }
 
     @AfterClass(alwaysRun = true)
     public void destroy() {
-        serverInstance = null;
-    }
 
-    public ServerInstance getServerInstance() {
-        return serverInstance;
     }
 
     public String getServiceURLHttp(String servicePath) {

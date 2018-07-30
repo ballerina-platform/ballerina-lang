@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.service.http.configuration;
 
+import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
@@ -33,21 +34,17 @@ import java.util.Map;
 /**
  * Testing accept-encoding header.
  */
-public class AcceptEncodingHeaderTestCase {
+public class AcceptEncodingHeaderTestCase extends IntegrationTestCase{
 
-    private static final String ACCEPT_ENCODING = "accept-encoding";
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String ACCEPT_VALUE = "AcceptValue";
-    private ServerInstance ballerinaServer;
-    Map<String, String> headers = new HashMap<>();
+    private Map<String, String> headers = new HashMap<>();
 
     @BeforeClass
     public void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer();
-        String balFile = new File(
-                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "httpService"
-                        + File.separator + "accept-encoding-test.bal").getAbsolutePath();
-        ballerinaServer.startBallerinaServer(balFile);
+        String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
+                "httpService" + File.separator + "accept-encoding-test.bal").getAbsolutePath();
+        serverInstance.startBallerinaServer(balFile);
     }
 
     @Test(description = "Tests the behaviour when Accept Encoding option is enable.")
@@ -57,10 +54,10 @@ public class AcceptEncodingHeaderTestCase {
         headers.put(ACCEPT_VALUE, "enable");
         headers.put(CONTENT_TYPE, "text/plain");
         HttpResponse response = HttpClientRequest
-                .doPost(ballerinaServer.getServiceURLHttp("passthrough"), message, headers);
+                .doPost(serverInstance.getServiceURLHttp("passthrough"), message, headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
 
-        Assert.assertEquals(response.getData().toString(), expectedResponse,
+        Assert.assertEquals(response.getData(), expectedResponse,
                 "Response does not contains accept-encoding value.");
     }
 
@@ -71,10 +68,10 @@ public class AcceptEncodingHeaderTestCase {
         headers.put(ACCEPT_VALUE, "disable");
         headers.put(CONTENT_TYPE, "text/plain");
         HttpResponse response = HttpClientRequest
-                .doPost(ballerinaServer.getServiceURLHttp("passthrough"), message, headers);
+                .doPost(serverInstance.getServiceURLHttp("passthrough"), message, headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
 
-        Assert.assertEquals(response.getData().toString(), expectedResponse,
+        Assert.assertEquals(response.getData(), expectedResponse,
                 "Response does not contains accept-encoding value.");
     }
 
@@ -85,15 +82,15 @@ public class AcceptEncodingHeaderTestCase {
         headers.put(ACCEPT_VALUE, "auto");
         headers.put(CONTENT_TYPE, "text/plain");
         HttpResponse response = HttpClientRequest
-                .doPost(ballerinaServer.getServiceURLHttp("passthrough"), message, headers);
+                .doPost(serverInstance.getServiceURLHttp("passthrough"), message, headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
 
-        Assert.assertEquals(response.getData().toString(), expectedResponse,
+        Assert.assertEquals(response.getData(), expectedResponse,
                 "Response does not contains accept-encoding value.");
     }
 
     @AfterClass
     public void cleanup() throws Exception {
-        ballerinaServer.stopServer();
+        serverInstance.stopServer();
     }
 }

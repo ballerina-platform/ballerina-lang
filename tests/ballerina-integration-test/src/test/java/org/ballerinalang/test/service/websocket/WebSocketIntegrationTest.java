@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.service.websocket;
 
+import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerInstance;
@@ -30,8 +31,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Facilitate the common functionality of WebSocket integration tests.
  */
-public class WebSocketIntegrationTest {
-    private ServerInstance ballerinaServerInstance;
+public class WebSocketIntegrationTest extends IntegrationTestCase{
     protected static final int TIMEOUT_IN_SECS = 10;
     protected static final int REMOTE_SERVER_PORT = 15500;
 
@@ -45,9 +45,8 @@ public class WebSocketIntegrationTest {
      */
     public void initBallerinaServer(String fileName, LogLeecher logLeecher) throws BallerinaTestException {
         String balPath = new File("src/test/resources/websocket/" + fileName).getAbsolutePath();
-        ballerinaServerInstance = ServerInstance.initBallerinaServer();
-        ballerinaServerInstance.addLogLeecher(logLeecher);
-        ballerinaServerInstance.startBallerinaServer(balPath);
+        serverInstance.addLogLeecher(logLeecher);
+        serverInstance.startBallerinaServer(balPath);
     }
 
     /**
@@ -58,12 +57,11 @@ public class WebSocketIntegrationTest {
      */
     public void initBallerinaServer(String fileName) throws BallerinaTestException {
         String balPath = new File("src/test/resources/websocket/" + fileName).getAbsolutePath();
-        ballerinaServerInstance = ServerInstance.initBallerinaServer();
-        ballerinaServerInstance.startBallerinaServer(balPath);
+        serverInstance.startBallerinaServer(balPath);
     }
 
     public void stopBallerinaServerInstance() throws BallerinaTestException {
-        ballerinaServerInstance.stopServer();
+        serverInstance.stopServer();
     }
     /**
      * This method is only used when ack is needed from Ballerina WebSocket Proxy in order to sync ballerina

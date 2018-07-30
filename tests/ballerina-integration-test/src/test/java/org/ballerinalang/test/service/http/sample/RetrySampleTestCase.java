@@ -39,22 +39,19 @@ import java.util.Map;
  * Testcase for the retry sample.
  */
 public class RetrySampleTestCase extends IntegrationTestCase {
-    private ServerInstance ballerinaServer;
 
     @BeforeClass
     private void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer();
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "httpService" + File.separator + "http_retry.bal").getAbsolutePath();
-        ballerinaServer.startBallerinaServer(balFile);
+        serverInstance.startBallerinaServer(balFile);
     }
 
     @Test(description = "Test basic retry functionality")
     public void testSimpleRetry() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(ballerinaServer
-                        .getServiceURLHttp("retry")
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp("retry")
                 , "{\"Name\":\"Ballerina\"}", headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -82,7 +79,7 @@ public class RetrySampleTestCase extends IntegrationTestCase {
                 "--" + multipartDataBoundary + "--" + "\r\n";
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), "multipart/form-data; boundary=" + multipartDataBoundary);
-        HttpResponse response = HttpClientRequest.doPost(ballerinaServer
+        HttpResponse response = HttpClientRequest.doPost(serverInstance
                         .getServiceURLHttp("retry")
                 , multipartBody, headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
@@ -136,7 +133,7 @@ public class RetrySampleTestCase extends IntegrationTestCase {
                 "Child Part 2";
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), "multipart/form-data; boundary=" + multipartDataBoundary);
-        HttpResponse response = HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp("retry")
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp("retry")
                 , nestedMultipartBody, headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertTrue(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
@@ -148,6 +145,6 @@ public class RetrySampleTestCase extends IntegrationTestCase {
 
     @AfterClass
     private void cleanup() throws Exception {
-        ballerinaServer.stopServer();
+        serverInstance.stopServer();
     }
 }
