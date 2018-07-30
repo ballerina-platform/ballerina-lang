@@ -112,7 +112,6 @@
             <class name="org.ballerinalang.test.security.HTTPResponseXMLSecurityTestCase"/>
         </classes>
     </test>
-
     <test name="ballerina-jms-tests" parallel="false">
         <packages>
             <package name="org.ballerinalang.test.jms"/>
@@ -135,5 +134,9 @@
         <packages>
             <package name="org.ballerinalang.test.data.streaming"/>
         </packages>
+    <test name="ballerina-checkpointing-tests" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.checkpointing.InterruptibleServiceTestCase"/>
+        </classes>
     </test>
 </suite>
