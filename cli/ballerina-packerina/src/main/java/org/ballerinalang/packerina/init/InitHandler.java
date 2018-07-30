@@ -133,29 +133,25 @@ public class InitHandler {
                 if ((srcFile.getSrcFileType().equals(FileType.MAIN_TEST) ||
                         srcFile.getSrcFileType().equals(FileType.SERVICE_TEST)) &&
                         !Files.isSameFile(projectPath, packagePath)) {
-                    Path testDirPath = packagePath.resolve("tests");
-                    createDirectory(testDirPath);
-                    Path testFilePath = testDirPath.resolve(srcFile.getSrcFileType().getFileName());
-                    createAndWriteToFile(testFilePath, srcFile.getSrcFileType().getContent());
+                    createSrcFile(srcFile, packagePath.resolve("tests"));
                 } else {
-                    createDirectory(packagePath);
-                    Path srcFilePath = packagePath.resolve(srcFile.getSrcFileType().getFileName());
-                    createAndWriteToFile(srcFilePath, srcFile.getSrcFileType().getContent());
+                    createSrcFile(srcFile, packagePath);
                 }
             }
         }
     }
 
     /**
-     * Create directory.
+     * Create src folder and files.
      *
+     * @param srcFile src file.
      * @param dirPath directory path.
-     * @throws IOException If exception occurs when creating a directory.
+     * @throws IOException If file create and write exception occurs.
      */
-    private static void createDirectory(Path dirPath) throws IOException {
-        if (!Files.exists(dirPath)) {
-            Files.createDirectory(dirPath);
-        }
+    private static void createSrcFile(SrcFile srcFile, Path dirPath) throws IOException {
+        Files.createDirectories(dirPath);
+        Path testFilePath = dirPath.resolve(srcFile.getSrcFileType().getFileName());
+        createAndWriteToFile(testFilePath, srcFile.getSrcFileType().getContent());
     }
 
     /**
