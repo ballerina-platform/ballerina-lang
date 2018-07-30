@@ -135,11 +135,12 @@ public class CompletionTestUtil {
         completionContext.put(DocumentServiceKeys.FILE_URI_KEY, pos.getTextDocument().getUri());
         completionContext.put(CompletionKeys.DOC_MANAGER_KEY, documentManager);
         BLangPackage bLangPackage = LSCompiler.getBLangPackage(completionContext, documentManager, false,
-                CompletionCustomErrorStrategy.class, false).get(0);
+                CompletionCustomErrorStrategy.class, false).getRight();
         completionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                               bLangPackage.symbol.getName().getValue());
+        completionContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
 
-        CompletionUtil.resolveSymbols(completionContext, bLangPackage);
+        CompletionUtil.resolveSymbols(completionContext);
         CompletionSubRuleParser.parse(completionContext);
         completions = CompletionUtil.getCompletionItems(completionContext);
 
