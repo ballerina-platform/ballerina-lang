@@ -90,4 +90,9 @@
             <class name="org.ballerinalang.test.security.HTTPResponseXMLSecurityTestCase"/>
         </classes>
     </test>
+    <test name="ballerina-checkpointing-tests" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.checkpointing.InterruptibleServiceTestCase"/>
+        </classes>
+    </test>
 </suite>
