@@ -27,7 +27,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.listener.SourceHandler;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
  * State of successfully written response
@@ -49,7 +49,7 @@ public class EntityBodySent implements ListenerState {
     }
 
     @Override
-    public void readInboundRequestHeaders(HTTPCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
+    public void readInboundRequestHeaders(HttpCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
         stateContext.setState(new ReceivingHeaders(sourceHandler, stateContext));
         stateContext.getState().readInboundRequestHeaders(inboundRequestMsg, inboundRequestHeaders);
     }
@@ -60,13 +60,13 @@ public class EntityBodySent implements ListenerState {
     }
 
     @Override
-    public void writeOutboundResponseHeaders(HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
+    public void writeOutboundResponseHeaders(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
         // Not a dependant action of this state.
     }
 
     @Override
     public void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundRespListener,
-                                                HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
+                                                HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
         // Not a dependant action of this state.
     }
 

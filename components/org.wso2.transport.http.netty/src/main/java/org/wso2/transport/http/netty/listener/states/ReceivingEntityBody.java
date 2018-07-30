@@ -43,10 +43,10 @@ import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
-import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
+import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.listener.SourceHandler;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST;
@@ -61,14 +61,14 @@ public class ReceivingEntityBody implements ListenerState {
     private final ServerConnectorFuture serverConnectorFuture;
     private final ListenerStateContext stateContext;
     private final SourceHandler sourceHandler;
-    private HTTPCarbonMessage inboundRequestMsg;
+    private HttpCarbonMessage inboundRequestMsg;
 
-    public ReceivingEntityBody(ListenerStateContext stateContext, HTTPCarbonMessage inboundRequestMsg,
+    public ReceivingEntityBody(ListenerStateContext stateContext, HttpCarbonMessage inboundRequestMsg,
                                SourceHandler sourceHandler) {
         this.stateContext = stateContext;
         this.inboundRequestMsg = inboundRequestMsg;
         this.sourceHandler = sourceHandler;
-        this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
+        this.handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
         this.serverConnectorFuture = sourceHandler.getServerConnectorFuture();
     }
 
@@ -78,7 +78,7 @@ public class ReceivingEntityBody implements ListenerState {
     }
 
     @Override
-    public void readInboundRequestHeaders(HTTPCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
+    public void readInboundRequestHeaders(HttpCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
         // Not a dependant action of this state.
     }
 
@@ -108,13 +108,13 @@ public class ReceivingEntityBody implements ListenerState {
     }
 
     @Override
-    public void writeOutboundResponseHeaders(HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
+    public void writeOutboundResponseHeaders(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
         // Not a dependant action of this state.
     }
 
     @Override
     public void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundResponseListener,
-                                                HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
+                                                HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
         // If this method is called, it is an application error. we need to close connection once response is sent.
         outboundResponseListener.setKeepAliveConfig(KeepAliveConfig.NEVER);
         stateContext.setState(new SendingHeaders(outboundResponseListener, stateContext));
@@ -143,7 +143,7 @@ public class ReceivingEntityBody implements ListenerState {
         return outboundRespFuture;
     }
 
-    private boolean isDiffered(HTTPCarbonMessage sourceReqCmsg) {
+    private boolean isDiffered(HttpCarbonMessage sourceReqCmsg) {
         //Http resource stored in the HTTPCarbonMessage means execution waits till payload.
         return sourceReqCmsg.getProperty(Constants.HTTP_RESOURCE) != null;
     }

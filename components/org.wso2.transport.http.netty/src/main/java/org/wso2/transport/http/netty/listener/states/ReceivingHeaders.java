@@ -41,14 +41,13 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
-import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
+import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.listener.SourceHandler;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST;
-import static org.wso2.transport.http.netty.common.Util.createInboundReqCarbonMsg;
 import static org.wso2.transport.http.netty.common.Util.is100ContinueRequest;
 
 /**
@@ -60,12 +59,12 @@ public class ReceivingHeaders implements ListenerState {
     private final SourceHandler sourceHandler;
     private final HandlerExecutor handlerExecutor;
     private final ListenerStateContext stateContext;
-    private HTTPCarbonMessage inboundRequestMsg;
+    private HttpCarbonMessage inboundRequestMsg;
     private boolean continueRequest;
 
     public ReceivingHeaders(SourceHandler sourceHandler, ListenerStateContext stateContext) {
         this.sourceHandler = sourceHandler;
-        this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
+        this.handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
         this.stateContext = stateContext;
     }
 
@@ -75,7 +74,7 @@ public class ReceivingHeaders implements ListenerState {
     }
 
     @Override
-    public void readInboundRequestHeaders(HTTPCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
+    public void readInboundRequestHeaders(HttpCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
         this.inboundRequestMsg = inboundRequestMsg;
         continueRequest = is100ContinueRequest(inboundRequestMsg);
         if (continueRequest) {
@@ -92,7 +91,7 @@ public class ReceivingHeaders implements ListenerState {
         }
     }
 
-    private void notifyRequestListener(HTTPCarbonMessage httpRequestMsg) {
+    private void notifyRequestListener(HttpCarbonMessage httpRequestMsg) {
         if (handlerExecutor != null) {
             handlerExecutor.executeAtSourceRequestReceiving(httpRequestMsg);
         }
@@ -118,12 +117,12 @@ public class ReceivingHeaders implements ListenerState {
     }
 
     @Override
-    public void writeOutboundResponseHeaders(HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
+    public void writeOutboundResponseHeaders(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
         // Not a dependant action of this state.
     }
 
     @Override
-    public void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundResponseMsg, HTTPCarbonMessage keepAlive,
+    public void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundResponseMsg, HttpCarbonMessage keepAlive,
                                                 HttpContent httpContent) {
         // Not a dependant action of this state.
     }

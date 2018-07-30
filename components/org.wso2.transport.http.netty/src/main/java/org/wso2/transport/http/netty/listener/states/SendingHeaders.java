@@ -31,7 +31,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
@@ -72,7 +72,7 @@ public class SendingHeaders implements ListenerState {
     }
 
     @Override
-    public void readInboundRequestHeaders(HTTPCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
+    public void readInboundRequestHeaders(HttpCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
         // Not a dependant action of this state.
     }
 
@@ -83,7 +83,7 @@ public class SendingHeaders implements ListenerState {
 
     @Override
     public void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundResponseListener,
-                                                HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
+                                                HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
         // Not a dependant action of this state.
     }
 
@@ -103,7 +103,7 @@ public class SendingHeaders implements ListenerState {
     }
 
     @Override
-    public void writeOutboundResponseHeaders(HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
+    public void writeOutboundResponseHeaders(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
         ChunkConfig responseChunkConfig = outboundResponseMsg.getProperty(CHUNKING_CONFIG) != null ?
                 (ChunkConfig) outboundResponseMsg.getProperty(CHUNKING_CONFIG) : null;
         if (responseChunkConfig != null) {
@@ -113,26 +113,22 @@ public class SendingHeaders implements ListenerState {
         if (isLastHttpContent(httpContent)) {
             if (chunkConfig == ChunkConfig.ALWAYS && checkChunkingCompatibility(outboundResponseListener)) {
                 writeHeaders(outboundResponseMsg, keepAlive, outboundRespStatusFuture);
-                writeResponse(outboundResponseMsg, httpContent);
-            } else {
-                writeResponse(outboundResponseMsg, httpContent);
+                writeResponse(outboundResponseMsg, httpContent, true);
+                return;
             }
         } else {
             if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO) && (
                     checkChunkingCompatibility(outboundResponseListener))) {
                 writeHeaders(outboundResponseMsg, keepAlive, outboundRespStatusFuture);
-
-                writeResponse(outboundResponseMsg, httpContent);
-
-            } else {
-                writeResponse(outboundResponseMsg, httpContent);
+                writeResponse(outboundResponseMsg, httpContent, true);
+                return;
             }
-
         }
+        writeResponse(outboundResponseMsg, httpContent, false);
     }
 
-    private void writeResponse(HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        stateContext.setState(new SendingEntityBody(stateContext, chunkConfig, outboundRespStatusFuture));
+    private void writeResponse(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, boolean headersWritten) {
+        stateContext.setState(new SendingEntityBody(stateContext, chunkConfig, outboundRespStatusFuture, headersWritten));
         stateContext.getState().writeOutboundResponseEntityBody(outboundResponseListener, outboundResponseMsg, httpContent);
     }
 
@@ -141,7 +137,7 @@ public class SendingHeaders implements ListenerState {
                 shouldEnforceChunkingforHttpOneZero(chunkConfig, outboundResponseListener.getRequestDataHolder().getHttpVersion());
     }
 
-    private void writeHeaders(HTTPCarbonMessage outboundResponseMsg, boolean keepAlive,
+    private void writeHeaders(HttpCarbonMessage outboundResponseMsg, boolean keepAlive,
                               HttpResponseFuture outboundRespStatusFuture) {
         setupChunkedRequest(outboundResponseMsg);
         ChannelFuture outboundHeaderFuture = writeResponseHeaders(outboundResponseMsg, keepAlive);
@@ -152,7 +148,7 @@ public class SendingHeaders implements ListenerState {
         this.chunkConfig = chunkConfig;
     }
 
-    ChannelFuture writeResponseHeaders(HTTPCarbonMessage outboundResponseMsg, boolean keepAlive) {
+    ChannelFuture writeResponseHeaders(HttpCarbonMessage outboundResponseMsg, boolean keepAlive) {
         HttpResponse response = createHttpResponse(outboundResponseMsg, outboundResponseListener.getRequestDataHolder().getHttpVersion(),
                                                    outboundResponseListener.getServerName(), keepAlive);
         return outboundResponseListener.getSourceContext().write(response);

@@ -26,7 +26,7 @@ import io.netty.handler.timeout.IdleStateEvent;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
  * ListenerStates of source handler.
@@ -35,14 +35,14 @@ public interface ListenerState {
 
     void channelActive(final ChannelHandlerContext ctx);
 
-    void readInboundRequestHeaders(HTTPCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders);
+    void readInboundRequestHeaders(HttpCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders);
 
     void readInboundRequestEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException;
 
-    void writeOutboundResponseHeaders(HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent);
+    void writeOutboundResponseHeaders(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent);
 
     void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundResponseListener,
-                                         HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent);
+                                         HttpCarbonMessage outboundResponseMsg, HttpContent httpContent);
 
     void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture);
 

@@ -37,10 +37,10 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
-import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
+import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.listener.SourceHandler;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
@@ -65,20 +65,23 @@ public class SendingEntityBody implements ListenerState {
     private final HandlerExecutor handlerExecutor;
     private final HttpResponseFuture outboundRespStatusFuture;
     private final ListenerStateContext stateContext;
+    private final boolean headersWritten;
     private ChunkConfig chunkConfig;
     private long contentLength = 0;
     private boolean headRequest;
     private List<HttpContent> contentList = new ArrayList<>();
-    private HTTPCarbonMessage inboundRequestMsg;
+    private HttpCarbonMessage inboundRequestMsg;
     private ChannelHandlerContext sourceContext;
     private SourceHandler sourceHandler;
 
 
-    public SendingEntityBody(ListenerStateContext stateContext, ChunkConfig chunkConfig, HttpResponseFuture outboundRespStatusFuture) {
+    public SendingEntityBody(ListenerStateContext stateContext, ChunkConfig chunkConfig,
+                             HttpResponseFuture outboundRespStatusFuture, boolean headersWritten) {
         this.stateContext = stateContext;
         this.chunkConfig = chunkConfig;
         this.outboundRespStatusFuture = outboundRespStatusFuture;
-        handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
+        this.headersWritten = headersWritten;
+        handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
     }
 
     @Override
@@ -87,7 +90,7 @@ public class SendingEntityBody implements ListenerState {
     }
 
     @Override
-    public void readInboundRequestHeaders(HTTPCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
+    public void readInboundRequestHeaders(HttpCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
         // Not a dependant action of this state.
     }
 
@@ -97,13 +100,13 @@ public class SendingEntityBody implements ListenerState {
     }
 
     @Override
-    public void writeOutboundResponseHeaders(HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
+    public void writeOutboundResponseHeaders(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
         // Not a dependant action of this state.
     }
 
     @Override
     public void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundRespListener,
-                                                HTTPCarbonMessage outboundResponseMsg, HttpContent httpContent) {
+                                                HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
         headRequest = outboundRespListener.getRequestDataHolder().getHttpMethod().equalsIgnoreCase(Constants.HTTP_HEAD_METHOD);
         inboundRequestMsg = outboundRespListener.getInboundRequestMsg();
         sourceContext = outboundRespListener.getSourceContext();
@@ -111,9 +114,8 @@ public class SendingEntityBody implements ListenerState {
 
         ChannelFuture outboundChannelFuture;
         if (isLastHttpContent(httpContent)) {
-            if (chunkConfig == ChunkConfig.ALWAYS && checkChunkingCompatibility(outboundRespListener)) {
+            if (headersWritten) {
                 outboundChannelFuture = checkHeadRequestAndWriteOutboundResponseBody(httpContent);
-
             } else {
                 contentLength += httpContent.content().readableBytes();
                 setupContentLengthRequest(outboundResponseMsg, contentLength);
@@ -128,8 +130,7 @@ public class SendingEntityBody implements ListenerState {
                 handlerExecutor.executeAtSourceResponseSending(outboundResponseMsg);
             }
         } else {
-            if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO) && (
-                    checkChunkingCompatibility(outboundRespListener))) {
+            if (headersWritten) {
                 if (headRequest) {
                     httpContent.release();
                     return;
@@ -174,7 +175,7 @@ public class SendingEntityBody implements ListenerState {
     }
 
     private ChannelFuture writeOutboundResponseHeaderAndBody(HttpOutboundRespListener outboundRespListener,
-                                                             HTTPCarbonMessage outboundResponseMsg, LastHttpContent lastHttpContent) {
+                                                             HttpCarbonMessage outboundResponseMsg, LastHttpContent lastHttpContent) {
         CompositeByteBuf allContent = Unpooled.compositeBuffer();
         for (HttpContent cachedHttpContent : contentList) {
             allContent.addComponent(true, cachedHttpContent.content());
@@ -204,7 +205,7 @@ public class SendingEntityBody implements ListenerState {
         return outboundChannelFuture;
     }
 
-    private void checkForResponseWriteStatus(HTTPCarbonMessage inboundRequestMsg,
+    private void checkForResponseWriteStatus(HttpCarbonMessage inboundRequestMsg,
                                             HttpResponseFuture outboundRespStatusFuture, ChannelFuture channelFuture) {
         channelFuture.addListener(writeOperationPromise -> {
             Throwable throwable = writeOperationPromise.cause();

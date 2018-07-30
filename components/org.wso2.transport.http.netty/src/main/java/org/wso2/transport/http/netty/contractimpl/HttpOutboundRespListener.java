@@ -27,15 +27,12 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
-import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
-import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.listener.RequestDataHolder;
 import org.wso2.transport.http.netty.listener.SourceErrorHandler;
 import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.listener.states.ListenerStateContext;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -68,7 +65,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     private List<HttpContent> contentList = new ArrayList<>();
     private AtomicInteger writeCounter = new AtomicInteger(0);
 
-    public HttpOutboundRespListener(HTTPCarbonMessage requestMsg, SourceHandler sourceHandler,
+    public HttpOutboundRespListener(HttpCarbonMessage requestMsg, SourceHandler sourceHandler,
                                     boolean continueRequest) {
         this.requestDataHolder = new RequestDataHolder(requestMsg);
         this.inboundRequestMsg = requestMsg;
@@ -76,7 +73,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         this.sourceContext = sourceHandler.getInboundChannelContext();
         this.chunkConfig = sourceHandler.getChunkConfig();
         this.keepAliveConfig = sourceHandler.getKeepAliveConfig();
-        this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
+        this.handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
         this.serverName = sourceHandler.getServerName();
         this.sourceErrorHandler = sourceHandler.getSourceErrorHandler();
         this.headRequest = requestDataHolder.getHttpMethod().equalsIgnoreCase(Constants.HTTP_HEAD_METHOD);
@@ -122,7 +119,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                 "Sending Server Push messages is not supported for HTTP/1.x connections"));
     }
 
-    private void writeOutboundResponse(HTTPCarbonMessage outboundResponseMsg, boolean keepAlive,
+    private void writeOutboundResponse(HttpCarbonMessage outboundResponseMsg, boolean keepAlive,
             HttpContent httpContent) {
         stateContext.getState().writeOutboundResponseEntityBody(this, outboundResponseMsg, httpContent);
 //        ChunkConfig responseChunkConfig = outboundResponseMsg.getProperty(CHUNKING_CONFIG) != null ?

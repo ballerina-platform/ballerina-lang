@@ -50,7 +50,7 @@
             <class name="org.wso2.transport.http.netty.chunkdisable.ChunkEnableClientTestCase" />
             <class name="org.wso2.transport.http.netty.chunkdisable.ChunkDisableClientTestCase" />
 
-            <!--<class name="org.wso2.transport.http.netty.headers.Continue100TestCase" />-->
+            <class name="org.wso2.transport.http.netty.headers.Continue100TestCase" />
 
             <class name="org.wso2.transport.http.netty.unitfunction.CommonUtilTestCase" />
             <class name="org.wso2.transport.http.netty.unitfunction.HttpCarbonMessageTestCase" />
@@ -74,7 +74,7 @@
             <class name="org.wso2.transport.http.netty.forwardedextension.ForwardedTransitionTestCase" />
             <class name="org.wso2.transport.http.netty.forwardedextension.ForwardedDisableTestCase" />
 
-            <!--<class name="org.wso2.transport.http.netty.method.head.HeadRequestTestCase"/>-->
+            <class name="org.wso2.transport.http.netty.method.head.HeadRequestTestCase"/>
         </classes>
     </test>
     <test name="WebSocket Tests" parallel="false">

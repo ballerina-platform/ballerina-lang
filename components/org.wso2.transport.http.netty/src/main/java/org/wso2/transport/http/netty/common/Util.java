@@ -763,7 +763,7 @@ public class Util {
      * @param sourceHandler instance which handled the particular request
      * @return HttpCarbon message
      */
-    public static HTTPCarbonMessage createInboundReqCarbonMsg(HttpRequest httpRequestHeaders,
+    public static HttpCarbonMessage createInboundReqCarbonMsg(HttpRequest httpRequestHeaders,
             ChannelHandlerContext ctx, SourceHandler sourceHandler) {
 
         HttpCarbonMessage inboundRequestMsg =

@@ -38,13 +38,10 @@ import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
-import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
+import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.listener.states.ListenerStateContext;
 import org.wso2.transport.http.netty.listener.states.ReceivingHeaders;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.net.SocketAddress;
@@ -64,8 +61,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private static Logger log = LoggerFactory.getLogger(SourceHandler.class);
 
     private HttpCarbonMessage inboundRequestMsg;
-    private HTTPCarbonMessage inboundRequestMsg;
-    private List<HTTPCarbonMessage> requestList = new ArrayList<>();
+    private List<HttpCarbonMessage> requestList = new ArrayList<>();
     private HandlerExecutor handlerExecutor;
     private Map<String, GenericObjectPool> targetChannelPool;
     private ChunkConfig chunkConfig;
@@ -125,7 +121,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 //        execute().channelActive(ctx);
 
         this.allChannels.add(ctx.channel());
-        handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
+        handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
         if (handlerExecutor != null) {
             handlerExecutor.executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
         }
