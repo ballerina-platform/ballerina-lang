@@ -261,19 +261,7 @@ public class BLangFunctions {
         BLangScheduler.workerWaitForResponse(parentCtx);
         WorkerExecutionContext resultCtx;
         if (callableUnitInfo.isNative()) {
-            NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();
-            if (parentCtx.interruptible && nativeCallable instanceof InterruptibleNativeCallableUnit) {
-                InterruptibleNativeCallableUnit interruptibleNativeCallableUnit
-                        = (InterruptibleNativeCallableUnit) nativeCallable;
-                String instanceId = (String) parentCtx.globalProps.get(Constants.STATE_ID);
-                WorkerExecutionContext runnableContext = getMainPackageContext(parentCtx);
-                if (interruptibleNativeCallableUnit.persistBeforeOperation()) {
-                    PersistenceStore.persistState(new State(runnableContext, instanceId));
-                }
-                if (interruptibleNativeCallableUnit.persistAfterOperation()) {
-                    PendingCheckpoints.add(instanceId, (runnableContext.ip + 1));
-                }
-            }
+            checkAndHandleInterruptibleCallable(callableUnitInfo, parentCtx);
             if (FunctionFlags.isAsync(flags)) {
                 invokeNativeCallableAsync(callableUnitInfo, parentCtx, argRegs, retRegs, flags);
                 resultCtx = parentCtx;
@@ -628,11 +616,20 @@ public class BLangFunctions {
         return observerContext.orElse(null);
     }
 
-    private static WorkerExecutionContext getMainPackageContext(WorkerExecutionContext context) {
-        if (context.callableUnitInfo.getPkgPath().equals(".")) {
-            return context;
+    private static void checkAndHandleInterruptibleCallable(CallableUnitInfo callableUnitInfo,
+                                                            WorkerExecutionContext parentCtx) {
+        NativeCallableUnit nativeCallable = callableUnitInfo.getNativeCallableUnit();
+        if (parentCtx.interruptible && nativeCallable instanceof InterruptibleNativeCallableUnit) {
+            InterruptibleNativeCallableUnit interruptibleNativeCallableUnit
+                    = (InterruptibleNativeCallableUnit) nativeCallable;
+            String instanceId = (String) parentCtx.globalProps.get(Constants.STATE_ID);
+            if (interruptibleNativeCallableUnit.persistBeforeOperation()) {
+                PersistenceStore.persistState(new State(parentCtx, instanceId));
+            }
+            if (interruptibleNativeCallableUnit.persistAfterOperation()) {
+                PendingCheckpoints.add(instanceId, (parentCtx.ip + 1));
+            }
         }
-        return getMainPackageContext(context.parent);
     }
 
     /**

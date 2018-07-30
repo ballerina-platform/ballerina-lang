@@ -63,14 +63,11 @@ public class ResourceExecutor {
         ResourceInfo resourceInfo = resource.getResourceInfo();
         if (properties != null) {
             Object o = properties.get(Constants.IS_INTERRUPTIBLE);
-            if (o != null) {
-                boolean isInterruptible = (boolean) o;
-                if (isInterruptible) {
-                    String stateId = UUID.randomUUID().toString();
-                    properties.put(Constants.STATE_ID, stateId);
-                    RuntimeStates.add(new State(context, stateId));
-                    context.interruptible = true;
-                }
+            if (o != null && (boolean) o) {
+                String stateId = UUID.randomUUID().toString();
+                properties.put(Constants.STATE_ID, stateId);
+                RuntimeStates.add(new State(context, stateId));
+                context.interruptible = true;
             }
             context.globalProps.putAll(properties);
             if (properties.get(Constants.GLOBAL_TRANSACTION_ID) != null) {

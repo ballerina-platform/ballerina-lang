@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.persistence.store.impl;
 
+import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.persistence.store.StorageProvider;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -39,13 +40,23 @@ import java.util.stream.Stream;
  */
 public class FileStorageProvider implements StorageProvider {
 
-    private static final String BASE_PATH = "states";
+    // System property of directory path for storing serialized states.
+    public static final String INTERRUPTIBLE_STATES_FILE_PATH = "ballerina.interruptible.directory.path";
+
+    private static String stateStoreDirPath = "ballerina-states";
 
     private static final Logger log = LoggerFactory.getLogger(FileStorageProvider.class);
 
+    static {
+        String pathPropValue = ConfigRegistry.getInstance().getAsString(INTERRUPTIBLE_STATES_FILE_PATH);
+        if (pathPropValue != null) {
+            stateStoreDirPath = pathPropValue;
+        }
+    }
+
     @Override
     public void persistState(String instanceId, String stateString) {
-        File baseDir = new File(BASE_PATH);
+        File baseDir = new File(stateStoreDirPath);
         if (!baseDir.exists()) {
             baseDir.mkdir();
         }
@@ -65,7 +76,7 @@ public class FileStorageProvider implements StorageProvider {
 
     @Override
     public void removeActiveState(String instanceId) {
-        File baseDir = new File(BASE_PATH);
+        File baseDir = new File(stateStoreDirPath);
         if (!baseDir.exists()) {
             return;
         }
@@ -79,11 +90,11 @@ public class FileStorageProvider implements StorageProvider {
     @Override
     public List<String> getAllSerializedStates() {
         List<String> states = new LinkedList<>();
-        File baseDir = new File(BASE_PATH);
+        File baseDir = new File(stateStoreDirPath);
         if (!baseDir.exists()) {
             return states;
         }
-        try (Stream<Path> stream = Files.list(Paths.get(BASE_PATH))) {
+        try (Stream<Path> stream = Files.list(Paths.get(stateStoreDirPath))) {
             stream.forEach(path -> {
                 try {
                     if (path.toString().endsWith(".json")) {

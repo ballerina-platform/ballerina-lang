@@ -24,6 +24,7 @@ import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.persistence.states.PendingCheckpoints;
 import org.ballerinalang.persistence.states.RuntimeStates;
 import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.persistence.store.PersistenceStore;
@@ -108,6 +109,7 @@ public class BLangScheduler {
             List<State> stateList = RuntimeStates.get(instanceId);
             if (stateList != null && !stateList.isEmpty()) {
                 RuntimeStates.remove(instanceId);
+                PendingCheckpoints.remove(instanceId);
                 PersistenceStore.removeStates(instanceId);
             }
         }
