@@ -18,10 +18,7 @@ package org.ballerinalang.persistence.serializable.serializer;
 
 import com.google.common.collect.Lists;
 import org.ballerinalang.model.util.JsonNode;
-import org.ballerinalang.persistence.serializable.SerializableContext;
-import org.ballerinalang.persistence.serializable.SerializableRespContext;
 import org.ballerinalang.persistence.serializable.SerializableState;
-import org.ballerinalang.persistence.serializable.SerializableWorkerData;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -46,60 +43,6 @@ public class JsonSerializer implements StateSerializer {
         }
 
         return outputStream.toByteArray();
-    }
-
-    private JsonNode convertToJson(SerializableState sState) {
-        if (sState == null) {
-            return new JsonNode(JsonNode.Type.NULL);
-        }
-        JsonNode stateObj = new JsonNode(JsonNode.Type.OBJECT);
-        stateObj.set("instanceId", sState.getInstanceId());
-        stateObj.set("currentContextKey", sState.currentContextKey);
-        stateObj.set("sContexts", convertToJson((Map) sState.sContexts,
-                SerializableContext.class.getSimpleName()));
-        stateObj.set("sRespContext", convertToJson((Map) sState.sRespContexts,
-                SerializableRespContext.class.getSimpleName()));
-
-        return wrapObject(SerializableState.class.getSimpleName(), stateObj);
-    }
-
-    private JsonNode convertToJson(SerializableContext serializableContext) {
-        if (serializableContext == null) {
-            return new JsonNode(JsonNode.Type.NULL);
-        }
-        JsonNode sContext = new JsonNode(JsonNode.Type.OBJECT);
-        sContext.set("contextKey", serializableContext.contextKey);
-        sContext.set("parent", serializableContext.parent);
-        sContext.set("respContextKey", serializableContext.respContextKey);
-        // state variable is initialized to CREATED and never changed.
-        sContext.set("localProps", convertToJson(serializableContext.localProps, Object.class.getSimpleName()));
-        sContext.set("ip", serializableContext.ip);
-        sContext.set("workerLocal", convertToJson(serializableContext.workerLocal));
-        sContext.set("workerResult", convertToJson(serializableContext.workerResult));
-        sContext.set("retRegIndexes", convertToJson(serializableContext.retRegIndexes));
-        sContext.set("renInCaller", serializableContext.runInCaller);
-        sContext.set("interruptible", serializableContext.interruptible);
-        sContext.set("enclosingServiceName", serializableContext.enclosingServiceName);
-        sContext.set("callableUnitName", serializableContext.callableUnitName);
-        sContext.set("callableUnitPkgPath", serializableContext.callableUnitPkgPath);
-        sContext.set("workerName", serializableContext.workerName);
-
-        return wrapObject(SerializableContext.class.getSimpleName(), sContext);
-    }
-
-    private JsonNode convertToJson(SerializableWorkerData data) {
-        if (data == null) {
-            return new JsonNode(JsonNode.Type.NULL);
-        }
-        JsonNode workerData = new JsonNode(JsonNode.Type.OBJECT);
-        workerData.set("longResg", convertToJson(data.longRegs));
-        workerData.set("doubleRegs", convertToJson(data.doubleRegs));
-        workerData.set("stringRegs", convertToJson(data.stringRegs));
-        workerData.set("intRegs", convertToJson(data.intRegs));
-        workerData.set("byteRegs", convertToJson(data.byteRegs));
-        workerData.set("refFields", convertToJson(data.refFields));
-
-        return wrapObject(SerializableWorkerData.class.getSimpleName(), workerData);
     }
 
     private JsonNode convertToJson(Map<String, Object> map, String valueType) {
@@ -193,15 +136,6 @@ public class JsonSerializer implements StateSerializer {
     private JsonNode convertToJson(Object obj) {
         if (obj == null) {
             return new JsonNode(JsonNode.Type.NULL);
-        }
-        if (obj instanceof SerializableContext) {
-            return convertToJson((SerializableContext) obj);
-        }
-        if (obj instanceof SerializableState) {
-            return convertToJson((SerializableState) obj);
-        }
-        if (obj instanceof SerializableWorkerData) {
-            return convertToJson((SerializableWorkerData) obj);
         }
         if (obj instanceof int[]) {
             return convertToJson((int[]) obj);
