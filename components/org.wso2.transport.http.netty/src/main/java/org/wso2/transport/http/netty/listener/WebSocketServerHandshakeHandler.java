@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorException;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketInitMessage;
 import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
@@ -56,7 +57,6 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketServerHandshakeHandler.class);
 
-    private static int maxContentLength = 8192;
     private final ServerConnectorFuture serverConnectorFuture;
     private final String interfaceId;
 
@@ -75,13 +75,13 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
             if (containsUpgradeHeaders(httpRequest)) {
                 if (HttpMethod.GET == requestMethod) {
                     if (log.isDebugEnabled()) {
-                        log.debug("Upgrading the connection from Http to WebSocket for channel : " + ctx.channel());
+                        log.debug("Upgrading the connection from Http to WebSocket for channel : {}", ctx.channel());
                     }
                     ChannelPipeline pipeline = ctx.pipeline();
                     pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
                     ChannelHandlerContext decoderCtx = pipeline.context(HttpRequestDecoder.class);
                     pipeline.addAfter(decoderCtx.name(), HTTP_OBJECT_AGGREGATOR,
-                                      new HttpObjectAggregator(maxContentLength));
+                                      new HttpObjectAggregator(8192));
                     pipeline.addAfter(HTTP_OBJECT_AGGREGATOR, "handshake",
                                       new SimpleChannelInboundHandler<FullHttpRequest>() {
                                           @Override
@@ -119,7 +119,7 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    public void channelInactive(ChannelHandlerContext ctx) {
         ctx.close();
     }
 
@@ -147,7 +147,8 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
      *
      * @param fullHttpRequest {@link HttpRequest} of the request.
      */
-    private void handleWebSocketHandshake(FullHttpRequest fullHttpRequest, ChannelHandlerContext ctx) throws Exception {
+    private void handleWebSocketHandshake(FullHttpRequest fullHttpRequest, ChannelHandlerContext ctx)
+            throws WebSocketConnectorException {
         DefaultWebSocketInitMessage initMessage = new DefaultWebSocketInitMessage(ctx, serverConnectorFuture,
                                                                                   fullHttpRequest);
 

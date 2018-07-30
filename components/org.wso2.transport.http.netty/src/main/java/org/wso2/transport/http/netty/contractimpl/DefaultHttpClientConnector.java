@@ -41,9 +41,9 @@ import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.listener.SourceHandler;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.Http2Reset;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.ResponseHandle;
 import org.wso2.transport.http.netty.sender.ConnectionAvailabilityListener;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
@@ -81,8 +81,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         this.http2ConnectionManager = connectionManager.getHttp2ConnectionManager();
         this.senderConfiguration = senderConfiguration;
         initTargetChannelProperties(senderConfiguration);
-        String httpVersion = senderConfiguration.getHttpVersion();
-        if (Float.valueOf(httpVersion) == Constants.HTTP_2_0) {
+        if (Float.valueOf(senderConfiguration.getHttpVersion()) == Constants.HTTP_2_0) {
             isHttp2 = true;
         }
     }
@@ -133,20 +132,19 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
     }
 
     @Override
-    public HttpResponseFuture send(HTTPCarbonMessage httpOutboundRequest) {
+    public HttpResponseFuture send(HttpCarbonMessage httpOutboundRequest) {
         OutboundMsgHolder outboundMsgHolder = new OutboundMsgHolder(httpOutboundRequest);
         return send(outboundMsgHolder, httpOutboundRequest);
     }
 
-    public HttpResponseFuture send(OutboundMsgHolder outboundMsgHolder, HTTPCarbonMessage httpOutboundRequest) {
+    public HttpResponseFuture send(OutboundMsgHolder outboundMsgHolder, HttpCarbonMessage httpOutboundRequest) {
         final HttpResponseFuture httpResponseFuture;
 
         SourceHandler srcHandler = (SourceHandler) httpOutboundRequest.getProperty(Constants.SRC_HANDLER);
-        if (srcHandler == null) {
-            if (log.isDebugEnabled()) {
-                log.debug(Constants.SRC_HANDLER + " property not found in the message."
-                        + " Message is not originated from the HTTP Server connector");
-            }
+        if (srcHandler == null && log.isDebugEnabled()) {
+            log.debug(Constants.SRC_HANDLER + " property not found in the message."
+                              + " Message is not originated from the HTTP Server connector");
+
         }
 
         try {
@@ -196,7 +194,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                 private void startExecutingOutboundRequest(String protocol, ChannelFuture channelFuture) {
                     if (protocol.equalsIgnoreCase(Constants.HTTP2_CLEARTEXT_PROTOCOL)
                             || protocol.equalsIgnoreCase(Constants.HTTP2_TLS_PROTOCOL)) {
-                        prepareTargetChannelForHttp2(channelFuture);
+                        prepareTargetChannelForHttp2();
                     } else {
                         // Response for the upgrade request will arrive in stream 1,
                         // so use 1 as the stream id.
@@ -209,7 +207,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                     }
                 }
 
-                private void prepareTargetChannelForHttp2(ChannelFuture channelFuture) {
+                private void prepareTargetChannelForHttp2() {
                     freshHttp2ClientChannel.setSocketIdleTimeout(socketIdleTimeout);
                     connectionManager.getHttp2ConnectionManager().
                             addHttp2ClientChannel(route, freshHttp2ClientChannel);
@@ -243,42 +241,47 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                     httpResponseFuture.notifyHttpListener(cause);
                 }
             });
-        } catch (Exception failedCause) {
-            if (failedCause instanceof NoSuchElementException
-                    && "Timeout waiting for idle object".equals(failedCause.getMessage())) {
+        } catch (NoSuchElementException failedCause) {
+            if ("Timeout waiting for idle object".equals(failedCause.getMessage())) {
                 failedCause = new NoSuchElementException(Constants.MAXIMUM_WAIT_TIME_EXCEED);
             }
-            HttpResponseFuture errorResponseFuture = new DefaultHttpResponseFuture();
-            errorResponseFuture.notifyHttpListener(failedCause);
-            return errorResponseFuture;
+            return notifyListenerAndGetErrorResponseFuture(failedCause);
+        } catch (Exception failedCause) {
+            return notifyListenerAndGetErrorResponseFuture(failedCause);
         }
         return httpResponseFuture;
     }
 
-    private HttpRoute getTargetRoute(HTTPCarbonMessage httpCarbonMessage) {
+    private HttpResponseFuture notifyListenerAndGetErrorResponseFuture(Exception failedCause) {
+        HttpResponseFuture errorResponseFuture = new DefaultHttpResponseFuture();
+        errorResponseFuture.notifyHttpListener(failedCause);
+        return errorResponseFuture;
+    }
+
+    private HttpRoute getTargetRoute(HttpCarbonMessage httpCarbonMessage) {
         String host = fetchHost(httpCarbonMessage);
         int port = fetchPort(httpCarbonMessage);
 
         return new HttpRoute(host, port);
     }
 
-    private int fetchPort(HTTPCarbonMessage httpCarbonMessage) {
+    private int fetchPort(HttpCarbonMessage httpCarbonMessage) {
         int port;
         Object intProperty = httpCarbonMessage.getProperty(Constants.HTTP_PORT);
-        if (intProperty != null && intProperty instanceof Integer) {
+        if (intProperty instanceof Integer) {
             port = (int) intProperty;
         } else {
             port = sslConfig != null ? Constants.DEFAULT_HTTPS_PORT : Constants.DEFAULT_HTTP_PORT;
             httpCarbonMessage.setProperty(Constants.HTTP_PORT, port);
-            log.debug("Cannot find property PORT of type integer, hence using " + port);
+            log.debug("Cannot find property PORT of type integer, hence using {}", port);
         }
         return port;
     }
 
-    private String fetchHost(HTTPCarbonMessage httpCarbonMessage) {
+    private String fetchHost(HttpCarbonMessage httpCarbonMessage) {
         String host;
         Object hostProperty = httpCarbonMessage.getProperty(Constants.HTTP_HOST);
-        if (hostProperty != null && hostProperty instanceof String) {
+        if (hostProperty instanceof String) {
             host = (String) hostProperty;
         } else {
             host = Constants.LOCALHOST;
@@ -298,7 +301,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
     }
 
     private void handleOutboundConnectionHeader(KeepAliveConfig keepAliveConfig,
-                                                        HTTPCarbonMessage httpOutboundRequest) {
+                                                        HttpCarbonMessage httpOutboundRequest) {
         switch (keepAliveConfig) {
             case AUTO:
                 if (Float.valueOf(httpVersion) >= Constants.HTTP_1_1) {
@@ -314,6 +317,9 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
             case NEVER:
                 httpOutboundRequest.setHeader(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_CLOSE);
                 break;
+            default:
+                //Do nothing
+                break;
         }
         // Add proxy-authorization header if proxy is enabled and scheme is http
         if (senderConfiguration.getScheme().equals(HTTP_SCHEME) &&
@@ -324,7 +330,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         }
     }
 
-    private void setProxyAuthorizationHeader(HTTPCarbonMessage httpOutboundRequest) {
+    private void setProxyAuthorizationHeader(HttpCarbonMessage httpOutboundRequest) {
         ByteBuf authz = Unpooled.copiedBuffer(
                 senderConfiguration.getProxyServerConfiguration().getProxyUsername() + COLON
                         + senderConfiguration.getProxyServerConfiguration().getProxyPassword(), CharsetUtil.UTF_8);

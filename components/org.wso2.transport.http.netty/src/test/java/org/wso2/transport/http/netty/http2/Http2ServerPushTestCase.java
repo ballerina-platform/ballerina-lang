@@ -34,9 +34,9 @@ import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.http2.listeners.Http2ServerConnectorListener;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.message.ResponseHandle;
 import org.wso2.transport.http.netty.util.TestUtil;
@@ -82,18 +82,18 @@ public class Http2ServerPushTestCase {
 
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
         senderConfiguration =
-                HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
+                HttpConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
         senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
 
         httpClientConnector = connectorFactory.createHttpClientConnector(
-                HTTPConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
+                HttpConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
     }
 
     @Test
     public void testHttp2ServerPush() {
         MessageSender msgSender = new MessageSender(httpClientConnector);
 
-        HTTPCarbonMessage request = MessageGenerator.generateRequest(HttpMethod.POST, expectedResource);
+        HttpCarbonMessage request = MessageGenerator.generateRequest(HttpMethod.POST, expectedResource);
         // Submit a request and get the handle
         ResponseHandle handle = msgSender.submitMessage(request);
         assertNotNull(handle, "Response handle not found");
@@ -124,13 +124,13 @@ public class Http2ServerPushTestCase {
         }
 
         // Get the expected response
-        HTTPCarbonMessage response = msgSender.getResponse(handle);
+        HttpCarbonMessage response = msgSender.getResponse(handle);
         assertNotNull(response);
         String result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         assertEquals(result, expectedResource, "Expected response not received");
 
         // Get the 1st promised response
-        HTTPCarbonMessage promisedResponse = msgSender.getPushResponse(promise1);
+        HttpCarbonMessage promisedResponse = msgSender.getPushResponse(promise1);
         assertNotNull(promisedResponse);
         result = TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(promisedResponse).getInputStream());
         assertTrue(result.contains(promisedResource1), "Promised response 1 not received");

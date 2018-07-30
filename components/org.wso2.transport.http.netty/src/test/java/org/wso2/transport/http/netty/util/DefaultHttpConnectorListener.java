@@ -22,27 +22,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.compression.ServerRespCompressionTestCase;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.concurrent.CountDownLatch;
 
 /**
  * A connector listener for HTTP
  */
-public class HTTPConnectorListener implements HttpConnectorListener {
+public class DefaultHttpConnectorListener implements HttpConnectorListener {
 
     private static final Logger log = LoggerFactory.getLogger(ServerRespCompressionTestCase.class);
 
-    private HTTPCarbonMessage httpMessage;
+    private HttpCarbonMessage httpMessage;
     private Throwable throwable;
     private CountDownLatch latch;
 
-    public HTTPConnectorListener(CountDownLatch latch) {
+    public DefaultHttpConnectorListener(CountDownLatch latch) {
         this.latch = latch;
     }
 
     @Override
-    public void onMessage(HTTPCarbonMessage httpMessage) {
+    public void onMessage(HttpCarbonMessage httpMessage) {
         this.httpMessage = httpMessage;
         latch.countDown();
     }
@@ -53,7 +53,7 @@ public class HTTPConnectorListener implements HttpConnectorListener {
         latch.countDown();
     }
 
-    public HTTPCarbonMessage getHttpResponseMessage() {
+    public HttpCarbonMessage getHttpResponseMessage() {
         return httpMessage;
     }
 

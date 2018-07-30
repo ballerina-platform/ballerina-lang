@@ -34,7 +34,7 @@ import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.TestUtil;
 
@@ -74,7 +74,6 @@ public class SSLProtocolsTest {
                 { "TLSv1.1", "TLSv1.2", true, TestUtil.SERVER_PORT2 } };
     }
 
-    @Test(dataProvider = "protocols")
     /**
      * Set up the client and the server
      * @param clientProtocol SSL enabled protocol of client
@@ -82,6 +81,7 @@ public class SSLProtocolsTest {
      * @param hasException expecting an exception true/false
      * @param serverPort port
      */
+    @Test(dataProvider = "protocols")
     public void setup(String clientProtocol, String serverProtocol, boolean hasException, int serverPort)
             throws InterruptedException {
 
@@ -135,7 +135,7 @@ public class SSLProtocolsTest {
     private void testSSLProtocols(boolean hasException, int serverPort) {
         try {
             String testValue = "Test";
-            HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(serverPort, testValue, "");
+            HttpCarbonMessage msg = TestUtil.createHttpsPostReq(serverPort, testValue, "");
 
             CountDownLatch latch = new CountDownLatch(1);
             SSLConnectorListener listener = new SSLConnectorListener(latch);
@@ -144,7 +144,7 @@ public class SSLProtocolsTest {
 
             latch.await(5, TimeUnit.SECONDS);
 
-            HTTPCarbonMessage response = listener.getHttpResponseMessage();
+            HttpCarbonMessage response = listener.getHttpResponseMessage();
             if (hasException) {
                 assertNotNull(listener.getThrowables());
                 boolean hasSSLException = false;

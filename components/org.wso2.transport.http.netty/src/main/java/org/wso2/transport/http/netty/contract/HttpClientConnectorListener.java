@@ -19,7 +19,7 @@
 
 package org.wso2.transport.http.netty.contract;
 
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.ResponseHandle;
 
 /**
@@ -33,7 +33,7 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
 public interface HttpClientConnectorListener extends HttpConnectorListener {
 
     @Override
-    default void onMessage(HTTPCarbonMessage httpMessage) {
+    default void onMessage(HttpCarbonMessage httpMessage) {
     }
 
     @Override

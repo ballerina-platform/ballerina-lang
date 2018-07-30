@@ -32,7 +32,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.TestUtil;
 
@@ -56,14 +56,14 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
     }
 
     @Override
-    public void onMessage(HTTPCarbonMessage httpRequest) {
+    public void onMessage(HttpCarbonMessage httpRequest) {
         executor.execute(() -> {
             try {
                 String requestValue = TestUtil
                         .getStringFromInputStream(new HttpMessageDataStreamer(httpRequest).getInputStream());
                 byte[] arry = responseValue.getBytes("UTF-8");
 
-                HTTPCarbonMessage newMsg = httpRequest.cloneCarbonMessageWithOutData();
+                HttpCarbonMessage newMsg = httpRequest.cloneCarbonMessageWithOutData();
                 if (newMsg.getHeader(HttpHeaderNames.TRANSFER_ENCODING.toString()) == null) {
                     newMsg.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(arry.length));
                 }
@@ -81,7 +81,7 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
                 HttpResponseFuture future = clientConnector.send(newMsg);
                 future.setHttpConnectorListener(new HttpConnectorListener() {
                     @Override
-                    public void onMessage(HTTPCarbonMessage httpResponse) {
+                    public void onMessage(HttpCarbonMessage httpResponse) {
                         executor.execute(() -> {
                             String responseValue = TestUtil.getStringFromInputStream(
                                     new HttpMessageDataStreamer(httpResponse).getInputStream());
@@ -96,7 +96,7 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
 
                             ByteBuffer responseValueByteBuffer = ByteBuffer.wrap(responseByteValues);
 
-                            HTTPCarbonMessage httpCarbonMessage = httpResponse
+                            HttpCarbonMessage httpCarbonMessage = httpResponse
                                     .cloneCarbonMessageWithOutData();
                             if (httpCarbonMessage.getHeader(HttpHeaderNames.TRANSFER_ENCODING.toString()) == null) {
                                 httpCarbonMessage.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(),

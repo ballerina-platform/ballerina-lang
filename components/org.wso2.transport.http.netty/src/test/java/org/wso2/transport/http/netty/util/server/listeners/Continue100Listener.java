@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
 import java.util.concurrent.ExecutorService;
@@ -43,13 +43,13 @@ public class Continue100Listener implements HttpConnectorListener {
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
-    public void onMessage(HTTPCarbonMessage httpRequest) {
+    public void onMessage(HttpCarbonMessage httpRequest) {
         executor.execute(() -> {
             try {
                 String expectHeader = httpRequest.getHeader(HttpHeaderNames.EXPECT.toString());
 
                 if (expectHeader != null && expectHeader.equalsIgnoreCase("100-continue")) {
-                    HTTPCarbonMessage httpResponse =
+                    HttpCarbonMessage httpResponse =
                             new HttpCarbonResponse(
                                     new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE));
                     httpResponse.setHeader(HttpHeaderNames.CONNECTION.toString(),
@@ -59,7 +59,7 @@ public class Continue100Listener implements HttpConnectorListener {
                     httpRequest.respond(httpResponse);
                 }
 
-                HTTPCarbonMessage httpResponse =
+                HttpCarbonMessage httpResponse =
                         new HttpCarbonResponse(
                                 new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
                 httpResponse.setHeader(HttpHeaderNames.CONNECTION.toString(), HttpHeaderValues.KEEP_ALIVE.toString());

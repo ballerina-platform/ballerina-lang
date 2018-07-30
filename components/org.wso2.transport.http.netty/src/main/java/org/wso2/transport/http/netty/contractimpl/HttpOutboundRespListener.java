@@ -28,13 +28,16 @@ import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
+import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.listener.RequestDataHolder;
 import org.wso2.transport.http.netty.listener.SourceErrorHandler;
 import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.listener.states.ListenerStateContext;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +58,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     private ChannelHandlerContext sourceContext;
     private RequestDataHolder requestDataHolder;
     private HandlerExecutor handlerExecutor;
-    private HTTPCarbonMessage inboundRequestMsg;
+    private HttpCarbonMessage inboundRequestMsg;
     private ChunkConfig chunkConfig;
     private KeepAliveConfig keepAliveConfig;
     private boolean headerWritten = false;
@@ -82,7 +85,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     }
 
     @Override
-    public void onMessage(HTTPCarbonMessage outboundResponseMsg) {
+    public void onMessage(HttpCarbonMessage outboundResponseMsg) {
         sourceContext.channel().eventLoop().execute(() -> {
 
             if (handlerExecutor != null) {
@@ -114,7 +117,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     }
 
     @Override
-    public void onPushResponse(int promiseId, HTTPCarbonMessage httpMessage) {
+    public void onPushResponse(int promiseId, HttpCarbonMessage httpMessage) {
         inboundRequestMsg.getHttpOutboundRespStatusFuture().notifyHttpListener(new UnsupportedOperationException(
                 "Sending Server Push messages is not supported for HTTP/1.x connections"));
     }
@@ -232,7 +235,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         this.continueRequest = continueRequest;
     }
 
-    public HTTPCarbonMessage getInboundRequestMsg() {
+    public HttpCarbonMessage getInboundRequestMsg() {
         return inboundRequestMsg;
     }
 

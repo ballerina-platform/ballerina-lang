@@ -31,7 +31,7 @@ public class SSLConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SSLConfig.class);
 
-    private static final String separator = ",";
+    private static final String SEPARATOR = ",";
 
     private File keyStore;
     private String keyStorePass;
@@ -51,7 +51,7 @@ public class SSLConfig {
 
     public SSLConfig(File keyStore, String keyStorePass) {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Using key store" + keyStore);
+            LOGGER.debug("Using key store {}", keyStore);
         }
         this.keyStore = keyStore;
         this.keyStorePass = keyStorePass;
@@ -72,7 +72,7 @@ public class SSLConfig {
 
     public SSLConfig setTrustStore(File trustStore) {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Using trust store" + trustStore);
+            LOGGER.debug("Using trust store {}", trustStore);
         }
         this.trustStore = trustStore;
         return this;
@@ -101,9 +101,9 @@ public class SSLConfig {
 
     public void setSniMatchers(String sniMatchers) {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Using sniMatchers" + sniMatchers);
+            LOGGER.debug("Using sniMatchers {}", sniMatchers);
         }
-        this.sniMatchers = sniMatchers.split(separator);
+        this.sniMatchers = sniMatchers.split(SEPARATOR);
     }
 
     public String[] getServerNames() {
@@ -112,9 +112,9 @@ public class SSLConfig {
 
     public void setServerNames(String serverNames) {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Using serverNames" + serverNames);
+            LOGGER.debug("Using serverNames {}", serverNames);
         }
-        this.serverNames = serverNames.replaceAll("\\s+", "").split(separator);
+        this.serverNames = serverNames.replaceAll("\\s+", "").split(SEPARATOR);
     }
 
     public boolean isWantClientAuth() {
@@ -123,7 +123,7 @@ public class SSLConfig {
 
     public void setWantClientAuth(boolean wantClientAuth) {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Set WantClientAuth" + wantClientAuth);
+            LOGGER.debug("Set WantClientAuth {}", wantClientAuth);
         }
         this.wantClientAuth = wantClientAuth;
     }
@@ -134,14 +134,14 @@ public class SSLConfig {
 
     public void setNeedClientAuth(boolean needClientAuth) {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Set NeedClientAuth" + needClientAuth);
+            LOGGER.debug("Set NeedClientAuth {}", needClientAuth);
         }
         this.needClientAuth = needClientAuth;
     }
 
     public void setSSLProtocol(String sslProtocol) {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Set SSLProtocol" + sslProtocol);
+            LOGGER.debug("Set SSLProtocol {}", sslProtocol);
         }
         this.sslProtocol = sslProtocol;
     }
@@ -164,7 +164,7 @@ public class SSLConfig {
 
     public void setEnableSessionCreation(boolean enableSessionCreation) {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Enable Session Creation" + enableSessionCreation);
+            LOGGER.debug("Enable Session Creation {}", enableSessionCreation);
         }
         this.enableSessionCreation = enableSessionCreation;
     }
@@ -175,9 +175,9 @@ public class SSLConfig {
 
     public void setEnableProtocols(String enableProtocols) {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Set enable protocols" + enableProtocols);
+            LOGGER.debug("Set enable protocols {}", enableProtocols);
         }
-        this.enableProtocols = enableProtocols.replaceAll("\\s+", "").split(separator);
+        this.enableProtocols = enableProtocols.replaceAll("\\s+", "").split(SEPARATOR);
     }
 
     public String[] getCipherSuites() {
@@ -186,8 +186,8 @@ public class SSLConfig {
 
     public void setCipherSuites(String cipherSuites) {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Set supported cipherSuites" + cipherSuites);
+            LOGGER.debug("Set supported cipherSuites {}", cipherSuites);
         }
-        this.cipherSuites = cipherSuites.replaceAll("\\s+", "").split(separator);
+        this.cipherSuites = cipherSuites.replaceAll("\\s+", "").split(SEPARATOR);
     }
 }

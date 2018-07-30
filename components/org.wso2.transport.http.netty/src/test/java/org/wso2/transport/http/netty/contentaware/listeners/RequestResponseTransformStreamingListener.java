@@ -30,7 +30,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.TestUtil;
 
@@ -50,7 +50,7 @@ public class RequestResponseTransformStreamingListener implements HttpConnectorL
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
-    public void onMessage(HTTPCarbonMessage httpRequestMessage) {
+    public void onMessage(HttpCarbonMessage httpRequestMessage) {
         executor.execute(() -> {
             try {
                 InputStream inputStream = new HttpMessageDataStreamer(httpRequestMessage).getInputStream();
@@ -67,7 +67,7 @@ public class RequestResponseTransformStreamingListener implements HttpConnectorL
                 HttpResponseFuture future = clientConnector.send(httpRequestMessage);
                 future.setHttpConnectorListener(new HttpConnectorListener() {
                     @Override
-                    public void onMessage(HTTPCarbonMessage httpResponse) {
+                    public void onMessage(HttpCarbonMessage httpResponse) {
                         executor.execute(() -> {
                             InputStream inputS = new HttpMessageDataStreamer(httpResponse).getInputStream();
                             OutputStream outputS = new HttpMessageDataStreamer(httpResponse).getOutputStream();

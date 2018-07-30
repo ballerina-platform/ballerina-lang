@@ -29,8 +29,8 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.util.HTTPConnectorListener;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.util.HashMap;
@@ -61,10 +61,10 @@ public class ClientConnectorConnectionRefusedTestCase {
     @Test
     public void testHttpsGet() {
         try {
-            HTTPCarbonMessage httpsRequest = TestUtil.createHttpsPostReq(TestUtil.HTTPS_SERVER_PORT, "", "");
+            HttpCarbonMessage httpsRequest = TestUtil.createHttpsPostReq(TestUtil.HTTPS_SERVER_PORT, "", "");
 
             CountDownLatch latch = new CountDownLatch(1);
-            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
+            DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
             HttpResponseFuture responseFuture = httpClientConnector.send(httpsRequest);
             responseFuture.setHttpConnectorListener(listener);
 

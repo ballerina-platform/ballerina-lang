@@ -26,7 +26,7 @@ import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
-import org.wso2.transport.http.netty.util.HTTPConnectorListener;
+import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.initializers.SendChannelIDServerInitializer;
@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 
-import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotEquals;
 
 /**
  * Tests for connection pool implementation.
@@ -63,7 +63,7 @@ public class ConnectionPoolEvictionTestCase {
             CountDownLatch requestLatchOne = new CountDownLatch(1);
             CountDownLatch requestLatchTwo = new CountDownLatch(1);
 
-            HTTPConnectorListener responseListener;
+            DefaultHttpConnectorListener responseListener;
 
             responseListener = TestUtil.sendRequestAsync(requestLatchOne, httpClientConnector);
             String responseOne = TestUtil.waitAndGetStringEntity(requestLatchOne, responseListener);
@@ -73,7 +73,7 @@ public class ConnectionPoolEvictionTestCase {
             responseListener = TestUtil.sendRequestAsync(requestLatchTwo, httpClientConnector);
             String responseTwo = TestUtil.waitAndGetStringEntity(requestLatchTwo, responseListener);
 
-            assertFalse(responseOne.equals(responseTwo));
+            assertNotEquals(responseOne, responseTwo);
         } catch (Exception e) {
             TestUtil.handleException("IOException occurred while running testConnectionReuseForMain", e);
         }

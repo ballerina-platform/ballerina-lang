@@ -23,7 +23,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ForwardedExtensionConfig;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -42,7 +42,7 @@ public class ForwardedTransitionTestCase extends ForwardedClientTemplate {
     @Test
     public void testSingleHeader() {
         try {
-            HTTPCarbonMessage response = sendRequest(new DefaultHttpHeaders());
+            HttpCarbonMessage response = sendRequest(new DefaultHttpHeaders());
             assertEquals(response.getHeader(Constants.FORWARDED), "by=127.0.0.1; proto=http");
 
             response = sendRequest(new DefaultHttpHeaders()
@@ -67,7 +67,7 @@ public class ForwardedTransitionTestCase extends ForwardedClientTemplate {
             headers1.set(Constants.X_FORWARDED_FOR, "123.34.24.67");
             headers1.set(Constants.X_FORWARDED_BY, "13.134.224.167");
 
-            HTTPCarbonMessage response = sendRequest(headers1);
+            HttpCarbonMessage response = sendRequest(headers1);
             assertEquals(response.getHeader(Constants.FORWARDED),
                     "for=203.0.113.60; by=127.0.0.1; host=example.com; proto=http");
             assertEquals(response.getHeader(Constants.X_FORWARDED_FOR), "123.34.24.67");

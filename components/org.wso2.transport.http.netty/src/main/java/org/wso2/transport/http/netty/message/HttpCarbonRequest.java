@@ -23,9 +23,9 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpVersion;
 
 /**
- * Contains information specific to http request
+ * Contains information specific to http request.
  */
-public class HttpCarbonRequest extends HTTPCarbonMessage {
+public class HttpCarbonRequest extends HttpCarbonMessage {
 
     private HttpRequest httpRequest;
 

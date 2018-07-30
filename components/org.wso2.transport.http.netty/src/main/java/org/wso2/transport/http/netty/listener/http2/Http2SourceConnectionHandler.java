@@ -33,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.listener.HttpServerChannelInitializer;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
 import org.wso2.transport.http.netty.message.Http2HeadersFrame;
@@ -85,7 +85,7 @@ public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         if (ctx != null && ctx.channel().isActive()) {
             ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
         }
@@ -104,10 +104,10 @@ public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    public void channelInactive(ChannelHandlerContext ctx) {
         ctx.close();
-        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            HTTPTransportContextHolder.getInstance().getHandlerExecutor()
+        if (HttpTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            HttpTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
         }
         ctx.fireChannelInactive();
@@ -129,21 +129,19 @@ public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
 
         @Override
         public void onHeadersRead(ChannelHandlerContext ctx, int streamId,
-                                  Http2Headers headers, int padding, boolean endOfStream) throws Http2Exception {
+                                  Http2Headers headers, int padding, boolean endOfStream) {
             Http2HeadersFrame http2HeadersFrame = new Http2HeadersFrame(streamId, headers, endOfStream);
             ctx.fireChannelRead(http2HeadersFrame);
         }
 
         @Override
         public void onHeadersRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers, int streamDependency,
-                                  short weight, boolean exclusive, int padding, boolean endOfStream)
-                throws Http2Exception {
+                                  short weight, boolean exclusive, int padding, boolean endOfStream) {
             onHeadersRead(ctx, streamId, headers, padding, endOfStream);
         }
 
         @Override
-        public int onDataRead(ChannelHandlerContext ctx, int streamId, ByteBuf data, int padding, boolean endOfStream)
-                throws Http2Exception {
+        public int onDataRead(ChannelHandlerContext ctx, int streamId, ByteBuf data, int padding, boolean endOfStream) {
             int readableBytes = data.readableBytes();
             ByteBuf forwardedData = data.copy();
             data.skipBytes(readableBytes);

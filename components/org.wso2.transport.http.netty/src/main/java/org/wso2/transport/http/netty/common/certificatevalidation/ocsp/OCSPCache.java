@@ -47,12 +47,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class OCSPCache implements ManageableCache {
 
     private static volatile OCSPCache cache;
-    private static volatile Map<BigInteger, OCSPCacheValue> hashMap
-            = new ConcurrentHashMap<BigInteger, OCSPCacheValue>();
+    private static volatile Map<BigInteger, OCSPCacheValue> hashMap = new ConcurrentHashMap<>();
     private volatile Iterator<Map.Entry<BigInteger, OCSPCacheValue>> iterator
             = hashMap.entrySet().iterator();
     private volatile CacheManager cacheManager;
-    private static OCSPVerifier ocspVerifier = new OCSPVerifier(null);
     private static final Logger log = LoggerFactory.getLogger(OCSPCache.class);
 
     private OCSPCache() {
@@ -117,42 +115,6 @@ public class OCSPCache implements ManageableCache {
         iterator = hashMap.entrySet().iterator();
     }
 
-    //This has to be synchronized because several threads will try to replace cache value
-    // (cacheManager and Reactor thread)
-    private synchronized void replaceNewCacheValue(OCSPCacheValue cacheValue) {
-        //If someone has updated with the new value before current Thread.
-        if (cacheValue.isValid()) {
-            return;
-        }
-
-        try {
-            String serviceUrl = cacheValue.serviceUrl;
-            OCSPReq request = cacheValue.request;
-            OCSPResp response = ocspVerifier.getOCSPResponce(serviceUrl, request);
-
-            if (OCSPResponseStatus.SUCCESSFUL != response.getStatus()) {
-                throw new CertificateVerificationException(
-                        "OCSP response status was not SUCCESSFUL. Found OCSPResponseStatus:" + response.getStatus());
-            }
-
-            BasicOCSPResp basicResponse = (BasicOCSPResp) response.getResponseObject();
-            SingleResp[] responses = (basicResponse == null) ? null : basicResponse.getResponses();
-
-            if (responses == null) {
-                throw new CertificateVerificationException("Unable to get OCSP response.");
-            }
-
-            SingleResp resp = responses[0];
-            this.setCacheValue(response, cacheValue.serialNumber, resp, request, serviceUrl);
-
-        } catch (CertificateVerificationException | OCSPException e) {
-            if (log.isInfoEnabled()) {
-                log.info("Can not replace old CacheValue with new CacheValue. So removing ocsp cache value", e);
-            }
-            //If cant be replaced remove.
-            cacheValue.removeThisCacheValue();
-        }
-    }
 
     public synchronized SingleResp getCacheValue(BigInteger serialNumber) {
         OCSPCacheValue cacheValue = hashMap.get(serialNumber);
@@ -189,21 +151,21 @@ public class OCSPCache implements ManageableCache {
             OCSPReq request, String serviceUrl) {
         OCSPCacheValue cacheValue = new OCSPCacheValue(ocspResp, serialNumber, singleResp, request, serviceUrl);
         if (log.isDebugEnabled()) {
-            log.debug("Before setting - HashMap size " + hashMap.size());
+            log.debug("Before setting - HashMap size {}", hashMap.size());
         }
         hashMap.put(serialNumber, cacheValue);
         if (log.isDebugEnabled()) {
-            log.debug("After setting - HashMap size " + hashMap.size());
+            log.debug("After setting - HashMap size {}", hashMap.size());
         }
     }
 
     public synchronized void removeCacheValue(BigInteger serialNumber) {
         if (log.isDebugEnabled()) {
-            log.debug("Before removing - HashMap size " + hashMap.size());
+            log.debug("Before removing - HashMap size {}", hashMap.size());
         }
         hashMap.remove(serialNumber);
         if (log.isDebugEnabled()) {
-            log.debug("After removing - HashMap size " + hashMap.size());
+            log.debug("After removing - HashMap size {}", hashMap.size());
         }
     }
 
@@ -264,7 +226,43 @@ public class OCSPCache implements ManageableCache {
         }
 
         public void updateCacheWithNewValue() {
-            replaceNewCacheValue(this);
+            replaceNewCacheValue();
+        }
+
+        //This has to be synchronized because several threads will try to replace cache value
+        // (cacheManager and Reactor thread)
+        private synchronized void replaceNewCacheValue() {
+            //If someone has updated with the new value before current Thread.
+            if (isValid()) {
+                return;
+            }
+
+            try {
+                OCSPResp response = OCSPVerifier.getOCSPResponce(serviceUrl, request);
+
+                if (OCSPResponseStatus.SUCCESSFUL != response.getStatus()) {
+                    throw new CertificateVerificationException(
+                            "OCSP response status was not SUCCESSFUL. Found OCSPResponseStatus:" +
+                                    response.getStatus());
+                }
+
+                BasicOCSPResp basicResponse = (BasicOCSPResp) response.getResponseObject();
+                SingleResp[] responses = (basicResponse == null) ? null : basicResponse.getResponses();
+
+                if (responses == null) {
+                    throw new CertificateVerificationException("Unable to get OCSP response.");
+                }
+
+                SingleResp resp = responses[0];
+                setCacheValue(response, serialNumber, resp, request, serviceUrl);
+
+            } catch (CertificateVerificationException | OCSPException e) {
+                if (log.isInfoEnabled()) {
+                    log.info("Can not replace old CacheValue with new CacheValue. So removing ocsp cache value", e);
+                }
+                //If cant be replaced remove.
+                removeThisCacheValue();
+            }
         }
     }
 }

@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.IOException;
@@ -45,14 +45,14 @@ public class ContentReadingListener implements HttpConnectorListener {
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
-    public void onMessage(HTTPCarbonMessage httpMessage) {
+    public void onMessage(HttpCarbonMessage httpMessage) {
         executor.execute(() -> {
             try {
                 InputStream inputStream = new HttpMessageDataStreamer(httpMessage).getInputStream();
                 String response = new String(ByteStreams.toByteArray(inputStream), Charset.defaultCharset());
                 String alteredContent = "Altered " + response + " content";
 
-                HTTPCarbonMessage newMsg = httpMessage.cloneCarbonMessageWithOutData();
+                HttpCarbonMessage newMsg = httpMessage.cloneCarbonMessageWithOutData();
                 newMsg.addHttpContent(new DefaultLastHttpContent(
                         Unpooled.wrappedBuffer(alteredContent.getBytes(Charset.defaultCharset()))));
                 newMsg.completeMessage();

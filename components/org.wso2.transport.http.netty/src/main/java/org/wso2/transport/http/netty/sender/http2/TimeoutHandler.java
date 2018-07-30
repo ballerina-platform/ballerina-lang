@@ -140,7 +140,7 @@ public class TimeoutHandler  implements Http2DataEventListener {
         if (msgHolder != null) {
             msgHolder.setLastReadWriteTime(ticksInNanos());
         } else {
-            log.debug("OutboundMsgHolder may have already removed for streamId: " + streamId);
+            log.debug("OutboundMsgHolder may have already removed for streamId: {}", streamId);
         }
     }
 
@@ -187,16 +187,16 @@ public class TimeoutHandler  implements Http2DataEventListener {
             msgHolder.getResponse().addHttpContent(lastHttpContent);
             log.warn(errorMessage);
         }
+
+        private void closeStream(int streamId, ChannelHandlerContext ctx) {
+            Http2TargetHandler clientOutboundHandler =
+                    (Http2TargetHandler) ctx.pipeline().get(Constants.HTTP2_TARGET_HANDLER);
+            clientOutboundHandler.resetStream(ctx, streamId, Http2Error.STREAM_CLOSED);
+        }
     }
 
     private long ticksInNanos() {
         return System.nanoTime();
-    }
-
-    private void closeStream(int streamId, ChannelHandlerContext ctx) {
-        Http2TargetHandler clientOutboundHandler =
-                (Http2TargetHandler) ctx.pipeline().get(Constants.HTTP2_TARGET_HANDLER);
-        clientOutboundHandler.resetStream(ctx, streamId, Http2Error.STREAM_CLOSED);
     }
 
     private ScheduledFuture<?> schedule(ChannelHandlerContext ctx, Runnable task, long delay, TimeUnit unit) {

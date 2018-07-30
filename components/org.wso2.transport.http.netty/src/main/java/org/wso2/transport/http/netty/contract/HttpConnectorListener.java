@@ -19,8 +19,8 @@
 
 package org.wso2.transport.http.netty.contract;
 
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
  * Allows to get notifications of connectors.
@@ -31,7 +31,7 @@ public interface HttpConnectorListener {
      *
      * @param httpMessage contains the state change information of the event.
      */
-    void onMessage(HTTPCarbonMessage httpMessage);
+    void onMessage(HttpCarbonMessage httpMessage);
 
     /**
      * Each error event triggered by connector ends up here.
@@ -53,6 +53,6 @@ public interface HttpConnectorListener {
      * @param promiseId the promise id of the push response
      * @param  httpMessage the push response message
      */
-    default void onPushResponse(int promiseId, HTTPCarbonMessage httpMessage) {
+    default void onPushResponse(int promiseId, HttpCarbonMessage httpMessage) {
     }
 }

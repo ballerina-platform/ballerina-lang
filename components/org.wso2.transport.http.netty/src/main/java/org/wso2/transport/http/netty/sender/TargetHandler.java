@@ -31,9 +31,9 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
@@ -57,11 +57,11 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private static final Logger log = LoggerFactory.getLogger(TargetHandler.class);
 
     private HttpResponseFuture httpResponseFuture;
-    private HTTPCarbonMessage inboundResponseMsg;
+    private HttpCarbonMessage inboundResponseMsg;
     private ConnectionManager connectionManager;
     private TargetChannel targetChannel;
     private Http2TargetHandler http2TargetHandler;
-    private HTTPCarbonMessage outboundRequestMsg;
+    private HttpCarbonMessage outboundRequestMsg;
     private HandlerExecutor handlerExecutor;
     private KeepAliveConfig keepAliveConfig;
     private boolean idleTimeoutTriggered;
@@ -88,7 +88,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
             }
         } else {
             if (msg instanceof HttpResponse) {
-                log.warn("Received a response for an obsolete request", msg.toString());
+                log.warn("Received a response for an obsolete request {}", msg);
             }
             ReferenceCountUtil.release(msg);
         }
@@ -133,7 +133,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
+        handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
         if (handlerExecutor != null) {
             handlerExecutor.executeAtTargetConnectionInitiation(Integer.toString(ctx.hashCode()));
         }
@@ -156,7 +156,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         closeChannel(ctx);
         targetErrorHandler.exceptionCaught(cause);
     }
@@ -189,7 +189,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
             // When closing the channel, if it is already closed it will trigger this event. So we can ignore this.
             log.debug("Input side of the connection is already shutdown");
         } else {
-            log.warn("Unexpected user event {} triggered", evt.toString());
+            log.warn("Unexpected user event {} triggered", evt);
         }
     }
 
@@ -217,7 +217,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 addHttp2ClientChannel(targetChannel.getHttpRoute(), targetChannel.getHttp2ClientChannel());
     }
 
-    private void closeChannel(ChannelHandlerContext ctx) throws Exception {
+    private void closeChannel(ChannelHandlerContext ctx) {
         // The if condition here checks if the connection has already been closed by either the client or the backend.
         // If it was the backend which closed the connection, the channel inactive event will be triggered and
         // subsequently, this method will be called.
@@ -234,7 +234,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         this.connectionManager = connectionManager;
     }
 
-    public void setOutboundRequestMsg(HTTPCarbonMessage outboundRequestMsg) {
+    public void setOutboundRequestMsg(HttpCarbonMessage outboundRequestMsg) {
         this.outboundRequestMsg = outboundRequestMsg;
     }
 

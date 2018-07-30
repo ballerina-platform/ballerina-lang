@@ -37,9 +37,9 @@ import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
-import org.wso2.transport.http.netty.util.HTTPConnectorListener;
+import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.IOException;
@@ -90,7 +90,7 @@ public class ClientRespDecompressionTestCase {
     @Test
     public void clientConnectorRespDecompressionTest() {
         try {
-            HTTPCarbonMessage requestMsg = sendRequest(TestUtil.largeEntity);
+            HttpCarbonMessage requestMsg = sendRequest(TestUtil.largeEntity);
             latch.await(5, TimeUnit.SECONDS);
             assertEquals(TestUtil.largeEntity, TestUtil.getStringFromInputStream(
                     new HttpMessageDataStreamer(requestMsg).getInputStream()));
@@ -99,9 +99,9 @@ public class ClientRespDecompressionTestCase {
         }
     }
 
-    public HTTPCarbonMessage sendRequest(String content) throws IOException, InterruptedException {
-        HTTPCarbonMessage requestMsg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
-                HttpMethod.POST, ""));
+    public HttpCarbonMessage sendRequest(String content) throws IOException, InterruptedException {
+        HttpCarbonMessage requestMsg = new HttpCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+                                                                                    HttpMethod.POST, ""));
 
         requestMsg.setProperty(Constants.HTTP_PORT, TestUtil.SERVER_CONNECTOR_PORT);
         requestMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
@@ -111,7 +111,7 @@ public class ClientRespDecompressionTestCase {
         requestMsg.setHeader("Accept-Encoding", "deflate;q=1.0, gzip;q=0.8");
 
         latch = new CountDownLatch(1);
-        HTTPConnectorListener listener = new HTTPConnectorListener(latch);
+        DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
         clientConnector.send(requestMsg).setHttpConnectorListener(listener);
         HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(requestMsg);
         httpMessageDataStreamer.getOutputStream().write(content.getBytes());

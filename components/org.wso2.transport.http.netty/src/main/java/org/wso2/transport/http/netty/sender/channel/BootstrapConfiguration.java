@@ -29,8 +29,13 @@ public class BootstrapConfiguration {
 
     private static final Logger logger = LoggerFactory.getLogger(BootstrapConfiguration.class);
 
-    private boolean tcpNoDelay, keepAlive, socketReuse;
-    private int connectTimeOut, receiveBufferSize, sendBufferSize, socketTimeout;
+    private boolean tcpNoDelay;
+    private boolean keepAlive;
+    private boolean socketReuse;
+    private int connectTimeOut;
+    private int receiveBufferSize;
+    private int sendBufferSize;
+    private int socketTimeout;
 
     public BootstrapConfiguration(Map<String, Object> properties) {
 
@@ -54,13 +59,14 @@ public class BootstrapConfiguration {
         socketReuse = Util.getBooleanProperty(
                 properties, Constants.CLIENT_BOOTSTRAP_SO_REUSE, false);
 
-        logger.debug(Constants.CLIENT_BOOTSTRAP_TCP_NO_DELY + ": " + tcpNoDelay);
-        logger.debug(Constants.CLIENT_BOOTSTRAP_CONNECT_TIME_OUT + ":" + connectTimeOut);
-        logger.debug(Constants.CLIENT_BOOTSTRAP_RECEIVE_BUFFER_SIZE + ":" + receiveBufferSize);
-        logger.debug(Constants.CLIENT_BOOTSTRAP_SEND_BUFFER_SIZE + ":" + sendBufferSize);
-        logger.debug(Constants.CLIENT_BOOTSTRAP_SO_TIMEOUT + ":" + socketTimeout);
-        logger.debug(Constants.CLIENT_BOOTSTRAP_KEEPALIVE + ":" + keepAlive);
-        logger.debug(Constants.CLIENT_BOOTSTRAP_SO_REUSE + ":" + socketReuse);
+        String logValue = "{}:{}";
+        logger.debug(logValue, Constants.CLIENT_BOOTSTRAP_TCP_NO_DELY , tcpNoDelay);
+        logger.debug(logValue, Constants.CLIENT_BOOTSTRAP_CONNECT_TIME_OUT, connectTimeOut);
+        logger.debug(logValue, Constants.CLIENT_BOOTSTRAP_RECEIVE_BUFFER_SIZE, receiveBufferSize);
+        logger.debug(logValue, Constants.CLIENT_BOOTSTRAP_SEND_BUFFER_SIZE, sendBufferSize);
+        logger.debug(logValue, Constants.CLIENT_BOOTSTRAP_SO_TIMEOUT, socketTimeout);
+        logger.debug(logValue, Constants.CLIENT_BOOTSTRAP_KEEPALIVE, keepAlive);
+        logger.debug(logValue, Constants.CLIENT_BOOTSTRAP_SO_REUSE, socketReuse);
     }
 
     public boolean isTcpNoDelay() {

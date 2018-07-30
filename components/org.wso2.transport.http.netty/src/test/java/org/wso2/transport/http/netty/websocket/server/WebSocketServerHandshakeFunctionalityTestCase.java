@@ -122,6 +122,21 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
         testClient.closeChannel();
     }
 
+    @Test(description = "Check if an error is returned if handshake is called after cancelling the handshake.")
+    public void testCancelAndHandshake() throws URISyntaxException, InterruptedException {
+        CountDownLatch handshakeCompleteCountDownLatch = new CountDownLatch(1);
+        listener.setHandshakeCompleteCountDownLatch(handshakeCompleteCountDownLatch);
+        try {
+            createClientAndHandshake("x-cancel-and-handshake", null);
+        } catch (WebSocketHandshakeException ex) {
+            //Ignore
+        }
+        handshakeCompleteCountDownLatch.await(countdownLatchTimeout, TimeUnit.SECONDS);
+        Throwable error = listener.getHandshakeError();
+        Assert.assertTrue(error instanceof IllegalAccessException);
+        Assert.assertEquals(error.getMessage(), "Handshake is already cancelled.");
+    }
+
     @Test
     public void testReadNextFrame() throws URISyntaxException, InterruptedException {
         CountDownLatch handshakeCompleteCountDownLatch = new CountDownLatch(1);
@@ -133,7 +148,7 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
 
         Assert.assertNotNull(webSocketConnection);
 
-        for (String testMsg: testMsgArray) {
+        for (String testMsg : testMsgArray) {
             Assert.assertEquals(readNextTextFrame(testClient, webSocketConnection), testMsg);
         }
 
@@ -159,7 +174,7 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
     public void testHandshakeWithPostMethod() throws IOException {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
         URL url = URI.create(String.format("http://%s:%d/%s", TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT,
-                "/websocket")).toURL();
+                                           "/websocket")).toURL();
         HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
         urlConn.setRequestMethod("POST");
         urlConn.setRequestProperty("Connection", "Upgrade");

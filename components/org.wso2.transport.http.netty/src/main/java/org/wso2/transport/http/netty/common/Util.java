@@ -51,7 +51,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.exception.ConfigurationException;
 import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.DefaultListener;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.message.Listener;
@@ -89,9 +89,13 @@ import static org.wso2.transport.http.netty.common.Constants.URL_AUTHORITY;
  */
 public class Util {
 
+    private Util() {
+        //Hides implicit public constructor.
+    }
+
     private static Logger log = LoggerFactory.getLogger(Util.class);
 
-    private static String getStringValue(HTTPCarbonMessage msg, String key, String defaultValue) {
+    private static String getStringValue(HttpCarbonMessage msg, String key, String defaultValue) {
         String value = (String) msg.getProperty(key);
         if (value == null) {
             return defaultValue;
@@ -100,7 +104,7 @@ public class Util {
         return value;
     }
 
-    private static int getIntValue(HTTPCarbonMessage msg, String key, int defaultValue) {
+    private static int getIntValue(HttpCarbonMessage msg, String key, int defaultValue) {
         Integer value = (Integer) msg.getProperty(key);
         if (value == null) {
             return defaultValue;
@@ -110,8 +114,8 @@ public class Util {
     }
 
     @SuppressWarnings("unchecked")
-    public static HttpResponse createHttpResponse(HTTPCarbonMessage outboundResponseMsg, String inboundReqHttpVersion,
-            String serverName, boolean keepAlive) {
+    public static HttpResponse createHttpResponse(HttpCarbonMessage outboundResponseMsg, String inboundReqHttpVersion,
+                                                  String serverName, boolean keepAlive) {
 
         HttpVersion httpVersion = new HttpVersion(Constants.HTTP_VERSION_PREFIX + inboundReqHttpVersion, true);
         HttpResponseStatus httpResponseStatus = getHttpResponseStatus(outboundResponseMsg);
@@ -123,7 +127,7 @@ public class Util {
         return outboundNettyResponse;
     }
 
-    public static HttpResponse createFullHttpResponse(HTTPCarbonMessage outboundResponseMsg,
+    public static HttpResponse createFullHttpResponse(HttpCarbonMessage outboundResponseMsg,
             String inboundReqHttpVersion, String serverName, boolean keepAlive, ByteBuf fullContent) {
 
         HttpVersion httpVersion = new HttpVersion(Constants.HTTP_VERSION_PREFIX + inboundReqHttpVersion, true);
@@ -137,8 +141,9 @@ public class Util {
         return outboundNettyResponse;
     }
 
-    private static void setOutboundRespHeaders(HTTPCarbonMessage outboundResponseMsg, String inboundReqHttpVersion,
-            String serverName, boolean keepAlive, HttpResponse outboundNettyResponse) {
+    private static void setOutboundRespHeaders(HttpCarbonMessage outboundResponseMsg, String inboundReqHttpVersion,
+                                               String serverName, boolean keepAlive,
+                                               HttpResponse outboundNettyResponse) {
         if (!keepAlive && (Float.valueOf(inboundReqHttpVersion) >= Constants.HTTP_1_1)) {
             outboundResponseMsg.setHeader(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_CLOSE);
         } else if (keepAlive && (Float.valueOf(inboundReqHttpVersion) < Constants.HTTP_1_1)) {
@@ -159,7 +164,7 @@ public class Util {
         outboundNettyResponse.headers().add(outboundResponseMsg.getHeaders());
     }
 
-    public static HttpResponseStatus getHttpResponseStatus(HTTPCarbonMessage msg) {
+    public static HttpResponseStatus getHttpResponseStatus(HttpCarbonMessage msg) {
         int statusCode = Util.getIntValue(msg, Constants.HTTP_STATUS_CODE, 200);
         String reasonPhrase = Util.getStringValue(msg, Constants.HTTP_REASON_PHRASE,
                 HttpResponseStatus.valueOf(statusCode).reasonPhrase());
@@ -167,7 +172,7 @@ public class Util {
     }
 
     @SuppressWarnings("unchecked")
-    public static HttpRequest createHttpRequest(HTTPCarbonMessage outboundRequestMsg) {
+    public static HttpRequest createHttpRequest(HttpCarbonMessage outboundRequestMsg) {
         HttpMethod httpMethod = getHttpMethod(outboundRequestMsg);
         HttpVersion httpVersion = getHttpVersion(outboundRequestMsg);
         String requestPath = getRequestPath(outboundRequestMsg);
@@ -181,7 +186,7 @@ public class Util {
         return outboundNettyRequest;
     }
 
-    private static String getRequestPath(HTTPCarbonMessage outboundRequestMsg) {
+    private static String getRequestPath(HttpCarbonMessage outboundRequestMsg) {
         if (outboundRequestMsg.getProperty(TO) == null) {
             outboundRequestMsg.setProperty(TO, "");
         }
@@ -196,7 +201,7 @@ public class Util {
         return (String) outboundRequestMsg.getProperty(TO);
     }
 
-    private static HttpVersion getHttpVersion(HTTPCarbonMessage outboundRequestMsg) {
+    private static HttpVersion getHttpVersion(HttpCarbonMessage outboundRequestMsg) {
         HttpVersion httpVersion;
         if (null != outboundRequestMsg.getProperty(Constants.HTTP_VERSION)) {
             httpVersion = new HttpVersion(Constants.HTTP_VERSION_PREFIX
@@ -207,7 +212,7 @@ public class Util {
         return httpVersion;
     }
 
-    private static HttpMethod getHttpMethod(HTTPCarbonMessage outboundRequestMsg) {
+    private static HttpMethod getHttpMethod(HttpCarbonMessage outboundRequestMsg) {
         HttpMethod httpMethod;
         if (null != outboundRequestMsg.getProperty(Constants.HTTP_METHOD)) {
             httpMethod = new HttpMethod((String) outboundRequestMsg.getProperty(Constants.HTTP_METHOD));
@@ -217,7 +222,7 @@ public class Util {
         return httpMethod;
     }
 
-    public static void setupChunkedRequest(HTTPCarbonMessage httpOutboundRequest) {
+    public static void setupChunkedRequest(HttpCarbonMessage httpOutboundRequest) {
         httpOutboundRequest.removeHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
         setTransferEncodingHeader(httpOutboundRequest);
     }
@@ -253,7 +258,7 @@ public class Util {
         return httpRequest;
     }
 
-    public static void setupContentLengthRequest(HTTPCarbonMessage httpOutboundRequest, long contentLength) {
+    public static void setupContentLengthRequest(HttpCarbonMessage httpOutboundRequest, long contentLength) {
         httpOutboundRequest.removeHeader(HttpHeaderNames.TRANSFER_ENCODING.toString());
         httpOutboundRequest.removeHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
         if (httpOutboundRequest.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString()) == null) {
@@ -261,7 +266,7 @@ public class Util {
         }
     }
 
-    private static void setTransferEncodingHeader(HTTPCarbonMessage httpOutboundRequest) {
+    private static void setTransferEncodingHeader(HttpCarbonMessage httpOutboundRequest) {
         if (httpOutboundRequest.getHeader(HttpHeaderNames.TRANSFER_ENCODING.toString()) == null) {
             httpOutboundRequest.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), Constants.CHUNKED);
         }
@@ -290,10 +295,7 @@ public class Util {
      * @return true if chunking should be enforced else false.
      */
     public static boolean shouldEnforceChunkingforHttpOneZero(ChunkConfig chunkConfig, String httpVersion) {
-        if (chunkConfig == ChunkConfig.ALWAYS && Float.valueOf(httpVersion) >= Constants.HTTP_1_0) {
-            return true;
-        }
-        return false;
+        return chunkConfig == ChunkConfig.ALWAYS && Float.valueOf(httpVersion) >= Constants.HTTP_1_0;
     }
 
     public static SSLConfig getSSLConfigForListener(String certPass, String keyStorePass, String keyStoreFilePath,
@@ -311,21 +313,25 @@ public class Util {
         }
         SSLConfig sslConfig = new SSLConfig(keyStore, keyStorePass).setCertPass(certPass);
         for (Parameter parameter : parametersList) {
-            if (parameter.getName()
-                    .equals(Constants.SERVER_SUPPORT_CIPHERS)) {
-                sslConfig.setCipherSuites(parameter.getValue());
-            } else if (parameter.getName()
-                    .equals(Constants.SERVER_SUPPORT_SSL_PROTOCOLS)) {
-                sslConfig.setEnableProtocols(parameter.getValue());
-            } else if (parameter.getName()
-                    .equals(Constants.SERVER_SUPPORTED_SNIMATCHERS)) {
-                sslConfig.setSniMatchers(parameter.getValue());
-            } else if (parameter.getName()
-                    .equals(Constants.SERVER_SUPPORTED_SERVER_NAMES)) {
-                sslConfig.setServerNames(parameter.getValue());
-            } else if (parameter.getName()
-                    .equals(Constants.SERVER_ENABLE_SESSION_CREATION)) {
-                sslConfig.setEnableSessionCreation(Boolean.parseBoolean(parameter.getValue()));
+            switch (parameter.getName()) {
+                case Constants.SERVER_SUPPORT_CIPHERS:
+                    sslConfig.setCipherSuites(parameter.getValue());
+                    break;
+                case Constants.SERVER_SUPPORT_SSL_PROTOCOLS:
+                    sslConfig.setEnableProtocols(parameter.getValue());
+                    break;
+                case Constants.SERVER_SUPPORTED_SNIMATCHERS:
+                    sslConfig.setSniMatchers(parameter.getValue());
+                    break;
+                case Constants.SERVER_SUPPORTED_SERVER_NAMES:
+                    sslConfig.setServerNames(parameter.getValue());
+                    break;
+                case Constants.SERVER_ENABLE_SESSION_CREATION:
+                    sslConfig.setEnableSessionCreation(Boolean.parseBoolean(parameter.getValue()));
+                    break;
+                default:
+                    //do nothing
+                    break;
             }
         }
         if ("require".equalsIgnoreCase(verifyClient)) {
@@ -677,7 +683,7 @@ public class Util {
         outboundResponse.headers().set(HttpHeaderNames.SERVER.toString(), serverName);
         ChannelFuture outboundRespFuture = ctx.channel().writeAndFlush(outboundResponse);
         outboundRespFuture.addListener(
-                (ChannelFutureListener) channelFuture -> log.warn("Failed to send " + status.reasonPhrase()));
+                (ChannelFutureListener) channelFuture -> log.warn("Failed to send {}", status.reasonPhrase()));
         ctx.channel().close();
     }
 
@@ -688,7 +694,7 @@ public class Util {
      * @param outboundRespStatusFuture the future of outbound response write operation
      * @param channelFuture            the channel future related to response write operation
      */
-    public static void checkForResponseWriteStatus(HTTPCarbonMessage inboundRequestMsg,
+    public static void checkForResponseWriteStatus(HttpCarbonMessage inboundRequestMsg,
                                            HttpResponseFuture outboundRespStatusFuture, ChannelFuture channelFuture) {
         channelFuture.addListener(writeOperationPromise -> {
             Throwable throwable = writeOperationPromise.cause();
@@ -723,15 +729,15 @@ public class Util {
     }
 
     /**
-     * Creates HTTP carbon message
+     * Creates HTTP carbon message.
      *
      * @param httpMessage HTTP message
      * @param ctx Channel handler context
      * @return HttpCarbonMessage
      */
-    public static HTTPCarbonMessage createHTTPCarbonMessage(HttpMessage httpMessage, ChannelHandlerContext ctx) {
+    public static HttpCarbonMessage createHTTPCarbonMessage(HttpMessage httpMessage, ChannelHandlerContext ctx) {
         Listener contentListener = new DefaultListener(ctx);
-        return new HTTPCarbonMessage(httpMessage, contentListener);
+        return new HttpCarbonMessage(httpMessage, contentListener);
     }
 
     /**
@@ -760,7 +766,7 @@ public class Util {
     public static HTTPCarbonMessage createInboundReqCarbonMsg(HttpRequest httpRequestHeaders,
             ChannelHandlerContext ctx, SourceHandler sourceHandler) {
 
-        HTTPCarbonMessage inboundRequestMsg =
+        HttpCarbonMessage inboundRequestMsg =
                 new HttpCarbonRequest(httpRequestHeaders, new DefaultListener(ctx));
         inboundRequestMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
 
@@ -801,9 +807,10 @@ public class Util {
      * @param outboundRequestMsg is the correlated outbound request message
      * @return HttpCarbon message
      */
-    public static HTTPCarbonMessage createInboundRespCarbonMsg(ChannelHandlerContext ctx,
-            HttpResponse httpResponseHeaders, HTTPCarbonMessage outboundRequestMsg) {
-        HTTPCarbonMessage inboundResponseMsg = new HttpCarbonResponse(httpResponseHeaders, new DefaultListener(ctx));
+    public static HttpCarbonMessage createInboundRespCarbonMsg(ChannelHandlerContext ctx,
+                                                               HttpResponse httpResponseHeaders,
+                                                               HttpCarbonMessage outboundRequestMsg) {
+        HttpCarbonMessage inboundResponseMsg = new HttpCarbonResponse(httpResponseHeaders, new DefaultListener(ctx));
         inboundResponseMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY,
                 new PooledDataStreamerFactory(ctx.alloc()));
 
@@ -825,15 +832,11 @@ public class Util {
      * @return true if the connection should be kept alive
      * @throws ConfigurationException for invalid configurations
      */
-    public static boolean isKeepAlive(KeepAliveConfig keepAliveConfig, HTTPCarbonMessage outboundRequestMsg)
+    public static boolean isKeepAlive(KeepAliveConfig keepAliveConfig, HttpCarbonMessage outboundRequestMsg)
             throws ConfigurationException {
         switch (keepAliveConfig) {
         case AUTO:
-            if (Float.valueOf((String) outboundRequestMsg.getProperty(Constants.HTTP_VERSION)) > Constants.HTTP_1_0) {
-                return true;
-            } else {
-                return false;
-            }
+            return Float.valueOf((String) outboundRequestMsg.getProperty(Constants.HTTP_VERSION)) > Constants.HTTP_1_0;
         case ALWAYS:
             return true;
         case NEVER:
@@ -851,7 +854,7 @@ public class Util {
      * @param inboundRequestMsg in question
      * @return true if the request expects 100-continue response
      */
-    public static boolean is100ContinueRequest(HTTPCarbonMessage inboundRequestMsg) {
+    public static boolean is100ContinueRequest(HttpCarbonMessage inboundRequestMsg) {
         return HEADER_VAL_100_CONTINUE.equalsIgnoreCase(
                 inboundRequestMsg.getHeader(HttpHeaderNames.EXPECT.toString()));
     }

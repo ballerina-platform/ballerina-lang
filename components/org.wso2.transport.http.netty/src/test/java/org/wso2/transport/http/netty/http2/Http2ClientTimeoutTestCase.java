@@ -37,9 +37,9 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
 import org.wso2.transport.http.netty.http2.listeners.Http2NoResponseListener;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
-import org.wso2.transport.http.netty.util.HTTPConnectorListener;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpConnectorUtil;
+import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.http2.MessageGenerator;
 
@@ -77,20 +77,20 @@ public class Http2ClientTimeoutTestCase {
 
         TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
         senderConfiguration =
-                HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
+                HttpConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTP_SCHEME);
         senderConfiguration.setSocketIdleTimeout(3000);
         senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
 
         httpClientConnector = connectorFactory.createHttpClientConnector(
-                HTTPConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
+                HttpConnectorUtil.getTransportProperties(transportsConfiguration), senderConfiguration);
     }
 
     @Test
     public void testHttp2ClientTimeout() {
-        HTTPCarbonMessage request = MessageGenerator.generateRequest(HttpMethod.POST, "test");
+        HttpCarbonMessage request = MessageGenerator.generateRequest(HttpMethod.POST, "test");
         try {
             CountDownLatch latch = new CountDownLatch(1);
-            HTTPConnectorListener listener = new HTTPConnectorListener(latch);
+            DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
             HttpResponseFuture responseFuture = httpClientConnector.send(request);
             responseFuture.setHttpConnectorListener(listener);
             latch.await(TestUtil.HTTP2_RESPONSE_TIME_OUT, TimeUnit.SECONDS);

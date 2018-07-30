@@ -44,13 +44,13 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 /**
  * An initializer class for HTTP Server Which set Transfer-encoding headers.
  */
-public class ChunkBasedServerInitializer extends HTTPServerInitializer {
+public class ChunkBasedServerInitializer extends HttpServerInitializer {
 
     private static final Logger logger = LoggerFactory.getLogger(ChunkBasedServerInitializer.class);
 
     private String stringContent;
     private String contentType;
-    private int responseStatusCode = 200;
+    private int responseStatusCode;
     private HttpRequest req;
 
     public ChunkBasedServerInitializer(String stringContent, String contentType, int responseStatusCode) {

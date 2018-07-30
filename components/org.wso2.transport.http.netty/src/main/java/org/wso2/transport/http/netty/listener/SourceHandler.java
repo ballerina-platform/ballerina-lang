@@ -39,10 +39,13 @@ import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.listener.states.ListenerStateContext;
 import org.wso2.transport.http.netty.listener.states.ReceivingHeaders;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.net.SocketAddress;
 import java.util.ArrayList;
@@ -60,6 +63,7 @@ import static org.wso2.transport.http.netty.common.Util.createInboundReqCarbonMs
 public class SourceHandler extends ChannelInboundHandlerAdapter {
     private static Logger log = LoggerFactory.getLogger(SourceHandler.class);
 
+    private HttpCarbonMessage inboundRequestMsg;
     private HTTPCarbonMessage inboundRequestMsg;
     private List<HTTPCarbonMessage> requestList = new ArrayList<>();
     private HandlerExecutor handlerExecutor;
@@ -181,7 +185,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 this.channelInactive(ctx);
                 notifyErrorListenerAtConnectedState(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST);
             }
-            log.debug("Idle timeout has reached hence closing the connection {}", ctx.channel().id().asShortText());
+            String channelId = ctx.channel().id().asShortText();
+            log.debug("Idle timeout has reached hence closing the connection {}", channelId);
         } else if (evt instanceof HttpServerUpgradeHandler.UpgradeEvent) {
             log.debug("Server upgrade event received");
         } else if (evt instanceof SslCloseCompletionEvent) {
@@ -194,7 +199,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             // When closing the channel, if it is already closed it will trigger this event. So we can ignore this.
             log.debug("Input side of the connection is already shutdown");
         } else {
-            log.warn("Unexpected user event {} triggered", evt.toString());
+            log.warn("Unexpected user event {} triggered", evt);
         }
     }
 

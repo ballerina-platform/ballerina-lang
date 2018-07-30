@@ -24,19 +24,16 @@ import org.osgi.framework.BundleContext;
 /**
  * OSGi BundleActivator of the Netty transport component.
  */
-public class HTTPTransportActivator implements BundleActivator {
+public class HttpTransportActivator implements BundleActivator {
 
     @Override
-    public void start(BundleContext bundleContext) throws Exception {
-        HTTPTransportContextHolder.getInstance().setBundleContext(bundleContext);
+    public void start(BundleContext bundleContext) {
+        HttpTransportContextHolder.getInstance().setBundleContext(bundleContext);
         HandlerExecutor handlerExecutor = new HandlerExecutor();
-        HTTPTransportContextHolder.getInstance().setHandlerExecutor(handlerExecutor);
-//        bundleContext
-//                .registerService(ServerConnectorProvider.class, new HTTPServerConnectorProvider(), null);
+        HttpTransportContextHolder.getInstance().setHandlerExecutor(handlerExecutor);
     }
 
     @Override
-    public void stop(BundleContext bundleContext) throws Exception {
-
+    public void stop(BundleContext bundleContext) {
     }
 }

@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.TestUtil;
@@ -44,11 +44,11 @@ public class EchoStreamingMessageListener implements HttpConnectorListener {
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
-    public void onMessage(HTTPCarbonMessage httpRequest) {
+    public void onMessage(HttpCarbonMessage httpRequest) {
         executor.execute(() -> {
             try {
-                HTTPCarbonMessage httpResponse = new HttpCarbonResponse(new DefaultHttpResponse(HttpVersion.HTTP_1_1,
-                        HttpResponseStatus.OK));
+                HttpCarbonMessage httpResponse = new HttpCarbonResponse(new DefaultHttpResponse(HttpVersion.HTTP_1_1,
+                                                                                                HttpResponseStatus.OK));
                 httpResponse.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), Constants.TEXT_PLAIN);
 
                 HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpResponse);

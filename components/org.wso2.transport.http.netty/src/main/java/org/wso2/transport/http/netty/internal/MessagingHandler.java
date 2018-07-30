@@ -18,7 +18,7 @@
 
 package org.wso2.transport.http.netty.internal;
 
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
  * Interface for MessagingHandler.
@@ -58,21 +58,21 @@ public interface MessagingHandler {
      *
      * @param carbonMessage newly created carbon message.
      */
-    void invokeAtSourceRequestReceiving(HTTPCarbonMessage carbonMessage);
+    void invokeAtSourceRequestReceiving(HttpCarbonMessage carbonMessage);
 
     /**
      * Invoked when source request is started sending to the message processor.
      *
      * @param carbonMessage client request (i.e headers, property and message body)
      */
-    void invokeAtSourceRequestSending(HTTPCarbonMessage carbonMessage);
+    void invokeAtSourceRequestSending(HttpCarbonMessage carbonMessage);
 
     /**
      * Invoked when the request is received again to the transport level after being processed at message processor.
      *
      * @param carbonMessage processed (or mediated) request (i.e headers, properties and message body)
      */
-    void invokeAtTargetRequestReceiving(HTTPCarbonMessage carbonMessage);
+    void invokeAtTargetRequestReceiving(HttpCarbonMessage carbonMessage);
 
     /**
      * Invoked when the request is started sending to the backend.
@@ -82,28 +82,28 @@ public interface MessagingHandler {
      *                      manipulating them won't change the request send to the back end (because the headers are
      *                      already been send to the backend)
      */
-    void invokeAtTargetRequestSending(HTTPCarbonMessage carbonMessage);
+    void invokeAtTargetRequestSending(HttpCarbonMessage carbonMessage);
 
     /**
      * Invoked when target response is started receiving at target handler.
      *
      * @param carbonMessage newly created carbon message.
      */
-    void invokeAtTargetResponseReceiving(HTTPCarbonMessage carbonMessage);
+    void invokeAtTargetResponseReceiving(HttpCarbonMessage carbonMessage);
 
     /**
      * Invoked when target response is started sending to the message processor.
      *
      * @param carbonMessage target response (i.e headers, property and message body)
      */
-    void invokeAtTargetResponseSending(HTTPCarbonMessage carbonMessage);
+    void invokeAtTargetResponseSending(HttpCarbonMessage carbonMessage);
 
     /**
      * Invoked when the response is received again to the transport level after being processed at message processor.
      *
      * @param carbonMessage processed (or mediated) response (i.e headers, properties and message body)
      */
-    void invokeAtSourceResponseReceiving(HTTPCarbonMessage carbonMessage);
+    void invokeAtSourceResponseReceiving(HttpCarbonMessage carbonMessage);
 
     /**
      * Invoked when the response is started sending to the client.
@@ -111,7 +111,7 @@ public interface MessagingHandler {
      * @param carbonMessage sent response (i.e with empty message body.
      *                      similar carbon message to}
      */
-    void invokeAtSourceResponseSending(HTTPCarbonMessage carbonMessage);
+    void invokeAtSourceResponseSending(HttpCarbonMessage carbonMessage);
 
     /**
      * Gives handler name.

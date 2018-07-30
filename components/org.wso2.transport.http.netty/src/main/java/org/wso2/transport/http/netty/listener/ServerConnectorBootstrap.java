@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
+import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
@@ -35,8 +36,8 @@ import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpWsServerConnectorFuture;
-import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
+import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 
 import java.net.InetSocketAddress;
 
@@ -51,7 +52,7 @@ public class ServerConnectorBootstrap {
 
     private ServerBootstrap serverBootstrap;
     private HttpServerChannelInitializer httpServerChannelInitializer;
-    private boolean initialized = false;
+    private boolean initialized;
     private boolean isHttps = false;
     private ChannelGroup allChannels;
 
@@ -60,43 +61,14 @@ public class ServerConnectorBootstrap {
         httpServerChannelInitializer = new HttpServerChannelInitializer();
         httpServerChannelInitializer.setAllChannels(allChannels);
         serverBootstrap.childHandler(httpServerChannelInitializer);
-        HTTPTransportContextHolder.getInstance().setHandlerExecutor(new HandlerExecutor());
+        HttpTransportContextHolder.getInstance().setHandlerExecutor(new HandlerExecutor());
         initialized = true;
         this.allChannels = allChannels;
     }
 
-    private ChannelFuture bindInterface(HTTPServerConnector serverConnector) {
-
-        if (!initialized) {
-            log.error("ServerConnectorBootstrap is not initialized");
-            return null;
-        }
-
-        return serverBootstrap
-                .bind(new InetSocketAddress(serverConnector.getHost(), serverConnector.getPort()));
-    }
-
-    private boolean unBindInterface(HTTPServerConnector serverConnector) throws InterruptedException {
-        if (!initialized) {
-            log.error("ServerConnectorBootstrap is not initialized");
-            return false;
-        }
-
-        //Remove cached channels and close them.
-        ChannelFuture future = serverConnector.getChannelFuture();
-        if (future != null) {
-            ChannelFuture channelFuture = future.channel().close();
-            channelFuture.sync();
-            log.info("HttpConnectorListener stopped listening on host " + serverConnector.getHost()
-                    + " and port " + serverConnector.getPort());
-            return true;
-        }
-        return false;
-    }
-
     public ServerConnector getServerConnector(String host, int port) {
         String serverConnectorId = Util.createServerConnectorID(host, port);
-        return new HTTPServerConnector(serverConnectorId, this, host, port);
+        return new HttpServerConnector(serverConnectorId, host, port);
     }
 
     public void addSocketConfiguration(ServerBootstrapConfiguration serverBootstrapConfiguration) {
@@ -147,6 +119,11 @@ public class ServerConnectorBootstrap {
     public void addHttpAccessLogHandler(Boolean isHttpAccessLogEnabled) {
         httpServerChannelInitializer.setHttpAccessLogEnabled(isHttpAccessLogEnabled);
     }
+
+    public void addSslHandlerFactory(SSLHandlerFactory sslHandlerFactory) {
+        httpServerChannelInitializer.setSslHandlerFactory(sslHandlerFactory);
+    }
+
     public void addHeaderAndEntitySizeValidation(RequestSizeValidationConfig requestSizeValidationConfig) {
         httpServerChannelInitializer.setReqSizeValidationConfig(requestSizeValidationConfig);
     }
@@ -179,19 +156,17 @@ public class ServerConnectorBootstrap {
         httpServerChannelInitializer.setServerName(serverName);
     }
 
-    class HTTPServerConnector implements ServerConnector {
+    class HttpServerConnector implements ServerConnector {
 
-       private final Logger log = LoggerFactory.getLogger(HTTPServerConnector.class);
+       private final Logger log = LoggerFactory.getLogger(HttpServerConnector.class);
 
         private ChannelFuture channelFuture;
         private ServerConnectorFuture serverConnectorFuture;
-        private ServerConnectorBootstrap serverConnectorBootstrap;
         private String host;
         private int port;
         private String connectorID;
 
-        HTTPServerConnector(String id, ServerConnectorBootstrap serverConnectorBootstrap, String host, int port) {
-            this.serverConnectorBootstrap = serverConnectorBootstrap;
+        HttpServerConnector(String id, String host, int port) {
             this.host = host;
             this.port = port;
             this.connectorID =  id;
@@ -200,14 +175,14 @@ public class ServerConnectorBootstrap {
 
         @Override
         public ServerConnectorFuture start() {
-            channelFuture = bindInterface(this);
+            channelFuture = bindInterface();
             serverConnectorFuture = new HttpWsServerConnectorFuture(channelFuture, allChannels);
-            channelFuture.addListener(channelFuture -> {
-                if (channelFuture.isSuccess()) {
-                    log.info("HTTP(S) Interface starting on host " + this.getHost() + " and port " + this.getPort());
+            channelFuture.addListener(future -> {
+                if (future.isSuccess()) {
+                    log.info("HTTP(S) Interface starting on host {} and port {}", getPort(), getPort());
                     serverConnectorFuture.notifyPortBindingEvent(this.connectorID, isHttps);
                 } else {
-                    serverConnectorFuture.notifyPortBindingError(channelFuture.cause());
+                    serverConnectorFuture.notifyPortBindingError(future.cause());
                 }
             });
             httpServerChannelInitializer.setServerConnectorFuture(serverConnectorFuture);
@@ -219,7 +194,7 @@ public class ServerConnectorBootstrap {
             boolean connectorStopped = false;
             
             try {
-                connectorStopped = serverConnectorBootstrap.unBindInterface(this);
+                connectorStopped = unBindInterface();
                 if (connectorStopped) {
                     serverConnectorFuture.notifyPortUnbindingEvent(this.connectorID, isHttps);
                 }
@@ -253,6 +228,30 @@ public class ServerConnectorBootstrap {
 
         public int getPort() {
             return port;
+        }
+
+        private ChannelFuture bindInterface() {
+            if (!initialized) {
+                log.error("ServerConnectorBootstrap is not initialized");
+                return null;
+            }
+            return serverBootstrap.bind(new InetSocketAddress(getHost(), getPort()));
+        }
+
+        private boolean unBindInterface() throws InterruptedException {
+            if (!initialized) {
+                log.error("ServerConnectorBootstrap is not initialized");
+                return false;
+            }
+
+            //Remove cached channels and close them.
+            ChannelFuture future = getChannelFuture();
+            if (future != null) {
+                future.channel().close().sync();
+                log.info("HttpConnectorListener stopped listening on host {} and port {}", getHost(), getPort());
+                return true;
+            }
+            return false;
         }
     }
 }

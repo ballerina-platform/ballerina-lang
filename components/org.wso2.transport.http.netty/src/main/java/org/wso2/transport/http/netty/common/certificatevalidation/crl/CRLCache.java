@@ -40,7 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CRLCache implements ManageableCache {
 
     private static volatile CRLCache cache;
-    private static volatile Map<String, CRLCacheValue> hashMap = new ConcurrentHashMap<String, CRLCacheValue>();
+    private static volatile Map<String, CRLCacheValue> hashMap = new ConcurrentHashMap<>();
     private volatile Iterator<Map.Entry<String, CRLCacheValue>> iterator = hashMap.entrySet().iterator();
     private volatile CacheManager cacheManager;
     private static CRLVerifier crlVerifier = new CRLVerifier(null);
@@ -107,24 +107,6 @@ public class CRLCache implements ManageableCache {
         iterator = hashMap.entrySet().iterator();
     }
 
-    private synchronized void replaceNewCacheValue(CRLCacheValue cacheValue) {
-        //If someone has updated with the new value before current thread.
-        if (cacheValue.isValid()) {
-            return;
-        }
-        try {
-            String crlUrl = cacheValue.crlUrl;
-            X509CRL x509CRL = crlVerifier.downloadCRLFromWeb(crlUrl);
-            this.setCacheValue(crlUrl, x509CRL);
-        } catch (Exception e) {
-            if (log.isInfoEnabled()) {
-                log.info("Cant replace old CacheValue with new CacheValue. So remove", e);
-            }
-            //If cant be replaced remove.
-            cacheValue.removeThisCacheValue();
-        }
-    }
-
     public synchronized X509CRL getCacheValue(String crlUrl) {
         CRLCacheValue cacheValue = hashMap.get(crlUrl);
         if (cacheValue != null) {
@@ -145,21 +127,21 @@ public class CRLCache implements ManageableCache {
     public synchronized void setCacheValue(String crlUrl, X509CRL crl) {
         CRLCacheValue cacheValue = new CRLCacheValue(crlUrl, crl);
         if (log.isDebugEnabled()) {
-            log.debug("Before setting - HashMap size " + hashMap.size());
+            log.debug("Before setting - HashMap size {}", hashMap.size());
         }
         hashMap.put(crlUrl, cacheValue);
         if (log.isDebugEnabled()) {
-            log.debug("After setting - HashMap size " + hashMap.size());
+            log.debug("After setting - HashMap size {}", hashMap.size());
         }
     }
 
     public synchronized void removeCacheValue(String crlUrl) {
         if (log.isDebugEnabled()) {
-            log.debug("Before removing - HashMap size " + hashMap.size());
+            log.debug("Before removing - HashMap size {}", hashMap.size());
         }
         hashMap.remove(crlUrl);
         if (log.isDebugEnabled()) {
-            log.debug("After removing - HashMap size " + hashMap.size());
+            log.debug("After removing - HashMap size {}", hashMap.size());
         }
     }
 
@@ -210,8 +192,26 @@ public class CRLCache implements ManageableCache {
         }
 
         public void updateCacheWithNewValue() {
-            replaceNewCacheValue(this);
+            replaceNewCacheValue();
         }
+
+        private synchronized void replaceNewCacheValue() {
+            //If someone has updated with the new value before current thread.
+            if (isValid()) {
+                return;
+            }
+            try {
+                X509CRL x509CRL = crlVerifier.downloadCRLFromWeb(crlUrl);
+                setCacheValue(crlUrl, x509CRL);
+            } catch (Exception e) {
+                if (log.isInfoEnabled()) {
+                    log.info("Cannot replace old CacheValue with new CacheValue. So remove", e);
+                }
+                //If cant be replaced remove.
+                removeThisCacheValue();
+            }
+        }
+
     }
 }
 

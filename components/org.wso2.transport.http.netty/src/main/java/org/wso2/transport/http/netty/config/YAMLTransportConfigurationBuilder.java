@@ -29,10 +29,13 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * Parses &amp; creates the object model for the Netty transport yaml configuration file.
+ * @deprecated
  */
 @Deprecated
 public class YAMLTransportConfigurationBuilder {
 
+    private YAMLTransportConfigurationBuilder() {
+    }
     private static final String NETTY_TRANSPORT_CONF = "transports.netty.conf";
 
     private static final Logger log = LoggerFactory.getLogger(YAMLTransportConfigurationBuilder.class);
@@ -61,7 +64,7 @@ public class YAMLTransportConfigurationBuilder {
                 throw new RuntimeException(msg, e);
             }
         } else { // return a default config
-            log.warn("Netty transport configuration file not found in: " + nettyTransportsConfigFile);
+            log.warn("Netty transport configuration file not found in: {}", nettyTransportsConfigFile);
             transportsConfiguration = TransportsConfiguration.getDefault();
         }
 

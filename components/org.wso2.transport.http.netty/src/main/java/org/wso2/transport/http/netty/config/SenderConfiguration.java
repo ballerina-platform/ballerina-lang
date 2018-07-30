@@ -28,6 +28,10 @@ public class SenderConfiguration extends SslConfiguration {
 
     private static final String DEFAULT_KEY = "netty";
 
+    /**
+     * @deprecated
+     * @return the default sender configuration.
+     */
     @Deprecated
     public static SenderConfiguration getDefault() {
         SenderConfiguration defaultConfig;

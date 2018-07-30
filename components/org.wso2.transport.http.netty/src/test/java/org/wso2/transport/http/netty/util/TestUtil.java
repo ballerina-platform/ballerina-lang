@@ -35,10 +35,9 @@ import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
-import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.HttpsServer;
@@ -206,8 +205,8 @@ public class TestUtil {
         return TestUtil.class.getResource(relativePath).getFile();
     }
 
-    public static HTTPCarbonMessage createHttpsPostReq(int serverPort, String payload, String path) {
-        HTTPCarbonMessage httpPostRequest = new HTTPCarbonMessage(
+    public static HttpCarbonMessage createHttpsPostReq(int serverPort, String payload, String path) {
+        HttpCarbonMessage httpPostRequest = new HttpCarbonMessage(
                 new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, path));
         httpPostRequest.setProperty(Constants.HTTP_PORT, serverPort);
         httpPostRequest.setProperty(Constants.PROTOCOL, Constants.HTTPS_SCHEME);
@@ -224,29 +223,28 @@ public class TestUtil {
         return new ServerBootstrapConfiguration(new HashMap<>());
     }
 
-    public static String waitAndGetStringEntity(CountDownLatch latch, HTTPConnectorListener responseListener)
+    public static String waitAndGetStringEntity(CountDownLatch latch, DefaultHttpConnectorListener responseListener)
             throws InterruptedException {
         String response;
         latch.await(10, TimeUnit.SECONDS);
-        HTTPCarbonMessage httpResponse = responseListener.getHttpResponseMessage();
+        HttpCarbonMessage httpResponse = responseListener.getHttpResponseMessage();
         response = new BufferedReader(new InputStreamReader(new HttpMessageDataStreamer(httpResponse)
                 .getInputStream()))
                 .lines().collect(Collectors.joining("\n"));
         return response;
     }
 
-    public static HTTPConnectorListener sendRequestAsync(CountDownLatch latch,
-            HttpClientConnector httpClientConnector) {
-        HTTPCarbonMessage httpsPostReq = TestUtil.
+    public static DefaultHttpConnectorListener sendRequestAsync(CountDownLatch latch,
+                                                                HttpClientConnector httpClientConnector) {
+        HttpCarbonMessage httpsPostReq = TestUtil.
                 createHttpsPostReq(TestUtil.HTTP_SERVER_PORT, "hello", "/");
-        HTTPConnectorListener requestListener = new HTTPConnectorListener(latch);
+        DefaultHttpConnectorListener requestListener = new DefaultHttpConnectorListener(latch);
         HttpResponseFuture responseFuture = httpClientConnector.send(httpsPostReq);
         responseFuture.setHttpConnectorListener(requestListener);
         return requestListener;
     }
 
-    public static void cleanUp(List<ServerConnector> serverConnectors, HttpServer httpServer)
-            throws ServerConnectorException {
+    public static void cleanUp(List<ServerConnector> serverConnectors, HttpServer httpServer) {
         for (ServerConnector httpServerConnector : serverConnectors) {
             if (!httpServerConnector.stop()) {
                 log.warn("Couldn't stop server connectors successfully");
@@ -262,8 +260,7 @@ public class TestUtil {
     }
 
     public static void cleanUp(List<ServerConnector> serverConnectors, HttpServer httpServer,
-            HttpWsConnectorFactory factory)
-            throws ServerConnectorException {
+            HttpWsConnectorFactory factory) {
         for (ServerConnector httpServerConnector : serverConnectors) {
             if (!httpServerConnector.stop()) {
                 log.warn("Couldn't stop server connectors successfully");
@@ -286,9 +283,8 @@ public class TestUtil {
      */
     public static String getStringFromInputStream(InputStream in) {
         BufferedInputStream bis = new BufferedInputStream(in);
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
         String result;
-        try {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             int data;
             while ((data = bis.read()) != -1) {
                 bos.write(data);
@@ -297,12 +293,6 @@ public class TestUtil {
         } catch (IOException ioe) {
             log.error("Couldn't read the complete input stream");
             return "";
-        } finally {
-            try {
-                bos.close();
-            } catch (IOException ignored) {
-
-            }
         }
         return result;
     }

@@ -43,13 +43,13 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 /**
  * An initializer class for HTTP Server
  */
-public class MockServerInitializer extends HTTPServerInitializer {
+public class MockServerInitializer extends HttpServerInitializer {
 
     private static final Logger logger = LoggerFactory.getLogger(MockServerInitializer.class);
 
     private String stringContent;
     private String contentType;
-    private int responseStatusCode = 200;
+    private int responseStatusCode;
     private HttpRequest req;
 
     public MockServerInitializer(String stringContent, String contentType, int responseStatusCode) {
