@@ -89,17 +89,53 @@ public class BallerinaAnnotator implements Annotator {
                 annotateExpressionTemplateStart(element, holder);
             } else if (elementType == BallerinaTypes.EXPRESSION_END) {
                 annotateStringLiteralTemplateEnd(element, holder);
-            } else if (elementType == BallerinaTypes.MARKDOWN_DOCUMENTATION_LINE_START
-                    || elementType == BallerinaTypes.DEPRECATED_TEMPLATE_START) {
+            } else if (elementType == BallerinaTypes.DEPRECATED_TEMPLATE_START) {
                 // This uses an overloaded method so that the color can be easily changeable if required.
                 annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.DOCUMENTATION);
-            } else if (elementType == BallerinaTypes.PARAMETER_DOCUMENTATION_START
-                    || elementType == BallerinaTypes.RETURN_PARAMETER_DOCUMENTATION_START) {
-                // Highlights "#"
+            } else if (elementType == BallerinaTypes.MARKDOWN_DOCUMENTATION_LINE_START) {
                 TextRange textRange = element.getTextRange();
-                TextRange newTextRange = new TextRange(textRange.getStartOffset(), textRange.getStartOffset() + 2);
+                // Highlights "#"
+                int startOffset = textRange.getStartOffset() + ((LeafPsiElement) element).getText().indexOf('#');
+                TextRange newTextRange = new TextRange(startOffset, startOffset + 1);
                 Annotation annotation = holder.createInfoAnnotation(newTextRange, null);
                 annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION);
+            } else if (elementType == BallerinaTypes.PARAMETER_DOCUMENTATION_START) {
+                TextRange textRange = element.getTextRange();
+                // Highlights "#"
+                int startOffset = textRange.getStartOffset() + ((LeafPsiElement) element).getText().indexOf("#");
+                TextRange newTextRange = new TextRange(startOffset, startOffset + 1);
+                Annotation annotation = holder.createInfoAnnotation(newTextRange, null);
+                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION);
+                //Highlights "+"
+                startOffset = textRange.getStartOffset() + ((LeafPsiElement) element).getText().indexOf("+");
+                newTextRange = new TextRange(startOffset, startOffset + 1);
+                annotation = holder.createInfoAnnotation(newTextRange, null);
+                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION_INLINE_CODE);
+            } else if (elementType == BallerinaTypes.PARAMETER_NAME
+                    || elementType == BallerinaTypes.DESCRIPTION_SEPARATOR) {
+                // Highlights input parameter name and "-" token
+                TextRange textRange = element.getTextRange();
+                Annotation annotation = holder.createInfoAnnotation(textRange, null);
+                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION_INLINE_CODE);
+            } else if (elementType == BallerinaTypes.RETURN_PARAMETER_DOCUMENTATION_START) {
+                TextRange textRange = element.getTextRange();
+                // Highlights "#"
+                int startOffset = textRange.getStartOffset() + ((LeafPsiElement) element).getText().indexOf("#");
+                TextRange newTextRange = new TextRange(startOffset, startOffset + 1);
+                Annotation annotation = holder.createInfoAnnotation(newTextRange, null);
+                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION);
+                //Highlights "+"
+                startOffset = textRange.getStartOffset() + ((LeafPsiElement) element).getText().indexOf("+");
+                newTextRange = new TextRange(startOffset, startOffset + 1);
+                annotation = holder.createInfoAnnotation(newTextRange, null);
+                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION_INLINE_CODE);
+                // Highlights "return" and "-"
+                newTextRange = new TextRange(
+                        textRange.getStartOffset() + ((LeafPsiElement) element).getText().indexOf("return"),
+                        textRange.getEndOffset());
+                annotation = holder.createInfoAnnotation(newTextRange, null);
+                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION_INLINE_CODE);
+
             } else if (elementType == BallerinaTypes.SINGLE_BACKTICK_CONTENT
                     || elementType == BallerinaTypes.DOUBLE_BACKTICK_CONTENT
                     || elementType == BallerinaTypes.TRIPLE_BACKTICK_CONTENT
