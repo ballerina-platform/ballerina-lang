@@ -1,20 +1,20 @@
 /*
-*   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.ballerinalang.test.functions;
 
 import org.ballerinalang.launcher.util.BAssertUtil;
@@ -54,4 +54,13 @@ public class FunctionOverloadTest {
         BAssertUtil.validateError(compile, 0, "redeclared symbol 'testOverloading'", 5, 10);
     }
 
+    @Test(description = "Test if providing defaultable parameter as required argument produces readable error")
+    public void testDefaultableProvidedAsRequired() {
+        CompileResult compile = BCompileUtil.compile("test-src/functions/defaultable-provided-as-required.bal");
+        Assert.assertEquals(compile.getErrorCount(), 2);
+        String expectedErrMsg = "defaultable parameter expected. defaultable parameters should be passed as key-value" +
+                " pairs";
+        BAssertUtil.validateError(compile, 0, expectedErrMsg, 6, 5);
+        BAssertUtil.validateError(compile, 1, expectedErrMsg, 7, 5);
+    }
 }

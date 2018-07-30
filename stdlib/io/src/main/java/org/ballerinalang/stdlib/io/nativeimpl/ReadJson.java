@@ -22,21 +22,21 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.util.JsonParser;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
+import org.ballerinalang.stdlib.io.events.EventContext;
 import org.ballerinalang.stdlib.io.readers.CharacterChannelReader;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Native function ballerina/io#readJson.
+ * Extern function ballerina/io#readJson.
  *
  * @since 0.971.0
  */
@@ -52,17 +52,16 @@ public class ReadJson implements NativeCallableUnit {
     public void execute(Context context, CallableUnitCallback callback) {
         BMap<String, BValue> channel = (BMap<String, BValue>) context.getRefArgument(0);
         CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(IOConstants.CHARACTER_CHANNEL_NAME);
-        CharacterChannelReader reader = new CharacterChannelReader(charChannel);
-        final JsonNode jsonNode;
+        CharacterChannelReader reader = new CharacterChannelReader(charChannel, new EventContext());
+        final BRefType<?> json;
         try {
-            jsonNode = JsonParser.parse(reader);
+            json = JsonParser.parse(reader);
         } catch (BallerinaException e) {
             BMap<String, BValue> errorStruct = IOUtils.createError(context, e.getMessage());
             context.setReturnValues(errorStruct);
             callback.notifySuccess();
             return;
         }
-        BJSON json = new BJSON(jsonNode);
         context.setReturnValues(json);
         callback.notifySuccess();
     }

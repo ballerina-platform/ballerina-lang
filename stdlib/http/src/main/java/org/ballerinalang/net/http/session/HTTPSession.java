@@ -21,7 +21,7 @@ package org.ballerinalang.net.http.session;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.Serializable;
 
@@ -134,7 +134,7 @@ public class HTTPSession implements Session, Serializable {
     }
 
     @Override
-    public void generateSessionHeader(HTTPCarbonMessage message, boolean isSecureRequest) {
+    public void generateSessionHeader(HttpCarbonMessage message, boolean isSecureRequest) {
         //Add set Cookie only for the first response after the creation
         if (this.isNew()) {
             message.setHeader(HttpConstants.RESPONSE_COOKIE_HEADER, HttpConstants.SESSION_ID + this.getId() + "; "

@@ -24,6 +24,7 @@ function write (byte[] content) returns int|error {
     var result = channel.write(content, 0);
     match result {
         int numberOfBytesWritten => {
+            io:println("Number of byte written to server: ", numberOfBytesWritten);
             return numberOfBytesWritten;
         }
         error err => {
@@ -38,6 +39,7 @@ function read (int size) returns (byte[], int)|error {
     match result{
         (byte[] , int)  content => {
             var (bytes, numberOfBytes) = content;
+            io:println("Number of byte read from server: ", numberOfBytes);
             return (bytes, numberOfBytes);
         }
         error err => {
@@ -48,8 +50,4 @@ function read (int size) returns (byte[], int)|error {
 
 function close (io:Socket localSocket) {
     error? err = localSocket.close();
-}
-
-function main (string... args)  {
-    openSocketConnection("localhost", 9999);
 }

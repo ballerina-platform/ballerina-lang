@@ -47,9 +47,9 @@ public type DurableTopicSubscriber object {
         self.registerListener(serviceType, consumerActions);
     }
 
-    native function registerListener(typedesc serviceType, DurableTopicSubscriberActions actions);
+    extern function registerListener(typedesc serviceType, DurableTopicSubscriberActions actions);
 
-    native function createSubscriber(Session session, string messageSelector);
+    extern function createSubscriber(Session session, string messageSelector);
 
     documentation { Starts the endpoint. Function is ignored by the subscriber endpoint
     }
@@ -69,7 +69,7 @@ public type DurableTopicSubscriber object {
         self.closeSubscriber(consumerActions);
     }
 
-    native function closeSubscriber(DurableTopicSubscriberActions actions);
+    extern function closeSubscriber(DurableTopicSubscriberActions actions);
 };
 
 documentation { Configurations related to the durable topic subscriber endpoint
@@ -92,11 +92,11 @@ public type DurableTopicSubscriberActions object {
     documentation { Acknowledges a received message
         P{{message}} JMS message to be acknowledged
     }
-    public native function acknowledge(Message message) returns error?;
+    public extern function acknowledge(Message message) returns error?;
 
     documentation { Synchronously receive a message from the JMS provider
         P{{timeoutInMilliSeconds}} time to wait until a message is received
         R{{}} Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
     }
-    public native function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
+    public extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };

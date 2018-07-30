@@ -23,7 +23,7 @@ import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.parser.DataElement;
 import org.ballerinalang.net.uri.parser.DataReturnAgent;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 /**
  * Http Node Item for URI template tree.
  */
-public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCarbonMessage> {
+public class HttpResourceDataElement implements DataElement<HttpResource, HttpCarbonMessage> {
 
     private List<HttpResource> resource;
     private boolean isFirstTraverse = true;
@@ -79,18 +79,18 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
     }
 
     @Override
-    public boolean getData(HTTPCarbonMessage carbonMessage, DataReturnAgent<HttpResource> dataReturnAgent) {
+    public boolean getData(HttpCarbonMessage carbonMessage, DataReturnAgent<HttpResource> dataReturnAgent) {
         try {
             if (this.resource == null) {
                 return false;
             }
-            HttpResource resource = validateHTTPMethod(this.resource, carbonMessage);
-            if (resource == null) {
+            HttpResource httpResource = validateHTTPMethod(this.resource, carbonMessage);
+            if (httpResource == null) {
                 return isOptionsRequest(carbonMessage);
             }
-            validateConsumes(resource, carbonMessage);
-            validateProduces(resource, carbonMessage);
-            dataReturnAgent.setData(resource);
+            validateConsumes(httpResource, carbonMessage);
+            validateProduces(httpResource, carbonMessage);
+            dataReturnAgent.setData(httpResource);
             return true;
         } catch (BallerinaException e) {
             dataReturnAgent.setError(e);
@@ -98,33 +98,30 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
         }
     }
 
-    private boolean isOptionsRequest(HTTPCarbonMessage inboundMessage) {
+    private boolean isOptionsRequest(HttpCarbonMessage inboundMessage) {
         //Return true to break the resource searching loop, only if the ALLOW header is set in message for
         //OPTIONS request.
-        if (inboundMessage.getHeader(HttpHeaderNames.ALLOW.toString()) != null) {
-            return true;
-        }
-        return false;
+        return inboundMessage.getHeader(HttpHeaderNames.ALLOW.toString()) != null;
     }
 
-    private HttpResource validateHTTPMethod(List<HttpResource> resources, HTTPCarbonMessage carbonMessage) {
-        HttpResource resource = null;
+    private HttpResource validateHTTPMethod(List<HttpResource> resources, HttpCarbonMessage carbonMessage) {
+        HttpResource httpResource = null;
         boolean isOptionsRequest = false;
         String httpMethod = (String) carbonMessage.getProperty(HttpConstants.HTTP_METHOD);
         for (HttpResource resourceInfo : resources) {
             if (DispatcherUtil.isMatchingMethodExist(resourceInfo, httpMethod)) {
-                resource = resourceInfo;
+                httpResource = resourceInfo;
                 break;
             }
         }
-        if (resource == null) {
-            resource = tryMatchingToDefaultVerb(resources);
+        if (httpResource == null) {
+            httpResource = tryMatchingToDefaultVerb(resources);
         }
-        if (resource == null) {
+        if (httpResource == null) {
             isOptionsRequest = setAllowHeadersIfOPTIONS(httpMethod, carbonMessage);
         }
-        if (resource != null) {
-            return resource;
+        if (httpResource != null) {
+            return httpResource;
         }
         if (!isOptionsRequest) {
             carbonMessage.setProperty(HttpConstants.HTTP_STATUS_CODE, 405);
@@ -143,7 +140,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
         return null;
     }
 
-    private boolean setAllowHeadersIfOPTIONS(String httpMethod, HTTPCarbonMessage cMsg) {
+    private boolean setAllowHeadersIfOPTIONS(String httpMethod, HttpCarbonMessage cMsg) {
         if (httpMethod.equals(HttpConstants.HTTP_METHOD_OPTIONS)) {
             cMsg.setHeader(HttpHeaderNames.ALLOW.toString(), getAllowHeaderValues(cMsg));
             return true;
@@ -151,7 +148,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
         return false;
     }
 
-    private String getAllowHeaderValues(HTTPCarbonMessage cMsg) {
+    private String getAllowHeaderValues(HttpCarbonMessage cMsg) {
         List<String> methods = new ArrayList<>();
         List<HttpResource> resourceInfos = new ArrayList<>();
         for (HttpResource resourceInfo : this.resource) {
@@ -165,7 +162,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
         return DispatcherUtil.concatValues(methods, false);
     }
 
-    public HttpResource validateConsumes(HttpResource resource, HTTPCarbonMessage cMsg) {
+    public HttpResource validateConsumes(HttpResource resource, HttpCarbonMessage cMsg) {
         String contentMediaType = extractContentMediaType(cMsg.getHeader(HttpHeaderNames.CONTENT_TYPE.toString()));
         List<String> consumesList = resource.getConsumes();
 
@@ -188,12 +185,12 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
             return null;
         }
         if (header.contains(";")) {
-            header = header.substring(0, header.indexOf(";")).trim();
+            header = header.substring(0, header.indexOf(';')).trim();
         }
         return header;
     }
 
-    public HttpResource validateProduces(HttpResource resource, HTTPCarbonMessage cMsg) {
+    public HttpResource validateProduces(HttpResource resource, HttpCarbonMessage cMsg) {
         List<String> acceptMediaTypes = extractAcceptMediaTypes(cMsg.getHeader(HttpHeaderNames.ACCEPT.toString()));
         List<String> producesList = resource.getProduces();
 
@@ -207,7 +204,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
         if (acceptMediaTypes.stream().anyMatch(mediaType -> mediaType.contains("/*"))) {
             List<String> subTypeWildCardMediaTypes = acceptMediaTypes.stream()
                     .filter(mediaType -> mediaType.contains("/*"))
-                    .map(mediaType -> mediaType.substring(0, mediaType.indexOf("/")))
+                    .map(mediaType -> mediaType.substring(0, mediaType.indexOf('/')))
                     .collect(Collectors.toList());
             for (String token : resource.getProducesSubTypes()) {
                 if (subTypeWildCardMediaTypes.contains(token)) {
@@ -235,11 +232,11 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HTTPCa
             //process headers like this: text/*;q=0.3, text/html;Level=1;q=0.7, */*
             acceptMediaTypes = Arrays.stream(header.split(","))
                     .map(mediaRange -> mediaRange.contains(";") ? mediaRange
-                            .substring(0, mediaRange.indexOf(";")) : mediaRange)
+                            .substring(0, mediaRange.indexOf(';')) : mediaRange)
                     .map(String::trim).distinct().collect(Collectors.toList());
         } else if (header.contains(";")) {
             //process headers like this: text/*;q=0.3
-            acceptMediaTypes.add(header.substring(0, header.indexOf(";")).trim());
+            acceptMediaTypes.add(header.substring(0, header.indexOf(';')).trim());
         } else {
             acceptMediaTypes.add(header.trim());
         }

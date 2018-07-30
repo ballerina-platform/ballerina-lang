@@ -49,14 +49,30 @@ class CanvasDecorator extends React.Component {
             x: 0,
             y: 0,
         };
-        const { fitToWidth } = this.context;
+        const { editMode } = this.context;
+
+        let heightDiff;
+
+        if (this.props.bBox.w > this.props.containerSize.width) {
+            const decrease = this.props.bBox.w - this.props.containerSize.width;
+            const descresePercentage = decrease / this.props.bBox.w * 100;
+
+            heightDiff = this.props.bBox.h - (this.props.bBox.h / 100 * descresePercentage);
+        } else {
+            const increase = this.props.containerSize.width - this.props.bBox.w;
+            const increasePercentage = increase / this.props.bBox.w * 100;
+
+            heightDiff = this.props.bBox.h + (this.props.bBox.h / 100 * increasePercentage);
+        }
+
         const svgSize = {
-            w: fitToWidth ? this.props.containerSize.width : this.props.bBox.w,
-            h: this.props.bBox.h,
+            w: editMode ? this.props.containerSize.width : this.props.bBox.w,
+            h: editMode ? heightDiff : this.props.bBox.h,
         };
-        const viewBox = fitToWidth ? `0 0 ${this.props.bBox.w} ${this.props.bBox.h}` : '';
+
+        const viewBox = editMode ? `0 0 ${this.props.bBox.w} ${this.props.bBox.h}` : '';
         return (
-            <div className='' style={{ width: svgSize.w }} >
+            <div className='' style={{ width: svgSize.w, height: svgSize.h }} >
                 <div ref={(x) => { setCanvasOverlay(x); }}>
                     {/* This space is used to render html elements over svg */ }
                 </div>
@@ -66,7 +82,7 @@ class CanvasDecorator extends React.Component {
                     height={svgSize.h}
                     viewBox={viewBox}
                     preserveAspectRatio='xMinYMin'
-                    style={{ pointerEvents: fitToWidth ? 'none' : 'auto' }}
+                    style={{ pointerEvents: editMode ? 'none' : 'auto' }}
                 >
                     <DropZone
                         x='0'
@@ -101,7 +117,7 @@ CanvasDecorator.propTypes = {
 };
 
 CanvasDecorator.contextTypes = {
-    fitToWidth: PropTypes.bool,
+    editMode: PropTypes.bool,
 };
 
 CanvasDecorator.defaultProps = {

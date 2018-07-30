@@ -33,7 +33,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.Set;
 
 /**
- * Native function to get value array from the map.
+ * Extern function to get value array from the map.
  * ballerina.model.map:values()
  */
 @BallerinaFunction(

@@ -19,8 +19,8 @@
 package org.ballerinalang.stdlib.io.channels;
 
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.channels.base.readers.BlockingReader;
-import org.ballerinalang.stdlib.io.channels.base.writers.BlockingWriter;
+import org.ballerinalang.stdlib.io.channels.base.readers.ChannelReader;
+import org.ballerinalang.stdlib.io.channels.base.writers.ChannelWriter;
 import org.ballerinalang.stdlib.io.socket.SocketByteChannel;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 
@@ -37,18 +37,35 @@ import java.nio.channels.WritableByteChannel;
 public class SocketIOChannel extends Channel {
 
     private ByteChannel channel;
+    private boolean selectable;
 
-    public SocketIOChannel(ByteChannel channel, int size) throws IOException {
-        super(channel, new BlockingReader(), new BlockingWriter(), size);
+    public SocketIOChannel(ByteChannel channel) {
+        super(channel, new ChannelReader(), new ChannelWriter());
         this.channel = channel;
+    }
+
+    public SocketIOChannel(ByteChannel channel, boolean selectable) {
+        super(channel, new ChannelReader(), new ChannelWriter());
+        this.channel = channel;
+        this.selectable = selectable;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void transfer(int position, int count, WritableByteChannel dstChannel) throws IOException {
+    public void transfer(int position, int count, WritableByteChannel dstChannel) {
         throw new BallerinaIOException("Unsupported method");
+    }
+
+    @Override
+    public Channel getChannel() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isSelectable() {
+        return selectable;
     }
 
     /**

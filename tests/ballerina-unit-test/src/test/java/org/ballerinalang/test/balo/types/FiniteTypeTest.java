@@ -275,7 +275,7 @@ public class FiniteTypeTest {
 
     @AfterClass
     public void tearDown() {
-        BaloCreator.cleaPackageFromRepository("finiteTypeTest", "foo");
+        BaloCreator.clearPackageFromRepository("finiteTypeTest", "foo");
     }
 }
 

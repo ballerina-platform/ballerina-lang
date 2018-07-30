@@ -45,70 +45,70 @@ public class SQLConnectorInitTest {
 
     @Test
     public void testConnectorWithDefaultPropertiesForListedDB() {
-         BValue[] returns = BRunUtil.invoke(result, "testConnectorWithDefaultPropertiesForListedDB");
+         BValue[] returns = BRunUtil.invokeFunction(result, "testConnectorWithDefaultPropertiesForListedDB");
          final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
          Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testConnectorWithWorkers() {
-         BValue[] returns = BRunUtil.invoke(result, "testConnectorWithWorkers");
+         BValue[] returns = BRunUtil.invokeFunction(result, "testConnectorWithWorkers");
          final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
          Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testConnectorWithDataSourceClass() {
-        BValue[] returns = BRunUtil.invoke(result, "testConnectorWithDataSourceClass");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testConnectorWithDataSourceClass");
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testConnectorWithDataSourceClassAndProps() {
-        BValue[] returns = BRunUtil.invoke(result, "testConnectorWithDataSourceClassAndProps");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testConnectorWithDataSourceClassAndProps");
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testConnectorWithDataSourceClassWithoutURL() {
-        BValue[] returns = BRunUtil.invoke(result, "testConnectorWithDataSourceClassWithoutURL");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testConnectorWithDataSourceClassWithoutURL");
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testConnectorWithDataSourceClassURLPriority() {
-        BValue[] returns = BRunUtil.invoke(result, "testConnectorWithDataSourceClassURLPriority");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testConnectorWithDataSourceClassURLPriority");
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testConnectionPoolProperties1() {
-        BValue[] returns = BRunUtil.invoke(result, "testConnectionPoolProperties1");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testConnectionPoolProperties1");
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testConnectionPoolProperties2() {
-        BValue[] returns = BRunUtil.invoke(result, "testConnectionPoolProperties2");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testConnectionPoolProperties2");
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testConnectionPoolProperties3() {
-        BValue[] returns = BRunUtil.invoke(result, "testConnectionPoolProperties3");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testConnectionPoolProperties3");
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testPropertiesGetUsedOnlyIfDataSourceGiven() {
-        BValue[] returns = BRunUtil.invoke(result, "testPropertiesGetUsedOnlyIfDataSourceGiven");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testPropertiesGetUsedOnlyIfDataSourceGiven");
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }

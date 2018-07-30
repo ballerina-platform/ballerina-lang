@@ -22,7 +22,7 @@ import static org.ballerinalang.mime.util.MimeConstants.BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
 
 /**
- * 'getBodyPartsAsChannel' native function converts a set of body parts into a byte channel.
+ * 'getBodyPartsAsChannel' extern function converts a set of body parts into a byte channel.
  *
  * @since 0.970.0
  */
@@ -41,7 +41,7 @@ public class GetBodyPartsAsChannel extends BlockingNativeCallableUnit {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
         MultipartDataSource multipartDataSource = new MultipartDataSource(entityStruct, multipartDataBoundary);
-        multipartDataSource.serializeData(outputStream);
+        multipartDataSource.serialize(outputStream);
         EntityBodyChannel entityBodyChannel = new EntityBodyChannel(new ByteArrayInputStream(
                 outputStream.toByteArray()));
         byteChannelStruct = BLangConnectorSPIUtil.createBStruct(context, IOConstants.IO_PACKAGE, BYTE_CHANNEL_STRUCT);

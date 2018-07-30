@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.ByteArrayOutputStream;
@@ -65,13 +65,13 @@ public class MimeWithHttpTest {
         String path = "/test/largepayload";
         try {
             ByteChannel byteChannel = TestUtil.openForReading("datafiles/io/text/fileThatExceeds2MB.txt");
-            Channel channel = new MockByteChannel(byteChannel, 10);
+            Channel channel = new MockByteChannel(byteChannel);
             CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
             String responseValue = characterChannel.readAll();
             characterChannel.close();
             HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST",
                     responseValue);
-            HTTPCarbonMessage response = Services.invokeNew(serviceResult, "mockEP", cMsg);
+            HttpCarbonMessage response = Services.invokeNew(serviceResult, "mockEP", cMsg);
             Assert.assertNotNull(response, "Response message not found");
 
             InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();

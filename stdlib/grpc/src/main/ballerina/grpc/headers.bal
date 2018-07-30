@@ -25,7 +25,7 @@ public type Headers object {
         P{{headerName}} - The header name.
         R{{}} - Returns true if header exists, false otherwise.
     }
-    public native function exists(string headerName) returns boolean;
+    public extern function exists(string headerName) returns boolean;
 
     documentation {
         Returns the header value with the specified header name. If there are more than one header value for the
@@ -34,7 +34,7 @@ public type Headers object {
         P{{headerName}} - The header name.
         R{{}} - Returns first header value if exists, nil otherwise.
     }
-    public native function get(string headerName) returns string?;
+    public extern function get(string headerName) returns string?;
 
     documentation {
         Gets all transport headers with the specified header name.
@@ -42,7 +42,7 @@ public type Headers object {
         P{{headerName}} - The header name.
         R{{}} - Returns header value array.
     }
-    public native function getAll(string headerName) returns string[];
+    public extern function getAll(string headerName) returns string[];
 
     documentation {
         Sets the value of a transport header.
@@ -50,7 +50,7 @@ public type Headers object {
         P{{headerName}} - The header name.
         P{{headerValue}} - The header value.
     }
-    public native function setEntry(string headerName, string headerValue);
+    public extern function setEntry(string headerName, string headerValue);
 
     documentation {
         Adds the specified key/value pair as an HTTP header to the request.
@@ -58,17 +58,17 @@ public type Headers object {
         P{{headerName}} - The header name.
         P{{headerValue}} - The header value.
     }
-    public native function addEntry(string headerName, string headerValue);
+    public extern function addEntry(string headerName, string headerValue);
 
     documentation {
         Removes a transport header from the request.
 
         P{{headerName}} - The header name.
     }
-    public native function remove(string headerName);
+    public extern function remove(string headerName);
 
     documentation {
         Removes all transport headers from the message.
     }
-    public native function removeAll();
+    public extern function removeAll();
 };

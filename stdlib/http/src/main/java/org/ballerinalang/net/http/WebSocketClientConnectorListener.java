@@ -72,7 +72,7 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
 
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
-        WebSocketDispatcher.dispatchIdleTimeout(connectionInfo, controlMessage);
+        WebSocketDispatcher.dispatchIdleTimeout(connectionInfo);
     }
 
 }

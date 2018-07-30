@@ -24,13 +24,17 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.stdlib.io.socket.SelectorManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,7 +43,6 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Unit tests for server socket.
  */
-@Test(groups = { "broken" })
 public class ServerSocketTest {
 
     private static final Logger log = LoggerFactory.getLogger(ServerSocketTest.class);
@@ -53,44 +56,58 @@ public class ServerSocketTest {
     @Test(description = "Check server socket accept functionality.")
     public void testSeverSocketAccept() {
         int port = ThreadLocalRandom.current().nextInt(47000, 51000);
-        String welcomeMsg = "Hello Ballerina";
+        String welcomeMsg = "Hello Ballerina\n";
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            BValue[] args = { new BInteger(port), new BString(welcomeMsg) };
-            BRunUtil.invokeStateful(serverBal, "startServerSocket", args);
+            try {
+                BValue[] args = { new BInteger(port), new BString(welcomeMsg) };
+                BRunUtil.invokeStateful(serverBal, "startServerSocket", args);
+            } catch (Throwable e) {
+                log.error(e.getMessage(), e);
+            }
         });
         try {
-            boolean connectionStatus;
-            int numberOfRetryAttempts = 10;
-            connectionStatus = isConnected("localhost", port, numberOfRetryAttempts);
-            if (!connectionStatus) {
-                Assert.fail("Unable to open connection with the test TCP server");
-            }
-            executor.shutdownNow();
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
-    }
-
-    private boolean isConnected(String hostName, int port, int numberOfRetries) {
-        Socket temporarySocketConnection = null;
-        boolean isConnected = false;
-        final int retryInterval = 1000;
-        final int initialRetryCount = 0;
-        for (int retryCount = initialRetryCount; retryCount < numberOfRetries && !isConnected; retryCount++) {
-            try {
-                temporarySocketConnection = new Socket(hostName, port);
-                isConnected = true;
-            } catch (IOException e) {
-                log.error("Error occurred while establishing a connection with test server", e);
-                sleep(retryInterval);
-            } finally {
-                if (null != temporarySocketConnection) {
-                    close(temporarySocketConnection);
+            Thread.sleep(2500);
+            final int numberOfRetryAttempts = 20;
+            final int retryInterval = 1000;
+            final String clientMsg = "This is the first type of message.";
+            boolean connected = false;
+            for (int retryCount = 0; retryCount < numberOfRetryAttempts; retryCount++) {
+                try (Socket s = new Socket("localhost", port)) {
+                    BufferedReader input = new BufferedReader(new InputStreamReader(s.getInputStream()));
+                    String answer = input.readLine();
+                    Assert.assertEquals(welcomeMsg.trim(), answer, "Didn't get the expected response from server.");
+                    try (OutputStreamWriter out = new OutputStreamWriter(s.getOutputStream(), "UTF-8")) {
+                        out.write(clientMsg, 0, clientMsg.length());
+                        out.flush();
+                        out.close();
+                        s.close();
+                        connected = true;
+                        break;
+                    }
+                } catch (IOException e) {
+                    sleep(retryInterval);
                 }
             }
+            Assert.assertTrue(connected, "Unable to connect to remote server.");
+            int i = 0;
+            do {
+                final BValue[] resultValues = BRunUtil.invokeStateful(serverBal, "getResultValue");
+                BString result = (BString) resultValues[0];
+                final String str = result.stringValue();
+                if (str == null || str.isEmpty()) {
+                    sleep(retryInterval);
+                    continue;
+                }
+                Assert.assertEquals(clientMsg, str, "Client message incorrect.");
+                break;
+            } while (i++ < 10);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        } finally {
+            SelectorManager.stop();
+            executor.shutdownNow();
         }
-        return isConnected;
     }
 
     private void sleep(int retryInterval) {
@@ -98,14 +115,6 @@ public class ServerSocketTest {
             Thread.sleep(retryInterval);
         } catch (InterruptedException ignore) {
             Thread.currentThread().interrupt();
-        }
-    }
-
-    private void close(Socket socket) {
-        try {
-            socket.close();
-        } catch (IOException e) {
-            log.error("Error occurred while closing the Socket connection", e);
         }
     }
 }

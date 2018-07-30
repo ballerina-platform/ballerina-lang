@@ -25,7 +25,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.concurrent.Executor;
 
@@ -50,7 +50,7 @@ public class ServerConnectorListener implements HttpConnectorListener {
     }
 
     @Override
-    public void onMessage(HTTPCarbonMessage inboundMessage) {
+    public void onMessage(HttpCarbonMessage inboundMessage) {
         try {
             InboundMessage request = new InboundMessage(inboundMessage);
             if (!isValid(request)) {
@@ -161,9 +161,9 @@ public class ServerConnectorListener implements HttpConnectorListener {
         return true;
     }
 
-    private static void handleFailure(HTTPCarbonMessage requestMessage, int status,
+    private static void handleFailure(HttpCarbonMessage requestMessage, int status,
                                       Status.Code statusCode, String msg) {
-        HTTPCarbonMessage responseMessage = HttpUtil.createErrorMessage(msg, status);
+        HttpCarbonMessage responseMessage = HttpUtil.createErrorMessage(msg, status);
         responseMessage.setHeader(GRPC_STATUS_KEY, statusCode.toString());
         responseMessage.setHeader(GRPC_MESSAGE_KEY, msg);
         HttpUtil.sendOutboundResponse(requestMessage, responseMessage);

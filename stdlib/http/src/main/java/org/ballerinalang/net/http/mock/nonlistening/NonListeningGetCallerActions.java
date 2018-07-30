@@ -18,7 +18,6 @@
 
 package org.ballerinalang.net.http.mock.nonlistening;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -40,9 +39,4 @@ import org.ballerinalang.net.http.serviceendpoint.GetCallerActions;
         isPublic = true
 )
 public class NonListeningGetCallerActions extends GetCallerActions {
-
-    @Override
-    public void execute(Context context) {
-        super.execute(context);
-    }
 }
