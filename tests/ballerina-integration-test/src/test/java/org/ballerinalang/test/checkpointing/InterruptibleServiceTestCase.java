@@ -80,7 +80,7 @@ public class InterruptibleServiceTestCase extends IntegrationTestCase {
         }
         List<String> allSerializedStates = fileStorageProvider.getAllSerializedStates();
         Assert.assertEquals(allSerializedStates.size(), 1,
-                            "Checkpoint haven't been save during request processing.");
+                            "Checkpoint was not saved during request processing.");
     }
 
     @Test(description = "Resume the request after server started from last checkPointed state",
@@ -95,7 +95,7 @@ public class InterruptibleServiceTestCase extends IntegrationTestCase {
         }
         List<String> allSerializedStates = fileStorageProvider.getAllSerializedStates();
         Assert.assertEquals(allSerializedStates.size(), 0,
-                            "Server has not been resumed the checkpoint and complete it.");
+                            "Server hasn't been able to resume the checkpoint and complete it.");
     }
 
     private void startServer() throws BallerinaTestException {

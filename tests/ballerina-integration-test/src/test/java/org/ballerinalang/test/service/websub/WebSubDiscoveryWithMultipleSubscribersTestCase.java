@@ -56,9 +56,9 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends IntegrationT
     private static final String INTENT_VERIFICATION_SUBSCRIBER_TWO_LOG = "ballerina: Intent Verification agreed - Mode "
             + "[subscribe], Topic [http://websubpubtopictwo.com], Lease Seconds [1200]";
     private static final String INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_ONE_LOG =
-            "WebSub Notification Received: {\"action\":\"publish\",\"mode\":\"internal-hub\"}";
+            "WebSub Notification Received: {\"action\":\"publish\", \"mode\":\"internal-hub\"}";
     private static final String INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG =
-            "WebSub Notification Received: {\"action\":\"publish\",\"mode\":\"internal-hub-two\"}";
+            "WebSub Notification Received: {\"action\":\"publish\", \"mode\":\"internal-hub-two\"}";
 
     private LogLeecher intentVerificationLogLeecherOne = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG);
     private LogLeecher intentVerificationLogLeecherTwo = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_TWO_LOG);

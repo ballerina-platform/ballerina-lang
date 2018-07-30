@@ -30,7 +30,7 @@ import org.ballerinalang.util.observability.ObserverContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -61,7 +61,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
     }
 
     @Override
-    public void onMessage(HTTPCarbonMessage inboundMessage) {
+    public void onMessage(HttpCarbonMessage inboundMessage) {
         try {
             HttpResource httpResource;
             if (accessed(inboundMessage)) {
@@ -91,7 +91,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         log.error("Error in HTTP server connector: " + throwable.getMessage());
     }
 
-    protected void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage inboundMessage,
+    protected void extractPropertiesAndStartResourceExecution(HttpCarbonMessage inboundMessage,
                                                               HttpResource httpResource) {
         boolean isTransactionInfectable = httpResource.isTransactionInfectable();
         boolean isInterruptible = httpResource.isInterruptible();
@@ -116,11 +116,11 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         Executor.submit(balResource, callback, properties, observerContext.orElse(null), signatureParams);
     }
 
-    protected boolean accessed(HTTPCarbonMessage inboundMessage) {
+    protected boolean accessed(HttpCarbonMessage inboundMessage) {
         return inboundMessage.getProperty(HTTP_RESOURCE) != null;
     }
 
-    private Map<String, Object> collectRequestProperties(HTTPCarbonMessage inboundMessage, boolean isInfectable,
+    private Map<String, Object> collectRequestProperties(HttpCarbonMessage inboundMessage, boolean isInfectable,
                                                          boolean isInterruptible) {
         Map<String, Object> properties = new HashMap<>();
         if (inboundMessage.getProperty(HttpConstants.SRC_HANDLER) != null) {

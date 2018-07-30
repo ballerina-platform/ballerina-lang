@@ -32,7 +32,7 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 /**
- * {@code HasHeader} is the ballerina native function to check whether the requested header exists in a Push Promise.
+ * {@code HasHeader} is the ballerina extern function to check whether the requested header exists in a Push Promise.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",

@@ -21,8 +21,8 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -215,16 +215,16 @@ public class SafeNavigationTest {
     @Test
     public void testJSONNilLiftingOnLHS_1() {
         BValue[] returns = BRunUtil.invoke(result, "testJSONNilLiftingOnLHS_1");
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(), "{\"info\":{\"address1\":{\"city\":\"Colombo\"}}}");
 
-        Assert.assertTrue(returns[1] instanceof BJSON);
+        Assert.assertTrue(returns[1] instanceof BMap);
         Assert.assertEquals(returns[1].stringValue(), "{\"info\":{\"address2\":{\"city\":\"Kandy\"}}}");
 
-        Assert.assertTrue(returns[2] instanceof BJSON);
+        Assert.assertTrue(returns[2] instanceof BMap);
         Assert.assertEquals(returns[2].stringValue(), "{\"info\":{\"address3\":{\"city\":\"Galle\"}}}");
 
-        Assert.assertTrue(returns[3] instanceof BJSON);
+        Assert.assertTrue(returns[3] instanceof BMap);
         Assert.assertEquals(returns[3].stringValue(), "{\"info\":{\"address4\":{\"city\":\"Jaffna\"}}}");
     }
 
@@ -264,9 +264,9 @@ public class SafeNavigationTest {
 
     @Test
     public void testFunctionInvocOnJsonNonExistingField() {
-        BValue[] vals = { new BJSON("\"hello\"") };
+        BValue[] vals = { JsonParser.parse("\"hello\"") };
         BValue[] returns = BRunUtil.invoke(result, "testFunctionInvocOnJsonNonExistingField", vals);
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John\"}");
 
         Assert.assertTrue(returns[1] instanceof BString);
@@ -278,7 +278,7 @@ public class SafeNavigationTest {
 
     @Test
     public void testCountOnJSON() {
-        BValue[] vals = { new BJSON("\"hello\"") };
+        BValue[] vals = { JsonParser.parse("\"hello\"") };
         BValue[] returns = BRunUtil.invoke(result, "testCountOnJSON", vals);
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
@@ -288,7 +288,7 @@ public class SafeNavigationTest {
             expectedExceptionsMessageRegExp = "error: ballerina/runtime:CallFailedException, message: call failed.*" +
                     "caused by ballerina/runtime:NullReferenceException.*")
     public void testCountOnNullJSON() {
-        BValue[] vals = { new BJSON("\"hello\"") };
+        BValue[] vals = { JsonParser.parse("\"hello\"") };
         BRunUtil.invoke(result, "testCountOnNullJSON", vals);
     }
 

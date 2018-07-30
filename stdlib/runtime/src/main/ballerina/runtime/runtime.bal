@@ -20,7 +20,7 @@ documentation {
 
     P{{millis}} Amount of time to sleep in milliseconds
 }
-public native function sleep(int millis);
+public extern function sleep(int millis);
 
 // Todo - Remove
 documentation {
@@ -29,9 +29,10 @@ documentation {
     P{{name}} Name of the property
     R{{}} Value of the property if the property exists, an empty string otherwise
 }
-public native function getProperty(@sensitive string name) returns (string);
+
+public extern function getProperty(@sensitive string name) returns (string);
 
 documentation {
     Check point the current state of the execution.
 }
-public native function checkpoint ();
+public extern function checkpoint ();

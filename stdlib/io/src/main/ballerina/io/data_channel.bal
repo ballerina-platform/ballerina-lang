@@ -39,28 +39,28 @@ public type DataChannel object {
         P{{byteChannel}} channel which would represent the source to read/write data
         P{{bOrder}} network byte order
     }
-    native function init(ByteChannel byteChannel, ByteOrder bOrder);
+    extern function init(ByteChannel byteChannel, ByteOrder bOrder);
 
     documentation {
         Reads a 16 bit integer.
 
         R{{}} value of the integer which is read or an error
     }
-    public native function readInt16() returns int|error;
+    public extern function readInt16() returns int|error;
 
     documentation {
         Reads a 32 bit integer.
 
         R{{}} value of the integer which is read or an error
     }
-    public native function readInt32() returns int|error;
+    public extern function readInt32() returns int|error;
 
     documentation {
         Reads a 64 bit integer.
 
         R{{}} value of the integer which is read or an error
     }
-    public native function readInt64() returns int|error;
+    public extern function readInt64() returns int|error;
 
     documentation {
         Writes 16 bit integer.
@@ -68,7 +68,7 @@ public type DataChannel object {
         P{{value}}   integer which will be written
         R{{}} nill if the content is written successfully or an error
     }
-    public native function writeInt16(int value) returns error?;
+    public extern function writeInt16(int value) returns error?;
 
     documentation {
         Writes 32 bit integer.
@@ -76,7 +76,7 @@ public type DataChannel object {
         P{{value}}   integer which will be written
         R{{}} nill if the content is written successfully or an error
     }
-    public native function writeInt32(int value) returns error?;
+    public extern function writeInt32(int value) returns error?;
 
     documentation {
         Writes 64 bit integer.
@@ -84,21 +84,21 @@ public type DataChannel object {
         P{{value}}   integer which will be written
         R{{}} nill if the content is written successfully or an error
     }
-    public native function writeInt64(int value) returns error?;
+    public extern function writeInt64(int value) returns error?;
 
     documentation {
         Reads 32 bit float.
 
         R{{}} value of the float which is read or an error
     }
-    public native function readFloat32() returns float|error;
+    public extern function readFloat32() returns float|error;
 
     documentation {
         Reads 64 bit float.
 
         R{{}} value of the float which is read or an error
     }
-    public native function readFloat64() returns float|error;
+    public extern function readFloat64() returns float|error;
 
     documentation {
         Writes 32 bit float.
@@ -106,7 +106,7 @@ public type DataChannel object {
         P{{value}}   float which will be written
         R{{}} nill if the float is written successfully or an error
     }
-    public native function writeFloat32(float value) returns error?;
+    public extern function writeFloat32(float value) returns error?;
 
     documentation {
         Writes 64 bit float.
@@ -114,14 +114,14 @@ public type DataChannel object {
         P{{value}}   float which will be written
         R{{}} nill if the float is written successfully or an error
     }
-    public native function writeFloat64(float value) returns error?;
+    public extern function writeFloat64(float value) returns error?;
 
     documentation {
         Reads 1 byte and convert it's value to boolean.
 
         R{{}} boolean value which is read or an error
     }
-    public native function readBool() returns boolean|error;
+    public extern function readBool() returns boolean|error;
 
     documentation {
         Writes boolean.
@@ -129,7 +129,7 @@ public type DataChannel object {
         P{{value}}   boolean which will be written
         R{{}} nill if the content is written successfully or an error
     }
-    public native function writeBool(boolean value) returns error?;
+    public extern function writeBool(boolean value) returns error?;
 
     documentation {
         Reads string value represented through the provided number of bytes.
@@ -138,7 +138,7 @@ public type DataChannel object {
         P{{encoding}} specifies the char-set encoding of the string
         R{{}} value of the string or an error
     }
-    public native function readString(int nBytes, string encoding) returns string|error;
+    public extern function readString(int nBytes, string encoding) returns string|error;
 
     documentation {
         Writes a given string value to the respective channel.
@@ -147,14 +147,14 @@ public type DataChannel object {
         P{{encoding}} the encoding which will represent the value string
         R{{}} nill if the content is written successfully or an error
     }
-    public native function writeString(string value, string encoding) returns error?;
+    public extern function writeString(string value, string encoding) returns error?;
 
     documentation {
         Reads a variable length integer.
 
         R{{}} value of the integer which is read or an error
     }
-    public native function readVarInt() returns int|error;
+    public extern function readVarInt() returns int|error;
 
     documentation {
         Writes a given integer identifying the variable length.
@@ -162,12 +162,12 @@ public type DataChannel object {
         P{{value}} the value which should be written
         R{{}} nill if the content is written successfully or an error
     }
-    public native function writeVarInt(int value) returns error?;
+    public extern function writeVarInt(int value) returns error?;
 
     documentation {
         Closes the data channel.
 
         R{{}} nill if the channel is closed successfully or an i/o error
     }
-    public native function close() returns error?;
+    public extern function close() returns error?;
 };

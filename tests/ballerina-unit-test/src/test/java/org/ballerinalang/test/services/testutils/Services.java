@@ -34,7 +34,7 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -52,17 +52,17 @@ import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONFIG_F
 public class Services {
 
 
-    public static HTTPCarbonMessage invokeNew(CompileResult compileResult, String endpointName,
+    public static HttpCarbonMessage invokeNew(CompileResult compileResult, String endpointName,
                                               HTTPTestRequest request) {
         return invokeNew(compileResult, ".", Names.EMPTY.value, endpointName, request);
     }
 
-    public static HTTPCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String endpointName,
+    public static HttpCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String endpointName,
                                               HTTPTestRequest request) {
         return invokeNew(compileResult, pkgName, Names.DEFAULT_VERSION.value, endpointName, request);
     }
 
-    public static HTTPCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String version,
+    public static HttpCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String version,
                                               String endpointName, HTTPTestRequest request) {
         ProgramFile programFile = compileResult.getProgFile();
         BMap<String, BValue> connectorEndpoint =
@@ -96,7 +96,7 @@ public class Services {
         Executor.submit(resource.getBalResource(), callback, properties, null, signatureParams);
         callback.sync();
 
-        HTTPCarbonMessage originalMsg = callback.getResponseMsg();
+        HttpCarbonMessage originalMsg = callback.getResponseMsg();
         LinkedList<HttpContent> list = new LinkedList<>();
         while (!originalMsg.isEmpty()) {
             HttpContent httpContent = originalMsg.getHttpContent();
