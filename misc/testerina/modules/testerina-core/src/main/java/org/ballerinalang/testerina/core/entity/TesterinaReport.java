@@ -19,6 +19,8 @@
 package org.ballerinalang.testerina.core.entity;
 
 import org.ballerinalang.testerina.util.Utils;
+import org.wso2.ballerinalang.compiler.Logger;
+import org.wso2.ballerinalang.compiler.LoggerRegistry;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -43,26 +45,24 @@ public class TesterinaReport {
         }
         if (!testSummary.failedTests.isEmpty()) {
             for (TesterinaResult failedResult : testSummary.failedTests) {
-                outStream.println("\t[fail] " + failedResult.getTestFunctionName() + ":");
-                outStream.println("\t    " + Utils.formatError(failedResult.getAssertFailureMessage()));
+                LoggerRegistry.triggerTestsFailed(failedResult.getTestFunctionName(),
+                                                  Utils.formatError(failedResult.getAssertFailureMessage()));
             }
         }
 
         if (!testSummary.passedTests.isEmpty()) {
             for (TesterinaResult passedResult : testSummary.passedTests) {
-                outStream.println("\t[pass] " + passedResult.getTestFunctionName());
+                LoggerRegistry.triggerTestsPassed(passedResult.getTestFunctionName());
             }
-            outStream.println();
+            LoggerRegistry.triggerLineBreak();
         }
         printTestSuiteResult(testSummary.passedTests.size(), testSummary.failedTests.size(), testSummary.skippedTests
                 .size());
-        outStream.println();
+        LoggerRegistry.triggerLineBreak();
     }
 
     private void printTestSuiteResult(int passed, int failed, int skipped) {
-        outStream.println("\t" + passed + " passing");
-        outStream.println("\t" + failed + " failing");
-        outStream.println("\t" + skipped + " skipped");
+        LoggerRegistry.triggerTestSuiteResultGenerated(passed, failed, skipped);
     }
 
     public void addPackageReport(String packageName) {

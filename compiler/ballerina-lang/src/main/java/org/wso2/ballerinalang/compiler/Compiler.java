@@ -28,7 +28,6 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,7 +40,6 @@ public class Compiler {
 
     private static final CompilerContext.Key<Compiler> COMPILER_KEY =
             new CompilerContext.Key<>();
-    private static PrintStream outStream = System.out;
 
     private final SourceDirectoryManager sourceDirectoryManager;
     private final CompilerDriver compilerDriver;
@@ -62,6 +60,7 @@ public class Compiler {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
+        LoggerRegistry.registerLogger("ConsoleLogger", new ConsoleLogger());
     }
 
     public static Compiler getInstance(CompilerContext context) {
@@ -90,7 +89,7 @@ public class Compiler {
     }
 
     public BLangPackage build(String sourcePackage) {
-        outStream.println("Compiling source");
+        LoggerRegistry.triggerCompileStarted();
         BLangPackage bLangPackage = compile(sourcePackage, true);
         if (bLangPackage.diagCollector.hasErrors()) {
             throw new BLangCompilerException("compilation contains errors");
@@ -100,7 +99,7 @@ public class Compiler {
 
     public void write(List<BLangPackage> packageList) {
         if (packageList.stream().anyMatch(bLangPackage -> bLangPackage.symbol.entryPointExists)) {
-            outStream.println("Generating executables");
+            LoggerRegistry.triggerExecutablesGenerated();
         }
         packageList.forEach(this.binaryFileWriter::write);
         packageList.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));
@@ -161,7 +160,7 @@ public class Compiler {
         if (pkgList.size() == 0) {
             return new ArrayList<>();
         }
-        outStream.println("Compiling source");
+        LoggerRegistry.triggerCompileStarted();
         List<BLangPackage> compiledPackages = compilePackages(pkgList.stream(), true);
         if (this.dlog.errorCount > 0) {
             throw new BLangCompilerException("compilation contains errors");
