@@ -26,11 +26,15 @@ import com.intellij.formatting.Wrap;
 import com.intellij.formatting.WrapType;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.TokenType;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.formatter.common.AbstractBlock;
 import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.containers.ContainerUtil;
+import io.ballerina.plugins.idea.psi.BallerinaCallableUnitBody;
+import io.ballerina.plugins.idea.psi.BallerinaObjectTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -61,10 +65,9 @@ public class BallerinaBlock extends AbstractBlock {
     @NotNull
     private Map<ASTNode, Alignment> myAlignmentMap;
 
-    protected BallerinaBlock
-            (@NotNull ASTNode node, @Nullable Alignment alignment, @Nullable Indent indent, @Nullable Wrap wrap,
-             @NotNull CodeStyleSettings settings, @NotNull SpacingBuilder spacingBuilder,
-             @NotNull Map<ASTNode, Alignment> alignmentMap) {
+    protected BallerinaBlock(@NotNull ASTNode node, @Nullable Alignment alignment, @Nullable Indent indent,
+            @Nullable Wrap wrap, @NotNull CodeStyleSettings settings, @NotNull SpacingBuilder spacingBuilder,
+            @NotNull Map<ASTNode, Alignment> alignmentMap) {
         super(node, wrap, alignment);
 
         this.myNode = node;
@@ -133,8 +136,8 @@ public class BallerinaBlock extends AbstractBlock {
             Alignment alignment = getAlignment(child);
             Indent indent = calculateIndent(child);
             Wrap wrap = createWrap(child);
-            blocks.add(new BallerinaBlock(child, alignment, indent, wrap, mySettings, mySpacingBuilder,
-                    myAlignmentMap));
+            blocks.add(
+                    new BallerinaBlock(child, alignment, indent, wrap, mySettings, mySpacingBuilder, myAlignmentMap));
         }
         return blocks;
     }
@@ -160,8 +163,7 @@ public class BallerinaBlock extends AbstractBlock {
                 alignment = Alignment.createAlignment(true, Alignment.Anchor.LEFT);
                 myAlignmentMap.put(myNode, alignment);
             }
-        } else if (childElementType == BallerinaTypes.PARAMETER
-                && parentElementType == BallerinaTypes.PARAMETER_LIST) {
+        } else if (childElementType == BallerinaTypes.PARAMETER && parentElementType == BallerinaTypes.PARAMETER_LIST) {
             ASTNode treeParent = myNode.getTreeParent().getTreeParent();
             if (myAlignmentMap.containsKey(treeParent)) {
                 alignment = myAlignmentMap.get(treeParent);
@@ -184,8 +186,7 @@ public class BallerinaBlock extends AbstractBlock {
                 && parentElementType == BallerinaTypes.TERNARY_EXPRESSION) {
             alignment = Alignment.createAlignment(true, Alignment.Anchor.LEFT);
             myAlignmentMap.put(myNode, alignment);
-        } else if (childElementType == BallerinaTypes.COLON
-                && parentElementType == BallerinaTypes.TERNARY_EXPRESSION) {
+        } else if (childElementType == BallerinaTypes.COLON && parentElementType == BallerinaTypes.TERNARY_EXPRESSION) {
             if (myAlignmentMap.containsKey(myNode)) {
                 alignment = myAlignmentMap.get(myNode);
             }
@@ -206,28 +207,37 @@ public class BallerinaBlock extends AbstractBlock {
         } else if (childElementType == BallerinaTypes.LINE_COMMENT
                 && (parentElementType == BallerinaTypes.CALLABLE_UNIT_BODY
                 || parentElementType == BallerinaTypes.IF_CLAUSE || parentElementType == BallerinaTypes.ELSE_IF_CLAUSE
-                || parentElementType == BallerinaTypes.ELSE_CLAUSE
-                || parentElementType == BallerinaTypes.WORKER_BODY
-                || parentElementType == BallerinaTypes.FORK_JOIN_STATEMENT
-                || parentElementType == BallerinaTypes.JOIN_CLAUSE_BODY
-                || parentElementType == BallerinaTypes.TIMEOUT_CLAUSE_BODY
-                || parentElementType == BallerinaTypes.WHILE_STATEMENT_BODY
-                || parentElementType == BallerinaTypes.MATCH_STATEMENT_BODY
-                || parentElementType == BallerinaTypes.NAMED_PATTERN
-                || parentElementType == BallerinaTypes.UNNAMED_PATTERN
-                || parentElementType == BallerinaTypes.RECORD_LITERAL
-                || parentElementType == BallerinaTypes.FOREACH_STATEMENT
-                || parentElementType == BallerinaTypes.LOCK_STATEMENT
-                || parentElementType == BallerinaTypes.OBJECT_TYPE_NAME
-                || parentElementType == BallerinaTypes.OBJECT_FIELD_DEFINITION
-                || parentElementType == BallerinaTypes.TRY_CATCH_STATEMENT
-                || parentElementType == BallerinaTypes.CATCH_CLAUSE
-                || parentElementType == BallerinaTypes.FINALLY_CLAUSE
+                        || parentElementType == BallerinaTypes.ELSE_CLAUSE
+                        || parentElementType == BallerinaTypes.WORKER_BODY
+                        || parentElementType == BallerinaTypes.FORK_JOIN_STATEMENT
+                        || parentElementType == BallerinaTypes.JOIN_CLAUSE_BODY
+                        || parentElementType == BallerinaTypes.TIMEOUT_CLAUSE_BODY
+                        || parentElementType == BallerinaTypes.WHILE_STATEMENT_BODY
+                        || parentElementType == BallerinaTypes.MATCH_STATEMENT_BODY
+                        || parentElementType == BallerinaTypes.NAMED_PATTERN
+                        || parentElementType == BallerinaTypes.UNNAMED_PATTERN
+                        || parentElementType == BallerinaTypes.RECORD_LITERAL
+                        || parentElementType == BallerinaTypes.FOREACH_STATEMENT
+                        || parentElementType == BallerinaTypes.LOCK_STATEMENT
+                        || parentElementType == BallerinaTypes.OBJECT_TYPE_NAME
+                        || parentElementType == BallerinaTypes.OBJECT_FIELD_DEFINITION
+                        || parentElementType == BallerinaTypes.TRY_CATCH_STATEMENT
+                        || parentElementType == BallerinaTypes.CATCH_CLAUSE
+                        || parentElementType == BallerinaTypes.FINALLY_CLAUSE
                 || parentElementType == BallerinaTypes.SERVICE_BODY
         )) {
             return Indent.getNormalIndent();
-        } else if (parentElementType == BallerinaTypes.CALLABLE_UNIT_SIGNATURE ||
-                parentElementType == BallerinaTypes.OBJECT_CALLABLE_UNIT_SIGNATURE) {
+            //TODO: Identify and add remaining conditions
+        } else if(childElementType == BallerinaTypes.MARKDOWN_DOCUMENTATION_LINE_START){
+            return Indent.getIndent(Indent.Type.NORMAL, true, true);
+        } else if ((childElementType == BallerinaTypes.MARKDOWN_DOCUMENTATION_LINE_START
+                || childElementType == BallerinaTypes.PARAMETER_DOCUMENTATION_START
+                || childElementType == BallerinaTypes.RETURN_PARAMETER_DOCUMENTATION_START)
+                && (hasPSIParentOfType(BallerinaObjectTypeName.class)
+                || hasPSIParentOfType(BallerinaCallableUnitBody.class))) {
+            return Indent.getNormalIndent(true);
+        } else if (parentElementType == BallerinaTypes.CALLABLE_UNIT_SIGNATURE
+                || parentElementType == BallerinaTypes.OBJECT_CALLABLE_UNIT_SIGNATURE) {
             return Indent.getIndent(Indent.Type.NORMAL, true, true);
         } else if (parentElementType == BallerinaTypes.OBJECT_INITIALIZER_PARAMETER_LIST) {
             return Indent.getIndent(Indent.Type.NORMAL, true, true);
@@ -378,5 +388,10 @@ public class BallerinaBlock extends AbstractBlock {
     @Override
     public boolean isLeaf() {
         return myNode.getFirstChildNode() == null;
+    }
+
+    private boolean hasPSIParentOfType(Class parentClass) {
+        PsiElement myNodePsi = myNode.getPsi();
+        return PsiTreeUtil.getParentOfType(myNodePsi, parentClass) != null;
     }
 }

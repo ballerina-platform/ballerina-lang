@@ -135,7 +135,6 @@ public class BallerinaAnnotator implements Annotator {
                         textRange.getEndOffset());
                 annotation = holder.createInfoAnnotation(newTextRange, null);
                 annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION_INLINE_CODE);
-
             } else if (elementType == BallerinaTypes.SINGLE_BACKTICK_CONTENT
                     || elementType == BallerinaTypes.DOUBLE_BACKTICK_CONTENT
                     || elementType == BallerinaTypes.TRIPLE_BACKTICK_CONTENT
