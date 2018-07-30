@@ -18,6 +18,7 @@
 package org.ballerinalang.net.http;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
@@ -28,14 +29,11 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BByteArray;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.net.uri.URIUtil;
-import org.ballerinalang.runtime.message.BlobDataSource;
-import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
@@ -234,11 +232,11 @@ public class HttpDispatcher {
         try {
             switch (entityBodyType.getTag()) {
                 case TypeTags.STRING_TAG:
-                    StringDataSource stringDataSource = EntityBodyHandler.constructStringDataSource(inRequestEntity);
+                    BString stringDataSource = EntityBodyHandler.constructStringDataSource(inRequestEntity);
                     EntityBodyHandler.addMessageDataSource(inRequestEntity, stringDataSource);
-                    return stringDataSource != null ? new BString(stringDataSource.getMessageAsString()) : null;
+                    return stringDataSource;
                 case TypeTags.JSON_TAG:
-                    BJSON bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
+                    BValue bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
                     EntityBodyHandler.addMessageDataSource(inRequestEntity, bjson);
                     return bjson;
                 case TypeTags.XML_TAG:
@@ -247,9 +245,9 @@ public class HttpDispatcher {
                     return bxml;
                 case TypeTags.ARRAY_TAG:
                     if (((BArrayType) entityBodyType).getElementType().getTag() == TypeTags.BYTE_TAG) {
-                        BlobDataSource blobDataSource = EntityBodyHandler.constructBlobDataSource(inRequestEntity);
+                        BByteArray blobDataSource = EntityBodyHandler.constructBlobDataSource(inRequestEntity);
                         EntityBodyHandler.addMessageDataSource(inRequestEntity, blobDataSource);
-                        return new BByteArray(blobDataSource != null ? blobDataSource.getValue() : new byte[0]);
+                        return blobDataSource;
                     } else {
                         throw new BallerinaConnectorException("Incompatible Element type found inside an array " +
                                 ((BArrayType) entityBodyType).getElementType().getName());

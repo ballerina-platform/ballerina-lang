@@ -60,9 +60,9 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
     private static final String INTENT_VERIFICATION_LOG = "ballerina: Intent Verification agreed - Mode [subscribe], "
             + "Topic [http://www.websubpubtopic.com], Lease Seconds [86400]";
     private static final String INTERNAL_HUB_NOTIFICATION_LOG = "WebSub Notification Received: "
-            + "{\"action\":\"publish\",\"mode\":\"internal-hub\"}";
+            + "{\"action\":\"publish\", \"mode\":\"internal-hub\"}";
     private static final String REMOTE_HUB_NOTIFICATION_LOG = "WebSub Notification Received: "
-            + "{\"action\":\"publish\",\"mode\":\"remote-hub\"}";
+            + "{\"action\":\"publish\", \"mode\":\"remote-hub\"}";
     private static final String INTENT_VERIFICATION_DENIAL_LOG = "ballerina: Intent Verification denied - Mode "
             + "[subscribe], Topic [http://websubpubtopictwo.com]";
 

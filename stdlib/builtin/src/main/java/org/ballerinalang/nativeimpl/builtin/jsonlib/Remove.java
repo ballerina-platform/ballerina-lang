@@ -22,7 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JSONUtils;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -45,7 +45,7 @@ public class Remove extends BlockingNativeCallableUnit {
     public void execute(Context ctx) {
         try {
             // Accessing Parameters.
-            BJSON json = (BJSON) ctx.getNullableRefArgument(0);
+            BValue json = ctx.getNullableRefArgument(0);
 
             // Removing the element
             if (json != null) {
