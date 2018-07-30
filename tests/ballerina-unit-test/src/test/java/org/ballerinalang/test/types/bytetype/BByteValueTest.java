@@ -712,7 +712,7 @@ public class BByteValueTest {
         int a = -2667533;
         int b = 23;
         int c = 3;
-        byte expected = (byte) (b & ~a >> c);
+        int expected = b & ~a >> c;
         invokeBitwisePrecedenceTestFunctionForInt(a, b, c, "testBitwiseOperatorPrecedence5", expected);
     }
 
