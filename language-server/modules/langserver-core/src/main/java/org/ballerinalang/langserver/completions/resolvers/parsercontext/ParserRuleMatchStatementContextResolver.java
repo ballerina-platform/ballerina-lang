@@ -84,12 +84,13 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
                 }
             });
         } else {
+            symbolInfoList.removeIf(this.invalidSymbolsPredicate());
             symbolInfoList.forEach(symbolInfo -> {
                 BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
                 if (this.isValidInvokableSymbol(symbolInfo.getScopeEntry().symbol)
                         && ((bSymbol.flags & Flags.ATTACHED) != Flags.ATTACHED)) {
                     completionItems.add(this.fillInvokableSymbolMatchSnippet((BInvokableSymbol) bSymbol, ctx));
-                } else if (!this.isValidInvokableSymbol(symbolInfo.getScopeEntry().symbol)
+                } else if (!(symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol)
                         && bSymbol instanceof BVarSymbol) {
                     this.fillVarSymbolMatchSnippet((BVarSymbol) bSymbol, completionItems, ctx);
                     completionItems.add(this.populateVariableDefCompletionItem(symbolInfo));
