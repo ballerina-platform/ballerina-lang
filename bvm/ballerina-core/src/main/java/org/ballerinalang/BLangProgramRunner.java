@@ -19,8 +19,12 @@ package org.ballerinalang;
 
 import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BMapType;
+import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBoolean;
@@ -31,8 +35,8 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BNewArray;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -67,6 +71,8 @@ public class BLangProgramRunner {
 
     private static final String DEFAULT_PARAM_PREFIX = "-";
     private static final String DEFAULT_PARAM_DELIMETER = "=";
+    private static final String INCOMPATIBLE_TYPES = "incompatible types: ";
+    private static final String COMMA = ",";
 
     private static final String TRUE = "TRUE";
     private static final String FALSE = "FALSE";
@@ -247,12 +253,32 @@ public class BLangProgramRunner {
             case TypeTags.XML_TAG:
                 return XMLUtils.parse(value);
             case TypeTags.JSON_TAG:
-                return new BJSON(JsonParser.parse(value));
-            case TypeTags.ARRAY_TAG:
-                if (!value.startsWith("[") || !value.endsWith("]")) {
-                    throw new BallerinaException("Expected array notation (\"[a, b, c]\") for array typed parameter");
+                return JsonParser.parse(value);
+            case TypeTags.RECORD_TYPE_TAG:
+                return JSONUtils.convertJSONToStruct(JsonParser.parse(value), (BStructureType) type);
+            case TypeTags.TUPLE_TAG:
+                if (!value.startsWith("(") || !value.endsWith(")")) {
+                    throw new BallerinaException("Expected tuple notation (\"(a, b)\") for tuple typed parameter");
                 }
-                return parseArrayArg(type, value.substring(1, value.length() - 1));
+                return parseTupleArg((BTupleType) type, value.substring(1, value.length() - 1));
+            case TypeTags.ARRAY_TAG:
+                try {
+                    return JSONUtils.convertJSONToBArray(JsonParser.parse(value), (BArrayType) type);
+                } catch (BallerinaException e) {
+                    if (e.getLocalizedMessage().startsWith(INCOMPATIBLE_TYPES)) {
+                        throw new BallerinaException("incompatible types: expected array elements of type: "
+                                                             + ((BArrayType) type).getElementType());
+                    }
+                    throw new BallerinaException("Expected array notation (\"[\\\"a\\\", \\\"b\\\", \\\"c\\\"]\") for "
+                                                         + "array typed main function parameter");
+                }
+            case TypeTags.MAP_TAG:
+                try {
+                    return JSONUtils.jsonToBMap(JsonParser.parse(value), (BMapType) type);
+                } catch (BallerinaException e) {
+                    throw new BallerinaException("Expected map notation (\"{\\\"a\\\":\\\"b\\\"}\") for "
+                                                         + "map typed main function parameter");
+                }
             default:
                 throw new BallerinaException("unsupported type expected with main function: " + type);
         }
@@ -335,66 +361,32 @@ public class BLangProgramRunner {
             case TypeTags.JSON_TAG:
                 BRefValueArray jsonArrayArgs = new BRefValueArray();
                 for (int i = index; i < args.length; i++) {
-                    jsonArrayArgs.add(i - index, new BJSON(JsonParser.parse(args[i])));
+                    jsonArrayArgs.add(i - index, JsonParser.parse(args[i]));
                 }
                 return jsonArrayArgs;
             default:
                 //Ideally shouldn't reach here
-                throw new BallerinaException("array of unsupported element type: " + type);
+                throw new BallerinaException("array of unsupported element type as main function argument: " + type);
         }
     }
 
-    private static BNewArray parseArrayArg(BType type, String arrayArg) {
-        String[] arrayElements = arrayArg.split(",");
-        BType elementType = ((BArrayType) type).getElementType();
-        long index = 0;
-        switch (elementType.getTag()) {
-            case TypeTags.INT_TAG:
-                BIntArray intArrayArgs = new BIntArray();
-                for (String arrayElement : arrayElements) {
-                    intArrayArgs.add(index++, getIntegerValue(arrayElement.trim()));
-                }
-                return intArrayArgs;
-            case TypeTags.FLOAT_TAG:
-                BFloatArray floatArrayArgs = new BFloatArray();
-                for (String arrayElement : arrayElements) {
-                    floatArrayArgs.add(index++, getFloatValue(arrayElement.trim()));
-                }
-                return floatArrayArgs;
-            case TypeTags.STRING_TAG:
-                BStringArray stringArrayArgs = new BStringArray();
-                for (String arrayElement : arrayElements) {
-                    stringArrayArgs.add(index++, arrayElement.trim());
-                }
-                return stringArrayArgs;
-            case TypeTags.BOOLEAN_TAG:
-                BBooleanArray booleanArrayArgs = new BBooleanArray();
-                for (String arrayElement : arrayElements) {
-                    booleanArrayArgs.add(index++, getBooleanValue(
-                            arrayElement.trim()) ? 1 : 0);
-                }
-                return booleanArrayArgs;
-            case TypeTags.BYTE_TAG:
-                BByteArray byteArrayArgs = new BByteArray();
-                for (String arrayElement : arrayElements) {
-                    byteArrayArgs.add(index++, getByteValue(arrayElement.trim()));
-                }
-                return byteArrayArgs;
-            case TypeTags.XML_TAG:
-                BRefValueArray xmlArrayArgs = new BRefValueArray();
-                for (String arrayElement : arrayElements) {
-                    xmlArrayArgs.add(index++, XMLUtils.parse(arrayElement.trim()));
-                }
-                return xmlArrayArgs;
-            case TypeTags.JSON_TAG:
-                BRefValueArray jsonArrayArgs = new BRefValueArray();
-                for (String elem : arrayElements) {
-                    jsonArrayArgs.add(index++, new BJSON(JsonParser.parse(elem.trim())));
-                }
-                return jsonArrayArgs;
-            default:
-                //Ideally shouldn't reach here
-                throw new BallerinaException("array of unsupported element type: " + type);
+    private static BRefValueArray parseTupleArg(BTupleType type, String tupleArg) {
+        String[] tupleElements = tupleArg.split(COMMA);
+
+        if (tupleElements.length != type.getTupleTypes().size()) {
+            throw new BallerinaException("element count mismatch for tuple type: " + type);
         }
+
+        BRefValueArray tupleValues = new BRefValueArray();
+        int index = 0;
+        try {
+            for (BType elementType : type.getTupleTypes()) {
+                tupleValues.add(index, (BRefType) getBValue(elementType, tupleElements[index]));
+                index++;
+            }
+        } catch (BallerinaException e) {
+            throw new BallerinaException("unsupported element type for tuple as main function argument: " + type);
+        }
+        return tupleValues;
     }
 }
