@@ -67,7 +67,7 @@ public abstract class BIRNonTerminator implements BIRInstruction {
     }
 
     /**
-     * A under operator instruction.
+     * A unary operator instruction.
      * <p>
      * e.g., _1 = minus _2
      *
@@ -85,7 +85,7 @@ public abstract class BIRNonTerminator implements BIRInstruction {
     }
 
     /**
-     * A under operator instruction.
+     * A constant value load instruction.
      * <p>
      * e.g., _1 = const 10 (int)
      *
