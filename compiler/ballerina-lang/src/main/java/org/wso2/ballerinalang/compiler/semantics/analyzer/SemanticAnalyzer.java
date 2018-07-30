@@ -1335,8 +1335,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (variableReferenceNode != null) {
             ((BLangVariableReference) variableReferenceNode).accept(this);
         }
-        for (BLangExpression arg : invocationExpr.argExprs) {
-            typeChecker.checkExpr(arg, env);
+        if (!isSiddhiRuntimeEnabled && isGroupByAvailable) {
+            for (BLangExpression arg : invocationExpr.argExprs) {
+                typeChecker.checkExpr(arg, env);
+            }
         }
     }
 
