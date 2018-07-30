@@ -18,7 +18,17 @@
 package org.ballerinalang.model.util;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.ballerinalang.model.util.JsonNode.Type;
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.BufferedInputStream;
@@ -28,12 +38,15 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.Charset;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 /**
  * This class represents a JSON parser.
  * 
  * @since 0.95.5
  */
+@SuppressWarnings("unchecked")
 public class JsonParser {
 
     private static ThreadLocal<StateMachine> tlStateMachine = new ThreadLocal<StateMachine>() {
@@ -43,25 +56,25 @@ public class JsonParser {
     };
 
     /**
-     * Parses the contents in the given {@link InputStream} and returns a {@link JsonNode}.
+     * Parses the contents in the given {@link InputStream} and returns a {@link BValue}.
      * 
      * @param in input stream which contains the JSON content
-     * @return JSON structure as a {@link JsonNode} object
+     * @return JSON structure as a {@link BValue} object
      * @throws BallerinaException for any parsing error
      */
-    public static JsonNode parse(InputStream in) throws BallerinaException {
+    public static BRefType<?> parse(InputStream in) throws BallerinaException {
         return parse(in, Charset.defaultCharset().name());
     }
     
     /**
-     * Parses the contents in the given {@link InputStream} and returns a {@link JsonNode}.
+     * Parses the contents in the given {@link InputStream} and returns a {@link BValue}.
      * 
      * @param in input stream which contains the JSON content
      * @param charsetName the character set name of the input stream
-     * @return JSON structure as a {@link JsonNode} object
+     * @return JSON structure as a {@link BValue} object
      * @throws BallerinaException for any parsing error
      */
-    public static JsonNode parse(InputStream in, String charsetName) throws BallerinaException {
+    public static BRefType<?> parse(InputStream in, String charsetName) throws BallerinaException {
         try {
             return parse(new InputStreamReader(new BufferedInputStream(in), charsetName));
         } catch (IOException e) {
@@ -70,24 +83,24 @@ public class JsonParser {
     }
     
     /**
-     * Parses the contents in the given string and returns a {@link JsonNode}.
+     * Parses the contents in the given string and returns a {@link BValue}.
      * 
      * @param jsonStr the string which contains the JSON content
-     * @return JSON structure as a {@link JsonNode} object
+     * @return JSON structure as a {@link BValue} object
      * @throws BallerinaException for any parsing error
      */
-    public static JsonNode parse(String jsonStr) throws BallerinaException {
+    public static BRefType<?> parse(String jsonStr) throws BallerinaException {
         return parse(new StringReader(jsonStr));
     }
     
     /**
-     * Parses the contents in the given {@link Reader} and returns a {@link JsonNode}.
+     * Parses the contents in the given {@link Reader} and returns a {@link BValue}.
      * 
      * @param reader reader which contains the JSON content
-     * @return JSON structure as a {@link JsonNode} object
+     * @return JSON structure as a {@link BValue} object
      * @throws BallerinaException for any parsing error
      */
-    public static JsonNode parse(Reader reader) throws BallerinaException {
+    public static BRefType<?> parse(Reader reader) throws BallerinaException {
         StateMachine sm = tlStateMachine.get();
         sm.reset();
         return sm.execute(reader);
@@ -157,7 +170,10 @@ public class JsonParser {
         private static final State STRING_VALUE_UNICODE_HEX_PROCESSING_STATE = 
                 new StringValueUnicodeHexProcessingState();
         
-        private JsonNode currentJsonNode;
+        private BRefType<?> currentJsonNode;
+        private Deque<BRefType<?>> nodesStack;
+        private Deque<String> fieldNames;
+        
         private StringBuilder hexBuilder = new StringBuilder(4);
         private char[] charBuff = new char[1024];
         private int charBuffIndex;
@@ -172,6 +188,8 @@ public class JsonParser {
             this.currentJsonNode = null;
             this.line = 1;
             this.column = 0;
+            this.nodesStack = new ArrayDeque<>();
+            this.fieldNames = new ArrayDeque<>();
         }
         
         private static boolean isWhitespace(char ch) {
@@ -191,7 +209,7 @@ public class JsonParser {
             }
         }
         
-        public JsonNode execute(Reader reader) throws BallerinaException {
+        public BRefType<?> execute(Reader reader) throws BallerinaException {
             State currentState = DOC_START_STATE;
             try {
                 char[] buff = new char[1024];
@@ -232,14 +250,14 @@ public class JsonParser {
         }
         
         private State finalizeObject() {
-            JsonNode parentNode = currentJsonNode.parentNode;
-            if (parentNode != null) {
-                if (parentNode.getType() == Type.OBJECT) {
-                    parentNode.set(parentNode.fieldName, currentJsonNode);
+            if (!this.nodesStack.isEmpty()) {
+                BRefType<?> parentNode = this.nodesStack.pop();
+                if (parentNode.getType().getTag() == TypeTags.JSON_TAG) {
+                    ((BMap<String, BValue>) parentNode).put(fieldNames.pop(), currentJsonNode);
                     currentJsonNode = parentNode;
                     return FIELD_END_STATE;
                 } else {
-                    parentNode.add(currentJsonNode);
+                    ((BRefValueArray) parentNode).append(currentJsonNode);
                     currentJsonNode = parentNode;
                     return ARRAY_ELEMENT_END_STATE;
                 }
@@ -250,23 +268,17 @@ public class JsonParser {
         
         private State initNewObject() {
             if (currentJsonNode != null) {
-                JsonNode parentNode = currentJsonNode;
-                currentJsonNode = new JsonNode();
-                currentJsonNode.parentNode = parentNode;
-            } else {
-                currentJsonNode = new JsonNode();
+                this.nodesStack.push(currentJsonNode);
             }
+            currentJsonNode = new BMap<String, BRefType<?>>(BTypes.typeJSON);
             return FIRST_FIELD_READY_STATE;
         }
         
         private State initNewArray() {
             if (currentJsonNode != null) {
-                JsonNode parentNode = currentJsonNode;
-                currentJsonNode = new JsonNode(Type.ARRAY);
-                currentJsonNode.parentNode = parentNode;
-            } else {
-                currentJsonNode = new JsonNode(Type.ARRAY);
+                this.nodesStack.push(currentJsonNode);
             }
+            currentJsonNode = new BRefValueArray(new BArrayType(BTypes.typeJSON));
             return FIRST_ARRAY_ELEMENT_READY_STATE;
         }
         
@@ -495,7 +507,7 @@ public class JsonParser {
         }
         
         private void processFieldName() {
-            this.currentJsonNode.fieldName = this.value();
+            this.fieldNames.push(this.value());
         }
         
         /**
@@ -608,7 +620,7 @@ public class JsonParser {
                     ch = buff[i];
                     sm.processLocation(ch);
                     if (ch == sm.currentQuoteChar) {
-                        sm.currentJsonNode.set(sm.currentJsonNode.fieldName, sm.value());
+                        ((BMap<String, BValue>) sm.currentJsonNode).put(sm.fieldNames.pop(), new BString(sm.value()));
                         state = FIELD_END_STATE;
                     } else if (ch == REV_SOL) { 
                         state = STRING_FIELD_ESC_CHAR_PROCESSING_STATE;
@@ -640,7 +652,7 @@ public class JsonParser {
                     ch = buff[i];
                     sm.processLocation(ch);
                     if (ch == sm.currentQuoteChar) {
-                        sm.currentJsonNode.add(new JsonNode(sm.value()));
+                        ((BRefValueArray) sm.currentJsonNode).append(new BString(sm.value()));
                         state = ARRAY_ELEMENT_END_STATE;
                     } else if (ch == REV_SOL) { 
                         state = STRING_AE_ESC_CHAR_PROCESSING_STATE;
@@ -752,8 +764,7 @@ public class JsonParser {
                     ch = buff[i];
                     sm.processLocation(ch);
                     if (ch == sm.currentQuoteChar) {
-                        sm.currentJsonNode = new JsonNode(false);
-                        sm.currentJsonNode.setString(sm.value());
+                        sm.currentJsonNode = new BString(sm.value());
                         state = DOC_END_STATE;
                     } else if (ch == REV_SOL) { 
                         state = STRING_VAL_ESC_CHAR_PROCESSING_STATE;
@@ -785,13 +796,14 @@ public class JsonParser {
                     double doubleValue = Double.parseDouble(str);
                     switch (type) {
                     case ARRAY_ELEMENT:
-                        currentJsonNode.add(new JsonNode(doubleValue));
+                        ((BRefValueArray) this.currentJsonNode).append(new BFloat(doubleValue));
                         break;
                     case FIELD:
-                        currentJsonNode.set(currentJsonNode.fieldName, doubleValue);
-                        break;
+                            ((BMap<String, BValue>) this.currentJsonNode).put(this.fieldNames.pop(),
+                                    new BFloat(doubleValue));
+                            break;
                     case VALUE:
-                        currentJsonNode.setNumber(doubleValue);
+                        currentJsonNode = new BFloat(doubleValue);
                         break;
                     default:
                         break;
@@ -804,13 +816,13 @@ public class JsonParser {
                 if (ch == 't' && TRUE.equals(str)) {
                     switch (type) {
                     case ARRAY_ELEMENT:
-                        currentJsonNode.add(new JsonNode(true));
+                        ((BRefValueArray) this.currentJsonNode).append(new BBoolean(true));
                         break;
                     case FIELD:
-                        currentJsonNode.set(currentJsonNode.fieldName, true);
+                        ((BMap<String, BValue>) this.currentJsonNode).put(this.fieldNames.pop(), new BBoolean(true));
                         break;
                     case VALUE:
-                        currentJsonNode.setBooleanValue(true);
+                        currentJsonNode = new BBoolean(true);
                         break;
                     default:
                         break;
@@ -818,13 +830,13 @@ public class JsonParser {
                 } else if (ch == 'f' && FALSE.equals(str)) {
                     switch (type) {
                     case ARRAY_ELEMENT:
-                        currentJsonNode.add(new JsonNode(false));
+                        ((BRefValueArray) this.currentJsonNode).append(new BBoolean(false));
                         break;
                     case FIELD:
-                        currentJsonNode.set(currentJsonNode.fieldName, false);
+                        ((BMap<String, BValue>) this.currentJsonNode).put(this.fieldNames.pop(), new BBoolean(false));
                         break;
                     case VALUE:
-                        currentJsonNode.setBooleanValue(false);
+                        currentJsonNode = new BBoolean(false);
                         break;
                     default:
                         break;
@@ -832,13 +844,13 @@ public class JsonParser {
                 } else if (ch == 'n' && NULL.equals(str)) {
                     switch (type) {
                     case ARRAY_ELEMENT:
-                        currentJsonNode.add(new JsonNode(Type.NULL));
+                        ((BRefValueArray) this.currentJsonNode).append(null);
                         break;
                     case FIELD:
-                        currentJsonNode.set(currentJsonNode.fieldName, (String) null);
+                        ((BMap<String, BValue>) this.currentJsonNode).put(this.fieldNames.pop(), null);
                         break;
                     case VALUE:
-                        currentJsonNode.setNull();
+                        currentJsonNode = null;
                         break;
                     default:
                         break;                
@@ -848,13 +860,14 @@ public class JsonParser {
                         long longValue = Long.parseLong(str);
                         switch (type) {
                         case ARRAY_ELEMENT:
-                            currentJsonNode.add(new JsonNode(longValue));
+                            ((BRefValueArray) this.currentJsonNode).append(new BInteger(longValue));
                             break;
                         case FIELD:
-                            currentJsonNode.set(currentJsonNode.fieldName, longValue);
-                            break;
+                                ((BMap<String, BValue>) this.currentJsonNode).put(this.fieldNames.pop(),
+                                        new BInteger(longValue));
+                                break;
                         case VALUE:
-                            currentJsonNode.setNumber(longValue);
+                            currentJsonNode = new BInteger(longValue);
                             break;
                         default:
                             break;                
@@ -879,7 +892,7 @@ public class JsonParser {
                     ch = buff[i];
                     sm.processLocation(ch);
                     if (StateMachine.isWhitespace(ch) || ch == EOF) {
-                        sm.currentJsonNode = new JsonNode(false);
+                        sm.currentJsonNode = null;
                         sm.processNonStringValue(ValueType.VALUE);
                         state = DOC_END_STATE;
                     } else {

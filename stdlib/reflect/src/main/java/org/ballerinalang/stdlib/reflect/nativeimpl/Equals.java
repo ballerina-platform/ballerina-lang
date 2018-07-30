@@ -24,11 +24,9 @@ import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
@@ -38,10 +36,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -107,13 +102,6 @@ public class Equals extends BlockingNativeCallableUnit {
             return false;
         }
         
-        // Handling JSON.
-        if (lhsValue instanceof BJSON && rhsValue instanceof BJSON) {
-            JsonNode lhsJSON = ((BJSON) lhsValue).value();
-            JsonNode rhsJSON = ((BJSON) rhsValue).value();
-            return isEqual(lhsJSON, rhsJSON);
-        }
-        
         switch (lhsValue.getType().getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.INT_TAG:
@@ -142,6 +130,7 @@ public class Equals extends BlockingNativeCallableUnit {
     
                 return isEqual((BMap<String, BValue>) lhsValue, (BMap<String, BValue>) rhsValue, lhsStructType);
             case TypeTags.MAP_TAG:
+            case TypeTags.JSON_TAG:
                 return isEqual((BMap) lhsValue, (BMap) rhsValue);
             case TypeTags.ARRAY_TAG:
             case TypeTags.ANY_TAG:
@@ -214,68 +203,4 @@ public class Equals extends BlockingNativeCallableUnit {
         }
         return true;
     }
-    
-    /**
-     * Deep equals function for JSON type values.
-     *
-     * @param lhsJson The left side value.
-     * @param rhsJson The right side value.
-     * @return True if values are equal, else false.
-     */
-    private boolean isEqual(JsonNode lhsJson, JsonNode rhsJson) {
-        // JsonNode can become null
-        if (lhsJson == null && rhsJson == null) {
-            return true;
-        }
-        if (lhsJson == null || rhsJson == null) {
-            return false;
-        }
-        if (lhsJson.getType() == JsonNode.Type.OBJECT) {
-            // Converting iterators to maps as iterators are ordered.
-            Iterator<Map.Entry<String, JsonNode>> lhJsonFieldsIterator = lhsJson.fields();
-            HashMap<String, JsonNode> lhJsonFields = new HashMap<>();
-            while (lhJsonFieldsIterator.hasNext()) {
-                Map.Entry<String, JsonNode> field = lhJsonFieldsIterator.next();
-                lhJsonFields.put(field.getKey(), field.getValue());
-            }
-            
-            Iterator<Map.Entry<String, JsonNode>> rhJsonFieldsIterator = rhsJson.fields();
-            HashMap<String, JsonNode> rhJsonFields = new HashMap<>();
-            while (rhJsonFieldsIterator.hasNext()) {
-                Map.Entry<String, JsonNode> field = rhJsonFieldsIterator.next();
-                rhJsonFields.put(field.getKey(), field.getValue());
-            }
-            
-            // Size of the fields should be same.
-            if (lhJsonFields.size() != rhJsonFields.size()) {
-                return false;
-            }
-    
-            if (lhJsonFields.size() > 0) {
-                for (Map.Entry<String, JsonNode> entry : lhJsonFields.entrySet()) {
-                    if (!rhJsonFields.keySet().contains(entry.getKey()) || !isEqual(entry.getValue(),
-                            rhJsonFields.get(entry.getKey()))) {
-                        return false;
-                    }
-                }
-            }
-        }
-        
-        if (lhsJson.getType() == JsonNode.Type.ARRAY) {
-            if (lhsJson.size() != rhsJson.size()) {
-                return false;
-            }
-            
-            for (int i = 0; i < lhsJson.size(); i++) {
-                if (!isEqual(lhsJson.get(i), rhsJson.get(i))) {
-                    return false;
-                }
-            }
-        }
-        
-        // If it is a value type, then equalize their text values.
-        return lhsJson.asText().equals(rhsJson.asText());
-    }
 }
-
-

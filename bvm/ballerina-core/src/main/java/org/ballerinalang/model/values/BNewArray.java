@@ -55,7 +55,7 @@ public abstract class BNewArray implements BRefType, BCollection {
     }
 
     @Override
-    public BRefType value() {
+    public BRefType<?> value() {
         return null;
     }
 

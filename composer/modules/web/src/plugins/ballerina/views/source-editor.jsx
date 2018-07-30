@@ -361,6 +361,12 @@ class SourceEditor extends React.Component {
                         glyphMargin: true,
                         folding: true,
                         lineNumbersMinChars: 2,
+                        scrollBeyondLastLine: false,
+                        scrollbar: {
+                            useShadows: false,
+                            verticalScrollbarSize: 6,
+                            horizontalScrollbarSize: 6,
+                        },
                     }}
                     width={width}
                     height={height}

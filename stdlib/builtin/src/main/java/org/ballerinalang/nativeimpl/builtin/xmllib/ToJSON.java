@@ -22,7 +22,6 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
@@ -51,7 +50,7 @@ public class ToJSON extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context ctx) {
-        BJSON json = null;
+        BValue json = null;
         try {
             // Accessing Parameters
             BXML xml = (BXML) ctx.getRefArgument(0);
