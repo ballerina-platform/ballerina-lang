@@ -10,11 +10,11 @@ import java.nio.ByteBuffer;
 public interface WebSocketConnection {
 
     /**
-     * Get the id of the connection.
+     * Retrieve the Channel ID of the connection.
      *
-     * @return the id of the connection
+     * @return the channel ID of the connection.
      */
-    String getId();
+    String getChannelId();
 
     /**
      * Check if the connection is open.

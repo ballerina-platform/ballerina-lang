@@ -30,7 +30,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 import java.nio.ByteBuffer;
@@ -75,8 +75,8 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
     }
 
     @Override
-    public void onMessage(WebSocketInitMessage initMessage) {
-        ServerHandshakeFuture future = initMessage.handshake(null, true, 3000);
+    public void onHandshake(WebSocketHandshaker webSocketHandshaker) {
+        ServerHandshakeFuture future = webSocketHandshaker.handshake(null, true, 3000);
         future.setHandshakeListener(new ServerHandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {

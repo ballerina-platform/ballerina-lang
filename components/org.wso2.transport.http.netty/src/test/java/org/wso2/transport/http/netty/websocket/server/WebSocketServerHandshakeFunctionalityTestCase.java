@@ -77,7 +77,7 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
         WebSocketConnection webSocketConnection = listener.getCurrentWebSocketConnection();
 
         Assert.assertNotNull(webSocketConnection);
-        Assert.assertNotNull(webSocketConnection.getId());
+        Assert.assertNotNull(webSocketConnection.getChannelId());
         Assert.assertNotNull(webSocketConnection.getHost()); // Host can be changed in different environments
         Assert.assertEquals(webSocketConnection.getPort(), TestUtil.SERVER_CONNECTOR_PORT);
         Assert.assertTrue(webSocketConnection.isOpen());

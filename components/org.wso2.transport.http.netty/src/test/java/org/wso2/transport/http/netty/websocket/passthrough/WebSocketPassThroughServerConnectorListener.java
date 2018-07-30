@@ -33,7 +33,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
@@ -49,7 +49,7 @@ public class WebSocketPassThroughServerConnectorListener implements WebSocketCon
     private final HttpWsConnectorFactory connectorFactory = new DefaultHttpWsConnectorFactory();
 
     @Override
-    public void onMessage(WebSocketInitMessage initMessage) {
+    public void onHandshake(WebSocketHandshaker webSocketHandshaker) {
         String remoteUrl = String.format("ws://%s:%d/%s", "localhost",
                                          TestUtil.WEBSOCKET_REMOTE_SERVER_PORT, "websocket");
         WebSocketClientConnectorConfig configuration = new WebSocketClientConnectorConfig(remoteUrl);
@@ -61,7 +61,7 @@ public class WebSocketPassThroughServerConnectorListener implements WebSocketCon
         clientHandshakeFuture.setClientHandshakeListener(new ClientHandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection clientWebSocketConnection, HttpCarbonResponse response) {
-                ServerHandshakeFuture serverFuture = initMessage.handshake();
+                ServerHandshakeFuture serverFuture = webSocketHandshaker.handshake();
                 serverFuture.setHandshakeListener(new ServerHandshakeListener() {
                     @Override
                     public void onSuccess(WebSocketConnection serverWebSocketConnection) {
