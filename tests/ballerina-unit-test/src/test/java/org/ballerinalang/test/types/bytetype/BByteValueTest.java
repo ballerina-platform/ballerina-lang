@@ -623,4 +623,134 @@ public class BByteValueTest {
         Assert.assertEquals(bByte.byteValue(), a1, "Invalid byte value returned.");
         Assert.assertEquals(bInteger.intValue(), ~b, "Invalid int value returned.");
     }
+
+    @Test(description = "Test bitwise operator precedence 1")
+    public void testBitwiseOperatorPrecedence1() {
+        byte a = 127;
+        byte b = 4;
+        byte c = 5;
+        byte expected = (byte) (~a & b >> c);
+        invokeBitwisePrecedenceTestFunctionForByte(a, b, c, "testBitwiseOperatorPrecedence1", expected);
+    }
+
+    @Test(description = "Test bitwise operator precedence 2")
+    public void testBitwiseOperatorPrecedence2() {
+        byte a = (byte) 233;
+        byte b = 23;
+        byte c = 3;
+        byte expected = (byte) (~a & b >> c);
+        invokeBitwisePrecedenceTestFunctionForByte(a, b, c, "testBitwiseOperatorPrecedence1", expected);
+    }
+
+    @Test(description = "Test bitwise operator precedence 3")
+    public void testBitwiseOperatorPrecedence3() {
+        byte a = 23;
+        byte b = 4;
+        byte c = 5;
+        byte expected = (byte) (b & ~a >> c);
+        invokeBitwisePrecedenceTestFunctionForByte(a, b, c, "testBitwiseOperatorPrecedence2", expected);
+    }
+
+    @Test(description = "Test bitwise operator precedence 4")
+    public void testBitwiseOperatorPrecedence4() {
+        byte a = (byte) 233;
+        byte b = 23;
+        byte c = 3;
+        byte expected = (byte) (b & ~a >> c);
+        invokeBitwisePrecedenceTestFunctionForByte(a, b, c, "testBitwiseOperatorPrecedence2", expected);
+    }
+
+    @Test(description = "Test bitwise operator precedence 5")
+    public void testBitwiseOperatorPrecedence5() {
+        byte a = 23;
+        byte b = 4;
+        byte c = 5;
+        byte expected = (byte) (b >> c & ~a);
+        invokeBitwisePrecedenceTestFunctionForByte(a, b, c, "testBitwiseOperatorPrecedence3", expected);
+    }
+
+
+    @Test(description = "Test bitwise operator precedence 6")
+    public void testBitwiseOperatorPrecedence6() {
+        byte a = (byte) 233;
+        byte b = 23;
+        byte c = 3;
+        byte expected = (byte) (b >> c & ~a);
+        invokeBitwisePrecedenceTestFunctionForByte(a, b, c, "testBitwiseOperatorPrecedence3", expected);
+    }
+
+    @Test(description = "Test bitwise operator precedence 7")
+    public void testBitwiseOperatorPrecedence7() {
+        int a = 3546782;
+        int b = 4;
+        int c = 5;
+        int expected = ~a & b >> c;
+        invokeBitwisePrecedenceTestFunctionForInt(a, b, c, "testBitwiseOperatorPrecedence4", expected);
+    }
+
+    @Test(description = "Test bitwise operator precedence 8")
+    public void testBitwiseOperatorPrecedence8() {
+        int a = -2334353;
+        int b = 23;
+        int c = -3;
+        int expected = ~a & b >> c;
+        invokeBitwisePrecedenceTestFunctionForInt(a, b, c, "testBitwiseOperatorPrecedence4", expected);
+    }
+
+    @Test(description = "Test bitwise operator precedence 9")
+    public void testBitwiseOperatorPrecedence9() {
+        int a = 245623;
+        int b = 4;
+        int c = -5;
+        int expected = b & ~a >> c;
+        invokeBitwisePrecedenceTestFunctionForInt(a, b, c, "testBitwiseOperatorPrecedence5", expected);
+    }
+
+
+    @Test(description = "Test bitwise operator precedence 10")
+    public void testBitwiseOperatorPrecedence10() {
+        int a = -2667533;
+        int b = 23;
+        int c = 3;
+        byte expected = (byte) (b & ~a >> c);
+        invokeBitwisePrecedenceTestFunctionForInt(a, b, c, "testBitwiseOperatorPrecedence5", expected);
+    }
+
+    @Test(description = "Test bitwise operator precedence 11")
+    public void testBitwiseOperatorPrecedence11() {
+        int a = 23;
+        int b = 4;
+        int c = 5;
+        int expected = b >> c & ~a;
+        invokeBitwisePrecedenceTestFunctionForInt(a, b, c, "testBitwiseOperatorPrecedence6", expected);
+    }
+
+
+    @Test(description = "Test bitwise operator precedence 12")
+    public void testBitwiseOperatorPrecedence12() {
+        int a = 23334233;
+        int b = 23;
+        int c = 3;
+        int expected = b >> c & ~a;
+        invokeBitwisePrecedenceTestFunctionForInt(a, b, c, "testBitwiseOperatorPrecedence6", expected);
+    }
+
+    private void invokeBitwisePrecedenceTestFunctionForByte(byte a, byte b, byte c, String functionName,
+                                                            byte expected) {
+        BValue[] args = {new BByte(a), new BByte(b), new BByte(c)};
+        BValue[] returns = BRunUtil.invoke(result, functionName, args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BByte.class);
+        BByte bByte = (BByte) returns[0];
+        Assert.assertEquals(bByte.byteValue(), expected, "Invalid byte value returned.");
+    }
+
+    private void invokeBitwisePrecedenceTestFunctionForInt(int a, int b, int c, String functionName, int expected) {
+        BValue[] args = {new BInteger(a), new BInteger(b), new BInteger(c)};
+        BValue[] returns = BRunUtil.invoke(result, functionName, args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        BInteger bInteger = (BInteger) returns[0];
+        Assert.assertEquals(bInteger.intValue(), expected, "Invalid byte value returned.");
+    }
 }

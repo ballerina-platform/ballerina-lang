@@ -1558,18 +1558,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitUnaryExpression(BallerinaParser.UnaryExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code bitwiseComplementExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterBitwiseComplementExpression(BallerinaParser.BitwiseComplementExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code bitwiseComplementExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitBitwiseComplementExpression(BallerinaParser.BitwiseComplementExpressionContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code bracedOrTupleExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
