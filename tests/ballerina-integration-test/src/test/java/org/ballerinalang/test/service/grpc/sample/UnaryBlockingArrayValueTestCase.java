@@ -21,6 +21,7 @@ package org.ballerinalang.test.service.grpc.sample;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
@@ -166,9 +167,9 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
         StructureTypeInfo requestInfo = packageInfo.getStructInfo("TestStruct");
         BStructureType requestType = requestInfo.getType();
         BMap<String, BValue> requestStruct = new BMap<String, BValue>(requestType);
-        BRefValueArray refArray = new BRefValueArray();
         StructureTypeInfo aInfo = packageInfo.getStructInfo("A");
         BStructureType aType = aInfo.getType();
+        BRefValueArray refArray = new BRefValueArray(new BArrayType(aType));
         BMap<String, BValue> a1 = new BMap<String, BValue>(aType);
         a1.put("name", new BString("Sam"));
         BMap<String, BValue> a2 = new BMap<String, BValue>(aType);
@@ -176,7 +177,6 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
         refArray.add(0, a1);
         refArray.add(1, a2);
         requestStruct.put("values", refArray);
-
         BValue[] responses = BRunUtil.invoke(result, "testStructArrayInput", new BValue[]{requestStruct});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);

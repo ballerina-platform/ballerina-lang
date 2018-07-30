@@ -24,7 +24,7 @@ public class ProgramFileConstants {
 
     public static final int MAGIC_NUMBER = 0xBA1DA4CE;
     public static final short VERSION_NUMBER = 20;
-    public static final short MIN_SUPPORTED_VERSION = 19;
+    public static final short MIN_SUPPORTED_VERSION = 20;
     public static final short MAX_SUPPORTED_VERSION = 20;
 
     // int, float, string, boolean, reference type

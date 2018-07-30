@@ -352,15 +352,15 @@ public class SymbolTable {
 
     private void defineConversionOperators() {
         // Define both implicit and explicit conversion operators
-        defineImplicitConversionOperator(intType, jsonType, true, InstructionCodes.I2JSON);
+        defineImplicitConversionOperator(intType, jsonType, true, InstructionCodes.I2ANY);
         defineImplicitConversionOperator(intType, anyType, true, InstructionCodes.I2ANY);
         defineImplicitConversionOperator(intType, floatType, true, InstructionCodes.I2F);
         defineImplicitConversionOperator(byteType, anyType, true, InstructionCodes.BI2ANY);
-        defineImplicitConversionOperator(floatType, jsonType, true, InstructionCodes.F2JSON);
+        defineImplicitConversionOperator(floatType, jsonType, true, InstructionCodes.F2ANY);
         defineImplicitConversionOperator(floatType, anyType, true, InstructionCodes.F2ANY);
-        defineImplicitConversionOperator(stringType, jsonType, true, InstructionCodes.S2JSON);
+        defineImplicitConversionOperator(stringType, jsonType, true, InstructionCodes.S2ANY);
         defineImplicitConversionOperator(stringType, anyType, true, InstructionCodes.S2ANY);
-        defineImplicitConversionOperator(booleanType, jsonType, true, InstructionCodes.B2JSON);
+        defineImplicitConversionOperator(booleanType, jsonType, true, InstructionCodes.B2ANY);
         defineImplicitConversionOperator(booleanType, anyType, true, InstructionCodes.B2ANY);
         defineImplicitConversionOperator(typeDesc, anyType, true, InstructionCodes.NOP);
 

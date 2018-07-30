@@ -30,8 +30,10 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -41,7 +43,6 @@ import org.ballerinalang.net.http.AcceptEncodingConfig;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObservabilityConstants;
 import org.ballerinalang.util.observability.ObservabilityUtils;
@@ -285,7 +286,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
                                   String contentType) {
         BMap<String, BValue> entityStruct = extractEntity(requestStruct);
         if (entityStruct != null) {
-            MessageDataSource messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+            BValue messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
             if (messageDataSource == null && EntityBodyHandler.getByteChannel(entityStruct) == null
                     && !HeaderUtil.isMultipart(contentType)) {
                 outboundRequestMsg.addHttpContent(new DefaultLastHttpContent());
@@ -419,7 +420,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
     private void serializeMultipartDataSource(OutputStream messageOutputStream,
                                               String boundaryString, BMap<String, BValue> entityStruct) {
         MultipartDataSource multipartDataSource = new MultipartDataSource(entityStruct, boundaryString);
-        multipartDataSource.serializeData(messageOutputStream);
+        multipartDataSource.serialize(messageOutputStream);
         HttpUtil.closeMessageOutputStream(messageOutputStream);
     }
 
@@ -431,9 +432,16 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
         BMap<String, BValue> entityStruct = extractEntity(requestStruct);
         if (entityStruct != null) {
-            MessageDataSource messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+            BValue messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
             if (messageDataSource != null) {
-                messageDataSource.serializeData(messageOutputStream);
+                if (MimeUtil.isJSONContentType(entityStruct) &&
+                        MimeUtil.isJSONCompatible(messageDataSource.getType())) {
+                    JsonGenerator gen = new JsonGenerator(messageOutputStream);
+                    gen.serialize(messageDataSource);
+                    gen.flush();
+                } else {
+                    messageDataSource.serialize(messageOutputStream);
+                }
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
             } else { //When the entity body is a byte channel and when it is not null
                 if (EntityBodyHandler.getByteChannel(entityStruct) != null) {

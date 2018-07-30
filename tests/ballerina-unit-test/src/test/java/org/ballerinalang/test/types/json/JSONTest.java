@@ -23,9 +23,12 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.util.JsonNode.Type;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.util.JsonParser;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
@@ -81,17 +84,17 @@ public class JSONTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(compileResult, "remove", args);
 
-        final String expected = "{\"state\":\"CA\",\"age\":20}";
+        final String expected = "{\"state\":\"CA\", \"age\":20}";
         Assert.assertEquals(getJsonAsString(returns[0]), expected);
     }
 
     // Test toString-Function.
     @Test(description = "Get string representation of json")
     public void testToString() {
-        BValue[] args = {new BJSON(json1)};
+        BValue[] args = {JsonParser.parse(json1)};
         BValue[] returns = BRunUtil.invoke(compileResult, "toString", args);
 
-        final String expected = "{\"name\":{\"fname\":\"Jack\",\"lname\":\"Taylor\"},\"state\":\"CA\",\"age\":20}";
+        final String expected = "{\"name\":{\"fname\":\"Jack\", \"lname\":\"Taylor\"}, \"state\":\"CA\", \"age\":20}";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
@@ -100,8 +103,8 @@ public class JSONTest {
         BValue[] args = {new BString("\"hello\"")};
         BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(((BJSON) returns[0]).value().getType(), Type.STRING);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.STRING_TAG);
         Assert.assertEquals(returns[0].stringValue(), "hello");
     }
 
@@ -110,8 +113,8 @@ public class JSONTest {
         BValue[] args = {new BString("true")};
         BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(((BJSON) returns[0]).value().getType(), Type.BOOLEAN);
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.BOOLEAN_TAG);
         Assert.assertEquals(returns[0].stringValue(), "true");
     }
 
@@ -120,19 +123,16 @@ public class JSONTest {
         BValue[] args = {new BString("45678")};
         BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(((BJSON) returns[0]).value().getType(), Type.LONG);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.INT_TAG);
         Assert.assertEquals(returns[0].stringValue(), "45678");
     }
 
     @Test(description = "Get JSON null from a string")
     public void testParseNull() {
-        BValue[] args = {new BString("null")};
+        BValue[] args = { new BString("null") };
         BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);
-
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(((BJSON) returns[0]).value().getType(), Type.NULL);
-        Assert.assertEquals(returns[0].stringValue(), "null");
+        Assert.assertNull(returns[0]);
     }
 
     @Test(description = "Get JSON object from a string")
@@ -140,31 +140,31 @@ public class JSONTest {
         BValue[] args = {new BString("{\"name\":\"supun\"}")};
         BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(((BJSON) returns[0]).value().getType(), Type.OBJECT);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.JSON_TAG);
         Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"supun\"}");
     }
 
     @Test(description = "Get JSON array from a string")
     public void testParseArray() {
         BValue[] args = {new BString("[\"supun\", 45, true, null]")};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testParse", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(((BJSON) returns[0]).value().getType(), Type.ARRAY);
-        Assert.assertEquals(returns[0].stringValue(), "[\"supun\",45,true,null]");
+        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
+        Assert.assertEquals(returns[0].stringValue(), "[\"supun\", 45, true, null]");
     }
 
-    @Test(description = "Get JSON array from a string")
+    @Test(description = "Get complex JSON from a string")
     public void testParseComplexObject() {
         BValue[] args = {new BString("{\"name\":\"supun\",\"address\":{\"street\":\"Palm Grove\"}, " +
                                              "\"marks\":[78, 45, 87]}")};
         BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(((BJSON) returns[0]).value().getType(), Type.OBJECT);
-        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"supun\",\"address\":{\"street\":\"Palm Grove\"}," +
-                "\"marks\":[78,45,87]}");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.JSON_TAG);
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"supun\", \"address\":{\"street\":\"Palm Grove\"}, " +
+                "\"marks\":[78, 45, 87]}");
     }
 
     @Test(description = "Get JSON from a malformed string")
@@ -178,7 +178,7 @@ public class JSONTest {
 
     @Test(description = "Convert complex json object in to xml")
     public void testToXMLComplexObject() {
-        BValue[] args = {new BJSON(jsonToXML1)};
+        BValue[] args = {JsonParser.parse(jsonToXML1)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToXML", args);
 
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -192,7 +192,7 @@ public class JSONTest {
 
     @Test(description = "Convert json object with array within")
     public void testToXMLArrayObject() {
-        BValue[] args = {new BJSON(jsonToXML2)};
+        BValue[] args = {JsonParser.parse(jsonToXML2)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToXML", args);
 
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -205,7 +205,7 @@ public class JSONTest {
 
     @Test(description = "Convert json object which has an array within an array")
     public void testToXMLArrayWithinArrayObject() {
-        BValue[] args = {new BJSON(jsonToXML3)};
+        BValue[] args = {JsonParser.parse(jsonToXML3)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToXML", args);
 
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -218,7 +218,7 @@ public class JSONTest {
 
     @Test(description = "Convert json object with simple array")
     public void testToXMLSimpleArrayObject() {
-        BValue[] args = {new BJSON(jsonToXML4)};
+        BValue[] args = {JsonParser.parse(jsonToXML4)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToXML", args);
 
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -230,7 +230,7 @@ public class JSONTest {
 
     @Test(description = "Convert a json object with number value only")
     public void testToXMLJsonWithValue() {
-        BValue[] args = {new BJSON(jsonToXML5)};
+        BValue[] args = { JsonParser.parse(jsonToXML5) };
         BValue[] returns = BRunUtil.invoke(compileResult, "testToXMLString", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
@@ -259,7 +259,7 @@ public class JSONTest {
 
     @Test(description = "Convert json object with key value")
     public void testToXMLKeyValue() {
-        BValue[] args = {new BJSON(jsonToXML15)};
+        BValue[] args = {JsonParser.parse(jsonToXML15)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToXML", args);
 
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -270,7 +270,7 @@ public class JSONTest {
 
     @Test(description = "Convert a json object")
     public void testToXMLJsonObject() {
-        BValue[] args = {new BJSON(jsonToXML16)};
+        BValue[] args = {JsonParser.parse(jsonToXML16)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToXMLWithXMLSequence", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
@@ -281,7 +281,7 @@ public class JSONTest {
 
     @Test(description = "Convert a json array with different types")
     public void testToXMLJsonArrayWithDifferentTypes() {
-        BValue[] args = {new BJSON(jsonToXML17)};
+        BValue[] args = {JsonParser.parse(jsonToXML17)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToXMLWithXMLSequence", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
@@ -292,7 +292,7 @@ public class JSONTest {
 
     @Test(description = "Convert json object with attribute")
     public void testToXMLKeyWithAttribute() {
-        BValue[] args = {new BJSON(jsonToXML18)};
+        BValue[] args = {JsonParser.parse(jsonToXML18)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToXML", args);
 
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -303,7 +303,7 @@ public class JSONTest {
 
     @Test(description = "Convert json object with attribute and value")
     public void testToXMLKeyWithAttributeAndValue() {
-        BValue[] args = {new BJSON(jsonToXML19)};
+        BValue[] args = {JsonParser.parse(jsonToXML19)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToXML", args);
 
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -314,7 +314,7 @@ public class JSONTest {
 
     @Test(description = "Convert a json object with array")
     public void testToXMLJsonArray() {
-        BValue[] args = {new BJSON(jsonToXML6)};
+        BValue[] args = {JsonParser.parse(jsonToXML6)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToXMLWithXMLSequence", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
@@ -325,7 +325,7 @@ public class JSONTest {
 
     @Test(description = "Convert a json object with multi rooted object")
     public void testToXMLMultirootedObjects() {
-        BValue[] args = {new BJSON(jsonToXML7)};
+        BValue[] args = {JsonParser.parse(jsonToXML7)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToXMLWithXMLSequence", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
@@ -339,7 +339,7 @@ public class JSONTest {
 
     @Test(description = "Convert a json object with null elements in the array")
     public void testToXMLNullElementsInArray() {
-        BValue[] args = {new BJSON(jsonToXML8)};
+        BValue[] args = {JsonParser.parse(jsonToXML8)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToXMLWithXMLSequence", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
@@ -351,7 +351,7 @@ public class JSONTest {
 
     @Test(description = "Convert a json object with null object elements")
     public void testToXMLNullElementsInObject() {
-        BValue[] args = {new BJSON(jsonToXML9)};
+        BValue[] args = {JsonParser.parse(jsonToXML9)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToXML", args);
 
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -363,7 +363,7 @@ public class JSONTest {
 
     @Test(description = "Convert a json object with empty elements")
     public void testToXMLEmptyElements() {
-        BValue[] args = {new BJSON(jsonToXML10)};
+        BValue[] args = {JsonParser.parse(jsonToXML10)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToXMLWithXMLSequence", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
@@ -375,7 +375,7 @@ public class JSONTest {
 
     @Test(description = "Convert a json object with empty elements and non emepty elements")
     public void testToXMLEmptyElementsWithNonEmpty() {
-        BValue[] args = {new BJSON(jsonToXML11)};
+        BValue[] args = {JsonParser.parse(jsonToXML11)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToXML", args);
 
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -386,7 +386,7 @@ public class JSONTest {
 
     @Test(description = "Convert a simple json object with attributes")
     public void testToXMLAttributes() {
-        BValue[] args = {new BJSON(jsonToXML12)};
+        BValue[] args = {JsonParser.parse(jsonToXML12)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToXML", args);
 
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -397,7 +397,7 @@ public class JSONTest {
 
     @Test(description = "Convert a complex json object with attributes")
     public void testToXMLComplexAttributes() {
-        BValue[] args = {new BJSON(jsonToXML13)};
+        BValue[] args = {JsonParser.parse(jsonToXML13)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToXML", args);
 
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -409,7 +409,7 @@ public class JSONTest {
 
     @Test(description = "Convert a complex json object with attributes and custom attribute prefix")
     public void testToXMLComplexAttributesCustomPrefix() {
-        BValue[] args = {new BJSON(jsonToXML14)};
+        BValue[] args = {JsonParser.parse(jsonToXML14)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToXMLWithOptions", args);
 
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -447,7 +447,7 @@ public class JSONTest {
 
     @Test(description = "Convert a complex json object to xml, with an unsupported tag name")
     public void testJSONToXMLWithUnsupportedChar() {
-        BValue[] args = {new BJSON(jsonToXML13)};
+        BValue[] args = {JsonParser.parse(jsonToXML13)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToXMLWithOptions", args);
 
         Assert.assertTrue(returns[0] instanceof BMap);
@@ -464,9 +464,9 @@ public class JSONTest {
 
     @Test
     public void testJSONArrayToJsonAssignment() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJSONArrayToJsonAssignment");
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testJSONArrayToJsonAssignment");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "[{\"a\":\"b\"},{\"c\":\"d\"}]");
+        Assert.assertEquals(returns[0].stringValue(), "[{\"a\":\"b\"}, {\"c\":\"d\"}]");
     }
 
     @Test

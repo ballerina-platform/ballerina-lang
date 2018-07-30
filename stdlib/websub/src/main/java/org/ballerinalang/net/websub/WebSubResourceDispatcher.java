@@ -19,7 +19,6 @@
 package org.ballerinalang.net.websub;
 
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -151,12 +150,12 @@ class WebSubResourceDispatcher {
                    String topicHeader, BStringArray payloadKeys, BMap<String, BMap<String, BString>> topicResourceMap) {
         String topicHeaderPrefix = topicHeader + "::";
         BValue httpRequest = WebSubUtils.getHttpRequest(programFile, inboundRequest);
-        BJSON jsonBody = retrieveJsonBody(httpRequest);
+        BMap<String, ?> jsonBody = retrieveJsonBody(httpRequest);
         inboundRequest.setProperty(ENTITY_ACCESSED_REQUEST, httpRequest);
         for (String key : payloadKeys.getStringArray()) {
-            if (jsonBody.value().has(key)) {
+            if (jsonBody.hasKey(key)) {
                 BMap<String, BString> topicResourceMapForValue = topicResourceMap.get(key);
-                String valueForKey = jsonBody.value().get(key).stringValue();
+                String valueForKey = jsonBody.get(key).stringValue();
                 String topic = topicHeaderPrefix + valueForKey;
                 if (topicResourceMapForValue.hasKey(topic)) {
                     return retrieveResourceName(topic, topicResourceMapForValue);
@@ -187,12 +186,12 @@ class WebSubResourceDispatcher {
     private static String retrieveResourceName(ProgramFile programFile, HttpCarbonMessage inboundRequest,
                                        BStringArray payloadKeys, BMap<String, BMap<String, BString>> topicResourceMap) {
         BValue httpRequest = WebSubUtils.getHttpRequest(programFile, inboundRequest);
-        BJSON jsonBody = retrieveJsonBody(httpRequest);
+        BMap<String, ?> jsonBody = retrieveJsonBody(httpRequest);
         inboundRequest.setProperty(ENTITY_ACCESSED_REQUEST, httpRequest);
         for (String key : payloadKeys.getStringArray()) {
-            if (jsonBody.value().has(key)) {
+            if (jsonBody.hasKey(key)) {
                 BMap<String, BString> topicResourceMapForValue = topicResourceMap.get(key);
-                String valueForKey = jsonBody.value().get(key).stringValue();
+                String valueForKey = jsonBody.get(key).stringValue();
                 if (topicResourceMapForValue.hasKey(valueForKey)) {
                     return retrieveResourceName(valueForKey, topicResourceMapForValue);
                 }
@@ -208,11 +207,12 @@ class WebSubResourceDispatcher {
      * @return              the retrieved JSON representation
      * @throws BallerinaConnectorException if an error occurs retrieving the payload, or the payload is not JSON
      */
-    private static BJSON retrieveJsonBody(BValue httpRequest) {
+    private static BMap<String, ?> retrieveJsonBody(BValue httpRequest) {
         BMap<String, BValue> entityStruct = extractEntity((BMap<String, BValue>) httpRequest);
         if (entityStruct != null) {
-            if (entityStruct.getNativeData(MESSAGE_DATA_SOURCE) instanceof BJSON) {
-                return (BJSON) (entityStruct.getNativeData(MESSAGE_DATA_SOURCE));
+            Object nativeData = entityStruct.getNativeData(MESSAGE_DATA_SOURCE);
+            if (nativeData instanceof BMap) {
+                return (BMap<String, ?>) nativeData;
             } else {
                 throw new BallerinaConnectorException("Non-JSON payload received for payload key based dispatching");
             }

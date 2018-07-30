@@ -189,6 +189,10 @@ class DesignView extends React.Component {
                             width: this.props.width,
                             height: this.props.height,
                         }}
+                        renderThumbVertical={props => <div {...props} className='scrollbar-thumb-vertical' />}
+                        renderTrackVertical={props => <div {...props} className='scrollbar scrollbar-track-vertical' />}
+                        renderThumbHorizontal={props => <div {...props} className='scrollbar-thumb-horizontal' />}
+                        renderTrackHorizontal={props => <div {...props} className='scrollbar scrollbar-track-horizontal' />}
                         ref={(scrollbars) => { this.scrollbars = scrollbars; }}
                         onScrollFrame={this.onScroll}
                     >

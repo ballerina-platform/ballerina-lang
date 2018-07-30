@@ -22,7 +22,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -907,15 +907,15 @@ public class XMLNativeFunctionTest {
     public void testToJsonForValue() {
         BValue[] returns = BRunUtil.invoke(result, "testToJsonForValue");
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "value");
     }
 
     @Test
     public void testToJsonForEmptyValue() {
-        BValue[] returns = BRunUtil.invoke(result, "testToJsonForEmptyValue");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testToJsonForEmptyValue");
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BRefValueArray);
         Assert.assertEquals(returns[0].stringValue(), "[]");
     }
 
@@ -923,7 +923,7 @@ public class XMLNativeFunctionTest {
     public void testToJsonForComment() {
         BValue[] returns = BRunUtil.invoke(result, "testToJsonForComment");
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(), "{}");
     }
 
@@ -931,7 +931,7 @@ public class XMLNativeFunctionTest {
     public void testToJsonForPI() {
         BValue[] returns = BRunUtil.invoke(result, "testToJsonForPI");
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(), "{}");
     }
 
@@ -941,7 +941,7 @@ public class XMLNativeFunctionTest {
         BValue[] args = { new BXMLItem(xmlStr) };
         BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(), "{\"key\":\"value\"}");
     }
 
@@ -951,7 +951,7 @@ public class XMLNativeFunctionTest {
         BValue[] args = { new BXMLItem(xmlStr) };
         BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(), "{\"key\":\"\"}");
     }
 
@@ -961,8 +961,8 @@ public class XMLNativeFunctionTest {
         BValue[] args = { new BXMLItem(xmlStr) };
         BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "{\"person\":{\"name\":\"Jack\",\"age\":\"40\"}}");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"person\":{\"name\":\"Jack\", \"age\":\"40\"}}");
     }
 
     @Test
@@ -971,9 +971,9 @@ public class XMLNativeFunctionTest {
         BValue[] args = { new BXMLItem(xmlStr) };
         BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(),
-                "{\"persons\":{\"person\":{\"name\":\"Jack\",\"address\":\"wso2\"}}}");
+                "{\"persons\":{\"person\":{\"name\":\"Jack\", \"address\":\"wso2\"}}}");
     }
 
     @Test
@@ -982,9 +982,9 @@ public class XMLNativeFunctionTest {
         BValue[] args = { new BXMLItem(xmlStr) };
         BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(),
-                "{\"persons\":{\"person\":{\"test\":{\"name\":\"Jack\",\"address\":\"wso2\"}}}}");
+                "{\"persons\":{\"person\":{\"test\":{\"name\":\"Jack\", \"address\":\"wso2\"}}}}");
     }
 
     @Test
@@ -993,8 +993,8 @@ public class XMLNativeFunctionTest {
         BValue[] args = { new BXMLItem(xmlStr) };
         BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "{\"name\":{\"@test\":\"5\",\"#text\":\"Jack\"}}");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":{\"@test\":\"5\", \"#text\":\"Jack\"}}");
     }
 
     @Test
@@ -1003,9 +1003,9 @@ public class XMLNativeFunctionTest {
         BValue[] args = { new BXMLItem(xmlStr) };
         BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "{\"ns0:name\":{\"@xmlns:ns0\":\"http://sample0.com/test\","
-                + "\"@test\":\"5\",\"#text\":\"Jack\"}}");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"ns0:name\":{\"@xmlns:ns0\":\"http://sample0.com/test\", "
+                + "\"@test\":\"5\", \"#text\":\"Jack\"}}");
     }
 
     @Test
@@ -1014,8 +1014,8 @@ public class XMLNativeFunctionTest {
         BValue[] args = { new BXMLItem(xmlStr) };
         BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "{\"ns0:name\":{\"@xmlns:ns0\":\"http://sample0.com/test\","
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"ns0:name\":{\"@xmlns:ns0\":\"http://sample0.com/test\", "
                 + "\"@test\":\"5\"}}");
     }
 
@@ -1027,10 +1027,10 @@ public class XMLNativeFunctionTest {
         BValue[] args = { new BXMLItem(xmlStr) };
         BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"storeName\":\"foo\",\"postalCode\":\"94\","
-                + "\"isOpen\":\"true\",\"address\":{\"street\":\"foo\",\"city\":\"94\",\"country\":\"true\"},"
-                + "\"codes\":{\"item\":[\"4\",\"8\",\"9\"]}}}");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"storeName\":\"foo\", \"postalCode\":\"94\", "
+                + "\"isOpen\":\"true\", \"address\":{\"street\":\"foo\", \"city\":\"94\", \"country\":\"true\"}, "
+                + "\"codes\":{\"item\":[\"4\", \"8\", \"9\"]}}}");
     }
 
     @Test
@@ -1039,8 +1039,8 @@ public class XMLNativeFunctionTest {
         BValue[] args = { new BXMLItem(xmlStr) };
         BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "{\"person\":{\"name\":\"Jack\",\"age\":\"40\"}}");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"person\":{\"name\":\"Jack\", \"age\":\"40\"}}");
     }
 
     @Test
@@ -1049,8 +1049,9 @@ public class XMLNativeFunctionTest {
         BValue[] args = { new BXMLItem(xmlStr) };
         BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "{\"person\":{\"@id\":\"5\",\"name\":\"Jack\",\"age\":\"40\"}}");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{\"person\":{\"@id\":\"5\", \"name\":\"Jack\", \"age\":\"40\"}}");
     }
 
     @Test
@@ -1059,9 +1060,9 @@ public class XMLNativeFunctionTest {
         BValue[] args = { new BXMLItem(xmlStr) };
         BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(),
-                "{\"person\":{\"@id\":\"5\",\"age\":\"40\",\"name\":{\"@cat\":\"A\",\"#text\":\"Jack\"}}}");
+                "{\"person\":{\"@id\":\"5\", \"age\":\"40\", \"name\":{\"@cat\":\"A\", \"#text\":\"Jack\"}}}");
     }
 
     @Test
@@ -1073,12 +1074,12 @@ public class XMLNativeFunctionTest {
         BValue[] args = { new BXMLItem(xmlStr) };
         BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(),
-                "{\"bookStore\":{\"@status\":\"online\",\"storeName\":\"foo\",\"postalCode\":\"94\","
-                        + "\"isOpen\":\"true\",\"address\":{\"street\":\"foo\",\"country\":\"true\","
-                        + "\"city\":{\"@code\":\"A\",\"#text\":\"94\"}},\"codes\":{\"@quality\":\"b\","
-                        + "\"item\":[\"4\",\"8\",\"9\"]}}}");
+                "{\"bookStore\":{\"@status\":\"online\", \"storeName\":\"foo\", \"postalCode\":\"94\", "
+                        + "\"isOpen\":\"true\", \"address\":{\"street\":\"foo\", \"country\":\"true\", "
+                        + "\"city\":{\"@code\":\"A\", \"#text\":\"94\"}}, \"codes\":{\"@quality\":\"b\", "
+                        + "\"item\":[\"4\", \"8\", \"9\"]}}}");
     }
 
     @Test
@@ -1090,11 +1091,11 @@ public class XMLNativeFunctionTest {
         BValue[] args = { new BXMLItem(xmlStr) };
         BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"@status\":\"online\",\"@id\":\"5\","
-                + "\"storeName\":\"foo\",\"postalCode\":\"94\",\"isOpen\":\"true\",\"address\":{\"street\":\"foo\","
-                + "\"country\":\"true\",\"city\":{\"@code\":\"A\",\"@reg\":\"C\",\"#text\":\"94\"}},"
-                + "\"codes\":{\"@quality\":\"b\",\"@type\":\"0\",\"item\":[\"4\",\"8\",\"9\"]}}}");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"@status\":\"online\", \"@id\":\"5\", "
+                + "\"storeName\":\"foo\", \"postalCode\":\"94\", \"isOpen\":\"true\", \"address\":{\"street\":\"foo\", "
+                + "\"country\":\"true\", \"city\":{\"@code\":\"A\", \"@reg\":\"C\", \"#text\":\"94\"}}, "
+                + "\"codes\":{\"@quality\":\"b\", \"@type\":\"0\", \"item\":[\"4\", \"8\", \"9\"]}}}");
     }
 
     @Test
@@ -1106,11 +1107,11 @@ public class XMLNativeFunctionTest {
         BValue[] args = { new BXMLItem(xmlStr) };
         BValue[] returns = BRunUtil.invoke(result, "testToJSONWithOptions", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"#status\":\"online\",\"#id\":\"5\","
-                + "\"storeName\":\"foo\",\"postalCode\":\"94\",\"isOpen\":\"true\",\"address\":{\"street\":\"foo\","
-                + "\"country\":\"true\",\"city\":{\"#code\":\"A\",\"#reg\":\"C\",\"#text\":\"94\"}},"
-                + "\"codes\":{\"#quality\":\"b\",\"#type\":\"0\",\"item\":[\"4\",\"8\",\"9\"]}}}");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"#status\":\"online\", \"#id\":\"5\", "
+                + "\"storeName\":\"foo\", \"postalCode\":\"94\", \"isOpen\":\"true\", \"address\":{\"street\":\"foo\", "
+                + "\"country\":\"true\", \"city\":{\"#code\":\"A\", \"#reg\":\"C\", \"#text\":\"94\"}}, "
+                + "\"codes\":{\"#quality\":\"b\", \"#type\":\"0\", \"item\":[\"4\", \"8\", \"9\"]}}}");
     }
 
     @Test
@@ -1125,13 +1126,13 @@ public class XMLNativeFunctionTest {
         BValue[] args = { new BXMLItem(xmlStr) };
         BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "{\"ns0:bookStore\":{\"@xmlns:ns0\":\"http://sample0.com/test\","
-                + "\"@xmlns:ns1\":\"http://sample1.com/test\",\"@status\":\"online\",\"ns0:storeName\":\"foo\","
-                + "\"ns0:isOpen\":\"true\",\"ns3:postalCode\":{\"@xmlns:ns3\":\"http://sample3.com/test\","
-                + "\"#text\":\"94\"},\"ns2:address\":{\"@xmlns:ns2\":\"http://sample2.com/test\","
-                + "\"ns2:street\":\"foo\",\"ns2:city\":\"111\",\"ns2:country\":\"true\"},"
-                + "\"ns4:codes\":{\"@xmlns:ns4\":\"http://sample4.com/test\",\"ns4:item\":[\"4\",\"8\",\"9\"]}}}");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"ns0:bookStore\":{\"@xmlns:ns0\":\"http://sample0.com/test\", "
+                + "\"@xmlns:ns1\":\"http://sample1.com/test\", \"@status\":\"online\", \"ns0:storeName\":\"foo\", "
+                + "\"ns0:isOpen\":\"true\", \"ns3:postalCode\":{\"@xmlns:ns3\":\"http://sample3.com/test\", "
+                + "\"#text\":\"94\"}, \"ns2:address\":{\"@xmlns:ns2\":\"http://sample2.com/test\", "
+                + "\"ns2:street\":\"foo\", \"ns2:city\":\"111\", \"ns2:country\":\"true\"}, "
+                + "\"ns4:codes\":{\"@xmlns:ns4\":\"http://sample4.com/test\", \"ns4:item\":[\"4\", \"8\", \"9\"]}}}");
     }
 
     @Test
@@ -1146,10 +1147,10 @@ public class XMLNativeFunctionTest {
         BValue[] args = { new BXMLItem(xmlStr) };
         BValue[] returns = BRunUtil.invoke(result, "testToJSONWithoutNamespace", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"@status\":\"online\","
-                + "\"storeName\":\"foo\",\"postalCode\":\"94\",\"isOpen\":\"true\",\"address\":{\"street\":\"foo\","
-                + "\"city\":\"111\",\"country\":\"true\"},\"codes\":{\"item\":[\"4\",\"8\",\"9\"]}}}");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"@status\":\"online\", "
+                + "\"storeName\":\"foo\", \"postalCode\":\"94\", \"isOpen\":\"true\", \"address\":{\"street\":\"foo\", "
+                + "\"city\":\"111\", \"country\":\"true\"}, \"codes\":{\"item\":[\"4\", \"8\", \"9\"]}}}");
     }
 
     @Test
@@ -1160,10 +1161,10 @@ public class XMLNativeFunctionTest {
         BValue[] args = { new BXMLItem(xmlStr) };
         BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(),
-                "{\"books\":{\"item\":[{\"bookName\":\"book1\",\"bookId\":\"101\"},{\"bookName\":\"book2\","
-                        + "\"bookId\":\"102\"},{\"bookName\":\"book3\",\"bookId\":\"103\"}]}}");
+                "{\"books\":{\"item\":[{\"bookName\":\"book1\", \"bookId\":\"101\"}, {\"bookName\":\"book2\", "
+                        + "\"bookId\":\"102\"}, {\"bookName\":\"book3\", \"bookId\":\"103\"}]}}");
     }
 
     @Test
@@ -1174,10 +1175,10 @@ public class XMLNativeFunctionTest {
         BValue[] args = { new BXMLItem(xmlStr) };
         BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(),
-                "{\"books\":{\"item\":[{\"item\":{\"bookName\":\"book1\",\"bookId\":\"101\"}},{\"item\":"
-                        + "{\"bookName\":\"book2\",\"bookId\":\"102\"}},{\"item\":{\"bookName\":\"book3\","
+                "{\"books\":{\"item\":[{\"item\":{\"bookName\":\"book1\", \"bookId\":\"101\"}}, {\"item\":"
+                        + "{\"bookName\":\"book2\", \"bookId\":\"102\"}}, {\"item\":{\"bookName\":\"book3\", "
                         + "\"bookId\":\"103\"}}]}}");
     }
 
@@ -1187,76 +1188,76 @@ public class XMLNativeFunctionTest {
         BValue[] args = { new BXMLItem(xmlStr) };
         BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "{\"books\":{\"item\":[\"book1\",\"book2\",\"book3\"]}}");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"books\":{\"item\":[\"book1\", \"book2\", \"book3\"]}}");
     }
 
     @Test
     public void testToJSONWithSequenceDistinctKeys() {
         BValue[] returns = BRunUtil.invoke(result, "testToJSONWithSequenceDistinctKeys");
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "{\"key1\":\"value1\",\"key2\":\"value2\"}");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"key1\":\"value1\", \"key2\":\"value2\"}");
     }
 
     @Test
     public void testToJSONWithSequenceSimilarKeys() {
         BValue[] returns = BRunUtil.invoke(result, "testToJSONWithSequenceSimilarKeys");
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "{\"key\":[\"value1\",\"value2\",\"value3\"]}");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"key\":[\"value1\", \"value2\", \"value3\"]}");
     }
 
     @Test
     public void testToJSONWithSequenceWithValueArray() {
-        BValue[] returns = BRunUtil.invoke(result, "testToJSONWithSequenceWithValueArray");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testToJSONWithSequenceWithValueArray");
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "[\"a\",\"b\",\"c\"]");
+        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertEquals(returns[0].stringValue(), "[\"a\", \"b\", \"c\"]");
     }
 
     @Test
     public void testToJSONWithSequenceWithMultipleElements() {
         BValue[] returns = BRunUtil.invoke(result, "testToJSONWithSequenceWithMultipleElements");
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "{\"person\":{\"name\":\"Jack\",\"age\":\"40\"},"
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"person\":{\"name\":\"Jack\", \"age\":\"40\"}, "
                 + "\"metadata\":\"5\"}");
     }
 
     @Test
     public void testToJSONWithSequenceWithElementAndText() {
-        BValue[] returns = BRunUtil.invoke(result, "testToJSONWithSequenceWithElementAndText");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testToJSONWithSequenceWithElementAndText");
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "[\"a\",\"b\",{\"key\":\"value3\"}]");
+        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertEquals(returns[0].stringValue(), "[\"a\", \"b\", {\"key\":\"value3\"}]");
     }
 
     @Test
     public void testToJSONWithSequenceWithElementAndTextArray() {
-        BValue[] returns = BRunUtil.invoke(result, "testToJSONWithSequenceWithElementAndTextArray");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testToJSONWithSequenceWithElementAndTextArray");
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "[\"a\",\"b\",{\"key\":[\"value3\",\"value4\",\"value4\"]}]");
+        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertEquals(returns[0].stringValue(), "[\"a\", \"b\", {\"key\":[\"value3\", \"value4\", \"value4\"]}]");
     }
 
     @Test
     public void testToJSONWithSequenceWithDifferentElements() {
-        BValue[] returns = BRunUtil.invoke(result, "testToJSONWithSequenceWithDifferentElements");
+        BValue[] returns = BRunUtil.invokeFunction(result, "testToJSONWithSequenceWithDifferentElements");
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "[\"a\",\"b\",{\"key\":[\"value3\",\"value4\",\"value4\"],"
-                + "\"bookName\":\"Book1\",\"bookId\":[\"001\",\"001\"]}]");
+        Assert.assertTrue(returns[0] instanceof BRefValueArray);
+        Assert.assertEquals(returns[0].stringValue(), "[\"a\", \"b\", {\"key\":[\"value3\", \"value4\", \"value4\"], "
+                + "\"bookName\":\"Book1\", \"bookId\":[\"001\", \"001\"]}]");
     }
 
     @Test
     public void testToJSONWithSequenceWithDifferentComplexElements() {
         BValue[] returns = BRunUtil.invoke(result, "testToJSONWithSequenceWithDifferentComplexElements");
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"@status\":\"online\",\"storeName\":\"foo\","
-                + "\"postalCode\":\"94\",\"isOpen\":\"true\",\"address\":{\"street\":\"foo\",\"city\":\"94\","
-                + "\"country\":\"true\"},\"codes\":{\"item\":[\"4\",\"8\",\"9\"]}},\"metaInfo\":\"some info\"}");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"@status\":\"online\", \"storeName\":\"foo\", "
+                + "\"postalCode\":\"94\", \"isOpen\":\"true\", \"address\":{\"street\":\"foo\", \"city\":\"94\", "
+                + "\"country\":\"true\"}, \"codes\":{\"item\":[\"4\", \"8\", \"9\"]}}, \"metaInfo\":\"some info\"}");
     }
 
     @Test
@@ -1268,11 +1269,11 @@ public class XMLNativeFunctionTest {
         BValue[] args = { new BXMLItem(xmlStr) };
         BValue[] returns = BRunUtil.invoke(result, "testToJSON", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(), "{\"ns0:bookStore\":{\"@xmlns:ns0\":"
-                + "\"http://sample0.com/test\",\"@status\":\"online\",\"@ns0:id\":\"10\",\"ns0:storeName\":\"foo\","
-                + "\"ns0:isOpen\":\"true\",\"ns2:address\":{\"@xmlns:ns2\":\"http://sample2.com/test\","
-                + "\"@status\":\"online\",\"@ns0:id\":\"10\",\"@ns2:code\":\"test\",\"#text\":\"srilanka\"}}}");
+                + "\"http://sample0.com/test\", \"@status\":\"online\", \"@ns0:id\":\"10\", \"ns0:storeName\":\"foo\", "
+                + "\"ns0:isOpen\":\"true\", \"ns2:address\":{\"@xmlns:ns2\":\"http://sample2.com/test\", "
+                + "\"@status\":\"online\", \"@ns0:id\":\"10\", \"@ns2:code\":\"test\", \"#text\":\"srilanka\"}}}");
     }
 
     @Test
@@ -1284,10 +1285,10 @@ public class XMLNativeFunctionTest {
         BValue[] args = { new BXMLItem(xmlStr) };
         BValue[] returns = BRunUtil.invoke(result, "testToJSONWithoutNamespace", args);
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"@status\":\"online\",\"@id\":\"10\","
-                + "\"storeName\":\"foo\",\"isOpen\":\"true\",\"address\":{\"@status\":\"online\",\"@id\":\"10\","
-                + "\"@code\":\"test\",\"#text\":\"srilanka\"}}}");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"bookStore\":{\"@status\":\"online\", \"@id\":\"10\", "
+                + "\"storeName\":\"foo\", \"isOpen\":\"true\", \"address\":{\"@status\":\"online\", \"@id\":\"10\", "
+                + "\"@code\":\"test\", \"#text\":\"srilanka\"}}}");
     }
 
     @Test
