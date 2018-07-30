@@ -40,4 +40,8 @@ public class PendingCheckpoints {
         HashSet<Integer> instanceCPs = checkpoints.get(instanceId);
         return instanceCPs != null && instanceCPs.remove(ip);
     }
+
+    public static void remove(String instanceId) {
+        checkpoints.remove(instanceId);
+    }
 }
