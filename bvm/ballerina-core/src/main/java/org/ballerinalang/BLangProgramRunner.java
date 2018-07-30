@@ -23,6 +23,8 @@ import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.util.JsonParser;
@@ -279,6 +281,8 @@ public class BLangProgramRunner {
                     throw new BallerinaException("Expected map notation (\"{\\\"a\\\":\\\"b\\\"}\") for "
                                                          + "map typed main function parameter");
                 }
+            case TypeTags.UNION_TAG:
+                return parseUnionArg((BUnionType) type, value);
             default:
                 throw new BallerinaException("unsupported type expected with main function: " + type);
         }
@@ -388,5 +392,25 @@ public class BLangProgramRunner {
             throw new BallerinaException("unsupported element type for tuple as main function argument: " + type);
         }
         return tupleValues;
+    }
+
+    private static BValue parseUnionArg(BUnionType type, String unionArg) {
+        List<BType> unionMemberTypes = type.getMemberTypes();
+        if (unionMemberTypes.contains(BTypes.typeString)) {
+            return new BString(unionArg);
+        }
+
+        for (int elementTypeIndex = 0; elementTypeIndex < unionMemberTypes.size();) {
+            try {
+                return getBValue(unionMemberTypes.get(elementTypeIndex), unionArg);
+            } catch (BallerinaException e) {
+                if (elementTypeIndex < unionMemberTypes.size()) {
+                    elementTypeIndex++;
+                    continue;
+                }
+                throw new BallerinaException("incompatible argument specified for union type: " + type);
+            }
+        }
+        throw new BallerinaException("incompatible argument specified for union type: " + type);
     }
 }
