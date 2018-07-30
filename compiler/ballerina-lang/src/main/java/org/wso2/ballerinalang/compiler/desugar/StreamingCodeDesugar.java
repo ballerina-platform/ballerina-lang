@@ -567,7 +567,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         returnStmt.expr = groupingKeyExpr;
     }
 
-    private BLangVariableDef createEventObjectConversionStmt(BLangSelectClause selectClause, BLangVariable varStreamEvent) {
+    private BLangVariableDef createEventObjectConversionStmt(BLangSelectClause selectClause,
+                                                             BLangVariable varStreamEvent) {
         String varStreamEventName = getVariableName(varStreamEvent.getName().getValue());
         BVarSymbol typeCastingVarSymbol = new BVarSymbol(0, new Name(varStreamEventName),
                 varStreamEvent.symbol.pkgID, inputStreamEventType, env.scope.owner);
@@ -1208,7 +1209,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                                                                     BLangExpression expression) {
         BLangFieldBasedAccess fieldAccessExpr = (BLangFieldBasedAccess) expression;
         BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(expression.pos, typeCastedVariableSymbol);
-        BLangFieldBasedAccess selectFieldExpression = ASTBuilderUtil.createFieldAccessExpr(varRef, fieldAccessExpr.field);
+        BLangFieldBasedAccess selectFieldExpression = ASTBuilderUtil.createFieldAccessExpr(varRef,
+                fieldAccessExpr.field);
         selectFieldExpression.symbol = fieldAccessExpr.symbol;
         selectFieldExpression.type = fieldAccessExpr.type;
         selectFieldExpression.fieldKind = FieldKind.SINGLE;
