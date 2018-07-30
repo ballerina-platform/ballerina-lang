@@ -18,6 +18,8 @@
 
 package org.ballerinalang.stdlib.io.events;
 
+import org.ballerinalang.stdlib.io.channels.base.Channel;
+
 import java.util.function.Supplier;
 
 /**
@@ -31,4 +33,28 @@ import java.util.function.Supplier;
  * </p>
  */
 public interface Event extends Supplier<EventResult> {
+    /**
+     * Provides the unique channel id associated with the event.
+     *
+     * @return the id of the channel.
+     */
+    int getChannelId();
+    /**
+     * Specifies whether the event is selectable.
+     *
+     * @return true if the event is selectable.
+     */
+    boolean isSelectable();
+    /**
+     * Represents the type of the event.
+     *
+     * @return the type of the event.
+     */
+    EventType getType();
+    /**
+     * Represents the bytes channel included in the event.
+     *
+     * @return byte channel which represents the event.
+     */
+     Channel getChannel();
 }

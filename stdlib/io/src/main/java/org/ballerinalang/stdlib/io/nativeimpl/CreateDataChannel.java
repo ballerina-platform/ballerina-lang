@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.ByteOrder;
 
 /**
- * Native function to create data channel.
+ * Extern function to create data channel.
  *
  * @since 0.973.1
  */

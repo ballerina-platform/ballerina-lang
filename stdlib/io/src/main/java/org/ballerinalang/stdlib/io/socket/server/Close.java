@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.stdlib.io.socket.SelectorManager;
 import org.ballerinalang.stdlib.io.socket.SocketConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.slf4j.Logger;
@@ -35,7 +36,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 
 /**
- * Native function to close a server socket.
+ * Extern function to close a server socket.
  *
  * @since 0.971.1
  */
@@ -58,7 +59,9 @@ public class Close extends BlockingNativeCallableUnit {
             ServerSocketChannel serverSocket = (ServerSocketChannel) serverSocketStruct
                     .getNativeData(SocketConstants.SERVER_SOCKET_KEY);
             final SelectionKey selectionKey = serverSocket.keyFor(SelectorManager.getInstance());
-            selectionKey.cancel();
+            if (selectionKey != null) {
+                selectionKey.cancel();
+            }
             serverSocket.close();
         } catch (Throwable e) {
             String message = "Failed to close the ServerSocket: " + e.getMessage();

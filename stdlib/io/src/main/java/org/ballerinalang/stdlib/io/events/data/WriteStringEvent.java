@@ -18,10 +18,12 @@
 
 package org.ballerinalang.stdlib.io.events.data;
 
+import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.DataChannel;
 import org.ballerinalang.stdlib.io.events.Event;
 import org.ballerinalang.stdlib.io.events.EventContext;
 import org.ballerinalang.stdlib.io.events.EventResult;
+import org.ballerinalang.stdlib.io.events.EventType;
 import org.ballerinalang.stdlib.io.events.result.NumericResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,5 +79,25 @@ public class WriteStringEvent implements Event {
             result = new NumericResult(context);
         }
         return result;
+    }
+
+    @Override
+    public int getChannelId() {
+        return channel.id();
+    }
+
+    @Override
+    public boolean isSelectable() {
+        return channel.isSelectable();
+    }
+
+    @Override
+    public EventType getType() {
+        return EventType.WRITE;
+    }
+
+    @Override
+    public Channel getChannel() {
+        return channel.getChannel();
     }
 }

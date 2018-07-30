@@ -37,6 +37,8 @@ public class UtilSymbolKeys {
 
     public static final String DOT_SYMBOL_KEY = ".";
 
+    public static final String COMMA_SYMBOL_KEY = ",";
+
     public static final String ANNOTATION_START_SYMBOL_KEY = "@";
 
     public static final String SEMI_COLON_SYMBOL_KEY = ";";
@@ -48,6 +50,8 @@ public class UtilSymbolKeys {
     public static final String GT_SYMBOL_KEY = ">";
 
     public static final String LT_SYMBOL_KEY = "<";
+
+    public static final String DOLLAR_SYMBOL_KEY = "$";
     // End non letter symbol keys
 
 

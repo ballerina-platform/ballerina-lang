@@ -34,7 +34,7 @@ documentation {
     P{{destDir}} Path of the directory to decompress the file
     R{{}} An error if an error occurs during the decompression process
 }
-public native function decompressFromByteArray(byte[] content, Path destDir) returns error?;
+public extern function decompressFromByteArray(byte[] content, Path destDir) returns error?;
 
 documentation {
     Decompresses a compressed file.
@@ -43,7 +43,7 @@ documentation {
     P{{destDir}} Path of the directory to decompress the file
     R{{}} An error if an error occurs during the decompression process
 }
-public native function decompress(Path dirPath, Path destDir) returns error?;
+public extern function decompress(Path dirPath, Path destDir) returns error?;
 
 documentation {
     Compresses a directory.
@@ -52,7 +52,7 @@ documentation {
     P{{destDir}} Path of the directory to place the compressed file
     R{{}} An error if an error occurs during the compression process
 }
-public native function compress(Path dirPath, Path destDir) returns error?;
+public extern function compress(Path dirPath, Path destDir) returns error?;
 
 documentation {
     Compresses a directory into a byte array.
@@ -61,4 +61,4 @@ documentation {
     R{{}} Compressed byte array of the file
     R{{}} An error if an error occurs during the compression process
 }
-public native function compressToByteArray(Path dirPath) returns byte[]|error;
+public extern function compressToByteArray(Path dirPath) returns byte[]|error;

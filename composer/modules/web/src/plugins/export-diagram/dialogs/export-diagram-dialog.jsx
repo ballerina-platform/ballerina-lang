@@ -167,14 +167,14 @@ class ExportDiagramDialog extends React.Component {
      * @return {string} svg.
      * */
     getSVG() {
-        const tab = $(('#bal-file-editor-' + this.props.file.id).replace(/(:|\.|\[|\]|\/|,|=)/g, '\\$1'));
-        const svgElement = tab.find('.svg-container');
-        const svgElementClone = tab.find('.svg-container').clone(true);
+        const tab = document.getElementById('bal-file-editor-' + this.props.file.id);
+        const svgElement = tab.getElementsByClassName('svg-container')[0];
+        const svgElementClone = svgElement.cloneNode(true);
 
         // Create a svg element with actual height and width of the diagram.
         let svg = `<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" 
                 style='fill:rgb(255,255,255);font-family:"Roboto",Arial,Helvetica,sans-serif;
-                font-size:14px;' width="${svgElement.width()}" height="${svgElement.height()}">
+                font-size:14px;' width="${svgElement.getBoundingClientRect().width}" height="${svgElement.getBoundingClientRect().height}">
                 <style>
                 @font-face{
                 font-family: font-ballerina;
@@ -188,11 +188,11 @@ class ExportDiagramDialog extends React.Component {
                   font-style:normal;
                 }
                 </style>
-                <rect style="fill: rgb(255,255,255);fill-opacity: 1;" width="${svgElement.width()}"
-                height="${svgElement.height()}" x="0" y="0"></rect>`;
+                <rect style="fill: rgb(255,255,255);fill-opacity: 1;" width="${svgElement.getBoundingClientRect().width}"
+                height="${svgElement.getBoundingClientRect().height}" x="0" y="0"></rect>`;
 
         this.elementIterator(svgElement, svgElementClone);
-        svg += svgElementClone.html();
+        svg += svgElementClone.innerHTML;
         svg += '</svg>';
         return svg;
     }
@@ -356,12 +356,12 @@ class ExportDiagramDialog extends React.Component {
      * @param {element} svgClone - cloned svg.
      * */
     elementIterator(svgOri, svgClone) {
-        if (svgOri.children().length !== 0) {
-            for (let i = 0; i < svgOri.children().length; i++) {
-                this.elementIterator($(svgOri.children()[i]), $(svgClone.children()[i]));
+        if (svgOri.children.length !== 0) {
+            for (let i = 0; i < svgOri.children.length; i++) {
+                this.elementIterator(svgOri.children[i], svgClone.children[i]);
             }
         }
-        this.styleAllocator(svgOri[0], svgClone[0]);
+        this.styleAllocator(svgOri, svgClone);
         $(svgClone).removeClass();
     }
 
@@ -378,9 +378,11 @@ class ExportDiagramDialog extends React.Component {
         if (fileType === 'SVG') {
             callServer(btoa(unescape(encodeURIComponent(svgContent))));
         } else if (fileType === 'PNG') {
-            const tab = $(('#bal-file-editor-' + this.props.file.id).replace(/(:|\.|\[|\]|\/|,|=)/g, '\\$1'));
-            const svgElement = tab.find('.svg-container');
-            const canvas = $(`<canvas width='${svgElement.width()}' height='${svgElement.height()}'/>`)[0];
+            const tab = document.getElementById('bal-file-editor-' + this.props.file.id);
+            const svgElement = tab.getElementsByClassName('svg-container')[0];
+            const canvas = document.createElement('canvas');
+            canvas.width = svgElement.getBoundingClientRect().width;
+            canvas.height = svgElement.getBoundingClientRect().height;
             const ctx = canvas.getContext('2d');
             const image = new Image();
             image.onload = function load() {

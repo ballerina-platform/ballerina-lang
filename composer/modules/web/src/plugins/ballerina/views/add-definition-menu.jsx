@@ -44,7 +44,7 @@ class AddDefinitionMenu extends React.Component {
                                 onClick={
                                 (event, item) => {
                                     if (item.data.id === 'struct') {
-                                        this.context.command.dispatch('show-import-struct-dialog');
+                                        this.context.command.dispatch('show-import-record-dialog');
                                         return;
                                     }
                                     // Handle struct / transformer addition.

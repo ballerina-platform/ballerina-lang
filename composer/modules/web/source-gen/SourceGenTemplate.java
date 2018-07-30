@@ -44,7 +44,7 @@ public class SourceGen {
 
 
     @FindbugsSuppressWarnings
-    String getSourceOf(JsonObject node, boolean pretty, boolean replaceLambda) {
+    public String getSourceOf(JsonObject node, boolean pretty, boolean replaceLambda) {
         if (node == null) {
             return "";
         }
@@ -227,10 +227,10 @@ public class SourceGen {
             }
         }
 
-        if (kind.equals("XmlCommentLiteral") ||
+        if ((kind.equals("XmlCommentLiteral") ||
                 kind.equals("XmlElementLiteral") ||
                 kind.equals("XmlTextLiteral") ||
-                kind.equals("XmlPiLiteral") &&
+                kind.equals("XmlPiLiteral")) &&
                         node.has("ws") &&
                         node.getAsJsonArray("ws").get(0) != null &&
                         node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString().contains("xml")
@@ -239,9 +239,9 @@ public class SourceGen {
             node.addProperty("startLiteral", node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString());
         }
 
-        if (kind.equals("XmlElementLiteral") ||
-                kind.equals("XmlTextLiteral") ||
-                kind.equals("XmlPiLiteral")) {
+        if (parentKind.equals("XmlElementLiteral") ||
+                parentKind.equals("XmlTextLiteral") ||
+                parentKind.equals("XmlPiLiteral")) {
             node.addProperty("inTemplateLiteral", true);
         }
 
@@ -327,6 +327,10 @@ public class SourceGen {
         }
 
         if (kind.equals("Variable")) {
+            if (parentKind.equals("ObjectType")) {
+                node.addProperty("inObject", true);
+            }
+
             if (node.has("typeNode")
                     && node.getAsJsonObject("typeNode").has("isAnonType")
                     && node.getAsJsonObject("typeNode").get("isAnonType").getAsBoolean()) {
@@ -405,7 +409,7 @@ public class SourceGen {
             }
         }
 
-        if (kind.equals("Resource") && node.has("parameters") && node.getAsJsonArray("parameters").get(0) != null) {
+        if (kind.equals("Resource") && node.has("parameters") && node.getAsJsonArray("parameters").size() > 0) {
             if (node.getAsJsonArray("parameters").get(0).getAsJsonObject().has("ws")) {
                 for (JsonElement ws : node.getAsJsonArray("parameters").get(0).getAsJsonObject().getAsJsonArray("ws")) {
                     if (ws.getAsJsonObject().get("text").getAsString().equals("endpoint")) {
@@ -455,9 +459,10 @@ public class SourceGen {
                 node.addProperty("emptyParantheses", true);
             }
 
-            if (node.has("nullable") && node.get("nullable").getAsBoolean() && node.has("Ws")) {
+            if (node.has("nullable") && node.get("nullable").getAsBoolean() && node.has("ws")) {
                 for (int i = 0; i < node.get("ws").getAsJsonArray().size(); i++) {
-                    if (node.get("ws").getAsJsonArray().get(i).getAsJsonObject().get("text").getAsString().equals("?")) {
+                    if (node.get("ws").getAsJsonArray().get(i)
+                            .getAsJsonObject().get("text").getAsString().equals("?")) {
                         node.addProperty("nullableOperatorAvailable", true);
                         break;
                     }
@@ -535,21 +540,21 @@ public class SourceGen {
 
             if (node.has("receiver") &&
                     !node.getAsJsonObject("receiver").has("ws")) {
-                JsonArray wss = node.getAsJsonObject("receiver").getAsJsonArray("ws");
                 if (node.getAsJsonObject("receiver").has("typeNode")
                         && node.getAsJsonObject("receiver").getAsJsonObject("typeNode").has("ws")
                         && node.getAsJsonObject("receiver")
                         .getAsJsonObject("typeNode").getAsJsonArray("ws").size() > 0) {
-                    for (JsonElement ws : wss) {
+                    for (JsonElement ws : node.get("ws").getAsJsonArray()) {
                         if (ws.getAsJsonObject().get("text").getAsString().equals("::")) {
                             node.addProperty("objectOuterFunction", true);
                             if (node.getAsJsonObject("receiver")
-                                    .getAsJsonObject("typeNode").getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString().equals("function")) {
+                                    .getAsJsonObject("typeNode").getAsJsonArray("ws").get(0)
+                                    .getAsJsonObject().get("text").getAsString().equals("function")) {
                                 node.getAsJsonObject("receiver")
                                         .getAsJsonObject("typeNode").getAsJsonArray("ws").remove(0);
                             }
-                            node.addProperty("objectOuterFunctionTypeName", node.getAsJsonObject("receiver")
-                                    .getAsJsonObject("typeNode").get("typeName").getAsString());
+                            node.add("objectOuterFunctionTypeName", node.getAsJsonObject("receiver")
+                                    .getAsJsonObject("typeNode").getAsJsonObject("typeName"));
                             break;
                         }
                     }
@@ -604,6 +609,12 @@ public class SourceGen {
                 } else {
                     node.getAsJsonObject("initFunction").addProperty("isConstructor", true);
                 }
+            }
+        }
+
+        if (kind.equals("RecordType")) {
+            if (node.has("restFieldType")) {
+                node.addProperty("isRestFieldAvailable", true);
             }
         }
 
@@ -726,7 +737,7 @@ public class SourceGen {
             }
         }
 
-        if (kind.equals("Literal") && parentKind.equals("StringTemplateLiteral")) {
+        if (kind.equals("Literal") && !parentKind.equals("StringTemplateLiteral")) {
             if (node.has("ws")
                     && node.getAsJsonArray("ws").size() == 1
                     && node.getAsJsonArray("ws").get(0).getAsJsonObject().has("text")) {
@@ -787,16 +798,30 @@ public class SourceGen {
         }
 
         if (kind.equals("ArrayType")) {
-            if (node.getAsJsonArray("dimensions").size() > 0 && node.has("ws")) {
+            if (node.has("dimensions") &&
+                    node.get("dimensions").getAsInt() > 0 &&
+                    node.has("ws")) {
                 String dimensionAsString = "";
-
+                JsonObject startingBracket = null;
+                JsonObject endingBracket = null;
+                StringBuilder content = new StringBuilder();
                 JsonArray ws = node.getAsJsonArray("ws");
                 for (int j = 0; j < ws.size(); j++) {
                     if (ws.get(j).getAsJsonObject().get("text").getAsString().equals("[")) {
-                        JsonObject startingBracket = ws.get(j).getAsJsonObject();
-                        JsonObject endingBracket = ws.get(j + 1).getAsJsonObject();
-                        dimensionAsString += startingBracket.get("ws").getAsString() + startingBracket.get("text").getAsString()
-                                + endingBracket.get("ws").getAsString() + endingBracket.get("text").getAsString();
+                        startingBracket = ws.get(j).getAsJsonObject();
+                    } else if (ws.get(j).getAsJsonObject().get("text").getAsString().equals("]")) {
+                        endingBracket = ws.get(j).getAsJsonObject();
+
+                        dimensionAsString += startingBracket.get("text").getAsString() + content.toString()
+                                + endingBracket.get("ws").getAsString()
+                                + endingBracket.get("text").getAsString();
+
+                        startingBracket = null;
+                        endingBracket = null;
+                        content = new StringBuilder();
+                    } else if (startingBracket != null) {
+                        content.append(ws.get(j).getAsJsonObject().get("ws").getAsString())
+                                .append(ws.get(j).getAsJsonObject().get("text").getAsString());
                     }
                 }
 

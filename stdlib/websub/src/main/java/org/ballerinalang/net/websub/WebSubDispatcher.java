@@ -23,7 +23,7 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
  * Dispatches incoming HTTP requests for WebSub Subscriber services to the correct resource.
@@ -39,7 +39,7 @@ class WebSubDispatcher extends HttpDispatcher {
      * @param inboundMessage incoming message.
      * @return matching resource.
      */
-     static HttpResource findResource(WebSubServicesRegistry servicesRegistry, HTTPCarbonMessage inboundMessage) {
+     static HttpResource findResource(WebSubServicesRegistry servicesRegistry, HttpCarbonMessage inboundMessage) {
         String protocol = (String) inboundMessage.getProperty(HttpConstants.PROTOCOL);
         if (protocol == null) {
             throw new BallerinaConnectorException("protocol not defined in the incoming request");

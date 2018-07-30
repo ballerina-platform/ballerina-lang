@@ -98,6 +98,13 @@ public class DocerinaMojo extends AbstractMojo {
     @Parameter(property = "debugDocerina", required = false)
     private boolean debugDocerina;
 
+    /**
+     * doc generation shouldn't make network call for pulling packages.
+     */
+    @Parameter(property = "offline", required = false)
+    private boolean offline;
+
+
     public void execute() throws MojoExecutionException {
         if (debugDocerina) {
             System.setProperty(BallerinaDocConstants.ENABLE_DEBUG_LOGS, "true");
@@ -124,8 +131,8 @@ public class DocerinaMojo extends AbstractMojo {
         }
 
         try {
-            BallerinaDocGenerator.generateApiDocs(sourceRoot, outputDir, packageFilter, nativeCode, sources.toArray
-                    (new String[sources.size()]));
+            BallerinaDocGenerator.generateApiDocs(sourceRoot, outputDir, packageFilter, nativeCode, offline,
+                    sources.toArray(new String[sources.size()]));
         } catch (Throwable e) {
             err.println(ExceptionUtils.getStackTrace(e));
         } finally {

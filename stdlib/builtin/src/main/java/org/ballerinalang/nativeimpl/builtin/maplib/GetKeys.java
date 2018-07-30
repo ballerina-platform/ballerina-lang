@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.Set;
 
 /**
- * Native function to get key arrays from the map.
+ * Extern function to get key arrays from the map.
  * ballerina.model.map:keys()
  */
 @BallerinaFunction(

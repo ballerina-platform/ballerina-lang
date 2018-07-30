@@ -28,7 +28,7 @@ import org.ballerinalang.net.http.AcceptEncodingConfig;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Locale;
 
@@ -61,14 +61,14 @@ public class Execute extends AbstractHTTPAction {
     }
 
     @Override
-    protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
+    protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
         // Extract Argument values
         BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
         String httpVerb = context.getStringArgument(0);
         String path = context.getStringArgument(1);
         BMap<String, BValue> requestStruct = ((BMap<String, BValue>) context.getRefArgument(1));
 
-        HTTPCarbonMessage outboundRequestMsg = HttpUtil
+        HttpCarbonMessage outboundRequestMsg = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
 
         HttpUtil.checkEntityAvailability(context, requestStruct);

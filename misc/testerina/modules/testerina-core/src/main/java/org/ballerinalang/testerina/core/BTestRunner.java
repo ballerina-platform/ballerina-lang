@@ -145,13 +145,16 @@ public class BTestRunner {
      * @param sourceFilePaths List of @{@link Path} of ballerina files
      */
     private void compileAndBuildSuites(String sourceRoot, Path[] sourceFilePaths, boolean buildWithTests)  {
-        if (sourceFilePaths.length == 0) {
-            return;
-        }
+        // We need a new line to show a clear separation between the outputs of 'Compiling Sources' and
+        // 'Compiling tests'
         if (buildWithTests) {
             outStream.println();
         }
-        outStream.println(sourceFilePaths.length > 0 ? "Compiling tests" : "Compiling test");
+        outStream.println("Compiling tests");
+        if (sourceFilePaths.length == 0) {
+            outStream.println("    No tests found");
+            return;
+        }
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
 
             String packageName = Utils.getFullPackageName(sourcePackage.toString());
@@ -202,19 +205,22 @@ public class BTestRunner {
      */
     private void execute(boolean buildWithTests) {
         Map<String, TestSuite> testSuites = registry.getTestSuites();
+        outStream.println();
+        outStream.println("Running tests");
         if (testSuites.isEmpty()) {
+            outStream.println("    No tests found");
+            // We need a new line to show a clear separation between the outputs of 'Running Tests' and
+            // 'Generating Executable'
             if (buildWithTests) {
-                return;
+                outStream.println();
             }
-            throw new BallerinaException("No test functions found in the provided ballerina files.");
+            return;
         }
 
         AtomicBoolean shouldSkip = new AtomicBoolean();
         LinkedList<String> keys = new LinkedList<>(testSuites.keySet());
         Collections.sort(keys);
 
-        outStream.println();
-        outStream.println("Running tests");
         keys.forEach(packageName -> {
             TestSuite suite = testSuites.get(packageName);
             if (packageName.equals(Names.DOT.value)) {
@@ -239,7 +245,7 @@ public class BTestRunner {
                     test.invoke();
                 } catch (Throwable e) {
                     shouldSkip.set(true);
-                    errorMsg = "\t✗ " + test.getName() + " [before test suite function]" + ":\n\t    "
+                    errorMsg = "\t[fail] " + test.getName() + " [before test suite function]" + ":\n\t    "
                             + Utils.formatError(e.getMessage());
                     errStream.println(errorMsg);
                 }
@@ -255,7 +261,7 @@ public class BTestRunner {
                             beforeEachTest.invoke();
                         } catch (Throwable e) {
                             shouldSkipTest.set(true);
-                            errorMsg = String.format("\t✗ " + beforeEachTest.getName() +
+                            errorMsg = String.format("\t[fail] " + beforeEachTest.getName() +
                                                      " [before each test function for the test %s] :\n\t    %s",
                                                      test.getTestFunction().getName(),
                                                      Utils.formatError(e.getMessage()));
@@ -272,7 +278,7 @@ public class BTestRunner {
                         }
                     } catch (Throwable e) {
                         shouldSkipTest.set(true);
-                        errorMsg = String.format("\t✗ " + test.getBeforeTestFunctionObj().getName() +
+                        errorMsg = String.format("\t[fail] " + test.getBeforeTestFunctionObj().getName() +
                                                  " [before test function for the test %s] :\n\t    %s",
                                                  test.getTestFunction().getName(),
                                                  Utils.formatError(e.getMessage()));
@@ -330,7 +336,7 @@ public class BTestRunner {
                         test.getAfterTestFunctionObj().invoke();
                     }
                 } catch (Throwable e) {
-                    error = String.format("\t✗ " + test.getAfterTestFunctionObj().getName() +
+                    error = String.format("\t[fail] " + test.getAfterTestFunctionObj().getName() +
                                           " [after test function for the test %s] :\n\t    %s",
                                           test.getTestFunction().getName(),
                                           Utils.formatError(e.getMessage()));
@@ -343,7 +349,7 @@ public class BTestRunner {
                     try {
                         afterEachTest.invoke();
                     } catch (Throwable e) {
-                        errorMsg2 = String.format("\t✗ " + afterEachTest.getName() +
+                        errorMsg2 = String.format("\t[fail] " + afterEachTest.getName() +
                                                   " [after each test function for the test %s] :\n\t    %s",
                                                   test.getTestFunction().getName(),
                                                   Utils.formatError(e.getMessage()));
@@ -359,8 +365,8 @@ public class BTestRunner {
                 try {
                     func.invoke();
                 } catch (Throwable e) {
-                    errorMsg = String.format("\t✗ " + func.getName() + " [after test suite function] :\n\t    %s",
-                                             Utils.formatError(e.getMessage()));
+                    errorMsg = String.format("\t[fail] " + func.getName() + " [after test suite function] :\n\t    " +
+                                                     "%s", Utils.formatError(e.getMessage()));
                     errStream.println(errorMsg);
                 }
             });

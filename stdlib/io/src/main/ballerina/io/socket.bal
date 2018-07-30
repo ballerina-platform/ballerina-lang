@@ -19,9 +19,9 @@ documentation {
     Represents a TCP socket.
 
     F{{channel}} ByteChannel which will represent the socket connection
-    F{{port}} Remote server connection port
+    F{{remotePort}} Remote server connection port
     F{{localPort}} Local port the socket connection should bound
-    F{{address}} IP/Host of the remote server
+    F{{remoteAddress}} IP/Host of the remote server
     F{{localAddress}} Local interface the connection should bound
 }
 public type Socket object {
@@ -39,42 +39,42 @@ public type Socket object {
     documentation {
         Initializes a socket.
     }
-    native function init();
+    extern function init();
 
     documentation {
         Binds socket to a local port.
 
         R{{}} An error if could not bind to the port
     }
-    public native function bindAddress(int port, string? interface = ()) returns error?;
+    public extern function bindAddress(@sensitive int port, @sensitive string? interface = ()) returns error?;
 
     documentation {
         Open a connection with remote server.
 
         R{{}} An error if could not connect with the remote server.
     }
-    public native function connect(@sensitive string host, @sensitive int port) returns error?;
+    public extern function connect(@sensitive string host, @sensitive int port) returns error?;
 
     documentation {
         Closes a socket connection.
 
         R{{}} An error if the connection could not be closed properly
     }
-    public native function close() returns error?;
+    public extern function close() returns error?;
 
     documentation {
         Shutdown the connection from reading. In this case content cannot be read from the server.
 
         R{{}} An error if the connection could not be shutdown properly
     }
-    public native function shutdownInput() returns error?;
+    public extern function shutdownInput() returns error?;
 
     documentation {
         Shutdown the connection from writing. In this case content cannot be written to the server.
 
         R{{}} An error if the connection could not be shutdown properly
     }
-    public native function shutdownOutput() returns error?;
+    public extern function shutdownOutput() returns error?;
 };
 
 documentation {
@@ -89,28 +89,28 @@ public type ServerSocket object {
     documentation {
         Initializes a server socket.
     }
-    native function init();
+    extern function init();
 
     documentation {
         Binds socket to a local port.
 
         R{{}} An error if could not bind to the port
     }
-    public native function bindAddress(int port, string? interface = ()) returns error?;
+    public extern function bindAddress(@sensitive int port, @sensitive string? interface = ()) returns error?;
 
     documentation {
         This blocking function will wait until new client socket connect.
 
         R{{}} An error if could not create new socket.
     }
-    public native function accept() returns @tainted Socket|error;
+    public extern function accept() returns Socket|error;
 
     documentation {
         Closes a socket connection.
 
         R{{}} An error if the connection could not be closed properly
     }
-    public native function close() returns error?;
+    public extern function close() returns error?;
 };
 
 documentation {
