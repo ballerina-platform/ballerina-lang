@@ -44,16 +44,16 @@ public class WebSocketPassThroughTestConnectionManager {
     }
 
     public void interRelateSessions(WebSocketConnection serverConnection, WebSocketConnection clientConnection) {
-        serverToClientConnectionMap.put(serverConnection.getId(), clientConnection);
-        clientToServerConnectionMap.put(clientConnection.getId(), serverConnection);
+        serverToClientConnectionMap.put(serverConnection.getChannelId(), clientConnection);
+        clientToServerConnectionMap.put(clientConnection.getChannelId(), serverConnection);
     }
 
     public WebSocketConnection getServerConnection(WebSocketConnection clientConnection) {
-        return clientToServerConnectionMap.get(clientConnection.getId());
+        return clientToServerConnectionMap.get(clientConnection.getChannelId());
     }
 
     public WebSocketConnection getClientConnection(WebSocketConnection serverConnection) {
-        return serverToClientConnectionMap.get(serverConnection.getId());
+        return serverToClientConnectionMap.get(serverConnection.getChannelId());
     }
 
 }

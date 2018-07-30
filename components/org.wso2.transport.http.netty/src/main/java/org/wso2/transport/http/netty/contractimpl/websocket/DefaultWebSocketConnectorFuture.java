@@ -25,7 +25,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorExcept
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 /**
@@ -41,9 +41,9 @@ public class DefaultWebSocketConnectorFuture implements WebSocketConnectorFuture
     }
 
     @Override
-    public void notifyWebSocketListener(WebSocketInitMessage initMessage) throws WebSocketConnectorException {
+    public void notifyWebSocketListener(WebSocketHandshaker webSocketHandshaker) throws WebSocketConnectorException {
         checkConnectorState();
-        wsConnectorListener.onMessage(initMessage);
+        wsConnectorListener.onHandshake(webSocketHandshaker);
     }
 
     @Override

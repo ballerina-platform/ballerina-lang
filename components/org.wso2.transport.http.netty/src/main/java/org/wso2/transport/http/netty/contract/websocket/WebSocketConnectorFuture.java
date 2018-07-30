@@ -33,10 +33,10 @@ public interface WebSocketConnectorFuture {
     /**
      * Notify WebSocket connection initialization for the listener.
      *
-     * @param initMessage {@link WebSocketInitMessage} to notify connection initialization
+     * @param webSocketHandshaker {@link WebSocketHandshaker} to notify connection initialization
      * @throws WebSocketConnectorException if any error occurred during the notification
      */
-    void notifyWebSocketListener(WebSocketInitMessage initMessage) throws WebSocketConnectorException;
+    void notifyWebSocketListener(WebSocketHandshaker webSocketHandshaker) throws WebSocketConnectorException;
 
     /**
      * Notify incoming WebSocket text message for the listener.

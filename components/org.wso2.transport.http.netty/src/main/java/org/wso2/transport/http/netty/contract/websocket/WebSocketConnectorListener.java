@@ -28,9 +28,9 @@ public interface WebSocketConnectorListener {
      * Trigger WebSocket handshake. This will initialize a client connection for WebSocket
      * server connector.
      *
-     * @param initMessage {@link WebSocketInitMessage} to initialize connection.
+     * @param webSocketHandshaker {@link WebSocketHandshaker} to initialize connection.
      */
-    void onMessage(WebSocketInitMessage initMessage);
+    void onHandshake(WebSocketHandshaker webSocketHandshaker);
 
     /**
      * Trigger incoming WebSocket text messages.
