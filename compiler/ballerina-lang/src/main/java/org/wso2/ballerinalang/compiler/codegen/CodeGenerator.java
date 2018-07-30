@@ -2680,23 +2680,23 @@ public class CodeGenerator extends BLangNodeVisitor {
         UTF8CPEntry keyCPEntry = new UTF8CPEntry(this.generateSig(new BType[] { keyType }));
         Operand keyCPIndex = getOperand(this.currentPkgInfo.addCPEntry(keyCPEntry));
 
-        BLangExpression lExpr = channelReceive.getReceiverExpr();
+        BLangExpression receiverExpr = channelReceive.getReceiverExpr();
         RegIndex regIndex;
         BType bType;
-        if (lExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && lExpr instanceof BLangLocalVarRef) {
-            lExpr.regIndex = ((BLangLocalVarRef) lExpr).varSymbol.varIndex;
-            regIndex = lExpr.regIndex;
+        if (receiverExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && receiverExpr instanceof BLangLocalVarRef) {
+            receiverExpr.regIndex = ((BLangLocalVarRef) receiverExpr).varSymbol.varIndex;
+            regIndex = receiverExpr.regIndex;
         } else {
-            lExpr.regIndex = getRegIndex(lExpr.type.tag);
-            lExpr.regIndex.isLHSIndex = true;
-            regIndex = lExpr.regIndex;
+            receiverExpr.regIndex = getRegIndex(receiverExpr.type.tag);
+            receiverExpr.regIndex.isLHSIndex = true;
+            regIndex = receiverExpr.regIndex;
         }
-        bType = lExpr.type;
+        bType = receiverExpr.type;
 
         UTF8CPEntry sigCPEntry = new UTF8CPEntry(this.generateSig(new BType[] { bType }));
         Operand sigCPIndex = getOperand(currentPkgInfo.addCPEntry(sigCPEntry));
 
-        // WRKRECEIVE  receivertypesCPIndex regIndex keyTypeCPindex jeyregIndex
+        // CHNRECEIVE  channeleName,receiverTypeCPIndex, receiverRegIndex, keyTypeCPIndex, keyRegIndex
         Operand[] chnReceiveArgRegs = new Operand[5];
         int i = 0;
         int chnName = addUTF8CPEntry(currentPkgInfo, channelReceive.getChannelName().getValue());
@@ -2707,13 +2707,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         chnReceiveArgRegs[i++] = keyReg;
 
         emit(InstructionCodes.CHNRECEIVE, chnReceiveArgRegs);
-
-        if (!(lExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
-                lExpr instanceof BLangLocalVarRef)) {
-            this.varAssignment = true;
-            this.genNode(lExpr, this.env);
-            this.varAssignment = false;
-        }
     }
 
     public void visit(BLangChannelSend channelSend) {
@@ -2729,6 +2722,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         UTF8CPEntry dataCPEntry = new UTF8CPEntry(this.generateSig(new BType[] { dataType }));
         Operand dataCPIndex = getOperand(this.currentPkgInfo.addCPEntry(dataCPEntry));
 
+        //CHNSEND ahannelName, keyIndex, keyTypeCPIndex, dataIndex, dataTypeCPIndex
         int channelName = addUTF8CPEntry(currentPkgInfo, channelSend.getChannelName().getValue());
         int i = 0;
         Operand[] argRegs = new Operand[5];

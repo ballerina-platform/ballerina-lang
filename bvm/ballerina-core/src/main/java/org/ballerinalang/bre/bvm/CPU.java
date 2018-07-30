@@ -809,6 +809,16 @@ public class CPU {
         }
     }
 
+    /**
+     * Handle sending a message to a channel. If there is a worker already waiting to accept this message, it is
+     * resumed.
+     * @param ctx Current worker context
+     * @param channelName Name os the channel to get the message
+     * @param dataType Type od the message
+     * @param dataReg Registry location of the message
+     * @param keyType Type of message key
+     * @param keyReg message key registry index
+     */
     private static void handleCHNSend(WorkerExecutionContext ctx, String channelName, BType dataType, int dataReg,
             BType keyType, int keyReg) {
         BRefType keyVal = extractValue(ctx.workerLocal, keyType, keyReg);
@@ -822,6 +832,17 @@ public class CPU {
         return;
     }
 
+    /**
+     * Handles message receiving using a channel.
+     * If the expected message is already available, it is assigned to the receiver reg and returns true.
+     * @param ctx Current worker context
+     * @param channelName Name os the channel to get the message
+     * @param receiverType Type of the expected message
+     * @param receiverReg Registry index of the receiving message
+     * @param keyType Type of message key
+     * @param keyIndex message key registry index
+     * @return true if a matching value is available
+     */
     private static boolean handleCHNReceive(WorkerExecutionContext ctx, String channelName, BType receiverType,
             int receiverReg, BType keyType, int keyIndex) {
         BValue keyVal = extractValue(ctx.workerLocal, keyType, keyIndex);

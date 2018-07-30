@@ -52,10 +52,8 @@ public class ChannelRegistry {
 
     public void addWaitingContext(String channel, BValue key, WorkerExecutionContext ctx, int regIndex) {
         Map<BValue, LinkedList<PendingContext>> channelEntries = channelList.get(channel);
-        LinkedList<PendingContext> ctxList = channelEntries.get(key);
-        if (ctxList == null) {
-            ctxList = new LinkedList<>();
-        }
+        LinkedList<PendingContext> ctxList = channelEntries.computeIfAbsent(key, bValue -> new LinkedList<>());
+
         PendingContext pContext = new PendingContext();
         pContext.regIndex = regIndex;
         pContext.context = ctx;

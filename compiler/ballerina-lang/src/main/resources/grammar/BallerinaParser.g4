@@ -501,7 +501,7 @@ workerReply
     ;
 
 channelReceiveStatement
-    : expression LARROW Identifier COMMA expression SEMICOLON
+    : expression LARROW Identifier (COMMA expression)? SEMICOLON
     ;
 
 channelSendStatement

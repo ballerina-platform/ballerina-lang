@@ -60,6 +60,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BChannelType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -1515,10 +1516,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (symTable.notFoundSymbol.equals(channelSymbol)) {
             dlog.error(node.pos, DiagnosticCode.UNDEFINED_SYMBOL, node.getChannelName().getValue());
         }
+        boolean isChannel = true;
         if (TypeTags.CHANNEL != channelSymbol.type.tag) {
+            isChannel = false;
             dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.channelType, channelSymbol.type);
         }
-        typeChecker.checkExpr(node.getReceiverExpr(), env);
+        typeChecker.checkExpr(node.getReceiverExpr(), env); //check for constraint type
+        if (isChannel) {
+            int constraintTag = ((BChannelType) channelSymbol.type).constraint.tag;
+            if (node.getReceiverExpr().type.tag != constraintTag) {
+                dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, constraintTag, node.getReceiverExpr().type.tag);
+            }
+        }
         typeChecker.checkExpr(node.getKey(), env);
 
     }
@@ -1529,12 +1538,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (symTable.notFoundSymbol.equals(channelSymbol)) {
             dlog.error(node.pos, DiagnosticCode.UNDEFINED_SYMBOL, node.getChannelName().getValue());
         }
+        boolean isChannel = true;
         if (TypeTags.CHANNEL != channelSymbol.type.tag) {
             dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.channelType, channelSymbol.type);
+            isChannel = false;
         }
         typeChecker.checkExpr(node.getKey(), env);
         typeChecker.checkExpr(node.getDataExpr(), env);
-
+        if (isChannel) {
+            int constraintTag = ((BChannelType) channelSymbol.type).constraint.tag;
+            if (node.getDataExpr().type.tag != constraintTag) {
+                dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, constraintTag, node.getDataExpr().type.tag);
+            }
+        }
     }
 
     // Private methods
