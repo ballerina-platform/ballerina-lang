@@ -2946,6 +2946,10 @@ public class CPU {
             rhsType = rhsValue.getType();
         }
 
+        if (isSameOrAnyType(rhsType, lhsType)) {
+            return true;
+        }
+
         if (rhsType.getTag() == TypeTags.INT_TAG && lhsType.getTag() == TypeTags.BYTE_TAG) {
             return isByteLiteral(((BInteger) rhsValue).intValue());
         }
@@ -2982,10 +2986,21 @@ public class CPU {
         return checkCastByType(rhsType, lhsType);
     }
 
+    /**
+     * This method is for use as the first check in checking for cast/assignability for two types.
+     * Checks whether the source type is the same as the target type or if the target type is any type, and if true
+     * the return value would be true.
+     *
+     * @param rhsType   the source type - the type (of the value) being cast/assigned
+     * @param lhsType   the target type against which cast/assignability is checked
+     * @return          true if the lhsType is any or is the same as rhsType
+     */
+    private static boolean isSameOrAnyType(BType rhsType, BType lhsType) {
+        return lhsType.getTag() == TypeTags.ANY_TAG || rhsType.equals(lhsType);
+    }
+
     private static boolean checkCastByType(BType rhsType, BType lhsType) {
-        if (rhsType.equals(lhsType)) {
-            return true;
-        } else if (rhsType.getTag() == TypeTags.INT_TAG &&
+        if (rhsType.getTag() == TypeTags.INT_TAG &&
                 (lhsType.getTag() == TypeTags.JSON_TAG || lhsType.getTag() == TypeTags.FLOAT_TAG)) {
             return true;
         } else if (rhsType.getTag() == TypeTags.FLOAT_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
@@ -3001,10 +3016,6 @@ public class CPU {
         if ((rhsType.getTag() == TypeTags.OBJECT_TYPE_TAG || rhsType.getTag() == TypeTags.RECORD_TYPE_TAG)
                 && (lhsType.getTag() == TypeTags.OBJECT_TYPE_TAG || lhsType.getTag() == TypeTags.RECORD_TYPE_TAG)) {
             return checkStructEquivalency((BStructureType) rhsType, (BStructureType) lhsType);
-        }
-
-        if (lhsType.getTag() == TypeTags.ANY_TAG) {
-            return true;
         }
 
         if (rhsType.getTag() == TypeTags.MAP_TAG && lhsType.getTag() == TypeTags.MAP_TAG) {
@@ -3760,6 +3771,10 @@ public class CPU {
     }
 
     public static boolean isAssignable(BType sourceType, BType targetType) {
+        if (isSameOrAnyType(sourceType, targetType)) {
+            return true;
+        }
+
         if (targetType.getTag() == TypeTags.UNION_TAG) {
             return checkUnionAssignable(sourceType, targetType);
         }
