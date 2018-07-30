@@ -51,21 +51,21 @@ public type Request object {
 
         R{{}} Newly created `Entity` that has been set to the request
     }
-    native function createNewEntity() returns mime:Entity;
+    extern function createNewEntity() returns mime:Entity;
 
     documentation {
         Sets the provided `Entity` to the request.
 
         P{{e}} The `Entity` to be set to the request
     }
-    public native function setEntity(mime:Entity e);
+    public extern function setEntity(mime:Entity e);
 
     documentation {
         Gets the query parameters of the request, as a map.
 
         R{{}} String map of query params
     }
-    public native function getQueryParams() returns map<string>;
+    public extern function getQueryParams() returns map<string>;
 
     documentation {
         Gets the matrix parameters of the request.
@@ -73,17 +73,17 @@ public type Request object {
         P{{path}} Path to the location of matrix parameters
         R{{}} A map of matrix paramters which can be found for the given path
     }
-    public native function getMatrixParams(string path) returns map;
+    public extern function getMatrixParams(string path) returns map;
 
     documentation {
         Gets the `Entity` associated with the request.
 
         R{{}} The `Entity` of the request. An `error` is returned, if entity construction fails
     }
-    public native function getEntity() returns mime:Entity|error;
+    public extern function getEntity() returns mime:Entity|error;
 
     //Gets the `Entity` from the request without the body. This function is exposed only to be used internally.
-    native function getEntityWithoutBody() returns mime:Entity;
+    extern function getEntityWithoutBody() returns mime:Entity;
 
     documentation {
         Checks whether the requested header key exists in the header map.

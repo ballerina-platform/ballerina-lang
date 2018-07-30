@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 
 /**
- * Native function ballerina.transactions:GetCurrentTransactionId.
+ * Extern function ballerina.transactions:GetCurrentTransactionId.
  *
  * @since 0.970.0
  */

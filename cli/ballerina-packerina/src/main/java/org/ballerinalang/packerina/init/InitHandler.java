@@ -130,34 +130,47 @@ public class InitHandler {
         if (null != srcFiles && srcFiles.size() > 0) {
             for (SrcFile srcFile : srcFiles) {
                 Path packagePath = projectPath.resolve(srcFile.getName());
-                if (srcFile.getSrcFileType().equals(FileType.MAIN_TEST) || srcFile.getSrcFileType()
-                                                                                  .equals(FileType.SERVICE_TEST)) {
-                    // Ignore top level tests created
-                    if (!Files.isSameFile(projectPath, packagePath)) {
-                        Path testDirPath = packagePath.resolve("tests");
-                        if (!Files.exists(testDirPath)) {
-                            Files.createDirectory(testDirPath);
-                        }
-                        Path testFilePath = testDirPath.resolve(srcFile.getSrcFileType().getFileName());
-                        if (!Files.exists(testFilePath)) {
-                            Files.createFile(testFilePath);
-                            writeContent(testFilePath, srcFile.getSrcFileType().getContent());
-                        }
-                    }
+                if ((srcFile.getSrcFileType().equals(FileType.MAIN_TEST) ||
+                        srcFile.getSrcFileType().equals(FileType.SERVICE_TEST)) &&
+                        !Files.isSameFile(projectPath, packagePath)) {
+                    Path testDirPath = packagePath.resolve("tests");
+                    createDirectory(testDirPath);
+                    Path testFilePath = testDirPath.resolve(srcFile.getSrcFileType().getFileName());
+                    createAndWriteToFile(testFilePath, srcFile.getSrcFileType().getContent());
                 } else {
-                    if (!Files.exists(packagePath)) {
-                        Files.createDirectory(packagePath);
-                    }
+                    createDirectory(packagePath);
                     Path srcFilePath = packagePath.resolve(srcFile.getSrcFileType().getFileName());
-                    if (!Files.exists(srcFilePath)) {
-                        Files.createFile(srcFilePath);
-                        writeContent(srcFilePath, srcFile.getSrcFileType().getContent());
-                    }
+                    createAndWriteToFile(srcFilePath, srcFile.getSrcFileType().getContent());
                 }
             }
         }
     }
-    
+
+    /**
+     * Create directory.
+     *
+     * @param dirPath directory path.
+     * @throws IOException If exception occurs when creating a directory.
+     */
+    private static void createDirectory(Path dirPath) throws IOException {
+        if (!Files.exists(dirPath)) {
+            Files.createDirectory(dirPath);
+        }
+    }
+
+    /**
+     * Create source file and write content.
+     *
+     * @param filePath source file path.
+     * @param content  content to be written.
+     * @throws IOException If exception occurs when creating and writing to file.
+     */
+    private static void createAndWriteToFile(Path filePath, String content) throws IOException {
+        if (!Files.exists(filePath)) {
+            Files.createFile(filePath);
+            writeContent(filePath, content);
+        }
+    }
     /**
      * Creates the .gitignore file.
      *

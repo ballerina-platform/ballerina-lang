@@ -16,10 +16,15 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.io.socket.server;
+package org.ballerinalang.stdlib.io.socket;
 
 import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
 import org.ballerinalang.stdlib.io.events.EventExecutor;
+import org.ballerinalang.stdlib.io.socket.client.SocketConnectCallbackRegistry;
+import org.ballerinalang.stdlib.io.socket.server.SocketAcceptCallback;
+import org.ballerinalang.stdlib.io.socket.server.SocketAcceptCallbackQueue;
+import org.ballerinalang.stdlib.io.socket.server.SocketIOExecutorQueue;
+import org.ballerinalang.stdlib.io.socket.server.SocketQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,14 +71,18 @@ public class SelectorManager {
      * Start the selector loop.
      */
     public static void start() {
-        SocketAcceptCallbackQueue acceptCallbackQueue = SocketAcceptCallbackQueue.getInstance();
-        SocketIOExecutorQueue ioQueue = SocketIOExecutorQueue.getInstance();
-        SocketQueue socketQueue = SocketQueue.getInstance();
         if (!running) {
+            SocketAcceptCallbackQueue acceptCallbackQueue = SocketAcceptCallbackQueue.getInstance();
+            SocketIOExecutorQueue ioQueue = SocketIOExecutorQueue.getInstance();
+            SocketQueue socketQueue = SocketQueue.getInstance();
+            SocketConnectCallbackRegistry connectCallbackRegistry = SocketConnectCallbackRegistry.getInstance();
             executor.execute(() -> {
                 while (execution) {
                     try {
                         selector.select(2000);
+                        if (!selector.isOpen()) {
+                            break;
+                        }
                         Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
                         while (keyIterator.hasNext()) {
                             SelectionKey key = keyIterator.next();
@@ -88,7 +97,7 @@ public class SelectorManager {
                                 keyIterator.remove();
                             } else if (key.isReadable()) {
                                 if (log.isDebugEnabled()) {
-                                    log.debug("Selector triggered for client read read.");
+                                    log.debug("Selector triggered for client read ready.");
                                 }
                                 final boolean readDispatchSuccess = readData(key, ioQueue);
                                 if (readDispatchSuccess) {
@@ -97,15 +106,35 @@ public class SelectorManager {
                                     }
                                     keyIterator.remove();
                                 }
+                            } else if (key.isConnectable()) {
+                                if (log.isDebugEnabled()) {
+                                    log.debug("Selector triggered for socket connectable.");
+                                }
+                                if (isConnectPending(connectCallbackRegistry, key)) {
+                                    continue;
+                                }
+                                keyIterator.remove();
                             }
                         }
                     } catch (Throwable e) {
-                        log.error("An error occurred selector loop: " + e.getMessage(), e);
+                        log.error("An error occurred in selector loop: " + e.getMessage(), e);
                     }
                 }
             });
             running = true;
         }
+    }
+
+    private static boolean isConnectPending(SocketConnectCallbackRegistry connectCallbackRegistry, SelectionKey key)
+            throws IOException {
+        SocketChannel channel = (SocketChannel) key.attachment();
+        if (!channel.finishConnect()) {
+            return true;
+        }
+        log.debug("Successfully connected to the remote server.");
+        channel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+        connectCallbackRegistry.getCallback(channel.hashCode()).notifyConnect();
+        return false;
     }
 
     private static void handleAccept(SelectionKey key, SocketAcceptCallbackQueue acceptCallbackQueue,
@@ -161,7 +190,9 @@ public class SelectorManager {
             }
             execution = false;
             running = false;
+            selector.wakeup();
             selector.close();
+            Thread.sleep(1500);
             executor.shutdownNow();
         } catch (Throwable e) {
             log.error("Error occurred while stopping the selector loop: " + e.getMessage(), e);

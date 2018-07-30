@@ -28,7 +28,7 @@ import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.net.InetSocketAddress;
@@ -53,7 +53,7 @@ public class ServiceEndpointTest {
         String protocolValue = "http";
         String path = "/hello/protocol";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 200);
@@ -70,7 +70,7 @@ public class ServiceEndpointTest {
         String expectedPort = "9090";
         String expectedMessage = "{\"local\":{\"host\":\"" + expectedHost + "\",\"port\":9090}}";
 
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 200);

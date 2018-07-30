@@ -26,7 +26,7 @@ import MonacoEditor from 'react-monaco-editor';
  * File Open Wizard Dialog
  * @extends React.Component
  */
-class ImportStructDialog extends React.Component {
+class ImportRecordDialog extends React.Component {
 
     /**
      * @inheritdoc
@@ -49,16 +49,16 @@ class ImportStructDialog extends React.Component {
 
     /**
      * Setting the default file path on the dialog if not set in history.
-     * @memberof ImportStructDialog
+     * @memberof ImportRecordDialog
      */
     componentDidMount() {
     }
 
     /**
-     * Called when user clicks 'Import Struct' menu item.
+     * Called when user clicks 'Import Recrod' menu item.
      */
     onImportJson() {
-        if (this.props.onImport(this.state.json, this.state.structName, this.state.removeDefaults)) {
+        if (this.props.onImport(this.state.json, this.state.recordName, this.state.removeDefaults)) {
             this.setState({
                 error: '',
                 json: '',
@@ -144,18 +144,18 @@ class ImportStructDialog extends React.Component {
                         this.onImportJson();
                     }}
                 >
-                    <Form.Group controlId='structName' inline className='inverted'>
-                        <Form.Field width={3} htmlFor='structName'>
+                    <Form.Group controlId='recordName' inline className='inverted'>
+                        <Form.Field width={3} htmlFor='recordName'>
                             <label>Record Name</label>
                         </Form.Field>
                         <Form.Field width={12} className='inverted'>
                             <Input
                                 type='text'
-                                value={this.state.structName}
+                                value={this.state.recordName}
                                 onChange={(evt) => {
                                     this.setState({
                                         error: '',
-                                        structName: evt.target.value,
+                                        recordName: evt.target.value,
                                     });
                                 }}
                             />
@@ -224,8 +224,8 @@ class ImportStructDialog extends React.Component {
     }
 }
 
-ImportStructDialog.propTypes = {
+ImportRecordDialog.propTypes = {
     onImport: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
-export default ImportStructDialog;
+export default ImportRecordDialog;
