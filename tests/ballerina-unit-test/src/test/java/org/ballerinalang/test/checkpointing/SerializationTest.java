@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.checkpointing;
 
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.persistence.states.State;
@@ -51,6 +52,7 @@ import java.util.List;
 public class SerializationTest {
 
     private static final String STATE_ID = "test123";
+    public static final String INSTANCE_ID = "2334";
     private CompileResult compileResult;
     private List<State> stateList;
     private String serializedString;
@@ -75,6 +77,14 @@ public class SerializationTest {
     public void testSerialize() {
         PersistenceStore.persistState(stateList.get(0));
         Assert.assertTrue(serializedString.contains(STATE_ID));
+    }
+
+    @Test(description = "Test case for JsonSerializer using mocked WorkerExecutionContext object.")
+    public void testJsonSerializerWithMockedWorkerExecutionContex() {
+        WorkerExecutionContext weContext = new WorkerExecutionContext(compileResult.getProgFile());
+        State state = new State(weContext, INSTANCE_ID);
+        PersistenceStore.persistState(state);
+        Assert.assertTrue(serializedString.contains(INSTANCE_ID));
     }
 
     /**

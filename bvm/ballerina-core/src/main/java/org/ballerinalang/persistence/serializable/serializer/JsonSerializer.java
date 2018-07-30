@@ -18,11 +18,12 @@ package org.ballerinalang.persistence.serializable.serializer;
 
 import com.google.common.collect.Lists;
 import org.ballerinalang.model.util.JsonNode;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.persistence.serializable.SerializableState;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -240,6 +241,10 @@ public class JsonSerializer implements StateSerializer {
 
     @Override
     public SerializableState deserialize(byte[] bytes) {
-        return null;
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
+        InputStreamReader inputStreamReader = new InputStreamReader(byteArrayInputStream, StandardCharsets.UTF_8);
+        JsonNode jsonNode = JsonParser.parse(inputStreamReader);
+        JsonDeserializer jsonDeserializer = new JsonDeserializer(jsonNode);
+        return jsonDeserializer.deserialize();
     }
 }

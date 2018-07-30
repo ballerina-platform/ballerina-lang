@@ -33,6 +33,7 @@ import org.testng.annotations.Test;
 import java.util.Arrays;
 
 public class JsonSerializerTest {
+    public static final String INSTANCE_ID = "ABC123";
     private CompileResult compileResult;
     private TestStorageProvider storageProvider;
 
@@ -47,7 +48,6 @@ public class JsonSerializerTest {
 
     @Test(description = "Test serializing simple mocked SerializableState object")
     public void jsonSerializerWithMockedSerializableState() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/checkpointing/checkpoint.bal");
         WorkerExecutionContext weContext = new WorkerExecutionContext(compileResult.getProgFile());
         SerializableState serializableState = new SerializableState(weContext);
         mock(serializableState);
@@ -56,6 +56,18 @@ public class JsonSerializerTest {
         Assert.assertTrue(json.contains("\"Item-1\",\"Item-2\",\"Item-3\""));
         Assert.assertTrue(json.contains("\"var_r1\":{"));
         Assert.assertTrue(json.contains("bmap_str_val"));
+    }
+
+    @Test(description = "Test deserialization of JSON into SerializableState object")
+    public void jsonDeserializeSerializableState() {
+        WorkerExecutionContext weContext = new WorkerExecutionContext(compileResult.getProgFile());
+        SerializableState serializableState = new SerializableState(weContext);
+        serializableState.setInstanceId(INSTANCE_ID);
+        mock(serializableState);
+        String json = serializableState.serialize();
+
+        SerializableState state = serializableState.deserialize(json);
+        Assert.assertEquals(state.instanceId, INSTANCE_ID);
     }
 
     private void mock(SerializableState serializableState) {
