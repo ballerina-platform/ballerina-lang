@@ -24,7 +24,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
@@ -35,7 +35,7 @@ import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
  */
 public class WebSubUtils {
 
-    public static BMap<String, BValue> getHttpRequest(ProgramFile programFile, HTTPCarbonMessage httpCarbonMessage) {
+    public static BMap<String, BValue> getHttpRequest(ProgramFile programFile, HttpCarbonMessage httpCarbonMessage) {
         BMap<String, BValue> httpRequest =
                 createBStruct(programFile, HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.REQUEST);
         BMap<String, BValue> inRequestEntity = createBStruct(programFile, PROTOCOL_PACKAGE_MIME, ENTITY);

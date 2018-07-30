@@ -27,7 +27,7 @@ import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.util.concurrent.ExecutorService;
@@ -66,7 +66,7 @@ public class LocksInServicesTest {
             }
             String path = "/sample/getCount";
             HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-            HTTPCarbonMessage response = Services.invokeNew(compileResult, MOCK_ENDPOINT_NAME, cMsg);
+            HttpCarbonMessage response = Services.invokeNew(compileResult, MOCK_ENDPOINT_NAME, cMsg);
 
             Assert.assertNotNull(response, "Response message not found");
             String responseMsgPayload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response)
@@ -96,7 +96,7 @@ public class LocksInServicesTest {
             }
             String path = "/sample1/getResult";
             HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-            HTTPCarbonMessage response = Services.invokeNew(compileResult, MOCK_ENDPOINT_NAME, cMsg);
+            HttpCarbonMessage response = Services.invokeNew(compileResult, MOCK_ENDPOINT_NAME, cMsg);
 
             Assert.assertNotNull(response, "Response message not found");
             String responseMsgPayload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response)
@@ -126,7 +126,7 @@ public class LocksInServicesTest {
             }
             String path = "/sample2/getResult";
             HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-            HTTPCarbonMessage response = Services.invokeNew(compileResult, MOCK_ENDPOINT_NAME, cMsg);
+            HttpCarbonMessage response = Services.invokeNew(compileResult, MOCK_ENDPOINT_NAME, cMsg);
 
             Assert.assertNotNull(response, "Response message not found");
             String responseMsgPayload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response)
@@ -152,7 +152,7 @@ public class LocksInServicesTest {
             }
             String path = "/sample3/getMsg";
             HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-            HTTPCarbonMessage response = Services.invokeNew(compileResult, MOCK_ENDPOINT_NAME, cMsg);
+            HttpCarbonMessage response = Services.invokeNew(compileResult, MOCK_ENDPOINT_NAME, cMsg);
 
             Assert.assertNotNull(response, "Response message not found");
             String responseMsgPayload = StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response)

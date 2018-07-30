@@ -38,7 +38,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -66,7 +66,7 @@ public class HttpDispatcher {
 
     private static final Logger breLog = LoggerFactory.getLogger(HttpDispatcher.class);
 
-    protected static HttpService findService(HTTPServicesRegistry servicesRegistry, HTTPCarbonMessage inboundReqMsg) {
+    protected static HttpService findService(HTTPServicesRegistry servicesRegistry, HttpCarbonMessage inboundReqMsg) {
         try {
             Map<String, HttpService> servicesOnInterface;
             List<String> sortedServiceURIs;
@@ -106,7 +106,7 @@ public class HttpDispatcher {
         }
     }
 
-    private static void setInboundReqProperties(HTTPCarbonMessage inboundReqMsg, URI requestUri, String basePath) {
+    private static void setInboundReqProperties(HttpCarbonMessage inboundReqMsg, URI requestUri, String basePath) {
         String subPath = URIUtil.getSubPath(requestUri.getPath(), basePath);
         inboundReqMsg.setProperty(HttpConstants.BASE_PATH, basePath);
         inboundReqMsg.setProperty(HttpConstants.SUB_PATH, subPath);
@@ -125,7 +125,7 @@ public class HttpDispatcher {
         return requestUri;
     }
 
-    private static String getInterface(HTTPCarbonMessage inboundRequest) {
+    private static String getInterface(HttpCarbonMessage inboundRequest) {
         String interfaceId = (String) inboundRequest.getProperty(HttpConstants.LISTENER_INTERFACE_ID);
         if (interfaceId == null) {
             if (breLog.isDebugEnabled()) {
@@ -143,7 +143,7 @@ public class HttpDispatcher {
      * @param inboundMessage incoming message.
      * @return matching resource.
      */
-    public static HttpResource findResource(HTTPServicesRegistry servicesRegistry, HTTPCarbonMessage inboundMessage) {
+    public static HttpResource findResource(HTTPServicesRegistry servicesRegistry, HttpCarbonMessage inboundMessage) {
         String protocol = (String) inboundMessage.getProperty(HttpConstants.PROTOCOL);
         if (protocol == null) {
             throw new BallerinaConnectorException("protocol not defined in the incoming request");
@@ -164,7 +164,7 @@ public class HttpDispatcher {
         }
     }
 
-    public static BValue[] getSignatureParameters(HttpResource httpResource, HTTPCarbonMessage httpCarbonMessage,
+    public static BValue[] getSignatureParameters(HttpResource httpResource, HttpCarbonMessage httpCarbonMessage,
                                                   Struct endpointConfig) {
         //TODO Think of keeping struct type globally rather than creating for each request
         ProgramFile programFile =

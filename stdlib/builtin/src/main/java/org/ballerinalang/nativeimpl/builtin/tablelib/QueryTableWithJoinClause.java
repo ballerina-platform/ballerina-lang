@@ -51,7 +51,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeKind.TABLE)})
 public class QueryTableWithJoinClause extends BlockingNativeCallableUnit {
     /**
-     * Where Native Function logic is implemented.
+     * Where extern function logic is implemented.
      *
      * @param context Current Context instance
      */

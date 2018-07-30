@@ -24,7 +24,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
  * {@code Delete} is the DELETE action implementation of the HTTP Connector.
@@ -53,8 +53,8 @@ public class Delete extends AbstractHTTPAction {
         executeNonBlockingAction(dataContext, false);
     }
 
-    protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
-        HTTPCarbonMessage outboundRequestMsg = super.createOutboundRequestMsg(context);
+    protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
+        HttpCarbonMessage outboundRequestMsg = super.createOutboundRequestMsg(context);
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_DELETE);
         return outboundRequestMsg;
     }

@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.math:negateExact.
+ * Extern function ballerina.math:negateExact.
  *
  * @since 0.94
  */

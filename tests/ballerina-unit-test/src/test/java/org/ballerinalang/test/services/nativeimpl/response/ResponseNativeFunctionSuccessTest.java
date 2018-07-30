@@ -44,7 +44,7 @@ import org.ballerinalang.test.services.testutils.TestEntityUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_FORM;
@@ -119,7 +119,7 @@ public class ResponseNativeFunctionSuccessTest {
         String value = "ballerina";
         String path = "/hello/addheader/" + key + "/" + value;
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -153,7 +153,7 @@ public class ResponseNativeFunctionSuccessTest {
     public void testGetContentLength() {
         BMap<String, BValue> inResponse =
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResStruct);
-        HTTPCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
+        HttpCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
 
         String payload = "ballerina";
         inResponseMsg.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(payload.length()));
@@ -179,7 +179,7 @@ public class ResponseNativeFunctionSuccessTest {
     public void testGetHeader() {
         BMap<String, BValue> inResponse =
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResStruct);
-        HTTPCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
+        HttpCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         inResponseMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_FORM);
         inResponseMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 200);
         HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
@@ -205,7 +205,7 @@ public class ResponseNativeFunctionSuccessTest {
         String value = "test-header-value";
         String path = "/hello/getHeader/" + "test-header-name" + "/" + value;
         HTTPTestRequest inRequest = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequest);
+        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequest);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -217,7 +217,7 @@ public class ResponseNativeFunctionSuccessTest {
     public void testGetHeaders() {
         BMap<String, BValue> inResponse =
                 BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResStruct);
-        HTTPCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
+        HttpCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         HttpHeaders headers = inResponseMsg.getHeaders();
         headers.set("test-header", APPLICATION_FORM);
         headers.add("test-header", TEXT_PLAIN);
@@ -265,7 +265,7 @@ public class ResponseNativeFunctionSuccessTest {
         String value = "ballerina";
         String path = "/hello/getJsonPayload/" + value;
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HTTPCarbonMessage responseMsg = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage responseMsg = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
 
         Assert.assertNotNull(responseMsg, "Response message not found");
         BValue json = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
@@ -296,7 +296,7 @@ public class ResponseNativeFunctionSuccessTest {
         String value = "ballerina";
         String path = "/hello/GetTextPayload/" + value;
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(
@@ -327,7 +327,7 @@ public class ResponseNativeFunctionSuccessTest {
         String value = "ballerina";
         String path = "/hello/GetXmlPayload";
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         String returnvalue =
@@ -339,7 +339,7 @@ public class ResponseNativeFunctionSuccessTest {
     public void testForwardMethod() {
         String path = "/hello/11";
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
     }
 
@@ -399,7 +399,7 @@ public class ResponseNativeFunctionSuccessTest {
         String value = "x-www-form-urlencoded";
         String path = "/hello/RemoveHeader/Content-Type/" + value;
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -440,7 +440,7 @@ public class ResponseNativeFunctionSuccessTest {
     public void testServiceRemoveAllHeaders() {
         String path = "/hello/RemoveAllHeaders";
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -452,7 +452,7 @@ public class ResponseNativeFunctionSuccessTest {
     public void testRespondMethod() {
         String path = "/hello/11";
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
         Assert.assertNotNull(response, "Response message not found");
     }
 
@@ -495,7 +495,7 @@ public class ResponseNativeFunctionSuccessTest {
         String phase = "ballerina";
         String path = "/hello/12/" + phase;
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(HttpConstants.HTTP_REASON_PHRASE), phase);
@@ -505,7 +505,7 @@ public class ResponseNativeFunctionSuccessTest {
     public void testSetStatusCode() {
         String path = "/hello/13";
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
-        HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+        HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(response.getProperty(HttpConstants.HTTP_STATUS_CODE), 203);

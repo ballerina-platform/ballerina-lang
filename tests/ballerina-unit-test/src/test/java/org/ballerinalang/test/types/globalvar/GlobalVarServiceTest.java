@@ -30,7 +30,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 /**
@@ -50,7 +50,7 @@ public class GlobalVarServiceTest {
     @Test(description = "Test defining global variables in services")
     public void testDefiningGlobalVarInService() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar/defined", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"glbVarInt":800, "glbVarString":"value", "glbVarFloat":99.34323}
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -62,7 +62,7 @@ public class GlobalVarServiceTest {
     @Test(description = "Test accessing global variables in service level")
     public void testAccessingGlobalVarInServiceLevel() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar/access-service-level", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"serviceVarFloat":99.34323}
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -72,7 +72,7 @@ public class GlobalVarServiceTest {
     @Test(description = "Test changing global variables in resource level")
     public void testChangingGlobalVarInResourceLevel() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar/change-resource-level", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"glbVarFloatChange":77.87}
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -85,7 +85,7 @@ public class GlobalVarServiceTest {
         Services.invokeNew(result, MOCK_ENDPOINT_NAME, cMsgChange);
 
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar/get-changed-resource-level", "GET");
-        HTTPCarbonMessage response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"glbVarFloatChange":77.87}
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -99,7 +99,7 @@ public class GlobalVarServiceTest {
 
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar-second/get-changed-resource-level",
                                                                   "GET");
-        HTTPCarbonMessage response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, cMsg);
+        HttpCarbonMessage response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"glbVarFloatChange":77.87}
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());

@@ -36,7 +36,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
 /**
- * Native function to accept new Client socket.
+ * Extern function to accept new Client socket.
  *
  * @since 0.971.1
  */

@@ -19,18 +19,18 @@ documentation {
 
     R{{}} true if the future is done; false otherwise
 }
-public native function future::isDone() returns boolean;
+public extern function future::isDone() returns boolean;
 
 documentation {
     Checks if the given future is cancelled.
 
     R{{}} true if the future is cancelled; false otherwise
 }
-public native function future::isCancelled() returns boolean;
+public extern function future::isCancelled() returns boolean;
 
 documentation {
     Cancels the given future.
 
     R{{}} true if the future was cancelled; false otherwise
 }
-public native function future::cancel() returns boolean;
+public extern function future::cancel() returns boolean;

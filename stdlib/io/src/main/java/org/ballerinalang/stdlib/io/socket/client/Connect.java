@@ -37,7 +37,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
 /**
- * Native function to open a Client socket connection.
+ * Extern function to open a Client socket connection.
  *
  * @since 0.971.1
  */
