@@ -103,6 +103,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
                     throw new BallerinaConnectorException("Waiting for WebSocket handshake has not been successful");
                 }
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 throw new BallerinaConnectorException("Error occurred: " + e.getMessage());
 
             }

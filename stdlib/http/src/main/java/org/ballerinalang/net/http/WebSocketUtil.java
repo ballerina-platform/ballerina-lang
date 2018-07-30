@@ -50,7 +50,7 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 /**
  * Utility class for websockets.
  */
-public abstract class WebSocketUtil {
+public class WebSocketUtil {
 
     public static ProgramFile getProgramFile(Resource resource) {
         return resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
@@ -83,7 +83,6 @@ public abstract class WebSocketUtil {
         future.setHandshakeListener(new ServerHandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
-                // TODO: Need to create new struct
                 BMap<String, BValue> webSocketEndpoint = BLangConnectorSPIUtil.createObject(
                         wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo()
                                 .getProgramFile(), PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_ENDPOINT);
@@ -155,7 +154,6 @@ public abstract class WebSocketUtil {
                 closeDuringUnexpectedCondition(webSocketConnection);
             }
         };
-        //TODO handle BallerinaConnectorException
         Executor.submit(onOpenResource, onOpenCallableUnitCallback, null, null, bValues);
     }
 
@@ -213,5 +211,8 @@ public abstract class WebSocketUtil {
     static void closeDuringUnexpectedCondition(WebSocketConnection webSocketConnection) {
         webSocketConnection.terminateConnection(1011, "Unexpected condition");
 
+    }
+
+    private WebSocketUtil() {
     }
 }
