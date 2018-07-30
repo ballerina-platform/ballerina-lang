@@ -377,7 +377,7 @@ public class BLangProgramRunner {
             throw new BallerinaException("element count mismatch for tuple type: " + type);
         }
 
-        BRefValueArray tupleValues = new BRefValueArray();
+        BRefValueArray tupleValues = new BRefValueArray(type);
         int index = 0;
         try {
             for (BType elementType : type.getTupleTypes()) {
