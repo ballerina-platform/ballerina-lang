@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.model;
 
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand.BIRVarRef;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**
  * A non-terminating instruction.
@@ -41,6 +42,11 @@ public abstract class BIRNonTerminator implements BIRInstruction {
         public InstructionKind kind;
         public BIROperand rhsOp;
 
+        public Move(BIROperand fromOperand, BIRVarRef toOperand) {
+            this.rhsOp = fromOperand;
+            this.lhsOp = toOperand;
+        }
+
         @Override
         public BIRVarRef getLhsOperand() {
             return lhsOp;
@@ -55,10 +61,24 @@ public abstract class BIRNonTerminator implements BIRInstruction {
      * @since 0.980.0
      */
     public static class BinaryOp extends BIRNonTerminator implements BIRAssignInstruction {
+        public BinaryOpKind binaryOpKind;
+        public BType type;
         public BIRVarRef lhsOp;
-        public InstructionKind kind;
         public BIROperand rhsOp1;
         public BIROperand rhsOp2;
+        public InstructionKind instructionKind;
+
+        public BinaryOp(BinaryOpKind binaryOpKind,
+                        BType type,
+                        BIRVarRef lhsOp,
+                        BIROperand rhsOp1,
+                        BIROperand rhsOp2) {
+            this.binaryOpKind = binaryOpKind;
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.rhsOp1 = rhsOp1;
+            this.rhsOp2 = rhsOp2;
+        }
 
         @Override
         public BIRVarRef getLhsOperand() {
