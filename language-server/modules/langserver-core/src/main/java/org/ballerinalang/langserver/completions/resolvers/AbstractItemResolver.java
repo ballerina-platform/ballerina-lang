@@ -27,17 +27,12 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.ballerinalang.model.symbols.SymbolKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -45,7 +40,6 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -63,10 +57,10 @@ public abstract class AbstractItemResolver {
      */
     protected List<CompletionItem> getCompletionItemList(List<SymbolInfo> symbolInfoList) {
         List<CompletionItem> completionItems = new ArrayList<>();
-        symbolInfoList.removeIf(this.invalidSymbolsPredicate());
+        symbolInfoList.removeIf(CommonUtil.invalidSymbolsPredicate());
         symbolInfoList.forEach(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.isIterableOperation() ? null : symbolInfo.getScopeEntry().symbol;
-            if (this.isValidInvokableSymbol(bSymbol) || symbolInfo.isIterableOperation()) {
+            if (CommonUtil.isValidInvokableSymbol(bSymbol) || symbolInfo.isIterableOperation()) {
                 completionItems.add(this.populateBallerinaFunctionCompletionItem(symbolInfo));
             } else if (!(bSymbol instanceof BInvokableSymbol) && bSymbol instanceof BVarSymbol) {
                 completionItems.add(this.populateVariableDefCompletionItem(symbolInfo));
@@ -167,7 +161,7 @@ public abstract class AbstractItemResolver {
      * @return {@link List}     List of completion items
      */
     protected List<CompletionItem> populateBasicTypes(List<SymbolInfo> visibleSymbols) {
-        visibleSymbols.removeIf(invalidSymbolsPredicate());
+        visibleSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
         List<CompletionItem> completionItems = new ArrayList<>();
         visibleSymbols.forEach(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
@@ -177,9 +171,6 @@ public abstract class AbstractItemResolver {
         });
         
         return completionItems;
-//        return visibleSymbols.stream()
-//                .map(symbolInfo -> BPackageSymbolUtil.getBTypeCompletionItem(symbolInfo.getSymbolName()))
-//                .collect(Collectors.toList());
     }
 
     /**
@@ -197,7 +188,7 @@ public abstract class AbstractItemResolver {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
             return (bSymbol instanceof BInvokableSymbol
                     && ((BInvokableSymbol) bSymbol).receiverSymbol != null
-                    && isValidInvokableSymbol(bSymbol))
+                    && CommonUtil.isValidInvokableSymbol(bSymbol))
                     || ((bSymbol instanceof BTypeSymbol)
                     && !(bSymbol instanceof BPackageSymbol))
                     || (bSymbol instanceof BInvokableSymbol
@@ -244,50 +235,5 @@ public abstract class AbstractItemResolver {
         } else {
             return this.getCompletionItemList(either.getRight());
         }
-    }
-
-    protected boolean isValidInvokableSymbol(BSymbol symbol) {
-        if (!(symbol instanceof BInvokableSymbol)) {
-            return false;
-        }
-
-        BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) symbol;
-        return ((bInvokableSymbol.kind == null
-                && (SymbolKind.RECORD.equals(bInvokableSymbol.owner.kind)
-                || SymbolKind.FUNCTION.equals(bInvokableSymbol.owner.kind)))
-                || SymbolKind.FUNCTION.equals(bInvokableSymbol.kind));
-    }
-
-    ///////////////////////////////
-    /////   Private Methods   /////
-    ///////////////////////////////
-    
-    private boolean symbolContainsInvalidChars(BSymbol bSymbol) {
-        return bSymbol.getName().getValue().contains(UtilSymbolKeys.LT_SYMBOL_KEY)
-                || bSymbol.getName().getValue().contains(UtilSymbolKeys.GT_SYMBOL_KEY)
-                || bSymbol.getName().getValue().contains(UtilSymbolKeys.DOLLAR_SYMBOL_KEY)
-                || bSymbol.getName().getValue().equals("main");
-    }
-
-    ///////////////////////////////
-    /////      Predicates     /////
-    ///////////////////////////////
-
-    /**
-     * Predicate to check for the invalid symbols.
-     *
-     * @return {@link Predicate}    Predicate for the check
-     */
-    protected Predicate<SymbolInfo> invalidSymbolsPredicate() {
-        return symbolInfo -> !symbolInfo.isIterableOperation()
-                && symbolInfo.getScopeEntry() != null 
-                && ("_".equals(symbolInfo.getScopeEntry().symbol.name.getValue())
-                || "runtime".equals(symbolInfo.getScopeEntry().symbol.getName().getValue())
-                || "transactions".equals(symbolInfo.getScopeEntry().symbol.getName().getValue())
-                || symbolInfo.getScopeEntry().symbol instanceof BAnnotationSymbol
-                || symbolInfo.getScopeEntry().symbol instanceof BServiceSymbol
-                || symbolInfo.getScopeEntry().symbol instanceof BOperatorSymbol
-                || symbolInfo.getScopeEntry().symbol instanceof BConversionOperatorSymbol
-                || this.symbolContainsInvalidChars(symbolInfo.getScopeEntry().symbol));
     }
 }
