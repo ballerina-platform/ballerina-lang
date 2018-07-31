@@ -158,7 +158,7 @@ if [ "$CMD" = "--java.debug" ]; then
 fi
 
 JDK_18=`$JAVA_HOME/bin/java -version 2>&1 | grep -e "1.8."`
-if [ "JDK_18" = "" ]; then
+if [ "$JDK_18" = "" ]; then
     echo "Error: Ballerina is supported only on JDK 1.8"
     exit 1
 fi
