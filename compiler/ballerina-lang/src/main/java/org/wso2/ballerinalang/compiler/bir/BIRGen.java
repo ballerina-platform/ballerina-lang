@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir;
 
+import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -27,7 +28,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.Move;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand.BIRConstant;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand.BIRVarRef;
-import org.wso2.ballerinalang.compiler.bir.model.BinaryOpKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.Visibility;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -176,7 +176,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIRVarRef lhsOp = new BIRVarRef(tempVarDcl);
 
         // Create binary instruction
-        BinaryOp binaryIns = new BinaryOp(BinaryOpKind.ADD, astBinaryExpr.type, lhsOp, rhsOp1, rhsOp2);
+        BinaryOp binaryIns = new BinaryOp(OperatorKind.ADD, astBinaryExpr.type, lhsOp, rhsOp1, rhsOp2);
         emit(binaryIns);
     }
 
