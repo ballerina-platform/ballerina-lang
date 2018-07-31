@@ -17,8 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.Name;
 
 /**
  * {@code BIROperand} represents an operand in an instruction.
@@ -42,15 +42,13 @@ public abstract class BIROperand {
      *
      * @since 0.980.0
      */
-    public class BIRVarRef extends BIROperand {
+    public static class BIRVarRef extends BIROperand {
 
-        public VarKind varKind;
-        public Name name;
+        public BIRVariableDcl variableDcl;
 
-        public BIRVarRef(BType type, Name name, VarKind varKind) {
-            super(type, Kind.VAR_REF);
-            this.name = name;
-            this.varKind = varKind;
+        public BIRVarRef(BIRVariableDcl variableDcl) {
+            super(variableDcl.type, Kind.VAR_REF);
+            this.variableDcl = variableDcl;
         }
     }
 
@@ -59,10 +57,13 @@ public abstract class BIROperand {
      *
      * @since 0.980.0
      */
-    public class BIRConstant extends BIROperand {
+    public static class BIRConstant extends BIROperand {
 
-        public BIRConstant(BType type) {
+        public Object value;
+
+        public BIRConstant(BType type, Object value) {
             super(type, Kind.CONST);
+            this.value = value;
         }
     }
 
