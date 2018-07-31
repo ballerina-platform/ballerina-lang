@@ -17,17 +17,29 @@
  */
 package org.wso2.ballerinalang.compiler.bir;
 
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
+import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.Visibility;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangWorker;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 /**
  * Lower the AST to BIR.
@@ -40,6 +52,7 @@ public class BIRGen extends BLangNodeVisitor {
             new CompilerContext.Key<>();
 
     private BIRGenEnv env;
+    private Names names;
 
     public static BIRGen getInstance(CompilerContext context) {
         BIRGen birGen = context.get(BIR_GEN);
@@ -52,6 +65,8 @@ public class BIRGen extends BLangNodeVisitor {
 
     private BIRGen(CompilerContext context) {
         context.put(BIR_GEN, this);
+
+        this.names = Names.getInstance(context);
     }
 
     public void visit(BLangPackage astPkg) {
@@ -65,6 +80,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     public void visit(BLangFunction astFunc) {
         BIRFunction birFunc = new BIRFunction(astFunc.symbol.name);
+        birFunc.isDeclaration = Symbols.isNative(astFunc.symbol);
         birFunc.visibility = getVisibility(astFunc.symbol);
         birFunc.argsCount = astFunc.requiredParams.size() +
                 astFunc.defaultableParams.size() + (astFunc.restParam != null ? 1 : 0);
@@ -72,7 +88,49 @@ public class BIRGen extends BLangNodeVisitor {
 
         this.env.enclPkg.functions.add(birFunc);
 
-        // TODO local variables and basic blocks.
+        // TODO Support for multiple workers
+        BLangWorker astDefaultWorker = astFunc.workers.get(0);
+        BIRGenEnv funcEnv = BIRGenEnv.funcEnv(this.env, birFunc);
+        genNode(astDefaultWorker, funcEnv);
+    }
+
+    public void visit(BLangWorker astWorker) {
+        BIRBasicBlock birBB = new BIRBasicBlock(this.env.nextBBId(names));
+        this.env.enclFunc.basicBlocks.add(birBB);
+        BIRGenEnv bbEnv = BIRGenEnv.bbEnv(this.env, birBB);
+        genNode(astWorker.body, bbEnv);
+    }
+
+
+    // Statements
+
+    public void visit(BLangBlockStmt astBlockStmt) {
+        for (BLangStatement astStmt : astBlockStmt.stmts) {
+            genNode(astStmt, this.env);
+        }
+    }
+
+
+    public void visit(BLangVariableDef astVarDefStmt) {
+        BVarSymbol varSymbol = astVarDefStmt.var.symbol;
+        BIRVariableDcl birVarDcl = new BIRVariableDcl(varSymbol.type, this.env.nextLocalVarId(names), VarKind.LOCAL);
+
+
+    }
+
+    public void visit(BLangAssignment astAssignStmt) {
+
+    }
+
+
+    // Expressions
+
+    public void visit(BLangVariableReference astVarRef) {
+        //astVarRef.symbol
+    }
+
+    public void visit(BLangBinaryExpr astBinaryExpr) {
+
     }
 
 

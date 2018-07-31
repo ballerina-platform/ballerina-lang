@@ -18,8 +18,16 @@
 package org.wso2.ballerinalang.compiler.bir;
 
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Stores the state such as the current node, enclosing package, function etc, during bir generation.
@@ -33,6 +41,11 @@ public class BIRGenEnv {
     public BIRPackage enclPkg;
 
     public BIRFunction enclFunc;
+    private int currentBBId = -1;
+    private int currentLocalVarId = -1;
+    private Map<BSymbol, BIRVariableDcl> symbolVarMap;
+
+    public BIRBasicBlock enclBB;
 
     private BIRGenEnv() {
     }
@@ -41,5 +54,48 @@ public class BIRGenEnv {
         BIRGenEnv env = new BIRGenEnv();
         env.enclPkg = birPkg;
         return env;
+    }
+
+    public static BIRGenEnv funcEnv(BIRGenEnv enclEnv, BIRFunction birFunc) {
+        BIRGenEnv env = duplicate(enclEnv);
+        env.symbolVarMap = new HashMap<>();
+        env.enclFunc = birFunc;
+        return env;
+    }
+
+    public static BIRGenEnv bbEnv(BIRGenEnv enclEnv, BIRBasicBlock bb) {
+        BIRGenEnv env = duplicate(enclEnv);
+        env.enclBB = bb;
+        return env;
+    }
+
+    public Name nextBBId(Names names) {
+        currentBBId++;
+        return names.merge(Names.BIR_BASIC_BLOCK_PREFIX, names.fromString(Integer.toString(currentBBId)));
+    }
+
+    public Name nextLocalVarId(Names names) {
+        currentLocalVarId++;
+        return names.merge(Names.BIR_LOCAL_VAR_PREFIX, names.fromString(Integer.toString(currentLocalVarId)));
+    }
+
+    public void addSymbolVarMapping(BSymbol varSymbol, BIRVariableDcl variableDcl) {
+        this.symbolVarMap.put(varSymbol, variableDcl);
+    }
+
+    public BIRVariableDcl getVariableDcl(BSymbol varSymbol) {
+        return this.symbolVarMap.get(varSymbol);
+    }
+
+
+    // private methods
+
+    private static BIRGenEnv duplicate(BIRGenEnv fromEnv) {
+        BIRGenEnv toEnv = new BIRGenEnv();
+        toEnv.node = fromEnv.node;
+        toEnv.enclPkg = fromEnv.enclPkg;
+        toEnv.enclFunc = fromEnv.enclFunc;
+        toEnv.enclBB = fromEnv.enclBB;
+        return toEnv;
     }
 }
