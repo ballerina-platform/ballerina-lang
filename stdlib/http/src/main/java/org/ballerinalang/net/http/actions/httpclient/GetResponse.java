@@ -31,7 +31,7 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.ResponseHandle;
 
 /**
@@ -81,7 +81,7 @@ public class GetResponse extends AbstractHTTPAction {
         }
 
         @Override
-        public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
+        public void onMessage(HttpCarbonMessage httpCarbonMessage) {
             dataContext.notifyInboundResponseStatus(
                     HttpUtil.createResponseStruct(this.dataContext.context, httpCarbonMessage), null);
         }

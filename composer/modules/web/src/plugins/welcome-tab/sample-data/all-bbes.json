@@ -826,5 +826,23 @@
         "url": "directory-listener"
       }
     ]
+  },
+  {
+    "title": "Observability",
+    "column": 3,
+    "samples": [
+      {
+        "name": "Distributed Tracing",
+        "url": "tracing"
+      },
+      {
+        "name": "Counter based Metrics",
+        "url": "counter-metrics"
+      },
+      {
+        "name": "Gauge based Metrics",
+        "url": "gauge-metrics"
+      }
+    ]
   }
 ]

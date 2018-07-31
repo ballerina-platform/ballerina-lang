@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.model.json:toString.
+ * Extern function ballerina.model.json:toString.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "builtin",

@@ -32,7 +32,7 @@ import org.testcontainers.shaded.io.netty.handler.codec.http.HttpHeaderNames;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.File;
@@ -56,7 +56,7 @@ public class VirtualHostDispatchingTest {
         String hostName2 = "xyz.org";
         HTTPTestRequest request = MessageUtils.generateHTTPMessage("/page/index", "GET");
         request.setHeader(HttpHeaderNames.HOST.toString(), hostName1);
-        HTTPCarbonMessage response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, request);
+        HttpCarbonMessage response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, request);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -78,7 +78,7 @@ public class VirtualHostDispatchingTest {
         String hostName1 = "abc.com";
         HTTPTestRequest request = MessageUtils.generateHTTPMessage("/page/index", "GET");
         request.setHeader(HttpHeaderNames.HOST.toString(), hostName1);
-        HTTPCarbonMessage response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, request);
+        HttpCarbonMessage response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, request);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());

@@ -29,84 +29,84 @@ public type Path object {
     documentation {
         Constructs the path.
     }
-    native function init(string r);
+    extern function init(string r);
 
     documentation {
         Retrieves the absolute path from the provided location.
 
         R{{}} Returns the absolute path reference or an error if the path cannot be derived
     }
-    native function toAbsolutePath() returns Path;
+    extern function toAbsolutePath() returns Path;
 
     documentation {
         Retreives the absolute path from the provided location.
 
         R{{}} Returns the absolute path as a string
     }
-    public native function getPathValue() returns string;
+    public extern function getPathValue() returns string;
 
     documentation {
         Retreives the name of the file from the provided location.
 
         R{{}} Returns the name of the file
     }
-    public native function getName() returns string;
+    public extern function getName() returns string;
 
     documentation {
         Retreives the extension of the file from the provided location.
 
         R{{}} Returns the extension of the file. Empty string if no extension.
     }
-    public native function getExtension() returns string;
+    public extern function getExtension() returns string;
 
     documentation {
         Check for existance of the file.
 
         R{{}} True if the file exists, else false
     }
-    public native function exists() returns boolean;
+    public extern function exists() returns boolean;
 
     documentation {
         Returns the files of folders in the directory.
 
         R{{}} True if the given file path is a directory. It is false otherwise
     }
-    public native function list() returns Path[]|error;
+    public extern function list() returns Path[]|error;
 
     documentation {
         Check if given file is a directory
 
         R{{}} True if directory, else false
     }
-    public native function isDirectory() returns boolean;
+    public extern function isDirectory() returns boolean;
 
     documentation {
         Deletes a file/directory.
 
         R{{}} Error if the directory/file could not be deleted
     }
-    public native function delete() returns error?;
+    public extern function delete() returns error?;
 
     documentation {
         Creates a directory.
 
         R{{}} Error if the directory could not be created
     }
-    public native function createDirectory() returns error?;
+    public extern function createDirectory() returns error?;
 
     documentation {
         Creates a file.
 
         R{{}} Error if the file could not be created
     }
-    public native function createFile() returns error?;
+    public extern function createFile() returns error?;
 
     documentation {
         Retrieves the last modified time of the file of directory.
 
         R{{}} Last modified time or an error if the path cannot be resolved
     }
-    public native function getModifiedTime() returns time:Time|error;
+    public extern function getModifiedTime() returns time:Time|error;
 
     documentation {
         Copy file or directory to another path.
@@ -114,7 +114,7 @@ public type Path object {
         P{{target}} The location to copy file or directory
         R{{}} Error if the file could not be copied
     }
-    public native function copyTo(@sensitive Path target) returns error?;
+    public extern function copyTo(@sensitive Path target) returns error?;
 
     documentation {
         Move file or directory to another path.
@@ -122,19 +122,19 @@ public type Path object {
         P{{target}} The location to move file or directory
         R{{}} Error if the file could not be moved
     }
-    public native function moveTo(@sensitive Path target) returns error?;
+    public extern function moveTo(@sensitive Path target) returns error?;
 
     documentation {
         Get the enclosing parent directory.
 
         R{{}} Path of parent folder or error occurred while getting parent directory
     }
-    public native function getParentDirectory() returns Path|error;
+    public extern function getParentDirectory() returns Path|error;
 
     documentation {
         Resolve given path.
 
         R{{}} Resolved path
     }
-    public native function resolve(string... paths) returns Path;
+    public extern function resolve(string... paths) returns Path;
 };

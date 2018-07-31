@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -51,7 +51,7 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
      */
     @Override
     public boolean isCursorBeforeNode(DiagnosticPos nodePosition, BLangNode node, TreeVisitor treeVisitor,
-                                      LSServiceOperationContext completionContext) {
+                                      LSContext completionContext) {
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
         DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(nodePosition);
@@ -72,8 +72,8 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         if (line < nodeSLine || (line == nodeSLine && col <= nodeSCol) || isWithinScopeAfterLastChild) {
             Map<Name, Scope.ScopeEntry> visibleSymbolEntries =
                     treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());
-            treeVisitor.populateSymbols(visibleSymbolEntries, null);
-            treeVisitor.setTerminateVisitor(true);
+            treeVisitor.populateSymbols(visibleSymbolEntries, treeVisitor.getSymbolEnv());
+            treeVisitor.forceTerminateVisitor();
             treeVisitor.setNextNode(node);
             return true;
         }

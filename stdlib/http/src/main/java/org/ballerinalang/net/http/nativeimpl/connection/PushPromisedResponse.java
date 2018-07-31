@@ -33,8 +33,8 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.OutputStream;
@@ -42,7 +42,7 @@ import java.io.OutputStream;
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 
 /**
- * {@code PushPromisedResponse} is the native function to respond back the client with Server Push response.
+ * {@code PushPromisedResponse} is the extern function to respond back the client with Server Push response.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
@@ -64,7 +64,7 @@ public class PushPromisedResponse extends ConnectionAction {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         BMap<String, BValue> connectionStruct = (BMap<String, BValue>) context.getRefArgument(0);
-        HTTPCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
+        HttpCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
         DataContext dataContext = new DataContext(context, callback, inboundRequestMsg);
         HttpUtil.serverConnectionStructCheck(inboundRequestMsg);
 
@@ -75,7 +75,7 @@ public class PushPromisedResponse extends ConnectionAction {
         }
 
         BMap<String, BValue> outboundResponseStruct = (BMap<String, BValue>) context.getRefArgument(2);
-        HTTPCarbonMessage outboundResponseMsg = HttpUtil
+        HttpCarbonMessage outboundResponseMsg = HttpUtil
                 .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
 
         HttpUtil.prepareOutboundResponse(context, inboundRequestMsg, outboundResponseMsg, outboundResponseStruct);
@@ -83,8 +83,8 @@ public class PushPromisedResponse extends ConnectionAction {
                            http2PushPromise);
     }
 
-    private void pushResponseRobust(DataContext dataContext, HTTPCarbonMessage requestMessage,
-                                    BMap<String, BValue> outboundResponseStruct, HTTPCarbonMessage responseMessage,
+    private void pushResponseRobust(DataContext dataContext, HttpCarbonMessage requestMessage,
+                                    BMap<String, BValue> outboundResponseStruct, HttpCarbonMessage responseMessage,
                                     Http2PushPromise http2PushPromise) {
         HttpResponseFuture outboundRespStatusFuture =
                 HttpUtil.pushResponse(requestMessage, responseMessage, http2PushPromise);

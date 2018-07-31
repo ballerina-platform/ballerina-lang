@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.model.json:getKeys. Returns an array of keys contained in the specified JSON.
+ * Extern function ballerina.model.json:getKeys. Returns an array of keys contained in the specified JSON.
  * If the JSON is not an object type element, then this method will return an empty array.
  * 
  * @since 0.90

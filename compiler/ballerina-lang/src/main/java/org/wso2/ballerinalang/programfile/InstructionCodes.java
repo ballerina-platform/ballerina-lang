@@ -167,7 +167,6 @@ public interface InstructionCodes {
     int B2I = 142;
     int B2F = 143;
     int B2S = 144;
-    int B2JSON = 145;
     int JSON2I = 146;
     int JSON2F = 147;
     int JSON2S = 148;

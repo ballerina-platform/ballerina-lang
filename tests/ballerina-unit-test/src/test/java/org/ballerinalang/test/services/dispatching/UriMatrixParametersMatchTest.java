@@ -31,7 +31,7 @@ import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 /**
@@ -52,7 +52,7 @@ public class UriMatrixParametersMatchTest {
     public void testMatrixParamsAndQueryParamsMatching() {
         String path = "/hello/t1/john;age=10;color=white/bar/1991;month=may;day=12/foo;a=5;b=10?x=10&y=5";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -68,7 +68,7 @@ public class UriMatrixParametersMatchTest {
     public void testEncodedPathDispatching() {
         String path = "/hello/t2/john;age=2;color=white/foo%3Ba%3D5%3Bb%3D10"; // encoded URI
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -82,7 +82,7 @@ public class UriMatrixParametersMatchTest {
     public void testEncodedPathParamDispatching() {
         String path = "/hello/t2/john%3Bage%3D2%3Bcolor%3Dwhite/foo%3Ba%3D5%3Bb%3D10"; // encoded URI
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
@@ -96,7 +96,7 @@ public class UriMatrixParametersMatchTest {
     public void testNonEncodedUrlDispatching() {
         String path = "/hello/t2/john;age=2;color=white/foo;a=5;b=10"; // encoded URI
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(
@@ -113,7 +113,7 @@ public class UriMatrixParametersMatchTest {
     public void testErrorReportInURI() {
         String path = "/hello/t2/john;age;color=white/foo;a=5;b=10"; // encoded URI
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        HTTPCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
+        HttpCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(

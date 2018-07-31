@@ -27,7 +27,7 @@ documentation {
     P{{sourceRoot}} - Root folder of the packages
     R{{}} - Data piped from the standard output and error output of the process
 }
-public native function execBallerinaDoc(string[] packageList,
+public extern function execBallerinaDoc(string[] packageList,
                                         string? sourceRoot = (),
                                         string? outputPath = (),
                                         string? templatesPath = (),

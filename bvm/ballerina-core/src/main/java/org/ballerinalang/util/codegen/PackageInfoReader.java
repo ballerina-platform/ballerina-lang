@@ -1220,7 +1220,6 @@ public class PackageInfoReader {
                 case InstructionCodes.B2I:
                 case InstructionCodes.B2F:
                 case InstructionCodes.B2S:
-                case InstructionCodes.B2JSON:
                 case InstructionCodes.JSON2I:
                 case InstructionCodes.JSON2F:
                 case InstructionCodes.JSON2S:

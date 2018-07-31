@@ -26,21 +26,21 @@ public type CallerAction object {
         P{{headers}} - Optional headers parameter. Passes header value if needed. Default sets to nil.
         R{{}} - Returns an error if encounters an error while sending the response, returns nil otherwise.
     }
-    public native function send(any res, Headers? headers = ()) returns error?;
+    public extern function send(any res, Headers? headers = ()) returns error?;
 
     documentation {
         Informs the caller, server finished sending messages.
 
         R{{}} - Returns an error if encounters an error while sending the response, returns nil otherwise.
     }
-    public native function complete() returns error?;
+    public extern function complete() returns error?;
 
     documentation {
         Checks whether the connection is closed by the caller.
 
         R{{}} - Returns true, if caller already closed the connection. false otherwise.
     }
-    public native function isCancelled() returns boolean;
+    public extern function isCancelled() returns boolean;
 
     documentation {
         Sends server error to the caller.
@@ -50,5 +50,5 @@ public type CallerAction object {
         P{{headers}} - Optional headers parameter. Passes header value if needed. Default sets to nil.
         R{{}} - Returns an error if encounters an error while sending the response, returns nil otherwise.
     }
-    public native function sendError(int statusCode, string message, Headers? headers = ()) returns error?;
+    public extern function sendError(int statusCode, string message, Headers? headers = ()) returns error?;
 };

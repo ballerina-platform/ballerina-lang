@@ -39,7 +39,7 @@ import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
+import org.wso2.transport.http.netty.message.HttpConnectorUtil;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -87,9 +87,9 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
         }
         scheme = url.getProtocol();
         Map<String, Object> properties =
-                HTTPConnectorUtil.getTransportProperties(connectionManager.getTransportConfig());
+                HttpConnectorUtil.getTransportProperties(connectionManager.getTransportConfig());
         SenderConfiguration senderConfiguration =
-                HTTPConnectorUtil.getSenderConfiguration(connectionManager.getTransportConfig(), scheme);
+                HttpConnectorUtil.getSenderConfiguration(connectionManager.getTransportConfig(), scheme);
 
         if (connectionManager.isHTTPTraceLoggerEnabled()) {
             senderConfiguration.setHttpTraceLogEnabled(true);

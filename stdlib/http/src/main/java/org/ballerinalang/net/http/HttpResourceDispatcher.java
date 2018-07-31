@@ -23,7 +23,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.URITemplateException;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,8 +33,7 @@ import java.util.Map;
  */
 public class HttpResourceDispatcher {
 
-    public static HttpResource findResource(HttpService service, HTTPCarbonMessage inboundRequest)
-            throws BallerinaConnectorException {
+    public static HttpResource findResource(HttpService service, HttpCarbonMessage inboundRequest) {
 
         String method = (String) inboundRequest.getProperty(HttpConstants.HTTP_METHOD);
         String subPath = (String) inboundRequest.getProperty(HttpConstants.SUB_PATH);
@@ -72,9 +71,8 @@ public class HttpResourceDispatcher {
         return subPath;
     }
 
-    private static void handleOptionsRequest(HTTPCarbonMessage cMsg, HttpService service)
-            throws URITemplateException {
-        HTTPCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
+    private static void handleOptionsRequest(HttpCarbonMessage cMsg, HttpService service) {
+        HttpCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
         if (cMsg.getHeader(HttpHeaderNames.ALLOW.toString()) != null) {
             response.setHeader(HttpHeaderNames.ALLOW.toString(), cMsg.getHeader(HttpHeaderNames.ALLOW.toString()));
         } else if (service.getBasePath().equals(cMsg.getProperty(HttpConstants.TO))
@@ -90,5 +88,8 @@ public class HttpResourceDispatcher {
         response.setProperty(HttpConstants.HTTP_STATUS_CODE, 200);
         response.addHttpContent(new DefaultLastHttpContent());
         HttpUtil.sendOutboundResponse(cMsg, response);
+    }
+
+    private HttpResourceDispatcher() {
     }
 }

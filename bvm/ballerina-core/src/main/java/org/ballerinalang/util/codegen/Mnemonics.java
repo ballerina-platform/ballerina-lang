@@ -167,7 +167,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.B2F] = "b2f";
         mnemonics[InstructionCodes.B2S] = "b2s";
         mnemonics[InstructionCodes.B2ANY] = "b2any";
-        mnemonics[InstructionCodes.B2JSON] = "b2json";
         mnemonics[InstructionCodes.JSON2I] = "json2i";
         mnemonics[InstructionCodes.JSON2F] = "json2f";
         mnemonics[InstructionCodes.JSON2S] = "json2s";
