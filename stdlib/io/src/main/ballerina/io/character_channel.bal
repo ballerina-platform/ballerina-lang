@@ -14,81 +14,61 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation {
-    Represents a channel which could be used to read/write characters through a given ByteChannel.
-}
+# Represents a channel which could be used to read/write characters through a given ByteChannel.
 public type CharacterChannel object {
     private ByteChannel channel;
     private string charset;
 
-    documentation {
-        Constructs a CharacterChannel from a given ByteChannel and Charset.
+    # Constructs a CharacterChannel from a given ByteChannel and Charset.
 
-        P{{channel}} ByteChannel which would be used to read/write characters
-        P{{charset}} Character-Set which would be used to encode/decode given bytes to characters
-    }
+    # + channel - ByteChannel which would be used to read/write characters
+    # + charset - Character-Set which would be used to encode/decode given bytes to characters
     public new(channel, charset) {
         init(channel, charset);
     }
 
-    documentation {
-        Initializes a character channel.
-
-        P{{byteChannel}} ByteChannel which should be used to initalize the character channel
-        P{{cs}} Character-set (i.e UTF-8) which should be used to encode/decode
-    }
+    # Initializes a character channel.
+    #
+    # + byteChannel - ByteChannel which should be used to initalize the character channel
+    # + cs - Character-set (i.e UTF-8) which should be used to encode/decode
     extern function init(ByteChannel byteChannel, string cs);
 
-    documentation {
-        Reads a given number of characters.
-
-        P{{numberOfChars}} Number of characters which should be read
-        R{{}} Content which is read or an error
-    }
+    # Reads a given number of characters.
+    #
+    # + numberOfChars - Number of characters which should be read
+    # + return - Content which is read or an error
     public extern function read(@sensitive int numberOfChars) returns @tainted string|error;
 
-    documentation {
-        Writes a given sequence of characters (string).
-
-        P{{content}} Content which should be written
-        P{{startOffset}} Number of characters which should be offset when writing content
-    }
+    # Writes a given sequence of characters (string).
+    #
+    # + content - Content which should be written
+    # + startOffset - Number of characters which should be offset when writing content
     public extern function write(string content, int startOffset) returns int|error;
 
-    documentation {
-        Reads a json from the given channel.
-
-        R{{}} Read json string or an error
-    }
+    # Reads a json from the given channel.
+    #
+    # + return - Read json string or an error
     public extern function readJson() returns @tainted json|error;
 
-    documentation {
-        Reads a XML from the given channel.
-
-        R{{}} Read xml or an error
-    }
+    # Reads a XML from the given channel.
+    #
+    # + return - Read xml or an error
     public extern function readXml() returns @tainted xml|error;
 
-    documentation {
-        Writes a given json to the given channel.
-
-        P{{content}} The json which should be written
-        R{{}} If an error occurred while writing
-    }
+    # Writes a given json to the given channel.
+    #
+    # + content - The json which should be written
+    # + return - If an error occurred while writing
     public extern function writeJson(json content) returns error?;
 
-    documentation {
-        Writes a given xml to the channel.
-
-        P{{content}} The XML which should be written
-        R{{}} If an error occurred while writing
-    }
+    # Writes a given xml to the channel.
+    #
+    # + content - The XML which should be written
+    # + return - If an error occurred while writing
     public extern function writeXml(xml content) returns error?;
 
-    documentation {
-        Closes a given character channel.
-
-        R{{}} If an error occurred while writing
-    }
+    # Closes a given character channel.
+    #
+    # + return - If an error occurred while writing
     public extern function close() returns error?;
 };

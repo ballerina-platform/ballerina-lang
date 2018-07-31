@@ -15,33 +15,28 @@
 // under the License.
 
 
-documentation {
-    Logs the specified value at DEBUG level.
-    P{{msg}} The message to be logged
-}
+# Logs the specified value at DEBUG level.
+#
+# + msg - The message to be logged
 public extern function printDebug(string msg);
 
-documentation {
-    Logs the specified message at ERROR level.
-    P{{msg}} The message to be logged
-    P{{err}} The error struct to be logged
-}
+# Logs the specified message at ERROR level.
+#
+# + msg - The message to be logged
+# + err - The error struct to be logged
 public extern function printError(string msg, error? err = ());
 
-documentation {
-    Logs the specified message at INFO level.
-    P{{msg}} The message to be logged.
-}
+# Logs the specified message at INFO level.
+#
+# + msg - The message to be logged.
 public extern function printInfo(string msg);
 
-documentation {
-    Logs the specified message at TRACE level.
-    P{{msg}} The message to be logged
-}
+# Logs the specified message at TRACE level.
+#
+# + msg - The message to be logged
 public extern function printTrace(string msg);
 
-documentation {
-    Logs the specified message at WARN level.
-    P{{msg}} The message to be logged
-}
+# Logs the specified message at WARN level.
+#
+# + msg - The message to be logged
 public extern function printWarn(string msg);

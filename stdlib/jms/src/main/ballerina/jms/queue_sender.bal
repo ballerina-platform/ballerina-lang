@@ -16,24 +16,23 @@
 
 import ballerina/log;
 
-documentation { JMS QueueSender Endpoint
-    E{{}}
-    F{{producerActions}} Handle all the actions related to the endpoint
-    F{{config}} Used to store configurations related to a JMS Queue sender
-}
+# JMS QueueSender Endpoint
+#
+# + producerActions - Handle all the actions related to the endpoint
+# + config - Used to store configurations related to a JMS Queue sender
 public type QueueSender object {
 
     public QueueSenderActions producerActions;
     public QueueSenderEndpointConfiguration config;
 
-    documentation { Default constructor of the endpoint }
+    # Default constructor of the endpoint
     public new() {
         self.producerActions = new;
     }
 
-    documentation { Initialize the consumer endpoint
-        P{{c}} Configurations related to the QueueSender endpoint
-    }
+    # Initialize the consumer endpoint
+    #
+    # + c - Configurations related to the QueueSender endpoint
     public function init(QueueSenderEndpointConfiguration c) {
         self.config = c;
         match (c.session) {
@@ -44,44 +43,44 @@ public type QueueSender object {
 
     extern function initQueueSender(Session session);
 
-    documentation { Registers the endpoint in the service.
-        This method is not used since QueueSender is a non-service endpoint.
-        P{{serviceType}} type descriptor of the service
-    }
+    # Registers the endpoint in the service.
+    # This method is not used since QueueSender is a non-service endpoint.
+    #
+    # + serviceType - type descriptor of the service
     public function register(typedesc serviceType) {
 
     }
 
-    documentation { Starts the consumer endpoint }
+    # Starts the consumer endpoint
     public function start() {
 
     }
 
-    documentation { Returns the caller action object of the QueueSender }
+    # Returns the caller action object of the QueueSender
     public function getCallerActions() returns QueueSenderActions {
         return self.producerActions;
     }
 
-    documentation { Stops the consumer endpoint }
+    # Stops the consumer endpoint
     public function stop() {
 
     }
 };
 
-documentation { Configurations related to a QueueSender object
-    F{{session}} JMS session object used to create the consumer
-    F{{queueName}} name of the target queue
-}
+# Configurations related to a QueueSender object
+#
+# + session - JMS session object used to create the consumer
+# + queueName - name of the target queue
 public type QueueSenderEndpointConfiguration record {
     Session? session;
     string queueName;
 };
 
-documentation { JMS QueueSender action handling object }
+# JMS QueueSender action handling object
 public type QueueSenderActions object {
 
-    documentation { Sends a message to the JMS provider
-        P{{message}} message to be sent to the JMS provider
-    }
+    # Sends a message to the JMS provider
+    #
+    # + message - message to be sent to the JMS provider
     public extern function send(Message message) returns error?;
 };
