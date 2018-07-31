@@ -39,21 +39,21 @@ import static io.netty.util.internal.StringUtil.EMPTY_STRING;
  */
 public class BallerinaLexerTest extends LexerTestCase {
 
-    private final String testDataPath = "../../composer/modules/integration-tests/src/test/resources/ballerina"
-            + "-examples/examples/";
-    private final String expectedResultsPath = "src/test/resources/testData/lexer/BBE/expectedResults/";
+    private final String TEST_DATA_PATH =
+            "../../composer/modules/integration-tests/src/test/resources/ballerina-examples/examples/";
+    private final String EXPECTED_RESULTS_PATH = "src/test/resources/testData/lexer/BBE/expectedResults/";
 
     private String getTestDataDirectoryPath() {
-        return testDataPath;
+        return TEST_DATA_PATH;
     }
 
     private String getExpectedResultDirectoryPath() {
-        return expectedResultsPath;
+        return EXPECTED_RESULTS_PATH;
     }
 
-    //this test validates the lexer token generation the ballerina-by-examples
+    // This test validates the lexer token generation for the ballerina-by-examples
     public void testForBBE() throws RuntimeException, FileNotFoundException {
-        //This flag is used to include/filter BBE testerina files in lexer testing
+        // This flag is used to include/filter BBE testerina files in lexer testing
         boolean includeTests = false;
         Path path = Paths.get(getTestDataDirectoryPath());
         if (!path.toFile().exists()) {
@@ -68,7 +68,7 @@ public class BallerinaLexerTest extends LexerTestCase {
             if (resource.exists()) {
                 if (resource.isFile() && resource.getName().endsWith(".bal")) {
                     doTestFile(resource);
-                    //if the resource is a directory, recursively test the sub directories/files accordingly
+                    // If the resource is a directory, recursively test the sub directories/files accordingly
                 } else if (resource.isDirectory() && (includeTests || !resource.getName().contains("tests"))) {
                     DirectoryStream<Path> ds = Files.newDirectoryStream(path);
                     for (Path subPath : ds) {

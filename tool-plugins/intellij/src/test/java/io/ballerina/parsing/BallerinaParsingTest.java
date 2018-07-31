@@ -37,9 +37,9 @@ import static io.netty.util.internal.StringUtil.EMPTY_STRING;
  */
 public class BallerinaParsingTest extends ParsingTestCase {
 
-    private final String testDataPath =
+    private final String TEST_DATA_PATH =
             "../../composer/modules/integration-tests/src/test/resources/ballerina" + "-examples/examples";
-    private final String expectedResultsPath = "src/test/resources/testData/parsing/BBE/expectedResults";
+    private final String EXPECTED_RESULTS_PATH = "src/test/resources/testData/parsing/BBE/expectedResults";
 
     public BallerinaParsingTest() {
         super("", "bal", new BallerinaParserDefinition());
@@ -47,11 +47,11 @@ public class BallerinaParsingTest extends ParsingTestCase {
 
     @Override
     protected String getTestDataPath() {
-        return testDataPath;
+        return TEST_DATA_PATH;
     }
 
     private String getExpectedResultPath() {
-        return expectedResultsPath;
+        return EXPECTED_RESULTS_PATH;
     }
 
     @Override
@@ -65,7 +65,7 @@ public class BallerinaParsingTest extends ParsingTestCase {
     }
 
     public void testForBBE() {
-        //This flag is used to include/filter BBE testerina files in lexer testing
+        // This flag is used to include/filter BBE testerina files in lexer testing
         boolean includeTests = false;
         Path path = Paths.get(getTestDataPath());
         doTestDirectory(path, includeTests);
@@ -76,7 +76,7 @@ public class BallerinaParsingTest extends ParsingTestCase {
             File resource = path.toFile();
             if (resource.exists()) {
                 if (resource.isFile() && resource.getName().endsWith(myFileExt)) {
-                    doTest(resource, true);
+                    doTest(resource);
 
                     //if the resource is a directory, recursively test the sub directories/files accordingly
                 } else if (resource.isDirectory() && (includeTests || !resource.getName().contains("tests"))) {
@@ -92,8 +92,7 @@ public class BallerinaParsingTest extends ParsingTestCase {
         }
     }
 
-    private void doTest(File resource, boolean checkResult) {
-
+    private void doTest(File resource) {
         try {
             String name = resource.getName().replace("." + myFileExt, EMPTY_STRING);
             //Retrieves relative path of the file since loadFile() uses "myFullDataPath" as the source root
@@ -107,11 +106,7 @@ public class BallerinaParsingTest extends ParsingTestCase {
             assertEquals("doc text mismatch", text, myFile.getViewProvider().getDocument().getText());
             assertEquals("psi text mismatch", text, myFile.getText());
             ensureCorrectReparse(myFile);
-            if (checkResult) {
-                checkResult(relativeFilePath, myFile);
-            } else {
-                toParseTreeText(myFile, skipSpaces(), includeRanges());
-            }
+            checkResult(relativeFilePath, myFile);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -124,4 +119,3 @@ public class BallerinaParsingTest extends ParsingTestCase {
                 this.includeRanges());
     }
 }
-
