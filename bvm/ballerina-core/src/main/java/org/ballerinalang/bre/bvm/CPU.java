@@ -116,7 +116,6 @@ import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.LongStream;
 
@@ -3564,13 +3563,12 @@ public class CPU {
         StructureTypeInfo structInfo = ctx.callableUnitInfo
                 .getPackageInfo().getStructInfo(structType.getName());
 
-        Set<String> keys = bMap.keySet();
         for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
             String key = fieldInfo.getName();
             BType fieldType = fieldInfo.getFieldType();
             BValue mapVal = null;
             try {
-                boolean containsField = keys.contains(key);
+                boolean containsField = bMap.hasKey(key);
                 DefaultValueAttributeInfo defaultValAttrInfo = null;
                 if (containsField) {
                     mapVal = bMap.get(key);

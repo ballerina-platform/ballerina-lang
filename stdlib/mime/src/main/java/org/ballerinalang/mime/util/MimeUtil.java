@@ -44,7 +44,6 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.Locale;
-import java.util.Set;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
@@ -243,8 +242,7 @@ public class MimeUtil {
             contentDisposition.put(DISPOSITION_FIELD, new BString(dispositionValue));
             BMap<String, BValue> paramMap = HeaderUtil.getParamMap(contentDispositionHeaderWithParams);
             if (paramMap != null) {
-                Set<String> keys = paramMap.keySet();
-                for (String key : keys) {
+                for (String key : paramMap.keys()) {
                     BString paramValue = (BString) paramMap.get(key);
                     switch (key) {
                         case CONTENT_DISPOSITION_FILE_NAME:

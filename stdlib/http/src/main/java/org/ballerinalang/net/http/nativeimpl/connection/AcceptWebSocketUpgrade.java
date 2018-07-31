@@ -17,6 +17,7 @@
 package org.ballerinalang.net.http.nativeimpl.connection;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
+
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -34,8 +35,6 @@ import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketUtil;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
-
-import java.util.Set;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -73,7 +72,7 @@ public class AcceptWebSocketUpgrade implements NativeCallableUnit {
 
         BMap<String, BString> headers = (BMap<String, BString>) context.getRefArgument(1);
         DefaultHttpHeaders httpHeaders = new DefaultHttpHeaders();
-        Set<String> keys = headers.keySet();
+        String[] keys = headers.keys();
         for (String key : keys) {
             httpHeaders.add(key, headers.get(key));
         }
