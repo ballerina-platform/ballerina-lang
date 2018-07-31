@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/runtime;
-import ballerina/io;
 import ballerina/streams;
 import ballerina/reflect;
 
@@ -62,7 +61,7 @@ function startAggregationQuery() returns (OutputRecord[]) {
 
     streamFunc();
 
-    outputStream.subscribe(printInputRecords);
+    outputStream.subscribe(addToOutputDataArray);
     foreach r in records {
         inputStream.publish(r);
     }
@@ -74,7 +73,6 @@ function startAggregationQuery() returns (OutputRecord[]) {
 function streamFunc() {
 
     function (OutputRecord[]) outputFunc = (OutputRecord[] o) => {
-        io:println(o);
         outputStream.publish(o);
     };
 
@@ -188,10 +186,6 @@ function streamFunc() {
 
 function getValue() returns int {
     return 0;
-}
-
-function printInputRecords(OutputRecord e) {
-    addToOutputDataArray(e);
 }
 
 function addToOutputDataArray(OutputRecord e) {
