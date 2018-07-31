@@ -171,22 +171,22 @@ public class ManifestBuildListener extends TomlBaseListener {
     /**
      * Add table headers in the toml file.
      *
-     * @param key key specified in the header
+     * @param keys key specified in the header
      */
-    private void addHeader(List<String> key) {
-        String header = key.get(0);
+    private void addHeader(List<String> keys) {
+        String header = keys.get(0);
         // Check if the header is valid for the Ballerina.toml
-        if (ManifestHeader.valueOfLowerCase(header) != null) {
+        if (ManifestHeader.valueOfLowerCase(header) == null) {
+            throw new BLangCompilerException("invalid header [" + header + "] found in Ballerina.toml");
+        } else {
             currentHeader = header;
-            if (key.size() > 1) {
+            if (keys.size() > 1) {
                 StringJoiner joiner = new StringJoiner(".");
-                for (int i = 1; i < key.size(); i++) {
-                    joiner.add(key.get(i));
+                for (int i = 1; i < keys.size(); i++) {
+                    joiner.add(keys.get(i));
                 }
                 createDependencyObject(joiner.toString());
             }
-        } else {
-            throw new BLangCompilerException("invalid header [" + header + "] found in Ballerina.toml");
         }
     }
 
