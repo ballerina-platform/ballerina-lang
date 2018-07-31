@@ -21,7 +21,10 @@ import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.persistence.serializable.SerializableState;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
