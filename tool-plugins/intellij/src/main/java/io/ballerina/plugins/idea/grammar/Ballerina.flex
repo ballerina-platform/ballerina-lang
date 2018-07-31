@@ -61,9 +61,9 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
         } else if (inStringTemplate) {
             yybegin(STRING_TEMPLATE_MODE);
             return EXPRESSION_END;
-//        } else if (inDocTemplate) {
-//            yybegin(DOCUMENTATION_TEMPLATE_MODE);
-//            return DOCUMENTATION_TEMPLATE_ATTRIBUTE_END;
+        } else if (inDocTemplate) {
+            yybegin(DOCUMENTATION_TEMPLATE_MODE);
+            return DOCUMENTATION_TEMPLATE_ATTRIBUTE_END;
         } else if (inDeprecatedTemplate) {
             yybegin(DEPRECATED_TEMPLATE_MODE);
             return DOCUMENTATION_TEMPLATE_ATTRIBUTE_END;
@@ -170,12 +170,10 @@ XML_LITERAL_START = xml[ \t\n\x0B\f\r]*`
 STRING_TEMPLATE_LITERAL_START = string[ \t\n\x0B\f\r]*`
 STRING_TEMPLATE_LITERAL_END = "`"
 
-//DOCUMENTATION = "documentation"
+DOCUMENTATION = "documentation"
 DEPRECATED = "deprecated"
-
-//DOCUMENTATION_TEMPLATE_START = {DOCUMENTATION} {WHITE_SPACE}* {LEFT_BRACE}
+DOCUMENTATION_TEMPLATE_START = {DOCUMENTATION} {WHITE_SPACE}* {LEFT_BRACE}
 DEPRECATED_TEMPLATE_START = {DEPRECATED} {WHITE_SPACE}* {LEFT_BRACE}
-
 
 // Todo - Need to add spaces between braces?
 // Note - This is used in checkExpressionEnd() function.
@@ -394,7 +392,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "compensate"                                { return COMPENSATE; }
     "continue"                                  { return CONTINUE; }
 
-//    "documentation"                             { return DOCUMENTATION; }
+    "documentation"                             { return DOCUMENTATION; }
     "done"                                      { return DONE; }
     "deprecated"                                { return DEPRECATED; }
     "descending"                                { return DESCENDING; }
@@ -588,7 +586,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     {PARAMETER_DOCUMENTATION_START}             { yybegin(MARKDOWN_PARAMETER_DOCUMENTATION_MODE); return PARAMETER_DOCUMENTATION_START; }
     {MARKDOWN_DOCUMENTATION_LINE_START}         { inMarkdownTemplate = true; yybegin(MARKDOWN_DOCUMENTATION_MODE); return MARKDOWN_DOCUMENTATION_LINE_START; }
 
-//    {DOCUMENTATION_TEMPLATE_START}              { inDocTemplate = true; yybegin(DOCUMENTATION_TEMPLATE_MODE); return DOCUMENTATION_TEMPLATE_START; }
+    {DOCUMENTATION_TEMPLATE_START}              { inDocTemplate = true; yybegin(DOCUMENTATION_TEMPLATE_MODE); return DOCUMENTATION_TEMPLATE_START; }
     {DEPRECATED_TEMPLATE_START}                 { inDeprecatedTemplate = true; yybegin(DEPRECATED_TEMPLATE_MODE); return DEPRECATED_TEMPLATE_START; }
     .                                           { return BAD_CHARACTER; }
 }
@@ -667,22 +665,21 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
 }
 
 <SINGLE_BACKTICK_INLINE_CODE_MODE>{
-    {SINGLE_BACK_TICK_INLINE_CODE_END}          { if(inDocTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } else if(inDeprecatedTemplate) { yybegin
-    (DEPRECATED_TEMPLATE_MODE); } return SINGLE_BACK_TICK_INLINE_CODE_END; }
+    {SINGLE_BACK_TICK_INLINE_CODE_END}          { if(inDocTemplate) { yybegin(DOCUMENTATION_TEMPLATE_MODE); } else if(inDeprecatedTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } return SINGLE_BACK_TICK_INLINE_CODE_END; }
     {SINGLE_BACK_TICK_INLINE_CODE}              { return SINGLE_BACK_TICK_INLINE_CODE; }
-     .                                          { if(inDocTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } else if(inDeprecatedTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } return BAD_CHARACTER; }
+     .                                          { if(inDocTemplate) { yybegin(DOCUMENTATION_TEMPLATE_MODE); } else if(inDeprecatedTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } return BAD_CHARACTER; }
 }
 
 <DOUBLE_BACKTICK_INLINE_CODE_MODE>{
-    {DOUBLE_BACK_TICK_INLINE_CODE_END}          { if(inDocTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } else if(inDeprecatedTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } return DOUBLE_BACK_TICK_INLINE_CODE_END; }
+    {DOUBLE_BACK_TICK_INLINE_CODE_END}          { if(inDocTemplate) { yybegin(DOCUMENTATION_TEMPLATE_MODE); } else if(inDeprecatedTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } return DOUBLE_BACK_TICK_INLINE_CODE_END; }
     {DOUBLE_BACK_TICK_INLINE_CODE}              { return DOUBLE_BACK_TICK_INLINE_CODE; }
-     .                                          { if(inDocTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } else if(inDeprecatedTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } return BAD_CHARACTER; }
+     .                                          { if(inDocTemplate) { yybegin(DOCUMENTATION_TEMPLATE_MODE); } else if(inDeprecatedTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } return BAD_CHARACTER; }
 }
 
 <TRIPLE_BACKTICK_INLINE_CODE_MODE>{
-    {TRIPLE_BACK_TICK_INLINE_CODE_END}          { if(inDocTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } else if(inDeprecatedTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } return TRIPLE_BACK_TICK_INLINE_CODE_END; }
+    {TRIPLE_BACK_TICK_INLINE_CODE_END}          { if(inDocTemplate) { yybegin(DOCUMENTATION_TEMPLATE_MODE); } else if(inDeprecatedTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } return TRIPLE_BACK_TICK_INLINE_CODE_END; }
     {TRIPLE_BACK_TICK_INLINE_CODE}              { return TRIPLE_BACK_TICK_INLINE_CODE; }
-     .                                          { if(inDocTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } else if(inDeprecatedTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } return BAD_CHARACTER; }
+     .                                          { if(inDocTemplate) { yybegin(DOCUMENTATION_TEMPLATE_MODE); } else if(inDeprecatedTemplate) { yybegin(DEPRECATED_TEMPLATE_MODE); } return BAD_CHARACTER; }
 }
 
 <DEPRECATED_TEMPLATE_MODE>{

@@ -33,6 +33,9 @@ public interface BallerinaResourceDefinition extends BallerinaCompositeElement {
   BallerinaDeprecatedAttachment getDeprecatedAttachment();
 
   @Nullable
+  BallerinaDocumentationAttachment getDocumentationAttachment();
+
+  @Nullable
   BallerinaDocumentationString getDocumentationString();
 
   @Nullable

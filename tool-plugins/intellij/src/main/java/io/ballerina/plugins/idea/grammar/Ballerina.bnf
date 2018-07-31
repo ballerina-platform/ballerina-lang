@@ -151,9 +151,9 @@
 
 CompilationUnit ::=(ImportDeclaration | NamespaceDeclaration)* (DefinitionWithoutAnnotationAttachments |  DefinitionWithMultipleAnnotationAttachments | DefinitionWithSingleAnnotationAttachment)* <<eof>>
 
-DefinitionWithMultipleAnnotationAttachments ::=  documentationString? deprecatedAttachment? AnnotationAttachment AnnotationAttachment+ Definition {pin=4 elementType=Definition}
-DefinitionWithSingleAnnotationAttachment ::= documentationString? deprecatedAttachment? AnnotationAttachment Definition {pin=3 elementType=Definition}
-DefinitionWithoutAnnotationAttachments ::= documentationString? deprecatedAttachment? Definition {elementType=Definition}
+DefinitionWithMultipleAnnotationAttachments ::=  (documentationAttachment | documentationString)? deprecatedAttachment? AnnotationAttachment AnnotationAttachment+ Definition {pin=4 elementType=Definition}
+DefinitionWithSingleAnnotationAttachment ::= (documentationAttachment | documentationString)? deprecatedAttachment? AnnotationAttachment Definition {pin=3 elementType=Definition}
+DefinitionWithoutAnnotationAttachments ::= (documentationAttachment | documentationString)? deprecatedAttachment? Definition {elementType=Definition}
 
 //PackageDeclaration ::= package CompletePackageName PackageVersion? SEMICOLON {
 //    pin=1
@@ -200,7 +200,7 @@ Definition ::= ( TypeDefinition
     recoverWhile=TopLevelDefinitionRecover
 }
 
-private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|DEPRECATED_TEMPLATE_START|'@'|native
+private TopLevelDefinitionRecover ::= !(DOCUMENTATION_TEMPLATE_START|MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|DEPRECATED_TEMPLATE_START|'@'|native
 |public|type|typedesc|service|function|enum|annotation|endpoint|int|float|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|future|identifier|'{')
 
 ServiceDefinition ::= service (LT NameReference GT)? identifier ServiceEndpointAttachments?  ServiceBody {pin=1}
@@ -209,7 +209,7 @@ ServiceBody ::= LEFT_BRACE (/*ResourceDefinition+ | EndpointDefinition+ Resource
 
 // Note - Always sync with VariableDefinitionStatement
 VariableDefinitionStatementInService ::= /*<<isNotAResourceDefinition>> VariableDefinitionStatement*/ TypeName identifier VariableAssignment? SEMICOLON {pin(".*")=2 elementType=VariableDefinitionStatement}
-ResourceDefinition ::= AnnotationAttachment* documentationString? deprecatedAttachment? identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS CallableUnitBody {pin=4}
+ResourceDefinition ::= AnnotationAttachment* (documentationAttachment | documentationString)? deprecatedAttachment? identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS CallableUnitBody {pin=4}
 resourceParameterList ::= endpointParameter | ParameterList
 endpointParameter ::= endpoint identifier (COMMA ParameterList)? {pin(".*")=1}
 
@@ -247,13 +247,13 @@ TypeDefinition ::= (public)? type identifier FiniteType SEMICOLON {
 
 ObjectBody ::= ObjectFieldDefinition* ObjectInitializer? ObjectFunctions?
 
-ObjectInitializer ::= AnnotationAttachment* documentationString? (public)? new ObjectInitializerParameterList CallableUnitBody {pin=4}
+ObjectInitializer ::= AnnotationAttachment* (documentationAttachment | documentationString)? (public)? new ObjectInitializerParameterList CallableUnitBody {pin=4}
 
 ObjectInitializerParameterList ::= LEFT_PARENTHESIS ObjectParameterList? RIGHT_PARENTHESIS {pin=1}
 
 ObjectFunctions ::= ObjectFunctionDefinition+
 
-ObjectFieldDefinition ::= AnnotationAttachment* documentationString? deprecatedAttachment? (public | private)? TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON) {pin=5}
+ObjectFieldDefinition ::= AnnotationAttachment* (documentationAttachment | documentationString)? deprecatedAttachment? (public | private)? TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON) {pin=5}
 
 FieldDefinition ::= AnnotationAttachment* TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON) {pin=3}
 
@@ -268,7 +268,7 @@ ObjectParameter ::= AnnotationAttachment* (TypeName identifier | identifier)
 
 ObjectDefaultableParameter ::= ObjectParameter ASSIGN Expression
 
-ObjectFunctionDefinition ::= AnnotationAttachment* documentationString? deprecatedAttachment? (public)? (native)? function CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=6}
+ObjectFunctionDefinition ::= AnnotationAttachment* (documentationAttachment | documentationString)? deprecatedAttachment? (public)? (native)? function CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=6}
 
 //TODO merge with callableUnitSignature later
 ObjectCallableUnitSignature ::= AnyIdentifierName LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS ReturnParameter? {pin=1}

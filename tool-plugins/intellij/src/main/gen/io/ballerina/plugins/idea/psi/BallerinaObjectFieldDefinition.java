@@ -36,6 +36,9 @@ public interface BallerinaObjectFieldDefinition extends BallerinaCompositeElemen
   BallerinaDeprecatedAttachment getDeprecatedAttachment();
 
   @Nullable
+  BallerinaDocumentationAttachment getDocumentationAttachment();
+
+  @Nullable
   BallerinaDocumentationString getDocumentationString();
 
   @Nullable

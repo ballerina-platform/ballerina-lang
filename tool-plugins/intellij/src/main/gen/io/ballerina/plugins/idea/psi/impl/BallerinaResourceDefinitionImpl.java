@@ -61,6 +61,12 @@ public class BallerinaResourceDefinitionImpl extends BallerinaCompositeElementIm
 
   @Override
   @Nullable
+  public BallerinaDocumentationAttachment getDocumentationAttachment() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaDocumentationAttachment.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaDocumentationString getDocumentationString() {
     return PsiTreeUtil.getChildOfType(this, BallerinaDocumentationString.class);
   }

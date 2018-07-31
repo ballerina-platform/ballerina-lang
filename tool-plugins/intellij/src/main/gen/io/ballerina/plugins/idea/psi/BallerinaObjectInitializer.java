@@ -33,6 +33,9 @@ public interface BallerinaObjectInitializer extends BallerinaCompositeElement {
   BallerinaObjectInitializerParameterList getObjectInitializerParameterList();
 
   @Nullable
+  BallerinaDocumentationAttachment getDocumentationAttachment();
+
+  @Nullable
   BallerinaDocumentationString getDocumentationString();
 
   @NotNull

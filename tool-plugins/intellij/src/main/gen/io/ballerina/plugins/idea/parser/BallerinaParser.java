@@ -1710,7 +1710,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // documentationString? deprecatedAttachment? AnnotationAttachment AnnotationAttachment+ Definition
+  // (documentationAttachment | documentationString)? deprecatedAttachment? AnnotationAttachment AnnotationAttachment+ Definition
   public static boolean DefinitionWithMultipleAnnotationAttachments(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "DefinitionWithMultipleAnnotationAttachments")) return false;
     boolean r, p;
@@ -1725,11 +1725,20 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r || p;
   }
 
-  // documentationString?
+  // (documentationAttachment | documentationString)?
   private static boolean DefinitionWithMultipleAnnotationAttachments_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "DefinitionWithMultipleAnnotationAttachments_0")) return false;
-    documentationString(b, l + 1);
+    DefinitionWithMultipleAnnotationAttachments_0_0(b, l + 1);
     return true;
+  }
+
+  // documentationAttachment | documentationString
+  private static boolean DefinitionWithMultipleAnnotationAttachments_0_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "DefinitionWithMultipleAnnotationAttachments_0_0")) return false;
+    boolean r;
+    r = documentationAttachment(b, l + 1);
+    if (!r) r = documentationString(b, l + 1);
+    return r;
   }
 
   // deprecatedAttachment?
@@ -1755,7 +1764,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // documentationString? deprecatedAttachment? AnnotationAttachment Definition
+  // (documentationAttachment | documentationString)? deprecatedAttachment? AnnotationAttachment Definition
   public static boolean DefinitionWithSingleAnnotationAttachment(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "DefinitionWithSingleAnnotationAttachment")) return false;
     boolean r, p;
@@ -1769,11 +1778,20 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r || p;
   }
 
-  // documentationString?
+  // (documentationAttachment | documentationString)?
   private static boolean DefinitionWithSingleAnnotationAttachment_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "DefinitionWithSingleAnnotationAttachment_0")) return false;
-    documentationString(b, l + 1);
+    DefinitionWithSingleAnnotationAttachment_0_0(b, l + 1);
     return true;
+  }
+
+  // documentationAttachment | documentationString
+  private static boolean DefinitionWithSingleAnnotationAttachment_0_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "DefinitionWithSingleAnnotationAttachment_0_0")) return false;
+    boolean r;
+    r = documentationAttachment(b, l + 1);
+    if (!r) r = documentationString(b, l + 1);
+    return r;
   }
 
   // deprecatedAttachment?
@@ -1784,7 +1802,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // documentationString? deprecatedAttachment? Definition
+  // (documentationAttachment | documentationString)? deprecatedAttachment? Definition
   public static boolean DefinitionWithoutAnnotationAttachments(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "DefinitionWithoutAnnotationAttachments")) return false;
     boolean r;
@@ -1796,11 +1814,20 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // documentationString?
+  // (documentationAttachment | documentationString)?
   private static boolean DefinitionWithoutAnnotationAttachments_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "DefinitionWithoutAnnotationAttachments_0")) return false;
-    documentationString(b, l + 1);
+    DefinitionWithoutAnnotationAttachments_0_0(b, l + 1);
     return true;
+  }
+
+  // documentationAttachment | documentationString
+  private static boolean DefinitionWithoutAnnotationAttachments_0_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "DefinitionWithoutAnnotationAttachments_0_0")) return false;
+    boolean r;
+    r = documentationAttachment(b, l + 1);
+    if (!r) r = documentationString(b, l + 1);
+    return r;
   }
 
   // deprecatedAttachment?
@@ -3624,7 +3651,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // AnnotationAttachment* documentationString? deprecatedAttachment? (public | private)? TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON)
+  // AnnotationAttachment* (documentationAttachment | documentationString)? deprecatedAttachment? (public | private)? TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON)
   public static boolean ObjectFieldDefinition(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ObjectFieldDefinition")) return false;
     boolean r, p;
@@ -3653,11 +3680,20 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return true;
   }
 
-  // documentationString?
+  // (documentationAttachment | documentationString)?
   private static boolean ObjectFieldDefinition_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ObjectFieldDefinition_1")) return false;
-    documentationString(b, l + 1);
+    ObjectFieldDefinition_1_0(b, l + 1);
     return true;
+  }
+
+  // documentationAttachment | documentationString
+  private static boolean ObjectFieldDefinition_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectFieldDefinition_1_0")) return false;
+    boolean r;
+    r = documentationAttachment(b, l + 1);
+    if (!r) r = documentationString(b, l + 1);
+    return r;
   }
 
   // deprecatedAttachment?
@@ -3711,7 +3747,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // AnnotationAttachment* documentationString? deprecatedAttachment? (public)? (native)? function CallableUnitSignature (CallableUnitBody | SEMICOLON)
+  // AnnotationAttachment* (documentationAttachment | documentationString)? deprecatedAttachment? (public)? (native)? function CallableUnitSignature (CallableUnitBody | SEMICOLON)
   public static boolean ObjectFunctionDefinition(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ObjectFunctionDefinition")) return false;
     boolean r, p;
@@ -3740,11 +3776,20 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return true;
   }
 
-  // documentationString?
+  // (documentationAttachment | documentationString)?
   private static boolean ObjectFunctionDefinition_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ObjectFunctionDefinition_1")) return false;
-    documentationString(b, l + 1);
+    ObjectFunctionDefinition_1_0(b, l + 1);
     return true;
+  }
+
+  // documentationAttachment | documentationString
+  private static boolean ObjectFunctionDefinition_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectFunctionDefinition_1_0")) return false;
+    boolean r;
+    r = documentationAttachment(b, l + 1);
+    if (!r) r = documentationString(b, l + 1);
+    return r;
   }
 
   // deprecatedAttachment?
@@ -3794,7 +3839,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // AnnotationAttachment* documentationString? (public)? new ObjectInitializerParameterList CallableUnitBody
+  // AnnotationAttachment* (documentationAttachment | documentationString)? (public)? new ObjectInitializerParameterList CallableUnitBody
   public static boolean ObjectInitializer(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ObjectInitializer")) return false;
     boolean r, p;
@@ -3821,11 +3866,20 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return true;
   }
 
-  // documentationString?
+  // (documentationAttachment | documentationString)?
   private static boolean ObjectInitializer_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ObjectInitializer_1")) return false;
-    documentationString(b, l + 1);
+    ObjectInitializer_1_0(b, l + 1);
     return true;
+  }
+
+  // documentationAttachment | documentationString
+  private static boolean ObjectInitializer_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectInitializer_1_0")) return false;
+    boolean r;
+    r = documentationAttachment(b, l + 1);
+    if (!r) r = documentationString(b, l + 1);
+    return r;
   }
 
   // (public)?
@@ -4772,7 +4826,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // AnnotationAttachment* documentationString? deprecatedAttachment? identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS CallableUnitBody
+  // AnnotationAttachment* (documentationAttachment | documentationString)? deprecatedAttachment? identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS CallableUnitBody
   public static boolean ResourceDefinition(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ResourceDefinition")) return false;
     boolean r, p;
@@ -4800,11 +4854,20 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return true;
   }
 
-  // documentationString?
+  // (documentationAttachment | documentationString)?
   private static boolean ResourceDefinition_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ResourceDefinition_1")) return false;
-    documentationString(b, l + 1);
+    ResourceDefinition_1_0(b, l + 1);
     return true;
+  }
+
+  // documentationAttachment | documentationString
+  private static boolean ResourceDefinition_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ResourceDefinition_1_0")) return false;
+    boolean r;
+    r = documentationAttachment(b, l + 1);
+    if (!r) r = documentationString(b, l + 1);
+    return r;
   }
 
   // deprecatedAttachment?
@@ -6307,7 +6370,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|DEPRECATED_TEMPLATE_START|'@'|native
+  // !(DOCUMENTATION_TEMPLATE_START|MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|DEPRECATED_TEMPLATE_START|'@'|native
   // |public|type|typedesc|service|function|enum|annotation|endpoint|int|float|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|future|identifier|'{')
   static boolean TopLevelDefinitionRecover(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TopLevelDefinitionRecover")) return false;
@@ -6318,13 +6381,14 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|DEPRECATED_TEMPLATE_START|'@'|native
+  // DOCUMENTATION_TEMPLATE_START|MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|DEPRECATED_TEMPLATE_START|'@'|native
   // |public|type|typedesc|service|function|enum|annotation|endpoint|int|float|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|future|identifier|'{'
   private static boolean TopLevelDefinitionRecover_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TopLevelDefinitionRecover_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeToken(b, MARKDOWN_DOCUMENTATION_LINE_START);
+    r = consumeToken(b, DOCUMENTATION_TEMPLATE_START);
+    if (!r) r = consumeToken(b, MARKDOWN_DOCUMENTATION_LINE_START);
     if (!r) r = consumeToken(b, PARAMETER_DOCUMENTATION_START);
     if (!r) r = consumeToken(b, RETURN_PARAMETER_DOCUMENTATION_START);
     if (!r) r = consumeToken(b, DEPRECATED_TEMPLATE_START);
