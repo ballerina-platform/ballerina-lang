@@ -43,7 +43,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -62,25 +62,28 @@ public class WebSocketDispatcher {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketDispatcher.class);
 
+    private WebSocketDispatcher() {
+    }
+
     /**
      * This will find the best matching service for given web socket request.
      *
-     * @param webSocketMessage incoming message.
+     * @param webSocketHandshaker incoming message.
      * @return matching service.
      */
     static WebSocketService findService(WebSocketServicesRegistry servicesRegistry,
-                                        WebSocketInitMessage webSocketMessage) {
+                                        WebSocketHandshaker webSocketHandshaker) {
         try {
             Map<String, String> pathParams = new HashMap<>();
-            String serviceUri = webSocketMessage.getTarget();
+            String serviceUri = webSocketHandshaker.getTarget();
             serviceUri = WebSocketUtil.refactorUri(serviceUri);
             URI requestUri = URI.create(serviceUri);
             WebSocketService service = servicesRegistry.getUriTemplate().matches(requestUri.getPath(), pathParams,
-                                                                                 webSocketMessage);
+                                                                                 webSocketHandshaker);
             if (service == null) {
                 throw new BallerinaConnectorException("no Service found to handle the service request: " + serviceUri);
             }
-            HttpCarbonMessage msg = webSocketMessage.getHttpCarbonRequest();
+            HttpCarbonMessage msg = webSocketHandshaker.getHttpCarbonRequest();
             msg.setProperty(HttpConstants.QUERY_STR, requestUri.getRawQuery());
             msg.setProperty(HttpConstants.RESOURCE_ARGS, pathParams);
             return service;
@@ -88,7 +91,7 @@ public class WebSocketDispatcher {
             throw new BallerinaConnectorException(e.getMessage());
         } catch (Exception e) {
             String message = "No Service found to handle the service request";
-            webSocketMessage.cancelHandshake(404, message);
+            webSocketHandshaker.cancelHandshake(404, message);
             throw new BallerinaConnectorException(message, e);
         }
     }
@@ -297,8 +300,5 @@ public class WebSocketDispatcher {
             }
             webSocketConnection.readNextFrame();
         });
-    }
-
-    private WebSocketDispatcher() {
     }
 }

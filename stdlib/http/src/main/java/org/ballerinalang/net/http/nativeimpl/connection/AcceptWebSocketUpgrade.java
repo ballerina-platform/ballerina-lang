@@ -33,7 +33,7 @@ import org.ballerinalang.net.http.WebSocketConnectionManager;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketUtil;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 
 import java.util.Set;
 
@@ -56,11 +56,11 @@ public class AcceptWebSocketUpgrade implements NativeCallableUnit {
     public void execute(Context context, CallableUnitCallback callback) {
         BMap<String, BValue> httpConnection = (BMap<String, BValue>) context.getRefArgument(0);
 
-        WebSocketInitMessage initMessage =
-                (WebSocketInitMessage) httpConnection.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
+        WebSocketHandshaker webSocketHandshaker =
+                (WebSocketHandshaker) httpConnection.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
         WebSocketConnectionManager connectionManager = (WebSocketConnectionManager) httpConnection
                 .getNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER);
-        if (initMessage == null) {
+        if (webSocketHandshaker == null) {
             throw new BallerinaConnectorException("Not a WebSocket upgrade request. Cannot upgrade from HTTP to WS");
         }
         if (connectionManager == null) {
@@ -78,7 +78,8 @@ public class AcceptWebSocketUpgrade implements NativeCallableUnit {
             httpHeaders.add(key, headers.get(key));
         }
 
-        WebSocketUtil.handleHandshake(webSocketService, connectionManager, httpHeaders, initMessage, context, callback);
+        WebSocketUtil.handleHandshake(webSocketService, connectionManager, httpHeaders, webSocketHandshaker, context,
+                                      callback);
     }
 
     @Override
