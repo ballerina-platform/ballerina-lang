@@ -82,3 +82,19 @@ function testUnionTypeArrayWithValueTypeArrayAssignment() returns int {
     GlobalParam[] globalParamArray = intArray;
     return lengthof globalParamArray;
 }
+
+public type Person object {
+    string name,
+};
+
+function testRecordLiteralAssignment() returns string {
+    Person|error x = {name:"John", id:12};
+    match x {
+        Person p => {
+            return "Invalid";
+        }
+        error e => {
+            return <string> e.name;
+        }
+    }
+}
