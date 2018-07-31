@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**
@@ -27,7 +26,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
  *
  * @since 0.980.0
  */
-public abstract class BIROperand {
+public abstract class BIROperand extends BIRNode {
 
     public BType type;
     public Kind kind;
@@ -50,6 +49,11 @@ public abstract class BIROperand {
             super(variableDcl.type, Kind.VAR_REF);
             this.variableDcl = variableDcl;
         }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
     }
 
     /**
@@ -64,6 +68,11 @@ public abstract class BIROperand {
         public BIRConstant(BType type, Object value) {
             super(type, Kind.CONST);
             this.value = value;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
         }
     }
 
