@@ -17,6 +17,7 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
 import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
@@ -380,7 +381,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         List<SelectExpressionNode> selectExpressions = selectClause.getSelectExpressions();
         for (SelectExpressionNode select : selectExpressions) {
             ExpressionNode selectExpr = select.getExpression();
-            if (selectExpr instanceof BLangInvocation) {
+            if (selectExpr.getKind() == NodeKind.INVOCATION) {
                 BLangInvocation invocation = (BLangInvocation) selectExpr;
                 BInvokableSymbol aggregatorInvokableSymbol = (BInvokableSymbol) symResolver.
                         resolvePkgSymbol(selectClause.pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
@@ -1077,12 +1078,12 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                         ((BLangFieldBasedAccess) selectExpression.getExpression()).field.value);
             }
 
-            if (selectExpression.getExpression() instanceof BLangFieldBasedAccess) {
+            if (selectExpression.getExpression().getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
                 BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) selectExpression.getExpression();
                 recordKeyValue.valueExpr = createTypeCastedVariableFieldAccessExpr(typeCastedVariableSymbol,
                         fieldBasedAccess);
             } else {
-                if (isGroupBy && selectExpression.getExpression() instanceof BLangInvocation) {
+                if (isGroupBy && selectExpression.getExpression().getKind() == NodeKind.INVOCATION) {
                     // Aggregator invocation in streaming query ( sum(..), count(..) .. etc)
                     BLangInvocation selectFuncInvocation = (BLangInvocation) selectExpression.getExpression();
 
@@ -1160,7 +1161,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         List<BLangExpression> args = new ArrayList<>();
         int i = 0;
         for (BLangExpression expr : funcInvocation.argExprs) {
-            if (expr instanceof BLangFieldBasedAccess) {
+            if (expr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
                 BLangExpression fieldAccessExpr = createTypeCastedVariableFieldAccessExpr
                         (typeCastedVariableSymbol, expr);
                 BLangExpression castExpr = Desugar.addConversionExprIfRequired(fieldAccessExpr,
