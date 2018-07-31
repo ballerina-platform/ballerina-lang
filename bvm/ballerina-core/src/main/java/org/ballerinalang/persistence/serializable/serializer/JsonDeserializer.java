@@ -167,17 +167,21 @@ public class JsonDeserializer {
     /**
      * Convert to desired type if special conditions are matched.
      * @param obj
-     * @param type
+     * @param targetType
      * @return
      */
-    private Object cast(Object obj, Class type) {
+    private Object cast(Object obj, Class targetType) {
         // JsonParser always treat integer numbers as longs, if target field is int then cast to int.
-        if ((type == Integer.class && obj.getClass() == Long.class)
-        || (type.getName().equals("int") && obj.getClass() == Long.class)) {
+        if ((targetType == Integer.class && obj.getClass() == Long.class)
+        || (targetType.getName().equals("int") && obj.getClass() == Long.class)) {
             return ((Long) obj).intValue();
         }
 
-        // also do for double/float
+        // JsonParser always treat float numbers as doubles, if target field is float then cast to float.
+        if ((targetType == Float.class && obj.getClass() == Double.class)
+        || (targetType.getName().equals("float") && obj.getClass() == Double.class)) {
+            return ((Double) obj).floatValue();
+        }
 
         return obj;
     }
