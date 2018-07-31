@@ -317,8 +317,8 @@ public class ServerInstance implements Server {
         String[] cmdArray;
         Process process;
         if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
-            commandDir = new File(serverHome + File.separator + "bin");
-            cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat", command};
+            cmdArray = new String[]{"cmd.exe", "/c", serverHome + File.separator + "bin" + File.separator + scriptName
+                    + ".bat", command};
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
                                      .toArray(String[]::new);
             process = Runtime.getRuntime().exec(cmdArgs, envVariables, commandDir);

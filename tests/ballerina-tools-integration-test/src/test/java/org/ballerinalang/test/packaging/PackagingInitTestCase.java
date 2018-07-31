@@ -42,7 +42,6 @@ import java.util.Map;
  * Testing pushing, pulling, searching a package from central and installing package to home repository.
  */
 public class PackagingInitTestCase extends IntegrationTestCase {
-    private final int defaultPort = 9092;
     private ServerInstance ballerinaServer;
     private String serverZipPath;
     private Path tempProjectDirectory;
