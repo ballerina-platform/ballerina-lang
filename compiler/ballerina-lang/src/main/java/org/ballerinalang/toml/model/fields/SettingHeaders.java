@@ -46,14 +46,4 @@ public enum SettingHeaders {
     public static SettingHeaders valueOfLowerCase(String fieldKey) {
         return LOOKUP.get(fieldKey);
     }
-
-    /**
-     * Check if the section header matches the toml header.
-     *
-     * @param match section header in the toml file
-     * @return if it matches or not
-     */
-    public boolean stringEquals(String match) {
-        return toString().toLowerCase(Locale.ENGLISH).equals(match);
-    }
 }

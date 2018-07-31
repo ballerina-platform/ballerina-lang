@@ -38,7 +38,7 @@ public class SettingsBuildListener extends TomlBaseListener {
     private final Proxy proxy = new Proxy();
     private final Central central = new Central();
     private final SingletonStack<String> currentKey = new SingletonStack<>();
-    private String currentHeader = null;
+    private SettingHeaders currentHeader = null;
 
     /**
      * Cosntructor with the settings object.
@@ -73,9 +73,9 @@ public class SettingsBuildListener extends TomlBaseListener {
      * Add the dependencies and patches to the manifest object.
      */
     private void setSettingObj() {
-        if (SettingHeaders.CENTRAL.stringEquals(currentHeader)) {
+        if (SettingHeaders.CENTRAL == currentHeader) {
             this.settings.setCentral(central);
-        } else if (SettingHeaders.PROXY.stringEquals(currentHeader)) {
+        } else if (SettingHeaders.PROXY == currentHeader) {
             this.settings.setProxy(proxy);
         }
     }
@@ -87,12 +87,12 @@ public class SettingsBuildListener extends TomlBaseListener {
      */
     private void setToManifest(String value) {
         if (currentKey.present()) {
-            if (SettingHeaders.PROXY.stringEquals(currentHeader)) {
+            if (SettingHeaders.PROXY == currentHeader) {
                 ProxyField proxyField = ProxyField.valueOfLowerCase(currentKey.pop());
                 if (proxyField != null) {
                     proxyField.setValueTo(proxy, value);
                 }
-            } else if (SettingHeaders.CENTRAL.stringEquals(currentHeader)) {
+            } else if (SettingHeaders.CENTRAL == currentHeader) {
                 CentralField centralField = CentralField.valueOfLowerCase(currentKey.pop());
                 if (centralField != null) {
                     centralField.setValueTo(central, value);
@@ -111,7 +111,7 @@ public class SettingsBuildListener extends TomlBaseListener {
         if (SettingHeaders.valueOfLowerCase(key) == null) {
             throw new BLangCompilerException("invalid header [" + key + "] found in Settings.toml");
         } else {
-            currentHeader = key;
+            currentHeader = SettingHeaders.valueOfLowerCase(key);
         }
     }
 }
