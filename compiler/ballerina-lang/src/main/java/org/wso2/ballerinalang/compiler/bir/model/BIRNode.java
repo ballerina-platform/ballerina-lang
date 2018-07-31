@@ -31,6 +31,8 @@ import java.util.List;
  */
 public abstract class BIRNode {
 
+    public abstract void accept(BIRVisitor visitor);
+
     /**
      * A package definition.
      *
@@ -47,6 +49,11 @@ public abstract class BIRNode {
             this.version = version;
             this.functions = new ArrayList<>();
             this.types = new ArrayList<>();
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
         }
 
         // SymbolTable - declaration
@@ -73,6 +80,11 @@ public abstract class BIRNode {
             this.type = type;
             this.name = name;
             this.kind = kind;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
         }
     }
 
@@ -132,6 +144,11 @@ public abstract class BIRNode {
             this.localVars = new ArrayList<>();
             this.basicBlocks = new ArrayList<>();
         }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
     }
 
     /**
@@ -147,6 +164,11 @@ public abstract class BIRNode {
         public BIRBasicBlock(Name id) {
             this.id = id;
             this.instructions = new ArrayList<>();
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
         }
     }
 }

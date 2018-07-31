@@ -17,8 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
-
 /**
  * Terminators connects basic blocks together.
  * <p>
@@ -26,7 +24,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
  *
  * @since 0.980.0
  */
-public abstract class BIRTerminator implements BIRInstruction {
+public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
 
     /**
      * A goto instruction.
@@ -37,6 +35,11 @@ public abstract class BIRTerminator implements BIRInstruction {
      */
     public static class GOTO extends BIRTerminator {
         public BIRBasicBlock bb;
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
     }
 
 
@@ -56,6 +59,11 @@ public abstract class BIRTerminator implements BIRInstruction {
         public BIROperand.BIRVarRef getLhsOperand() {
             return lhsOp;
         }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
     }
 
     /**
@@ -66,5 +74,9 @@ public abstract class BIRTerminator implements BIRInstruction {
      * @since 0.980.0
      */
     public static class Return extends BIRTerminator {
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
     }
 }

@@ -28,7 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
  *
  * @since 0.980.0
  */
-public abstract class BIRNonTerminator implements BIRInstruction {
+public abstract class BIRNonTerminator extends BIRNode implements BIRInstruction {
 
 
     /**
@@ -51,6 +51,11 @@ public abstract class BIRNonTerminator implements BIRInstruction {
         @Override
         public BIRVarRef getLhsOperand() {
             return lhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
         }
     }
 
@@ -85,6 +90,11 @@ public abstract class BIRNonTerminator implements BIRInstruction {
         public BIRVarRef getLhsOperand() {
             return lhsOp;
         }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
     }
 
     /**
@@ -103,6 +113,11 @@ public abstract class BIRNonTerminator implements BIRInstruction {
         public BIRVarRef getLhsOperand() {
             return lhsOp;
         }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
     }
 
     /**
@@ -120,6 +135,11 @@ public abstract class BIRNonTerminator implements BIRInstruction {
         @Override
         public BIRVarRef getLhsOperand() {
             return lhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
         }
     }
 }
