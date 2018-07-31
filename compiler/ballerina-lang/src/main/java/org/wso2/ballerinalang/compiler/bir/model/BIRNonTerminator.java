@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
+import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand.BIRVarRef;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
@@ -61,14 +62,14 @@ public abstract class BIRNonTerminator implements BIRInstruction {
      * @since 0.980.0
      */
     public static class BinaryOp extends BIRNonTerminator implements BIRAssignInstruction {
-        public BinaryOpKind binaryOpKind;
+        public OperatorKind binaryOpKind;
         public BType type;
         public BIRVarRef lhsOp;
         public BIROperand rhsOp1;
         public BIROperand rhsOp2;
         public InstructionKind instructionKind;
 
-        public BinaryOp(BinaryOpKind binaryOpKind,
+        public BinaryOp(OperatorKind binaryOpKind,
                         BType type,
                         BIRVarRef lhsOp,
                         BIROperand rhsOp1,
