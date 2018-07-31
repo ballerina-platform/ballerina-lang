@@ -209,7 +209,6 @@ public interface InstructionCodes {
     int CHECKCAST = 181;
 
     int ANY2TYPE = 183;
-    int NULL2S = 185;
 
     int LOCK = 186;
     int UNLOCK = 187;
@@ -258,6 +257,7 @@ public interface InstructionCodes {
     int BIXOR = 226;
     int IXOR = 227;
     int BACONST = 228;
+    int IURSHIFT = 229;
 
     int IRET = 230;
     int FRET = 231;
