@@ -38,7 +38,7 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG
 import static org.ballerinalang.util.observability.ObservabilityConstants.UNKNOWN_SERVICE;
 
 /**
- * This class wraps opentracing apis and exposes native functions to use within ballerina.
+ * This class wraps opentracing apis and exposes extern functions to use within ballerina.
  */
 public class OpenTracerBallerinaWrapper {
 

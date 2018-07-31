@@ -17,7 +17,7 @@ IMPORT      : 'import' ;
 AS          : 'as' ;
 PUBLIC      : 'public' ;
 PRIVATE     : 'private' ;
-NATIVE      : 'native' ;
+EXTERN      : 'extern' ;
 SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
@@ -184,8 +184,9 @@ OR          : '||' ;
 
 // Bitwise Operators
 
-BITAND  : '&' ;
-BITXOR  : '^' ;
+BIT_AND          : '&' ;
+BIT_XOR          : '^' ;
+BIT_COMPLEMENT   : '~' ;
 
 // Additional symbols 
 
@@ -497,7 +498,7 @@ DeprecatedTemplateStart
     ;
 
 ExpressionEnd
-    :   {inTemplate}? RIGHT_BRACE WS* RIGHT_BRACE   ->  popMode
+    :   {inTemplate}? RIGHT_BRACE RIGHT_BRACE   ->  popMode
     ;
 
 DocumentationTemplateAttributeEnd

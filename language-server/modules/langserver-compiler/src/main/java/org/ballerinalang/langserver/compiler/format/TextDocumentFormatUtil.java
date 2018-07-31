@@ -84,8 +84,8 @@ public class TextDocumentFormatUtil {
                                     LSContext context) throws InvocationTargetException, IllegalAccessException {
         String[] uriParts = uri.split(Pattern.quote(File.separator));
         String fileName = uriParts[uriParts.length - 1];
-        final BLangPackage bLangPackage = LSCompiler.getBLangPackage(context, documentManager,
-                true, LSCustomErrorStrategy.class, false).get(0);
+        final BLangPackage bLangPackage = LSCompiler.getBLangPackage(context, documentManager, 
+                true, LSCustomErrorStrategy.class, false).getRight();
         context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
         final List<Diagnostic> diagnostics = new ArrayList<>();
         JsonArray errors = new JsonArray();
@@ -262,9 +262,6 @@ public class TextDocumentFormatUtil {
                 }
             } else if (prop != null) {
                 nodeJson.addProperty(jsonName, prop.toString());
-                String message = "Node " + node.getClass().getSimpleName() +
-                        " contains unknown type prop: " + jsonName + " of type " + prop.getClass();
-                logger.error(message);
             }
         }
         return nodeJson;
@@ -291,11 +288,7 @@ public class TextDocumentFormatUtil {
     public static JsonArray getType(Node node) {
         BType type = ((BLangNode) node).type;
         if (node instanceof BLangInvocation) {
-            JsonArray jsonElements = new JsonArray();
-            /*for (BType returnType : ((BLangInvocation) node).types) {
-                jsonElements.add(returnType.getKind().typeName());
-            }*/
-            return jsonElements;
+            return new JsonArray();
         } else if (type != null) {
             JsonArray jsonElements = new JsonArray();
             jsonElements.add(type.getKind().typeName());

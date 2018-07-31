@@ -122,7 +122,7 @@ public class H2ClientActionsTest {
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
         Assert.assertEquals(returns[1].stringValue(),
-                "[{\"customerId\":15,\"name\":\"Anne\",\"creditLimit\":1000.0," + "\"country\":\"UK\"}]");
+                "[{\"customerId\":15, \"name\":\"Anne\", \"creditLimit\":1000.0, \"country\":\"UK\"}]");
     }
 
     @Test
@@ -157,7 +157,7 @@ public class H2ClientActionsTest {
     public void testH2MemDBUpdate() {
         BValue[] returns = BRunUtil.invoke(result, "testH2MemDBUpdate");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
-        Assert.assertEquals(returns[1].stringValue(), "[{\"ID\":15,\"NAME\":\"Anne\"}]");
+        Assert.assertEquals(returns[1].stringValue(), "[{\"ID\":15, \"NAME\":\"Anne\"}]");
     }
 
     @AfterSuite

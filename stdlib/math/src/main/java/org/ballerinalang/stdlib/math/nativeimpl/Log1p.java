@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.math:log1p.
+ * Extern function ballerina.math:log1p.
  *
  * @since 0.94
  */

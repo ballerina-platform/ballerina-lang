@@ -49,7 +49,7 @@ import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.Header;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -232,7 +232,7 @@ public class Util {
         BXMLItem xmlContent = new BXMLItem("<name>Ballerina</name>");
         BMap<String, BValue> bodyPart = getEntityStruct(result);
         EntityBodyChannel byteChannel = new EntityBodyChannel(new ByteArrayInputStream(
-                xmlContent.getMessageAsString().getBytes(StandardCharsets.UTF_8)));
+                xmlContent.stringValue().getBytes(StandardCharsets.UTF_8)));
         bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(byteChannel));
         MimeUtil.setContentType(getMediaTypeStruct(result), bodyPart, APPLICATION_XML);
         return bodyPart;
@@ -424,7 +424,7 @@ public class Util {
      * @param nettyEncoder   Represent netty encoder that holds the actual http content
      * @throws Exception In case content cannot be read from netty encoder
      */
-    private static void addMultipartsToCarbonMessage(HTTPCarbonMessage httpRequestMsg,
+    private static void addMultipartsToCarbonMessage(HttpCarbonMessage httpRequestMsg,
                                                      HttpPostRequestEncoder nettyEncoder) throws Exception {
         while (!nettyEncoder.isEndOfInput()) {
             httpRequestMsg.addHttpContent(nettyEncoder.readChunk(ByteBufAllocator.DEFAULT));
@@ -438,7 +438,7 @@ public class Util {
      * @param outboundRequest Represent outbound carbon request
      * @param requestStruct   Ballerina request struct which contains multipart data
      */
-    private static void prepareRequestWithMultiparts(HTTPCarbonMessage outboundRequest,
+    private static void prepareRequestWithMultiparts(HttpCarbonMessage outboundRequest,
                                                      BMap<String, BValue> requestStruct) {
         BMap<String, BValue> entityStruct = requestStruct.get(REQUEST_ENTITY_FIELD) != null ?
                                 (BMap<String, BValue>) requestStruct.get(REQUEST_ENTITY_FIELD) : null;

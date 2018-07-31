@@ -94,6 +94,8 @@ class DebuggerPanel extends View {
             this.setState({
                 active: false,
                 isDebugging: false,
+                messages: [],
+                threadId: null,
             });
         });
 

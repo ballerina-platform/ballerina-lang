@@ -925,12 +925,14 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         } else {
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
             if (invokableSymbol.taintTable == null) {
-                if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS
-                        || (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE
-                        && ignoredInvokableSymbol == invokableSymbol)) {
+                if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS) {
                     // If a looping invocation is being analyzed, skip analysis of invokable that does not have taint
                     // table already attached. This will prevent the analyzer to go in to a loop unnecessarily.
                     ignoredInvokableSymbol = invokableSymbol;
+                }
+                if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS
+                        || (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE
+                        && ignoredInvokableSymbol == invokableSymbol)) {
                     this.taintedStatus = TaintedStatus.IGNORED;
                     analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS_COMPLETE;
                 } else {

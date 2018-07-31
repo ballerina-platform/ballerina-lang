@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.system:getEnv.
+ * Extern function ballerina.system:getEnv.
  *
  * @since 0.94.1
  */

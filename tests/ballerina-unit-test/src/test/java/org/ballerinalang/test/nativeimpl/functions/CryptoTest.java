@@ -18,8 +18,8 @@ package org.ballerinalang.test.nativeimpl.functions;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BByteArray;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
@@ -29,6 +29,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.nio.charset.StandardCharsets;
+import java.util.zip.CRC32;
 
 /**
  * Test cases for ballerina.crypto native functions.
@@ -122,11 +123,14 @@ public class CryptoTest {
 
     @Test(description = "Testing CRC32 generation for JSON")
     public void testCRC32ForJSON() {
-        String payload = "{'name':{'fname':'Jack','lname':'Taylor'}, 'state':'CA', 'age':20}";
-        String expectedCRC32Hash = "ce5879b2";
+        String payload = "{\"name\":{\"fname\":\"Jack\", \"lname\":\"Taylor\"}, \"state\":\"CA\", \"age\":20}";
+
+        CRC32 crc = new CRC32();
+        crc.update(payload.getBytes());
+        String expectedCRC32Hash = Long.toHexString(crc.getValue());
 
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testHashWithCRC32ForJSON",
-                                                new BValue[]{new BJSON(payload)});
+                                                new BValue[]{ JsonParser.parse(payload) });
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null);
         Assert.assertEquals(returnValues[0].stringValue(), expectedCRC32Hash);
     }

@@ -25,14 +25,14 @@ public type GrpcClient object {
         P{{res}} - The inbound request message.
         R{{}} - Returns an error if encounters an error while sending the response, returns nil otherwise.
     }
-    public native function send(any res) returns error?;
+    public extern function send(any res) returns error?;
 
     documentation {
         Informs the server, caller finished sending messages.
 
         R{{}} - Returns an error if encounters an error while sending the response, returns nil otherwise.
     }
-    public native function complete() returns error?;
+    public extern function complete() returns error?;
 
     documentation {
         Sends error message to the server.
@@ -41,5 +41,5 @@ public type GrpcClient object {
         P{{message}} - Error message.
         R{{}} - Returns an error if encounters an error while sending the response, returns nil otherwise.
     }
-    public native function sendError(int statusCode, string message) returns error?;
+    public extern function sendError(int statusCode, string message) returns error?;
 };

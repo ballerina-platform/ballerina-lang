@@ -19,13 +19,13 @@ package org.ballerinalang.launcher.util;
 
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
+import java.nio.file.CopyOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 
 /**
@@ -48,7 +48,7 @@ public class BFileUtil {
             Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>() {
 
                 @Override
-                public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                public FileVisitResult visitFileFailed(Path file, IOException exc) {
                     return FileVisitResult.CONTINUE;
                 }
 
@@ -63,7 +63,10 @@ public class BFileUtil {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     if (!IGNORE.equals(file.getFileName().toString()) && Files.exists(file)) {
-                        Files.copy(file, targetPath.resolve(sourcePath.relativize(file)));
+                        CopyOption[] option = {
+                                StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES
+                        };
+                        Files.copy(file, targetPath.resolve(sourcePath.relativize(file)), option);
                     }
                     return FileVisitResult.CONTINUE;
                 }
@@ -81,19 +84,29 @@ public class BFileUtil {
      */
     public static void delete(Path path) {
         try {
-            File resource = path.toFile();
-            if (!resource.exists()) {
-                return;
-            } else if (resource.isFile()) {
-                Files.delete(path);
-                //if the resource is a directory, recursively deletes the sub directories/files accordingly
-            } else if (resource.isDirectory()) {
-                DirectoryStream<Path> ds = Files.newDirectoryStream(path);
-                for (Path subPath : ds) {
-                    delete(subPath);
-                }
-            }
+            Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
 
+                @Override
+                public FileVisitResult visitFileFailed(Path file, IOException exc) {
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    if (Files.exists(file)) {
+                        Files.delete(file);
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    if (Files.exists(dir)) {
+                        Files.list(dir).forEach(BFileUtil::delete);
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+            });
         } catch (IOException e) {
             throw new BLangRuntimeException("error occured while deleting '" + path + "'", e);
         }

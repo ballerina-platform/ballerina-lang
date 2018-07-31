@@ -37,9 +37,9 @@ public class AnnotationAttachments extends CompletionTest {
     public Object[][] dataProvider() {
         return new Object[][] {
                 {"serviceAnnotation1.json", "annotation"},
-                {"serviceAnnotation2.json", "annotation"},
-                {"resourceAnnotation1.json", "annotation"},
-                {"resourceAnnotation2.json", "annotation"},
+//                {"serviceAnnotation2.json", "annotation"},
+//                {"resourceAnnotation1.json", "annotation"},
+//                {"resourceAnnotation2.json", "annotation"},
         };
     }
 }

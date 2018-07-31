@@ -27,6 +27,7 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -41,7 +42,8 @@ public class ServiceSkeletonTest {
 
     @BeforeClass
     public void setup() {
-        sourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        sourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
+                .getAbsolutePath();
         System.setProperty("java.util.logging.manager", "org.ballerinalang.logging.BLogManager");
         System.setProperty("java.util.logging.config.file", "logging.properties");
         System.setProperty(TesterinaConstants.BALLERINA_SOURCE_ROOT, sourceRoot);

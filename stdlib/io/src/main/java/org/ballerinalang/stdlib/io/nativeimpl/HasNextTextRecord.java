@@ -38,7 +38,7 @@ import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 
 /**
- * Native function ballerina/io#hasNextTextRecord.
+ * Extern function ballerina/io#hasNextTextRecord.
  *
  * @since 0.961.0
  */

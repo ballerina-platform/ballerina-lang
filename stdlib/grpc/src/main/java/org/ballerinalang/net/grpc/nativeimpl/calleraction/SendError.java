@@ -44,7 +44,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
- * Native function to send server error the caller.
+ * Extern function to send server error the caller.
  *
  * @since 1.0.0
  */

@@ -20,31 +20,31 @@ documentation {
     P{{key}} The key to be removed
     R{{}} A boolean to indicate whether the key is removed or not from map
 }
-public native function map::remove(string key) returns (boolean);
+public extern function map::remove(string key) returns (boolean);
 
 documentation {
     Returns an array of keys contained in the specified map.
 
     R{{}} A string array of keys contained in the specified map
 }
-public native function map::keys() returns (string[]);
+public extern function map::keys() returns (string[]);
 
 documentation {
     Check whether specific key exists from the given map.
 
     P{{key}} The key to be find existence
 }
-public native function map::hasKey(string key) returns (boolean);
+public extern function map::hasKey(string key) returns (boolean);
 
 documentation {
     Clear the items from given map.
 
 }
-public native function map::clear();
+public extern function map::clear();
 
 documentation {
     Returns an array of values contained in the specified map.
 
     R{{}} An any array of values contained in the specified map
 }
-public native function map::values() returns (any[]);
+public extern function map::values() returns (any[]);

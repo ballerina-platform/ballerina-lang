@@ -180,4 +180,4 @@ function createFailoverRequest(Request request, mime:Entity requestEntity) retur
 }
 
 //Resolve a given path against a given URI.
-native function resolve(string baseUrl, string path) returns string|error;
+extern function resolve(string baseUrl, string path) returns string|error;
