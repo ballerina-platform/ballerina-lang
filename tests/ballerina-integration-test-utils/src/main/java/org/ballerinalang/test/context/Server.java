@@ -50,9 +50,11 @@ public interface Server {
      * @param args Ballerina files to be passed as arguments
      * @param envVariables Environment variables passed
      * @param command Command to be executed
+     * @param dirPath Path of the working directory of the sub process
      * @throws BallerinaTestException if any exception is thrown when running the main function
      */
-    public void runMain(String[] args, String[] envVariables, String command) throws BallerinaTestException;
+    void runMain(String[] args, String[] envVariables, String command, String dirPath)
+            throws BallerinaTestException;
 
     /**
      * Checks if the server is already running.
