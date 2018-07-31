@@ -293,8 +293,8 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.globalEndpoints.forEach(endpoint -> endpointDesugar.defineGlobalEndpoint(endpoint, env));
         endpointDesugar.rewriteAllEndpointsInPkg(pkgNode, env);
         endpointDesugar.rewriteServiceBoundToEndpointInPkg(pkgNode, env);
-        pkgNode.functions = rewrite(pkgNode.functions, env);
         pkgNode.services = rewrite(pkgNode.services, env);
+        pkgNode.functions = rewrite(pkgNode.functions, env);
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
         pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
@@ -1368,7 +1368,8 @@ public class Desugar extends BLangNodeVisitor {
      */
     private boolean isBitwiseShiftOperation(BLangBinaryExpr binaryExpr) {
         return binaryExpr.opKind == OperatorKind.BITWISE_LEFT_SHIFT ||
-                binaryExpr.opKind == OperatorKind.BITWISE_RIGHT_SHIFT;
+                binaryExpr.opKind == OperatorKind.BITWISE_RIGHT_SHIFT ||
+                binaryExpr.opKind == OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT;
     }
 
     public void visit(BLangElvisExpr elvisExpr) {
@@ -1403,8 +1404,42 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangUnaryExpr unaryExpr) {
+        if (OperatorKind.BITWISE_COMPLEMENT == unaryExpr.operator) {
+            // If this is a bitwise complement (~) expression, then we desugar it to a binary xor expression with -1,
+            // which is same as doing a bitwise 2's complement operation.
+            rewriteBitwiseComplementOperator(unaryExpr);
+            return;
+        }
         unaryExpr.expr = rewriteExpr(unaryExpr.expr);
         result = unaryExpr;
+    }
+
+    /**
+     * This method desugar a bitwise complement (~) unary expressions into a bitwise xor binary expression as below.
+     * Example : ~a  -> a ^ -1;
+     * ~ 11110011 -> 00001100
+     * 11110011 ^ 11111111 -> 00001100
+     *
+     * @param unaryExpr the bitwise complement expression
+     */
+    private void rewriteBitwiseComplementOperator(BLangUnaryExpr unaryExpr) {
+        final DiagnosticPos pos = unaryExpr.pos;
+        final BLangBinaryExpr binaryExpr = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
+        binaryExpr.pos = pos;
+        binaryExpr.opKind = OperatorKind.BITWISE_XOR;
+        binaryExpr.lhsExpr = unaryExpr.expr;
+        if (TypeTags.BYTE == unaryExpr.type.tag) {
+            binaryExpr.type = symTable.byteType;
+            binaryExpr.rhsExpr = ASTBuilderUtil.createLiteral(pos, symTable.byteType, (byte) -1);
+            binaryExpr.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.BITWISE_XOR,
+                    symTable.byteType, symTable.byteType);
+        } else {
+            binaryExpr.type = symTable.intType;
+            binaryExpr.rhsExpr = ASTBuilderUtil.createLiteral(pos, symTable.intType, -1L);
+            binaryExpr.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.BITWISE_XOR,
+                    symTable.intType, symTable.intType);
+        }
+        result = rewriteExpr(binaryExpr);
     }
 
     @Override

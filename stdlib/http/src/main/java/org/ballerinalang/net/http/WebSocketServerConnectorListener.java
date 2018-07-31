@@ -33,7 +33,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
@@ -60,20 +60,21 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
     }
 
     @Override
-    public void onMessage(WebSocketInitMessage webSocketInitMessage) {
-        WebSocketService wsService = WebSocketDispatcher.findService(servicesRegistry, webSocketInitMessage);
+    public void onHandshake(WebSocketHandshaker webSocketHandshaker) {
+        WebSocketService wsService = WebSocketDispatcher.findService(servicesRegistry, webSocketHandshaker);
+
         HttpResource onUpgradeResource = wsService.getUpgradeResource();
         if (onUpgradeResource != null) {
-            webSocketInitMessage.getHttpCarbonRequest().setProperty(HttpConstants.RESOURCES_CORS,
-                                                                    onUpgradeResource.getCorsHeaders());
+            webSocketHandshaker.getHttpCarbonRequest().setProperty(HttpConstants.RESOURCES_CORS,
+                    onUpgradeResource.getCorsHeaders());
             Resource balResource = onUpgradeResource.getBalResource();
-            BValue[] signatureParams = HttpDispatcher.getSignatureParameters(onUpgradeResource, webSocketInitMessage
+            BValue[] signatureParams = HttpDispatcher.getSignatureParameters(onUpgradeResource, webSocketHandshaker
                     .getHttpCarbonRequest(), httpEndpointConfig);
 
             BMap<String, BValue> httpServiceEndpoint = (BMap<String, BValue>) signatureParams[0];
             BMap<String, BValue> httpConnection =
                     (BMap<String, BValue>) httpServiceEndpoint.get(SERVICE_ENDPOINT_CONNECTION_FIELD);
-            httpConnection.addNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, webSocketInitMessage);
+            httpConnection.addNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, webSocketHandshaker);
             httpConnection.addNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
             httpConnection.addNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER, connectionManager);
 
@@ -82,34 +83,34 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                     SERVER_CONNECTOR_WEBSOCKET, wsService.getServiceInfo(), balResource.getName(),
                     null);
 
-            Executor.submit(balResource, new OnUpgradeResourceCallableUnitCallback(webSocketInitMessage, wsService),
+            Executor.submit(balResource, new OnUpgradeResourceCallableUnitCallback(webSocketHandshaker, wsService),
                             null, observerContext.orElse(null), signatureParams);
 
         } else {
-            WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketInitMessage, null, null);
+            WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketHandshaker, null, null);
         }
     }
 
     private class OnUpgradeResourceCallableUnitCallback implements CallableUnitCallback {
-        private final WebSocketInitMessage webSocketInitMessage;
+        private final WebSocketHandshaker webSocketHandshaker;
         private final WebSocketService wsService;
 
-        public OnUpgradeResourceCallableUnitCallback(WebSocketInitMessage webSocketInitMessage,
+        public OnUpgradeResourceCallableUnitCallback(WebSocketHandshaker webSocketHandshaker,
                                                      WebSocketService wsService) {
-            this.webSocketInitMessage = webSocketInitMessage;
+            this.webSocketHandshaker = webSocketHandshaker;
             this.wsService = wsService;
         }
 
         @Override
         public void notifySuccess() {
-            if (!webSocketInitMessage.isCancelled() && !webSocketInitMessage.isHandshakeStarted()) {
-                WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketInitMessage, null, null);
+            if (!webSocketHandshaker.isCancelled() && !webSocketHandshaker.isHandshakeStarted()) {
+                WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketHandshaker, null, null);
             } else {
-                if (!webSocketInitMessage.isCancelled()) {
+                if (!webSocketHandshaker.isCancelled()) {
                     Resource onOpenResource = wsService.getResourceByName(
                             WebSocketConstants.RESOURCE_NAME_ON_OPEN);
                     WebSocketOpenConnectionInfo connectionInfo =
-                            connectionManager.getConnectionInfo(webSocketInitMessage.getConnectionId());
+                            connectionManager.getConnectionInfo(webSocketHandshaker.getChannelId());
                     WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
                     BMap<String, BValue> webSocketEndpoint = connectionInfo.getWebSocketEndpoint();
                     BMap<String, BValue> webSocketConnector = (BMap<String, BValue>) webSocketEndpoint
@@ -128,7 +129,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
         public void notifyFailure(BMap<String, BValue> error) {
             ErrorHandlerUtils.printError(BLangVMErrors.getPrintableStackTrace(error));
             WebSocketOpenConnectionInfo connectionInfo =
-                    connectionManager.getConnectionInfo(webSocketInitMessage.getConnectionId());
+                    connectionManager.getConnectionInfo(webSocketHandshaker.getChannelId());
             if (connectionInfo != null) {
                 WebSocketUtil.closeDuringUnexpectedCondition(connectionInfo.getWebSocketConnection());
             }
@@ -162,7 +163,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
     @Override
     public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
         WebSocketDispatcher.dispatchError(
-                connectionManager.removeConnectionInfo(webSocketConnection.getId()), throwable);
+                connectionManager.removeConnectionInfo(webSocketConnection.getChannelId()), throwable);
     }
 
     @Override
@@ -171,7 +172,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
     }
 
     private String getConnectionId(WebSocketMessage webSocketMessage) {
-        return webSocketMessage.getWebSocketConnection().getId();
+        return webSocketMessage.getWebSocketConnection().getChannelId();
     }
 }
 
