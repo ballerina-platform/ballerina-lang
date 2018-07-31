@@ -293,7 +293,7 @@ public class ServerInstance implements Server {
             process = executeProcess(args, envVariables, command, commandDir);
             // Wait until the options are prompted
             Thread.sleep(3000);
-            writeClientOptionsToProcess(options, command, process);
+            writeClientOptionsToProcess(options, process);
             deleteWorkDir();
         } catch (IOException e) {
             throw new BallerinaTestException("Error executing ballerina", e);
@@ -336,21 +336,18 @@ public class ServerInstance implements Server {
      * Write client options to process.
      *
      * @param options client options
-     * @param command command name
      * @param process process executed
      * @throws IOException
      */
-    private void writeClientOptionsToProcess(String[] options, String command, Process process) throws IOException {
-        if (command.equals("init")) {
-            OutputStream stdin = process.getOutputStream();
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stdin));
+    private void writeClientOptionsToProcess(String[] options, Process process) throws IOException {
+        OutputStream stdin = process.getOutputStream();
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stdin));
 
-            for (String arguments : options) {
-                writer.write(arguments);
-            }
-            writer.flush();
-            writer.close();
+        for (String arguments : options) {
+            writer.write(arguments);
         }
+        writer.flush();
+        writer.close();
     }
 
     /**
