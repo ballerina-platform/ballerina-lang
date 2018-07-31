@@ -1,6 +1,0 @@
-#To run this sample, navigate to the directory that contains the
-#'.bal' file and issue the 'ballerina run' command.
-$ ballerina run closures.bal
-Answer: 48
-Answer: 63
-Answer: 15
