@@ -142,7 +142,8 @@ public class JsonDeserializer {
         try {
             Field field = target.getClass().getDeclaredField(fieldName);
             field.setAccessible(true);
-            field.set(target, deserialize(fieldNode));
+            Object obj = deserialize(fieldNode);
+            field.set(target, cast(obj, field.getType()));
         } catch (NoSuchFieldException e) {
             String message = String.format("Field: %s is not found in %s class",
                     fieldName, target.getClass().getSimpleName());
@@ -156,6 +157,24 @@ public class JsonDeserializer {
 
     private Object deserializeList(JsonNode payload) {
         return null;
+    /**
+     * Convert to desired type if special conditions are matched.
+     * @param obj
+     * @param type
+     * @return
+     */
+    private Object cast(Object obj, Class type) {
+        // JsonParser always treat integer numbers as longs, if target field is int then cast to int.
+        if ((type == Integer.class && obj.getClass() == Long.class)
+        || (type.getName().equals("int") && obj.getClass() == Long.class)) {
+            return ((Long) obj).intValue();
+        }
+
+        // also do for double/float
+
+        return obj;
+    }
+
     }
 
     private Object deserializeMap(JsonNode payload, Map map) {
