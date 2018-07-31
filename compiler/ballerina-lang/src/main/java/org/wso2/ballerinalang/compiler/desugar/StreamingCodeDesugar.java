@@ -1082,8 +1082,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) selectExpression.getExpression();
                 recordKeyValue.valueExpr = createTypeCastedVariableFieldAccessExpr(typeCastedVariableSymbol,
                         fieldBasedAccess);
-            } else {
-                if (isGroupBy && selectExpression.getExpression().getKind() == NodeKind.INVOCATION) {
+            } else if (isGroupBy && selectExpression.getExpression().getKind() == NodeKind.INVOCATION) {
                     // Aggregator invocation in streaming query ( sum(..), count(..) .. etc)
                     BLangInvocation selectFuncInvocation = (BLangInvocation) selectExpression.getExpression();
 
@@ -1100,9 +1099,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
                     //increment the index in aggregatorArr
                     aggregatorIndex++;
-                } else {
-                    recordKeyValue.valueExpr = (BLangExpression) selectExpression.getExpression();
-                }
+            } else {
+                recordKeyValue.valueExpr = (BLangExpression) selectExpression.getExpression();
             }
 
             recordKeyValueList.add(recordKeyValue);
