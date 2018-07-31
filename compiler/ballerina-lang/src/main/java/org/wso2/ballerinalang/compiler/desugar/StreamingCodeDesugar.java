@@ -110,8 +110,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private static final String STREAMS_STDLIB_PACKAGE_NAME = "streams";
     private static final String NEXT_PROCESS_METHOD_NAME = "process";
     private static final String STREAM_EVENT_OBJECT_NAME = "StreamEvent";
-    private static final String AGGREGATOR_OBJECT_NAME = "Aggregator";
-    private static final String EVENT_TYPE_NAME = "EventType";
     private static final String FILTER_OBJECT_NAME = "Filter";
     private static final String OUTPUT_PROCESS_OBJECT_NAME = "OutputProcess";
     private static final String CREATE_OUTPUT_PROCESS_METHOD_NAME = "createOutputProcess";
@@ -121,14 +119,13 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private static final String CREATE_SIMPLE_SELECT_METHOD_NAME = "createSimpleSelect";
     private static final String CREATE_SELECT_WITH_GROUP_BY_METHOD_NAME = "createSelect";
     private static final String EVENT_OBJECT_VARIABLE_NAME = "eventObject";
-    public static final String EVENT_TYPE_VARIABLE_NAME = "eventType";
+    private static final String EVENT_TYPE_VARIABLE_NAME = "eventType";
     private static final String BUILD_STREAM_EVENT_METHOD_NAME = "buildStreamEvent";
     private static final String STREAM_SUBSCRIBE_METHOD_NAME = "stream.subscribe";
 
     private static final CompilerContext.Key<StreamingCodeDesugar> STREAMING_DESUGAR_KEY =
             new CompilerContext.Key<>();
 
-    private Desugar parentDesugar;
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private final SymbolEnter symbolEnter;
@@ -150,7 +147,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
-        this.parentDesugar = Desugar.getInstance(context);
         this.types = Types.getInstance(context);
     }
 
