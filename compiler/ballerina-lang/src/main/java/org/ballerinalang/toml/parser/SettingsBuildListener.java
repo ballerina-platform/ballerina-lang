@@ -17,18 +17,16 @@
  */
 package org.ballerinalang.toml.parser;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.toml.antlr4.TomlBaseListener;
 import org.ballerinalang.toml.antlr4.TomlParser;
 import org.ballerinalang.toml.model.Central;
 import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.toml.model.Settings;
-import org.ballerinalang.toml.model.TomlParserException;
 import org.ballerinalang.toml.model.fields.CentralField;
 import org.ballerinalang.toml.model.fields.ProxyField;
 import org.ballerinalang.toml.model.fields.SettingHeaders;
 import org.ballerinalang.toml.util.SingletonStack;
-
-import java.util.Arrays;
 
 /**
  * Custom listener which is extended from the Toml listener with our own custom logic.
@@ -110,10 +108,10 @@ public class SettingsBuildListener extends TomlBaseListener {
      */
     private void addHeader(String key) {
         // Check if the header is valid for the Settings.toml
-        if (Arrays.stream(SettingHeaders.values()).anyMatch((t) -> t.stringEquals(key))) {
+        if ((SettingHeaders.valueOfLowerCase(key) != null)) {
             currentHeader = key;
         } else {
-            throw new TomlParserException("ballerina: invalid header [" + key + "] found in Settings.toml");
+            throw new BLangCompilerException("invalid header [" + key + "] found in Settings.toml");
         }
     }
 }

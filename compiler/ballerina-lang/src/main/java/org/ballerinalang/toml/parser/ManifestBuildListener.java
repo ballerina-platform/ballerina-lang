@@ -17,18 +17,17 @@
  */
 package org.ballerinalang.toml.parser;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.toml.antlr4.TomlBaseListener;
 import org.ballerinalang.toml.antlr4.TomlParser;
 import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.Manifest;
-import org.ballerinalang.toml.model.TomlParserException;
 import org.ballerinalang.toml.model.fields.DependencyField;
 import org.ballerinalang.toml.model.fields.ManifestHeader;
 import org.ballerinalang.toml.model.fields.PackageField;
 import org.ballerinalang.toml.util.SingletonStack;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -177,7 +176,7 @@ public class ManifestBuildListener extends TomlBaseListener {
     private void addHeader(List<String> key) {
         String header = key.get(0);
         // Check if the header is valid for the Ballerina.toml
-        if (Arrays.stream(ManifestHeader.values()).anyMatch((t) -> t.stringEquals(header))) {
+        if (ManifestHeader.valueOfLowerCase(header) != null) {
             currentHeader = header;
             if (key.size() > 1) {
                 StringJoiner joiner = new StringJoiner(".");
@@ -187,7 +186,7 @@ public class ManifestBuildListener extends TomlBaseListener {
                 createDependencyObject(joiner.toString());
             }
         } else {
-            throw new TomlParserException("ballerina: invalid header [" + header + "] found in Ballerina.toml");
+            throw new BLangCompilerException("invalid header [" + header + "] found in Ballerina.toml");
         }
     }
 

@@ -28,7 +28,6 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.config.cipher.AESCipherTool;
 import org.ballerinalang.config.cipher.AESCipherToolException;
 import org.ballerinalang.launcher.util.BCompileUtil;
-import org.ballerinalang.toml.model.TomlParserException;
 import org.ballerinalang.util.VMOptions;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.slf4j.Logger;
@@ -65,7 +64,7 @@ public class Main {
         try {
             Optional<BLauncherCmd> optionalInvokedCmd = getInvokedCmd(args);
             optionalInvokedCmd.ifPresent(BLauncherCmd::execute);
-        } catch (BLangRuntimeException | TomlParserException e) {
+        } catch (BLangRuntimeException e) {
             outStream.println(e.getMessage());
             Runtime.getRuntime().exit(1);
         } catch (BLangCompilerException e) {
