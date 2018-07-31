@@ -31,6 +31,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class JsonSerializerTest {
     public static final String INSTANCE_ID = "ABC123";
@@ -68,6 +69,11 @@ public class JsonSerializerTest {
 
         SerializableState state = serializableState.deserialize(json);
         Assert.assertEquals(state.instanceId, INSTANCE_ID);
+
+        List list = (List) state.globalProps.get("gProp2");
+        Assert.assertEquals("Item-1", list.get(0));
+        Assert.assertEquals("Item-2", list.get(1));
+        Assert.assertEquals("Item-3", list.get(2));
     }
 
     private void mock(SerializableState serializableState) {

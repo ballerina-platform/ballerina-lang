@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.persistence.serializable.serializer;
 
+import org.ballerinalang.util.exceptions.BallerinaException;
+
 import java.util.HashMap;
 
 /**
@@ -37,7 +39,11 @@ public class SerializationProviderRegistry {
     }
 
     public TypeSerializationProvider findTypeProvider(String type) {
-        return providerMap.get(type);
+        TypeSerializationProvider provider = providerMap.get(type);
+        if (provider == null) {
+            throw new BallerinaException(String.format("No TypeSerializationProvider found for: %s", type));
+        }
+        return provider;
     }
 
     public void addTypeProvider(TypeSerializationProvider provider) {

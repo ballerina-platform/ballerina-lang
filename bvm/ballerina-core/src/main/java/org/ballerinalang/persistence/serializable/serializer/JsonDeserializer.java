@@ -19,8 +19,10 @@ package org.ballerinalang.persistence.serializable.serializer;
 
 import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.persistence.serializable.SerializableState;
+import org.ballerinalang.persistence.serializable.serializer.type.BStringSerializationProvider;
 import org.ballerinalang.persistence.serializable.serializer.type.ListSerializationProvider;
 import org.ballerinalang.persistence.serializable.serializer.type.MapSerializationProvider;
+import org.ballerinalang.persistence.serializable.serializer.type.SerializableBMapSerializationProvider;
 import org.ballerinalang.persistence.serializable.serializer.type.SerializableContextSerializationProvider;
 import org.ballerinalang.persistence.serializable.serializer.type.SerializableStateSerializationProvider;
 import org.ballerinalang.persistence.serializable.serializer.type.SerializableWorkerDataSerializationProvider;
@@ -31,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -54,6 +57,8 @@ public class JsonDeserializer {
         registry.addTypeProvider(new MapSerializationProvider());
         registry.addTypeProvider(new ListSerializationProvider());
         registry.addTypeProvider(new WorkerStateSerializationProvider());
+        registry.addTypeProvider(new SerializableBMapSerializationProvider());
+        registry.addTypeProvider(new BStringSerializationProvider());
     }
 
     public SerializableState deserialize() {
