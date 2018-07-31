@@ -96,8 +96,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangChannelReceive;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangChannelSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
@@ -834,6 +832,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangWorkerSend workerSendNode) {
         this.checkStatementExecutionValidity(workerSendNode);
+        if (workerSendNode.isChannel) {
+            analyzeExpr(workerSendNode.expr);
+            analyzeExpr(workerSendNode.keyExpr);
+            return;
+        }
         if (!this.inWorker()) {
             return;
         }
@@ -844,23 +847,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
         this.checkStatementExecutionValidity(workerReceiveNode);
+        if (workerReceiveNode.isChannel) {
+            analyzeExpr(workerReceiveNode.expr);
+            analyzeExpr(workerReceiveNode.keyExpr);
+            return;
+        }
         if (!this.inWorker()) {
             return;
         }
         this.workerActionSystemStack.peek().addWorkerAction(workerReceiveNode);
         analyzeExpr(workerReceiveNode.expr);
-    }
-
-    public void visit(BLangChannelReceive channelReceive) {
-        this.checkStatementExecutionValidity(channelReceive);
-        analyzeExpr(channelReceive.getKey());
-        analyzeExpr(channelReceive.getReceiverExpr());
-    }
-
-    public void visit(BLangChannelSend channelSend) {
-        this.checkStatementExecutionValidity(channelSend);
-        analyzeExpr(channelSend.getKey());
-        analyzeExpr(channelSend.getDataExpr());
     }
 
     public void visit(BLangLiteral literalExpr) {

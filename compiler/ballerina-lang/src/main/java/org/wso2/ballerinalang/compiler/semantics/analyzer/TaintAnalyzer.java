@@ -121,8 +121,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangChannelReceive;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangChannelSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
@@ -798,6 +796,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
+        if (workerSendNode.isChannel) {
+            List<BLangExpression> exprsList = new ArrayList<>();
+            exprsList.add(workerSendNode.expr);
+            exprsList.add(workerSendNode.keyExpr);
+            analyzeExprList(exprsList);
+            return;
+        }
         if (workerSendNode.isForkJoinSend) {
             currForkIdentifier = workerSendNode.workerIdentifier;
         }
@@ -812,6 +817,14 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
+        if (workerReceiveNode.isChannel) {
+            List<BLangExpression> exprList = new ArrayList<>();
+            exprList.add(workerReceiveNode.expr);
+            exprList.add(workerReceiveNode.keyExpr);
+            analyzeExprList(exprList);
+            return;
+        }
+
         TaintedStatus taintedStatus = workerInteractionTaintedStatusMap.get(currWorkerIdentifier);
         if (taintedStatus == TaintedStatus.IGNORED) {
             blockedOnWorkerInteraction = true;
@@ -1367,20 +1380,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangStatementExpression bLangStatementExpression) {
         /* ignore */
-    }
-
-    public void visit(BLangChannelReceive node) {
-       List<BLangExpression> exprList = new ArrayList<>();
-       exprList.add(node.getKey());
-       exprList.add(node.getReceiverExpr());
-       analyzeExprList(exprList);
-    }
-
-    public void visit(BLangChannelSend node) {
-        List<BLangExpression> exprsList = new ArrayList<>();
-        exprsList.add(node.getKey());
-        exprsList.add(node.dataExpr);
-        analyzeExprList(exprsList);
     }
 
     // Private

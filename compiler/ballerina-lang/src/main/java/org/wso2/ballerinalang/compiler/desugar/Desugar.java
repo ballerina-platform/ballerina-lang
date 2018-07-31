@@ -133,8 +133,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangChannelReceive;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangChannelSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
@@ -1499,12 +1497,18 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
         workerSendNode.expr = rewriteExpr(workerSendNode.expr);
+        if (workerSendNode.keyExpr != null) {
+            workerSendNode.keyExpr = rewriteExpr(workerSendNode.keyExpr);
+        }
         result = workerSendNode;
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
         workerReceiveNode.expr = rewriteExpr(workerReceiveNode.expr);
+        if (workerReceiveNode.keyExpr != null) {
+            workerReceiveNode.keyExpr = rewriteExpr(workerReceiveNode.keyExpr);
+        }
         result = workerReceiveNode;
     }
 
@@ -1751,18 +1755,6 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangJSONArrayLiteral jsonArrayLiteral) {
         jsonArrayLiteral.exprs = rewriteExprs(jsonArrayLiteral.exprs);
         result = jsonArrayLiteral;
-    }
-
-    public void visit(BLangChannelReceive channelReceive) {
-        channelReceive.receiverExpr = rewriteExpr(channelReceive.receiverExpr);
-        channelReceive.keyExpr = rewriteExpr(channelReceive.keyExpr);
-        result = channelReceive;
-    }
-
-    public void visit(BLangChannelSend channelSendNode) {
-        channelSendNode.dataExpr = rewriteExpr(channelSendNode.getDataExpr());
-        channelSendNode.keyExpr = rewriteExpr(channelSendNode.keyExpr);
-        result = channelSendNode;
     }
 
     // private functions

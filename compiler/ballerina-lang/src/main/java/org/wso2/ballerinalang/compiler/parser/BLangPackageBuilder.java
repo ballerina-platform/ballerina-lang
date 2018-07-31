@@ -163,8 +163,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangChannelReceive;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangChannelSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
@@ -2260,6 +2258,12 @@ public class BLangPackageBuilder {
         workerSendNode.isForkJoinSend = isForkJoinSend;
         workerSendNode.pos = pos;
         workerSendNode.addWS(ws);
+        //added to use for channels as well
+        if (!isForkJoinSend && exprNodeStack.peek() != null) {
+            workerSendNode.keyExpr = workerSendNode.expr;
+            workerSendNode.expr = (BLangExpression) exprNodeStack.pop();
+            workerSendNode.isChannel = true;
+        }
         addStmtToCurrentBlock(workerSendNode);
     }
 
@@ -2269,6 +2273,12 @@ public class BLangPackageBuilder {
         workerReceiveNode.expr = (BLangExpression) exprNodeStack.pop();
         workerReceiveNode.pos = pos;
         workerReceiveNode.addWS(ws);
+        //if there are two expressions, this is a channel receive and the top expression is the key
+        if (exprNodeStack.peek() != null) {
+            workerReceiveNode.keyExpr = workerReceiveNode.expr;
+            workerReceiveNode.expr = (BLangExpression) exprNodeStack.pop();
+            workerReceiveNode.isChannel = true;
+        }
         addStmtToCurrentBlock(workerReceiveNode);
     }
 
@@ -3378,25 +3388,5 @@ public class BLangPackageBuilder {
 
     void startOnCompensationBlock() {
         startFunctionDef();
-    }
-
-    void addChannelReceiveStmt(DiagnosticPos currentPos, Set<Whitespace> ws, String channelName) {
-        BLangChannelReceive channelReceiveNode = (BLangChannelReceive) TreeBuilder.createChannelReceiveNode();
-        channelReceiveNode.setChannelName(this.createIdentifier(channelName));
-        channelReceiveNode.setKey((BLangExpression) exprNodeStack.pop());
-        channelReceiveNode.setReceiverExpr((BLangVariableReference) exprNodeStack.pop());
-        channelReceiveNode.pos = currentPos;
-        channelReceiveNode.addWS(ws);
-        addStmtToCurrentBlock(channelReceiveNode);
-    }
-
-    void addChannelSendStmt(DiagnosticPos currentPos, Set<Whitespace> ws, String channel) {
-        BLangChannelSend channelSendNode = (BLangChannelSend) TreeBuilder.createChannelSendNode();
-        channelSendNode.setChannelName(this.createIdentifier(channel));
-        channelSendNode.keyExpr = (BLangExpression) exprNodeStack.pop();
-        channelSendNode.dataExpr = (BLangExpression) exprNodeStack.pop();
-        channelSendNode.pos = currentPos;
-        channelSendNode.addWS(ws);
-        addStmtToCurrentBlock(channelSendNode);
     }
 }

@@ -87,6 +87,7 @@ public class TypeSignatureReader<T> {
                 return index;
             case 'M':
             case 'H':
+            case 'Q':
                 index = createBTypeFromSig(typeCreater, chars, index + 1, typeStack);
                 T constraintType = typeStack.pop();
                 typeStack.push(typeCreater.getConstrainedType(typeChar, constraintType));

@@ -1122,26 +1122,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitWorkerReply(BallerinaParser.WorkerReplyContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#channelReceiveStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterChannelReceiveStatement(BallerinaParser.ChannelReceiveStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#channelReceiveStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitChannelReceiveStatement(BallerinaParser.ChannelReceiveStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#channelSendStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterChannelSendStatement(BallerinaParser.ChannelSendStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#channelSendStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitChannelSendStatement(BallerinaParser.ChannelSendStatementContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code xmlAttribVariableReference}
 	 * labeled alternative in {@link BallerinaParser#variableReference}.
 	 * @param ctx the parse tree

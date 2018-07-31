@@ -1424,21 +1424,32 @@ public class PackageInfoReader {
                             channelRefCPEntry.getWorkerDataChannelInfo(), sigCPIndex, bType, codeStream.readInt()));
                     break;
                 case InstructionCodes.CHNRECEIVE:
+                    BType keyType = null;
+                    int keyIndex = -1;
+                    int hasKey = codeStream.readInt();
+                    if (hasKey == 1) {
+                        UTF8CPEntry keySigCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt());
+                        keyType = getParamTypes(packageInfo, keySigCPEntry.getValue())[0];
+                        keyIndex = codeStream.readInt();
+                    }
                     String channelName = ((UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt())).getValue();
                     UTF8CPEntry receiverSigCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt());
                     BType chnReceiveType = getParamTypes(packageInfo, receiverSigCPEntry.getValue())[0];
                     int receiverIndex = codeStream.readInt();
-                    UTF8CPEntry keySigCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt());
-                    BType keyType = getParamTypes(packageInfo, keySigCPEntry.getValue())[0];
-                    int keyIndex = codeStream.readInt();
+
                     packageInfo.addInstruction(new Instruction.InstructionCHNReceive(opcode, channelName,
                             chnReceiveType, receiverIndex, keyType, keyIndex));
                     break;
                 case InstructionCodes.CHNSEND:
+                    keyType = null;
+                    keyIndex = -1;
+                    hasKey = codeStream.readInt();
+                    if (hasKey == 1) {
+                        keyIndex = codeStream.readInt();
+                        UTF8CPEntry keySigCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt());
+                        keyType = getParamTypes(packageInfo, keySigCPEntry.getValue())[0];
+                    }
                     String chnName = ((UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt())).getValue();
-                    keyIndex = codeStream.readInt();
-                    keySigCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt());
-                    keyType = getParamTypes(packageInfo, keySigCPEntry.getValue())[0];
                     int dataIndex = codeStream.readInt();
                     UTF8CPEntry dataSigCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt());
                     BType dataType = getParamTypes(packageInfo, dataSigCPEntry.getValue())[0];

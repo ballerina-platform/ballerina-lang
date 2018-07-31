@@ -290,8 +290,6 @@ statement
     |   doneStatement
     |   scopeStatement
     |   compensateStatement
-    |   channelReceiveStatement
-    |   channelSendStatement
     ;
 
 variableDefinitionStatement
@@ -489,23 +487,15 @@ workerInteractionStatement
     |   workerReply
     ;
 
-// below left Identifier is of type TYPE_MESSAGE and the right Identifier is of type WORKER
+// below left Identifier is of type TYPE_MESSAGE and the right Identifier is of type WORKER or CHANNEL
 triggerWorker
-    :   expression RARROW Identifier SEMICOLON        #invokeWorker
+    :   expression (COMMA expression)? RARROW Identifier SEMICOLON        #invokeWorker
     |   expression RARROW FORK SEMICOLON              #invokeFork
     ;
 
-// below left Identifier is of type WORKER and the right Identifier is of type message
+// below left Identifier is of type WORKER or CHANNEL and the right Identifier is of type message
 workerReply
-    :   expression LARROW Identifier SEMICOLON
-    ;
-
-channelReceiveStatement
-    : expression LARROW Identifier (COMMA expression)? SEMICOLON
-    ;
-
-channelSendStatement
-    : expression (COMMA expression)? RARROW Identifier SEMICOLON
+    :   expression LARROW Identifier (COMMA expression)? SEMICOLON
     ;
 
 variableReference

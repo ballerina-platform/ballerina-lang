@@ -33,6 +33,8 @@ public class BLangWorkerReceive extends BLangStatement implements WorkerReceiveN
 
     public BLangExpression expr;
     public BLangIdentifier workerIdentifier;
+    public BLangExpression keyExpr;
+    public boolean isChannel = false;
 
     @Override
     public BLangExpression getExpression() {
