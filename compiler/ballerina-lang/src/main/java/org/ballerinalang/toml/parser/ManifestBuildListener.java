@@ -106,9 +106,9 @@ public class ManifestBuildListener extends TomlBaseListener {
      * Add the dependencies and patches to the manifest object.
      */
     private void setDependencyAndPatches() {
-        if (ManifestHeader.DEPENDENCIES == currentHeader) {
+        if (currentHeader == ManifestHeader.DEPENDENCIES) {
             this.manifest.addDependency(dependency);
-        } else if (ManifestHeader.PATCHES == currentHeader) {
+        } else if (currentHeader == ManifestHeader.PATCHES) {
             this.manifest.addPatches(dependency);
         }
     }
@@ -119,13 +119,13 @@ public class ManifestBuildListener extends TomlBaseListener {
      * @param value KeyvalContext object
      */
     private void setToManifest(String value) {
-        if (currentKey.present() && ManifestHeader.PROJECT == currentHeader) {
+        if (currentKey.present() && currentHeader == ManifestHeader.PROJECT) {
             PackageField packageFieldField = PackageField.valueOfLowerCase(currentKey.pop());
             if (packageFieldField != null) {
                 packageFieldField.setStringTo(this.manifest, value);
             }
-        } else if (currentKey.present() && (ManifestHeader.DEPENDENCIES == currentHeader ||
-                ManifestHeader.PATCHES == currentHeader)) {
+        } else if (currentKey.present() && (currentHeader == ManifestHeader.DEPENDENCIES ||
+                currentHeader == ManifestHeader.PATCHES)) {
             DependencyField dependencyField = DependencyField.valueOfLowerCase(currentKey.pop());
             if (dependency != null && dependencyField != null) {
                 dependencyField.setValueTo(dependency, value);
@@ -139,7 +139,7 @@ public class ManifestBuildListener extends TomlBaseListener {
      * @param arrayValuesContext ArrayValuesContext object
      */
     private void setToManifest(TomlParser.ArrayValuesContext arrayValuesContext) {
-        if (currentKey.present() && ManifestHeader.PROJECT == currentHeader) {
+        if (currentKey.present() && currentHeader == ManifestHeader.PROJECT) {
             PackageField packageFieldField = PackageField.valueOfLowerCase(currentKey.pop());
             if (packageFieldField != null) {
                 List<String> arrayElements = populateList(arrayValuesContext);
@@ -176,10 +176,10 @@ public class ManifestBuildListener extends TomlBaseListener {
     private void addHeader(List<String> keys) {
         String header = keys.get(0);
         // Check if the header is valid for the Ballerina.toml
-        if (ManifestHeader.valueOfLowerCase(header) == null) {
+        currentHeader = ManifestHeader.valueOfLowerCase(header);
+        if (currentHeader == null) {
             throw new BLangCompilerException("invalid header [" + header + "] found in Ballerina.toml");
         }
-        currentHeader = ManifestHeader.valueOfLowerCase(header);
         if (keys.size() > 1) {
             StringJoiner joiner = new StringJoiner(".");
             for (int i = 1; i < keys.size(); i++) {
@@ -195,8 +195,8 @@ public class ManifestBuildListener extends TomlBaseListener {
      * @param ctx InlineTableKeyvalsContext object
      */
     private void setToManifest(TomlParser.InlineTableKeyvalsContext ctx) {
-        if (currentKey.present() && (ManifestHeader.DEPENDENCIES == currentHeader ||
-                ManifestHeader.PATCHES == currentHeader)) {
+        if (currentKey.present() && (currentHeader == ManifestHeader.DEPENDENCIES ||
+                currentHeader == ManifestHeader.PATCHES)) {
             createDependencyObject(String.valueOf(currentKey.pop()));
             if (ctx != null) {
                 populateDependencyField(ctx);
