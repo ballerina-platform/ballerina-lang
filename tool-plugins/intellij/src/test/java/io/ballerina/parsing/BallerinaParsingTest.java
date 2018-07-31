@@ -43,7 +43,7 @@ public class BallerinaParsingTest extends ParsingTestCase {
 
     @Override
     protected String getTestDataPath() {
-        return "../../composer/modules/integration-tests/src/test/resources/ballerina" + "-examples/examples";
+        return "../../composer/modules/integration-tests/src/test/resources/ballerina-examples/examples";
     }
 
     private String getExpectedResultPath() {
