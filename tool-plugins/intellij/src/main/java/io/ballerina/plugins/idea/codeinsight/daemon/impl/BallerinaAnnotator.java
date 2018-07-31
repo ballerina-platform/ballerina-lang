@@ -156,7 +156,7 @@ public class BallerinaAnnotator implements Annotator {
                 TextRange newTextRange = new TextRange(startOffset, startOffset + 1);
                 Annotation annotation = holder.createInfoAnnotation(newTextRange, null);
                 annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION);
-                //Highlights "+"
+                // Highlights "+"
                 startOffset = textRange.getStartOffset() + ((LeafPsiElement) element).getText().indexOf("+");
                 newTextRange = new TextRange(startOffset, startOffset + 1);
                 annotation = holder.createInfoAnnotation(newTextRange, null);
@@ -174,7 +174,7 @@ public class BallerinaAnnotator implements Annotator {
                 TextRange newTextRange = new TextRange(startOffset, startOffset + 1);
                 Annotation annotation = holder.createInfoAnnotation(newTextRange, null);
                 annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION);
-                //Highlights "+"
+                // Highlights "+"
                 startOffset = textRange.getStartOffset() + ((LeafPsiElement) element).getText().indexOf("+");
                 newTextRange = new TextRange(startOffset, startOffset + 1);
                 annotation = holder.createInfoAnnotation(newTextRange, null);

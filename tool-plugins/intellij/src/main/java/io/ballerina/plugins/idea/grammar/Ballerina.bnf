@@ -959,6 +959,7 @@ tripleBackTickDocInlineCode ::= TB_DOC_INLINE_CODE_START TRIPLE_BACK_TICK_INLINE
 
 
 // Markdown Documentation parsing
+
 documentationString ::= documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine?
 
 documentationLine ::= MARKDOWN_DOCUMENTATION_LINE_START documentationContent {pin=1}
