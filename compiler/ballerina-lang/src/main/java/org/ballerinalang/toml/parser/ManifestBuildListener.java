@@ -178,15 +178,14 @@ public class ManifestBuildListener extends TomlBaseListener {
         // Check if the header is valid for the Ballerina.toml
         if (ManifestHeader.valueOfLowerCase(header) == null) {
             throw new BLangCompilerException("invalid header [" + header + "] found in Ballerina.toml");
-        } else {
-            currentHeader = ManifestHeader.valueOfLowerCase(header);
-            if (keys.size() > 1) {
-                StringJoiner joiner = new StringJoiner(".");
-                for (int i = 1; i < keys.size(); i++) {
-                    joiner.add(keys.get(i));
-                }
-                createDependencyObject(joiner.toString());
+        }
+        currentHeader = ManifestHeader.valueOfLowerCase(header);
+        if (keys.size() > 1) {
+            StringJoiner joiner = new StringJoiner(".");
+            for (int i = 1; i < keys.size(); i++) {
+                joiner.add(keys.get(i));
             }
+            createDependencyObject(joiner.toString());
         }
     }
 

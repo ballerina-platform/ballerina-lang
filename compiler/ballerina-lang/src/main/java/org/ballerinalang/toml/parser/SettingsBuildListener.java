@@ -110,8 +110,8 @@ public class SettingsBuildListener extends TomlBaseListener {
         // Check if the header is valid for the Settings.toml
         if (SettingHeaders.valueOfLowerCase(key) == null) {
             throw new BLangCompilerException("invalid header [" + key + "] found in Settings.toml");
-        } else {
-            currentHeader = SettingHeaders.valueOfLowerCase(key);
         }
+        currentHeader = SettingHeaders.valueOfLowerCase(key);
+
     }
 }
