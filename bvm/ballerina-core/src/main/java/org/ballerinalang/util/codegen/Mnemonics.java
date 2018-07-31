@@ -94,6 +94,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.BIRSHIFT] = "birshift";
         mnemonics[InstructionCodes.IRSHIFT] = "irshift";
         mnemonics[InstructionCodes.ILSHIFT] = "ilshift";
+        mnemonics[InstructionCodes.IURSHIFT] = "iurshift";
         mnemonics[InstructionCodes.BACONST] = "baconst";
 
         mnemonics[InstructionCodes.ISUB] = "isub";
@@ -177,7 +178,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.MAP2JSON] = "map2json";
         mnemonics[InstructionCodes.JSON2T] = "json2t";
         mnemonics[InstructionCodes.LENGTHOF] = "lengthof";
-        mnemonics[InstructionCodes.NULL2S] = "null2s";
         mnemonics[InstructionCodes.ANY2SCONV] = "any2sconv";
         mnemonics[InstructionCodes.IS_ASSIGNABLE] = "is_assignable";
 

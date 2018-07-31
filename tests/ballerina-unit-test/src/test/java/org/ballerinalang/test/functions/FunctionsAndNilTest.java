@@ -19,13 +19,20 @@ package org.ballerinalang.test.functions;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.services.testutils.HTTPTestRequest;
+import org.ballerinalang.test.services.testutils.MessageUtils;
+import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 /**
  * This class contains tests that are related to functions and nil type ().
@@ -90,5 +97,17 @@ public class FunctionsAndNilTest {
     public void testNilReturnAssignment() {
         BValue[] returns = BRunUtil.invoke(result, "testNilReturnAssignment");
         Assert.assertEquals(returns.length, 0);
+    }
+
+    @Test(description = "Test count function inside resource.")
+    public void testCountFunctionInsideResource() throws Exception {
+        CompileResult result1 =
+                BServiceUtil.setupProgramFile(this, "test-src/functions/count-in-resource.bal");
+        HTTPTestRequest request = MessageUtils.generateHTTPMessage("/test/resource", "GET");
+        HttpCarbonMessage response = Services.invokeNew(result1, "testEP", request);
+
+        Assert.assertNotNull(response, "Response message not found");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(bJson.stringValue(), "[\"foo\", \"bar\"]");
     }
 }

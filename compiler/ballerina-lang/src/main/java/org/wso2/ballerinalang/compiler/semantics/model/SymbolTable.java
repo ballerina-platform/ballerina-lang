@@ -253,6 +253,10 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, intType, byteType, intType, InstructionCodes.IRSHIFT);
         defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, byteType, byteType, byteType, InstructionCodes.BIRSHIFT);
         defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, byteType, intType, byteType, InstructionCodes.BIRSHIFT);
+        defineBinaryOperator(OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT, intType, intType, intType,
+                InstructionCodes.IURSHIFT);
+        defineBinaryOperator(OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT, intType, byteType, intType,
+                InstructionCodes.IURSHIFT);
 
         // Binary equality operators ==, !=
         defineBinaryOperator(OperatorKind.EQUAL, intType, intType, booleanType, InstructionCodes.IEQ);
@@ -335,6 +339,8 @@ public class SymbolTable {
         defineUnaryOperator(OperatorKind.SUB, intType, intType, InstructionCodes.INEG);
 
         defineUnaryOperator(OperatorKind.NOT, booleanType, booleanType, InstructionCodes.BNOT);
+        defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, byteType, byteType, -1);
+        defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, intType, intType, -1);
 
         defineUnaryOperator(OperatorKind.LENGTHOF, jsonType, intType, InstructionCodes.LENGTHOF);
         defineUnaryOperator(OperatorKind.LENGTHOF, arrayType, intType, InstructionCodes.LENGTHOF);
