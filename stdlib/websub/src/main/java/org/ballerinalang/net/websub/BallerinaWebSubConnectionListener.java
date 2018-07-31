@@ -279,8 +279,8 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
                 response.waitAndReleaseAllEntities();
                 URIUtil.populateQueryParamMap(queryString, params);
                 String mode = params.get(PARAM_HUB_MODE).stringValue();
-                if (!params.keySet().contains(PARAM_HUB_MODE) || !params.keySet().contains(PARAM_HUB_TOPIC)
-                        || !params.keySet().contains(PARAM_HUB_CHALLENGE)) {
+                if (!params.hasKey(PARAM_HUB_MODE) || !params.hasKey(PARAM_HUB_TOPIC) ||
+                        !params.hasKey(PARAM_HUB_CHALLENGE)) {
                     response.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpResponseStatus.NOT_FOUND.code());
                     response.addHttpContent(new DefaultLastHttpContent());
                     HttpUtil.sendOutboundResponse(httpCarbonMessage, response);
