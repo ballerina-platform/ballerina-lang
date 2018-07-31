@@ -18,9 +18,11 @@
 package org.ballerinalang.test.data.streaming;
 
 import org.ballerinalang.test.context.ServerInstance;
-import org.ballerinalang.test.database.utils.SQLDBUtils;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
+import org.ballerinalang.test.util.SQLDBUtils;
+import org.ballerinalang.test.util.SQLDBUtils.FileBasedTestDatabase;
+import org.ballerinalang.test.util.SQLDBUtils.TestDatabase;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -35,15 +37,13 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.test.database.utils.SQLDBUtils.DB_DIRECTORY;
-import static org.ballerinalang.test.database.utils.SQLDBUtils.TestDatabase;
-
 /**
  * This test case tests the scenario of streaming the data from a table converted to XML.
  */
 public class TableToXMLStreamingTestCase {
     private ServerInstance ballerinaServer;
     private TestDatabase testDatabase;
+    public static final String DB_DIRECTORY = "./target/tempdb/";
 
     @BeforeClass
     private void setup() throws Exception {
@@ -57,9 +57,8 @@ public class TableToXMLStreamingTestCase {
     }
 
     private void setUpDatabase() throws SQLException {
-        testDatabase = new SQLDBUtils.FileBasedTestDatabase(SQLDBUtils.DBType.H2,
-                "data/streaming/datafiles/streaming_test_data.sql",
-                DB_DIRECTORY, "STREAMING_XML_TEST_DB");
+        testDatabase = new FileBasedTestDatabase(SQLDBUtils.DBType.H2,
+                "data/streaming/datafiles/streaming_test_data.sql", DB_DIRECTORY, "STREAMING_XML_TEST_DB");
         insertDummyData(testDatabase.getJDBCUrl(), testDatabase.getUsername(), testDatabase.getPassword());
     }
 

@@ -23,6 +23,9 @@ import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.server.ServerAcl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.JdbcDatabaseContainer;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -167,5 +170,121 @@ public class SQLDBUtils {
                 server.stop();
             }
         }
+    }
+
+    /**
+     * This class represents a database used for testing data clients.
+     */
+    public abstract static class TestDatabase {
+        String jdbcUrl;
+        String username;
+        String password;
+
+        public String getJDBCUrl() {
+            return jdbcUrl;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public abstract void stop();
+    }
+
+    /**
+     * Create a DB and initialize with given SQL file.
+     *
+     * @param jdbcURL JDBC URL
+     * @param username  Username for the DB
+     * @param password Password to connect to the DB
+     * @param sqlFile SQL statements for initialization.
+     */
+    public static void initDatabase(String jdbcURL, String username, String password, String sqlFile) {
+        try (Connection connection = DriverManager.getConnection(jdbcURL, username, password);
+                Statement st = connection.createStatement()) {
+            String sql = readFileToString(sqlFile);
+            String[] sqlQuery = sql.trim().split("/");
+            for (String query : sqlQuery) {
+                st.executeUpdate(query.trim());
+            }
+            if (!connection.getAutoCommit()) {
+                connection.commit();
+            }
+        } catch (SQLException e) {
+            LOG.error("Error while initializing database: ", e);
+        }
+    }
+
+    /**
+     * This class represents a container based database used for testing data clients.
+     */
+    public static class ContainerizedTestDatabase extends TestDatabase {
+        private JdbcDatabaseContainer databaseContainer;
+
+        public ContainerizedTestDatabase(DBType dbType, String databaseScript) {
+            switch (dbType) {
+            case MYSQL:
+                databaseContainer = new MySQLContainer();
+                break;
+            case POSTGRES:
+                databaseContainer = new PostgreSQLContainer();
+                break;
+            default:
+                throw new UnsupportedOperationException(
+                        "Creating a containerized database is not supported for: " + dbType);
+            }
+            databaseContainer.start();
+            jdbcUrl = databaseContainer.getJdbcUrl();
+            username = databaseContainer.getUsername();
+            password = databaseContainer.getPassword();
+            initDatabase(jdbcUrl, username, password, databaseScript);
+        }
+
+        public void stop() {
+            databaseContainer.stop();
+        }
+    }
+
+    /**
+     * This class represents a file based database used for testing data clients.
+     */
+    public static class FileBasedTestDatabase extends TestDatabase {
+        private String dbDirectory;
+
+        public FileBasedTestDatabase(DBType dbType, String databaseScript, String dbDirectory, String dbName) {
+            this.dbDirectory = dbDirectory;
+            switch (dbType) {
+            case H2:
+                SQLDBUtils.deleteFiles(new File(dbDirectory), dbName);
+                jdbcUrl = "jdbc:h2:file:" + dbDirectory + dbName;
+                username = "sa";
+                break;
+            case HSQLDB:
+                SQLDBUtils.deleteFiles(new File(dbDirectory), dbName);
+                jdbcUrl = "jdbc:hsqldb:file:" + dbDirectory + dbName;
+                username = "SA";
+                break;
+            default:
+                throw new UnsupportedOperationException(
+                        "Creating a file based database is not supported for: " + dbType);
+            }
+            password = "";
+            initDatabase(jdbcUrl, username, password, databaseScript);
+        }
+
+        public void stop() {
+            SQLDBUtils.deleteDirectory(new File(this.dbDirectory));
+        }
+    }
+
+    /**
+     * Database types used for testing data clients.
+     */
+    public enum DBType {
+        MYSQL, ORACLE, POSTGRES, HSQLDB, H2
     }
 }

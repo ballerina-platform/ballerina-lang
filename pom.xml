@@ -1490,11 +1490,6 @@
                 <version>${ballerina.examples.version}</version>
                 <type>zip</type>
             </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-data-client-test-utils</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -1644,7 +1639,6 @@
                 <module>distribution/zip/ballerina-tools</module>
 
                 <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-data-client-test-utils</module>
                 <module>tests/ballerina-integration-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
                 <module>tests/ballerina-tools-integration-test</module>
@@ -1721,7 +1715,6 @@
                 <module>distribution/zip/ballerina</module>
 
                 <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-data-client-test-utils</module>
                 <module>tests/ballerina-integration-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
             </modules>
@@ -1803,7 +1796,6 @@
                 <module>distribution/zip/ballerina-tools</module>
 
                 <module>tests/observability-test-utils</module>
-                <module>tests/ballerina-data-client-test-utils</module>
                 <module>tests/ballerina-integration-test-utils</module>
                 <module>tests/ballerina-integration-test</module>
                 <module>tests/ballerina-tools-integration-test</module>

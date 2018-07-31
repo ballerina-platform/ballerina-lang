@@ -32,10 +32,10 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.test.database.utils.SQLDBUtils;
-import org.ballerinalang.test.database.utils.SQLDBUtils.ContainerizedTestDatabase;
-import org.ballerinalang.test.database.utils.SQLDBUtils.FileBasedTestDatabase;
-import org.ballerinalang.test.database.utils.SQLDBUtils.TestDatabase;
+import org.ballerinalang.test.utils.SQLDBUtils;
+import org.ballerinalang.test.utils.SQLDBUtils.ContainerizedTestDatabase;
+import org.ballerinalang.test.utils.SQLDBUtils.FileBasedTestDatabase;
+import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
@@ -52,11 +52,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import static org.ballerinalang.test.database.utils.SQLDBUtils.DBType;
-import static org.ballerinalang.test.database.utils.SQLDBUtils.DBType.H2;
-import static org.ballerinalang.test.database.utils.SQLDBUtils.DBType.MYSQL;
-import static org.ballerinalang.test.database.utils.SQLDBUtils.DBType.POSTGRES;
-import static org.ballerinalang.test.database.utils.SQLDBUtils.DB_DIRECTORY;
+import static org.ballerinalang.test.utils.SQLDBUtils.DBType;
+import static org.ballerinalang.test.utils.SQLDBUtils.DBType.H2;
+import static org.ballerinalang.test.utils.SQLDBUtils.DBType.MYSQL;
+import static org.ballerinalang.test.utils.SQLDBUtils.DBType.POSTGRES;
+import static org.ballerinalang.test.utils.SQLDBUtils.DB_DIRECTORY;
 
 /**
  * Class to test functionality of tables.
