@@ -3128,8 +3128,6 @@ public class CPU {
             return true;
         }
 
-        // Here source condition is added for prevent assigning map union constrained
-        // to map any constrained.
         if (targetMapType.getConstrainedType().getTag() == TypeTags.ANY_TAG &&
                 sourceMapType.getConstrainedType().getTag() != TypeTags.UNION_TAG) {
             return true;

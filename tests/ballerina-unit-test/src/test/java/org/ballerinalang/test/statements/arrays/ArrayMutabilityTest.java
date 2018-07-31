@@ -31,7 +31,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for ballerina.model.arrays.
+ * Test cases for array mutability.
  */
 public class ArrayMutabilityTest {
 

@@ -45,10 +45,10 @@ type Student record {
 Person[] personArray;
 Employee[] employeeArray;
 
-Person person1 = { name: "Anoukh" };
-Employee employee1 = { name: "Anoukh", intern: true };
-Intern intern1 = { name: "Anoukh", intern: true, salary: 100 };
-Student student1 = { name: "Anoukh", studentId: 001 };
+Person person1 = { name: "John" };
+Employee employee1 = { name: "John", intern: true };
+Intern intern1 = { name: "John", intern: true, salary: 100 };
+Student student1 = { name: "John", studentId: 001 };
 
 function testValidArrayAssignment() returns (boolean, int) {
     personArray = employeeArray;
