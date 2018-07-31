@@ -158,7 +158,7 @@ public class SymbolTable {
         BTypeSymbol errorStructSymbol = new BRecordTypeSymbol(SymTag.RECORD, Flags.PUBLIC, Names.ERROR,
                 rootPkgSymbol.pkgID, null, rootPkgSymbol);
         this.errStructType = new BRecordType(errorStructSymbol);
-        this.errStructType.restFieldType = new BAnyType(TypeTags.ANY, null);;
+        this.errStructType.restFieldType = new BAnyType(TypeTags.ANY, null);
         errorStructSymbol.type = this.errStructType;
         errorStructSymbol.scope = new Scope(errorStructSymbol);
         defineType(this.errStructType, errorStructSymbol);
