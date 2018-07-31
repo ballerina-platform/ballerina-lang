@@ -88,7 +88,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     @Override
     public void onError(Throwable throwable) {
-        log.error("Error in HTTP server connector: " + throwable.getMessage());
+        log.error("Error in HTTP server connector: {}", throwable.getMessage());
     }
 
     protected void extractPropertiesAndStartResourceExecution(HttpCarbonMessage inboundMessage,
@@ -99,7 +99,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         Resource balResource = httpResource.getBalResource();
 
         Optional<ObserverContext> observerContext = ObservabilityUtils.startServerObservation(SERVER_CONNECTOR_HTTP,
-                httpResource.getParentService().getBallerinaService().getServiceInfo(), balResource.getName(), null);
+                httpResource.getParentService().getBalService().getServiceInfo(), balResource.getName(), null);
         observerContext.ifPresent(ctx -> {
             Map<String, String> httpHeaders = new HashMap<>();
             inboundMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));

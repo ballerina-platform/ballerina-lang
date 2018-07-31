@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.signature;
 
 import org.ballerinalang.langserver.common.LSNodeVisitor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -180,14 +181,7 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         this.blockOwnerStack.pop();
 
         if (ifNode.elseStmt != null) {
-            if (!(ifNode.elseStmt instanceof BLangIf)) {
-                this.blockOwnerStack.push(ifNode.elseStmt);
-            }
-
             acceptNode(ifNode.elseStmt, symbolEnv);
-            if (!(ifNode.elseStmt instanceof BLangIf)) {
-                this.blockOwnerStack.pop();
-            }
         }
     }
 
@@ -315,7 +309,7 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
                 documentServiceContext.put(SignatureKeys.IDENTIFIER_SYMBOL, v.symbol);
                 if (v.symbol instanceof BEndpointVarSymbol) {
                     visibleSymbols.clear();
-                    visibleSymbols.addAll(CommonUtil.getActionsOfEndpoint((BEndpointVarSymbol) v.symbol));
+                    visibleSymbols.addAll(FilterUtils.getEndpointActions((BEndpointVarSymbol) v.symbol));
                     break;
                 }
             } else if (v.symbol instanceof BPackageSymbol && k.getValue().equals(identifierAgainst)) {

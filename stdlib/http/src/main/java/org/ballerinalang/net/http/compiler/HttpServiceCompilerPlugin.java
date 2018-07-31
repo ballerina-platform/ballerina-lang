@@ -74,5 +74,6 @@ public class HttpServiceCompilerPlugin extends AbstractCompilerPlugin {
     }
 
     private void handleServiceConfigAnnotation(ServiceNode serviceNode, BLangAnnotationAttachment annotation) {
+        // TODO: Handle service config annotation
     }
 }

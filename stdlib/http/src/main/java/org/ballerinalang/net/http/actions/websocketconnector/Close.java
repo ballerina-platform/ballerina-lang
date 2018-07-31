@@ -79,7 +79,6 @@ public class Close implements NativeCallableUnit {
             if (!future.isSuccess() && cause != null) {
                 context.setReturnValues(HttpUtil.getError(context, cause));
             } else {
-                connectionInfo.setCloseStatusCode(statusCode);
                 context.setReturnValues();
             }
             latch.countDown();
@@ -101,6 +100,7 @@ public class Close implements NativeCallableUnit {
             }
         } catch (InterruptedException err) {
             context.setReturnValues(HttpUtil.getError(context, "Connection interrupted while closing the connection"));
+            Thread.currentThread().interrupt();
         }
     }
 
