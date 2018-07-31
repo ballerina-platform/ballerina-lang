@@ -28,6 +28,7 @@ import org.ballerinalang.util.LaunchListener;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.util.exceptions.BLangUsageException;
 import org.ballerinalang.util.observability.ObservabilityConstants;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -123,7 +124,12 @@ public class LauncherUtils {
     }
 
     public static void runMain(ProgramFile programFile, String[] args) {
-        BLangProgramRunner.runMain(programFile, args);
+        try {
+            BLangProgramRunner.runMain(programFile, args);
+        } catch (BLangUsageException e) {
+            throw createLauncherException("usage error: " + makeFirstLetterLowerCase(e.getLocalizedMessage()));
+        }
+
         if (programFile.isServiceEPAvailable()) {
             return;
         }
