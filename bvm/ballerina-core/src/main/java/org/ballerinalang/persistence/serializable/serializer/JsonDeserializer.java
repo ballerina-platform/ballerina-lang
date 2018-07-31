@@ -115,7 +115,11 @@ public class JsonDeserializer {
     }
 
     private Object deserializeArray(JsonNode jsonNode) {
-        return null;
+        Object[] array = new Object[jsonNode.size()];
+        for (int i = 0; i < jsonNode.size(); i++) {
+            array[i] = deserialize(jsonNode.get(i));
+        }
+        return array;
     }
 
     private Object deserializeObject(JsonNode jsonNode, Object object) {
@@ -125,7 +129,7 @@ public class JsonDeserializer {
         if ("map".equals(objType.toLowerCase())) {
             return deserializeMap(payload, (Map) object);
         } else if ("list".equals(objType.toLowerCase())) {
-            return deserializeList(payload);
+            return deserializeList(payload, object);
         } else if ("enum".equals(objType.toLowerCase())) {
             return object;
         }
@@ -155,8 +159,6 @@ public class JsonDeserializer {
         }
     }
 
-    private Object deserializeList(JsonNode payload) {
-        return null;
     /**
      * Convert to desired type if special conditions are matched.
      * @param obj
@@ -175,6 +177,15 @@ public class JsonDeserializer {
         return obj;
     }
 
+    private Object deserializeList(JsonNode payload, Object targetList) {
+        if (targetList instanceof List) {
+            List list = (List) targetList;
+            Object[] array = (Object[]) deserializeArray(payload);
+            for (int i = 0; i < array.length; i++) {
+                list.add(array[i]);
+            }
+        }
+        return targetList;
     }
 
     private Object deserializeMap(JsonNode payload, Map map) {
