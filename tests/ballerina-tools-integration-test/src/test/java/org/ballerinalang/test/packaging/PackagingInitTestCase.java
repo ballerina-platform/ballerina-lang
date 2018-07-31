@@ -192,6 +192,34 @@ public class PackagingInitTestCase extends IntegrationTestCase {
         runService(generatedBalx);
     }
 
+    @Test(description = "Test creating a project with a main without a package")
+    public void testInitWithoutPackage() throws Exception {
+        // Test ballerina init
+        getNewInstanceOfBallerinaServer();
+        Path projectPath = tempProjectDirectory.resolve("testWithoutPackageForMain");
+        Files.createDirectories(projectPath);
+
+        String[] clientArgsForInit = {"-i"};
+        String[] options = {"\n", "\n", "\n", "m\n", "\n", "f\n"};
+        ballerinaServer.runMainWithClientOptions(clientArgsForInit, options, getEnvVariables(), "init",
+                                                 projectPath.toString());
+
+        Assert.assertTrue(Files.exists(projectPath.resolve("main.bal")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
+
+        // Test ballerina build
+        getNewInstanceOfBallerinaServer();
+        ballerinaServer.runMain(new String[0], getEnvVariables(), "build", projectPath.toString());
+        Path generatedBalx = projectPath.resolve("target").resolve("main.balx");
+        Assert.assertTrue(Files.exists(generatedBalx));
+
+        // Test ballerina run
+        runMainFunction(projectPath, projectPath.resolve("main.bal").toString());
+
+        // Test ballerina run with balx
+        runMainFunction(projectPath, projectPath.resolve("target").resolve("main.balx").toString());
+    }
+
     @Test(description = "Test running init without doing any changes on an already existing project",
             dependsOnMethods = "testInitWithMainInPackage")
     public void testInitOnExistingProject() throws Exception {
@@ -254,6 +282,21 @@ public class PackagingInitTestCase extends IntegrationTestCase {
         runMainFunction(projectPath, projectPath.resolve("target").resolve("newpkg.balx").toString());
     }
 
+    @Test(description = "Test creating a project with invalid options")
+    public void testInitWithInvalidOptions() throws Exception {
+        // Test ballerina init
+        getNewInstanceOfBallerinaServer();
+        Path projectPath = tempProjectDirectory.resolve("testsWithoutPackage");
+        Files.createDirectories(projectPath);
+
+        String[] clientArgsForInit = {"-i"};
+        String[] options = {"\n", "\n", "\n", "123\n", "jkl\n", "f\n"};
+        ballerinaServer.runMainWithClientOptions(clientArgsForInit, options, getEnvVariables(), "init",
+                                                 projectPath.toString());
+
+        Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina")));
+        Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
+    }
     /**
      * Change port in service bal.
      *
