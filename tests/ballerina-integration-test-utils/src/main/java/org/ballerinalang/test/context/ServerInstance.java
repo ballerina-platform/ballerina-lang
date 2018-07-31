@@ -305,7 +305,7 @@ public class ServerInstance implements Server {
         this.args = args;
     }
 
-    public void setEnvProperties(Map<String, String> envProperties) {
+    private void setEnvProperties(Map<String, String> envProperties) {
         this.envProperties = envProperties;
     }
     /**
@@ -392,7 +392,7 @@ public class ServerInstance implements Server {
      * Executing the sh or bat file to start the server.
      *
      * @param args - command line arguments to pass when executing the sh or bat file
-     * @Param envProperties - environmental properties to be appended to the environment
+     * @param envProperties - environmental properties to be appended to the environment
      *
      * @throws BallerinaTestException if starting services failed
      */
@@ -420,16 +420,6 @@ public class ServerInstance implements Server {
         } catch (IOException e) {
             throw new BallerinaTestException("Error starting services", e);
         }
-    }
-
-    /**
-     * Executing the sh or bat file to start the server.
-     *
-     * @param args - command line arguments to pass when executing the sh or bat file
-     * @throws BallerinaTestException if starting services failed
-     */
-    private void startServer(String[] args) throws BallerinaTestException {
-        startServer(args, null);
     }
 
     /**

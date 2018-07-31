@@ -43,7 +43,7 @@ import java.util.Map;
 public class TableToXMLStreamingTestCase {
     private ServerInstance ballerinaServer;
     private TestDatabase testDatabase;
-    public static final String DB_DIRECTORY = "./target/tempdb/";
+    private static final String DB_DIRECTORY = "./target/tempdb/";
 
     @BeforeClass
     private void setup() throws Exception {
