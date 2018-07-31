@@ -150,7 +150,7 @@ public class InitCommand implements BLauncherCmd {
                 manifest.setName(guessOrgName());
                 manifest.setVersion(DEFAULT_VERSION);
                 if (isDirEmpty(projectPath)) {
-                    SrcFile srcFile = new SrcFile("", FileType.SERVICE);
+                    SrcFile srcFile = new SrcFile(FileType.SERVICE);
                     sourceFiles.add(srcFile);
                 }
             }

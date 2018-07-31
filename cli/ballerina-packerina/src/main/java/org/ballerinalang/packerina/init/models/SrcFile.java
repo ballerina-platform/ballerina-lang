@@ -30,7 +30,10 @@ public class SrcFile {
         this.srcFileType = fileType;
         this.name = name;
     }
-    
+
+    public SrcFile (FileType fileType) {
+        this("", fileType);
+    }
     public FileType getSrcFileType() {
         return srcFileType;
     }
