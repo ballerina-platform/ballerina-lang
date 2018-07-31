@@ -37,8 +37,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Testing pushing, pulling, searching a package from central and installing package to home repository.
@@ -46,10 +44,8 @@ import java.util.stream.Stream;
 public class PackagingInitTestCase extends IntegrationTestCase {
     private final int defaultPort = 9092;
     private ServerInstance ballerinaServer;
-    private ServerInstance ballerinaServerForService;
     private String serverZipPath;
     private Path tempProjectDirectory;
-    private LogLeecher logLeecher;
 
     @BeforeClass()
     public void setUp() throws BallerinaTestException, IOException {
@@ -106,8 +102,6 @@ public class PackagingInitTestCase extends IntegrationTestCase {
         Assert.assertTrue(Files.exists(serviceBalPath));
         Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("tests").resolve("hello_service_test.bal")));
 
-        // Change port no. of hello_service.bal
-        changePortInService(serviceBalPath);
         // Test ballerina build
         getNewInstanceOfBallerinaServer();
         ballerinaServer.runMain(new String[0], getEnvVariables(), "build", projectPath.toString());
@@ -142,8 +136,6 @@ public class PackagingInitTestCase extends IntegrationTestCase {
         Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("tests").resolve("main_test.bal")));
         Assert.assertTrue(Files.exists(projectPath.resolve("bar").resolve("tests").resolve("hello_service_test.bal")));
 
-        // Change port no. of hello_service.bal
-        changePortInService(serviceBalPath);
         // Test ballerina build
         getNewInstanceOfBallerinaServer();
         ballerinaServer.runMain(new String[0], getEnvVariables(), "build", projectPath.toString());
@@ -177,8 +169,6 @@ public class PackagingInitTestCase extends IntegrationTestCase {
         Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
         Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina")));
 
-        // Change port no. of hello_service.bal
-        changePortInService(serviceBalPath);
         // Test ballerina build
         getNewInstanceOfBallerinaServer();
         ballerinaServer.runMain(new String[0], getEnvVariables(), "build", projectPath.toString());
@@ -297,19 +287,6 @@ public class PackagingInitTestCase extends IntegrationTestCase {
         Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina")));
         Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
     }
-    /**
-     * Change port in service bal.
-     *
-     * @param serviceBalPath path of the service bal file
-     * @throws IOException if an exception occurs when modifying content in file
-     */
-    private void changePortInService(Path serviceBalPath) throws IOException {
-        Stream<String> lines = Files.lines(serviceBalPath);
-        List<String> replaced = lines.map(line -> line.replaceAll("9090", String.valueOf(defaultPort)))
-                                     .collect(Collectors.toList());
-        Files.write(serviceBalPath, replaced);
-        lines.close();
-    }
 
     /**
      * Get new instance of the ballerina server.
@@ -330,7 +307,7 @@ public class PackagingInitTestCase extends IntegrationTestCase {
     private void runMainFunction(Path projectPath, String pkg) throws BallerinaTestException {
         getNewInstanceOfBallerinaServer();
         String[] clientArgsForRun = {"--sourceroot", projectPath.toString(), pkg};
-        logLeecher = new LogLeecher("Hello World!");
+        LogLeecher logLeecher = new LogLeecher("Hello World!");
         ballerinaServer.addLogLeecher(logLeecher);
         ballerinaServer.runMain(clientArgsForRun, getEnvVariables(), "run");
     }
@@ -343,7 +320,7 @@ public class PackagingInitTestCase extends IntegrationTestCase {
      * @throws IOException
      */
     private void runService(Path serviceBalPath) throws BallerinaTestException, IOException {
-        ballerinaServerForService = ServerInstance.initBallerinaServer(defaultPort);
+        ServerInstance ballerinaServerForService = ServerInstance.initBallerinaServer();
         ballerinaServerForService.startBallerinaServer(serviceBalPath.toString());
         HttpResponse response = HttpClientRequest.doGet(ballerinaServerForService.getServiceURLHttp("hello/sayHello"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
