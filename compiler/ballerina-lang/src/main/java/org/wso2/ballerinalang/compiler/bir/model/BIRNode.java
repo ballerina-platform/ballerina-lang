@@ -67,6 +67,13 @@ public abstract class BIRNode {
     public static class BIRVariableDcl extends BIRNode {
         public BType type;
         public Name name; // _1
+        public VarKind kind;
+
+        public BIRVariableDcl(BType type, Name name, VarKind kind) {
+            this.type = type;
+            this.name = name;
+            this.kind = kind;
+        }
     }
 
     /**
@@ -80,6 +87,11 @@ public abstract class BIRNode {
          * Name of the function.
          */
         public Name name;
+
+        /**
+         * Indicate whether this is a function definition or a declaration.
+         */
+        public boolean isDeclaration;
 
         /**
          * Visibility of this function.
@@ -117,6 +129,8 @@ public abstract class BIRNode {
 
         public BIRFunction(Name name) {
             this.name = name;
+            this.localVars = new ArrayList<>();
+            this.basicBlocks = new ArrayList<>();
         }
     }
 
@@ -126,8 +140,14 @@ public abstract class BIRNode {
      * @since 0.980.0
      */
     public static class BIRBasicBlock extends BIRNode {
+        public Name id;
         public List<BIRInstruction> instructions;
         public BIRTerminator terminator;
+
+        public BIRBasicBlock(Name id) {
+            this.id = id;
+            this.instructions = new ArrayList<>();
+        }
     }
 }
 
