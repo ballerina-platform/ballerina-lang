@@ -39,40 +39,35 @@ import static io.netty.util.internal.StringUtil.EMPTY_STRING;
  */
 public class BallerinaLexerTest extends LexerTestCase {
 
-    private final String TEST_DATA_PATH =
-            "../../composer/modules/integration-tests/src/test/resources/ballerina-examples/examples/";
-    private final String EXPECTED_RESULTS_PATH = "src/test/resources/testData/lexer/BBE/expectedResults/";
-
     private String getTestDataDirectoryPath() {
-        return TEST_DATA_PATH;
+        return "../../composer/modules/integration-tests/src/test/resources/ballerina-examples/examples/";
     }
 
     private String getExpectedResultDirectoryPath() {
-        return EXPECTED_RESULTS_PATH;
+        return "src/test/resources/testData/lexer/BBE/expectedResults/";
     }
 
     // This test validates the lexer token generation for the ballerina-by-examples
     public void testForBBE() throws RuntimeException, FileNotFoundException {
-        // This flag is used to include/filter BBE testerina files in lexer testing
-        boolean includeTests = false;
         Path path = Paths.get(getTestDataDirectoryPath());
         if (!path.toFile().exists()) {
             throw new FileNotFoundException(path.toString());
         }
-        doTestDirectory(path, includeTests);
+        doTestDirectory(path);
     }
 
-    private void doTestDirectory(Path path, boolean includeTests) throws RuntimeException {
+    private void doTestDirectory(Path path) throws RuntimeException {
         try {
             File resource = path.toFile();
             if (resource.exists()) {
                 if (resource.isFile() && resource.getName().endsWith(".bal")) {
                     doTestFile(resource);
-                    // If the resource is a directory, recursively test the sub directories/files accordingly
-                } else if (resource.isDirectory() && (includeTests || !resource.getName().contains("tests"))) {
+                    //if the resource is a directory, recursively tests the sub directories/files accordingly,
+                    // excluding tests folders
+                } else if (resource.isDirectory() && !resource.getName().contains("tests")) {
                     DirectoryStream<Path> ds = Files.newDirectoryStream(path);
                     for (Path subPath : ds) {
-                        doTestDirectory(subPath, includeTests);
+                        doTestDirectory(subPath);
                     }
                     ds.close();
                 }
