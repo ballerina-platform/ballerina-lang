@@ -26,15 +26,11 @@ import com.intellij.formatting.Wrap;
 import com.intellij.formatting.WrapType;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.TokenType;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.formatter.common.AbstractBlock;
 import com.intellij.psi.tree.IElementType;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.containers.ContainerUtil;
-import io.ballerina.plugins.idea.psi.BallerinaCallableUnitBody;
-import io.ballerina.plugins.idea.psi.BallerinaObjectTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -227,17 +223,8 @@ public class BallerinaBlock extends AbstractBlock {
                 || parentElementType == BallerinaTypes.SERVICE_BODY
         )) {
             return Indent.getNormalIndent();
-            //TODO: Identify and add remaining conditions
-        } else if(childElementType == BallerinaTypes.MARKDOWN_DOCUMENTATION_LINE_START){
-            return Indent.getIndent(Indent.Type.NORMAL, true, true);
-        } else if ((childElementType == BallerinaTypes.MARKDOWN_DOCUMENTATION_LINE_START
-                || childElementType == BallerinaTypes.PARAMETER_DOCUMENTATION_START
-                || childElementType == BallerinaTypes.RETURN_PARAMETER_DOCUMENTATION_START)
-                && (hasPSIParentOfType(BallerinaObjectTypeName.class)
-                || hasPSIParentOfType(BallerinaCallableUnitBody.class))) {
-            return Indent.getNormalIndent(true);
-        } else if (parentElementType == BallerinaTypes.CALLABLE_UNIT_SIGNATURE
-                || parentElementType == BallerinaTypes.OBJECT_CALLABLE_UNIT_SIGNATURE) {
+        } else if (parentElementType == BallerinaTypes.CALLABLE_UNIT_SIGNATURE ||
+                parentElementType == BallerinaTypes.OBJECT_CALLABLE_UNIT_SIGNATURE) {
             return Indent.getIndent(Indent.Type.NORMAL, true, true);
         } else if (parentElementType == BallerinaTypes.OBJECT_INITIALIZER_PARAMETER_LIST) {
             return Indent.getIndent(Indent.Type.NORMAL, true, true);
@@ -390,8 +377,4 @@ public class BallerinaBlock extends AbstractBlock {
         return myNode.getFirstChildNode() == null;
     }
 
-    private boolean hasPSIParentOfType(Class parentClass) {
-        PsiElement myNodePsi = myNode.getPsi();
-        return PsiTreeUtil.getParentOfType(myNodePsi, parentClass) != null;
-    }
 }
