@@ -21,7 +21,6 @@ import ballerina/log;
 @final string BASE_PATH = "/websub";
 @final string HUB_PATH = "/hub";
 
-@final int DEFAULT_PORT = 9292;
 @final int DEFAULT_LEASE_SECONDS_VALUE = 86400; //one day
 @final string DEFAULT_SIGNATURE_METHOD = "SHA256";
 

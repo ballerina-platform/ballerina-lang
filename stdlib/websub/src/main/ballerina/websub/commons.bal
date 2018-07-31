@@ -503,14 +503,14 @@ documentation {
                         that the hub is already started, and including the WebSubHub object representing the
                         already started up hub
 }
-public function startUpBallerinaHub(int? port = (), int? leaseSeconds = (), string? signatureMethod = (),
+public function startUpBallerinaHub(int port, int? leaseSeconds = (), string? signatureMethod = (),
                                     boolean? remotePublishingEnabled = (), RemotePublishMode? remotePublishMode = (),
                                     boolean? topicRegistrationRequired = (), string? publicUrl = (),
                                     boolean? sslEnabled = (), http:ServiceSecureSocket? serviceSecureSocket = (),
                                     http:SecureSocket? clientSecureSocket = ())
     returns WebSubHub|HubStartedUpError {
 
-    hubPort = config:getAsInt("b7a.websub.hub.port", default = port but { () => DEFAULT_PORT });
+    hubPort = config:getAsInt("b7a.websub.hub.port", default = port);
     hubLeaseSeconds = config:getAsInt("b7a.websub.hub.leasetime",
                                       default = leaseSeconds but { () => DEFAULT_LEASE_SECONDS_VALUE });
     hubSignatureMethod = config:getAsString("b7a.websub.hub.signaturemethod",

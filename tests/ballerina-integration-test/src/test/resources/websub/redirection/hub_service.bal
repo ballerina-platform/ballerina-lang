@@ -5,7 +5,7 @@ import ballerina/websub;
 
 function main(string... args) {
     io:println("Starting up the Ballerina Hub Service");
-    websub:WebSubHub webSubHub = websub:startUpBallerinaHub(port = 9595)
+    websub:WebSubHub webSubHub = websub:startUpBallerinaHub(9595)
                                     but { websub:HubStartedUpError hubStartedUpErr => hubStartedUpErr.startedUpHub };
     //Register a topic at the hub
     _ = webSubHub.registerTopic("http://redirectiontopicone.com");
