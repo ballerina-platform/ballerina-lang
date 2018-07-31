@@ -46,6 +46,7 @@ public class BallerinaStreamsV2SelectorWithGroupByTest {
     @Test(description = "Test filter streaming query")
     public void testSelectQuery() {
         BValue[] outputTeacherEvents = BRunUtil.invoke(result, "startAggregationWithGroupByQuery");
+        System.setProperty("enable.siddhiRuntime", "true");
         Assert.assertNotNull(outputTeacherEvents);
         Assert.assertEquals(outputTeacherEvents.length, 4, "Expected events are not received");
 
