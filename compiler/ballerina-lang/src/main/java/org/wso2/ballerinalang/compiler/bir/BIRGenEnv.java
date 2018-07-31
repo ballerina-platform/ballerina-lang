@@ -22,6 +22,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
+import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -46,6 +47,7 @@ public class BIRGenEnv {
     private Map<BSymbol, BIRVariableDcl> symbolVarMap;
 
     public BIRBasicBlock enclBB;
+    public BIROperand targetOperand;
 
     private BIRGenEnv() {
     }
@@ -79,11 +81,11 @@ public class BIRGenEnv {
         return names.merge(Names.BIR_LOCAL_VAR_PREFIX, names.fromString(Integer.toString(currentLocalVarId)));
     }
 
-    public void addSymbolVarMapping(BSymbol varSymbol, BIRVariableDcl variableDcl) {
+    public void addVarDcl(BSymbol varSymbol, BIRVariableDcl variableDcl) {
         this.symbolVarMap.put(varSymbol, variableDcl);
     }
 
-    public BIRVariableDcl getVariableDcl(BSymbol varSymbol) {
+    public BIRVariableDcl getVarDcl(BSymbol varSymbol) {
         return this.symbolVarMap.get(varSymbol);
     }
 
