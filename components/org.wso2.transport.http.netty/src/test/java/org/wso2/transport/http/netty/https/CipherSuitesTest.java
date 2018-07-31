@@ -159,7 +159,7 @@ public class CipherSuitesTest {
         SenderConfiguration senderConfiguration = new SenderConfiguration();
         senderConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
-        senderConfiguration.setKeyStorePassword(TestUtil.KEY_STORE_PASSWORD);
+        senderConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
         senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
         senderConfiguration.setScheme(HTTPS_SCHEME);
         senderConfiguration.setParameters(clientParams);

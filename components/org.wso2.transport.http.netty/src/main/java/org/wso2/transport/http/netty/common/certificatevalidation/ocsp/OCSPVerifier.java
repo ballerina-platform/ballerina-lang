@@ -128,8 +128,7 @@ public class OCSPVerifier implements RevocationVerifier {
                 return status;
             }
         }
-        throw new CertificateVerificationException(
-                "Could not get revocation status from OCSP. Response Status :" + ocspResponse.getStatus());
+        throw new CertificateVerificationException("Could not get revocation status from OCSP.");
     }
 
     private RevocationStatus getRevocationStatus(SingleResp resp) throws CertificateVerificationException {

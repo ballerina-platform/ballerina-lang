@@ -126,7 +126,7 @@ public class SSLProtocolsTest {
         senderConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
         senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
-        senderConfiguration.setKeyStorePassword(TestUtil.KEY_STORE_PASSWORD);
+        senderConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
         senderConfiguration.setParameters(clientParams);
         senderConfiguration.setScheme(HTTPS_SCHEME);
         return senderConfiguration;

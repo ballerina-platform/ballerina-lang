@@ -68,17 +68,18 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
             ListenerConfiguration listenerConfig) {
         ServerConnectorBootstrap serverConnectorBootstrap = new ServerConnectorBootstrap(allChannels);
         serverConnectorBootstrap.addSocketConfiguration(serverBootstrapConfiguration);
-        serverConnectorBootstrap.addSecurity(listenerConfig.getSSLConfig());
-        serverConnectorBootstrap.addcertificateRevocationVerifier(listenerConfig.validateCertEnabled());
-        serverConnectorBootstrap.addCacheDelay(listenerConfig.getCacheValidityPeriod());
-        serverConnectorBootstrap.addCacheSize(listenerConfig.getCacheSize());
-        serverConnectorBootstrap.addOcspStapling(listenerConfig.isOcspStaplingEnabled());
+        serverConnectorBootstrap.addSecurity(listenerConfig.getListenerSSLConfig());
+        if (listenerConfig.getListenerSSLConfig() != null) {
+            serverConnectorBootstrap
+                    .addcertificateRevocationVerifier(listenerConfig.getListenerSSLConfig().isValidateCertEnabled());
+            serverConnectorBootstrap.addCacheDelay(listenerConfig.getListenerSSLConfig().getCacheValidityPeriod());
+            serverConnectorBootstrap.addCacheSize(listenerConfig.getListenerSSLConfig().getCacheSize());
+            serverConnectorBootstrap.addOcspStapling(listenerConfig.getListenerSSLConfig().isOcspStaplingEnabled());
+            serverConnectorBootstrap.addSslHandlerFactory(new SSLHandlerFactory(listenerConfig.getListenerSSLConfig()));
+        }
         serverConnectorBootstrap.addIdleTimeout(listenerConfig.getSocketIdleTimeout());
         if (Constants.HTTP_2_0 == Float.valueOf(listenerConfig.getVersion())) {
             serverConnectorBootstrap.setHttp2Enabled(true);
-        }
-        if (listenerConfig.getSSLConfig() != null) {
-            serverConnectorBootstrap.addSslHandlerFactory(new SSLHandlerFactory(listenerConfig.getSSLConfig()));
         }
         serverConnectorBootstrap.addHttpTraceLogHandler(listenerConfig.isHttpTraceLogEnabled());
         serverConnectorBootstrap.addHttpAccessLogHandler(listenerConfig.isHttpAccessLogEnabled());

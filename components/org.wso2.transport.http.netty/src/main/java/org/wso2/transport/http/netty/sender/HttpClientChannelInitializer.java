@@ -65,9 +65,6 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
 
     private TargetHandler targetHandler;
     private boolean httpTraceLogEnabled;
-    private boolean validateCertEnabled;
-    private int cacheSize;
-    private int cacheDelay;
     private KeepAliveConfig keepAliveConfig;
     private ProxyServerConfiguration proxyServerConfiguration;
     private Http2ConnectionManager http2ConnectionManager;
@@ -87,12 +84,9 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         this.keepAliveConfig = senderConfiguration.getKeepAliveConfig();
         this.proxyServerConfiguration = senderConfiguration.getProxyServerConfiguration();
         this.http2ConnectionManager = connectionManager.getHttp2ConnectionManager();
-        this.validateCertEnabled = senderConfiguration.validateCertEnabled();
-        this.cacheDelay = senderConfiguration.getCacheValidityPeriod();
-        this.cacheSize = senderConfiguration.getCacheSize();
         this.senderConfiguration = senderConfiguration;
         this.httpRoute = httpRoute;
-        this.sslConfig = senderConfiguration.generateSSLConfig();
+        this.sslConfig = senderConfiguration.getClientSSLConfig();
         this.connectionAvailabilityFuture = connectionAvailabilityFuture;
 
         String httpVersion = senderConfiguration.getHttpVersion();
@@ -122,9 +116,8 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         targetHandler.setHttp2TargetHandler(http2TargetHandler);
         targetHandler.setKeepAliveConfig(getKeepAliveConfig());
         if (http2) {
-            SSLConfig config = senderConfiguration.generateSSLConfig();
-            if (config != null) {
-                configureSslForHttp2(socketChannel, clientPipeline, config);
+            if (sslConfig != null) {
+                configureSslForHttp2(socketChannel, clientPipeline, sslConfig);
             } else if (senderConfiguration.isForceHttp2()) {
                 configureHttp2Pipeline(clientPipeline);
             } else {
@@ -133,8 +126,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         } else {
             if (sslConfig != null) {
                 connectionAvailabilityFuture.setSSLEnabled(true);
-                Util.configureHttpPipelineForSSL(socketChannel, httpRoute.getHost(), httpRoute.getPort(),
-                        senderConfiguration);
+                Util.configureHttpPipelineForSSL(socketChannel, httpRoute.getHost(), httpRoute.getPort(), sslConfig);
                 clientPipeline.addLast(Constants.SSL_COMPLETION_HANDLER,
                         new SslHandshakeCompletionHandlerForClient(connectionAvailabilityFuture, this, targetHandler));
             } else {
@@ -162,10 +154,10 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     private void configureSslForHttp2(SocketChannel ch, ChannelPipeline clientPipeline, SSLConfig sslConfig)
             throws SSLException {
         connectionAvailabilityFuture.setSSLEnabled(true);
-        if (senderConfiguration.isOcspStaplingEnabled()) {
+        if (sslConfig.isOcspStaplingEnabled()) {
             ReferenceCountedOpenSslContext referenceCountedOpenSslContext =
                     (ReferenceCountedOpenSslContext) new SSLHandlerFactory(sslConfig).
-                            createHttp2TLSContextForClient(senderConfiguration.isOcspStaplingEnabled());
+                            createHttp2TLSContextForClient(sslConfig.isOcspStaplingEnabled());
             if (referenceCountedOpenSslContext != null) {
                 SslHandler sslHandler = referenceCountedOpenSslContext.newHandler(ch.alloc());
                 ReferenceCountedOpenSslEngine engine = (ReferenceCountedOpenSslEngine) sslHandler.engine();
@@ -176,9 +168,10 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
             SslContext sslCtx = new SSLHandlerFactory(sslConfig).createHttp2TLSContextForClient(false);
             SslHandler sslHandler = sslCtx.newHandler(ch.alloc());
             clientPipeline.addLast(sslHandler);
-            if (validateCertEnabled) {
+            if (sslConfig.isValidateCertEnabled()) {
                 clientPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
-                        new CertificateValidationHandler(sslHandler.engine(), this.cacheDelay, this.cacheSize));
+                        new CertificateValidationHandler(sslHandler.engine(), sslConfig.getCacheValidityPeriod(),
+                                sslConfig.getCacheSize()));
             }
         }
         clientPipeline.addLast(new Http2PipelineConfiguratorForClient(targetHandler, connectionAvailabilityFuture));

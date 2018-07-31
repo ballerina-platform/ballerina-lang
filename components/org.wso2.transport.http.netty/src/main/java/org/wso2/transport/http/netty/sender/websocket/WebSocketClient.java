@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
+import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultClientHandshakeFuture;
@@ -48,7 +49,7 @@ import org.wso2.transport.http.netty.listener.MessageQueueHandler;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
-import javax.net.ssl.SSLEngine;
+
 import javax.net.ssl.SSLException;
 
 /**
@@ -125,14 +126,13 @@ public class WebSocketClient {
 
     private Bootstrap initClientBootstrap(String host, int port, DefaultClientHandshakeFuture handshakeFuture) {
         Bootstrap clientBootstrap = new Bootstrap();
-        SSLEngine sslEngine = Util.instantiateAndConfigSSL(connectorConfig.generateSSLConfig(), host, port,
-                connectorConfig.hostNameVerificationEnabled());
+        SSLConfig sslConfig = connectorConfig.getClientSSLConfig();
         clientBootstrap.group(wsClientEventLoopGroup).channel(NioSocketChannel.class).handler(
                 new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws SSLException {
-                        if (sslEngine != null) {
-                            Util.configureHttpPipelineForSSL(socketChannel, host, port, connectorConfig);
+                        if (sslConfig != null) {
+                            Util.configureHttpPipelineForSSL(socketChannel, host, port, sslConfig);
                             socketChannel.pipeline().addLast(Constants.SSL_COMPLETION_HANDLER,
                                     new WebSocketClientSSLHandshakeCompletionHandler(handshakeFuture));
                         } else {
