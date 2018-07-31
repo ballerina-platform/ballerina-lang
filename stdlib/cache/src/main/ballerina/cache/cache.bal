@@ -181,7 +181,6 @@ public type Cache object {
         // Create new arrays to hold keys to be removed and hold the corresponding timestamps.
         string[] cacheKeysToBeRemoved = [];
         int[] timestamps = [];
-        string[] keys = self.entries.keys();
         // Iterate through each key.
         foreach key, entry in self.entries {
             // Check and add the key to the cacheKeysToBeRemoved if it matches the conditions.
