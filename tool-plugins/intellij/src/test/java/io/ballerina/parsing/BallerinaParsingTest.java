@@ -71,8 +71,8 @@ public class BallerinaParsingTest extends ParsingTestCase {
             if (resource.exists()) {
                 if (resource.isFile() && resource.getName().endsWith(myFileExt)) {
                     doTest(resource);
-                    //if the resource is a directory, recursively tests the sub directories/files accordingly,
-                    // excluding tests folders
+                    // If the resource is a directory, recursively tests the sub directories/files accordingly,
+                    // excluding tests folders.
                 } else if (resource.isDirectory() && !resource.getName().contains("tests")) {
                     DirectoryStream<Path> ds = Files.newDirectoryStream(path);
                     for (Path subPath : ds) {
@@ -89,7 +89,7 @@ public class BallerinaParsingTest extends ParsingTestCase {
     private void doTest(File resource) {
         try {
             String name = resource.getName().replace("." + myFileExt, EMPTY_STRING);
-            //Retrieves relative path of the file since loadFile() uses "myFullDataPath" as the source root
+            // Retrieves relative path of the file since loadFile() uses "myFullDataPath" as the source root.
             String relativeFilePath = resource.getPath().replace(getTestDataPath(), EMPTY_STRING);
             String text = loadFile(relativeFilePath);
             myFile = createPsiFile(name, text);

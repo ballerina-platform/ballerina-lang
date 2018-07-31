@@ -40,7 +40,7 @@ public class BallerinaFormattingTest extends BallerinaCodeInsightFixtureTestCase
         return "src/test/resources/testData/formatting/BBE";
     }
 
-    //this test validates the formatting for the ballerina-by-examples
+    // This test validates the formatting for the ballerina-by-examples.
     public void testBBE() throws RuntimeException {
         Path path = Paths.get(getTestDataPath());
         doTestBBEDirectory(path);
@@ -52,7 +52,7 @@ public class BallerinaFormattingTest extends BallerinaCodeInsightFixtureTestCase
             if (resource.exists()) {
                 if (resource.isFile() && resource.getName().endsWith(".bal")) {
                     doTestBBEFile(resource, null);
-                    //if the resource is a directory, recursively test the sub directories/files accordingly
+                    // If the resource is a directory, recursively test the sub directories/files accordingly.
                 } else if (resource.isDirectory() && !resource.getName().contains("tests")) {
                     DirectoryStream<Path> ds = Files.newDirectoryStream(path);
                     for (Path subPath : ds) {

@@ -47,7 +47,7 @@ public class BallerinaLexerTest extends LexerTestCase {
         return "src/test/resources/testData/lexer/BBE/expectedResults/";
     }
 
-    // This test validates the lexer token generation for the ballerina-by-examples
+    // This test validates the lexer token generation for the ballerina-by-examples.
     public void testForBBE() throws RuntimeException, FileNotFoundException {
         Path path = Paths.get(getTestDataDirectoryPath());
         if (!path.toFile().exists()) {
@@ -62,8 +62,8 @@ public class BallerinaLexerTest extends LexerTestCase {
             if (resource.exists()) {
                 if (resource.isFile() && resource.getName().endsWith(".bal")) {
                     doTestFile(resource);
-                    //if the resource is a directory, recursively tests the sub directories/files accordingly,
-                    // excluding tests folders
+                    // If the resource is a directory, recursively tests the sub directories/files accordingly,
+                    // excluding tests folders.
                 } else if (resource.isDirectory() && !resource.getName().contains("tests")) {
                     DirectoryStream<Path> ds = Files.newDirectoryStream(path);
                     for (Path subPath : ds) {
