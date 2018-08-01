@@ -485,12 +485,7 @@ public class TableTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
         String expected;
-        if (dbType == POSTGRES) {
-            expected = "<results><result><int_type>0</int_type><long_type>0</long_type><float_type>0.0</float_type>"
-                    + "<double_type>0.0</double_type><boolean_type>false</boolean_type>"
-                    + "<string_type xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\">"
-                    + "</string_type></result></results>";
-        } else if (dbType == MYSQL) {
+        if (dbType == POSTGRES || dbType == MYSQL) {
             expected = "<results><result><int_type>0</int_type><long_type>0</long_type><float_type>0.0</float_type>"
                     + "<double_type>0.0</double_type><boolean_type>false</boolean_type>"
                     + "<string_type xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\">"
