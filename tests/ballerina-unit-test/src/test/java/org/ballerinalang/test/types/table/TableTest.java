@@ -234,18 +234,34 @@ public class TableTest {
         BValue[] returns = BRunUtil.invoke(result, "toXmlComplex", connectionArgs);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(),
-                "<results><result><INT_TYPE>1</INT_TYPE><INT_ARRAY><element>1</element><element>2</element>"
-                        + "<element>3</element></INT_ARRAY><LONG_TYPE>9223372036854774807</LONG_TYPE>"
-                        + "<LONG_ARRAY><element>100000000</element><element>200000000</element>"
-                        + "<element>300000000</element></LONG_ARRAY><FLOAT_TYPE>123.34</FLOAT_TYPE>"
-                        + "<FLOAT_ARRAY><element>245.23</element><element>5559.49</element>"
-                        + "<element>8796.123</element></FLOAT_ARRAY><DOUBLE_TYPE>2.139095039E9</DOUBLE_TYPE>"
-                        + "<BOOLEAN_TYPE>true</BOOLEAN_TYPE><STRING_TYPE>Hello</STRING_TYPE><DOUBLE_ARRAY>"
-                        + "<element>245.23</element><element>5559.49</element><element>8796.123</element>"
-                        + "</DOUBLE_ARRAY><BOOLEAN_ARRAY><element>true</element><element>false</element>"
-                        + "<element>true</element></BOOLEAN_ARRAY><STRING_ARRAY><element>Hello</element>"
-                        + "<element>Ballerina</element></STRING_ARRAY></result></results>");
+
+        String expected;
+        if (dbType == POSTGRES) {
+            expected = "<results><result><int_type>1</int_type><int_array><element>1</element><element>2</element>"
+                    + "<element>3</element></int_array><long_type>9223372036854774807</long_type>"
+                    + "<long_array><element>100000000</element><element>200000000</element>"
+                    + "<element>300000000</element></long_array><float_type>123.339996</float_type>"
+                    + "<float_array><element>245.23</element><element>5559.49</element>"
+                    + "<element>8796.123</element></float_array><double_type>2.139095039E9</double_type>"
+                    + "<boolean_type>true</boolean_type><string_type>Hello</string_type><double_array>"
+                    + "<element>245.23</element><element>5559.49</element><element>8796.123</element>"
+                    + "</double_array><boolean_array><element>true</element><element>false</element>"
+                    + "<element>true</element></boolean_array><string_array><element>Hello</element>"
+                    + "<element>Ballerina</element></string_array></result></results>";
+        } else {
+            expected = "<results><result><INT_TYPE>1</INT_TYPE><INT_ARRAY><element>1</element><element>2</element>"
+                    + "<element>3</element></INT_ARRAY><LONG_TYPE>9223372036854774807</LONG_TYPE>"
+                    + "<LONG_ARRAY><element>100000000</element><element>200000000</element>"
+                    + "<element>300000000</element></LONG_ARRAY><FLOAT_TYPE>123.34</FLOAT_TYPE>"
+                    + "<FLOAT_ARRAY><element>245.23</element><element>5559.49</element>"
+                    + "<element>8796.123</element></FLOAT_ARRAY><DOUBLE_TYPE>2.139095039E9</DOUBLE_TYPE>"
+                    + "<BOOLEAN_TYPE>true</BOOLEAN_TYPE><STRING_TYPE>Hello</STRING_TYPE><DOUBLE_ARRAY>"
+                    + "<element>245.23</element><element>5559.49</element><element>8796.123</element>"
+                    + "</DOUBLE_ARRAY><BOOLEAN_ARRAY><element>true</element><element>false</element>"
+                    + "<element>true</element></BOOLEAN_ARRAY><STRING_ARRAY><element>Hello</element>"
+                    + "<element>Ballerina</element></STRING_ARRAY></result></results>";
+        }
+        Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     // Disabling for MySQL as array types are not supported.
@@ -254,14 +270,27 @@ public class TableTest {
         BValue[] returns = BRunUtil.invoke(result, "testToXmlComplexWithStructDef", connectionArgs);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<results><result><i>1</i><iA><element>1</element>"
-                + "<element>2</element><element>3</element></iA><l>9223372036854774807</l>"
-                + "<lA><element>100000000</element><element>200000000</element><element>300000000</element></lA>"
-                + "<f>123.34</f><fA><element>245.23</element><element>5559.49</element><element>8796.123</element></fA>"
-                + "<d>2.139095039E9</d><b>true</b><s>Hello</s>"
-                + "<dA><element>245.23</element><element>5559.49</element><element>8796.123</element></dA>"
-                + "<bA><element>true</element><element>false</element><element>true</element></bA>"
-                + "<sA><element>Hello</element><element>Ballerina</element></sA></result></results>");
+        String expected;
+        if (dbType == POSTGRES) {
+            expected = "<results><result><i>1</i><iA><element>1</element>"
+                    + "<element>2</element><element>3</element></iA><l>9223372036854774807</l>"
+                    + "<lA><element>100000000</element><element>200000000</element><element>300000000</element></lA>"
+                    + "<f>123.339996</f><fA><element>245.23</element><element>5559.49</element><element>8796.123"
+                    + "</element></fA><d>2.139095039E9</d><b>true</b><s>Hello</s>"
+                    + "<dA><element>245.23</element><element>5559.49</element><element>8796.123</element></dA>"
+                    + "<bA><element>true</element><element>false</element><element>true</element></bA>"
+                    + "<sA><element>Hello</element><element>Ballerina</element></sA></result></results>";
+        } else {
+            expected = "<results><result><i>1</i><iA><element>1</element>"
+                    + "<element>2</element><element>3</element></iA><l>9223372036854774807</l>"
+                    + "<lA><element>100000000</element><element>200000000</element><element>300000000</element></lA>"
+                    + "<f>123.34</f><fA><element>245.23</element><element>5559.49</element><element>8796.123</element>"
+                    + "</fA><d>2.139095039E9</d><b>true</b><s>Hello</s>"
+                    + "<dA><element>245.23</element><element>5559.49</element><element>8796.123</element></dA>"
+                    + "<bA><element>true</element><element>false</element><element>true</element></bA>"
+                    + "<sA><element>Hello</element><element>Ballerina</element></sA></result></results>";
+        }
+        Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     // Disabling for MySQL as array types are not supported.
@@ -270,11 +299,24 @@ public class TableTest {
         BValue[] returns = BRunUtil.invokeFunction(result, "testToJsonComplex", connectionArgs);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BRefValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "[{\"INT_TYPE\":1, \"INT_ARRAY\":[1, 2, 3], "
-                + "\"LONG_TYPE\":9223372036854774807, \"LONG_ARRAY\":[100000000, 200000000, 300000000], "
-                + "\"FLOAT_TYPE\":123.34, \"FLOAT_ARRAY\":[245.23, 5559.49, 8796.123], \"DOUBLE_TYPE\":2.139095039E9, "
-                + "\"BOOLEAN_TYPE\":true, \"STRING_TYPE\":\"Hello\", \"DOUBLE_ARRAY\":[245.23, 5559.49, 8796.123], "
-                + "\"BOOLEAN_ARRAY\":[true, false, true], \"STRING_ARRAY\":[\"Hello\", \"Ballerina\"]}]");
+
+        String expected;
+        if (dbType == POSTGRES) {
+            expected = "[{\"int_type\":1, \"int_array\":[1, 2, 3], "
+                    + "\"long_type\":9223372036854774807, \"long_array\":[100000000, 200000000, 300000000], "
+                    + "\"float_type\":123.339996, \"float_array\":[245.23, 5559.49, 8796.123], \"double_type\""
+                    + ":2.139095039E9, \"boolean_type\":true, \"string_type\":\"Hello\", \"double_array\""
+                    + ":[245.23, 5559.49, 8796.123], \"boolean_array\":[true, false, true], "
+                    + "\"string_array\":[\"Hello\", \"Ballerina\"]}]";
+        } else {
+            expected = "[{\"INT_TYPE\":1, \"INT_ARRAY\":[1, 2, 3], "
+                    + "\"LONG_TYPE\":9223372036854774807, \"LONG_ARRAY\":[100000000, 200000000, 300000000], "
+                    + "\"FLOAT_TYPE\":123.34, \"FLOAT_ARRAY\":[245.23, 5559.49, 8796.123], "
+                    + "\"DOUBLE_TYPE\":2.139095039E9, \"BOOLEAN_TYPE\":true, \"STRING_TYPE\":\"Hello\", "
+                    + "\"DOUBLE_ARRAY\":[245.23, 5559.49, 8796.123], \"BOOLEAN_ARRAY\":[true, false, true], "
+                    + "\"STRING_ARRAY\":[\"Hello\", \"Ballerina\"]}]";
+        }
+        Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test(groups = {TABLE_TEST, MYSQL_NOT_SUPPORTED}, description = "Check json conversion with complex element.")
@@ -282,10 +324,20 @@ public class TableTest {
         BValue[] returns = BRunUtil.invokeFunction(result, "testToJsonComplexWithStructDef", connectionArgs);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BRefValueArray);
-        Assert.assertEquals(returns[0].stringValue(), "[{\"i\":1, \"iA\":[1, 2, 3], \"l\":9223372036854774807, "
-                + "\"lA\":[100000000, 200000000, 300000000], \"f\":123.34, \"fA\":[245.23, 5559.49, 8796.123], "
-                + "\"d\":2.139095039E9, \"b\":true, \"s\":\"Hello\", \"dA\":[245.23, 5559.49, 8796.123], "
-                + "\"bA\":[true, false, true], \"sA\":[\"Hello\", \"Ballerina\"]}]");
+
+        String expected;
+        if (dbType == POSTGRES) {
+            expected = "[{\"i\":1, \"iA\":[1, 2, 3], \"l\":9223372036854774807, "
+                    + "\"lA\":[100000000, 200000000, 300000000], \"f\":123.339996, \"fA\":[245.23, 5559.49, 8796.123],"
+                    + " \"d\":2.139095039E9, \"b\":true, \"s\":\"Hello\", \"dA\":[245.23, 5559.49, 8796.123], "
+                    + "\"bA\":[true, false, true], \"sA\":[\"Hello\", \"Ballerina\"]}]";
+        } else {
+            expected = "[{\"i\":1, \"iA\":[1, 2, 3], \"l\":9223372036854774807, "
+                    + "\"lA\":[100000000, 200000000, 300000000], \"f\":123.34, \"fA\":[245.23, 5559.49, 8796.123], "
+                    + "\"d\":2.139095039E9, \"b\":true, \"s\":\"Hello\", \"dA\":[245.23, 5559.49, 8796.123], "
+                    + "\"bA\":[true, false, true], \"sA\":[\"Hello\", \"Ballerina\"]}]";
+        }
+        Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test(groups = TABLE_TEST,  description = "Check retrieving blob clob binary data.")
@@ -847,7 +899,15 @@ public class TableTest {
         Assert.assertEquals(((BInteger) returns[9]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[10]).intValue(), 5555);
         Assert.assertEquals(returns[11].stringValue(), "very long text");
-        Assert.assertEquals(new String(((BByteArray) returns[12]).getBytes()), "wso2 ballerina blob test.");
+    }
+
+    @Test(groups = TABLE_TEST,
+          description = "Test mapping to nillable blob field")
+    public void testMappingToNillableTypeBlob() {
+        BValue[] returns = BRunUtil
+                .invoke(nillableMappingResult, "testMappingToNillableTypeFieldsBlob", connectionArgs);
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(new String(((BByteArray) returns[0]).getBytes()), "wso2 ballerina blob test.");
     }
 
     @Test(groups = TABLE_TEST,
@@ -940,7 +1000,7 @@ public class TableTest {
     public void testMappingNullToNillableTypes() {
         BValue[] returns = BRunUtil.invoke(nillableMappingResult, "testMappingNullToNillableTypes", connectionArgs);
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 18);
+        Assert.assertEquals(returns.length, 17);
         for (BValue returnVal : returns) {
             Assert.assertNull(returnVal);
         }
