@@ -3,7 +3,7 @@ import { injectable, postConstruct, inject } from 'inversify';
 import { EditorManager, TextEditor, EditorWidget, TextDocumentChangeEvent } from "@theia/editor/lib/browser";
 import { DisposableCollection } from '@theia/core/lib/common/disposable';
 import * as React from 'react';
-import { parseContent, ParserReply } from '../common'
+import { parseContent, ParserReply, BALLERINA_LANGUAGE_ID } from '../common'
 
 import '../../../../../../../lib/bundle.css';
 import '../../../../../../../lib/theme.css';
@@ -66,6 +66,10 @@ export class BallerinaPreviewWidget extends ReactWidget {
     }
 
     protected render(): React.ReactNode {
+        const currentEditor = this.getCurrentEditor();
+        if (currentEditor && currentEditor.document.languageId !== BALLERINA_LANGUAGE_ID) {
+            return <div>{'Unsupported file type.'}</div>
+        }
         if (!this.currentAST) {
             return <div>{'Unable to render diagram.'}</div>
         }
