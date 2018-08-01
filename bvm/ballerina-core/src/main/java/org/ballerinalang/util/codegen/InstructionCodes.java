@@ -161,19 +161,15 @@ public interface InstructionCodes {
     int I2F = 130;
     int I2S = 131;
     int I2B = 132;
-    int I2JSON = 133;
     int F2I = 134;
     int F2S = 135;
     int F2B = 136;
-    int F2JSON = 137;
     int S2I = 138;
     int S2F = 139;
     int S2B = 140;
-    int S2JSON = 141;
     int B2I = 142;
     int B2F = 143;
     int B2S = 144;
-    int B2JSON = 145;
     int JSON2I = 146;
     int JSON2F = 147;
     int JSON2S = 148;
@@ -214,11 +210,8 @@ public interface InstructionCodes {
     int ANY2T = 179;
     int ANY2C = 180;
     int CHECKCAST = 181;
-    int NULL2JSON = 182;
 
     int ANY2TYPE = 183;
-    int S2JSONX = 184;
-    int NULL2S = 185;
 
     int LOCK = 186;
     int UNLOCK = 187;
@@ -237,7 +230,7 @@ public interface InstructionCodes {
     int JSON2MAP = 195;
 
     int IS_ASSIGNABLE = 196;
-    int CHECK_CONVERSION = 197;
+    int O2JSON = 197;
     
     int ARRAY2JSON = 198;
     int JSON2ARRAY = 199;
@@ -248,13 +241,11 @@ public interface InstructionCodes {
     int SNEWARRAY = 203;
     int BNEWARRAY = 204;
     int RNEWARRAY = 205;
-    int JSONNEWARRAY = 206;
     int ARRAYLEN = 207;
     int LENGTHOF = 208;
 
     int NEWSTRUCT = 210;
     int NEWMAP = 212;
-    int NEWJSON = 213;
     int NEWTABLE = 215;
     int NEWSTREAM = 217;
 
@@ -269,6 +260,7 @@ public interface InstructionCodes {
     int BIXOR = 226;
     int IXOR = 227;
     int BACONST = 228;
+    int IURSHIFT = 229;
 
     int IRET = 230;
     int FRET = 231;

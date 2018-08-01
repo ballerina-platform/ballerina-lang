@@ -29,7 +29,7 @@ import org.ballerinalang.net.uri.parser.Literal;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -65,14 +65,10 @@ public class HttpService implements Cloneable {
     private List<String> allAllowedMethods;
     private String basePath;
     private CorsHeaders corsHeaders;
-    private URITemplate<HttpResource, HTTPCarbonMessage> uriTemplate;
+    private URITemplate<HttpResource, HttpCarbonMessage> uriTemplate;
     private boolean keepAlive = true; //default behavior
     private String compression = AUTO; //default behavior
     private String hostName;
-
-    public Service getBallerinaService() {
-        return balService;
-    }
 
     protected HttpService(Service service) {
         this.balService = service;
@@ -169,7 +165,7 @@ public class HttpService implements Cloneable {
         this.upgradeToWebSocketResources = upgradeToWebSocketResources;
     }
 
-    public URITemplate<HttpResource, HTTPCarbonMessage> getUriTemplate() throws URITemplateException {
+    public URITemplate<HttpResource, HttpCarbonMessage> getUriTemplate() throws URITemplateException {
         if (uriTemplate == null) {
             uriTemplate = new URITemplate<>(new Literal<>(new HttpResourceDataElement(), "/"));
         }
@@ -199,7 +195,7 @@ public class HttpService implements Cloneable {
             if (basePath.contains(HttpConstants.VERSION)) {
                 prepareBasePathList(serviceConfig.getStructField(VERSIONING_FIELD),
                                     serviceConfig.getStringField(BASE_PATH_FIELD), basePathList,
-                                    httpService.getBallerinaService().getPackageVersion());
+                                    httpService.getBalService().getPackageVersion());
             } else {
                 basePathList.add(basePath);
             }
@@ -207,7 +203,7 @@ public class HttpService implements Cloneable {
 
         List<HttpResource> httpResources = new ArrayList<>();
         List<HttpResource> upgradeToWebSocketResources = new ArrayList<>();
-        for (Resource resource : httpService.getBallerinaService().getResources()) {
+        for (Resource resource : httpService.getBalService().getResources()) {
             Annotation resourceConfigAnnotation =
                     HttpUtil.getResourceConfigAnnotation(resource, HttpConstants.HTTP_PACKAGE_PATH);
             if (resourceConfigAnnotation != null

@@ -69,9 +69,9 @@ public type Listener object {
     }
     public function stop();
 
-    native function initWebSubSubscriberServiceEndpoint();
+    extern function initWebSubSubscriberServiceEndpoint();
 
-    native function registerWebSubSubscriberServiceEndpoint(typedesc serviceType);
+    extern function registerWebSubSubscriberServiceEndpoint(typedesc serviceType);
 
     documentation {
         Sends subscription requests to the specified/discovered hubs if specified to subscribe on startup.
@@ -81,7 +81,7 @@ public type Listener object {
     documentation {
         Start the registered WebSub Subscriber service.
     }
-    native function startWebSubSubscriberServiceEndpoint();
+    extern function startWebSubSubscriberServiceEndpoint();
 
     documentation {
         Sets the topic to which this service is subscribing, for auto intent verification.
@@ -89,7 +89,7 @@ public type Listener object {
         P{{webSubServiceName}} The name of the service for which subscription happened for a topic
         P{{topic}} The topic the subscription happened for
     }
-    native function setTopic(string webSubServiceName, string topic);
+    extern function setTopic(string webSubServiceName, string topic);
 
     documentation {
         Retrieves the parameters specified for subscription as annotations and the callback URL to which notification
@@ -97,7 +97,7 @@ public type Listener object {
 
         R{{}} `map[]` array of maps containing subscription details for each service
     }
-    native function retrieveSubscriptionParameters() returns map[];
+    extern function retrieveSubscriptionParameters() returns map[];
 
 };
 

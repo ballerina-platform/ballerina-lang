@@ -26,7 +26,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,7 +35,6 @@ import java.util.stream.Collectors;
 public class ParserRuleThrowStatementContext extends AbstractItemResolver {
     @Override
     public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<SymbolInfo> symbolInfoList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         List<SymbolInfo> filteredList = symbolInfoList.stream().filter(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
@@ -51,8 +49,6 @@ public class ParserRuleThrowStatementContext extends AbstractItemResolver {
             return false;
         }).collect(Collectors.toList());
         
-        this.populateCompletionItemList(filteredList, completionItems);
-        
-        return completionItems;
+        return this.getCompletionItemList(filteredList);
     }
 }

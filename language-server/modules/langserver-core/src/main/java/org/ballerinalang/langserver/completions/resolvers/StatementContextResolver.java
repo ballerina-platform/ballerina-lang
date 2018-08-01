@@ -17,18 +17,22 @@
 */
 package org.ballerinalang.langserver.completions.resolvers;
 
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.ballerinalang.langserver.completions.util.filters.PackageActionFunctionAndTypesFilter;
+import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,24 +42,15 @@ import java.util.List;
  */
 public class StatementContextResolver extends AbstractItemResolver {
     @Override
-    @SuppressWarnings("unchecked")
-    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
+    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
 
-        // Here we specifically need to check whether the statement is function invocation,
-        // action invocation or worker invocation
-        if (isInvocationOrFieldAccess(completionContext)) {
-            ArrayList<SymbolInfo> actionAndFunctions = new ArrayList<>();
+        if (isInvocationOrFieldAccess(context)) {
             Either<List<CompletionItem>, List<SymbolInfo>> itemList =
-                    SymbolFilters.getFilterByClass(PackageActionFunctionAndTypesFilter.class)
-                            .filterItems(completionContext);
-            if (itemList.isLeft()) {
-                completionItems.addAll(itemList.getLeft());
-            } else {
-                actionAndFunctions.addAll(itemList.getRight());
-                this.populateCompletionItemList(actionAndFunctions, completionItems);
-            }
+                    SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(context);
+            return itemList.isLeft() ? itemList.getLeft() : this.getCompletionItemList(itemList.getRight());
         } else {
+            ArrayList<CompletionItem> completionItems = new ArrayList<>();
+
             CompletionItem xmlns = new CompletionItem();
             xmlns.setLabel(ItemResolverConstants.XMLNS);
             xmlns.setInsertText(Snippet.NAMESPACE_DECLARATION.toString());
@@ -70,22 +65,24 @@ public class StatementContextResolver extends AbstractItemResolver {
             varKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
             completionItems.add(varKeyword);
 
-            StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
             // Add the statement templates
             Either<List<CompletionItem>, List<SymbolInfo>> itemList =
-                    statementTemplateFilter.filterItems(completionContext);
-            if (itemList.isLeft()) {
-                completionItems.addAll(itemList.getLeft());
-            }
-            List<SymbolInfo> filteredList =
-                    this.removeInvalidStatementScopeSymbols(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
-            populateCompletionItemList(filteredList, completionItems);
+                    SymbolFilters.get(StatementTemplateFilter.class).filterItems(context);
+            // Statement Template filter always populates the left of Either
+            completionItems.addAll(itemList.getLeft());
+            List<SymbolInfo> filteredList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+            filteredList.removeIf(CommonUtil.invalidSymbolsPredicate());
+            filteredList.removeIf(symbolInfo -> {
+                BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+                return bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED);
+            });
+            completionItems.addAll(this.getCompletionItemList(filteredList));
             // Now we need to sort the completion items and populate the completion items specific to the scope owner
             // as an example, resource, action, function scopes are different from the if-else, while, and etc
-            Class itemSorter = completionContext.get(CompletionKeys.BLOCK_OWNER_KEY).getClass();
-            ItemSorters.getSorterByClass(itemSorter).sortItems(completionContext, completionItems);
-        }
+            Class itemSorter = context.get(CompletionKeys.BLOCK_OWNER_KEY).getClass();
+            ItemSorters.get(itemSorter).sortItems(context, completionItems);
 
-        return completionItems;
+            return completionItems;
+        }
     }
 }

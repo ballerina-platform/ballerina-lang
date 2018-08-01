@@ -55,7 +55,7 @@ import java.util.List;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
- * Native function ballerina/io#loadToTable.
+ * Extern function ballerina/io#loadToTable.
  *
  * @since 0.970.0
  */

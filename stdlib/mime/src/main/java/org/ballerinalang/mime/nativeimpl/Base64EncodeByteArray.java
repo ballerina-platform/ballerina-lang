@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import static org.ballerinalang.stdlib.io.utils.Utils.encodeBlob;
 
 /**
- * Native function for Base64Encode byte array.
+ * Extern function for Base64Encode byte array.
  *
  * @since 0.980.0
  */

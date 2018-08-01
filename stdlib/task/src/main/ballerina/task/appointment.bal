@@ -33,7 +33,7 @@ public type Appointment object {
     public new(onTrigger, onError, scheduleCronExpression) {}
 
     // Schedule the appointment
-    public native function schedule();
+    public extern function schedule();
     // Cancel the appointment
-    public native function cancel();
+    public extern function cancel();
 };

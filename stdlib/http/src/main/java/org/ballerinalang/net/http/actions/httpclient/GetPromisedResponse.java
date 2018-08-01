@@ -31,8 +31,8 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
  * {@code GetPromisedResponse} action can be used to get a push response message associated with a
@@ -81,7 +81,7 @@ public class GetPromisedResponse extends AbstractHTTPAction {
         }
 
         @Override
-        public void onPushResponse(int promisedId, HTTPCarbonMessage httpCarbonMessage) {
+        public void onPushResponse(int promisedId, HttpCarbonMessage httpCarbonMessage) {
             dataContext.notifyInboundResponseStatus(
                     HttpUtil.createResponseStruct(this.dataContext.context, httpCarbonMessage), null);
         }

@@ -37,7 +37,7 @@ import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
+import org.wso2.transport.http.netty.message.HttpConnectorUtil;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -62,7 +62,6 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 )
 public class CreateHttpClient extends BlockingNativeCallableUnit {
 
-    private static final int DEFAULT_MAX_REDIRECT_COUNT = 5;
     private HttpWsConnectorFactory httpConnectorFactory = HttpUtil.createHttpWsConnectionFactory();
 
     @Override
@@ -81,9 +80,9 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
         }
         scheme = url.getProtocol();
         Map<String, Object> properties =
-                HTTPConnectorUtil.getTransportProperties(connectionManager.getTransportConfig());
+                HttpConnectorUtil.getTransportProperties(connectionManager.getTransportConfig());
         SenderConfiguration senderConfiguration =
-                HTTPConnectorUtil.getSenderConfiguration(connectionManager.getTransportConfig(), scheme);
+                HttpConnectorUtil.getSenderConfiguration(connectionManager.getTransportConfig(), scheme);
 
         if (connectionManager.isHTTPTraceLoggerEnabled()) {
             senderConfiguration.setHttpTraceLogEnabled(true);

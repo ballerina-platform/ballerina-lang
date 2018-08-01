@@ -27,17 +27,17 @@ public type Connection object {
         createConnection();
     }
 
-    native function createConnection();
+    extern function createConnection();
 
     documentation { Starts (or restarts) a connection's delivery of incoming messages.
          A call to start on a connection that has already been started is ignored.
     }
-    public native function start();
+    public extern function start();
 
     documentation { Temporarily stops a connection's delivery of incoming messages.
         Delivery can be restarted using the connection's start method.
     }
-    public native function stop();
+    public extern function stop();
 };
 
 documentation { Configurations related to a JMS connection

@@ -81,4 +81,7 @@ public class WebSocketConstants {
     public static final String CONNECTOR_IS_READY_FIELD = "isReady";
 
     public static final int STATUS_CODE_ABNORMAL_CLOSURE = 1006;
+
+    private WebSocketConstants() {
+    }
 }

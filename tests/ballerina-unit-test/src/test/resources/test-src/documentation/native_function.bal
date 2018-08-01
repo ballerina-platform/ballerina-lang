@@ -5,4 +5,4 @@ Example:
 P{{accessMode}} read or write mode
 P{{successful}} boolean `true` or `false`
 }
-public native function open(string accessMode) returns (boolean);
+public extern function open(string accessMode) returns (boolean);
