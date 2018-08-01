@@ -1,5 +1,17 @@
 # Create a file named `secured_client_with_oauth2.bal`, copy the code
 # into it, and use the `ballerina run` command to start the service.
 $ ballerina run secured_client_with_oauth2.bal
-ballerina: started HTTPS/WSS endpoint 0.0.0.0:9090
-2018-07-31 18:00:07,931 INFO  [] - Hello, World!!!
+2018-08-01 16:19:36,549 INFO  [] -
+{
+ "kind": "tasks#taskLists",
+ "etag": "\"FhCqMAsBrrKDkDLKevwtJykQ9I8/HZ4P5ZoRYE9MVosnStxk5dPGhhE\"",
+ "items": [
+  {
+   "kind": "tasks#taskList",
+   "id": "MDQ4NzI4NjE3OTU0OTE0OTgwNTg6MDow",
+   "title": "My Tasks",
+   "updated": "2018-07-31T11:29:14.000Z",
+   "selfLink": "https://www.googleapis.com/tasks/v1/users/@me/lists/MDQ4NzI4NjE3OTU0OTE0OTgwNTg6MDow"
+  }
+ ]
+}
