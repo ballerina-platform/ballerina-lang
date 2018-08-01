@@ -9,11 +9,11 @@ function main(string... args) {
     // updates for the topics.
     io:println("Starting up the Ballerina Hub Service");
     websub:WebSubHub webSubHub =
-        websub:startUpBallerinaHub(port = 9191, remotePublishingEnabled = true) but {
+        websub:startHub(9191, remotePublishingEnabled = true) but {
             websub:HubStartedUpError hubStartedUpErr => hubStartedUpErr.startedUpHub
         };
 
     // Wait for the subscriber to subscribe at this hub and for the publisher to publish the notifications.
-    runtime:sleep(60000);
+    runtime:sleep(10000);
 
 }
