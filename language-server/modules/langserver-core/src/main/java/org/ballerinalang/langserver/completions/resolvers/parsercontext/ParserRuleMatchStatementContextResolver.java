@@ -75,19 +75,22 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
                     break;
                 }
             }
-            List<SymbolInfo> filteredList = FilterUtils.getInvocationAndFieldSymbolsOnVar(ctx, variableName, delimiter);
-            filteredList.removeIf(this.invalidSymbolsPredicate());
+            List<SymbolInfo> filteredList = FilterUtils.getInvocationAndFieldSymbolsOnVar(ctx,
+                    variableName,
+                    delimiter,
+                    ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
+            filteredList.removeIf(CommonUtil.invalidSymbolsPredicate());
             filteredList.forEach(symbolInfo -> {
-                if (this.isValidInvokableSymbol(symbolInfo.getScopeEntry().symbol)) {
+                if (CommonUtil.isValidInvokableSymbol(symbolInfo.getScopeEntry().symbol)) {
                     BSymbol scopeEntrySymbol = symbolInfo.getScopeEntry().symbol;
                     completionItems.add(this.fillInvokableSymbolMatchSnippet((BInvokableSymbol) scopeEntrySymbol, ctx));
                 }
             });
         } else {
-            symbolInfoList.removeIf(this.invalidSymbolsPredicate());
+            symbolInfoList.removeIf(CommonUtil.invalidSymbolsPredicate());
             symbolInfoList.forEach(symbolInfo -> {
                 BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-                if (this.isValidInvokableSymbol(symbolInfo.getScopeEntry().symbol)
+                if (CommonUtil.isValidInvokableSymbol(symbolInfo.getScopeEntry().symbol)
                         && ((bSymbol.flags & Flags.ATTACHED) != Flags.ATTACHED)) {
                     completionItems.add(this.fillInvokableSymbolMatchSnippet((BInvokableSymbol) bSymbol, ctx));
                 } else if (!(symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol)
