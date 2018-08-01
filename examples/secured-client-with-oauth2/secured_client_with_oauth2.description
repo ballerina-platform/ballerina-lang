@@ -1,0 +1,5 @@
+// A secured client with oauth2 authentication is used to connect to a
+// secured service with oauth2 authentication.
+// OAuth2 authentication is enabled by setting the `scheme: http:OAUTH2`
+// If `accessToken` is invalid, it will be automatically refreshed with the
+// provided `clientId`, `clientSecret`, `refreshToken`, `refreshUrl`.
