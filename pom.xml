@@ -349,7 +349,25 @@
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
             </dependency>
-
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-llvm</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-llvm</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-binary-repo</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-llvm</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+                <classifier>ballerina-sources</classifier>
+            </dependency>
             <!-- ballerina-grpc -->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -1439,6 +1457,11 @@
                 <version>${javax.jms.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.bytedeco.javacpp-presets</groupId>
+                <artifactId>llvm-platform</artifactId>
+                <version>${javacpp.llvm.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.wso2.andes.wso2</groupId>
                 <artifactId>andes-client</artifactId>
                 <version>${andes.client.version}</version>
@@ -1592,6 +1615,7 @@
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>
+                <module>stdlib/llvm</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
                 <module>stdlib/reflect</module>
@@ -1671,6 +1695,7 @@
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>
+                <module>stdlib/llvm</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
                 <module>stdlib/reflect</module>
@@ -1747,6 +1772,7 @@
                 <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>
+                <module>stdlib/llvm</module>
                 <module>stdlib/math</module>
                 <module>stdlib/mime</module>
                 <module>stdlib/reflect</module>
@@ -2254,6 +2280,7 @@
         <!-- JMS Connector -->
         <wso2.transport.jms.version>6.0.50</wso2.transport.jms.version>
         <javax.jms.version>2.0.1</javax.jms.version>
+        <javacpp.llvm.version>6.0.0-1.4.2-SNAPSHOT</javacpp.llvm.version>
         <andes.client.version>3.2.55</andes.client.version>
         <wso2.securevault.version>1.0.0-wso2v2</wso2.securevault.version>
 

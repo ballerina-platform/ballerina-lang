@@ -104,6 +104,7 @@
                 <include>org.ballerinalang:ballerina-crypto:jar</include>
                 <include>org.ballerinalang:ballerina-file:jar</include>
                 <include>org.ballerinalang:ballerina-grpc:jar</include>
+                <include>org.ballerinalang:ballerina-llvm:jar</include>
                 <include>org.ballerinalang:ballerina-h2:jar</include>
                 <include>org.ballerinalang:ballerina-http:jar</include>
                 <include>org.ballerinalang:ballerina-internal:jar</include>
@@ -204,6 +205,9 @@
                 <include>io.dropwizard.metrics:metrics-core:jar</include>
                 <include>org.wso2.transport.file:org.wso2.transport.local-file-system</include>
 
+                <include>org.bytedeco.javacpp-presets:llvm-platform:jar</include>
+                <include>org.bytedeco.javacpp-presets:llvm:jar</include>
+                <include>org.bytedeco:javacpp:jar</include>
                 <!-- JMS connector dependencies -->
                 <include>javax.jms:javax.jms-api:jar</include>
                 <include>org.wso2.andes.wso2:andes-client:jar</include>
