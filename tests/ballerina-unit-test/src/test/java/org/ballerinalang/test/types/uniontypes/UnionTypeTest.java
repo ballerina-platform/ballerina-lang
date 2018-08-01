@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.types.uniontypes;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -33,10 +34,12 @@ import org.testng.annotations.Test;
  */
 public class UnionTypeTest {
     private CompileResult result;
+    private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/uniontypes/union_types_basic.bal");
+        negativeResult = BCompileUtil.compile("test-src/types/uniontypes/negative_union_types_basic.bal");
     }
 
 
@@ -84,5 +87,17 @@ public class UnionTypeTest {
         BValue[] returns = BRunUtil.invoke(result, "testUnionTypeArrayWithValueTypeArrayAssignment");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
+    }
+
+    @Test(description = "Test union type with record literal")
+    public void testRecordLiteralAssignment() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecordLiteralAssignment");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "John");
+    }
+
+    @Test(description = "Test negative cases")
+    public void testAmbiguousAssignment() {
+        BAssertUtil.validateError(negativeResult, 0, "ambiguous type 'Person|error'", 6, 22);
     }
 }

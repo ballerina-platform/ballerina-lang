@@ -57,8 +57,8 @@ public class PushText implements NativeCallableUnit {
             boolean finalFrame = context.getBooleanArgument(0);
             ChannelFuture future = connectionInfo.getWebSocketConnection().pushText(text, finalFrame);
             WebSocketUtil.handleWebSocketCallback(context, callback, future);
-        } catch (Throwable throwable) {
-            context.setReturnValues(HttpUtil.getError(context, throwable));
+        } catch (Exception e) {
+            context.setReturnValues(HttpUtil.getError(context, e));
             callback.notifySuccess();
         }
     }

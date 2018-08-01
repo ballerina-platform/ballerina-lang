@@ -45,7 +45,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
@@ -367,8 +367,7 @@ public final class BXMLItem extends BXML<OMNode> {
         }
         
         String localName, uri;
-        Set<String> attributeQNames = attributes.keySet();
-        for (String qname : attributeQNames) {
+        for (String qname : attributes.keys()) {
             if (qname.startsWith("{") && qname.indexOf('}') > 0) {
                 localName = qname.substring(qname.indexOf('}') + 1, qname.length());
                 uri = qname.substring(1, qname.indexOf('}'));
@@ -591,7 +590,7 @@ public final class BXMLItem extends BXML<OMNode> {
      * {@inheritDoc}
      */
     @Override
-    public void serializeData(OutputStream outputStream) {
+    public void serialize(OutputStream outputStream) {
         try {
             this.omNode.serialize(outputStream);
         } catch (Throwable t) {

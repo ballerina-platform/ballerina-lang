@@ -18,8 +18,6 @@
 
 package org.ballerinalang.net.http.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.time.ZonedDateTime;
@@ -39,8 +37,6 @@ public class CacheUtils {
     public static final String IF_NONE_MATCH_HEADER = "If-None-Match";
     public static final String IF_MODIFIED_SINCE_HEADER = "If-Modified-Since";
     public static final String LAST_MODIFIED_HEADER = "Last-Modified";
-
-    private static final Logger log = LoggerFactory.getLogger(CacheUtils.class);
 
     /**
      * Method for revalidating a cached response. This method follows the RFC7232 and RFC7234 specifications.
@@ -115,5 +111,8 @@ public class CacheUtils {
 
     private static boolean isWeakEntityTag(String etag) {
         return etag.startsWith(WEAK_VALIDATOR_TAG);
+    }
+
+    private CacheUtils() {
     }
 }

@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,9 +34,11 @@ public class FunctionContextResolver extends AbstractItemResolver {
     public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ParserRuleContext parserRuleContext = completionContext.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
         AbstractItemResolver contextResolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
-        if (contextResolver != null) {
-            return contextResolver.resolveItems(completionContext);
+
+        if (contextResolver == null) {
+            return new ArrayList<>();
         }
-        return null;
+        
+        return contextResolver.resolveItems(completionContext);
     }
 }

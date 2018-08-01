@@ -66,19 +66,16 @@ public class DescriptorBuilder {
             }
         }
         int i = 0;
-        for (Object key : descriptorMap.keySet()) {
+        for (String key : descriptorMap.keys()) {
             Descriptor descriptor;
-            if (i != descriptorMap.keySet().size() - 1) {
-                descriptor = new Descriptor((String) key, descriptorMap.get((String) key)
-                        .stringValue(), ",");
+            if (i != descriptorMap.keys().length - 1) {
+                descriptor = new Descriptor(key, descriptorMap.get(key).stringValue(), ",");
             } else {
-                descriptor = new Descriptor((String) key, descriptorMap.get((String) key)
-                        .stringValue(), null);
+                descriptor = new Descriptor(key, descriptorMap.get(key).stringValue(), null);
             }
             clientStubBal.addDescriptor(descriptor);
             i++;
         }
-        
     }
     
     /**

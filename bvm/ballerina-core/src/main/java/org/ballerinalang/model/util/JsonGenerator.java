@@ -17,12 +17,21 @@
  */
 package org.ballerinalang.model.util;
 
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BValue;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.util.Map.Entry;
 
 /**
  * This class represents the functionality to generate the JSON constructs to be written out
@@ -86,7 +95,7 @@ public class JsonGenerator {
     private void processStartLevel() throws IOException {
         if (!this.fieldActive) {
             if (this.getLevelInit(this.currentLevel)) {
-                this.writer.write(',');
+                this.writer.write(", ");
             } else {
                 this.setLevelInit(this.currentLevel, true);
             }
@@ -104,7 +113,7 @@ public class JsonGenerator {
     
     private void processFieldInit() throws IOException {
         if (this.getLevelInit(this.currentLevel)) {
-            this.writer.write(',');
+            this.writer.write(", ");
         } else {
             this.setLevelInit(this.currentLevel, true);
         }
@@ -117,7 +126,7 @@ public class JsonGenerator {
             return;
         }
         if (this.getLevelInit(this.currentLevel)) {
-            this.writer.write(',');
+            this.writer.write(", ");
         } else {
             this.setLevelInit(this.currentLevel, true);
         }
@@ -256,5 +265,45 @@ public class JsonGenerator {
     public void flush() throws IOException {
         this.writer.flush();
     }
-    
+
+    public void serialize(BValue json) throws IOException {
+        if (json == null) {
+            this.writeNull();
+            return;
+        }
+
+        switch (json.getType().getTag()) {
+            case TypeTags.ARRAY_TAG:
+                this.writeStartArray();
+                BRefValueArray jsonArray = (BRefValueArray) json;
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    this.serialize(jsonArray.get(i));
+                }
+                this.writeEndArray();
+                break;
+            case TypeTags.BOOLEAN_TAG:
+                this.writeBoolean(((BBoolean) json).booleanValue());
+                break;
+            case TypeTags.FLOAT_TAG:
+                this.writeNumber(((BFloat) json).floatValue());
+                break;
+            case TypeTags.INT_TAG:
+                this.writeNumber(((BInteger) json).intValue());
+                break;
+            case TypeTags.MAP_TAG:
+            case TypeTags.JSON_TAG:
+                this.startObject();
+                for (Entry<String, BValue> entry : ((BMap<String, BValue>) json).getMap().entrySet()) {
+                    this.writeFieldName(entry.getKey());
+                    serialize(entry.getValue());
+                }
+                this.endObject();
+                break;
+            case TypeTags.STRING_TAG:
+                this.writeString(json.stringValue());
+                break;
+            default:
+                break;
+        }
+    }
 }

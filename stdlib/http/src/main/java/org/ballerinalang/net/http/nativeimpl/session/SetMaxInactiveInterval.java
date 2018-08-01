@@ -30,8 +30,6 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.util.IllegalFormatException;
-
 /**
  * Extern function to set session max inactive interval.
  *
@@ -48,7 +46,7 @@ import java.util.IllegalFormatException;
 public class SetMaxInactiveInterval extends BlockingNativeCallableUnit {
 
     @Override
-    public void execute(Context context) throws IllegalFormatException {
+    public void execute(Context context) {
         try {
             BMap<String, BValue> sessionStruct  = ((BMap<String, BValue>) context.getRefArgument(0));
             int timeInterval = (int) context.getIntArgument(0);

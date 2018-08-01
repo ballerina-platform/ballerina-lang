@@ -20,8 +20,10 @@ package org.ballerinalang.test.services.dispatching;
 
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
@@ -53,13 +55,13 @@ public class UriMatrixParametersMatchTest {
         HttpCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
 
-        Assert.assertEquals(bJson.value().get("pathParams").asText(), "john, 1991");
-        Assert.assertEquals(bJson.value().get("personMatrix").asText(), "age=10;color=white");
-        Assert.assertEquals(bJson.value().get("yearMatrix").asText(), "month=may;day=12");
-        Assert.assertEquals(bJson.value().get("fooMatrix").asText(), "a=5;b=10");
-        Assert.assertEquals(bJson.value().get("queryParams").asText(), "x=10&y=5");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("pathParams").stringValue(), "john, 1991");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("personMatrix").stringValue(), "age=10;color=white");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("yearMatrix").stringValue(), "month=may;day=12");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("fooMatrix").stringValue(), "a=5;b=10");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("queryParams").stringValue(), "x=10&y=5");
     }
 
     @Test
@@ -69,11 +71,11 @@ public class UriMatrixParametersMatchTest {
         HttpCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
 
-        Assert.assertEquals(bJson.value().get("person").asText(), "john");
-        Assert.assertEquals(bJson.value().get("personParamSize").asText(), "2");
-        Assert.assertEquals(bJson.value().get("fooParamSize").asText(), "0");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("person").stringValue(), "john");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("personParamSize").stringValue(), "2");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("fooParamSize").stringValue(), "0");
     }
 
     @Test
@@ -83,11 +85,11 @@ public class UriMatrixParametersMatchTest {
         HttpCarbonMessage response = Services.invokeNew(application, TEST_EP, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
 
-        Assert.assertEquals(bJson.value().get("person").asText(), "john;age=2;color=white");
-        Assert.assertEquals(bJson.value().get("personParamSize").asText(), "0");
-        Assert.assertEquals(bJson.value().get("fooParamSize").asText(), "0");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("person").stringValue(), "john;age=2;color=white");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("personParamSize").stringValue(), "0");
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("fooParamSize").stringValue(), "0");
     }
 
     @Test

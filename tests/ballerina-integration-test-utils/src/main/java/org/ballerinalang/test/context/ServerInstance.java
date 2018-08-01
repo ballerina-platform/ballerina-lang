@@ -23,10 +23,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Locale;
@@ -230,37 +233,31 @@ public class ServerInstance implements Server {
      * @throws BallerinaTestException if the main could not be started
      */
     public void runMain(String[] args) throws BallerinaTestException {
-        runMain(args, null, "run");
+        runMain(args, null, "run", serverHome);
+    }
+
+    /**
+     * Run main with args.
+     *
+     * @param args string arguments
+     * @throws BallerinaTestException if the main could not be started
+     */
+    public void runMain(String[] args, String[] envVariables, String command) throws BallerinaTestException {
+        runMain(args, envVariables, command, serverHome);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void runMain(String[] args, String[] envVariables, String command) throws BallerinaTestException {
-
+    public void runMain(String[] args, String[] envVariables, String command, String dirPath)
+            throws BallerinaTestException {
         initialize();
-
-        String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
-        String[] cmdArray;
-        File commandDir = new File(serverHome);
-
+        File commandDir = new File(dirPath);
         Process process;
 
         try {
-            if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
-                commandDir = new File(serverHome + File.separator + "bin");
-                cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat", command};
-                String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
-                                         .toArray(String[]::new);
-                process = Runtime.getRuntime().exec(cmdArgs, envVariables, commandDir);
-
-            } else {
-                cmdArray = new String[]{"bash", "bin/" + scriptName, command};
-                String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
-                                         .toArray(String[]::new);
-                process = Runtime.getRuntime().exec(cmdArgs, envVariables, commandDir);
-            }
+            process = executeProcess(args, envVariables, command, commandDir);
             serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
             tmpLeechers.forEach(leacher -> serverInfoLogReader.addLeecher(leacher));
             serverInfoLogReader.start();
@@ -274,6 +271,83 @@ public class ServerInstance implements Server {
         } catch (InterruptedException e) {
             throw new BallerinaTestException("Error waiting for execution to finish", e);
         }
+    }
+
+    /**
+     * Run command with client options.
+     *
+     * @param args         client arguments
+     * @param options      options
+     * @param envVariables environment variables
+     * @param command      command name
+     * @param dir          working directory name
+     * @throws BallerinaTestException
+     */
+    public void runMainWithClientOptions(String[] args, String[] options, String[] envVariables, String command,
+                                         String dir) throws BallerinaTestException {
+        initialize();
+        File commandDir = new File(dir);
+        Process process;
+
+        try {
+            process = executeProcess(args, envVariables, command, commandDir);
+            // Wait until the options are prompted
+            Thread.sleep(3000);
+            writeClientOptionsToProcess(options, process);
+            deleteWorkDir();
+        } catch (IOException e) {
+            throw new BallerinaTestException("Error executing ballerina", e);
+        } catch (InterruptedException ignore) {
+        }
+    }
+
+    /**
+     * Execute process.
+     *
+     * @param args         client arguments
+     * @param envVariables environment variables
+     * @param command      command name
+     * @param commandDir   working directory
+     * @return process executed
+     * @throws IOException
+     */
+    private Process executeProcess(String[] args, String[] envVariables, String command, File commandDir)
+            throws IOException {
+        String scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
+        String[] cmdArray;
+        Process process;
+        if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
+            cmdArray = new String[]{"cmd.exe", "/c", serverHome + File.separator + "bin" + File.separator + scriptName
+                    + ".bat", command};
+            String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
+                                     .toArray(String[]::new);
+            process = Runtime.getRuntime().exec(cmdArgs, envVariables, commandDir);
+
+        } else {
+            cmdArray = new String[]{"bash", serverHome + File.separator + "bin/" + scriptName, command};
+            String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
+                                     .toArray(String[]::new);
+            process = Runtime.getRuntime().exec(cmdArgs, envVariables, commandDir);
+        }
+        return process;
+    }
+
+    /**
+     * Write client options to process.
+     *
+     * @param options client options
+     * @param process process executed
+     * @throws IOException
+     */
+    private void writeClientOptionsToProcess(String[] options, Process process) throws IOException {
+        OutputStream stdin = process.getOutputStream();
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stdin));
+
+        for (String arguments : options) {
+            writer.write(arguments);
+        }
+        writer.flush();
+        writer.close();
     }
 
     /**

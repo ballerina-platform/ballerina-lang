@@ -21,7 +21,10 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.StringJoiner;
 
@@ -96,5 +99,14 @@ public class BByteArray extends BNewArray {
     @Override
     public BValue getBValue(long index) {
         return new BByte(get(index));
+    }
+
+    @Override
+    public void serialize(OutputStream outputStream) {
+        try {
+            outputStream.write(values);
+        } catch (IOException e) {
+            throw new BallerinaException("error occurred while writing the binary content to the output stream", e);
+        }
     }
 }

@@ -24,20 +24,16 @@ import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.runtime.message.MessageDataSource;
-
-import java.util.Locale;
 
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
-import static org.ballerinalang.mime.util.MimeConstants.JSON_SUFFIX;
-import static org.ballerinalang.mime.util.MimeConstants.JSON_TYPE_IDENTIFIER;
 
 /**
  * Get the entity body in JSON form.
@@ -55,19 +51,19 @@ public class GetJson extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BJSON result;
+        BRefType<?> result;
         try {
             BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
             String baseType = HeaderUtil.getBaseType(entityStruct);
-            if (baseType != null && (baseType.toLowerCase(Locale.getDefault()).endsWith(JSON_TYPE_IDENTIFIER) ||
-                    baseType.toLowerCase(Locale.getDefault()).endsWith(JSON_SUFFIX))) {
-                MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+            if (MimeUtil.isJSONContentType(entityStruct)) {
+                BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
                 if (dataSource != null) {
-                    if (dataSource instanceof BJSON) {
-                        result = (BJSON) dataSource;
+                    // If the value is a JSON compatible type, then return it as is.
+                    if (MimeUtil.isJSONCompatible(dataSource.getType())) {
+                        result = (BRefType<?>) dataSource;
                     } else {
-                        // else, build the JSON from the string representation of the payload.
-                        result = new BJSON(dataSource.getMessageAsString());
+                        // Else, build the JSON from the string representation of the payload.
+                        result = JsonParser.parse(dataSource.stringValue());
                     }
                 } else {
                     result = EntityBodyHandler.constructJsonDataSource(entityStruct);
