@@ -27,6 +27,7 @@
         }
         &:hover {
             .root-actions {
+                background: #444;
                 .action {
                     opacity: .6;
                     vertical-align: text-top;
@@ -36,7 +37,7 @@
         }
         .root-actions {
             float: right;
-            margin-right: 5px;
+            padding: 0 5px;
             font-size: 10px;
             position: absolute;
             right: 0;
