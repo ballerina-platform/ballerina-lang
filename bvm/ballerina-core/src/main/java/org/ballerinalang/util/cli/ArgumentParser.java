@@ -71,6 +71,7 @@ public class ArgumentParser {
     private static final String INCOMPATIBLE_TYPES = "incompatible types: ";
     private static final String COMMA = ",";
 
+    private static final String NIL = "()";
     private static final String TRUE = "TRUE";
     private static final String FALSE = "FALSE";
 
@@ -340,22 +341,30 @@ public class ArgumentParser {
 
     private static BValue parseUnionArg(BUnionType type, String unionArg) {
         List<BType> unionMemberTypes = type.getMemberTypes();
+
+        // TODO: 8/1/18 confirm which of the two needs to be prioritized
+        if (unionMemberTypes.contains(BTypes.typeNull) && NIL.equals(unionArg)) {
+            return null;
+        }
+
         if (unionMemberTypes.contains(BTypes.typeString)) {
             return new BString(unionArg);
         }
 
-        for (int elementTypeIndex = 0; elementTypeIndex < unionMemberTypes.size();) {
+        for (int memberTypeIndex = 0; memberTypeIndex < unionMemberTypes.size();) {
             try {
-                return getBValue(unionMemberTypes.get(elementTypeIndex), unionArg);
-            } catch (BallerinaException e) {
-                if (elementTypeIndex < unionMemberTypes.size()) {
-                    elementTypeIndex++;
+                BType memberType = unionMemberTypes.get(memberTypeIndex);
+                if (memberType.getTag() == TypeTags.NULL_TAG) {
+                    memberTypeIndex++;
                     continue;
                 }
-                throw new BLangUsageException("incompatible argument specified for union type: " + type);
+                return getBValue(memberType, unionArg);
+            } catch (BLangUsageException e) {
+                memberTypeIndex++;
             }
         }
-        throw new BLangUsageException("incompatible argument specified for union type: " + type);
+        throw new BLangUsageException("incompatible argument specified for union type: "
+                                          + (type.isNullable() ? type.toString().replace("|null", "|()") : type));
     }
 
 }
