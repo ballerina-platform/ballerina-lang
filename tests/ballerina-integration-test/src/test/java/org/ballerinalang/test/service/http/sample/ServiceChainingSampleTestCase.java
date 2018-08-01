@@ -26,6 +26,7 @@ import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -37,32 +38,21 @@ import java.util.Map;
  * Testing the Service Chaining sample located in
  * ballerina_home/samples/serviceChaining/ATMLocatorService.bal.
  */
+@Test(groups = "http-test")
 public class ServiceChainingSampleTestCase extends IntegrationTestCase {
     private static final String requestMessage = "{\"ATMLocator\": {\"ZipCode\": \"95999\"}}";
     private static final String responseMessage = "{\"ABC Bank\":{\"Address\":\"111 River Oaks Pkwy" +
                                                   ", San Jose, CA 95999\"}}";
 
-    @BeforeClass
-    private void setup() throws Exception {
-        String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "httpService" + File.separator + "ATMLocatorService.bal").getAbsolutePath();
-        serverInstance.startBallerinaServer(balFile);
-    }
-
     @Test(description = "Test service chaining sample")
     public void testEchoServiceByBasePath() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp("ABCBank/locator"),
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(9092, "ABCBank/locator"),
                 requestMessage, headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
         Assert.assertEquals(response.getData(), responseMessage, "Message content mismatched");
-    }
-
-    @AfterClass
-    private void cleanup() throws Exception {
-        serverInstance.stopServer();
     }
 }

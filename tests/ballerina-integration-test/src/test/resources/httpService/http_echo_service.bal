@@ -1,22 +1,22 @@
 import ballerina/http;
 
-endpoint http:Listener echoEP1 {
-    port:9094
+endpoint http:Listener echoEP3 {
+    port:9099
 };
 
-endpoint http:Listener echoEP2 {
-    port:9090
+endpoint http:Listener echoEP4 {
+    port:9100
 };
 
 @http:ServiceConfig {
     basePath:"/echo"
 }
-service<http:Service> echo bind echoEP1 {
+service<http:Service> echo3 bind echoEP3 {
     @http:ResourceConfig {
         methods:["POST"],
         path:"/"
     }
-    echo (endpoint caller, http:Request req) {
+    echo3 (endpoint caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("hello world");
         _ = caller -> respond(res);
@@ -26,7 +26,7 @@ service<http:Service> echo bind echoEP1 {
 @http:ServiceConfig {
     basePath:"/echoOne"
 }
-service<http:Service> echoOne bind echoEP1 {
+service<http:Service> echoOne2 bind echoEP3 {
     @http:ResourceConfig {
         methods:["POST"],
         path:"/abc"
@@ -41,13 +41,13 @@ service<http:Service> echoOne bind echoEP1 {
 @http:ServiceConfig {
     basePath:"/echoDummy"
 }
-service<http:Service> echoDummy bind echoEP2 {
+service<http:Service> echoDummy2 bind echoEP4 {
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/"
     }
-    echoDummy (endpoint caller, http:Request req) {
+    echoDummy2 (endpoint caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("hello world");
         _ = caller -> respond(res);

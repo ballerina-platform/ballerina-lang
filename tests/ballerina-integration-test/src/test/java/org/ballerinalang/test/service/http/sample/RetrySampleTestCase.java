@@ -28,6 +28,7 @@ import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -38,26 +39,21 @@ import java.util.Map;
 /**
  * Testcase for the retry sample.
  */
+@Test(groups = "http-test")
 public class RetrySampleTestCase extends IntegrationTestCase {
 
-    @BeforeClass
-    private void setup() throws Exception {
-        String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "httpService" + File.separator + "http_retry.bal").getAbsolutePath();
-        serverInstance.startBallerinaServer(balFile);
-    }
+    private final int servicePort = 9105;
 
     @Test(description = "Test basic retry functionality")
     public void testSimpleRetry() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp("retry")
-                , "{\"Name\":\"Ballerina\"}", headers);
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(servicePort, "retry"),
+                "{\"Name\":\"Ballerina\"}", headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
-                , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
-        Assert.assertEquals(response.getData(), "Hello World!!!"
-                , "Message content mismatched");
+        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString()),
+                TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+        Assert.assertEquals(response.getData(), "Hello World!!!", "Message content mismatched");
     }
 
     @Test(description = "Test retry functionality with multipart requests")
@@ -79,18 +75,17 @@ public class RetrySampleTestCase extends IntegrationTestCase {
                 "--" + multipartDataBoundary + "--" + "\r\n";
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), "multipart/form-data; boundary=" + multipartDataBoundary);
-        HttpResponse response = HttpClientRequest.doPost(serverInstance
-                        .getServiceURLHttp("retry")
-                , multipartBody, headers);
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(servicePort, "retry"),
+                multipartBody, headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertTrue(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                         .contains("multipart/form-data;boundary=" + multipartDataBoundary),
                 "Response is not form of multipart");
-        Assert.assertTrue(response.getData().contains("form-data;name=\"foo\"content-id: 0Part1")
-                , "Message content mismatched");
+        Assert.assertTrue(response.getData().contains("form-data;name=\"foo\"content-id: 0Part1"),
+                "Message content mismatched");
         Assert.assertTrue(response.getData().
-                        contains("form-data;name=\"filepart\";filename=\"file-01.txt\"content-id: 1Part2")
-                , "Message content mismatched");
+                contains("form-data;name=\"filepart\";filename=\"file-01.txt\"content-id: 1Part2"),
+                "Message content mismatched");
     }
 
     @Test(description = "Test retry functionality when request has nested body parts")
@@ -133,18 +128,13 @@ public class RetrySampleTestCase extends IntegrationTestCase {
                 "Child Part 2";
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), "multipart/form-data; boundary=" + multipartDataBoundary);
-        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp("retry")
-                , nestedMultipartBody, headers);
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(servicePort, "retry"),
+                nestedMultipartBody, headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertTrue(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                         .contains("multipart/form-data;boundary=" + multipartDataBoundary),
                 "Response is not form of multipart");
         Assert.assertTrue(response.getData().contains(expectedChildPart1), "Message content mismatched");
         Assert.assertTrue(response.getData().contains(expectedChildPart2), "Message content mismatched");
-    }
-
-    @AfterClass
-    private void cleanup() throws Exception {
-        serverInstance.stopServer();
     }
 }

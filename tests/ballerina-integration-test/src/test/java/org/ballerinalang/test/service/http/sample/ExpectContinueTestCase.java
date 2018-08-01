@@ -34,6 +34,7 @@ import org.ballerinalang.test.util.client.HttpClient;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -43,15 +44,8 @@ import java.util.List;
 /**
  * Test case for verifying the server-side 100-continue behaviour.
  */
+@Test(groups = "http-test")
 public class ExpectContinueTestCase extends IntegrationTestCase {
-
-    @BeforeClass
-    public void setup() throws Exception {
-        String resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath())
-                .getAbsolutePath();
-        String balFile = Paths.get(resourceRoot, "httpService", "100_continue.bal").toAbsolutePath().toString();
-        serverInstance.startBallerinaServer(balFile);
-    }
 
     @Test
     public void test100Continue() {
@@ -79,10 +73,5 @@ public class ExpectContinueTestCase extends IntegrationTestCase {
         Assert.assertEquals(responsePayload.getBytes().length, TestUtils.LARGE_ENTITY.getBytes().length);
         Assert.assertEquals(Integer.parseInt(responses.get(1).headers().get(HttpHeaderNames.CONTENT_LENGTH)),
                             TestUtils.LARGE_ENTITY.getBytes().length);
-    }
-
-    @AfterClass
-    private void cleanup() throws Exception {
-        serverInstance.stopServer();
     }
 }

@@ -3,15 +3,15 @@ import ballerina/mime;
 import ballerina/http;
 
 endpoint http:Listener serviceEnpoint {
-    port:9090
+    port:9092
 };
 
 endpoint http:Client bankInfoService {
-    url: "http://localhost:9090/bankinfo/product"
+    url: "http://localhost:9092/bankinfo/product"
 };
 
 endpoint http:Client branchLocatorService {
-    url: "http://localhost:9090/branchlocator/product"
+    url: "http://localhost:9092/branchlocator/product"
 };
 
 @http:ServiceConfig {
@@ -29,7 +29,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
         match jsonLocatorReq {
             json zip => {
                 string zipCode;
-                zipCode = extractFieldValue(zip["ATMLocator"]["ZipCode"]);
+                zipCode = extractFieldValue2(zip["ATMLocator"]["ZipCode"]);
                 io:println("Zip Code " + zipCode);
                 json branchLocatorReq = {"BranchLocator":{"ZipCode":""}};
                 branchLocatorReq.BranchLocator.ZipCode = zipCode;
@@ -55,7 +55,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
         match branchLocatorRes {
             json branch => {
                 string branchCode;
-                branchCode = extractFieldValue(branch.ABCBank.BranchCode);
+                branchCode = extractFieldValue2(branch.ABCBank.BranchCode);
                 io:println("Branch Code " + branchCode);
                 json bankInfoReq = {"BranchInfo":{"BranchCode":""}};
                 bankInfoReq.BranchInfo.BranchCode = branchCode;
@@ -95,7 +95,7 @@ service<http:Service> Bankinfo bind serviceEnpoint {
         match jsonRequest {
             json bankInfo => {
                 string branchCode;
-                branchCode = extractFieldValue(bankInfo.BranchInfo.BranchCode);
+                branchCode = extractFieldValue2(bankInfo.BranchInfo.BranchCode);
                 json payload = {};
                 if (branchCode == "123") {
                     payload = {"ABC Bank":{"Address":"111 River Oaks Pkwy, San Jose, CA 95999"}};
@@ -129,7 +129,7 @@ service<http:Service> Banklocator bind serviceEnpoint {
         match jsonRequest {
             json bankLocator => {
                 string zipCode;
-                zipCode = extractFieldValue(bankLocator.BranchLocator.ZipCode);
+                zipCode = extractFieldValue2(bankLocator.BranchLocator.ZipCode);
                 json payload = {};
                 if (zipCode == "95999") {
                     payload = {"ABCBank":{"BranchCode":"123"}};
@@ -148,7 +148,7 @@ service<http:Service> Banklocator bind serviceEnpoint {
 }
 
 //Keep this until there's a simpler way to get a string value out of a json
-function extractFieldValue(json fieldValue) returns string {
+function extractFieldValue2(json fieldValue) returns string {
     match fieldValue {
         int i => return "error";
         string s => return s;

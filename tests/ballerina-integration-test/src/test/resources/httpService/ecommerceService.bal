@@ -2,14 +2,14 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
 
-endpoint http:Listener serviceEndpoint {
-    port:9090
+endpoint http:Listener serviceEndpoint5 {
+    port:9095
 };
 
 @http:ServiceConfig {
     basePath:"/customerservice"
 }
-service<http:Service> CustomerMgtService bind serviceEndpoint {
+service<http:Service> CustomerMgtService bind serviceEndpoint5 {
 
     @http:ResourceConfig {
         methods:["GET", "POST"]
@@ -30,13 +30,13 @@ service<http:Service> CustomerMgtService bind serviceEndpoint {
 }
 
 endpoint http:Client productsService {
-    url: "http://localhost:9090"
+    url: "http://localhost:9095"
 };
 
 @http:ServiceConfig {
     basePath:"/ecommerceservice"
 }
-service<http:Service> Ecommerce bind serviceEndpoint {
+service<http:Service> Ecommerce bind serviceEndpoint5 {
 
     @http:ResourceConfig {
         methods:["GET"],
@@ -161,7 +161,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
 @http:ServiceConfig {
     basePath:"/orderservice"
 }
-service<http:Service> OrderMgtService bind serviceEndpoint {
+service<http:Service> OrderMgtService bind serviceEndpoint5 {
 
     @http:ResourceConfig {
         methods:["GET", "POST"]
@@ -184,7 +184,7 @@ service<http:Service> OrderMgtService bind serviceEndpoint {
 @http:ServiceConfig {
     basePath:"/productsservice"
 }
-service<http:Service> productmgt bind serviceEndpoint {
+service<http:Service> productmgt bind serviceEndpoint5 {
 
     map productsMap = populateSampleProducts();
 
@@ -213,7 +213,7 @@ service<http:Service> productmgt bind serviceEndpoint {
                 io:println("Error occurred while reading bank locator request");
             }
             json prod => {
-                string productId = extractFieldValue(prod.Product.ID);
+                string productId = extractFieldValue3(prod.Product.ID);
                 productsMap[productId] = prod;
                 json payload = {"Status":"Product is successfully added."};
 
@@ -238,7 +238,7 @@ function populateSampleProducts () returns (map) {
 }
 
 //Keep this until there's a simpler way to get a string value out of a json
-function extractFieldValue(json fieldValue) returns string {
+function extractFieldValue3(json fieldValue) returns string {
     match fieldValue {
         int i => return "error";
         string s => return s;

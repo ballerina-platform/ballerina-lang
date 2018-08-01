@@ -32,7 +32,7 @@
         </groups>
 
         <packages>
-            <package name="org.ballerinalang.test.service.http.sample"/>
+            <package name="org.ballerinalang.test.service.http.*"/>
             <!--<package name="org.ballerinalang.test.service.http2"/>-->
             <!--<package name="org.ballerinalang.test.transaction"/>-->
             <!--<package name="org.ballerinalang.test.filter"/>-->

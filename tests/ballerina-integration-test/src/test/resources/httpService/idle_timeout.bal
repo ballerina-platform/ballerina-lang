@@ -21,7 +21,7 @@ import ballerina/runtime;
 @http:ServiceConfig {
     basePath: "/idle"
 }
-service<http:Service> idleTimeout bind { port: 9090, timeoutMillis: 1000 } {
+service<http:Service> idleTimeout bind { port: 9112, timeoutMillis: 1000 } {
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/timeout408"

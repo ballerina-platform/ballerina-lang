@@ -26,6 +26,7 @@ import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -35,20 +36,14 @@ import java.util.Map;
 /**
  * Test class for HTTP options request's content length and payload handling behavior.
  */
+@Test(groups = "http-test")
 public class HttpOptionsTestCase extends IntegrationTestCase {
-
-    @BeforeClass
-    private void setup() throws Exception {
-        String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "httpService" + File.separator + "http_echo_service.bal").getAbsolutePath();
-        serverInstance.startBallerinaServer(relativePath);
-    }
 
     @Test(description = "Test OPTIONS content length header sample test case")
     public void testOptionsContentLengthHeader() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-        String serviceUrl = "http://localhost:9090/echoDummy";
+        String serviceUrl = "http://localhost:9100/echoDummy";
         HttpResponse response = HttpClientRequest.doOptions(serviceUrl, headers);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
@@ -62,7 +57,7 @@ public class HttpOptionsTestCase extends IntegrationTestCase {
     public void testOptionsResourceWithPayload() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
-        String serviceUrl = "http://localhost:9090/echoDummy/getOptions";
+        String serviceUrl = "http://localhost:9100/echoDummy/getOptions";
         HttpResponse response = HttpClientRequest.doOptions(serviceUrl, headers);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
@@ -72,10 +67,5 @@ public class HttpOptionsTestCase extends IntegrationTestCase {
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
         String respMsg = "hello Options";
         Assert.assertEquals(response.getData(), respMsg, "Message content mismatched");
-    }
-
-    @AfterClass
-    private void cleanup() throws Exception {
-        serverInstance.stopServer();
     }
 }

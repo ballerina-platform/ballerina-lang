@@ -1,15 +1,15 @@
 import ballerina/http;
 
 endpoint http:Listener headerServiceEP {
-    port: 9090
+    port: 9106
 };
 
 endpoint http:Listener stockServiceEP {
-    port: 9091
+    port: 9107
 };
 
 endpoint http:Client stockqEP {
-    url: "http://localhost:9091"
+    url: "http://localhost:9107"
 };
 
 @http:ServiceConfig {
@@ -59,7 +59,7 @@ service<http:Service> headerService bind headerServiceEP {
 @http:ServiceConfig {
     basePath:"/sample"
 }
-service<http:Service> quoteService bind stockServiceEP {
+service<http:Service> quoteService1 bind stockServiceEP {
 
     @http:ResourceConfig {
         methods:["GET"],

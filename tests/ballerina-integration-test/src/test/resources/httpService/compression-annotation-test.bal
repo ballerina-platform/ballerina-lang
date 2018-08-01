@@ -1,7 +1,7 @@
 import ballerina/http;
 
 endpoint http:Listener mockEP {
-    port:9090
+    port:9093
 };
 
 @http:ServiceConfig {basePath:"/autoCompress", compression: http:COMPRESSION_AUTO}

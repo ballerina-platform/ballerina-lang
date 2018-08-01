@@ -26,6 +26,7 @@ import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -35,27 +36,16 @@ import java.io.IOException;
  * Testing the passthrough service sample located in
  * ballerina_home/samples/passthroughService/passthroughService.bal.
  */
+@Test(groups = "http-test")
 public class PassthroughServiceSampleTestCase extends IntegrationTestCase {
-
-    @BeforeClass
-    private void setup() throws Exception {
-        String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "httpService" + File.separator + "passthrough_service.bal").getAbsolutePath();
-        serverInstance.startBallerinaServer(balFile);
-    }
 
     @Test(description = "Test Passthrough sample test case invoking base path")
     public void testPassthroughServiceByBasePath() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp("passthrough"));
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9113, "passthrough"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
-                , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
+        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString()),
+                TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
         String responseMessage = "{\"exchange\":\"nyse\",\"name\":\"IBM\",\"value\":\"127.50\"}";
         Assert.assertEquals(response.getData(), responseMessage, "Message content mismatched");
-    }
-
-    @AfterClass
-    private void cleanup() throws Exception {
-        serverInstance.stopServer();
     }
 }

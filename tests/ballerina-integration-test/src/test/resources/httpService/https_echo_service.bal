@@ -1,15 +1,15 @@
 import ballerina/http;
 
 endpoint http:Listener echoDummyEP {
-    port:9090
+    port:9109
 };
 
 endpoint http:Listener echoHttpEP {
-    port: 9094
+    port: 9110
 };
 
-endpoint http:Listener echoEP {
-    port:9095,
+endpoint http:Listener echoEP2 {
+    port:9111,
     secureSocket: {
         keyStore: {
             path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -22,12 +22,12 @@ endpoint http:Listener echoEP {
     basePath:"/echo"
 }
 
-service<http:Service> echo bind echoEP {
+service<http:Service> echo2 bind echoEP2 {
     @http:ResourceConfig {
         methods:["POST"],
         path:"/"
     }
-    echo (endpoint caller, http:Request req) {
+    echo2 (endpoint caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("hello world");
         _ = caller -> respond(res);
@@ -37,7 +37,7 @@ service<http:Service> echo bind echoEP {
 @http:ServiceConfig  {
     basePath:"/echoOne"
 }
-service<http:Service> echoOne bind echoEP, echoHttpEP {
+service<http:Service> echoOne1 bind echoEP2, echoHttpEP {
     @http:ResourceConfig {
         methods:["POST"],
         path:"/abc"
@@ -52,13 +52,13 @@ service<http:Service> echoOne bind echoEP, echoHttpEP {
 @http:ServiceConfig {
     basePath:"/echoDummy"
 }
-service<http:Service> echoDummy bind echoDummyEP {
+service<http:Service> echoDummy1 bind echoDummyEP {
 
     @http:ResourceConfig {
         methods:["POST"],
         path:"/"
     }
-    echoDummy (endpoint caller, http:Request req) {
+    echoDummy1 (endpoint caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("hello world");
         _ = caller -> respond(res);

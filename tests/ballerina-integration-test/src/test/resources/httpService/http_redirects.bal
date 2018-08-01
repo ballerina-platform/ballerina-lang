@@ -18,16 +18,15 @@ import ballerina/io;
 import ballerina/http;
 import ballerina/mime;
 
-endpoint http:Listener serviceEndpoint {
-    port: 9090
-};
-
 endpoint http:Listener serviceEndpoint2 {
-    port: 9093
+    port: 9102
 };
 
+endpoint http:Listener serviceEndpoint3 {
+    port: 9103
+};
 endpoint http:Listener httpsEP {
-    port:9092,
+    port:9104,
     secureSocket: {
         keyStore: {
             path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -37,33 +36,33 @@ endpoint http:Listener httpsEP {
 };
 
 endpoint http:Client endPoint1 {
-    url: "http://localhost:9090",
+    url: "http://localhost:9103",
     followRedirects: { enabled: true, maxCount: 3 }
 };
 
 endpoint http:Client endPoint2 {
-    url: "http://localhost:9090",
+    url: "http://localhost:9103",
     followRedirects: { enabled: true, maxCount: 5 }
 };
 
 endpoint http:Client endPoint3 {
-    url: "http://localhost:9093",
+    url: "http://localhost:9102",
     followRedirects: { enabled: true }
 };
 
 endpoint http:Client endPoint4 {
-    url: "http://localhost:9090"
+    url: "http://localhost:9103"
 };
 
 endpoint http:Client endPoint5 {
-    url: "https://localhost:9092",
+    url: "https://localhost:9104",
     followRedirects: { enabled: true }
 };
 
 @http:ServiceConfig {
     basePath: "/service1"
 }
-service<http:Service> testRedirect bind serviceEndpoint {
+service<http:Service> testRedirect bind serviceEndpoint3 {
 
     @http:ResourceConfig {
         methods: ["GET"],
@@ -265,7 +264,7 @@ service<http:Service> testRedirect bind serviceEndpoint {
 @http:ServiceConfig {
     basePath: "/redirect1"
 }
-service<http:Service> redirect1 bind serviceEndpoint {
+service<http:Service> redirect1 bind serviceEndpoint3 {
 
     @http:ResourceConfig {
         methods: ["GET"],
@@ -273,7 +272,7 @@ service<http:Service> redirect1 bind serviceEndpoint {
     }
     redirect1(endpoint client, http:Request req) {
         http:Response res = new;
-        _ = client->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, ["http://localhost:9093/redirect2"]);
+        _ = client->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, ["http://localhost:9102/redirect2"]);
     }
 
     @http:ResourceConfig {
@@ -318,7 +317,7 @@ service<http:Service> redirect1 bind serviceEndpoint {
     }
     round5(endpoint client, http:Request req) {
         http:Response res = new;
-        _ = client->redirect(res, http:REDIRECT_FOUND_302, ["http://localhost:9093/redirect2"]);
+        _ = client->redirect(res, http:REDIRECT_FOUND_302, ["http://localhost:9102/redirect2"]);
     }
 
     @http:ResourceConfig {
@@ -338,7 +337,7 @@ service<http:Service> redirect1 bind serviceEndpoint {
     qpWithAbsolutePath(endpoint client, http:Request req) {
         http:Response res = new;
         _ = client->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, [
-                "http://localhost:9090/redirect1/processQP?key=value&lang=ballerina"]);
+                "http://localhost:9103/redirect1/processQP?key=value&lang=ballerina"]);
     }
 
     @http:ResourceConfig {

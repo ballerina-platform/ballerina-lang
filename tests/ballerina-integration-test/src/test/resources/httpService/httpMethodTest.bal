@@ -1,17 +1,17 @@
 import ballerina/http;
 
-endpoint http:Listener serviceEndpoint {
-    port:9090
+endpoint http:Listener serviceEndpoint4 {
+    port:9108
 };
 
 endpoint http:Client endPoint {
-    url: "http://localhost:9090"
+    url: "http://localhost:9108"
 };
 
 @http:ServiceConfig {
     basePath:"/headQuote"
 }
-service<http:Service> headQuoteService bind serviceEndpoint {
+service<http:Service> headQuoteService bind serviceEndpoint4 {
 
     @http:ResourceConfig {
         path:"/default"
@@ -93,7 +93,7 @@ service<http:Service> headQuoteService bind serviceEndpoint {
 @http:ServiceConfig {
     basePath:"/sampleHead"
 }
-service<http:Service> testClientConHEAD bind serviceEndpoint {
+service<http:Service> testClientConHEAD bind serviceEndpoint4 {
 
     @http:ResourceConfig {
         methods:["HEAD"],
@@ -119,7 +119,7 @@ service<http:Service> testClientConHEAD bind serviceEndpoint {
 @http:ServiceConfig {
     basePath:"/getQuote"
 }
-service<http:Service> quoteService bind serviceEndpoint {
+service<http:Service> quoteService2 bind serviceEndpoint4 {
 
     @http:ResourceConfig {
         methods:["GET"],

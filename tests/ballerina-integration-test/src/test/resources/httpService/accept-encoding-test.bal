@@ -3,32 +3,32 @@ import ballerina/mime;
 
 @final string ACCEPT_ENCODING = "accept-encoding";
 
-endpoint http:Listener passthroughEP {
-    port:9090
+endpoint http:Listener passthroughEP2 {
+    port:9091
 };
 
 endpoint http:Client acceptEncodingAutoEP {
-    url: "http://localhost:9090/hello",
+    url: "http://localhost:9091/hello",
     compression:http:COMPRESSION_AUTO
 };
 
 endpoint http:Client acceptEncodingEnableEP {
-    url: "http://localhost:9090/hello",
+    url: "http://localhost:9091/hello",
     compression:http:COMPRESSION_ALWAYS
 };
 
 endpoint http:Client acceptEncodingDisableEP {
-    url: "http://localhost:9090/hello",
+    url: "http://localhost:9091/hello",
     compression:http:COMPRESSION_NEVER
 };
 
-service<http:Service> passthrough bind passthroughEP {
+service<http:Service> passthrough bind passthroughEP2 {
     @http:ResourceConfig {
         path:"/"
     }
     passthrough (endpoint caller, http:Request req) {
         if (req.getHeader("AcceptValue") == "auto") {
-            var clientResponse = acceptEncodingAutoEP -> post("/", req);
+            var clientResponse = acceptEncodingAutoEP -> post("/",untaint req);
             match clientResponse {
                 http:Response res => {
                     _ = caller -> respond(res);
@@ -41,7 +41,7 @@ service<http:Service> passthrough bind passthroughEP {
                 }
             }
         } else if (req.getHeader("AcceptValue") == "enable") {
-            var clientResponse = acceptEncodingEnableEP -> post("/", req);
+            var clientResponse = acceptEncodingEnableEP -> post("/",untaint req);
             match clientResponse {
                 http:Response res => {
                     _ = caller -> respond(res);
@@ -54,7 +54,7 @@ service<http:Service> passthrough bind passthroughEP {
                 }
             }
         } else if (req.getHeader("AcceptValue") == "disable") {
-            var clientResponse = acceptEncodingDisableEP -> post("/", req);
+            var clientResponse = acceptEncodingDisableEP -> post("/",untaint req);
             match clientResponse {
                 http:Response res => {
                     _ = caller -> respond(res);
@@ -71,7 +71,7 @@ service<http:Service> passthrough bind passthroughEP {
 }
 
 @Description {value:"Sample hello world service."}
-service<http:Service> hello bind passthroughEP {
+service<http:Service> hello bind passthroughEP2 {
 
     @Description {value:"The helloResource only accepts requests made using the specified HTTP methods"}
     @http:ResourceConfig {
@@ -87,7 +87,7 @@ service<http:Service> hello bind passthroughEP {
         } else {
             payload = {acceptEncoding:"Accept-Encoding hdeaer not present."};
         }
-        res.setJsonPayload(payload);
+        res.setJsonPayload(untaint payload);
         _ = caller -> respond(res);
     }
 }

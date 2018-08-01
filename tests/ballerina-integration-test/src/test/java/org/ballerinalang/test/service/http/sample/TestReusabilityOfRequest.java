@@ -27,6 +27,7 @@ import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -39,56 +40,51 @@ import java.util.Map;
  *
  * @since 0.970.0
  */
+@Test(groups = "http-test")
 public class TestReusabilityOfRequest extends IntegrationTestCase {
 
-    @BeforeClass
-    private void setup() throws Exception {
-        String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "httpService" + File.separator + "test-reusability-of-request.bal")
-                .getAbsolutePath();
-        serverInstance.startBallerinaServer(balFile);
-    }
+    private final int servicePort = 9115;
 
     @Test
     public void reuseRequestWithoutEntity() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance
-                .getServiceURLHttp("reuseObj/request_without_entity"));
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
+                "reuseObj/request_without_entity"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
-                , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString()),
+                TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
         Assert.assertEquals(response.getData(), "Hello from GET!Hello from GET!",
                 "Message content mismatched");
     }
 
     @Test
     public void reuseRequestWithEmptyEntity() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance
-                .getServiceURLHttp("reuseObj/request_with_empty_entity"));
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
+                "reuseObj/request_with_empty_entity"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
-                , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString()),
+                TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
         Assert.assertEquals(response.getData(), "Hello from GET!Hello from GET!",
                 "Message content mismatched");
     }
 
     @Test
     public void twoRequestsSameEntity() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance
-                .getServiceURLHttp("reuseObj/two_request_same_entity"));
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
+                "reuseObj/two_request_same_entity"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
-                , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString()),
+                TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
         Assert.assertEquals(response.getData(), "Hello from GET!Hello from GET!",
                 "Message content mismatched");
     }
 
     @Test
     public void sameRequestWithADatasource() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance
-                .getServiceURLHttp("reuseObj/request_with_datasource"));
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
+                "reuseObj/request_with_datasource"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
-                , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString()),
+                TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
         Assert.assertEquals(response.getData(), "Hello from POST!Hello from POST!",
                 "Message content mismatched");
     }
@@ -97,17 +93,12 @@ public class TestReusabilityOfRequest extends IntegrationTestCase {
     public void sameRequestWithByteChannel() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), "text/plain");
-        HttpResponse response = HttpClientRequest.doPost(serverInstance
-                .getServiceURLHttp("reuseObj/request_with_bytechannel"), "Hello from POST!", headers);
+        HttpResponse response = HttpClientRequest.doPost(serverInstance.getServiceURLHttp(servicePort,
+                "reuseObj/request_with_bytechannel"), "Hello from POST!", headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
-                , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
+        Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString()),
+                TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
         Assert.assertEquals(response.getData(), "Hello from POST!Error occurred while retrieving text " +
                 "data from entity : String payload is null", "Message content mismatched");
-    }
-
-    @AfterClass
-    private void cleanup() throws Exception {
-        serverInstance.stopServer();
     }
 }

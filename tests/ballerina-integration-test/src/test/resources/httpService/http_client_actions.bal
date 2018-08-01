@@ -2,15 +2,15 @@ import ballerina/io;
 import ballerina/http;
 import ballerina/mime;
 
-endpoint http:Client clientEP {
-    url: "http://localhost:9091",
+endpoint http:Client clientEP2 {
+    url: "http://localhost:9097",
     cache: { enabled: false }
 };
 
 @http:ServiceConfig {
     basePath: "/test1"
 }
-service<http:Service> backEndService bind { port: 9091 } {
+service<http:Service> backEndService bind { port: 9097 } {
 
     @http:ResourceConfig {
         methods: ["GET"],
@@ -62,7 +62,7 @@ service<http:Service> backEndService bind { port: 9091 } {
 @http:ServiceConfig {
     basePath: "/test2"
 }
-service<http:Service> testService bind { port: 9090 } {
+service<http:Service> testService bind { port: 9098 } {
 
     @http:ResourceConfig {
         methods: ["GET"],
@@ -71,14 +71,14 @@ service<http:Service> testService bind { port: 9090 } {
     testGet(endpoint client, http:Request req) {
         string value;
         //No Payload
-        http:Response response = check clientEP->get("/test1/greeting");
+        http:Response response = check clientEP2->get("/test1/greeting");
         value = check response.getTextPayload();
         //No Payload
-        response = check clientEP->get("/test1/greeting", message = ());
+        response = check clientEP2->get("/test1/greeting", message = ());
         value = value + check response.getTextPayload();
         http:Request httpReq = new;
         //Request as message
-        response = check clientEP->get("/test1/greeting", message = httpReq);
+        response = check clientEP2->get("/test1/greeting", message = httpReq);
         value = value + check response.getTextPayload();
         _ = client->respond(untaint value);
     }
@@ -90,7 +90,7 @@ service<http:Service> testService bind { port: 9090 } {
     testPost(endpoint client, http:Request req) {
         string value;
         //No Payload
-        var clientResponse = clientEP->post("/test1/directPayload", ());
+        var clientResponse = clientEP2->post("/test1/directPayload", ());
         match clientResponse {
             error err => {
                 value = err.message;
@@ -116,14 +116,14 @@ service<http:Service> testService bind { port: 9090 } {
     }
     testPostWithBody(endpoint client, http:Request req) {
         string value;
-        http:Response textResponse = check clientEP->post("/test1/directPayload", "Sample Text");
+        http:Response textResponse = check clientEP2->post("/test1/directPayload", "Sample Text");
         value = check textResponse.getTextPayload();
 
-        http:Response xmlResponse = check clientEP->post("/test1/directPayload", xml `<yy>Sample Xml</yy>`);
+        http:Response xmlResponse = check clientEP2->post("/test1/directPayload", xml `<yy>Sample Xml</yy>`);
         xml xmlValue = check xmlResponse.getXmlPayload();
         value = value + xmlValue.getTextValue();
 
-        http:Response jsonResponse = check clientEP->post("/test1/directPayload", { name: "apple", color: "red" });
+        http:Response jsonResponse = check clientEP2->post("/test1/directPayload", { name: "apple", color: "red" });
         json jsonValue = check jsonResponse.getJsonPayload();
         value = value + jsonValue.toString();
 
@@ -138,7 +138,7 @@ service<http:Service> testService bind { port: 9090 } {
         string value;
         string textVal = "Sample Text";
         byte[] binaryValue = textVal.toByteArray("UTF-8");
-        http:Response textResponse = check clientEP->post("/test1/directPayload", binaryValue);
+        http:Response textResponse = check clientEP2->post("/test1/directPayload", binaryValue);
         value = check textResponse.getPayloadAsString();
 
         _ = client->respond(untaint value);
@@ -151,7 +151,7 @@ service<http:Service> testService bind { port: 9090 } {
     testPostWithByteChannel(endpoint client, http:Request req) {
         string value;
         io:ByteChannel byteChannel = check req.getByteChannel();
-        http:Response res = check clientEP->post("/test1/byteChannel", untaint byteChannel);
+        http:Response res = check clientEP2->post("/test1/byteChannel", untaint byteChannel);
         value = check res.getPayloadAsString();
 
         _ = client->respond(untaint value);
@@ -169,7 +169,7 @@ service<http:Service> testService bind { port: 9090 } {
         part2.setText("Hello");
         mime:Entity[] bodyParts = [part1, part2];
 
-        http:Response res = check clientEP->post("/test1/directPayload", bodyParts);
+        http:Response res = check clientEP2->post("/test1/directPayload", bodyParts);
         mime:Entity[] returnParts = check res.getBodyParts();
 
         foreach bodyPart in returnParts {

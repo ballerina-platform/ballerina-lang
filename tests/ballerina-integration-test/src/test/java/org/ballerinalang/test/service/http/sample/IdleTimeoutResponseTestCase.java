@@ -25,6 +25,7 @@ import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -38,6 +39,7 @@ import java.nio.channels.SocketChannel;
  *
  * @since 0.975.1
  */
+@Test(groups = "http-test")
 public class IdleTimeoutResponseTestCase extends IntegrationTestCase {
 
     /**
@@ -120,13 +122,7 @@ public class IdleTimeoutResponseTestCase extends IntegrationTestCase {
             + "\r\n";
     private static final int BUFFER_SIZE = 1024;
 
-    @BeforeClass(description = "Sets up the ballerina server with the file")
-    private void setup() throws Exception {
-        String balFile = new File(
-                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "httpService" +
-                        File.separator + "idle_timeout.bal").getAbsolutePath();
-        serverInstance.startBallerinaServer(balFile);
-    }
+    private final int servicePort = 9112;
 
     @Test(description = "Tests if 408 response is returned when the request times out. In this case a delay is " +
             "introduced between the first and second chunk.", enabled = false)
@@ -147,7 +143,7 @@ public class IdleTimeoutResponseTestCase extends IntegrationTestCase {
      * @throws IOException if there's an error when connecting to remote endpoint.
      */
     private SocketChannel connectToRemoteEndpoint() throws IOException {
-        InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 9090);
+        InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", servicePort);
 
         SocketChannel clientSocket = SocketChannel.open();
         clientSocket.configureBlocking(true);
@@ -235,13 +231,9 @@ public class IdleTimeoutResponseTestCase extends IntegrationTestCase {
     @Test(description = "Tests if 500 response is returned when the server times out. In this case a sleep is " +
             "introduced in the server.")
     public void test500Response() throws Exception {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp("idle/timeout500"));
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
+                "idle/timeout500"));
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
-    }
-
-    @AfterClass
-    private void cleanup() throws Exception {
-        serverInstance.stopServer();
     }
 }

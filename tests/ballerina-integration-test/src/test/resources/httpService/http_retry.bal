@@ -4,13 +4,13 @@ import ballerina/mime;
 import ballerina/runtime;
 import ballerina/io;
 
-endpoint http:Listener serviceEndpoint {
-    port: 9090
+endpoint http:Listener serviceEndpoint1 {
+    port: 9105
 };
 
 // Define the end point to the call the `mockHelloService`.
 endpoint http:Client backendClientEP {
-    url: "http://localhost:9090",
+    url: "http://localhost:9105",
     // Retry configuration options.
     retryConfig: {
         interval: 3000,
@@ -23,7 +23,7 @@ endpoint http:Client backendClientEP {
 @http:ServiceConfig {
     basePath: "/retry"
 }
-service<http:Service> retryDemoService bind serviceEndpoint {
+service<http:Service> retryDemoService bind serviceEndpoint1 {
     // Create a REST resource within the API.
     @http:ResourceConfig {
         methods: ["GET", "POST"],
@@ -63,7 +63,7 @@ public int counter = 0;
 // The service outage is mocked by stopping/starting this service.
 // This should run separately from the `retryDemoService` service.
 @http:ServiceConfig { basePath: "/hello" }
-service<http:Service> mockHelloService bind serviceEndpoint {
+service<http:Service> mockHelloService bind serviceEndpoint1 {
     @http:ResourceConfig {
         methods: ["GET", "POST"],
         path: "/"

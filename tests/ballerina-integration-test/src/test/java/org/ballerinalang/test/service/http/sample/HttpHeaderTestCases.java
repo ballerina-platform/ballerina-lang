@@ -24,6 +24,7 @@ import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -32,18 +33,14 @@ import java.io.IOException;
 /**
  * Testing the Http headers availability in pass-through scenarios.
  */
+@Test(groups = "http-test")
 public class HttpHeaderTestCases extends IntegrationTestCase {
 
-    @BeforeClass
-    private void setup() throws Exception {
-        String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "httpService" + File.separator + "httpHeaderTest.bal").getAbsolutePath();
-        serverInstance.startBallerinaServer(balFile);
-    }
+    private final int servicePort = 9106;
 
     @Test(description = "Test outbound request headers availability at backend with URL. /product/value")
     public void testOutboundRequestHeaders() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp("product/value"));
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "product/value"));
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "{\"header1\":\"aaa\",\"header2\":\"bbb\"}");
@@ -51,13 +48,8 @@ public class HttpHeaderTestCases extends IntegrationTestCase {
 
     @Test(description = "Test inbound response headers availability with URL. /product/id")
     public void testInboundResponseHeaders() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp("product/id"));
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "product/id"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "{\"header1\":\"kkk\",\"header2\":\"jjj\"}");
-    }
-
-    @AfterClass
-    private void cleanup() throws Exception {
-        serverInstance.stopServer();
     }
 }

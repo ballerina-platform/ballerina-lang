@@ -3,12 +3,12 @@ import ballerina/io;
 import ballerina/file;
 import ballerina/mime;
 
-endpoint http:Client clientEP {
-    url:"http://localhost:9090/test"
+endpoint http:Client clientEP1 {
+    url:"http://localhost:9115/test"
 };
 
 endpoint http:Listener testEP {
-    port:9090
+    port:9115
 };
 
 @http:ServiceConfig {basePath:"/reuseObj"}
@@ -20,8 +20,8 @@ service<http:Service> testService_1 bind testEP {
     }
     getWithoutEntity(endpoint outboundEP, http:Request clientRequest) {
         http:Request clientReq = new;
-        http:Response firstResponse = check clientEP -> get("", message = clientReq);
-        http:Response secondResponse = check clientEP -> get("", message = clientReq);
+        http:Response firstResponse = check clientEP1 -> get("", message = clientReq);
+        http:Response secondResponse = check clientEP1 -> get("", message = clientReq);
         http:Response testResponse = new;
         string firstVal = untaint check firstResponse.getTextPayload();
         string secondVal = untaint check secondResponse.getTextPayload();
@@ -37,8 +37,8 @@ service<http:Service> testService_1 bind testEP {
         http:Request clientReq = new;
         mime:Entity entity = new;
         clientReq.setEntity(entity);
-        http:Response firstResponse = check clientEP -> get("", message = clientReq);
-        http:Response secondResponse = check clientEP -> get("", message = clientReq);
+        http:Response firstResponse = check clientEP1 -> get("", message = clientReq);
+        http:Response secondResponse = check clientEP1 -> get("", message = clientReq);
         http:Response testResponse = new;
         string firstVal = untaint check firstResponse.getTextPayload();
         string secondVal = untaint check secondResponse.getTextPayload();
@@ -56,9 +56,9 @@ service<http:Service> testService_1 bind testEP {
         http:Request newRequest = new;
         mime:Entity entity = check clientReq.getEntity();
         newRequest.setEntity(entity);
-        http:Response firstResponse = check clientEP -> get("", message = clientReq);
+        http:Response firstResponse = check clientEP1 -> get("", message = clientReq);
         newRequest.setHeader("test2", "value2");
-        http:Response secondResponse = check clientEP -> get("", message = newRequest);
+        http:Response secondResponse = check clientEP1 -> get("", message = newRequest);
         http:Response testResponse = new;
         string firstVal = untaint check firstResponse.getTextPayload();
         string secondVal = untaint check secondResponse.getTextPayload();
@@ -73,8 +73,8 @@ service<http:Service> testService_1 bind testEP {
     postWithEntity(endpoint outboundEP, http:Request clientRequest) {
         http:Request clientReq = new;
         clientReq.setTextPayload("String datasource");
-        http:Response firstResponse = check clientEP -> post("/datasource", clientReq);
-        http:Response secondResponse = check clientEP -> post("/datasource", clientReq);
+        http:Response firstResponse = check clientEP1 -> post("/datasource", clientReq);
+        http:Response secondResponse = check clientEP1 -> post("/datasource", clientReq);
         http:Response testResponse = new;
         string firstVal = untaint check firstResponse.getTextPayload();
         string secondVal = untaint check secondResponse.getTextPayload();
@@ -90,8 +90,8 @@ service<http:Service> testService_1 bind testEP {
         http:Request clientReq = new;
         io:ByteChannel byteChannel = check clientRequest.getByteChannel();
         clientReq.setByteChannel(byteChannel, contentType = "text/plain");
-        http:Response firstResponse = check clientEP -> post("/consumeChannel", clientReq);
-        var secondResponse = clientEP -> post("/consumeChannel", clientReq);
+        http:Response firstResponse = check clientEP1 -> post("/consumeChannel", clientReq);
+        var secondResponse = clientEP1 -> post("/consumeChannel", clientReq);
         http:Response testResponse = new;
         string secondVal;
         match secondResponse {

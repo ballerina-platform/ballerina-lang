@@ -23,12 +23,15 @@ import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerInstance;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 import java.io.File;
 
 /**
  * Testing Mutual SSL.
  */
+@Test(groups = "http-test", enabled = false)
+@Ignore
 public class MutualSSLTestCase extends IntegrationTestCase {
 
     private ServerInstance ballerinaClient;

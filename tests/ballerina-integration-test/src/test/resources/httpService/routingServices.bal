@@ -3,15 +3,15 @@ import ballerina/io;
 import ballerina/mime;
 
 endpoint http:Listener serviceEP {
-    port:9090
+    port:9114
 };
 
 endpoint http:Client nasdaqEP {
-    url:"http://localhost:9090/nasdaqStocks"
+    url:"http://localhost:9114/nasdaqStocks"
 };
 
-endpoint http:Client nyseEP {
-    url:"http://localhost:9090/nyseStocks"
+endpoint http:Client nyseEP2 {
+    url:"http://localhost:9114/nyseStocks"
 };
 
 @http:ServiceConfig {basePath:"/cbr"}
@@ -28,13 +28,13 @@ service<http:Service> contentBasedRouting bind serviceEP{
         match jsonMsg {
             error payloadError => io:println("Error getting payload");
             json payload =>  {
-                nameString = extractFieldValue(payload.name);
+                nameString = extractFieldValue1(payload.name);
             }
         }
         http:Request clientRequest = new;
         http:Response clientResponse = new;
         if (nameString == nyseString) {
-            var result = nyseEP -> post("/stocks", clientRequest);
+            var result = nyseEP2 -> post("/stocks", clientRequest);
             match result {
                 error err => {
                     clientResponse.statusCode = 500;
@@ -71,7 +71,7 @@ service<http:Service> headerBasedRouting bind serviceEP{
         http:Request clientRequest = new;
         http:Response clientResponse = new;
         if (nameString == nyseString) {
-            var result = nyseEP -> post("/stocks", clientRequest);
+            var result = nyseEP2 -> post("/stocks", clientRequest);
             match result {
                 error err => {
                     clientResponse.statusCode = 500;
@@ -109,7 +109,7 @@ service<http:Service> nasdaqStocksQuote bind serviceEP {
 }
 
 @http:ServiceConfig {basePath:"/nyseStocks"}
-service<http:Service> nyseStockQuote bind serviceEP {
+service<http:Service> nyseStockQuote2 bind serviceEP {
 
     @http:ResourceConfig {
         methods:["POST"]
@@ -123,7 +123,7 @@ service<http:Service> nyseStockQuote bind serviceEP {
 }
 
 //Keep this until there's a simpler way to get a string value out of a json
-function extractFieldValue(json fieldValue) returns string {
+function extractFieldValue1(json fieldValue) returns string {
     match fieldValue {
         int i => return "error";
         string s => return s;

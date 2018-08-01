@@ -323,6 +323,11 @@ public class ServerInstance implements Server {
         return "http://localhost:" + httpServerPort + "/" + servicePath;
     }
 
+    public String getServiceURLHttp(int port, String servicePath) {
+        return "http://localhost:" + port + "/" + servicePath;
+    }
+
+
     /**
      * Add a Leecher which is going to listen to an expected text.
      *
