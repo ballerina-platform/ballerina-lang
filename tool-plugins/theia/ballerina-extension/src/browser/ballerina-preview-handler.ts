@@ -3,14 +3,11 @@ import '../../../../../../../lib/theme.css';
 import '../../../../../../../lib/less.css';
 
 import { injectable } from "inversify";
-import axios from "axios";
 import URI from "@theia/core/lib/common/uri";
 
 import { PreviewHandler, RenderContentParams } from '@theia/preview/lib/browser';
 
-interface ParserReply {
-    model?: Object
-}
+import { ParserReply, parseContent } from '../common';
 
 const { renderEditableDiagram } = require('../../../../../../../lib/ballerina-diagram-library');
 
@@ -28,12 +25,7 @@ export class BallerinaPreviewHandler implements PreviewHandler {
 
     renderContent(params: RenderContentParams): HTMLElement {
         const content = params.content;
-        const parseOpts = {
-            content,
-            includePackageInfo: true,
-            includeProgramDir: true,
-            includeTree: true,
-        }
+
         const contentElement = document.createElement('div');
         contentElement.classList.add(this.contentClass);
         contentElement.classList.add('ballerina-editor');
@@ -44,27 +36,20 @@ export class BallerinaPreviewHandler implements PreviewHandler {
                 width: 600, height: 600, mode: 'default'
             });
         }
-
-        axios.post('https://parser.playground.preprod.ballerina.io/api/parser', parseOpts,
-        { 
-            headers: {
-                'content-type': 'application/json; charset=utf-8',
-            } 
-        })
-        .then(response => response.data) // parses response to JSON
-        .then((body: ParserReply) => {
-            let jsonModel = {};
-            if (body.model) {
-                jsonModel = body.model;
-            }
-            renderEditableDiagram(contentElement, jsonModel, {
-                width: 600, height: 600, mode: 'default'
+        parseContent(content)
+            .then((body: ParserReply) => {
+                let jsonModel = {};
+                if (body.model) {
+                    jsonModel = body.model;
+                }
+                renderEditableDiagram(contentElement, jsonModel, {
+                    width: 600, height: 600, mode: 'default'
+                });
+                lastRenderedAST = jsonModel;
+            })
+            .catch((e: Error) => {
+                console.log(e);
             });
-            lastRenderedAST = jsonModel;
-        })
-        .catch((e: Error) => {
-            console.log(e);
-        });
         return contentElement;
     }
 

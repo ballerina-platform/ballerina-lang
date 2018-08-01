@@ -44,6 +44,48 @@ function renderDiagram(target, modelJson, props = {}) {
     target.innerHTML = renderToStaticMarkup(el);
 }
 
+class BallerinaDiagramWrapper extends React.Component {
+
+    constructor(...args) {
+        super(...args);
+        this.overlayElement = undefined;
+        this.diagramParentElement = undefined;
+    }
+
+    getChildContext() {
+        return {
+            getOverlayContainer: () => this.overlayElement,
+            getDiagramContainer: () => this.diagramParentElement,
+        };
+    }
+
+    render() {
+        return (
+            <div className='ballerina-editor design-view-container'>
+                <div
+                    className='html-overlay'
+                    ref={(overlay) => {
+                        this.overlayElement = overlay;
+                    }}
+                />
+                <div
+                    className='diagram-root'
+                    ref={(parent) => {
+                        this.diagramParentElement = parent;
+                    }}
+                >
+                    {this.props.children}
+                </div>
+            </div>
+        );
+    }
+}
+
+BallerinaDiagramWrapper.childContextTypes = {
+    getOverlayContainer: PropTypes.func.isRequired,
+    getDiagramContainer: PropTypes.func.isRequired,
+};
+
 function createContextProvider(context) {
     class ContextProvider extends React.Component {
         getChildContext() {
@@ -96,6 +138,8 @@ export {
     TreeBuilder,
     Diagram,
     BalDiagram,
+    BallerinaDiagramWrapper,
     renderDiagram,
     renderEditableDiagram,
+    createContextProvider,
 };
