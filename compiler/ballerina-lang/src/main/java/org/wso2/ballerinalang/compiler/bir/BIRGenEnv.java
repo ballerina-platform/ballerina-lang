@@ -97,6 +97,9 @@ public class BIRGenEnv {
         toEnv.node = fromEnv.node;
         toEnv.enclPkg = fromEnv.enclPkg;
         toEnv.enclFunc = fromEnv.enclFunc;
+        toEnv.currentBBId = fromEnv.currentBBId;
+        toEnv.currentLocalVarId = fromEnv.currentLocalVarId;
+        toEnv.symbolVarMap = fromEnv.symbolVarMap;
         toEnv.enclBB = fromEnv.enclBB;
         return toEnv;
     }
