@@ -27,7 +27,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -59,9 +59,8 @@ public class BLangMatchExpressionContextResolver extends AbstractItemResolver {
         }
         
         BLangExpression bLangExpression = ((BLangMatchExpression) symbolEnvNode).expr;
-        if (bLangExpression instanceof BLangInvocation
-                && ((BLangInvocation) bLangExpression).symbol instanceof BInvokableSymbol) {
-            bType = ((BInvokableSymbol) (((BLangInvocation) bLangExpression).symbol)).retType;
+        if (bLangExpression instanceof BLangInvocation) {
+            bType = ((BInvokableType) ((BLangInvocation) bLangExpression).symbol.type).retType;
         } else if (bLangExpression instanceof BLangSimpleVarRef) {
             bType = ((BLangSimpleVarRef) bLangExpression).type;
         }

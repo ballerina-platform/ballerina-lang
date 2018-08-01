@@ -28,6 +28,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -199,13 +200,30 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection {
     }
 
     /**
-     * Retrieve the set of keys related to this map.
-     * @return returns the set of keys
+     * Retrieve the keys related to this map as an array.
+     * 
+     * @return keys as an array
      */
-    public Set<K> keySet() {
+    public K[] keys() {
         readLock.lock();
         try {
-            return map.keySet();
+            Set<K> keys = map.keySet();
+            return (K[]) keys.toArray(new String[keys.size()]);
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    /**
+     * Retrieve the value in the map as an array.
+     * 
+     * @return values as an array
+     */
+    public V[] values() {
+        readLock.lock();
+        try {
+            Collection<V> values = map.values();
+            return (V[]) values.toArray(new BRefType[values.size()]);
         } finally {
             readLock.unlock();
         }

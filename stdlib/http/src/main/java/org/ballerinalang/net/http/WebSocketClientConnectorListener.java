@@ -24,7 +24,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 /**
@@ -41,8 +41,8 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
     }
 
     @Override
-    public void onMessage(WebSocketInitMessage webSocketInitMessage) {
-        throw new BallerinaConnectorException("onOpen resource is not supported for client services");
+    public void onHandshake(WebSocketHandshaker webSocketHandshaker) {
+        throw new BallerinaConnectorException("onHandshake and onOpen is not supported for WebSocket client service");
     }
 
     @Override
