@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.net.websub.util;
+package org.ballerinalang.net.websub;
 
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -31,7 +31,6 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.websub.WebSubServicesRegistry;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -61,7 +60,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACK
  */
 public class WebSubUtils {
 
-    public static BMap<String, BValue> getHttpRequest(ProgramFile programFile, HttpCarbonMessage httpCarbonMessage) {
+    static BMap<String, BValue> getHttpRequest(ProgramFile programFile, HttpCarbonMessage httpCarbonMessage) {
         BMap<String, BValue> httpRequest = createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, REQUEST);
         BMap<String, BValue> inRequestEntity = createBStruct(programFile, PROTOCOL_PACKAGE_MIME, ENTITY);
         BMap<String, BValue> mediaType = createBStruct(programFile, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
@@ -70,7 +69,7 @@ public class WebSubUtils {
         return httpRequest;
     }
 
-    public static HashMap<String, String[]> retrieveResourceDetails(WebSubServicesRegistry serviceRegistry) {
+    static HashMap<String, String[]> retrieveResourceDetails(WebSubServicesRegistry serviceRegistry) {
         //Map with resource details where the key is the resource name and the value is the param
         HashMap<String, String[]> resourceDetails = new HashMap<>();
         resourceDetails.put(RESOURCE_NAME_ON_INTENT_VERIFICATION,
@@ -145,14 +144,14 @@ public class WebSubUtils {
         });
     }
 
-    public static void validateParamNumber(List<ParamDetail> paramDetails, int expectedSize, String resourceName) {
+    static void validateParamNumber(List<ParamDetail> paramDetails, int expectedSize, String resourceName) {
         if (paramDetails == null || paramDetails.size() < expectedSize) {
             throw new BallerinaException(String.format("Invalid param count for WebSub Resource \"%s\"",
                                                        resourceName));
         }
     }
 
-    public static void validateStructType(String resourceName, ParamDetail paramDetail, String packageName,
+    static void validateStructType(String resourceName, ParamDetail paramDetail, String packageName,
                                    String structName) {
         if (!paramDetail.getVarType().getPackagePath().equals(packageName)) {
             throw new BallerinaException(
@@ -170,7 +169,7 @@ public class WebSubUtils {
     }
 
     // TODO: 8/1/18 Handle duplicate code
-    public static BMap<String, ?> getJsonBody(BMap<String, BValue> httpRequest) {
+    static BMap<String, ?> getJsonBody(BMap<String, BValue> httpRequest) {
         BMap<String, BValue> entityStruct = extractEntity(httpRequest);
         if (entityStruct != null) {
             BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
@@ -195,10 +194,7 @@ public class WebSubUtils {
         }
     }
 
-
-
     private static BMap<String, BValue> createBStruct(ProgramFile programFile, String packagePath, String structName) {
         return BLangConnectorSPIUtil.createBStruct(programFile, packagePath, structName);
     }
-
 }

@@ -36,9 +36,9 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SERVICE_END
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_NOTIFICATION_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
-import static org.ballerinalang.net.websub.util.WebSubUtils.retrieveResourceDetails;
-import static org.ballerinalang.net.websub.util.WebSubUtils.validateParamNumber;
-import static org.ballerinalang.net.websub.util.WebSubUtils.validateStructType;
+import static org.ballerinalang.net.websub.WebSubUtils.retrieveResourceDetails;
+import static org.ballerinalang.net.websub.WebSubUtils.validateParamNumber;
+import static org.ballerinalang.net.websub.WebSubUtils.validateStructType;
 
 /**
  * Resource validator for WebSub Subscriber Services.

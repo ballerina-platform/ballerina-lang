@@ -42,8 +42,8 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NA
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.TOPIC_ID_HEADER;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.TOPIC_ID_PAYLOAD_KEY;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
-import static org.ballerinalang.net.websub.util.WebSubUtils.getHttpRequest;
-import static org.ballerinalang.net.websub.util.WebSubUtils.getJsonBody;
+import static org.ballerinalang.net.websub.WebSubUtils.getHttpRequest;
+import static org.ballerinalang.net.websub.WebSubUtils.getJsonBody;
 import static org.wso2.transport.http.netty.common.Constants.HTTP_RESOURCE;
 
 /**

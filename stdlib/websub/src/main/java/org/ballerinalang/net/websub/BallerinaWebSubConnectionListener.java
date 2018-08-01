@@ -80,9 +80,9 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.VERIFICATIO
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.VERIFICATION_REQUEST_MODE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.VERIFICATION_REQUEST_TOPIC;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
-import static org.ballerinalang.net.websub.util.WebSubUtils.getHttpRequest;
-import static org.ballerinalang.net.websub.util.WebSubUtils.getJsonBody;
-import static org.ballerinalang.net.websub.util.WebSubUtils.retrieveResourceDetails;
+import static org.ballerinalang.net.websub.WebSubUtils.getHttpRequest;
+import static org.ballerinalang.net.websub.WebSubUtils.getJsonBody;
+import static org.ballerinalang.net.websub.WebSubUtils.retrieveResourceDetails;
 
 /**
  * HTTP Connection Listener for Ballerina WebSub services.
