@@ -51,7 +51,6 @@ public enum RuntimeErrors {
     TASK_ALREADY_RUNNING("task.already.running", "RUNTIME_0026"),
     TASK_NOT_RUNNING("task.not.running", "RUNTIME_0027");
 
-
     private String errorMsgKey;
     private String errorCode;
 
