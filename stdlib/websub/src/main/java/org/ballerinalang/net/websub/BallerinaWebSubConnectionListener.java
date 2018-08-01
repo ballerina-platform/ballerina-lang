@@ -67,6 +67,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.PARAM_HUB_C
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.PARAM_HUB_LEASE_SECONDS;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.PARAM_HUB_MODE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.PARAM_HUB_TOPIC;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SERVICE_ENDPOINT;
@@ -77,7 +78,6 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.UNSUBSCRIBE
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.VERIFICATION_REQUEST_CHALLENGE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.VERIFICATION_REQUEST_LEASE_SECONDS;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.VERIFICATION_REQUEST_MODE;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.VERIFICATION_REQUEST_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.VERIFICATION_REQUEST_TOPIC;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
 import static org.ballerinalang.net.websub.util.WebSubUtils.getHttpRequest;
@@ -176,7 +176,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
                                                          + e.getMessage());
                 }
             }
-            intentVerificationRequestStruct.put(VERIFICATION_REQUEST_REQUEST, (BRefType) httpRequest);
+            intentVerificationRequestStruct.put(REQUEST, (BRefType) httpRequest);
             signatureParams[1] = intentVerificationRequestStruct;
         } else { //Notification Resource
             //validate signature for requests received at the callback
@@ -188,7 +188,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
             response.addHttpContent(new DefaultLastHttpContent());
             HttpUtil.sendOutboundResponse(httpCarbonMessage, response);
 
-            signatureParams[0] = createNotificationStruct(httpCarbonMessage, balResource, httpRequest);
+            signatureParams[0] = createNotificationStruct(balResource, httpRequest);
             if (!RESOURCE_NAME_ON_NOTIFICATION.equals(balResource.getName())) {
                 signatureParams[1] = createCustomNotificationStruct(httpCarbonMessage, balResource, httpRequest);
             }
@@ -263,10 +263,9 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
     /**
      * Method to create the notification request struct representing WebSub notifications received.
      */
-    private BMap<String, BValue> createNotificationStruct(HttpCarbonMessage inboundRequest, Resource resource,
-                                                          BValue httpRequest) {
+    private BMap<String, BValue> createNotificationStruct(Resource resource, BValue httpRequest) {
         BMap<String, BValue> notificationStruct = createDefaultNotificationStruct(resource);
-        notificationStruct.put(VERIFICATION_REQUEST_REQUEST, httpRequest); // TODO: 7/29/18 change constant
+        notificationStruct.put(REQUEST, httpRequest);
         return notificationStruct;
     }
 

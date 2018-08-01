@@ -87,7 +87,7 @@ public class WebSubSubscriberConstants {
     public static final String VERIFICATION_REQUEST_TOPIC = "topic";
     public static final String VERIFICATION_REQUEST_CHALLENGE = "challenge";
     public static final String VERIFICATION_REQUEST_LEASE_SECONDS = "leaseSeconds";
-    public static final String VERIFICATION_REQUEST_REQUEST = "request";
+    public static final String REQUEST = "request";
 
     // websub Listener struct
     public static final String LISTENER_SERVICE_ENDPOINT_CONFIG = "config";
