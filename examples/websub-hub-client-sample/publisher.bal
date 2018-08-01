@@ -8,7 +8,7 @@ function main(string... args) {
 
     // Start up the internal Ballerina Hub.
     io:println("Starting up the Ballerina Hub Service");
-    websub:WebSubHub webSubHub = websub:startUpBallerinaHub(port = 9191) but {
+    websub:WebSubHub webSubHub = websub:startHub(9191) but {
         websub:HubStartedUpError hubStartedUpErr => hubStartedUpErr.startedUpHub
     };
 
@@ -22,7 +22,7 @@ function main(string... args) {
     }
 
     // Make the publisher wait until the subscriber subscribes at the hub.
-    runtime:sleep(15000);
+    runtime:sleep(5000);
 
     // Publish directly to the internal Ballerina Hub.
     var publishResponse = webSubHub.publishUpdate("http://websubpubtopic.com",
@@ -34,7 +34,7 @@ function main(string... args) {
     }
 
     // Make the publisher wait until the subscriber unsubscribes at the hub.
-    runtime:sleep(15000);
+    runtime:sleep(5000);
 
     // Publish directly to the internal Ballerina Hub.
     publishResponse = webSubHub.publishUpdate("http://websubpubtopic.com",
@@ -46,5 +46,5 @@ function main(string... args) {
     }
 
     // Make the publisher wait until notification is done to subscribers.
-    runtime:sleep(5000);
+    runtime:sleep(2000);
 }

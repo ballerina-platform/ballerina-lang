@@ -1,7 +1,5 @@
 // Ballerina WebSub Subscriber service, which represents the callback registered at the Hub.
 import ballerina/log;
-import ballerina/mime;
-import ballerina/http;
 import ballerina/websub;
 
 // The endpoint to which the subscriber service is bound.

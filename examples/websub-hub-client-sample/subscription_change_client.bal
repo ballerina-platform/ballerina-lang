@@ -31,7 +31,7 @@ function main(string... args) {
     }
 
     // Wait for the initial notification, before unsubscribing.
-    runtime:sleep(15000);
+    runtime:sleep(5000);
 
     // Send unsubscription request for the subscriber service.
     websub:SubscriptionChangeRequest unsubscriptionRequest = {
@@ -51,7 +51,4 @@ function main(string... args) {
             io:println("Error occurred with Unsubscription Request: ", e);
         }
     }
-
-    // Confirm unsubscription - no notifications should be received.
-    runtime:sleep(5000);
 }
