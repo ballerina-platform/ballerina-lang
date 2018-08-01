@@ -30,8 +30,6 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.util.IllegalFormatException;
-
 /**
  * Extern function to set session attributes to the message.
  *
@@ -49,7 +47,7 @@ import java.util.IllegalFormatException;
 public class SetAttribute extends BlockingNativeCallableUnit {
 
     @Override
-    public void execute(Context context) throws IllegalFormatException {
+    public void execute(Context context) {
         try {
             BMap<String, BValue> sessionStruct  = ((BMap<String, BValue>) context.getRefArgument(0));
             String attributeKey = context.getStringArgument(0);

@@ -23,7 +23,6 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
@@ -84,16 +83,13 @@ public class ConstrainedJSONTest {
     public void testStructConstraint() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonStructConstraint");
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertTrue((((BJSON) returns[0]).value()).isString());
+        Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "John Doe");
 
-        Assert.assertTrue(returns[1] instanceof BJSON);
-        Assert.assertTrue((((BJSON) returns[1]).value()).isLong());
-        Assert.assertEquals((((BJSON) returns[1]).value()).longValue(), 30);
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 30);
 
-        Assert.assertTrue(returns[2] instanceof BJSON);
-        Assert.assertTrue((((BJSON) returns[2]).value()).isString());
+        Assert.assertTrue(returns[2] instanceof BString);
         Assert.assertEquals(returns[2].stringValue(), "London");
 
         Assert.assertTrue(returns[3] instanceof BString);
@@ -110,16 +106,13 @@ public class ConstrainedJSONTest {
     public void testStructConstraintInInitialization() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJsonInitializationWithStructConstraint");
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertTrue((((BJSON) returns[0]).value()).isString());
+        Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "John Doe");
 
-        Assert.assertTrue(returns[1] instanceof BJSON);
-        Assert.assertTrue((((BJSON) returns[1]).value()).isLong());
-        Assert.assertEquals((((BJSON) returns[1]).value()).longValue(), 30);
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 30);
 
-        Assert.assertTrue(returns[2] instanceof BJSON);
-        Assert.assertTrue((((BJSON) returns[2]).value()).isString());
+        Assert.assertTrue(returns[2] instanceof BString);
         Assert.assertEquals(returns[2].stringValue(), "London");
     }
 
@@ -144,36 +137,37 @@ public class ConstrainedJSONTest {
     @Test(description = "Test trivial JSON return.")
     public void testGetPlainJson() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetPlainJson");
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "{\"firstName\":\"John Doe\",\"age\":30,\"address\":\"London\"}");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{\"firstName\":\"John Doe\", \"age\":30, \"address\":\"London\"}");
     }
 
     @Test(description = "Test trivial Constraint JSON return.")
     public void testGetConstraintJson() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetConstraintJson");
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John Doe\",\"age\":30,\"address\":\"London\"}");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John Doe\", \"age\":30, \"address\":\"London\"}");
     }
 
     @Test(description = "Test casting constraint JSON to an unconstrained JSON.")
     public void testConstraintJSONToJSONCast() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstraintJSONToJSONCast");
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John Doe\",\"age\":30,\"address\":\"London\"}");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John Doe\", \"age\":30, \"address\":\"London\"}");
     }
 
     @Test
     public void testContrainingWithNestedStructs() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testContrainingWithNestedStructs");
 
-        Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "{\"first_name\":\"John\",\"last_name\":\"Doe\",\"age\":30," +
-                "\"address\":{\"phoneNumber\":{\"number\":\"1234\"},\"street\":\"York St\"}}");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertEquals(returns[0].stringValue(), "{\"first_name\":\"John\", \"last_name\":\"Doe\", \"age\":30, " +
+                "\"address\":{\"phoneNumber\":{\"number\":\"1234\"}, \"street\":\"York St\"}}");
 
-        Assert.assertTrue(returns[1] instanceof BJSON);
+        Assert.assertTrue(returns[1] instanceof BString);
         Assert.assertEquals(returns[1].stringValue(), "1234");
 
-        Assert.assertTrue(returns[1] instanceof BJSON);
+        Assert.assertTrue(returns[1] instanceof BString);
         Assert.assertEquals(returns[2].stringValue(), "1234");
     }
 
@@ -188,11 +182,11 @@ public class ConstrainedJSONTest {
     @Test(description = "Test JSON to Constaint unsafe cast positive.")
     public void testJSONToConstraintJsonUnsafeCastPositive() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJSONToConstraintJsonUnsafeCastPositive");
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "John Doe");
-        Assert.assertTrue(returns[1] instanceof BJSON);
+        Assert.assertTrue(returns[1] instanceof BInteger);
         Assert.assertEquals(returns[1].stringValue(), "30");
-        Assert.assertTrue(returns[2] instanceof BJSON);
+        Assert.assertTrue(returns[2] instanceof BString);
         Assert.assertEquals(returns[2].stringValue(), "London");
     }
 
@@ -204,7 +198,7 @@ public class ConstrainedJSONTest {
         // TODO: in the resulting json, "class" field should not be visible.
         // This test case should be updated once the https://github.com/ballerinalang/ballerina/issues/4252
         Assert.assertEquals(returns[0].stringValue(),
-                "{\"name\":\"John Doe\",\"age\":30,\"address\":\"Colombo\",\"class\":\"5\"}");
+                "{\"name\":\"John Doe\", \"age\":30, \"address\":\"Colombo\", \"class\":\"5\"}");
     }
 
     @Test(description = "Test Constaint JSON to Constaint JSON unsafe cast postive scenario.")
@@ -212,7 +206,7 @@ public class ConstrainedJSONTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstraintJSONToConstraintJsonUnsafePositiveCast");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(),
-                "{\"name\":\"John Doe\",\"age\":30,\"address\":\"Colombo\",\"class\":\"5\"}");
+                "{\"name\":\"John Doe\", \"age\":30, \"address\":\"Colombo\", \"class\":\"5\"}");
     }
 
     @Test(description = "Test Constaint JSON to Constaint JSON unsafe cast negative scenario.")
@@ -225,10 +219,10 @@ public class ConstrainedJSONTest {
 
     @Test
     public void testJSONArrayToConstraintJsonArrayCastPositive() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJSONArrayToConstraintJsonArrayCastPositive");
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testJSONArrayToConstraintJsonArrayCastPositive");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(),
-                "[{\"name\":\"John Doe\",\"age\":30,\"address\":\"Colombo\",\"class\":\"5\"}]");
+                "[{\"name\":\"John Doe\", \"age\":30, \"address\":\"Colombo\", \"class\":\"5\"}]");
     }
 
     @Test
@@ -241,10 +235,10 @@ public class ConstrainedJSONTest {
 
     @Test
     public void testJSONArrayToCJsonArrayCast() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJSONArrayToCJsonArrayCast");
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testJSONArrayToCJsonArrayCast");
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(),
-                "[{\"name\":\"John Doe\",\"age\":30,\"address\":\"London\",\"class\":\"B\"}]");
+                "[{\"name\":\"John Doe\", \"age\":30, \"address\":\"London\", \"class\":\"B\"}]");
     }
 
     @Test
@@ -257,10 +251,10 @@ public class ConstrainedJSONTest {
 
     @Test
     public void testCJSONArrayToJsonAssignment() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCJSONArrayToJsonAssignment");
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testCJSONArrayToJsonAssignment");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "[{\"name\":\"John Doe\",\"age\":30,\"address\":\"London\"}," +
-                "{\"name\":\"John Doe\",\"age\":40,\"address\":\"London\"}]");
+        Assert.assertEquals(returns[0].stringValue(), "[{\"name\":\"John Doe\", \"age\":30, \"address\":\"London\"}, " +
+                "{\"name\":\"John Doe\", \"age\":40, \"address\":\"London\"}]");
     }
 
     @Test
@@ -274,7 +268,7 @@ public class ConstrainedJSONTest {
     @Test
     public void testConstrainedJsonWithFunctionToString() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedJsonWithFunctions");
-        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John Doe\",\"age\":30,\"address\":\"London\"}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John Doe\", \"age\":30, \"address\":\"London\"}");
     }
 
     @Test

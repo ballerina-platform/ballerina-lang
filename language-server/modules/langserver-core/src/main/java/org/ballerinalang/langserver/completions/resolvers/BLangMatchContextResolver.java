@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.langserver.completions.resolvers;
 
-import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
@@ -29,8 +28,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -52,36 +49,45 @@ public class BLangMatchContextResolver extends AbstractItemResolver {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         BLangNode symbolEnvNode = ctx.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
         List<SymbolInfo> visibleSymbols = ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+        visibleSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
+
         if (!(symbolEnvNode instanceof BLangMatch)) {
             return completionItems;
         }
+
         BLangMatch bLangMatch = (BLangMatch) symbolEnvNode;
         
-        if (bLangMatch.expr.type instanceof BUnionType) {
-            Set<BType> memberTypes = ((BUnionType) bLangMatch.expr.type).getMemberTypes();
-            memberTypes.forEach(bType -> {
-                completionItems.add(getMatchFieldSnippetCompletion(CommonUtil.getBTypeName(bType, ctx)));
-            });
-        } else if (bLangMatch.expr.type instanceof BJSONType) {
-            ArrayList<Integer> typeTagsList = new ArrayList<>(Arrays.asList(TypeTags.INT, TypeTags.FLOAT,
-                    TypeTags.BOOLEAN, TypeTags.STRING, TypeTags.NIL, TypeTags.JSON));
-            visibleSymbols.forEach(symbolInfo -> {
-                BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-                if (bSymbol instanceof BTypeSymbol && typeTagsList.contains(bSymbol.getType().tag)) {
-                    completionItems.add(getMatchFieldSnippetCompletion(
-                            CommonUtil.getBTypeName(bSymbol.getType(), ctx)));
-                }
-            });
-        } else if (bLangMatch.expr.type instanceof BRecordType) {
-            visibleSymbols.forEach(symbolInfo -> {
-                BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-                if ((bSymbol instanceof BObjectTypeSymbol
-                        || bSymbol instanceof BRecordTypeSymbol)
-                        && !bSymbol.getName().getValue().startsWith(UtilSymbolKeys.ANON_STRUCT_CHECKER)) {
-                    completionItems.add(getMatchFieldSnippetCompletion(
-                            CommonUtil.getBTypeName(bSymbol.getType(), ctx)));
-                }
-            });
+        switch (bLangMatch.expr.type.getKind()) {
+            case UNION: {
+                Set<BType> memberTypes = ((BUnionType) bLangMatch.expr.type).getMemberTypes();
+                memberTypes.forEach(bType ->
+                        completionItems.add(getMatchFieldSnippetCompletion(CommonUtil.getBTypeName(bType, ctx))));
+                break;
+            }
+            case JSON: {
+                ArrayList<Integer> typeTagsList = new ArrayList<>(Arrays.asList(TypeTags.INT, TypeTags.FLOAT,
+                        TypeTags.BOOLEAN, TypeTags.STRING, TypeTags.NIL, TypeTags.JSON));
+                visibleSymbols.forEach(symbolInfo -> {
+                    BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+                    if (bSymbol instanceof BTypeSymbol && typeTagsList.contains(bSymbol.getType().tag)) {
+                        completionItems.add(getMatchFieldSnippetCompletion(
+                                CommonUtil.getBTypeName(bSymbol.getType(), ctx)));
+                    }
+                });
+                break;
+            }
+            case RECORD: {
+                visibleSymbols.forEach(symbolInfo -> {
+                    BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+                    if ((bSymbol instanceof BObjectTypeSymbol || bSymbol instanceof BRecordTypeSymbol)) {
+                        completionItems.add(getMatchFieldSnippetCompletion(
+                                CommonUtil.getBTypeName(bSymbol.getType(), ctx)));
+                    }
+                });
+                break;
+            }
+            default:
+                break;
         }
         
         return completionItems;

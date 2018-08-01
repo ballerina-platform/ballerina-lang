@@ -34,7 +34,6 @@ import org.ballerinalang.util.metrics.StatisticConfig;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
@@ -47,8 +46,7 @@ public class Utils {
     public static Map<String, String> toStringMap(BMap map) {
         Map<String, String> returnMap = new HashMap<>();
         if (map != null) {
-            Set bIterator = map.keySet();
-            for (Object aKey : bIterator) {
+            for (Object aKey : map.keys()) {
                 returnMap.put(aKey.toString(), map.get(aKey).stringValue());
             }
         }

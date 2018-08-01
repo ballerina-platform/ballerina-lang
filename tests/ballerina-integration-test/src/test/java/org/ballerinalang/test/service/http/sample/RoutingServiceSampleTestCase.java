@@ -39,9 +39,9 @@ import java.util.Map;
  */
 public class RoutingServiceSampleTestCase extends IntegrationTestCase {
     private final String requestNyseMessage = "{\"name\":\"nyse\"}";
-    private final String responseNyseMessage = "{\"exchange\":\"nyse\",\"name\":\"IBM\",\"value\":\"127.50\"}";
+    private final String responseNyseMessage = "{\"exchange\":\"nyse\", \"name\":\"IBM\", \"value\":\"127.50\"}";
     private final String requestNasdaqMessage = "{\"name\":\"nasdaq\"}";
-    private final String responseNasdaqMessage = "{\"exchange\":\"nasdaq\",\"name\":\"IBM\",\"value\":\"127.50\"}";
+    private final String responseNasdaqMessage = "{\"exchange\":\"nasdaq\", \"name\":\"IBM\", \"value\":\"127.50\"}";
 
     private ServerInstance ballerinaServer;
 

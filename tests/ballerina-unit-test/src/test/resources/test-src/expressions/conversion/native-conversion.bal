@@ -855,7 +855,7 @@ type A record {
     float f;
 };
 
-function testJsonFloatToInt() returns A {
+function testJsonIntToFloat() returns A {
     json j = {f : 3};
     return check <A> j;
 }

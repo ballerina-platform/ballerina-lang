@@ -21,14 +21,12 @@ package org.ballerinalang.nativeimpl.builtin.jsonlib;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Extern function ballerina.model.json:toString.
@@ -42,21 +40,16 @@ import org.slf4j.LoggerFactory;
 )
 public class ToString extends BlockingNativeCallableUnit {
 
-    private static final Logger log = LoggerFactory.getLogger(ToString.class);
-
     @Override
     public void execute(Context ctx) {
         String jsonStr = null;
         try {
             // Accessing Parameters.
-            BJSON json = (BJSON) ctx.getNullableRefArgument(0);
+            BValue json = ctx.getNullableRefArgument(0);
             if (json == null) {
                 jsonStr = "null";
             } else {
                 jsonStr = json.stringValue();
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("Output JSON: " + jsonStr);
             }
         } catch (Throwable e) {
             ErrorHandler.handleJsonException("convert json to string", e);

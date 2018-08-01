@@ -19,6 +19,9 @@
 
 @final int DEFAULT_LISTENER_TIMEOUT = 120000; //2 mins
 
+documentation {Constant for the default failover starting index for failover endpoints}
+@final int DEFAULT_FAILOVER_EP_STARTING_INDEX = 0;
+
 documentation {Represents multipart primary type}
 @final public string MULTIPART_AS_PRIMARY_TYPE = "multipart/";
 // TODO: Document these. Should we make FORWARD a private constant?

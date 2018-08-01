@@ -40,7 +40,6 @@ import java.util.stream.Collectors;
 public class EndpointDeclarationContextResolver extends AbstractItemResolver {
     @Override
     public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<String> poppedTokens = CommonUtil.popNFromStack(context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY), 3)
                 .stream()
                 .map(Token::getText)
@@ -48,24 +47,22 @@ public class EndpointDeclarationContextResolver extends AbstractItemResolver {
         List<SymbolInfo> visibleSymbols = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         if (poppedTokens.contains(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)) {
             String pkgAlias = poppedTokens.get(poppedTokens.indexOf(UtilSymbolKeys.PKG_DELIMITER_KEYWORD) - 1);
-            SymbolInfo pkgSymbolInfo = visibleSymbols.stream().filter(symbolInfo -> {
-                BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+
+            for (SymbolInfo info : visibleSymbols) {
+                BSymbol bSymbol = info.getScopeEntry().symbol;
                 PackageID packageID = bSymbol.pkgID;
-                String nameAlias = packageID.getNameComps().get(packageID.getNameComps().size() - 1).getValue();
-                return bSymbol instanceof BPackageSymbol && pkgAlias.equals(nameAlias);
-            }).findAny().orElseGet(null);
-            
-            if (pkgSymbolInfo != null) {
-                this.populateCompletionItemList(getEndpointEntries(pkgSymbolInfo.getScopeEntry().symbol.scope.entries),
-                        completionItems);
+                String nameAlias = CommonUtil.getLastItem(packageID.getNameComps()).getValue();
+                if (bSymbol instanceof BPackageSymbol && pkgAlias.equals(nameAlias)) {
+                    return this.getCompletionItemList(getEndpointEntries(info.getScopeEntry().symbol.scope.entries));
+                }
             }
-        } else {
-            this.populateCompletionItemList(this.getEndpointEntries(visibleSymbols), completionItems);
+
+            return new ArrayList<>();
         }
-        
-        return completionItems;
+
+        return this.getCompletionItemList(this.getEndpointAndPackageEntries(visibleSymbols));
     }
-    
+
     private List<SymbolInfo> getEndpointEntries(Map<Name, Scope.ScopeEntry> scopeEntries) {
         List<SymbolInfo> symbolInfoList = new ArrayList<>();
         scopeEntries.entrySet().forEach(entry -> {
@@ -78,7 +75,7 @@ public class EndpointDeclarationContextResolver extends AbstractItemResolver {
         return symbolInfoList;
     }
 
-    private List<SymbolInfo> getEndpointEntries(List<SymbolInfo> symbolInfoList) {
+    private List<SymbolInfo> getEndpointAndPackageEntries(List<SymbolInfo> symbolInfoList) {
         return symbolInfoList.stream().filter(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
             return CommonUtil.isEndpointObject(bSymbol) || bSymbol instanceof BPackageSymbol;

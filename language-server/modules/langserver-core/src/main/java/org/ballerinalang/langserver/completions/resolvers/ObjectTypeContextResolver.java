@@ -52,24 +52,25 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
     public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         BLangNode objectNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
-        List<String> poppedTokens = completionContext.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY)
-                .stream()
-                .map(Token::getText)
-                .collect(Collectors.toList());
+        
         if (!objectNode.getKind().equals(NodeKind.OBJECT_TYPE)) {
             return completionItems;
         }
 
+        List<String> poppedTokens = completionContext.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY)
+                .stream()
+                .map(Token::getText)
+                .collect(Collectors.toList());
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) objectNode;
+        List<BLangVariable> fields = objectTypeNode.fields;
+        List<BLangFunction> functions = objectTypeNode.functions;
+        BLangFunction initFunction = objectTypeNode.initFunction;
         Position position = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         int line = position.getLine();
         int col = position.getCharacter();
-
-        List<BLangVariable> fields = ((BLangObjectTypeNode) objectNode).fields;
-        List<BLangFunction> functions = ((BLangObjectTypeNode) objectNode).functions;
-        BLangFunction initFunction = ((BLangObjectTypeNode) objectNode).initFunction;
         
         DiagnosticPos lastFieldPos = fields.isEmpty() ? null
-                : CommonUtil.toZeroBasedPosition(fields.get(fields.size() - 1).pos);
+                : CommonUtil.toZeroBasedPosition(CommonUtil.getLastItem(fields).pos);
         if (poppedTokens.contains(UtilSymbolKeys.EQUAL_SYMBOL_KEY)) {
             // If the popped tokens contains the equal symbol, then the variable definition is being writing
             completionContext.put(CompletionKeys.PARSER_RULE_CONTEXT_KEY,
@@ -80,7 +81,7 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
         } else if (lastFieldPos != null
                 && (line < lastFieldPos.sLine || (line == lastFieldPos.sLine && col < lastFieldPos.sCol))) {
             fillTypes(completionContext, completionItems);
-        } else if (initFunction != null && ((BLangObjectTypeNode) objectNode).initFunction.objInitFunction) {
+        } else if (initFunction != null && objectTypeNode.initFunction.objInitFunction) {
             DiagnosticPos initFuncPos = CommonUtil.toZeroBasedPosition(initFunction.pos);
             DiagnosticPos firstFuncPos = functions.isEmpty() ? null
                     : CommonUtil.toZeroBasedPosition(functions.get(0).pos);
@@ -113,7 +114,7 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
         List<SymbolInfo> filteredTypes = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)
                 .collect(Collectors.toList());
-        this.populateCompletionItemList(filteredTypes, completionItems);
+        completionItems.addAll(this.getCompletionItemList(filteredTypes));
     }
     
     private void fillFunctionSignature(List<CompletionItem> completionItems) {
