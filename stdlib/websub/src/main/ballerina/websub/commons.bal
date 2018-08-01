@@ -100,6 +100,23 @@ documentation {
 @final string ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
 @final string WEBSUB_PACKAGE_NAME = "ballerina/websub";
 
+documentation {
+    The identifier to be used to identify the mode in which update content should be identified.
+}
+public type RemotePublishMode "PUBLISH_MODE_DIRECT"|"PUBLISH_MODE_FETCH";
+
+documentation {
+    `RemotePublishMode` indicating direct update content notification (fat-ping). The payload of the update
+    notification request from the publisher to the hub would include be the update content.
+}
+@final public RemotePublishMode PUBLISH_MODE_DIRECT = "PUBLISH_MODE_DIRECT";
+
+documentation {
+    `RemotePublishMode` indicating that once the publisher notifies the hub that an update is available, the hub
+    needs to fetch the topic URL to identify the update content.
+}
+@final public RemotePublishMode PUBLISH_MODE_FETCH = "PUBLISH_MODE_FETCH";
+
 //TODO: Make public once extension story is finalized.
 documentation {
     The identifier to be used to identify the topic for dispatching with custom subscriber services.
@@ -471,7 +488,7 @@ documentation {
     P{{leaseSeconds}}               The default lease seconds value to honour if not specified in subscription requests
     P{{signatureMethod}}            The signature method to use for authenticated content delivery (`SHA1`|`SHA256`)
     P{{remotePublishingEnabled}}    Whether remote publishers should be allowed to publish to this hub (HTTP requests)
-    P{{remotePublishingMode}}       If remote publishing is allowed, the mode to use, `direct` (default) - fat ping with
+    P{{remotePublishMode}}          If remote publishing is allowed, the mode to use, `direct` (default) - fat ping with
                                         the notification payload specified or `fetch` - the hub fetches the topic URL
                                         specified in the "publish" request to identify the payload
     P{{topicRegistrationRequired}}  Whether a topic needs to be registered at the hub prior to publishing/subscribing
@@ -486,22 +503,32 @@ documentation {
                         that the hub is already started, and including the WebSubHub object representing the
                         already started up hub
 }
-public function startUpBallerinaHub(int? port = (), int? leaseSeconds = (), string? signatureMethod = (),
-                                    boolean? remotePublishingEnabled = (), string? remotePublishingMode = (),
+public function startHub(int port, int? leaseSeconds = (), string? signatureMethod = (),
+                                    boolean? remotePublishingEnabled = (), RemotePublishMode? remotePublishMode = (),
                                     boolean? topicRegistrationRequired = (), string? publicUrl = (),
                                     boolean? sslEnabled = (), http:ServiceSecureSocket? serviceSecureSocket = (),
                                     http:SecureSocket? clientSecureSocket = ())
     returns WebSubHub|HubStartedUpError {
 
-    hubPort = config:getAsInt("b7a.websub.hub.port", default = port but { () => DEFAULT_PORT });
+    hubPort = config:getAsInt("b7a.websub.hub.port", default = port);
     hubLeaseSeconds = config:getAsInt("b7a.websub.hub.leasetime",
                                       default = leaseSeconds but { () => DEFAULT_LEASE_SECONDS_VALUE });
     hubSignatureMethod = config:getAsString("b7a.websub.hub.signaturemethod",
                                             default = signatureMethod but { () => DEFAULT_SIGNATURE_METHOD });
     hubRemotePublishingEnabled = config:getAsBoolean("b7a.websub.hub.remotepublish",
                                                      default = remotePublishingEnabled but { () => false });
-    hubRemotePublishingMode = config:getAsString("b7a.websub.hub.remotepublish.mode",
-                                            default = remotePublishingMode but { () => REMOTE_PUBLISHING_MODE_DIRECT });
+
+    string remotePublishModeAsConfig =  config:getAsString("b7a.websub.hub.remotepublish.mode");
+    if (remotePublishModeAsConfig == "") {
+        hubRemotePublishMode = remotePublishMode but { () => PUBLISH_MODE_DIRECT };
+    } else {
+        if (REMOTE_PUBLISHING_MODE_FETCH.equalsIgnoreCase(remotePublishModeAsConfig)) {
+            hubRemotePublishMode = PUBLISH_MODE_FETCH;
+        } else if (!REMOTE_PUBLISHING_MODE_DIRECT.equalsIgnoreCase(remotePublishModeAsConfig)) {
+            log:printWarn("unknown publish mode: [" + remotePublishModeAsConfig + "], defaulting to direct mode");
+        }
+    }
+
     hubTopicRegistrationRequired = config:getAsBoolean("b7a.websub.hub.topicregistration",
                                                        default = topicRegistrationRequired but { () => true });
     hubSslEnabled = config:getAsBoolean("b7a.websub.hub.enablessl", default = sslEnabled but { () => true });
@@ -616,15 +643,13 @@ documentation {
     P{{response}} The response being sent
     P{{hubs}} The hubs the publisher advertises as the hubs that it publishes updates to
     P{{topic}} The topic to which subscribers need to subscribe to, to receive updates for the resource
-    R{{}} `http:Response` Response with the link header added
 }
-public function addWebSubLinkHeader(http:Response response, string[] hubs, string topic) returns http:Response {
+public function addWebSubLinkHeader(http:Response response, string[] hubs, string topic) {
     string hubLinkHeader = "";
     foreach hub in hubs {
         hubLinkHeader = hubLinkHeader + "<" + hub + ">; rel=\"hub\", ";
     }
     response.setHeader("Link", hubLinkHeader + "<" + topic + ">; rel=\"self\"");
-    return response;
 }
 
 documentation {
