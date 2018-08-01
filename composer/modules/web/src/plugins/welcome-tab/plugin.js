@@ -68,7 +68,7 @@ class WelcomeTabPlugin extends Plugin {
         command.dispatch(WORKSPACE_COMMANDS.SHOW_FOLDER_OPEN_WIZARD, '');
     }
 
-     /**
+    /**
      * @inheritdoc
      */
     onAfterInitialRender() {
@@ -96,30 +96,29 @@ class WelcomeTabPlugin extends Plugin {
             [COMMANDS]: getCommandDefinitions(this),
             [HANDLERS]: getHandlerDefinitions(this),
             [MENUS]: getMenuDefinitions(this),
-            [VIEWS]: [
-                {
-                    id: WELCOME_TAB_VIEWS.WELCOME_TAB_VIEW_ID,
-                    component: WelcomeTab,
-                    propsProvider: () => {
-                        const { command } = this.appContext;
-                        return {
-                            createNew: this.createNewHandler.bind(this),
-                            openFile: this.openFileHandler.bind(this),
-                            openDirectory: this.openDirectoryHandler.bind(this),
-                            userGuide: this.config.userGuide,
-                            samplesDir: this.appContext.samplesDir,
-                            samples: cleaned,
-                            commandManager: command,
-                        };
-                    },
-                    region: REGIONS.EDITOR_TABS,
-                    // region specific options for editor-tabs views
-                    regionOptions: {
-                        tabTitle: LABELS.WELCOME,
-                        customTitleClass: 'welcome-page-tab-title',
-                    },
+            [VIEWS]: [{
+                id: WELCOME_TAB_VIEWS.WELCOME_TAB_VIEW_ID,
+                component: WelcomeTab,
+                propsProvider: () => {
+                    const { command } = this.appContext;
+                    return {
+                        createNew: this.createNewHandler.bind(this),
+                        openFile: this.openFileHandler.bind(this),
+                        openDirectory: this.openDirectoryHandler.bind(this),
+                        userGuide: this.config.userGuide,
+                        samplesDir: this.appContext.samplesDir,
+                        samples: cleaned,
+                        commandManager: command,
+                    };
                 },
-            ],
+                region: REGIONS.EDITOR_TABS,
+                // region specific options for editor-tabs views
+                regionOptions: {
+                    tabTitle: LABELS.WELCOME,
+                    customTitleClass: 'welcome-page-tab-title',
+                    tabIcon: 'ballerina',
+                },
+            }, ],
         };
     }
 

@@ -30,7 +30,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 
 /**
- * Native function to stop gRPC client instance.
+ * Extern function to stop gRPC client instance.
  *
  * @since 1.0.0
  */

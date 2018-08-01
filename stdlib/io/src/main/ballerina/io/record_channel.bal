@@ -41,21 +41,21 @@ public type DelimitedTextRecordChannel object {
         P{{recordSeparator}} Record separator which will separate between records
         P{{fmt}} Format which will be used to represent the type of record i.e csv
     }
-    native function init(CharacterChannel characterChannel, string fieldSeparator, string recordSeparator, string fmt);
+    extern function init(CharacterChannel characterChannel, string fieldSeparator, string recordSeparator, string fmt);
 
     documentation {
         Checks whether there's a record left to be read.
 
         R{{}} True if there's a record left to be read
     }
-    public native function hasNext() returns boolean;
+    public extern function hasNext() returns boolean;
 
     documentation {
         Get next record from the input/output resource.
 
         R{{}} Set of fields included in the record or an error
     }
-    public native function getNext() returns @tainted string[]|error;
+    public extern function getNext() returns @tainted string[]|error;
 
     documentation {
         Writes records to a given input/output resource.
@@ -63,12 +63,12 @@ public type DelimitedTextRecordChannel object {
         P{{textRecord}} List of fields to be written
         R{{}} An error if the records could not be written properly
     }
-    public native function write(string[] textRecord) returns error?;
+    public extern function write(string[] textRecord) returns error?;
 
     documentation {
         Closes a given record channel.
 
         R{{}} An error if the record channel could not be closed properly
     }
-    public native function close() returns error?;
+    public extern function close() returns error?;
 };

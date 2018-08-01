@@ -19,14 +19,14 @@ documentation {
 
     P{{data}} Data to be published to the stream
 }
-public native function stream::publish(any data);
+public extern function stream::publish(any data);
 
 documentation {
     Subscribes to data from the stream.
 
     P{{func}} The function pointer for the subscription, which will be invoked with data published to the stream
 }
-public native function stream::subscribe(function (any) func);
+public extern function stream::subscribe(function (any) func);
 
 documentation {
     Creates the forever runtime.
@@ -38,5 +38,5 @@ documentation {
     P{{outTableRefs}} References of the output tables in the forever
     P{{funcPointers}} References of the functions to invoke as the streaming action
 }
-native function startForever(string streamQuery, any inStreamRefs, any inTableRefs, any outStreamRefs,
+extern function startForever(string streamQuery, any inStreamRefs, any inTableRefs, any outStreamRefs,
                              any outTableRefs, any funcPointers);

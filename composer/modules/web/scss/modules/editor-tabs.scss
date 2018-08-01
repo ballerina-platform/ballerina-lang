@@ -4,7 +4,7 @@
         overflow: hidden;
         border-bottom: none;
         .rc-tabs-content {
-            height: calc(100% - 20px);
+            height: calc(100% - 30px);
             .editor-split-view {
                 position: relative;
                 .text-editor {
@@ -19,10 +19,10 @@
                 background-color: $rc-tabs-bgcolor;
             }
             & .rc-tabs-nav-container-scrolling {
-                & .rc-tabs-tab-next, .rc-tabs-tab-prev {
+                & .rc-tabs-tab-next,
+                .rc-tabs-tab-prev {
                     @extend .unseletable-content;
-
-                    background-color: $rc-tabs-bgcolor;  
+                    background-color: $rc-tabs-bgcolor;
                     color: $white03;
                     border-left: 1px solid $rc-tabs-tab-borderColor;
                     border-right: 1px solid $rc-tabs-tab-borderColor;
@@ -40,53 +40,90 @@
             @extend .unseletable-content;
             background-color: $rc-tabs-tab-color;
             color: $rc-tabs-text-color;
-            min-width: 120px;
             padding: 0;
             margin-right: 0;
-            border-right: 1px solid $gray01;
             font-weight: 300;
             height: 30px;
             .tab-title-wrapper {
-                padding: 4px 5px 0 5px;
+                border-left: 2px solid $rc-tabs-tab-color;
+                border-right: 1px solid $gray01;
+                padding: 0 2px 0 0;
+                line-height: 30px;
                 .dirty-indicator {
                     margin-left: 5px;
                 }
+                &.try-it-title {
+                    background-color: #777;
+                    color: #fff;
+                    padding-left: 8px;
+                }
+                &.welcome-page-tab-title {
+                    border-left-color: #808080;
+                    font-style: italic;
+                    .close-tab {
+                        font-style: normal;
+                    }
+                    .tab-icon {
+                        background: #808080;
+                        color: #fff;
+                        margin-right: 8px;
+                    }
+                }
             }
             .tab-icon {
-                margin-right: 10px;
                 font-size: 10px;
                 position: relative;
-                bottom: 1px;
+                padding: 0 8px 0 7px;
             }
-            &:hover{
+            &:hover {
                 color: $rc-tabs-active-color;
                 background-color: $rc-tabs-tab-color;
+                .close-tab {
+                    visibility: visible;
+                }
             }
             &.rc-tabs-tab-active {
+                .tab-title-wrapper {
+                    border-left-color: #2fb8b0;
+                    &.welcome-page-tab-title {
+                        background-color: $primaryBackgroundColor;
+                        color: #1a1b1d;
+                        height: 30px;
+                        .close-tab {
+                            background: $primaryBackgroundColor !important;
+                            color: #7D7D7D;
+                            &:hover {
+                                color: #474747;
+                            }
+                        }
+                        .tab-icon {
+                            background: #2fb8b0;
+                        }
+                    }
+                }
                 &.inverse {
                     color: $tab-header-active-inverse-color;
                     background: $tab-header-active-inverse-bgcolor;
                 }
                 color: $rc-tabs-active-color;
                 background-color: $rc-tabs-active-bgcolor;
-                border-top: 1px solid $gray03;
                 .close-tab {
-                    background: $rc-tabs-active-bgcolor;
+                    visibility: visible;
                 }
             }
             .close-tab {
                 color: $white01;
-                margin: 2px 2px 0 5px;
-                line-height: 15px;
+                line-height: 28px;
                 text-shadow: none;
                 border: 0;
-                background: $rc-tabs-tab-color;
+                background: transparent;
                 outline-color: transparent;
+                visibility: hidden;
                 cursor: pointer;
-                &:hover{
+                &:hover {
                     color: $rc-tabs-active-color;
                 }
-                &:active{
+                &:active {
                     outline: none;
                 }
             }
@@ -112,13 +149,12 @@
             span {
                 font-size: 12px;
                 padding-left: 5px;
-                width:95px;
+                width: 95px;
             }
             &:hover:after {
                 opacity: 0.5
             }
         }
-        
         .bottom-view-label {
             font-size: 12px;
             float: left;

@@ -23,14 +23,14 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpDispatcher;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
  * Dispatches incoming HTTP requests for WebSub Subscriber services to the correct resource.
  *
  * @since 0.965.0
  */
-class WebSubDispatcher extends HttpDispatcher {
+class WebSubDispatcher {
 
     /**
      * This method finds the matching resource for the incoming request.
@@ -39,7 +39,7 @@ class WebSubDispatcher extends HttpDispatcher {
      * @param inboundMessage incoming message.
      * @return matching resource.
      */
-     static HttpResource findResource(WebSubServicesRegistry servicesRegistry, HTTPCarbonMessage inboundMessage) {
+     static HttpResource findResource(WebSubServicesRegistry servicesRegistry, HttpCarbonMessage inboundMessage) {
         String protocol = (String) inboundMessage.getProperty(HttpConstants.PROTOCOL);
         if (protocol == null) {
             throw new BallerinaConnectorException("protocol not defined in the incoming request");
@@ -51,8 +51,11 @@ class WebSubDispatcher extends HttpDispatcher {
                 // Finer details of the errors are thrown from the dispatcher itself, ideally we shouldn't get here.
             }
             return WebSubResourceDispatcher.findResource(service, inboundMessage, servicesRegistry);
-        } catch (Throwable throwable) {
-            throw new BallerinaConnectorException(throwable.getMessage());
+        } catch (Exception e) {
+            throw new BallerinaConnectorException(e.getMessage());
         }
+    }
+
+    private WebSubDispatcher() {
     }
 }

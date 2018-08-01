@@ -99,7 +99,7 @@ public class InitStub extends BlockingNativeCallableUnit {
             // descriptors.  client supported only one depth descriptor dependency.
             List<byte[]> dependentDescriptors = new ArrayList<>();
             byte[] fileDescriptor = null;
-            for (String key : descriptorMap.keySet()) {
+            for (String key : descriptorMap.keys()) {
                 if (descriptorMap.get(key) == null) {
                     continue;
                 }

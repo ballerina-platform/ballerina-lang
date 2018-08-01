@@ -137,7 +137,7 @@ public class SealedArrayTest {
         returnValues = BRunUtil.invoke(compileResult, "createJSONDefaultSealedArray");
         Assert.assertFalse(
                 returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(returnValues[0].stringValue(), "[null,null,null,null,null]", "Length didn't match");
+        Assert.assertEquals(returnValues[0].stringValue(), "[null, null, null, null, null]", "Length didn't match");
         Assert.assertEquals(((BInteger) returnValues[1]).intValue(), 5, "Length didn't match");
     }
 
@@ -344,7 +344,7 @@ public class SealedArrayTest {
     @Test(description = "Test accessing invalid index of sealed array matched union type",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: failed to set element to json: index number too large: size: 3 index: 4.*")
+                    ".*message: failed to set element to json: array index out of range: index: 4, size: 3.*")
     public void accessInvalidIndexJSONArray() {
         BInteger bInteger = new BInteger(1);
         BInteger bInteger2 = new BInteger(4);
@@ -357,7 +357,7 @@ public class SealedArrayTest {
     @Test(description = "Test accessing invalid index of sealed array matched union type",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: failed to set element to json: index number too large: size: 3 index: 3.*")
+                    ".*message: failed to set element to json: array index out of range: index: 3, size: 3.*")
     public void invalidIndexReferenceJSONArray() {
         BRunUtil.invoke(compileResult, "invalidIndexReferenceJSONArray");
     }

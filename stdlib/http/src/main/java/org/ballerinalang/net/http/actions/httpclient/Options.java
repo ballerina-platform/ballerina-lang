@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 
 /**
@@ -55,8 +55,9 @@ public class Options extends AbstractHTTPAction {
         executeNonBlockingAction(dataContext, false);
     }
 
-    protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
-        HTTPCarbonMessage outboundRequestMsg = super.createOutboundRequestMsg(context);
+    @Override
+    protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
+        HttpCarbonMessage outboundRequestMsg = super.createOutboundRequestMsg(context);
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_OPTIONS);
         return outboundRequestMsg;
     }

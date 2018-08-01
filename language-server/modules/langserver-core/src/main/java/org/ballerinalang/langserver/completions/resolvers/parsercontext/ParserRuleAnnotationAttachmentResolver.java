@@ -39,7 +39,7 @@ public class ParserRuleAnnotationAttachmentResolver extends AbstractItemResolver
         String attachmentPointType = ctx.get(CompletionKeys.NEXT_NODE_KEY) != null ?
                 ctx.get(CompletionKeys.NEXT_NODE_KEY) : "";
 
-        if (attachmentPointType.equals("")) {
+        if (attachmentPointType.isEmpty()) {
             return new ArrayList<>();
         }
         return filterAnnotations(attachmentPointType, ctx);

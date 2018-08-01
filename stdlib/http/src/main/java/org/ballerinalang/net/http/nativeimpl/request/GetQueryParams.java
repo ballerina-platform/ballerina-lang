@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.uri.URIUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
  * Get the Query params from HTTP message and return a map.
@@ -52,7 +52,7 @@ public class GetQueryParams extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         try {
             BMap<String, BValue> requestStruct  = ((BMap<String, BValue>) context.getRefArgument(0));
-            HTTPCarbonMessage httpCarbonMessage = (HTTPCarbonMessage) requestStruct
+            HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) requestStruct
                     .getNativeData(HttpConstants.TRANSPORT_MESSAGE);
             BMapType mapType = new BMapType(BTypes.typeString);
             if (httpCarbonMessage.getProperty(HttpConstants.QUERY_STR) != null) {
@@ -63,7 +63,7 @@ public class GetQueryParams extends BlockingNativeCallableUnit {
             } else {
                 context.setReturnValues(new BMap<>(mapType));
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new BallerinaException("Error while retrieving query param from message: " + e.getMessage());
         }
     }

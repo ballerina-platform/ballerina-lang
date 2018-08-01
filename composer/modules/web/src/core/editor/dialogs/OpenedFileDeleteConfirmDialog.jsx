@@ -63,7 +63,9 @@ class OpenedFileDeleteConfirmDialog extends React.Component {
                     <Button
                         onClick={(evt) => {
                             this.onDialogHide();
-                            this.props.onConfirm();
+                            this.props.onConfirm().catch((e)=>{
+                                this.props.editorPlugin.appContext.alert.showError(e.message);
+                            });
                             evt.stopPropagation();
                             evt.preventDefault();
                         }}

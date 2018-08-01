@@ -58,8 +58,8 @@ public class Ping implements NativeCallableUnit {
             byte[] binaryData = ((BByteArray) context.getRefArgument(1)).getBytes();
             ChannelFuture future = connectionInfo.getWebSocketConnection().ping(ByteBuffer.wrap(binaryData));
             WebSocketUtil.handleWebSocketCallback(context, callback, future);
-        } catch (Throwable throwable) {
-            context.setReturnValues(BLangVMErrors.createError(context, throwable.getMessage()));
+        } catch (Exception e) {
+            context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
             callback.notifySuccess();
         }
     }

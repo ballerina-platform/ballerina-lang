@@ -55,7 +55,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDI
  */
 public class BLangParserListener extends BallerinaParserBaseListener {
     private static final String KEYWORD_PUBLIC = "public";
-    private static final String KEYWORD_NATIVE = "native";
+    private static final String KEYWORD_EXTERN = "extern";
 
     private BLangPackageBuilder pkgBuilder;
     private BDiagnosticSource diagnosticSrc;
@@ -357,7 +357,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (publicFunc) {
             nativeKWTokenIndex = 1;
         }
-        boolean nativeFunc = KEYWORD_NATIVE.equals(ctx.getChild(nativeKWTokenIndex).getText());
+        boolean nativeFunc = KEYWORD_EXTERN.equals(ctx.getChild(nativeKWTokenIndex).getText());
         boolean bodyExists = ctx.callableUnitBody() != null;
 
         if (ctx.Identifier() != null) {
@@ -625,7 +625,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean publicFunc = ctx.PUBLIC() != null;
         boolean isPrivate = ctx.PRIVATE() != null;
-        boolean nativeFunc = ctx.NATIVE() != null;
+        boolean nativeFunc = ctx.EXTERN() != null;
         boolean bodyExists = ctx.callableUnitBody() != null;
         boolean docExists = ctx.documentationAttachment() != null;
         boolean markdownDocExists = ctx.documentationString() != null;

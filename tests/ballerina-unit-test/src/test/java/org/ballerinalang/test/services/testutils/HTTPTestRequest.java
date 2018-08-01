@@ -21,15 +21,15 @@ package org.ballerinalang.test.services.testutils;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpVersion;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
- * Extended HTTPCarbonMessage to handle error path.
+ * Extended HttpCarbonMessage to handle error path.
  */
-public class HTTPTestRequest extends HTTPCarbonMessage {
+public class HTTPTestRequest extends HttpCarbonMessage {
 
     private TestCallableUnitCallback callback;
-    private HTTPCarbonMessage httpCarbonMessage;
+    private HttpCarbonMessage httpCarbonMessage;
     private TestHttpResponseStatusFuture testHttpResponseStatusFuture;
 
     public HTTPTestRequest() {
@@ -38,7 +38,7 @@ public class HTTPTestRequest extends HTTPCarbonMessage {
     }
 
     @Override
-    public TestHttpResponseStatusFuture respond(HTTPCarbonMessage httpCarbonMessage) {
+    public TestHttpResponseStatusFuture respond(HttpCarbonMessage httpCarbonMessage) {
         this.httpCarbonMessage = httpCarbonMessage;
         if (callback != null) {
             callback.setResponseMsg(httpCarbonMessage);

@@ -21,7 +21,6 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -46,7 +45,7 @@ public class UtilTest {
         String jsonString = "{\"name\":\"apple\",\"color\":\"red\",\"price\":25}";
         BValue[] args = new BValue[]{new BString(jsonString)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testParseJson", args);
-        Assert.assertTrue(returns[0] instanceof BJSON);
+        Assert.assertTrue(returns[0] instanceof BMap);
     }
 
     @Test

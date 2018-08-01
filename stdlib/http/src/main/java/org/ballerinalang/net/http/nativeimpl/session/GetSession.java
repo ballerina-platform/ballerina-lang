@@ -33,12 +33,12 @@ import org.ballerinalang.net.http.session.SessionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.NoSuchElementException;
 
 /**
- * Native function to get session if valid session id exist.
+ * Extern function to get session if valid session id exist.
  *
  * @since 0.89
  */
@@ -60,7 +60,7 @@ public class GetSession extends BlockingNativeCallableUnit {
         try {
             BMap<String, BValue> requestStruct  = ((BMap<String, BValue>) context.getRefArgument(0));
             //TODO check below line
-            HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, null);
+            HttpCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(requestStruct, null);
             String cookieHeader = httpCarbonMessage.getHeader(HttpConstants.COOKIE_HEADER);
             String path = (String) httpCarbonMessage.getProperty(HttpConstants.BASE_PATH);
             Session session = (Session) httpCarbonMessage.getProperty(HttpConstants.HTTP_SESSION);
@@ -86,7 +86,7 @@ public class GetSession extends BlockingNativeCallableUnit {
                     return;
                 }
                 //path Validity check
-                if (session != null && session.getPath().equals(path)) {
+                if (session.getPath().equals(path)) {
                     session.setNew(false);
                     session.setAccessed();
                 } else {
