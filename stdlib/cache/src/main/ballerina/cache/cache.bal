@@ -153,7 +153,7 @@ public type Cache object {
                 entry.lastAccessedTime = time:currentTime().time;
                 return entry.value;
             }
-            ()  => {
+            () => {
                 return ();
             }
         }
@@ -188,10 +188,25 @@ public type Cache object {
         // Create new arrays to hold keys to be removed and hold the corresponding timestamps.
         string[] cacheKeysToBeRemoved = [];
         int[] timestamps = [];
-        // Iterate through each key.
-        foreach key, entry in entries {
-            // Check and add the key to the cacheKeysToBeRemoved if it matches the conditions.
-            checkAndAdd(numberOfKeysToEvict, cacheKeysToBeRemoved, timestamps, key, entry.lastAccessedTime);
+
+        string[] keys = self.entries.keys();
+        int size = lengthof keys;
+        int index = 0;
+        // Iterate through the map.
+        while (index < size) {
+            string key = keys[index];
+            CacheEntry? cacheEntry = entries[key];
+            match cacheEntry {
+                CacheEntry entry => {
+                    // Check and add the key to the cacheKeysToBeRemoved if it matches the conditions.
+                    checkAndAdd(numberOfKeysToEvict, cacheKeysToBeRemoved, timestamps, key, entry.lastAccessedTime);
+                }
+                () => {
+                    // If the key is not found in the map, that means that the corresponding cache is already removed
+                    // (possibly by a another worker).
+                }
+            }
+            index++;
         }
         // Return the array.
         return cacheKeysToBeRemoved;
