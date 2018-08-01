@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -56,7 +57,7 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
         } else {
             itemSorterClass = completionContext.get(CompletionKeys.BLOCK_OWNER_KEY).getClass();
             List<SymbolInfo> filteredSymbols = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
-            filteredSymbols.removeIf(this.invalidSymbolsPredicate());
+            filteredSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
             
             filteredSymbols.removeIf(symbolInfo -> {
                 BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;

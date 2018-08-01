@@ -98,3 +98,35 @@ function testRecordLiteralAssignment() returns string {
         }
     }
 }
+
+type Foo record {
+    string s;
+    int i;
+    !...
+};
+
+type Bar record {
+    string x;
+    int y;
+    !...
+};
+
+function testUnionTypeWithMultipleRecordTypes() returns string[] {
+
+    string[] returnValues;
+
+    Foo|Bar var1 = {s : "dummy string"};
+    Foo|Bar var2 = {x : "dummy string"};
+
+    match var1 {
+        Foo => returnValues[0] = "FOO";
+        Bar => returnValues[0] = "BAR";
+    }
+
+    match var2 {
+        Foo => returnValues[1] = "FOO";
+        Bar => returnValues[1] = "BAR";
+    }
+
+    return returnValues;
+}

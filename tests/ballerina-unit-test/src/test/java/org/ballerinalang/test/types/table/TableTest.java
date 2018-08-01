@@ -51,6 +51,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import static org.ballerinalang.test.utils.SQLDBUtils.DBType;
 import static org.ballerinalang.test.utils.SQLDBUtils.DBType.H2;
 import static org.ballerinalang.test.utils.SQLDBUtils.DBType.MYSQL;
 import static org.ballerinalang.test.utils.SQLDBUtils.DBType.POSTGRES;
@@ -67,7 +68,7 @@ public class TableTest {
     private static final String DB_NAME = "TEST_DATA_TABLE_DB";
     private static final String DB_NAME_H2 = "TEST_DATA_TABLE_H2";
     private static final String DB_DIRECTORY_H2 = "./target/H2Client/";
-    private SQLDBUtils.DBType dbType;
+    private DBType dbType;
     private TestDatabase testDatabase;
     private BValue[] connectionArgs = new BValue[3];
     private static final String TABLE_TEST = "TableTest";

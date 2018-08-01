@@ -3,7 +3,6 @@ package org.ballerinalang.langserver.common.utils;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
-import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -37,14 +36,15 @@ public class FilterUtils {
      * @param context               Text Document Service context (Completion Context)
      * @param variableName          Variable name to evaluate against (Can be package alias or defined variable)
      * @param delimiter             delimiter String (. or ->)
+     * @param symbolInfos           List of visible symbol info
      * @return {@link ArrayList}    List of filtered symbol info
      */
     public static List<SymbolInfo> getInvocationAndFieldSymbolsOnVar(LSServiceOperationContext context,
-                                                                     String variableName, String delimiter) {
+                                                                     String variableName, String delimiter,
+                                                                     List<SymbolInfo> symbolInfos) {
         ArrayList<SymbolInfo> resultList = new ArrayList<>();
-        List<SymbolInfo> symbols = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         SymbolTable symbolTable = context.get(DocumentServiceKeys.SYMBOL_TABLE_KEY);
-        SymbolInfo variable = getVariableByName(variableName, symbols);
+        SymbolInfo variable = getVariableByName(variableName, symbolInfos);
 
         if (variable == null) {
             return resultList;
@@ -65,7 +65,7 @@ public class FilterUtils {
             String bTypeValue = bType.toString();
 
             // Extract the package symbol. This is used to extract the entries of the particular package
-            SymbolInfo packageSymbolInfo = symbols.stream().filter(item -> {
+            SymbolInfo packageSymbolInfo = symbolInfos.stream().filter(item -> {
                 Scope.ScopeEntry scopeEntry = item.getScopeEntry();
                 return (scopeEntry.symbol instanceof BPackageSymbol)
                         && scopeEntry.symbol.pkgID.name.getValue().equals(packageID);
@@ -75,7 +75,7 @@ public class FilterUtils {
                 // If the packageID is ballerina/builtin, we extract entries of builtin package
                 entries = symbolTable.builtInPackageSymbol.scope.entries;
             } else if (packageSymbolInfo == null && packageID.equals(currentPkgName)) {
-                entries = getScopeEntries(bType, context);
+                entries = getScopeEntries(bType, symbolInfos);
             } else if (packageSymbolInfo != null) {
                 // If the package exist, we extract particular entries from package
                 entries = packageSymbolInfo.getScopeEntry().symbol.scope.entries;
@@ -106,7 +106,7 @@ public class FilterUtils {
 
             CommonUtil.populateIterableOperations(variable, resultList);
         } else if (delimiter.equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)) {
-            SymbolInfo packageSymbol = symbols.stream().filter(item -> {
+            SymbolInfo packageSymbol = symbolInfos.stream().filter(item -> {
                 Scope.ScopeEntry scopeEntry = item.getScopeEntry();
                 return item.getSymbolName().equals(variableName) && scopeEntry.symbol instanceof BPackageSymbol;
             }).findFirst().orElse(null);
@@ -148,20 +148,19 @@ public class FilterUtils {
      * Get the scope entries.
      *
      * @param bType         BType
-     * @param completionCtx Completion context
-     * @return {@link Map} Scope entries map
+     * @param symbolInfos   List of visible symbol info to find filter the items
+     * @return {@link Map}  Scope entries map
      */
-    private static Map<Name, Scope.ScopeEntry> getScopeEntries(BType bType, LSServiceOperationContext completionCtx) {
+    private static Map<Name, Scope.ScopeEntry> getScopeEntries(BType bType, List<SymbolInfo> symbolInfos) {
         HashMap<Name, Scope.ScopeEntry> returnMap = new HashMap<>();
-        completionCtx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
-                .forEach(symbolInfo -> {
-                    if ((symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol
-                            && symbolInfo.getScopeEntry().symbol.getType() != null
-                            && symbolInfo.getScopeEntry().symbol.getType().toString().equals(bType.toString()))
-                            || symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol) {
-                        returnMap.put(symbolInfo.getScopeEntry().symbol.getName(), symbolInfo.getScopeEntry());
-                    }
-                });
+        symbolInfos.forEach(symbolInfo -> {
+            if ((symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol 
+                    && symbolInfo.getScopeEntry().symbol.getType() != null 
+                    && symbolInfo.getScopeEntry().symbol.getType().toString().equals(bType.toString())) 
+                    || symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol) {
+                returnMap.put(symbolInfo.getScopeEntry().symbol.getName(), symbolInfo.getScopeEntry());
+            }
+        });
 
         return returnMap;
     }
