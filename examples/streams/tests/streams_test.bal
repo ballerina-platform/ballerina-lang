@@ -22,17 +22,17 @@ public function mockPrint(any... s) {
 function testFunc() {
     // Invoke the main function.  
     main();
-    test:assertEquals("Employee event received for Employee Name: Jane", outputs[0]);
-    test:assertEquals("Employee event received for Employee Name: Anne", outputs[1]);
-    test:assertEquals("Employee event received for Employee Name: John", outputs[2]);
-    test:assertEquals("Temperature event received: 28.0", outputs[3]);
-    test:assertEquals("Temperature event received: 30.1", outputs[4]);
-    test:assertEquals("Temperature event received: 29.5", outputs[5]);
-    test:assertEquals("Event received: ", outputs[6]);
-    test:assertEquals("Hello Ballerina!", outputs[7]);
-    test:assertEquals("Event received: ", outputs[8]);
-    test:assertEquals(1.0, outputs[9]);
-    test:assertEquals("Event received: ", outputs[10]);
+    test:assertEquals(outputs[0], "Employee event received for Employee Name: Jane");
+    test:assertEquals(outputs[1], "Employee event received for Employee Name: Anne");
+    test:assertEquals(outputs[2], "Employee event received for Employee Name: John");
+    test:assertEquals(outputs[3], "Temperature event received: 28.0");
+    test:assertEquals(outputs[4], "Temperature event received: 30.1");
+    test:assertEquals(outputs[5], "Temperature event received: 29.5");
+    test:assertEquals(outputs[6], "Event received: ");
+    test:assertEquals(outputs[7], "Hello Ballerina!");
+    test:assertEquals(outputs[8], "Event received: ");
+    test:assertEquals(outputs[9], 1.0);
+    test:assertEquals(outputs[10], "Event received: ");
     Employee e = { id: 1, name: "Jane" };
-    test:assertEquals(e, outputs[11]);
+    test:assertEquals(outputs[11], e);
 }

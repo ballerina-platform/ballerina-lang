@@ -71,6 +71,6 @@ function testFunc() {
         }
     };
 
-    test:assertEquals(js1, outputs[0]);
-    test:assertEquals(js2, outputs[1]);
+    test:assertEquals(outputs[0], js1);
+    test:assertEquals(outputs[1], js2);
 }

@@ -21,6 +21,6 @@ function testFunc() {
     string op1 = "{http://ballerina.com/aa}foo";
     string op2 = "{http://ballerina.com/updated}foo";
 
-    test:assertEquals(op1, outputs[0]);
-    test:assertEquals(op2, outputs[1]);
+    test:assertEquals(outputs[0], op1);
+    test:assertEquals(outputs[1], op2);
 }

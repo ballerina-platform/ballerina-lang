@@ -17,9 +17,9 @@ public function mockPrint(any... s) {
 function testFunc() {
     // Calling the main fuction with ampty args array
     main();
-    test:assertEquals(5, outputs[0]);
-    test:assertEquals(15, outputs[1]);
+    test:assertEquals(outputs[0], 5);
+    test:assertEquals(outputs[1], 15);
     int[] ia = [1, 3, 5, 6];
-    test:assertEquals(ia, outputs[2]);
-    test:assertEquals("cat", outputs[3]);
+    test:assertEquals(outputs[2], ia);
+    test:assertEquals(outputs[3], "cat");
 }

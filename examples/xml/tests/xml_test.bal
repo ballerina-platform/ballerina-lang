@@ -24,9 +24,9 @@ function testFunc() {
     xml xml4 = xml `<?target data?>`;
     xml xml5 = xml1 + xml2 + xml3 + xml4;
 
-    test:assertEquals(xml1, outputs[0]);
-    test:assertEquals(xml2, outputs[1]);
-    test:assertEquals(xml3, outputs[2]);
-    test:assertEquals(xml4, outputs[3]);
-    test:assertEquals(xml5, outputs[5]);
+    test:assertEquals(outputs[0], xml1);
+    test:assertEquals(outputs[1], xml2);
+    test:assertEquals(outputs[2], xml3);
+    test:assertEquals(outputs[3], xml4);
+    test:assertEquals(outputs[5], xml5);
 }

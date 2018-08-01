@@ -25,11 +25,11 @@ function testFunc() {
     string op4 = "5";
     string op5 = "Not Available";
     string op6 = "{\"{http://www.w3.org/2000/xmlns/}ns0\":\"http://ballerina.com/aa\", \"{http://ballerina.com/aa}status\":\"Not Available\", \"count\":\"5\"}";
-    test:assertEquals(xml1, outputs[0]);
-    test:assertEquals(op1, outputs[1]);
-    test:assertEquals(op2, outputs[2]);
-    test:assertEquals(op3, outputs[3]);
-    test:assertEquals(op4, outputs[4]);
-    test:assertEquals(op5, outputs[5]);
-    test:assertEquals(op6, <string>outputs[6]);
+    test:assertEquals(outputs[0], xml1);
+    test:assertEquals(outputs[1], op1);
+    test:assertEquals(outputs[2], op2);
+    test:assertEquals(outputs[3], op3);
+    test:assertEquals(outputs[4], op4);
+    test:assertEquals(outputs[5], op5);
+    test:assertEquals(<string>outputs[6], op6);
 }
