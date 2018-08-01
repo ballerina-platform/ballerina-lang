@@ -29,8 +29,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.runtime.message.MessageDataSource;
-import org.ballerinalang.runtime.message.StringDataSource;
 
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
@@ -54,18 +52,16 @@ public class GetBodyAsString extends BlockingNativeCallableUnit {
         BString result;
         try {
             BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
-            MessageDataSource dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+            BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
             if (dataSource != null) {
-                result = new BString(dataSource.getMessageAsString());
+                result = MimeUtil.getMessageAsString(dataSource);
             } else {
-                StringDataSource stringDataSource = EntityBodyHandler.constructStringDataSource(entityStruct);
-                result = new BString(stringDataSource.getMessageAsString());
-                EntityBodyHandler.addMessageDataSource(entityStruct, stringDataSource);
-                //Set byte channel to null, once the message data source has been constructed
+                result = EntityBodyHandler.constructStringDataSource(entityStruct);
+                EntityBodyHandler.addMessageDataSource(entityStruct, result);
+                // Set byte channel to null, once the message data source has been constructed
                 entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
             }
             context.setReturnValues(result);
-
         } catch (Throwable e) {
             context.setReturnValues(MimeUtil.createError(context,
                     "Error occurred while retrieving text data from entity : " + e.getMessage()));

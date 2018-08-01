@@ -33,7 +33,6 @@ import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
@@ -181,7 +180,8 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
         } else { //Notification Resource
             //validate signature for requests received at the callback
             validateSignature(httpCarbonMessage, httpResource, httpRequest);
-            BMap<String, BValue> notificationRequestStruct = createNotificationStruct(balResource, httpRequest);
+            BMap<String, BValue> notificationRequestStruct = createNotificationStruct(httpCarbonMessage, balResource,
+                                                                                      httpRequest);
 
             HttpCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
             response.waitAndReleaseAllEntities();
@@ -261,7 +261,8 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
     /**
      * Method to create the notification request struct representing WebSub notifications received.
      */
-    private BMap<String, BValue> createNotificationStruct(Resource resource, BValue httpRequest) {
+    private BMap<String, BValue> createNotificationStruct(HttpCarbonMessage inboundRequest, Resource resource,
+                                                          BValue httpRequest) {
         String[] paramDetails = getParamDetails(resource.getName());
         if (WEBSUB_PACKAGE.equals(paramDetails[0])) {
             BMap<String, BValue> notificationStruct = createDefaultNotificationStruct(resource);
@@ -270,7 +271,8 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
         } else {
             BMap<String, BValue> customNotificationStruct = createCustomNotificationStruct(resource, paramDetails[0],
                                                                               paramDetails[1]);
-            BJSON jsonBody = getJsonBody((BMap<String, BValue>) httpRequest);
+            BMap<String, ?> jsonBody = getJsonBody((BMap<String, BValue>) httpRequest);
+            inboundRequest.setProperty(ENTITY_ACCESSED_REQUEST, httpRequest);
             if (jsonBody != null) {
                 return JSONUtils.convertJSONToStruct(jsonBody, (BStructureType) customNotificationStruct.getType());
             } else {
@@ -325,8 +327,8 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
                 response.waitAndReleaseAllEntities();
                 URIUtil.populateQueryParamMap(queryString, params);
                 String mode = params.get(PARAM_HUB_MODE).stringValue();
-                if (!params.keySet().contains(PARAM_HUB_MODE) || !params.keySet().contains(PARAM_HUB_TOPIC)
-                        || !params.keySet().contains(PARAM_HUB_CHALLENGE)) {
+                if (!params.hasKey(PARAM_HUB_MODE) || !params.hasKey(PARAM_HUB_TOPIC) ||
+                        !params.hasKey(PARAM_HUB_CHALLENGE)) {
                     response.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpResponseStatus.NOT_FOUND.code());
                     response.addHttpContent(new DefaultLastHttpContent());
                     HttpUtil.sendOutboundResponse(httpCarbonMessage, response);

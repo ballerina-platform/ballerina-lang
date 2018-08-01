@@ -198,12 +198,4 @@ public class HttpConnectionManager {
         return transportsConfiguration;
     }
 
-    private String makeFirstLetterLowerCase(String str) {
-        if (str == null) {
-            return null;
-        }
-        char ch[] = str.toCharArray();
-        ch[0] = Character.toLowerCase(ch[0]);
-        return new String(ch);
-    }
 }

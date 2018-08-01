@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
@@ -38,7 +38,7 @@ public class InvocationParameterScopeResolver extends CursorPositionResolver {
 
     @Override
     public boolean isCursorBeforeNode(DiagnosticPos nodePosition, BLangNode node, TreeVisitor treeVisitor,
-                                      LSServiceOperationContext completionContext) {
+                                      LSContext completionContext) {
         Position position = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         int line = position.getLine();
         int col = position.getCharacter();
@@ -49,9 +49,9 @@ public class InvocationParameterScopeResolver extends CursorPositionResolver {
         if (this.isWithinScopeAfterLastParameterNode(node, treeVisitor, line, col, nodeEndLine, nodeEndCol)) {
             Map<Name, Scope.ScopeEntry> visibleSymbolEntries =
                     treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv());
-            treeVisitor.populateSymbols(visibleSymbolEntries, null);
+            treeVisitor.populateSymbols(visibleSymbolEntries, treeVisitor.getSymbolEnv());
             treeVisitor.setNextNode(node);
-            treeVisitor.setTerminateVisitor(true);
+            treeVisitor.forceTerminateVisitor();
             return true;
         }
 

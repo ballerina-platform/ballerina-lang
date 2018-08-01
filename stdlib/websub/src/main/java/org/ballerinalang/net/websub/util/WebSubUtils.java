@@ -19,30 +19,29 @@
 package org.ballerinalang.net.websub.util;
 
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
+import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.BStructureType;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.websub.WebSubServicesRegistry;
-import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.ballerinalang.mime.util.EntityBodyHandler.addMessageDataSource;
-import static org.ballerinalang.mime.util.EntityBodyHandler.getMessageDataSource;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
-import static org.ballerinalang.mime.util.MimeConstants.MESSAGE_DATA_SOURCE;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
@@ -99,34 +98,6 @@ public class WebSubUtils {
                     }
                     break;
             }
-//            for (String key : topicResourceMap.keySet()) {
-//                BMap<String, BValue> topicResourceSubMap = topicResourceMap.get(key);
-//                String resourceName;
-//                BStructureType paramDetails;
-//                if (TOPIC_ID_HEADER.equals(key)) {
-//                    for (String headerValue : topicResourceSubMap.keySet()) {
-//                        resourceName = (((BRefValueArray) topicResourceSubMap.get(headerValue)).getBValue(0))
-//                                .stringValue();
-//                        paramDetails = (BStructureType) ((BTypeDescValue) ((BRefValueArray)
-//                                                       topicResourceSubMap.get(headerValue)).getBValue(1)).value();
-//                        resourceDetails.put(resourceName,
-//                                            new String[]{paramDetails.getPackagePath(), paramDetails.getName()});
-//                    }
-//                } else {
-//                    for (String topic : topicResourceSubMap.keySet()) {
-//                        BMap<String, BValue> topicResourceInternalMap =
-//                                (BMap<String, BValue>) topicResourceSubMap.get(topic);
-//                        for (String topicKey : topicResourceInternalMap.keySet()) {
-//                            resourceName = (((BRefValueArray) topicResourceInternalMap.get(topicKey))
-//                                                    .getBValue(0)).stringValue();
-//                            paramDetails = (BStructureType) ((BTypeDescValue) ((BRefValueArray)
-//                                                   topicResourceInternalMap.get(topicKey)).getBValue(1)).value();
-//                            resourceDetails.put(resourceName,
-//                                                new String[]{paramDetails.getPackagePath(), paramDetails.getName()});
-//                        }
-//                    }
-//                }
-//            }
         }
         return resourceDetails;
     }
@@ -141,11 +112,6 @@ public class WebSubUtils {
             resourceDetails.put(resourceName,
                                 new String[]{paramDetails.getPackagePath(), paramDetails.getName()});
         });
-//        headerResourceMap.getMap().forEach((resourceName, value) -> {
-//            BStructureType paramDetails = (BStructureType) value;
-//            resourceDetails.put(resourceName,
-//                                new String[]{paramDetails.getPackagePath(), paramDetails.getName()});
-//        });
     }
 
     private static void populateResourceDetailsByPayload(BMap<String, BMap<String, BValue>> payloadKeyResourceMap,
@@ -203,31 +169,33 @@ public class WebSubUtils {
         }
     }
 
-    public static BJSON getJsonBody(BMap<String, BValue> httpRequest) {
+    // TODO: 8/1/18 Handle duplicate code
+    public static BMap<String, ?> getJsonBody(BMap<String, BValue> httpRequest) {
         BMap<String, BValue> entityStruct = extractEntity(httpRequest);
-        MessageDataSource dataSource = getMessageDataSource(entityStruct);
-        BJSON jsonBody = null;
-        if (dataSource != null) {
-            if (!(dataSource instanceof BJSON)) {
-                // This would be the common case where the dataSource is an instance of StringDataSource due to
-                // signature validation happening prior to reaching this point
-                jsonBody = new BJSON(dataSource.getMessageAsString());
+        if (entityStruct != null) {
+            BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+            BRefType<?> result;
+            BString stringPayload;
+            if (dataSource != null) {
+                stringPayload = MimeUtil.getMessageAsString(dataSource);
             } else {
-                jsonBody = (BJSON) dataSource;
-            }
-        } else {
-            addMessageDataSource(entityStruct, EntityBodyHandler.constructJsonDataSource(entityStruct));
-            entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
-            if (entityStruct.getNativeData(MESSAGE_DATA_SOURCE) instanceof BJSON) {
-                jsonBody = (BJSON) (entityStruct.getNativeData(MESSAGE_DATA_SOURCE));
-            } else {
-                PrintStream console = System.err;
-                console.println("ballerina: Non-JSON payload received as WebSub Notification");
+                stringPayload = EntityBodyHandler.constructStringDataSource(entityStruct);
+                EntityBodyHandler.addMessageDataSource(entityStruct, stringPayload);
+                // Set byte channel to null, once the message data source has been constructed
+                entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, null);
             }
 
+            result = JsonParser.parse(stringPayload.stringValue());
+            if (result instanceof BMap) {
+                return (BMap<String, ?>) result;
+            }
+            throw new BallerinaConnectorException("Non-compatible payload received for payload key based dispatching");
+        } else {
+            throw new BallerinaConnectorException("Error retrieving payload for payload key based dispatching");
         }
-        return jsonBody;
     }
+
+
 
     private static BMap<String, BValue> createBStruct(ProgramFile programFile, String packagePath, String structName) {
         return BLangConnectorSPIUtil.createBStruct(programFile, packagePath, structName);

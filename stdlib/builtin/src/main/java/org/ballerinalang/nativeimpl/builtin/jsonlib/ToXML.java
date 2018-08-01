@@ -22,7 +22,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JSONUtils;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
@@ -58,7 +57,7 @@ public class ToXML extends BlockingNativeCallableUnit {
         BMap<String, BValue> error = null;
         try {
             // Accessing Parameters
-            BJSON json = (BJSON) ctx.getNullableRefArgument(0);
+            BValue json = ctx.getNullableRefArgument(0);
             if (json == null) {
                 error = BuiltInUtils.createConversionError(ctx, "cannot convert null json to xml");
                 ctx.setReturnValues(error);

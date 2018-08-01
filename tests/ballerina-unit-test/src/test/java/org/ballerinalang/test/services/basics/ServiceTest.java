@@ -21,14 +21,16 @@ package org.ballerinalang.test.services.basics;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
+
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -138,9 +140,7 @@ public class ServiceTest {
 
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        StringDataSource stringDataSource = new StringDataSource(responseMsgPayload);
-        Assert.assertNotNull(stringDataSource);
-        Assert.assertEquals(stringDataSource.getValue(), "constant path test");
+        Assert.assertEquals(responseMsgPayload, "constant path test");
     }
 
     @Test(description = "Test getString after setting string")
@@ -184,9 +184,11 @@ public class ServiceTest {
         HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertEquals(bJson.value().get("Name").asText(), "WSO2", "Name variable not set properly.");
-        Assert.assertEquals(bJson.value().get("Team").asText(), "BalDance", "Team variable not set properly.");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertTrue(bJson instanceof BMap);
+        BMap<String, BValue> jsonObject = (BMap<String, BValue>) bJson;
+        Assert.assertEquals(jsonObject.get("Name").stringValue(), "WSO2", "Name variable not set properly.");
+        Assert.assertEquals(jsonObject.get("Team").stringValue(), "BalDance", "Team variable not set properly.");
     }
 
     @Test(description = "Test GetFormParams with undefined key")
@@ -197,8 +199,10 @@ public class ServiceTest {
         HttpCarbonMessage responseMsg = Services.invokeNew(compileResult, TEST_ENDPOINT_NAME, requestMsg);
 
         Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(responseMsg).getInputStream());
-        Assert.assertTrue(bJson.value().get("Team").stringValue().isEmpty(), "Team variable not set properly.");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertTrue(bJson instanceof BMap);
+        Assert.assertTrue(((BMap<String, BValue>) bJson).get("Team").stringValue().isEmpty(),
+                "Team variable not set properly.");
     }
 
     @Test(description = "Test GetFormParams empty responseMsgPayloads")

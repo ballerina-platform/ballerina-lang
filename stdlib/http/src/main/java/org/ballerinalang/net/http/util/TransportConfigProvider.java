@@ -32,4 +32,6 @@ public class TransportConfigProvider {
         return transportsConfiguration;
     }
 
+    private TransportConfigProvider() {
+    }
 }

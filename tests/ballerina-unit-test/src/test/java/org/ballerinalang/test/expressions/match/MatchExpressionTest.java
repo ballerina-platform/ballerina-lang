@@ -24,7 +24,6 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -168,21 +167,21 @@ public class MatchExpressionTest {
     public void testAssignabileTypesInPatterns() {
         BValue[] results =
                 BRunUtil.invoke(compileResult, "testAssignabileTypesInPatterns", new BValue[] { new BInteger(20) });
-        Assert.assertTrue(results[0] instanceof BJSON);
+        Assert.assertTrue(results[0] instanceof BString);
         Assert.assertEquals(results[0].stringValue(), "jsonStr1");
 
         results = BRunUtil.invoke(compileResult, "testAssignabileTypesInPatterns", new BValue[] { new BFloat(3.4) });
-        Assert.assertTrue(results[0] instanceof BJSON);
+        Assert.assertTrue(results[0] instanceof BString);
         Assert.assertEquals(results[0].stringValue(), "jsonStr1");
 
         results = BRunUtil.invoke(compileResult, "getError");
         results = BRunUtil.invoke(compileResult, "testAssignabileTypesInPatterns", results);
-        Assert.assertTrue(results[0] instanceof BJSON);
+        Assert.assertTrue(results[0] instanceof BString);
         Assert.assertEquals(results[0].stringValue(), "jsonStr2");
 
         results =
                 BRunUtil.invoke(compileResult, "testAssignabileTypesInPatterns", new BValue[] { new BString("John") });
-        Assert.assertTrue(results[0] instanceof BJSON);
+        Assert.assertTrue(results[0] instanceof BString);
         Assert.assertEquals(results[0].stringValue(), "jsonStr1");
     }
 

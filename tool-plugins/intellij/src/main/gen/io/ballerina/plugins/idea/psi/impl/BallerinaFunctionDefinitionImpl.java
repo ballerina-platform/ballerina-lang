@@ -84,15 +84,15 @@ public class BallerinaFunctionDefinitionImpl extends BallerinaNamedElementImpl<B
   }
 
   @Override
-  @NotNull
-  public PsiElement getFunction() {
-    return notNullChild(findChildByType(FUNCTION));
+  @Nullable
+  public PsiElement getExtern() {
+    return findChildByType(EXTERN);
   }
 
   @Override
-  @Nullable
-  public PsiElement getNative() {
-    return findChildByType(NATIVE);
+  @NotNull
+  public PsiElement getFunction() {
+    return notNullChild(findChildByType(FUNCTION));
   }
 
   @Override
