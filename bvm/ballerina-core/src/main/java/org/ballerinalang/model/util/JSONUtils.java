@@ -173,7 +173,7 @@ public class JSONUtils {
             return convertRefArrayToJSON((BRefValueArray) bArray);
         }
 
-        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING, BTypes.typeJSON,
+        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, BTypes.typeJSON,
                 bArray.getType());
     }
 
@@ -205,7 +205,7 @@ public class JSONUtils {
                     json.append(convertArrayToJSON((BNewArray) value));
                     break;
                 default:
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                             BTypes.typeJSON, value.getType());
             }
         }
@@ -233,7 +233,7 @@ public class JSONUtils {
             }
         } else {
             if (!CPU.checkCast(map, targetType.getConstrainedType())) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                         targetType, map.getType());
             }
 
@@ -270,7 +270,7 @@ public class JSONUtils {
                     json.put(key, convertMapToJSON((BMap<String, BValue>) value, (BJSONType) exptType));
                     break;
                 default:
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                             BTypes.typeJSON, value.getType());
             }
         } catch (Exception e) {
@@ -594,7 +594,7 @@ public class JSONUtils {
      */
     public static BMap<String, ?> jsonToBMap(BValue json, BMapType mapType) {
         if (json == null || !isJSONObject(json)) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                     getComplexObjectTypeName(OBJECT), getTypeName(json));
         }
 
@@ -627,7 +627,7 @@ public class JSONUtils {
      */
     public static BMap<String, BValue> convertJSONToStruct(BValue json, BStructureType structType) {
         if (json == null || !isJSONObject(json)) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                     getComplexObjectTypeName(OBJECT), getTypeName(json));
         }
 
@@ -666,7 +666,7 @@ public class JSONUtils {
                 return jsonNodeToBool(jsonValue);
             case TypeTags.JSON_TAG:
                 if (jsonValue != null && !CPU.checkCast(jsonValue, targetType)) {
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
+                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                             targetType, getTypeName(jsonValue));
                 }
                 // fall through
@@ -696,10 +696,10 @@ public class JSONUtils {
                 }
                 // fall through
             default:
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING, targetType,
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
                         getTypeName(jsonValue));
         }
-        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING, targetType,
+        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
                 getTypeName(jsonValue));
     }
 
@@ -738,7 +738,7 @@ public class JSONUtils {
             case TypeTags.JSON_TAG:
                 return source;
             default:
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                         BTypes.typeJSON, source.getType());
         }
     }
@@ -767,7 +767,7 @@ public class JSONUtils {
      */
     private static BNewArray convertJSONToBArray(BValue json, BArrayType targetArrayType) {
         if (!(json instanceof BNewArray)) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                     getComplexObjectTypeName(ARRAY), getTypeName(json));
         }
 

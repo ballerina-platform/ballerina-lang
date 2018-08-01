@@ -1438,7 +1438,7 @@ public class CPU {
                             ? ((BArrayType) list.getType()).getElementType()
                             : ((BTupleType) list.getType()).getTupleTypes().get((int) index);
                     if (!checkCast(refReg, elementType)) {
-                        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.TYPE_MISMATCH,
+                        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                                 elementType, (refReg != null) ? refReg.getType() : BTypes.typeNull);
                     }
                     execListAddOperation(list, index, refReg);
