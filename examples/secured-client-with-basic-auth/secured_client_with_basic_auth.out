@@ -2,4 +2,4 @@
 # into it, and use the `ballerina run` command to start the service.
 $ ballerina run secured_client_with_basic_auth.bal
 ballerina: started HTTPS/WSS endpoint 0.0.0.0:9090
-2018-07-31 18:00:07,931 INFO  [] - Hello, World!!!
+INFO  [] - Hello, World!!!

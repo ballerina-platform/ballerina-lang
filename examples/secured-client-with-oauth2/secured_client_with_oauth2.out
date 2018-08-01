@@ -1,7 +1,7 @@
 # Create a file named `secured_client_with_oauth2.bal`, copy the code
 # into it, and use the `ballerina run` command to start the service.
 $ ballerina run secured_client_with_oauth2.bal
-2018-08-01 16:19:36,549 INFO  [] -
+INFO  [] -
 {
  "kind": "tasks#taskLists",
  "etag": "\"FhCqMAsBrrKDkDLKevwtJykQ9I8/HZ4P5ZoRYE9MVosnStxk5dPGhhE\"",
