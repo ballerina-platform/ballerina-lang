@@ -9,11 +9,10 @@ endpoint http:Client httpEndpoint {
     url: "https://www.googleapis.com/tasks/v1",
     auth: {
         scheme: http:OAUTH2,
-        accessToken:
-        "ya29.GlsKBjESXA-CeTgZjiKtwavNcVi9XNANoU4bjYRXFYR27NkrGTsAM3GoYh5lzrDh_qPej4vf5XI-CZfD7owM8UeVbw2g-C5Ut5qMsst7rdyLGHaHxjwJQe8StEK7",
-        clientId: "833478926540-tc35uju9dh5a2286c9pm6u3slp8o2grp.apps.googleusercontent.com",
-        clientSecret: "p2RCr49u--267IExHOdtuaMX",
-        refreshToken: "1/T3PA_MJqleY6xDVrbAqbTNEZlVHw29V4rWawLN0gkQk",
+        accessToken: "ya29.GlsKBjW1zLmpJQOohUEMjfqn8m1MU_BhkIv4YsQHbLMb8XntaKdg6kkPIi4x22ZksJ2sYFIDtVWTxjiJnkDtUk3ZROe6AVq4EIQRrazNGfeXEGdjBkR0LxIo1D_C",
+        clientId: "833478926540-a61oihs15lt3jsf7fq5roeiki0hrk4t9.apps.googleusercontent.com",
+        clientSecret: "x3-rqEnDti6lX_tsVelyfjTm",
+        refreshToken: "1/XlnjQH5Y4ueEggJWAfwZJUu74nAEwfBtFZNFfCXySYs",
         refreshUrl: "https://www.googleapis.com/oauth2/v4/token"
     }
 };
