@@ -2259,7 +2259,7 @@ public class BLangPackageBuilder {
         workerSendNode.pos = pos;
         workerSendNode.addWS(ws);
         //added to use for channels as well
-        if (!isForkJoinSend && exprNodeStack.peek() != null) {
+        if (!isForkJoinSend && !exprNodeStack.isEmpty()) {
             workerSendNode.keyExpr = workerSendNode.expr;
             workerSendNode.expr = (BLangExpression) exprNodeStack.pop();
             workerSendNode.isChannel = true;
@@ -2274,7 +2274,7 @@ public class BLangPackageBuilder {
         workerReceiveNode.pos = pos;
         workerReceiveNode.addWS(ws);
         //if there are two expressions, this is a channel receive and the top expression is the key
-        if (exprNodeStack.peek() != null) {
+        if (!exprNodeStack.isEmpty()) {
             workerReceiveNode.keyExpr = workerReceiveNode.expr;
             workerReceiveNode.expr = (BLangExpression) exprNodeStack.pop();
             workerReceiveNode.isChannel = true;

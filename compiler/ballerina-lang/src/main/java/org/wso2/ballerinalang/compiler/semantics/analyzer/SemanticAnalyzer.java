@@ -1561,14 +1561,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (TypeTags.CHANNEL != symbol.type.tag) {
             dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.channelType, symbol.type);
         }
-        typeChecker.checkExpr(node.expr, env); //check for constraint type
+        typeChecker.checkExpr(node.expr, env);
 
         int constraintTag = ((BChannelType) symbol.type).constraint.tag;
         if (node.expr.type.tag != constraintTag) {
             dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, constraintTag, node.expr.type.tag);
         }
 
-        typeChecker.checkExpr(node.keyExpr, env);
+        if (node.keyExpr != null) {
+            typeChecker.checkExpr(node.keyExpr, env);
+        }
     }
 
     private void handleForeachVariables(BLangForeach foreachStmt, List<BType> varTypes, SymbolEnv env) {

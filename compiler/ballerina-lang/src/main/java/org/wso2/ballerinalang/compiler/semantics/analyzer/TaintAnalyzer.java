@@ -799,7 +799,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (workerSendNode.isChannel) {
             List<BLangExpression> exprsList = new ArrayList<>();
             exprsList.add(workerSendNode.expr);
-            exprsList.add(workerSendNode.keyExpr);
+            if (workerSendNode.keyExpr != null) {
+                exprsList.add(workerSendNode.keyExpr);
+            }
             analyzeExprList(exprsList);
             return;
         }
@@ -820,7 +822,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (workerReceiveNode.isChannel) {
             List<BLangExpression> exprList = new ArrayList<>();
             exprList.add(workerReceiveNode.expr);
-            exprList.add(workerReceiveNode.keyExpr);
+            if (workerReceiveNode.keyExpr != null) {
+                exprList.add(workerReceiveNode.keyExpr);
+            }
             analyzeExprList(exprList);
             return;
         }
