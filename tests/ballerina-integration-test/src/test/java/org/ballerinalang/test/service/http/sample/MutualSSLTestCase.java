@@ -23,6 +23,7 @@ import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerInstance;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 import java.io.File;
@@ -30,19 +31,11 @@ import java.io.File;
 /**
  * Testing Mutual SSL.
  */
-@Test(groups = "http-test", enabled = false)
-@Ignore
+@Test(groups = "http-test")
 public class MutualSSLTestCase extends IntegrationTestCase {
 
     private ServerInstance ballerinaClient;
 
-    @Test
-    public void setUp() throws BallerinaTestException {
-        String serverBal = new File(
-                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "mutualSSL"
-                        + File.separator + "mutualSSLServer.bal").getAbsolutePath();
-        serverInstance.startBallerinaServer(serverBal);
-    }
 
     @Test (description = "Test mutual ssl")
     public void testMutualSSL() throws Exception {
@@ -66,7 +59,6 @@ public class MutualSSLTestCase extends IntegrationTestCase {
 
     @AfterClass
     private void cleanup() throws Exception {
-        serverInstance.stopServer();
         ballerinaClient.stopServer();
     }
 }
