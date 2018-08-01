@@ -1,0 +1,3 @@
+// A secured client with jwt authentication is used to connect to a
+// secured service with jwt authentication.
+// JWT authentication is enabled by setting the `scheme: http:JWT_AUTH`
