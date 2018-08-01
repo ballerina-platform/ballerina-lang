@@ -45,7 +45,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-ir-model</artifactId>
+            <artifactId>ballerina-lang</artifactId>
             <version>0.976.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
