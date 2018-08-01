@@ -57,8 +57,8 @@ public class BallerinaAnnotator implements Annotator {
             PsiReference reference = ((BallerinaNameReference) element).getIdentifier().getReference();
             if (reference != null) {
                 PsiElement resolvedElement = reference.resolve();
-                if (resolvedElement != null
-                        && resolvedElement.getParent() instanceof BallerinaGlobalVariableDefinition) {
+                if (resolvedElement != null && resolvedElement
+                        .getParent() instanceof BallerinaGlobalVariableDefinition) {
                     Annotation annotation = holder.createInfoAnnotation(element, null);
                     annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.GLOBAL_VARIABLE);
                 }
@@ -89,45 +89,45 @@ public class BallerinaAnnotator implements Annotator {
                 annotateExpressionTemplateStart(element, holder);
             } else if (elementType == BallerinaTypes.EXPRESSION_END) {
                 annotateStringLiteralTemplateEnd(element, holder);
-            } else if (elementType == BallerinaTypes.DOCUMENTATION_TEMPLATE_START ||
-                    elementType == BallerinaTypes.DEPRECATED_TEMPLATE_START) {
+            } else if (elementType == BallerinaTypes.DOCUMENTATION_TEMPLATE_START
+                    || elementType == BallerinaTypes.DEPRECATED_TEMPLATE_START) {
                 // This uses an overloaded method so that the color can be easily changeable if required.
                 annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.DOCUMENTATION);
-            }  else if (elementType == BallerinaTypes.DOCUMENTATION_TEMPLATE_ATTRIBUTE_START) {
-            // Doc type.
-            String msg = null;
-            switch (element.getText().charAt(0)) {
-            case 'T':
-                msg = "Receiver";
-                break;
-            case 'P':
-                msg = "Parameter";
-                break;
-            case 'R':
-                msg = "Return Value";
-                break;
-            case 'F':
-                msg = "Field";
-                break;
-            case 'V':
-                msg = "Variable";
-                break;
-            case 'E':
-                msg = "Endpoint";
-                break;
-            }
-            // Highlight type
-            TextRange textRange = element.getTextRange();
-            TextRange newTextRange = new TextRange(textRange.getStartOffset(), textRange.getEndOffset() - 2);
-            Annotation annotation = holder.createInfoAnnotation(newTextRange, msg);
-            annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION_INLINE_CODE);
-            newTextRange = new TextRange(textRange.getEndOffset() - 2, textRange.getEndOffset());
-            // Highlight {{
-            annotation = holder.createInfoAnnotation(newTextRange, null);
-            annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.STRING);
-        } else if (elementType == BallerinaTypes.DOCUMENTATION_TEMPLATE_ATTRIBUTE_END) {
-            annotateText(element, holder);
-        } else if (elementType == BallerinaTypes.SINGLE_BACKTICK_CONTENT
+            } else if (elementType == BallerinaTypes.DOCUMENTATION_TEMPLATE_ATTRIBUTE_START) {
+                // Doc type.
+                String msg = null;
+                switch (element.getText().charAt(0)) {
+                case 'T':
+                    msg = "Receiver";
+                    break;
+                case 'P':
+                    msg = "Parameter";
+                    break;
+                case 'R':
+                    msg = "Return Value";
+                    break;
+                case 'F':
+                    msg = "Field";
+                    break;
+                case 'V':
+                    msg = "Variable";
+                    break;
+                case 'E':
+                    msg = "Endpoint";
+                    break;
+                }
+                // Highlight type
+                TextRange textRange = element.getTextRange();
+                TextRange newTextRange = new TextRange(textRange.getStartOffset(), textRange.getEndOffset() - 2);
+                Annotation annotation = holder.createInfoAnnotation(newTextRange, msg);
+                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.DOCUMENTATION_INLINE_CODE);
+                newTextRange = new TextRange(textRange.getEndOffset() - 2, textRange.getEndOffset());
+                // Highlight {{
+                annotation = holder.createInfoAnnotation(newTextRange, null);
+                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.STRING);
+            } else if (elementType == BallerinaTypes.DOCUMENTATION_TEMPLATE_ATTRIBUTE_END) {
+                annotateText(element, holder);
+            } else if (elementType == BallerinaTypes.SINGLE_BACKTICK_CONTENT
                     || elementType == BallerinaTypes.DOUBLE_BACKTICK_CONTENT
                     || elementType == BallerinaTypes.TRIPLE_BACKTICK_CONTENT
                     || elementType == BallerinaTypes.SINGLE_BACK_TICK_DEPRECATED_INLINE_CODE
@@ -200,10 +200,10 @@ public class BallerinaAnnotator implements Annotator {
                     Annotation annotation = holder.createInfoAnnotation(element, null);
                     annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.GLOBAL_VARIABLE);
                 } else if ("self".equals(element.getText())) {
-                    BallerinaTypeDefinition typeDefinition = PsiTreeUtil.getParentOfType(element,
-                            BallerinaTypeDefinition.class);
-                    BallerinaFunctionDefinition functionDefinition = PsiTreeUtil.getParentOfType(element,
-                            BallerinaFunctionDefinition.class);
+                    BallerinaTypeDefinition typeDefinition = PsiTreeUtil
+                            .getParentOfType(element, BallerinaTypeDefinition.class);
+                    BallerinaFunctionDefinition functionDefinition = PsiTreeUtil
+                            .getParentOfType(element, BallerinaFunctionDefinition.class);
                     if (typeDefinition == null && (functionDefinition == null
                             || functionDefinition.getAttachedObject() == null)) {
                         return;
