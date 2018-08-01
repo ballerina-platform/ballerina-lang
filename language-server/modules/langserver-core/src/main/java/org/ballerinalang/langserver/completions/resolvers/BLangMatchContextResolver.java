@@ -49,7 +49,7 @@ public class BLangMatchContextResolver extends AbstractItemResolver {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         BLangNode symbolEnvNode = ctx.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
         List<SymbolInfo> visibleSymbols = ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
-        visibleSymbols.removeIf(this.invalidSymbolsPredicate());
+        visibleSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
 
         if (!(symbolEnvNode instanceof BLangMatch)) {
             return completionItems;

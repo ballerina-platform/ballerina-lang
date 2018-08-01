@@ -371,6 +371,7 @@ public interface BallerinaTypes {
   IElementType EVENTS = new BallerinaTokenType("events");
   IElementType EVERY = new BallerinaTokenType("every");
   IElementType EXPRESSION_END = new BallerinaTokenType("EXPRESSION_END");
+  IElementType EXTERN = new BallerinaTokenType("extern");
   IElementType FAIL = new BallerinaTokenType("fail");
   IElementType FINALLY = new BallerinaTokenType("finally");
   IElementType FIRST = new BallerinaTokenType("first");
@@ -422,7 +423,6 @@ public interface BallerinaTypes {
   IElementType MONTH = new BallerinaTokenType("month");
   IElementType MONTHS = new BallerinaTokenType("months");
   IElementType MUL = new BallerinaTokenType("*");
-  IElementType NATIVE = new BallerinaTokenType("native");
   IElementType NEW = new BallerinaTokenType("new");
   IElementType NOT = new BallerinaTokenType("!");
   IElementType NOT_EQUAL = new BallerinaTokenType("!=");

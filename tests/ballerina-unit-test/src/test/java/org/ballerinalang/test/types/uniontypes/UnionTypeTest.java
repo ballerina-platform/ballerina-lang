@@ -24,6 +24,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -96,8 +97,21 @@ public class UnionTypeTest {
         Assert.assertEquals(returns[0].stringValue(), "John");
     }
 
+    @Test(description = "Test union type with record literal")
+    public void testUnionTypeWithMultipleRecordTypes() {
+        BValue[] returns = BRunUtil.invoke(result, "testUnionTypeWithMultipleRecordTypes");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(((BStringArray) returns[0]).get(0), "FOO");
+        Assert.assertEquals(((BStringArray) returns[0]).get(1), "BAR");
+    }
+
     @Test(description = "Test negative cases")
     public void testAmbiguousAssignment() {
-        BAssertUtil.validateError(negativeResult, 0, "ambiguous type 'Person|error'", 6, 22);
+        int i = 0;
+        Assert.assertEquals(negativeResult.getErrorCount(), 4);
+        BAssertUtil.validateError(negativeResult, i++, "ambiguous type 'OpenBar|error'", 46, 24);
+        BAssertUtil.validateError(negativeResult, i++, "ambiguous type 'ClosedBar|ClosedFoo'", 47, 30);
+        BAssertUtil.validateError(negativeResult, i++, "ambiguous type 'ClosedBar|OpenBar'", 48, 28);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 51, 31);
     }
 }

@@ -264,4 +264,26 @@ public class IterableOperationsTests {
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "10");
     }
+
+    @Test
+    public void testIterableOutputPrint() {
+        BValue[] returns = BRunUtil.invoke(basic, "testIterableOutputPrint");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 5);
+        Assert.assertEquals(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(returns[1].getClass(), BFloat.class);
+        Assert.assertEquals(returns[2].getClass(), BInteger.class);
+        Assert.assertEquals(returns[3].getClass(), BInteger.class);
+        Assert.assertEquals(returns[4].getClass(), BInteger.class);
+        BInteger a1 = (BInteger) returns[0];
+        BFloat a2 = (BFloat) returns[1];
+        BInteger a3 = (BInteger) returns[2];
+        BInteger a4 = (BInteger) returns[3];
+        BInteger a5 = (BInteger) returns[4];
+        Assert.assertEquals(a1.intValue(), 3);
+        Assert.assertEquals(a2.floatValue(), 0.5);
+        Assert.assertEquals(a3.intValue(), -8);
+        Assert.assertEquals(a4.intValue(), 7);
+        Assert.assertEquals(a5.intValue(), 4);
+    }
 }
