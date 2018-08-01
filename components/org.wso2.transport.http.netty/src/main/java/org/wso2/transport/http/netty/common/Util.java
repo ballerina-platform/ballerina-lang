@@ -62,7 +62,6 @@ import org.wso2.transport.http.netty.sender.OCSPStaplingHandler;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.nio.channels.ClosedChannelException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -760,14 +759,11 @@ public class Util {
      * Create a HttpCarbonMessage using the netty inbound http request.
      * @param httpRequestHeaders of inbound request
      * @param ctx of the inbound request
-     * @param remoteAddress remote address of the connection
-     * @param interfaceId to which the request received
      * @param sourceHandler instance which handled the particular request
      * @return HttpCarbon message
      */
-    public static HttpCarbonMessage createInboundReqCarbonMsg(HttpRequest httpRequestHeaders, ChannelHandlerContext ctx,
-                                                              SocketAddress remoteAddress, String interfaceId,
-                                                              SourceHandler sourceHandler) {
+    public static HttpCarbonMessage createInboundReqCarbonMsg(HttpRequest httpRequestHeaders,
+            ChannelHandlerContext ctx, SourceHandler sourceHandler) {
 
         HttpCarbonMessage inboundRequestMsg =
                 new HttpCarbonRequest(httpRequestHeaders, new DefaultListener(ctx));
@@ -786,7 +782,7 @@ public class Util {
             localAddress = (InetSocketAddress) ctx.channel().localAddress();
         }
         inboundRequestMsg.setProperty(Constants.LISTENER_PORT, localAddress != null ? localAddress.getPort() : null);
-        inboundRequestMsg.setProperty(Constants.LISTENER_INTERFACE_ID, interfaceId);
+        inboundRequestMsg.setProperty(Constants.LISTENER_INTERFACE_ID, sourceHandler.getInterfaceId());
         inboundRequestMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
 
         boolean isSecuredConnection = false;
@@ -796,7 +792,7 @@ public class Util {
         inboundRequestMsg.setProperty(Constants.IS_SECURED_CONNECTION, isSecuredConnection);
 
         inboundRequestMsg.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
-        inboundRequestMsg.setProperty(Constants.REMOTE_ADDRESS, remoteAddress);
+        inboundRequestMsg.setProperty(Constants.REMOTE_ADDRESS, sourceHandler.getRemoteAddress());
         inboundRequestMsg.setProperty(Constants.REQUEST_URL, httpRequestHeaders.uri());
         inboundRequestMsg.setProperty(Constants.TO, httpRequestHeaders.uri());
 
