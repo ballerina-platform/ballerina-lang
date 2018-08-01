@@ -1,0 +1,4 @@
+// A secured client with basic authentication is used to connect to a
+// secured service with basic authentication.
+// Basic authentication is enabled by setting the `scheme: http:BASIC_AUTH`
+// The `username` and `password` should be specified as needed.
