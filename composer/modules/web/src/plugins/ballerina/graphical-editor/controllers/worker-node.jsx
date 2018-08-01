@@ -168,6 +168,11 @@ class DefaultCtrl extends React.Component {
         const y = bBox.y + bBox.h;
         const x = bBox.x;
 
+        if (model.parent.viewState.collapsed ||
+            (model.parent.parent && model.parent.parent.viewState.collapsed)) {
+            return null;
+        }
+
         return (
             <HoverButton
                 style={{
