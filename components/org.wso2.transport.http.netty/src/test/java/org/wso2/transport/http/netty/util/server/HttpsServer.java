@@ -36,6 +36,9 @@ import java.security.KeyStore;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 
+import static org.wso2.transport.http.netty.common.Constants.JKS;
+import static org.wso2.transport.http.netty.common.Constants.TLS_PROTOCOL;
+
 /**
  * A Simple HTTPS Server
  */
@@ -71,12 +74,12 @@ public class HttpsServer implements TestServer {
             b.childOption(ChannelOption.TCP_NODELAY, true);
             b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 15000);
 
-            KeyStore ks = KeyStore.getInstance("JKS");
+            KeyStore ks = KeyStore.getInstance(JKS);
             ks.load(new FileInputStream(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH)), ksPass);
             KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
             kmf.init(ks, ctPass);
 
-            sslContext = SSLContext.getInstance("TLS");
+            sslContext = SSLContext.getInstance(TLS_PROTOCOL);
             sslContext.init(kmf.getKeyManagers(), null, null);
             ((HttpServerInitializer) channelInitializer).setSslContext(sslContext);
 

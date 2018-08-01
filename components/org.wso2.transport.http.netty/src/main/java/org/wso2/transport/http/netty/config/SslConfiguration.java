@@ -25,6 +25,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
+import static org.wso2.transport.http.netty.common.Constants.JKS;
+import static org.wso2.transport.http.netty.common.Constants.REQUIRE;
+import static org.wso2.transport.http.netty.common.Constants.TLS_PROTOCOL;
 import static org.wso2.transport.http.netty.common.Util.substituteVariables;
 
 /**
@@ -45,7 +49,7 @@ public class SslConfiguration {
     }
 
     public void setVerifyClient(String verifyClient) {
-        if ("require".equalsIgnoreCase(verifyClient)) {
+        if (REQUIRE.equalsIgnoreCase(verifyClient)) {
             sslConfig.setNeedClientAuth(true);
         }
     }
@@ -103,14 +107,14 @@ public class SslConfiguration {
     }
 
     public SSLConfig getClientSSLConfig() {
-        if (scheme == null || !scheme.equalsIgnoreCase("https")) {
+        if (scheme == null || !scheme.equalsIgnoreCase(HTTPS_SCHEME)) {
             return null;
         }
         return getSSLConfigForSender();
     }
 
     public SSLConfig getListenerSSLConfig() {
-        if (scheme == null || !scheme.equalsIgnoreCase("https")) {
+        if (scheme == null || !scheme.equalsIgnoreCase(HTTPS_SCHEME)) {
             return null;
         }
         return getSSLConfigForListener();
@@ -147,17 +151,17 @@ public class SslConfiguration {
             }
         }
 
-        String sslProtocol = sslConfig.getSSLProtocol() != null ? sslConfig.getSSLProtocol() : "TLS";
+        String sslProtocol = sslConfig.getSSLProtocol() != null ? sslConfig.getSSLProtocol() : TLS_PROTOCOL;
         sslConfig.setSSLProtocol(sslProtocol);
-        String tlsStoreType = sslConfig.getTLSStoreType() != null ? sslConfig.getTLSStoreType() : "JKS";
+        String tlsStoreType = sslConfig.getTLSStoreType() != null ? sslConfig.getTLSStoreType() : JKS;
         sslConfig.setTLSStoreType(tlsStoreType);
 
         if (sslConfig.getTrustStore() != null) {
             if (!sslConfig.getTrustStore().exists()) {
-                throw new IllegalArgumentException("trustStore File " + sslConfig.getTrustStore() + " not found");
+                throw new IllegalArgumentException("TrustStore file " + sslConfig.getTrustStore() + " not found");
             }
             if (sslConfig.getTrustStorePass() == null) {
-                throw new IllegalArgumentException("trustStorePass is not defined for HTTPS scheme");
+                throw new IllegalArgumentException("Truststore password is not defined for HTTPS scheme");
             }
         }
         return sslConfig;
@@ -175,9 +179,9 @@ public class SslConfiguration {
         }
 
         sslConfig.setTrustStore(sslConfig.getTrustStore()).setTrustStorePass(sslConfig.getTrustStorePass());
-        String sslProtocol = sslConfig.getSSLProtocol() != null ? sslConfig.getSSLProtocol() : "TLS";
+        String sslProtocol = sslConfig.getSSLProtocol() != null ? sslConfig.getSSLProtocol() : TLS_PROTOCOL;
         sslConfig.setSSLProtocol(sslProtocol);
-        String tlsStoreType = sslConfig.getTLSStoreType() != null ? sslConfig.getTLSStoreType() : "JKS";
+        String tlsStoreType = sslConfig.getTLSStoreType() != null ? sslConfig.getTLSStoreType() : JKS;
         sslConfig.setTLSStoreType(tlsStoreType);
         if (parameters != null) {
             for (Parameter parameter : parameters) {
