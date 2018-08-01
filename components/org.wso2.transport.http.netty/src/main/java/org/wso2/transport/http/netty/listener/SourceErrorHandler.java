@@ -38,14 +38,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.SourceInteractiveState;
-import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-
-import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.netty.buffer.Unpooled.copiedBuffer;
 import static org.wso2.transport.http.netty.common.Constants
@@ -61,9 +56,7 @@ import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSE
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_100_CONTINUE_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE;
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_RECEIVED;
-import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_SENT;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.SENDING_ENTITY_BODY;
 
 /**
@@ -151,7 +144,6 @@ public class SourceErrorHandler {
                                                           copiedBuffer(responseValue, CharsetUtil.UTF_8),
                                                           responseValue.length());
                     }
-
                     String errorMsg = state.equals(ENTITY_BODY_RECEIVED) ?
                             IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE :
                             IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;

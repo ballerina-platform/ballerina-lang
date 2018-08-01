@@ -31,8 +31,6 @@ import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
@@ -47,14 +45,12 @@ import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.wso2.transport.http.netty.common.Constants.HTTP_HEAD_METHOD;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED;
 import static org.wso2.transport.http.netty.common.Util.createFullHttpResponse;
-import static org.wso2.transport.http.netty.common.Util.isLastHttpContent;
-import static org.wso2.transport.http.netty.common.Util.isVersionCompatibleForChunking;
 import static org.wso2.transport.http.netty.common.Util.setupContentLengthRequest;
-import static org.wso2.transport.http.netty.common.Util.shouldEnforceChunkingforHttpOneZero;
 
 /**
  * State between start and end of response payload write
@@ -66,7 +62,6 @@ public class SendingEntityBody implements ListenerState {
     private final HttpResponseFuture outboundRespStatusFuture;
     private final ListenerStateContext stateContext;
     private final boolean headersWritten;
-    private ChunkConfig chunkConfig;
     private long contentLength = 0;
     private boolean headRequest;
     private List<HttpContent> contentList = new ArrayList<>();
@@ -75,10 +70,9 @@ public class SendingEntityBody implements ListenerState {
     private SourceHandler sourceHandler;
 
 
-    public SendingEntityBody(ListenerStateContext stateContext, ChunkConfig chunkConfig,
+    public SendingEntityBody(ListenerStateContext stateContext,
                              HttpResponseFuture outboundRespStatusFuture, boolean headersWritten) {
         this.stateContext = stateContext;
-        this.chunkConfig = chunkConfig;
         this.outboundRespStatusFuture = outboundRespStatusFuture;
         this.headersWritten = headersWritten;
         handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
@@ -107,13 +101,13 @@ public class SendingEntityBody implements ListenerState {
     @Override
     public void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundRespListener,
                                                 HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        headRequest = outboundRespListener.getRequestDataHolder().getHttpMethod().equalsIgnoreCase(Constants.HTTP_HEAD_METHOD);
+        headRequest = outboundRespListener.getRequestDataHolder().getHttpMethod().equalsIgnoreCase(HTTP_HEAD_METHOD);
         inboundRequestMsg = outboundRespListener.getInboundRequestMsg();
         sourceContext = outboundRespListener.getSourceContext();
         sourceHandler = outboundRespListener.getSourceHandler();
 
         ChannelFuture outboundChannelFuture;
-        if (isLastHttpContent(httpContent)) {
+        if (httpContent instanceof LastHttpContent) {
             if (headersWritten) {
                 outboundChannelFuture = checkHeadRequestAndWriteOutboundResponseBody(httpContent);
             } else {
@@ -158,11 +152,6 @@ public class SendingEntityBody implements ListenerState {
         return null;
     }
 
-    private boolean checkChunkingCompatibility(HttpOutboundRespListener outboundResponseListener) {
-        return isVersionCompatibleForChunking(outboundResponseListener.getRequestDataHolder().getHttpVersion()) ||
-                shouldEnforceChunkingforHttpOneZero(chunkConfig, outboundResponseListener.getRequestDataHolder().getHttpVersion());
-    }
-
     private ChannelFuture checkHeadRequestAndWriteOutboundResponseBody(HttpContent httpContent) {
         ChannelFuture outboundChannelFuture;
         if (headRequest) {
@@ -175,7 +164,8 @@ public class SendingEntityBody implements ListenerState {
     }
 
     private ChannelFuture writeOutboundResponseHeaderAndBody(HttpOutboundRespListener outboundRespListener,
-                                                             HttpCarbonMessage outboundResponseMsg, LastHttpContent lastHttpContent) {
+                                                             HttpCarbonMessage outboundResponseMsg,
+                                                             LastHttpContent lastHttpContent) {
         CompositeByteBuf allContent = Unpooled.compositeBuffer();
         for (HttpContent cachedHttpContent : contentList) {
             allContent.addComponent(true, cachedHttpContent.content());
@@ -206,7 +196,7 @@ public class SendingEntityBody implements ListenerState {
     }
 
     private void checkForResponseWriteStatus(HttpCarbonMessage inboundRequestMsg,
-                                            HttpResponseFuture outboundRespStatusFuture, ChannelFuture channelFuture) {
+                                             HttpResponseFuture outboundRespStatusFuture, ChannelFuture channelFuture) {
         channelFuture.addListener(writeOperationPromise -> {
             Throwable throwable = writeOperationPromise.cause();
             if (throwable != null) {
@@ -216,9 +206,8 @@ public class SendingEntityBody implements ListenerState {
                 outboundRespStatusFuture.notifyHttpListener(throwable);
             } else {
                 outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
-                stateContext.setState(new EntityBodySent(sourceHandler, stateContext));
-//                this.setState(ENTITY_BODY_SENT);
             }
+            stateContext.setState(new ResponseCompleted(sourceHandler, stateContext, inboundRequestMsg));
         });
     }
 }

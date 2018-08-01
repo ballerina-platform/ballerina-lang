@@ -62,7 +62,6 @@ import org.wso2.transport.http.netty.sender.OCSPStaplingHandler;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.nio.channels.ClosedChannelException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;

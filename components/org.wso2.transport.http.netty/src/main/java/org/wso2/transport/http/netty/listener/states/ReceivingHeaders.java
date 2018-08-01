@@ -19,7 +19,6 @@
 package org.wso2.transport.http.netty.listener.states;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -46,6 +45,8 @@ import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import static io.netty.buffer.Unpooled.EMPTY_BUFFER;
+import static io.netty.handler.codec.http.HttpResponseStatus.REQUEST_TIMEOUT;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.Util.is100ContinueRequest;
@@ -78,7 +79,6 @@ public class ReceivingHeaders implements ListenerState {
         this.inboundRequestMsg = inboundRequestMsg;
         continueRequest = is100ContinueRequest(inboundRequestMsg);
         if (continueRequest) {
-//            sourceErrorHandler.setState(EXPECT_100_CONTINUE_HEADER_RECEIVED);
             stateContext.setState(new Expect100ContinueHeaderReceived(stateContext, sourceHandler));
         }
         notifyRequestListener(inboundRequestMsg);
@@ -100,7 +100,7 @@ public class ReceivingHeaders implements ListenerState {
             try {
                 ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
                 outboundRespFuture.setHttpConnectorListener(
-                        new HttpOutboundRespListener(httpRequestMsg, sourceHandler, continueRequest));
+                        new HttpOutboundRespListener(httpRequestMsg, sourceHandler));
                 sourceHandler.getServerConnectorFuture().notifyHttpListener(httpRequestMsg);
             } catch (Exception e) {
                 log.error("Error while notifying listeners", e);
@@ -122,8 +122,8 @@ public class ReceivingHeaders implements ListenerState {
     }
 
     @Override
-    public void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundResponseMsg, HttpCarbonMessage keepAlive,
-                                                HttpContent httpContent) {
+    public void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundResponseListener,
+                                                HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
         // Not a dependant action of this state.
     }
 
@@ -135,12 +135,11 @@ public class ReceivingHeaders implements ListenerState {
     @Override
     public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
                                                             ChannelHandlerContext ctx, IdleStateEvent evt) {
-        ChannelFuture outboundRespFuture = sendRequestTimeoutResponse(ctx, HttpResponseStatus.REQUEST_TIMEOUT, Unpooled.EMPTY_BUFFER, 0);
-
+        ChannelFuture outboundRespFuture = sendRequestTimeoutResponse(ctx, REQUEST_TIMEOUT, EMPTY_BUFFER);
         outboundRespFuture.addListener((ChannelFutureListener) channelFuture -> {
             Throwable cause = channelFuture.cause();
             if (cause != null) {
-                log.warn("Failed to send: " + cause.getMessage());
+                log.warn("Failed to send: {}", cause.getMessage());
             }
             sourceHandler.channelInactive(ctx);
             handleIncompleteInboundRequest(IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST);
@@ -149,7 +148,7 @@ public class ReceivingHeaders implements ListenerState {
     }
 
     private ChannelFuture sendRequestTimeoutResponse(ChannelHandlerContext ctx, HttpResponseStatus status,
-                                                     ByteBuf content, int length) {
+                                                     ByteBuf content) {
         HttpResponse outboundResponse;
         if (inboundRequestMsg != null) {
             float httpVersion = Float.parseFloat((String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION));
@@ -161,14 +160,14 @@ public class ReceivingHeaders implements ListenerState {
         } else {
             outboundResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, content);
         }
-        outboundResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, length);
+        outboundResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
         outboundResponse.headers().set(HttpHeaderNames.CONTENT_TYPE, Constants.TEXT_PLAIN);
         outboundResponse.headers().set(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_CLOSE);
         outboundResponse.headers().set(HttpHeaderNames.SERVER.toString(), sourceHandler.getServerName());
         return ctx.channel().writeAndFlush(outboundResponse);
     }
 
-    void handleIncompleteInboundRequest(String errorMessage) {
+    private void handleIncompleteInboundRequest(String errorMessage) {
         LastHttpContent lastHttpContent = new DefaultLastHttpContent();
         lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(errorMessage)));
         this.inboundRequestMsg.addHttpContent(lastHttpContent);

@@ -87,7 +87,6 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         this.serverName = serverName;
         this.allChannels = allChannels;
         this.sourceErrorHandler = new SourceErrorHandler(this.serverConnectorFuture, serverName);
-
     }
 
     @SuppressWarnings("unchecked")
@@ -249,4 +248,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         return sourceErrorHandler;
     }
 
+    public void removeRequestEntry(HttpCarbonMessage inboundRequestMsg) {
+        this.requestList.remove(inboundRequestMsg);
+    }
 }

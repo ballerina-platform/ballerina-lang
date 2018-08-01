@@ -58,8 +58,7 @@ public class SendingHeaders implements ListenerState {
     ChunkConfig chunkConfig;
     HttpResponseFuture outboundRespStatusFuture;
 
-    public SendingHeaders(HttpOutboundRespListener outboundResponseListener,
-                          ListenerStateContext stateContext) {
+    SendingHeaders(HttpOutboundRespListener outboundResponseListener, ListenerStateContext stateContext) {
         this.outboundResponseListener = outboundResponseListener;
         this.stateContext = stateContext;
         this.chunkConfig = outboundResponseListener.getChunkConfig();
@@ -128,13 +127,15 @@ public class SendingHeaders implements ListenerState {
     }
 
     private void writeResponse(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, boolean headersWritten) {
-        stateContext.setState(new SendingEntityBody(stateContext, chunkConfig, outboundRespStatusFuture, headersWritten));
-        stateContext.getState().writeOutboundResponseEntityBody(outboundResponseListener, outboundResponseMsg, httpContent);
+        stateContext.setState(new SendingEntityBody(stateContext, outboundRespStatusFuture, headersWritten));
+        stateContext.getState().writeOutboundResponseEntityBody(outboundResponseListener, outboundResponseMsg,
+                                                                httpContent);
     }
 
     boolean checkChunkingCompatibility(HttpOutboundRespListener outboundResponseListener) {
-        return isVersionCompatibleForChunking(outboundResponseListener.getRequestDataHolder().getHttpVersion()) ||
-                shouldEnforceChunkingforHttpOneZero(chunkConfig, outboundResponseListener.getRequestDataHolder().getHttpVersion());
+        String httpVersion = outboundResponseListener.getRequestDataHolder().getHttpVersion();
+        return isVersionCompatibleForChunking(httpVersion) ||
+                shouldEnforceChunkingforHttpOneZero(chunkConfig, httpVersion);
     }
 
     private void writeHeaders(HttpCarbonMessage outboundResponseMsg, boolean keepAlive,
@@ -149,7 +150,8 @@ public class SendingHeaders implements ListenerState {
     }
 
     ChannelFuture writeResponseHeaders(HttpCarbonMessage outboundResponseMsg, boolean keepAlive) {
-        HttpResponse response = createHttpResponse(outboundResponseMsg, outboundResponseListener.getRequestDataHolder().getHttpVersion(),
+        HttpResponse response = createHttpResponse(outboundResponseMsg,
+                                                   outboundResponseListener.getRequestDataHolder().getHttpVersion(),
                                                    outboundResponseListener.getServerName(), keepAlive);
         return outboundResponseListener.getSourceContext().write(response);
     }

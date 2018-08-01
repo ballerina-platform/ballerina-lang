@@ -48,6 +48,7 @@ import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import static io.netty.handler.codec.http.HttpResponseStatus.REQUEST_TIMEOUT;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST;
 
@@ -63,8 +64,8 @@ public class ReceivingEntityBody implements ListenerState {
     private final SourceHandler sourceHandler;
     private HttpCarbonMessage inboundRequestMsg;
 
-    public ReceivingEntityBody(ListenerStateContext stateContext, HttpCarbonMessage inboundRequestMsg,
-                               SourceHandler sourceHandler) {
+    ReceivingEntityBody(ListenerStateContext stateContext, HttpCarbonMessage inboundRequestMsg,
+                        SourceHandler sourceHandler) {
         this.stateContext = stateContext;
         this.inboundRequestMsg = inboundRequestMsg;
         this.sourceHandler = sourceHandler;
@@ -85,7 +86,6 @@ public class ReceivingEntityBody implements ListenerState {
     @Override
     public void readInboundRequestEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
         if (inboundRequestEntityBody instanceof HttpContent) {
-//                sourceErrorHandler.setState(RECEIVING_ENTITY_BODY);
             HttpContent httpContent = (HttpContent) inboundRequestEntityBody;
             try {
                 inboundRequestMsg.addHttpContent(httpContent);
@@ -97,12 +97,11 @@ public class ReceivingEntityBody implements ListenerState {
                         serverConnectorFuture.notifyHttpListener(inboundRequestMsg);
                     }
                     inboundRequestMsg = null;
-                    stateContext.setState(new EntityBodyReceived(stateContext));
-//                        sourceErrorHandler.setState(ENTITY_BODY_RECEIVED);
+                    stateContext.setState(new EntityBodyReceived(stateContext, sourceHandler));
                 }
             } catch (RuntimeException ex) {
                 httpContent.release();
-                log.warn("Response already received before completing the inbound request" + ex.getMessage());
+                log.warn("Response already received before completing the inbound request {}", ex.getMessage());
             }
         }
     }
@@ -129,13 +128,11 @@ public class ReceivingEntityBody implements ListenerState {
     @Override
     public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
                                                             ChannelHandlerContext ctx, IdleStateEvent evt) {
-        ChannelFuture outboundRespFuture = sendRequestTimeoutResponse(ctx, HttpResponseStatus.REQUEST_TIMEOUT,
-                                                                      Unpooled.EMPTY_BUFFER, 0);
-
+        ChannelFuture outboundRespFuture = sendRequestTimeoutResponse(ctx, REQUEST_TIMEOUT, Unpooled.EMPTY_BUFFER);
         outboundRespFuture.addListener((ChannelFutureListener) channelFuture -> {
             Throwable cause = channelFuture.cause();
             if (cause != null) {
-                log.warn("Failed to send: " + cause.getMessage());
+                log.warn("Failed to send: {}", cause.getMessage());
             }
             sourceHandler.channelInactive(ctx);
             handleIncompleteInboundRequest(IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST);
@@ -149,7 +146,7 @@ public class ReceivingEntityBody implements ListenerState {
     }
 
     private ChannelFuture sendRequestTimeoutResponse(ChannelHandlerContext ctx, HttpResponseStatus status,
-                                                     ByteBuf content, int length) {
+                                                     ByteBuf content) {
         HttpResponse outboundResponse;
         if (inboundRequestMsg != null) {
             float httpVersion = Float.parseFloat((String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION));
@@ -161,7 +158,7 @@ public class ReceivingEntityBody implements ListenerState {
         } else {
             outboundResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, content);
         }
-        outboundResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, length);
+        outboundResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
         outboundResponse.headers().set(HttpHeaderNames.CONTENT_TYPE, Constants.TEXT_PLAIN);
         outboundResponse.headers().set(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_CLOSE);
         outboundResponse.headers().set(HttpHeaderNames.SERVER.toString(), sourceHandler.getServerName());

@@ -32,15 +32,20 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 /**
  * State of successfully written response
  */
-public class EntityBodySent implements ListenerState {
+public class ResponseCompleted implements ListenerState {
 
     private final SourceHandler sourceHandler;
     private final ListenerStateContext stateContext;
 
-    public EntityBodySent(
-            SourceHandler sourceHandler, ListenerStateContext stateContext) {
+    ResponseCompleted(SourceHandler sourceHandler, ListenerStateContext stateContext,
+                      HttpCarbonMessage inboundRequestMsg) {
         this.sourceHandler = sourceHandler;
         this.stateContext = stateContext;
+        cleanup(inboundRequestMsg);
+    }
+
+    private void cleanup(HttpCarbonMessage inboundRequestMsg) {
+        sourceHandler.removeRequestEntry(inboundRequestMsg);
     }
 
     @Override

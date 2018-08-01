@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 
 import static org.wso2.transport.http.netty.common.Constants.CHUNKING_CONFIG;
+import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_100_CONTINUE_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_100_CONTINUE_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED;
 import static org.wso2.transport.http.netty.common.Util.createFullHttpResponse;
@@ -55,7 +56,7 @@ public class Response100ContinueSent extends SendingHeaders {
     private final HttpOutboundRespListener outboundResponseListener;
     private final SourceHandler sourceHandler;
 
-    public Response100ContinueSent(HttpOutboundRespListener outboundResponseListener,
+    Response100ContinueSent(HttpOutboundRespListener outboundResponseListener,
                                    SourceHandler sourceHandler,
                                    ListenerStateContext stateContext) {
         super(outboundResponseListener, stateContext);
@@ -116,13 +117,14 @@ public class Response100ContinueSent extends SendingHeaders {
     public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture) {
         // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
         log.error(REMOTE_CLIENT_CLOSED_WHILE_WRITING_100_CONTINUE_RESPONSE);
-
     }
 
     @Override
     public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
                                                             ChannelHandlerContext ctx,
                                                             IdleStateEvent evt) {
+        // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
+        log.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_100_CONTINUE_RESPONSE);
         return null;
     }
 

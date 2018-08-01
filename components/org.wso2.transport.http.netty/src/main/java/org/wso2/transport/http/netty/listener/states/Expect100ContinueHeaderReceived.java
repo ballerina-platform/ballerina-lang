@@ -18,19 +18,32 @@
 
 package org.wso2.transport.http.netty.listener.states;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
+import static io.netty.buffer.Unpooled.copiedBuffer;
+import static org.wso2.transport.http.netty.common.Constants
+        .IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants
         .REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
 
@@ -43,8 +56,7 @@ public class Expect100ContinueHeaderReceived implements ListenerState {
     private final ListenerStateContext stateContext;
     private final SourceHandler sourceHandler;
 
-    public Expect100ContinueHeaderReceived(
-            ListenerStateContext stateContext, SourceHandler sourceHandler) {
+    Expect100ContinueHeaderReceived(ListenerStateContext stateContext, SourceHandler sourceHandler) {
         this.stateContext = stateContext;
         this.sourceHandler = sourceHandler;
     }
@@ -73,7 +85,8 @@ public class Expect100ContinueHeaderReceived implements ListenerState {
     public void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundResponseListener,
                                                 HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
         stateContext.setState(new Response100ContinueSent(outboundResponseListener, sourceHandler, stateContext));
-        stateContext.getState().writeOutboundResponseEntityBody(outboundResponseListener, outboundResponseMsg, httpContent);
+        stateContext.getState().writeOutboundResponseEntityBody(outboundResponseListener, outboundResponseMsg,
+                                                                httpContent);
     }
 
     @Override
@@ -89,6 +102,38 @@ public class Expect100ContinueHeaderReceived implements ListenerState {
     @Override
     public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
                                                             ChannelHandlerContext ctx, IdleStateEvent evt) {
+        if (evt.state() != IdleState.READER_IDLE) {
+            String responseValue = "Server time out";
+            ChannelFuture outboundRespFuture = sendRequestTimeoutResponse(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR,
+                                                                          copiedBuffer(responseValue,
+                                                                                       CharsetUtil.UTF_8),
+                                                                          responseValue.length());
+            outboundRespFuture.addListener((ChannelFutureListener) channelFuture -> {
+                Throwable cause = channelFuture.cause();
+                if (cause != null) {
+                    log.warn("Failed to send: {}", cause.getMessage());
+                }
+                sourceHandler.channelInactive(ctx);
+            });
+            return outboundRespFuture;
+        }
+
+        try {
+            serverConnectorFuture.notifyErrorListener(
+                    new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_100_CONTINUE_RESPONSE));
+        } catch (ServerConnectorException e) {
+            log.error("Error while notifying error state to server-connector listener");
+        }
         return null;
+    }
+
+    private ChannelFuture sendRequestTimeoutResponse(ChannelHandlerContext ctx, HttpResponseStatus status,
+                                                     ByteBuf content, int length) {
+        HttpResponse outboundResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, content);
+        outboundResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, length);
+        outboundResponse.headers().set(HttpHeaderNames.CONTENT_TYPE, Constants.TEXT_PLAIN);
+        outboundResponse.headers().set(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_CLOSE);
+        outboundResponse.headers().set(HttpHeaderNames.SERVER.toString(), sourceHandler.getServerName());
+        return ctx.channel().writeAndFlush(outboundResponse);
     }
 }
