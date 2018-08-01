@@ -62,6 +62,8 @@ public class Debugger {
     private volatile Semaphore executionSem;
 
     private static final String META_DATA_VAR_PATTERN = "$";
+    private static final String GLOBAL = "Global";
+    private static final String LOCAL = "Local";
 
     public Debugger(ProgramFile programFile) {
         this.programFile = programFile;
@@ -349,11 +351,11 @@ public class Debugger {
 
         int pkgIndex = ctx.callableUnitInfo.getPackageInfo().pkgIndex;
 
-        PackageVarInfo[] packageVarInfoEntries = ctx.programFile.getPackageInfo(ctx.programFile.getEntryPkgName())
-                .getPackageInfoEntries();
+        PackageVarInfo[] packageVarInfoEntries = ctx.programFile.getPackageInfo(ctx.programFile.getEntryPkgName()).
+                getPackageInfoEntries();
         for (PackageVarInfo packVarInfo : packageVarInfoEntries) {
             if (!packVarInfo.getName().startsWith(META_DATA_VAR_PATTERN)) {
-                VariableDTO variableDTO = new VariableDTO(packVarInfo.getName(), "Global");
+                VariableDTO variableDTO = new VariableDTO(packVarInfo.getName(), GLOBAL);
                 switch (packVarInfo.getType().getTag()) {
                     case TypeTags.INT_TAG:
                         variableDTO.setBValue(new BInteger(programFile.globalMemArea.getIntField(pkgIndex,
@@ -384,11 +386,11 @@ public class Debugger {
             }
         }
 
-        LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) ctx.workerInfo
-                .getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
+        LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) ctx.workerInfo.
+                getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
 
         localVarAttrInfo.getLocalVariables().forEach(l -> {
-            VariableDTO variableDTO = new VariableDTO(l.getVariableName(), "Local");
+            VariableDTO variableDTO = new VariableDTO(l.getVariableName(), LOCAL);
             switch (l.getVariableType().getTag()) {
                 case TypeTags.INT_TAG:
                     variableDTO.setBValue(new BInteger(ctx.workerLocal.longRegs[l.getVariableIndex()]));
