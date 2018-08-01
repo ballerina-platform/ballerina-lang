@@ -1,0 +1,73 @@
+{
+  "position": {
+    "line": 7,
+    "character": 15
+  },
+  "source": "function/source/matchStatementSuggestions4.bal",
+  "items": [
+    {
+      "label":"extractBasicAuthHeaderValue(req)",
+      "kind":"Function",
+      "detail":"Snippet",
+      "sortText":"120",
+      "insertText":"extractBasicAuthHeaderValue(req) {\n\tstring \u003d\u003e {\n\t\t\n\t}\n\t() \u003d\u003e {\n\t\t\n\t}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"createHttpCachingClient(url,config,cacheConfig)",
+      "kind":"Function",
+      "detail":"Snippet",
+      "sortText":"120",
+      "insertText":"createHttpCachingClient(url,config,cacheConfig) {\n\thttp:CallerActions \u003d\u003e {\n\t\t\n\t}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"invokeEndpoint(path,outRequest,requestAction,httpClient)",
+      "kind":"Function",
+      "detail":"Snippet",
+      "sortText":"120",
+      "insertText":"invokeEndpoint(path,outRequest,requestAction,httpClient) {\n\thttp:Response \u003d\u003e {\n\t\t\n\t}\n\terror \u003d\u003e {\n\t\t\n\t}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"parseHeader(headerValue)",
+      "kind":"Function",
+      "detail":"Snippet",
+      "sortText":"120",
+      "insertText":"parseHeader(headerValue) {\n\thttp:(string,map) \u003d\u003e {\n\t\t\n\t}\n\terror \u003d\u003e {\n\t\t\n\t}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"createHttpSecureClient(url,config)",
+      "kind":"Function",
+      "detail":"Snippet",
+      "sortText":"120",
+      "insertText":"createHttpSecureClient(url,config) {\n\thttp:CallerActions \u003d\u003e {\n\t\t\n\t}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"roundRobin(lb,loadBalanceConfigArray)",
+      "kind":"Function",
+      "detail":"Snippet",
+      "sortText":"120",
+      "insertText":"roundRobin(lb,loadBalanceConfigArray) {\n\thttp:CallerActions \u003d\u003e {\n\t\t\n\t}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"encode(url,charset)",
+      "kind":"Function",
+      "detail":"Snippet",
+      "sortText":"120",
+      "insertText":"encode(url,charset) {\n\tstring \u003d\u003e {\n\t\t\n\t}\n\terror \u003d\u003e {\n\t\t\n\t}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"decode(url,charset)",
+      "kind":"Function",
+      "detail":"Snippet",
+      "sortText":"120",
+      "insertText":"decode(url,charset) {\n\tstring \u003d\u003e {\n\t\t\n\t}\n\terror \u003d\u003e {\n\t\t\n\t}\n}",
+      "insertTextFormat":"Snippet"
+    }
+  ]
+}

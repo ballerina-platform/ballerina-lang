@@ -63,7 +63,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -715,8 +714,8 @@ public class JSONUtils {
             return new BStringArray();
         }
 
-        Set<String> keys = ((BMap<String, BValue>) json).keySet();
-        return new BStringArray(keys.toArray(new String[keys.size()]));
+        String[] keys = ((BMap<String, BValue>) json).keys();
+        return new BStringArray(keys);
     }
 
     public static BRefType<?> convertUnionTypeToJSON(BRefType<?> source, BJSONType targetType) {

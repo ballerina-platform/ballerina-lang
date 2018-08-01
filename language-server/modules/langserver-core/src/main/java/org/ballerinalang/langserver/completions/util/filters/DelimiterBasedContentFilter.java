@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.completions.util.filters;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -34,26 +35,19 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.util.Flags;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Filter the actions and the functions in a package.
+ * Filter the actions, functions and types in a package.
  */
-public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
+public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
 
-    private static final Logger logger = LoggerFactory.getLogger(PackageActionFunctionAndTypesFilter.class);
+    private static final Logger logger = LoggerFactory.getLogger(DelimiterBasedContentFilter.class);
 
     @Override
     public Either<List<CompletionItem>, List<SymbolInfo>> filterItems(LSServiceOperationContext completionContext) {
@@ -69,6 +63,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
                     || poppedToken.equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)
                     || poppedToken.equals(UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY)) {
                 delimiter = poppedToken;
+                break;
             }
         }
         
@@ -77,12 +72,14 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
 
         if (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(delimiter)
                 || UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(delimiter)) {
-            returnSymbolsInfoList.addAll(CommonUtil.invocationsAndFieldsOnIdentifier(completionContext,
-                            tokenBeforeDelimiter, delimiter));
+            returnSymbolsInfoList.addAll(FilterUtils.getInvocationAndFieldSymbolsOnVar(completionContext,
+                    tokenBeforeDelimiter,
+                    delimiter,
+                    completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
         } else if (UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(delimiter)) {
             // We are filtering the package functions, actions and the types
             Either<List<CompletionItem>, List<SymbolInfo>> filteredList = 
-                    this.getActionsFunctionsAndTypes(completionContext, tokenBeforeDelimiter);
+                    this.getActionsFunctionsAndTypes(completionContext, tokenBeforeDelimiter, delimiter);
             if (filteredList.isLeft()) {
                 return Either.forLeft(filteredList.getLeft());
             }
@@ -96,10 +93,11 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
      * Get the actions, functions and types.
      * @param completionContext     Text Document Service context (Completion Context)
      * @param packageName           Package name to evaluate against
+     * @param delimiter             Delimiter
      * @return {@link ArrayList}    List of filtered symbol info
      */
     private Either<List<CompletionItem>, List<SymbolInfo>> getActionsFunctionsAndTypes(
-            LSServiceOperationContext completionContext, String packageName) {
+            LSServiceOperationContext completionContext, String packageName, String delimiter) {
 
         List<SymbolInfo> symbols = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
 
@@ -112,8 +110,6 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         if (packageSymbolInfo != null) {
             Scope.ScopeEntry packageEntry = packageSymbolInfo.getScopeEntry();
             PackageID packageID = packageEntry.symbol.pkgID;
-            SymbolInfo symbolInfo = new SymbolInfo(packageSymbolInfo.getSymbolName(), packageEntry);
-            Map<Name, Scope.ScopeEntry> scopeEntryMap = symbolInfo.getScopeEntry().symbol.scope.entries;
 
             try {
                 List<PackageFunctionDAO> packageFunctionDAOs = LSIndexImpl.getInstance().getQueryProcessor()
@@ -128,7 +124,10 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
                         .getObjectsFromPackageOnAccessType(packageID.getName().getValue(),
                                 packageID.getOrgName().getValue(), false);
                 if (packageFunctionDAOs.isEmpty() && recordDAOs.isEmpty() && objectDAOs.isEmpty()) {
-                    return Either.forRight(this.loadActionsFunctionsAndTypesFromScope(scopeEntryMap));
+                    return Either.forRight(
+                            FilterUtils.getInvocationAndFieldSymbolsOnVar(completionContext,
+                                    packageName, delimiter,
+                                    completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
                 }
                 List<CompletionItem> completionItems = packageFunctionDAOs.stream()
                         .map(PackageFunctionDAO::getCompletionItem)
@@ -151,25 +150,13 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
                 return Either.forLeft(completionItems);
             } catch (SQLException e) {
                 logger.warn("Error retrieving Completion Items from Index DB.");
-                return Either.forRight(this.loadActionsFunctionsAndTypesFromScope(scopeEntryMap));
+                return Either.forRight(
+                        FilterUtils.getInvocationAndFieldSymbolsOnVar(completionContext, packageName,
+                                delimiter,
+                                completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
             }
         }
 
         return Either.forRight(new ArrayList<>());
-    }
-    
-    private List<SymbolInfo> loadActionsFunctionsAndTypesFromScope(Map<Name, Scope.ScopeEntry> entryMap) {
-        List<SymbolInfo> actionFunctionList = new ArrayList<>();
-        entryMap.forEach((name, value) -> {
-            BSymbol symbol = value.symbol;
-            if (((symbol instanceof BInvokableSymbol && ((BInvokableSymbol) symbol).receiverSymbol == null)
-                    || (symbol instanceof BTypeSymbol && !(symbol instanceof BPackageSymbol))
-                    || symbol instanceof BVarSymbol) && (symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
-                SymbolInfo entry = new SymbolInfo(name.toString(), value);
-                actionFunctionList.add(entry);
-            }
-        });
-
-        return actionFunctionList;
     }
 }
