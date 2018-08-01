@@ -147,7 +147,7 @@ public class WebSubUtils {
 
     public static void validateParamNumber(List<ParamDetail> paramDetails, int expectedSize, String resourceName) {
         if (paramDetails == null || paramDetails.size() < expectedSize) {
-            throw new BallerinaException(String.format("Invalid resource signature for WebSub Resource \"%s\"",
+            throw new BallerinaException(String.format("Invalid param count for WebSub Resource \"%s\"",
                                                        resourceName));
         }
     }

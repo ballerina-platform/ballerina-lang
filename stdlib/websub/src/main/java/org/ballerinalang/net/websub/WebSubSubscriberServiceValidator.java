@@ -90,8 +90,9 @@ class WebSubSubscriberServiceValidator {
 
     private static void validateCustomNotificationResource(Resource resource, String packageName, String structName) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
-        validateParamNumber(paramDetails, 1, resource.getName());
-        validateStructType(resource.getName(), paramDetails.get(0), packageName, structName);
+        validateParamNumber(paramDetails, 2, resource.getName());
+        validateStructType(resource.getName(), paramDetails.get(0), WEBSUB_PACKAGE, STRUCT_WEBSUB_NOTIFICATION_REQUEST);
+        validateStructType(resource.getName(), paramDetails.get(1), packageName, structName);
     }
 
     private static void validateCustomResources(List<HttpResource> resources, WebSubServicesRegistry serviceRegistry) {
@@ -116,13 +117,7 @@ class WebSubSubscriberServiceValidator {
                 invalidResourceNames.add(resourceName);
             } else {
                 String[] resourceParamDetails = resourceDetails.get(resourceName);
-                if (resourceParamDetails.length != 2) {
-                    throw new BallerinaException("Signature params incorrectly defined for custom notification "
-                                                         + "resource, expected format: "
-                                                         + "RESOURCE_NAME::PARAM_PACKAGE_NAME:PARAM_RECORD_NAME");
-                }
-                validateCustomNotificationResource(resource.getBalResource(),
-                                                   resourceParamDetails[0],
+                validateCustomNotificationResource(resource.getBalResource(), resourceParamDetails[0],
                                                    resourceParamDetails[1]);
                 resourceNames.remove(resourceName);
             }
