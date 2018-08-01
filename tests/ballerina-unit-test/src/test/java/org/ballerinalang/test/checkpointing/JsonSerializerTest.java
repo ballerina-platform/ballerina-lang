@@ -22,7 +22,9 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.serializable.SerializableState;
+import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap;
 import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.test.utils.debug.TestDebugger;
@@ -48,7 +50,7 @@ public class JsonSerializerTest {
     }
 
     @Test(description = "Test serializing simple mocked SerializableState object")
-    public void jsonSerializerWithMockedSerializableState() {
+    public void testJsonSerializerWithMockedSerializableState() {
         WorkerExecutionContext weContext = new WorkerExecutionContext(compileResult.getProgFile());
         SerializableState serializableState = new SerializableState(weContext);
         mock(serializableState);
@@ -60,7 +62,7 @@ public class JsonSerializerTest {
     }
 
     @Test(description = "Test deserialization of JSON into SerializableState object")
-    public void jsonDeserializeSerializableState() {
+    public void testJsonDeserializeSerializableState() {
         WorkerExecutionContext weContext = new WorkerExecutionContext(compileResult.getProgFile());
         SerializableState serializableState = new SerializableState(weContext);
         serializableState.setInstanceId(INSTANCE_ID);
@@ -74,6 +76,21 @@ public class JsonSerializerTest {
         Assert.assertEquals("Item-1", list.get(0));
         Assert.assertEquals("Item-2", list.get(1));
         Assert.assertEquals("Item-3", list.get(2));
+    }
+
+    @Test(description = "Test deserialization of Deeply nested BMap")
+    public void testJsonDeserializeSerializableStateDeepBMapReconstruction() {
+        WorkerExecutionContext weContext = new WorkerExecutionContext(compileResult.getProgFile());
+        SerializableState serializableState = new SerializableState(weContext);
+        serializableState.setInstanceId(INSTANCE_ID);
+        mock(serializableState);
+        String json = serializableState.serialize();
+
+        SerializableState state = serializableState.deserialize(json);
+        SerializableRefType bmapKey1 = state.sRefTypes.get("var_r1");
+        BMap<String, BValue> bmap = (BMap)bmapKey1.getBRefType(compileResult.getProgFile(), state, null);
+        BString value = (BString)bmap.get("bmapKey1");
+        Assert.assertEquals(value.value(), "bmap_str_val");
     }
 
     private void mock(SerializableState serializableState) {
