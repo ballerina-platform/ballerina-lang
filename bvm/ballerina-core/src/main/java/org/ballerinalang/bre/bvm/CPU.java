@@ -1244,8 +1244,7 @@ public class CPU {
                     break;
                 }
                 try {
-                    long index = sf.longRegs[j];
-                    sf.refRegs[k] = execListGetOperation(bNewArray, index);
+                    sf.refRegs[k] = execListGetOperation(bNewArray, sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -3297,7 +3296,7 @@ public class CPU {
         }
 
         for (int i = 0; i < source.paramTypes.length; i++) {
-            if (!isAssignable(source.paramTypes[i], target.paramTypes[i])) {
+            if (!isSameType(source.paramTypes[i], target.paramTypes[i])) {
                 return false;
             }
         }
@@ -3311,11 +3310,38 @@ public class CPU {
         return true;
     }
 
+    private static boolean checkFunctionTypeEqualityForObjectType(BFunctionType source, BFunctionType target) {
+        if (source.paramTypes.length != target.paramTypes.length ||
+                source.retParamTypes.length != target.retParamTypes.length) {
+            return false;
+        }
+
+        for (int i = 0; i < source.paramTypes.length; i++) {
+            if (!isAssignable(source.paramTypes[i], target.paramTypes[i])) {
+                return false;
+            }
+        }
+
+        if (source.retParamTypes == null && target.retParamTypes == null) {
+            return true;
+        } else if (source.retParamTypes == null || target.retParamTypes == null) {
+            return false;
+        }
+
+        for (int i = 0; i < source.retParamTypes.length; i++) {
+            if (!isAssignable(source.retParamTypes[i], target.retParamTypes[i])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private static BAttachedFunction getMatchingInvokableType(BAttachedFunction[] rhsFuncs,
                                                                          BAttachedFunction lhsFunc) {
         return Arrays.stream(rhsFuncs)
                 .filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
-                .filter(rhsFunc -> checkFunctionTypeEquality(rhsFunc.type, lhsFunc.type))
+                .filter(rhsFunc -> checkFunctionTypeEqualityForObjectType(rhsFunc.type, lhsFunc.type))
                 .findFirst()
                 .orElse(null);
     }

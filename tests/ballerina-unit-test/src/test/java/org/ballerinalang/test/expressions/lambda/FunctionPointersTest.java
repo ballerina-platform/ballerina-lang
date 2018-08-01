@@ -250,4 +250,10 @@ public class FunctionPointersTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
     }
 
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = ".*error: error, message: 'function \\(Student\\) returns \\(int\\)' " +
+                    "cannot be cast to 'function \\(Person\\) returns \\(int\\)'.*")
+    public void testAnyToFuncPointerConversion_2() {
+        BRunUtil.invoke(fpProgram, "testAnyToFuncPointerConversion_2");
+    }
 }

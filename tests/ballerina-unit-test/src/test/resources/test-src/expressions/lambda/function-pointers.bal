@@ -130,3 +130,13 @@ function testFuncPointerConversion() returns (int) {
     Person p = new Person(20);
     return personFunc(p);
 }
+
+function testAnyToFuncPointerConversion_2() returns (int) {
+    any anyFunc =  (Student s) => (int) {
+        return s.getAge();
+    };
+
+    function (Person) returns (int) personFunc = check <function (Person) returns (int)> anyFunc;
+    Person p = new Person(23);
+    return personFunc(p);
+}

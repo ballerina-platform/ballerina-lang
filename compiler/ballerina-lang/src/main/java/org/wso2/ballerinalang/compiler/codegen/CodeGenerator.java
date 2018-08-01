@@ -803,7 +803,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
         BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
         arrayLiteral.exprs = dataRows;
-        arrayLiteral.type = symTable.anyType;
+        arrayLiteral.type = new BArrayType(symTable.anyType);
         genNode(arrayLiteral, this.env);
         genNode(tableLiteral.indexColumnsArrayLiteral, this.env);
         genNode(tableLiteral.keyColumnsArrayLiteral, this.env);
