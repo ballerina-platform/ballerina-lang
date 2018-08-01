@@ -124,6 +124,7 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -131,7 +132,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -388,7 +388,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        List<BType> matchedTypeList = getRecordCompatibleType(expType);
+        List<BType> matchedTypeList = getRecordCompatibleType(expType, recordLiteral);
 
         if (matchedTypeList.isEmpty()) {
             dlog.error(recordLiteral.pos, DiagnosticCode.INVALID_LITERAL_FOR_TYPE, expType);
@@ -403,20 +403,45 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(recordLiteral, actualType, expType);
     }
 
-    private List<BType> getRecordCompatibleType(BType bType) {
-        Set<BType> expTypes = bType.tag == TypeTags.UNION ? ((BUnionType) bType).memberTypes : new HashSet<BType>() {
-            {
-                add(bType);
-            }
-        };
+    private List<BType> getRecordCompatibleType(BType bType, BLangRecordLiteral recordLiteral) {
 
-        return expTypes.stream()
-                .filter(type -> type.tag == TypeTags.JSON ||
-                        type.tag == TypeTags.MAP ||
-                        type.tag == TypeTags.RECORD ||
-                        type.tag == TypeTags.NONE ||
-                        type.tag == TypeTags.ANY)
-                .collect(Collectors.toList());
+        if (bType.tag == TypeTags.UNION) {
+            Set<BType> expTypes = ((BUnionType) bType).memberTypes;
+            return expTypes.stream()
+                    .filter(type -> type.tag == TypeTags.JSON ||
+                            type.tag == TypeTags.MAP ||
+                            (type.tag == TypeTags.RECORD && !((BRecordType) type).sealed) ||
+                            (type.tag == TypeTags.RECORD
+                                    && ((BRecordType) type).sealed
+                                    && isRecordLiteralCompatible((BRecordType) type, recordLiteral)))
+                    .collect(Collectors.toList());
+        } else {
+            switch (expType.tag) {
+                case TypeTags.JSON:
+                case TypeTags.MAP:
+                case TypeTags.RECORD:
+                    return new ArrayList<>(Collections.singleton(expType));
+                default:
+                    return Collections.emptyList();
+            }
+        }
+    }
+
+    private boolean isRecordLiteralCompatible(BRecordType bRecordType, BLangRecordLiteral recordLiteral) {
+        for (BLangRecordKeyValue literalKeyValuePair : recordLiteral.getKeyValuePairs()) {
+            boolean matched = false;
+            for (BField field : bRecordType.getFields()) {
+                matched = ((BLangSimpleVarRef) literalKeyValuePair.getKey()).variableName.value
+                        .equals(field.getName().getValue());
+                if (matched) {
+                    break;
+                }
+            }
+            if (!matched) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private List<BType> getArrayCompatibleTypes(BType expType, BType actualType) {

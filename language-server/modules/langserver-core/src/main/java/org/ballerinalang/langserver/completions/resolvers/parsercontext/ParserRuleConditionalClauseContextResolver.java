@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -53,7 +54,7 @@ public class ParserRuleConditionalClauseContextResolver extends AbstractItemReso
             itemList = SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(completionContext);
         } else {
             List<SymbolInfo> symbolInfoList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
-            symbolInfoList.removeIf(this.invalidSymbolsPredicate());
+            symbolInfoList.removeIf(CommonUtil.invalidSymbolsPredicate());
             itemList = Either.forRight(this.filterConditionalSymbols(symbolInfoList));
             this.populateTrueFalseKeywords(completionItems);
         }
@@ -69,7 +70,8 @@ public class ParserRuleConditionalClauseContextResolver extends AbstractItemReso
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
             return (bSymbol instanceof BTypeSymbol && bSymbol instanceof BPackageSymbol)
                     || (bSymbol instanceof BVarSymbol && !(bSymbol instanceof BInvokableSymbol))
-                    || (this.isValidInvokableSymbol(bSymbol) && ((bSymbol.flags & Flags.ATTACHED) != Flags.ATTACHED));
+                    || (CommonUtil.isValidInvokableSymbol(bSymbol)
+                    && ((bSymbol.flags & Flags.ATTACHED) != Flags.ATTACHED));
         }).collect(Collectors.toList());
     }
 

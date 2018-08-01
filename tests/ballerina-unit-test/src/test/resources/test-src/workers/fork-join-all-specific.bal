@@ -19,7 +19,7 @@ function testForkJoinAllOfSpecific() returns string[] {
             results[0] = abc;
             results[1] = xyz;
             return results;
-        } timeout (30) (map airlineResponses) {
+        } timeout (3000) (map airlineResponses) {
             return results;
         }
 }

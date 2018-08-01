@@ -68,7 +68,9 @@ class FileDeleteConfirmDialog extends React.Component {
                             this.setState({
                                 showDialog: false,
                             });
-                            this.props.onConfirm();
+                            this.props.onConfirm().catch((e)=>{
+                                this.props.workspaceManager.appContext.alert.showError(e.message);
+                            });
                         }}
                         primary
                     >

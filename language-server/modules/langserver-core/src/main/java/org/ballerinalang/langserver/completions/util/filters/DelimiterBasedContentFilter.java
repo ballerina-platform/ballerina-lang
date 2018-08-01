@@ -73,7 +73,9 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
         if (UtilSymbolKeys.DOT_SYMBOL_KEY.equals(delimiter)
                 || UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY.equals(delimiter)) {
             returnSymbolsInfoList.addAll(FilterUtils.getInvocationAndFieldSymbolsOnVar(completionContext,
-                            tokenBeforeDelimiter, delimiter));
+                    tokenBeforeDelimiter,
+                    delimiter,
+                    completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
         } else if (UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(delimiter)) {
             // We are filtering the package functions, actions and the types
             Either<List<CompletionItem>, List<SymbolInfo>> filteredList = 
@@ -91,6 +93,7 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
      * Get the actions, functions and types.
      * @param completionContext     Text Document Service context (Completion Context)
      * @param packageName           Package name to evaluate against
+     * @param delimiter             Delimiter
      * @return {@link ArrayList}    List of filtered symbol info
      */
     private Either<List<CompletionItem>, List<SymbolInfo>> getActionsFunctionsAndTypes(
@@ -122,7 +125,9 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
                                 packageID.getOrgName().getValue(), false);
                 if (packageFunctionDAOs.isEmpty() && recordDAOs.isEmpty() && objectDAOs.isEmpty()) {
                     return Either.forRight(
-                            FilterUtils.getInvocationAndFieldSymbolsOnVar(completionContext, packageName, delimiter));
+                            FilterUtils.getInvocationAndFieldSymbolsOnVar(completionContext,
+                                    packageName, delimiter,
+                                    completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
                 }
                 List<CompletionItem> completionItems = packageFunctionDAOs.stream()
                         .map(PackageFunctionDAO::getCompletionItem)
@@ -146,7 +151,9 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
             } catch (SQLException e) {
                 logger.warn("Error retrieving Completion Items from Index DB.");
                 return Either.forRight(
-                        FilterUtils.getInvocationAndFieldSymbolsOnVar(completionContext, packageName, delimiter));
+                        FilterUtils.getInvocationAndFieldSymbolsOnVar(completionContext, packageName,
+                                delimiter,
+                                completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
             }
         }
 

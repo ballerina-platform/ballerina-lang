@@ -67,7 +67,7 @@ callableUnitBody
 
 
 functionDefinition
-    :   (PUBLIC)? (NATIVE)? FUNCTION ((Identifier | typeName) DOUBLE_COLON)? callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   (PUBLIC)? (EXTERN)? FUNCTION ((Identifier | typeName) DOUBLE_COLON)? callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 lambdaFunction
@@ -131,7 +131,7 @@ objectDefaultableParameter
     ;
 
 objectFunctionDefinition
-    :   annotationAttachment* (documentationAttachment|documentationString)? deprecatedAttachment? (PUBLIC | PRIVATE)? (NATIVE)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
+    :   annotationAttachment* (documentationAttachment|documentationString)? deprecatedAttachment? (PUBLIC | PRIVATE)? (EXTERN)? FUNCTION callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 annotationDefinition

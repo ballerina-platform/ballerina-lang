@@ -69,7 +69,7 @@ public class ConnectorSPIModelHelper {
             return;
         }
         BMap<String, BValue> annotationMap = (BMap<String, BValue>) map;
-        for (String key : annotationMap.keySet()) {
+        for (String key : annotationMap.keys()) {
             final BMap<String, BValue> annotationData = (BMap<String, BValue>) annotationMap.get(key);
             StructImpl struct = null;
             if (annotationData != null) {

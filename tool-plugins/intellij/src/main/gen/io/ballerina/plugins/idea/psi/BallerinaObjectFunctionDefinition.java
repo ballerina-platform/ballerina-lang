@@ -44,11 +44,11 @@ public interface BallerinaObjectFunctionDefinition extends BallerinaCompositeEle
   @Nullable
   PsiElement getSemicolon();
 
+  @Nullable
+  PsiElement getExtern();
+
   @NotNull
   PsiElement getFunction();
-
-  @Nullable
-  PsiElement getNative();
 
   @Nullable
   PsiElement getPublic();
