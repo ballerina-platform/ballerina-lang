@@ -30,8 +30,6 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import java.util.Set;
-
 /**
  * Extern function to get value array from the map.
  * ballerina.model.map:values()
@@ -47,14 +45,7 @@ public class GetValues extends BlockingNativeCallableUnit {
 
     public void execute(Context ctx) {
         BMap<String, BValue> map = (BMap<String, BValue>) ctx.getRefArgument(0);
-        Set<String> keySet = map.keySet();
-        BRefValueArray bRefValueArray = new BRefValueArray(BTypes.typeAny);
-        int i = 0;
-        for (String key : keySet) {
-            BValue value = map.get(key);
-            bRefValueArray.add(i, ((BRefType) value));
-            i++;
-        }
+        BRefValueArray bRefValueArray = new BRefValueArray((BRefType<?>[]) map.values(), BTypes.typeAny);
         ctx.setReturnValues(bRefValueArray);
     }
 }

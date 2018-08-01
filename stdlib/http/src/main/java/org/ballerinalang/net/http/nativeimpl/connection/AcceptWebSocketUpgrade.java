@@ -17,6 +17,7 @@
 package org.ballerinalang.net.http.nativeimpl.connection;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
+
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -33,9 +34,7 @@ import org.ballerinalang.net.http.WebSocketConnectionManager;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketUtil;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
-
-import java.util.Set;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
@@ -56,11 +55,11 @@ public class AcceptWebSocketUpgrade implements NativeCallableUnit {
     public void execute(Context context, CallableUnitCallback callback) {
         BMap<String, BValue> httpConnection = (BMap<String, BValue>) context.getRefArgument(0);
 
-        WebSocketInitMessage initMessage =
-                (WebSocketInitMessage) httpConnection.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
+        WebSocketHandshaker webSocketHandshaker =
+                (WebSocketHandshaker) httpConnection.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
         WebSocketConnectionManager connectionManager = (WebSocketConnectionManager) httpConnection
                 .getNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER);
-        if (initMessage == null) {
+        if (webSocketHandshaker == null) {
             throw new BallerinaConnectorException("Not a WebSocket upgrade request. Cannot upgrade from HTTP to WS");
         }
         if (connectionManager == null) {
@@ -73,12 +72,13 @@ public class AcceptWebSocketUpgrade implements NativeCallableUnit {
 
         BMap<String, BString> headers = (BMap<String, BString>) context.getRefArgument(1);
         DefaultHttpHeaders httpHeaders = new DefaultHttpHeaders();
-        Set<String> keys = headers.keySet();
+        String[] keys = headers.keys();
         for (String key : keys) {
             httpHeaders.add(key, headers.get(key));
         }
 
-        WebSocketUtil.handleHandshake(webSocketService, connectionManager, httpHeaders, initMessage, context, callback);
+        WebSocketUtil.handleHandshake(webSocketService, connectionManager, httpHeaders, webSocketHandshaker, context,
+                                      callback);
     }
 
     @Override

@@ -116,7 +116,6 @@ import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.LongStream;
 
@@ -349,6 +348,7 @@ public class CPU {
                     case InstructionCodes.BIRSHIFT:
                     case InstructionCodes.IRSHIFT:
                     case InstructionCodes.ILSHIFT:
+                    case InstructionCodes.IURSHIFT:
                         execBinaryOpCodes(ctx, sf, opcode, operands);
                         break;
     
@@ -519,7 +519,6 @@ public class CPU {
                     case InstructionCodes.JSON2F:
                     case InstructionCodes.JSON2S:
                     case InstructionCodes.JSON2B:
-                    case InstructionCodes.NULL2S:
                     case InstructionCodes.IS_ASSIGNABLE:
                     case InstructionCodes.O2JSON:
                         execTypeCastOpcodes(ctx, sf, opcode, operands);
@@ -1780,13 +1779,19 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.longRegs[k] = sf.longRegs[i] >>> sf.longRegs[j];
+                sf.longRegs[k] = sf.longRegs[i] >> sf.longRegs[j];
                 break;
             case InstructionCodes.ILSHIFT:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
                 sf.longRegs[k] = sf.longRegs[i] << sf.longRegs[j];
+                break;
+            case InstructionCodes.IURSHIFT:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.longRegs[k] = sf.longRegs[i] >>> sf.longRegs[j];
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -2059,10 +2064,6 @@ public class CPU {
                 break;
             case InstructionCodes.JSON2B:
                 castJSONToBoolean(ctx, operands, sf);
-                break;
-            case InstructionCodes.NULL2S:
-                j = operands[1];
-                sf.stringRegs[j] = null;
                 break;
             case InstructionCodes.ARRAY2JSON:
                 convertArrayToJSON(ctx, operands, sf);
@@ -3562,13 +3563,12 @@ public class CPU {
         StructureTypeInfo structInfo = ctx.callableUnitInfo
                 .getPackageInfo().getStructInfo(structType.getName());
 
-        Set<String> keys = bMap.keySet();
         for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
             String key = fieldInfo.getName();
             BType fieldType = fieldInfo.getFieldType();
             BValue mapVal = null;
             try {
-                boolean containsField = keys.contains(key);
+                boolean containsField = bMap.hasKey(key);
                 DefaultValueAttributeInfo defaultValAttrInfo = null;
                 if (containsField) {
                     mapVal = bMap.get(key);

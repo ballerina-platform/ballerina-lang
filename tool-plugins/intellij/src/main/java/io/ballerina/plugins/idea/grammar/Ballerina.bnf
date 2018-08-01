@@ -200,7 +200,7 @@ Definition ::= ( TypeDefinition
     recoverWhile=TopLevelDefinitionRecover
 }
 
-private TopLevelDefinitionRecover ::= !(DOCUMENTATION_TEMPLATE_START|DEPRECATED_TEMPLATE_START|'@'|native|public|type|typedesc|service|function|enum|annotation|endpoint|record|int|float|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|future|identifier|'{')
+private TopLevelDefinitionRecover ::= !(DOCUMENTATION_TEMPLATE_START|DEPRECATED_TEMPLATE_START|'@'|extern|public|type|typedesc|service|function|enum|annotation|endpoint|record|int|float|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|future|identifier|'{')
 
 ServiceDefinition ::= service (LT NameReference GT)? identifier ServiceEndpointAttachments?  ServiceBody {pin=1}
 ServiceEndpointAttachments ::= bind (NameReference (COMMA NameReference)* | RecordLiteral) {pin=1}
@@ -225,7 +225,7 @@ NonEmptyBlock ::= Statement+ {elementType=Block}
 //private StatementRecover ::= !(/*'!' | '&' | '(' | '*' | '+' | '-' |*/ ';' /*| '<-' | '^' | 'type' |*/ /*'{' | '|' |*/ '|=' | '||' | '}' | /*break | case | char | continue | decimali | default | defer | else | fallthrough | float | floati | for | func | go | goto | hex |*/ identifier | /* if | interface | map | oct | return | select |*/ string  | /* switch | var | continue |try |*/ int )
 
 // Todo - Need getIdentifier?
-FunctionDefinition ::= (public)? (native)? function (FunctionWithoutReceiver | FunctionWithReceiver) {
+FunctionDefinition ::= (public)? (extern)? function (FunctionWithoutReceiver | FunctionWithReceiver) {
     pin=3 methods=[getIdentifier getName] stubClass="io.ballerina.plugins.idea.stubs.BallerinaFunctionDefinitionStub"
 }
 private FunctionWithReceiver ::=  (TypeName DOUBLE_COLON)? CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=2}
@@ -267,7 +267,7 @@ ObjectParameter ::= AnnotationAttachment* (TypeName identifier | identifier)
 
 ObjectDefaultableParameter ::= ObjectParameter ASSIGN Expression
 
-ObjectFunctionDefinition ::= AnnotationAttachment* documentationAttachment? deprecatedAttachment? (public)? (native)? function CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=6}
+ObjectFunctionDefinition ::= AnnotationAttachment* documentationAttachment? deprecatedAttachment? (public)? (extern)? function CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=6}
 
 //TODO merge with callableUnitSignature later
 ObjectCallableUnitSignature ::= AnyIdentifierName LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS ReturnParameter? {pin=1}
