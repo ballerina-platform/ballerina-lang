@@ -109,3 +109,35 @@ function testOpenSealedArrays() {
     int[] x20 = x19;
     x20[4] = 5; // Runtime Exception
 }
+
+type Animal object {
+    public string name;
+
+    public function getName() returns string {
+        return name;
+    }
+};
+
+type Dog object { // Assignable to Animal Object
+    public string name;
+    public int age;
+
+    public function getName() returns string {
+        return name;
+    }
+
+    public function getNameAndAge() returns (string, int) {
+        return (name, age);
+    }
+};
+
+function testObjectTypes() {
+    Animal animal1 = new;
+    Dog dog1 = new;
+    Animal a1 = dog1;
+
+    Dog[] dogArray = [dog1, new];
+    Animal[] animalArray = dogArray;
+
+    animalArray[0] = animal1; // Runtime Exception
+}

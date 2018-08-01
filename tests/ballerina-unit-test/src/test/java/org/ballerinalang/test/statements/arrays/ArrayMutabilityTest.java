@@ -51,7 +51,7 @@ public class ArrayMutabilityTest {
         Assert.assertEquals(((BInteger) returnValues[1]).intValue(), 100, "Expected value of 100");
     }
 
-    @Test(description = "",
+    @Test(description = "Check if correct type is saved in covariant array with record type",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
                     ".*message: 'Employee' cannot be cast to 'Intern'.*")
@@ -59,39 +59,39 @@ public class ArrayMutabilityTest {
         BRunUtil.invoke(compileResult, "testInvalidCast");
     }
 
-    @Test(description = "",
+    @Test(description = "Test mutation of record type using covariant array",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: type mismatch: expected type 'Employee', found type 'Person'.*")
+                    ".*message: incompatible types: expected 'Employee', found 'Person'.*")
     public void testAssignmentOfSuperTypeMember() {
         BRunUtil.invoke(compileResult, "testAssignmentOfSuperTypeMember");
     }
 
-    @Test(description = "",
+    @Test(description = "Test mutation of record type by assigning invalid record type",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: type mismatch: expected type 'Employee', found type 'Student'.*")
+                    ".*message: incompatible types: expected 'Employee', found 'Student'.*")
     public void testInvalidAssignment() {
         BRunUtil.invoke(compileResult, "testInvalidAssignment");
     }
 
-    @Test(description = "",
+    @Test(description = "Test mutation of int array by inserting nil value to int? covariant array",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: type mismatch: expected type 'int', found type 'null'.*")
+                    ".*message: incompatible types: expected 'int', found 'null'.*")
     public void testCovarianceIntOrNilArray() {
         BRunUtil.invoke(compileResult, "testCovarianceIntOrNilArray");
     }
 
-    @Test(description = "",
+    @Test(description = "Test mutation of arrays which include structural and simple values",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: type mismatch: expected type 'boolean\\|float', found type 'Person'.*")
+                    ".*message: incompatible types: expected 'boolean\\|float', found 'Person'.*")
     public void testCovarianceBooleanOrFloatOrRecordArray() {
         BRunUtil.invoke(compileResult, "testCovarianceBooleanOrFloatOrRecordArray");
     }
 
-    @Test(description = "",
+    @Test(description = "Test mutation of sealed arrays",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
                     ".*message: array index out of range: index: 3, size: 3.*")
@@ -99,7 +99,7 @@ public class ArrayMutabilityTest {
         BRunUtil.invoke(compileResult, "testSealedArrays");
     }
 
-    @Test(description = "",
+    @Test(description = "Test mutation of multidimensional sealed arrays",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
                     ".*message: array index out of range: index: 3, size: 3.*")
@@ -107,7 +107,7 @@ public class ArrayMutabilityTest {
         BRunUtil.invoke(compileResult, "testMultiDimensionalSealedArrays");
     }
 
-    @Test(description = "",
+    @Test(description = "Test mutation of openly sealed arrays",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
                     ".*message: array index out of range: index: 4, size: 4.*")
@@ -115,9 +115,18 @@ public class ArrayMutabilityTest {
         BRunUtil.invoke(compileResult, "testOpenSealedArrays");
     }
 
+    @Test(description = "Test mutation of object type",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp =
+                    ".*message: incompatible types: expected 'Dog', found 'Animal'.*")
+    public void testObjectTypes() {
+        BRunUtil.invoke(compileResult, "testObjectTypes");
+    }
+
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
         int i = 0;
+        Assert.assertEquals(resultNegative.getErrorCount(), 8);
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'Employee[]', found 'Person[]'", 34, 21);
         BAssertUtil.validateError(resultNegative, i++,
@@ -132,5 +141,7 @@ public class ArrayMutabilityTest {
                 "incompatible types: expected 'int[3]', found 'int[]'", 51, 18);
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'int[3][3]', found 'int[3][]'", 54, 21);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'Animal[]', found 'Cat[]'", 80, 28);
     }
 }

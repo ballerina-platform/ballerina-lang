@@ -90,7 +90,7 @@ function testDifferentTypeCovariance() returns int {
     return tuple4[0] but {string => 0};
 }
 
-function testCovarianceIntOrNilArray() {
+function testCovarianceIntOrNilTuple() {
     (int, int, ()) x = (1, 2, ());
     (int, int?, ()) y = x;
     y[0] = 5;
@@ -98,9 +98,24 @@ function testCovarianceIntOrNilArray() {
     y[1] = (); // Runtime Exception
 }
 
-function testCovarianceBooleanOrFloatOrRecordArray() {
+function testCovarianceBooleanOrFloatOrRecordTuple() {
     (boolean|float, int) x = (true, 5);
     (boolean|float|Person, int?) y = x;
     y[0] = 1;
     y[0] = person1;  // Runtime Exception
+}
+
+function testComplexTupleTypes() returns (float, json, boolean, json) {
+    ((float|boolean), float) var1 = (12, 5);
+    (json|int, Person) var2 = (true, person1);
+    ((int|boolean, float), (float|json, string)) var3 = ((true, 6.0), ("json", "string"));
+
+    float|boolean x1 = var1[0];
+    float x2 = var1[1];
+    json|int x3 = var2[0];
+    (int|boolean, float) x4 = var3[0];
+    int|boolean x5 = var3[0][0];
+    float|json x6 = var3[1][0];
+
+    return (x1 but {boolean => 0.0}, x3 but {int => ""}, x5 but {int => false}, x6 but {float => ""});
 }

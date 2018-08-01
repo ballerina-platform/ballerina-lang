@@ -23,6 +23,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -51,7 +52,7 @@ public class TupleMutabilityTest {
         Assert.assertEquals(((BInteger) returnValues[1]).intValue(), 100, "Expected value of 100");
     }
 
-    @Test(description = "",
+    @Test(description = "Check if correct type is saved in covariant tuple with record type ",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
                     ".*message: 'Employee' cannot be cast to 'Intern'.*")
@@ -59,28 +60,28 @@ public class TupleMutabilityTest {
         BRunUtil.invoke(compileResult, "testInvalidCast");
     }
 
-    @Test(description = "",
+    @Test(description = "Test mutation of record type using covariant tuple",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: type mismatch: expected type 'Employee', found type 'Person'.*")
+                    ".*message: incompatible types: expected 'Employee', found 'Person'.*")
     public void testAssignmentOfSuperTypeMember() {
         BRunUtil.invoke(compileResult, "testAssignmentOfSuperTypeMember");
     }
 
-    @Test(description = "",
+    @Test(description = "Test mutation of record type by assigning invalid record type",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: type mismatch: expected type 'Employee', found type 'Student'.*")
+                    ".*message: incompatible types: expected 'Employee', found 'Student'.*")
     public void testInvalidAssignment() {
         BRunUtil.invoke(compileResult, "testInvalidAssignment");
     }
 
-    @Test(description = "",
+    @Test(description = "Test mutation of int by inserting nil value to int? covariant tuple",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: type mismatch: expected type 'int', found type 'null'.*")
+                    ".*message: incompatible types: expected 'int', found 'null'.*")
     public void testCovarianceIntOrNilArray() {
-        BRunUtil.invoke(compileResult, "testCovarianceIntOrNilArray");
+        BRunUtil.invoke(compileResult, "testCovarianceIntOrNilTuple");
     }
 
     @Test
@@ -89,12 +90,12 @@ public class TupleMutabilityTest {
         Assert.assertEquals(((BInteger) results[0]).intValue(), 12);
     }
 
-    @Test(description = "",
+    @Test(description = "Test mutation of tuple which include structural and simple values",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    ".*message: type mismatch: expected type 'boolean\\|float', found type 'Person'.*")
+                    ".*message: incompatible types: expected 'boolean\\|float', found 'Person'.*")
     public void testCovarianceBooleanOrFloatOrRecordArray() {
-        BRunUtil.invoke(compileResult, "testCovarianceBooleanOrFloatOrRecordArray");
+        BRunUtil.invoke(compileResult, "testCovarianceBooleanOrFloatOrRecordTuple");
     }
 
     @Test(description = "Test negative scenarios of assigning tuple literals")
@@ -109,5 +110,14 @@ public class TupleMutabilityTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected '((int?,boolean?),Person?)', found '((int|string,boolean),Person)'",
                 41, 38);
+    }
+
+    @Test
+    public void testComplexTypes() {
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testComplexTupleTypes");
+        Assert.assertEquals(((BFloat) returnValues[0]).floatValue(), 12.0);
+        Assert.assertTrue(((BBoolean) returnValues[1]).booleanValue());
+        Assert.assertTrue(((BBoolean) returnValues[2]).booleanValue());
+        Assert.assertEquals(returnValues[3].stringValue(), "json");
     }
 }
