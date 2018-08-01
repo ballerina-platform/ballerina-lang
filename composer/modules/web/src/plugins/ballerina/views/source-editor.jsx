@@ -275,6 +275,13 @@ class SourceEditor extends React.Component {
                 }
             }
         });
+
+        editorInstance.onMouseLeave((e) => {
+            // clean up previous decorations
+            this.breakpointHoverDecorations = this.editorInstance.deltaDecorations(
+                this.breakpointHoverDecorations || [], []);
+        });
+
     }
 
     /**
