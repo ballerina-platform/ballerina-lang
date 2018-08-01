@@ -1584,7 +1584,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangStructFieldAccessExpr fieldAccessExpr) {
         BType expType = fieldAccessExpr.type;
         fieldAccessExpr.type = symTable.anyType;
-        result = addConversionExprIfRequired(fieldAccessExpr, expType);
+        result = addConversionExprIfRequired(fieldAccessExpr, expType, types, symTable, symResolver);
     }
 
     @Override
@@ -1703,7 +1703,8 @@ public class Desugar extends BLangNodeVisitor {
                     ASTBuilderUtil.createVariableRef(bLangMatchExpression.pos, tempResultVar.symbol);
 
             // Create an assignment node. Add a conversion from rhs to lhs of the pattern, if required.
-            pattern.expr = addConversionExprIfRequired(pattern.expr, tempResultVarRef.type);
+            pattern.expr = addConversionExprIfRequired(pattern.expr, tempResultVarRef.type, types, symTable,
+                    symResolver);
             BLangAssignment assignmentStmt =
                     ASTBuilderUtil.createAssignmentStmt(pattern.pos, tempResultVarRef, pattern.expr, false);
             BLangBlockStmt patternBody = ASTBuilderUtil.createBlockStmt(pattern.pos, Lists.of(assignmentStmt));
@@ -2102,7 +2103,7 @@ public class Desugar extends BLangNodeVisitor {
                 expr = namedArgs.get(param.name.value);
             } else {
                 expr = getDefaultValueLiteral(param.defaultValue);
-                expr = addConversionExprIfRequired(expr, param.type);
+                expr = addConversionExprIfRequired(expr, param.type, types, symTable, symResolver);
             }
             args.add(expr);
         }
@@ -2291,7 +2292,8 @@ public class Desugar extends BLangNodeVisitor {
         // Create a variable reference for _$$_
         BLangSimpleVarRef matchExprVarRef = ASTBuilderUtil.createVariableRef(patternClause.pos,
                 matchExprVar.symbol);
-        BLangExpression patternVarExpr = addConversionExprIfRequired(matchExprVarRef, patternClause.variable.type);
+        BLangExpression patternVarExpr = addConversionExprIfRequired(matchExprVarRef, patternClause.variable.type,
+                types, symTable, symResolver);
 
         // Add the variable def statement
         BLangVariable patternVar = ASTBuilderUtil.createVariable(patternClause.pos, "",
@@ -2301,7 +2303,8 @@ public class Desugar extends BLangNodeVisitor {
         return patternClause.body;
     }
 
-    private BLangExpression addConversionExprIfRequired(BLangExpression expr, BType lhsType) {
+    static BLangExpression addConversionExprIfRequired(BLangExpression expr, BType lhsType, Types types, SymbolTable
+            symTable, SymbolResolver symResolver) {
         BType rhsType = expr.type;
         if (types.isSameType(rhsType, lhsType)) {
             return expr;
@@ -2619,7 +2622,8 @@ public class Desugar extends BLangNodeVisitor {
         if (!accessExpr.safeNavigate && !accessExpr.expr.type.isNullable()) {
             accessExpr.type = accessExpr.childType;
             if (this.safeNavigationAssignment != null) {
-                this.safeNavigationAssignment.expr = addConversionExprIfRequired(accessExpr, tempResultVar.type);
+                this.safeNavigationAssignment.expr = addConversionExprIfRequired(accessExpr, tempResultVar.type, types,
+                        symTable, symResolver);
             }
             return;
         }
@@ -2739,7 +2743,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangVariableReference tempResultVarRef =
                 ASTBuilderUtil.createVariableRef(accessExpr.pos, tempResultVar.symbol);
 
-        BLangExpression assignmentRhsExpr = addConversionExprIfRequired(accessExpr, tempResultVarRef.type);
+        BLangExpression assignmentRhsExpr = addConversionExprIfRequired(accessExpr, tempResultVarRef.type, types,
+                symTable, symResolver);
         BLangAssignment assignmentStmt =
                 ASTBuilderUtil.createAssignmentStmt(accessExpr.pos, tempResultVarRef, assignmentRhsExpr, false);
         BLangBlockStmt patternBody = ASTBuilderUtil.createBlockStmt(accessExpr.pos, Lists.of(assignmentStmt));
