@@ -17,13 +17,25 @@
 package org.ballerinalang.persistence.serializable.serializer;
 
 import com.google.common.collect.Lists;
-import org.ballerinalang.model.util.JsonNode;
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.JsonParser;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByteArray;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BFloatArray;
+import org.ballerinalang.model.values.BIntArray;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.serializable.SerializableState;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
@@ -38,183 +50,166 @@ public class JsonSerializer implements StateSerializer {
 
     @Override
     public byte[] serialize(SerializableState sState) {
-        JsonNode jsonState = convertToJson(sState);
+        BRefType<?> jsonState = toBValue(sState);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try {
-            jsonState.serialize(outputStream);
-        } catch (IOException e) {
-            // it's ByteArrayOutputStream, no IO here.
-        }
+        jsonState.serialize(outputStream);
 
         return outputStream.toByteArray();
     }
 
-    private JsonNode convertToJson(Map<String, Object> map, String valueType) {
-        if (map == null) {
-            return new JsonNode(JsonNode.Type.NULL);
-        }
-        JsonNode jsonMap = new JsonNode(JsonNode.Type.OBJECT);
-        for (String key : map.keySet()) {
-            Object value = map.get(key);
-            jsonMap.set(key, convertToJson(value));
+    private BMap toBValue(Map<String, Object> source, String valueType) {
+        if (source == null) {
+            return null;
         }
 
-        return wrapMap("string", valueType, jsonMap);
+        BMap<String, BValue> target = new BMap<>();
+        for (Map.Entry<String, Object> key : source.entrySet()) {
+            target.put(key.getKey(), toBValue(key.getValue()));
+        }
+        return wrapMap("string", valueType, target);
     }
 
-    private JsonNode convertToJson(int[] array) {
+    private BIntArray toBValue(int[] array) {
         if (array == null) {
-            return new JsonNode(JsonNode.Type.NULL);
+            return null;
         }
-        JsonNode node = new JsonNode(JsonNode.Type.ARRAY);
-        for (int i : array) {
-            node.add(i);
+        BIntArray intArray = new BIntArray(array.length);
+        for (int i = 0; i < array.length; i++) {
+            intArray.add(i, array[i]);
         }
-        return node;
+        return intArray;
     }
 
-    private JsonNode convertToJson(long[] array) {
+    private BIntArray toBValue(long[] array) {
         if (array == null) {
-            return new JsonNode(JsonNode.Type.NULL);
+            return null;
         }
-        JsonNode node = new JsonNode(JsonNode.Type.ARRAY);
-        for (long i : array) {
-            node.add(i);
-        }
-        return node;
+        return new BIntArray(array);
     }
 
-    private JsonNode convertToJson(double[] array) {
+    private BFloatArray toBValue(double[] array) {
         if (array == null) {
-            return new JsonNode(JsonNode.Type.NULL);
+            return null;
         }
-        JsonNode node = new JsonNode(JsonNode.Type.ARRAY);
-        for (double i : array) {
-            node.add(i);
-        }
-        return node;
+        return new BFloatArray(array);
     }
 
-    private JsonNode convertToJson(String[] array) {
+    private BStringArray toBValue(String[] array) {
         if (array == null) {
-            return new JsonNode(JsonNode.Type.NULL);
+            return null;
         }
-        JsonNode node = new JsonNode(JsonNode.Type.ARRAY);
-        for (String i : array) {
-            node.add(i);
-        }
-        return node;
+        return new BStringArray(array);
     }
 
-    private JsonNode convertToJson(Byte[][] array) {
+    private BRefValueArray toBValue(Byte[][] array) {
         if (array == null) {
-            return new JsonNode(JsonNode.Type.NULL);
+            return null;
         }
-        JsonNode node = new JsonNode(JsonNode.Type.ARRAY);
-        for (Byte[] i : array) {
-            node.add(convertToJson(i));
+        BByteArray[] byteArrays = new BByteArray[array.length];
+        for (int i = 0; i < array.length; i++) {
+            byteArrays[i] = toBValue(array[i]);
         }
-        return node;
+        return new BRefValueArray(byteArrays, new BArrayType(BTypes.typeByte));
     }
 
-    private JsonNode convertToJson(Byte[] array) {
+    private BByteArray toBValue(Byte[] array) {
         if (array == null) {
-            return new JsonNode(JsonNode.Type.NULL);
+            return null;
         }
-        JsonNode node = new JsonNode(JsonNode.Type.ARRAY);
-        for (Byte i : array) {
-            node.add(i);
+        BByteArray byteArray = new BByteArray(array.length);
+        for (int i = 0; i < array.length; i++) {
+            byteArray.add(i, array[i]);
         }
-        return node;
+        return byteArray;
     }
 
-    private JsonNode convertToJson(List list) {
-        JsonNode jsonArray = new JsonNode(JsonNode.Type.ARRAY);
+    private BMap<String, BValue> toBValue(List list) {
+        BRefValueArray array = new BRefValueArray(BTypes.typeAny);
         for (Object item : list) {
-            jsonArray.add(convertToJson((Object) item));
+            array.append(toBValue(item));
         }
-        return wrapObject("list", jsonArray);
+        return wrapObject("list", array);
     }
 
 
-    private JsonNode convertToJson(Object obj) {
+    private BRefType<?> toBValue(Object obj) {
         if (obj == null) {
-            return new JsonNode(JsonNode.Type.NULL);
+            return null;
         }
         if (obj instanceof int[]) {
-            return convertToJson((int[]) obj);
+            return toBValue((int[]) obj);
         }
         if (obj instanceof long[]) {
-            return convertToJson((long[]) obj);
+            return toBValue((long[]) obj);
         }
         if (obj instanceof double[]) {
-            return convertToJson((double[]) obj);
+            return toBValue((double[]) obj);
         }
         if (obj instanceof String[]) {
-            return convertToJson((String[]) obj);
+            return toBValue((String[]) obj);
         }
         if (obj instanceof Byte[][]) {
-            return convertToJson((Byte[][]) obj);
+            return toBValue((Byte[][]) obj);
         }
         if (obj instanceof Byte[]) {
-            return convertToJson((Byte[]) obj);
+            return toBValue((Byte[]) obj);
         }
         if (obj instanceof Integer) {
-            return new JsonNode(((Integer) obj).longValue());
+            return new BInteger(((Integer) obj).longValue());
         }
         if (obj instanceof Long) {
-            return new JsonNode((Long) obj);
+            return new BInteger((Long) obj);
         }
         if (obj instanceof Float) {
-            return new JsonNode(((Float) obj).doubleValue());
+            return new BFloat(((Float) obj).doubleValue());
         }
         if (obj instanceof Double) {
-            return new JsonNode((Double) obj);
+            return new BFloat((Double) obj);
         }
         if (obj instanceof Boolean) {
-            return new JsonNode((Boolean) obj);
+            return new BBoolean((Boolean) obj);
         }
         if (obj instanceof String) {
-            return new JsonNode((String) obj);
+            return new BString((String) obj);
         }
         if (obj instanceof Enum) {
-            return convertToJson((Enum) obj);
+            return toBValue((Enum) obj);
         }
-        return convertObjToJson(obj);
+        return objToBValue(obj);
     }
 
-    private JsonNode convertToJson(Enum obj) {
+    private BMap toBValue(Enum obj) {
         String fullEnumName = obj.getClass().getSimpleName() + "." + obj.toString();
-        JsonNode jsonNode = new JsonNode(fullEnumName);
-        return wrapObject("enum", jsonNode);
+        BString name = new BString(fullEnumName);
+        return wrapObject("enum", name);
     }
 
-    private JsonNode convertObjToJson(Object obj) {
+    private BRefType objToBValue(Object obj) {
         if (obj == null) {
-            return new JsonNode(JsonNode.Type.NULL);
+            return null;
         }
         if (obj instanceof Map) {
-            return convertToJson((Map) obj, Object.class.getSimpleName());
+            return toBValue((Map) obj, Object.class.getSimpleName());
         }
         if (obj instanceof List) {
-            return convertToJson((List) obj);
+            return toBValue((List) obj);
         }
-        return convertToJsonViaReflection(obj);
+        return convertToBValueViaReflection(obj);
     }
 
-    private JsonNode convertToJsonViaReflection(Object obj) {
+    private BMap convertToBValueViaReflection(Object obj) {
         Class objClass = obj.getClass();
-        JsonNode jsonNode = new JsonNode(JsonNode.Type.OBJECT);
+        BMap<String, BValue> map = new BMap<>();
 
         for (Field field : getAllFields(objClass)) {
             field.setAccessible(true);
             try {
-                jsonNode.set(field.getName(), convertToJson(field.get(obj)));
+                map.put(field.getName(), toBValue(field.get(obj)));
             } catch (IllegalAccessException e) {
                 // field is set to be accessible
             }
         }
-        return wrapObject(objClass.getSimpleName(), jsonNode);
+        return wrapObject(objClass.getSimpleName(), map);
     }
 
     private List<Field> getAllFields(Class clazz) {
@@ -226,19 +221,19 @@ public class JsonSerializer implements StateSerializer {
         return fields;
     }
 
-    private JsonNode wrapObject(String type, JsonNode payload) {
-        JsonNode objInfo = new JsonNode(JsonNode.Type.OBJECT);
-        objInfo.set("type", type);
-        objInfo.set("payload", payload);
-        return objInfo;
+    private BMap wrapObject(String type, BValue payload) {
+        BMap<String, BValue> map = new BMap<>();
+        map.put("type", new BString(type));
+        map.put("payload", payload);
+        return map;
     }
 
-    private JsonNode wrapMap(String keyType, String valType, JsonNode payload) {
-        JsonNode mapInfo = new JsonNode(JsonNode.Type.OBJECT);
-        mapInfo.set("type", "map");
-        mapInfo.set("keyType", keyType);
-        mapInfo.set("valType", valType);
-        mapInfo.set("payload", payload);
+    private BMap wrapMap(String keyType, String valType, BValue payload) {
+        BMap<String, BValue> mapInfo = new BMap<>();
+        mapInfo.put("type", new BString("map"));
+        mapInfo.put("keyType", new BString(keyType));
+        mapInfo.put("valType", new BString(valType));
+        mapInfo.put("payload", payload);
         return mapInfo;
     }
 
@@ -246,8 +241,8 @@ public class JsonSerializer implements StateSerializer {
     public SerializableState deserialize(byte[] bytes) {
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
         InputStreamReader inputStreamReader = new InputStreamReader(byteArrayInputStream, StandardCharsets.UTF_8);
-        JsonNode jsonNode = JsonParser.parse(inputStreamReader);
-        JsonDeserializer jsonDeserializer = new JsonDeserializer(jsonNode);
+        BRefType<?> objTree = JsonParser.parse(inputStreamReader);
+        JsonDeserializer jsonDeserializer = new JsonDeserializer(objTree);
         return jsonDeserializer.deserialize();
     }
 }

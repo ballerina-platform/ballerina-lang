@@ -54,8 +54,8 @@ public class JsonSerializerTest {
         mock(serializableState);
         String json = serializableState.serialize();
 
-        Assert.assertTrue(json.contains("\"Item-1\",\"Item-2\",\"Item-3\""));
-        Assert.assertTrue(json.contains("\"var_r1\":{"));
+        Assert.assertTrue(json.matches(".*?\"Item-1\", ?\"Item-2\", ?\"Item-3\".*"));
+        Assert.assertTrue(json.matches(".*?\"var_r1\" ?: ?\\{.*"));
         Assert.assertTrue(json.contains("bmap_str_val"));
     }
 
