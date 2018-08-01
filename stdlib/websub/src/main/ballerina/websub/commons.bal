@@ -503,7 +503,7 @@ documentation {
                         that the hub is already started, and including the WebSubHub object representing the
                         already started up hub
 }
-public function startUpBallerinaHub(int port, int? leaseSeconds = (), string? signatureMethod = (),
+public function startHub(int port, int? leaseSeconds = (), string? signatureMethod = (),
                                     boolean? remotePublishingEnabled = (), RemotePublishMode? remotePublishMode = (),
                                     boolean? topicRegistrationRequired = (), string? publicUrl = (),
                                     boolean? sslEnabled = (), http:ServiceSecureSocket? serviceSecureSocket = (),

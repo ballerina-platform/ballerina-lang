@@ -4,7 +4,7 @@ import ballerina/websub;
 
 function main(string... args) {
     io:println("Starting up the Ballerina Hub Service");
-    websub:WebSubHub webSubHub = websub:startUpBallerinaHub(9393)
+    websub:WebSubHub webSubHub = websub:startHub(9393)
                                     but { websub:HubStartedUpError hubStartedUpErr => hubStartedUpErr.startedUpHub };
     //Register a topic at the hub
     _ = webSubHub.registerTopic("http://www.websubpubtopic.com");
