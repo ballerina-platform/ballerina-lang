@@ -40,7 +40,7 @@ import java.util.Map;
  */
 public class SerializableState {
 
-    private String instanceId;
+    private String id;
 
     private String currentContextKey;
 
@@ -51,14 +51,6 @@ public class SerializableState {
     private Map<String, SerializableRefType> sRefTypes = new HashMap<>();
 
     public HashMap<String, Object> globalProps = new HashMap<>();
-
-    public String getInstanceId() {
-        return instanceId;
-    }
-
-    public void setInstanceId(String instanceId) {
-        this.instanceId = instanceId;
-    }
 
     public static SerializableState deserialize(String json) {
         Gson gson = Serializer.getGson();
@@ -192,5 +184,13 @@ public class SerializableState {
             return new SerializedKey(refKey);
         }
         return null;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

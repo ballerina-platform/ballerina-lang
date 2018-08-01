@@ -31,9 +31,8 @@ import java.util.List;
  */
 public class ParserRuleGlobalVariableDefinitionContextResolver extends AbstractItemResolver {
     @Override
-    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
         return CompletionItemResolver
-                .getResolverByClass(BallerinaParser.VariableDefinitionStatementContext.class)
-                .resolveItems(completionContext);
+                .getResolverByClass(BallerinaParser.VariableDefinitionStatementContext.class).resolveItems(context);
     }
 }

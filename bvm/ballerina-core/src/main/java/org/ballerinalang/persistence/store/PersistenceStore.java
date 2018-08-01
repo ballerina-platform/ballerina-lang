@@ -43,13 +43,13 @@ public class PersistenceStore {
 
     public static void persistState(State state) {
         SerializableState sState = new SerializableState(state.getContext());
-        sState.setInstanceId(state.getInstanceId());
+        sState.setId(state.getId());
         String stateString = sState.serialize();
-        storageProvider.persistState(state.getInstanceId(), stateString);
+        storageProvider.persistState(state.getId(), stateString);
     }
 
-    public static void removeStates(String instanceId) {
-        storageProvider.removeActiveState(instanceId);
+    public static void removeStates(String stateId) {
+        storageProvider.removeActiveState(stateId);
     }
 
     public static List<State> getStates(ProgramFile programFile) {

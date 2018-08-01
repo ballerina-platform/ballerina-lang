@@ -28,13 +28,13 @@ public class State {
 
     private WorkerExecutionContext context;
 
-    private String instanceId;
+    private String id;
 
     private int ip;
 
-    public State(WorkerExecutionContext context, String instanceId) {
+    public State(WorkerExecutionContext context, String id) {
         this.context = context;
-        this.instanceId = instanceId;
+        this.id = id;
     }
 
     public WorkerExecutionContext getContext() {
@@ -53,7 +53,7 @@ public class State {
         this.ip = ip;
     }
 
-    public String getInstanceId() {
-        return instanceId;
+    public String getId() {
+        return id;
     }
 }

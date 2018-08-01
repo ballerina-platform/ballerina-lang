@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.persistence.serializable.reftypes.impl;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BValue;
@@ -27,7 +25,6 @@ import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.HashMap;
@@ -60,26 +57,16 @@ public class SerializableBMap<K, V extends BValue> implements SerializableRefTyp
         PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
         BMap<K, V> bMap;
         if (packageInfo != null) {
-            StructureTypeInfo structInfo = packageInfo.getStructInfo(structName);
-            if (structInfo == null) {
+            if (packageInfo.typeDefInfoMap.containsKey(structName)) {
+                bMap = new BMap<>(packageInfo.getStructInfo(structName).getType());
+            } else {
                 throw new BallerinaException(structName + " not found in package " + pkgPath);
             }
-            bMap = new BMap<>(structInfo.getType());
         } else {
             bMap = new BMap<>();
         }
         nativeData.forEach((s, o) -> bMap.addNativeData(s, state.deserialize(o, programFile, deserializer)));
         map.forEach((k, v) -> bMap.put(k, (V) state.deserialize(v, programFile, deserializer)));
         return bMap;
-    }
-
-    public String serialize() {
-        Gson gson = new GsonBuilder().create();
-        return gson.toJson(this);
-    }
-
-    public static SerializableBMap deserialize(String jsonString) {
-        Gson gson = new GsonBuilder().create();
-        return gson.fromJson(jsonString, SerializableBMap.class);
     }
 }

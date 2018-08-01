@@ -19,7 +19,7 @@
 package org.ballerinalang.net.http;
 
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
-import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;;
+import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
  * Constants for HTTP.
@@ -377,4 +377,7 @@ public class HttpConstants {
     public static final int REQUEST_STRUCT_INDEX = 1;
     public static final String REQUEST_REUSE_STATUS_INDEX = "dirtyRequest";
     public static final boolean DIRTY_REQUEST = true;
+
+    private HttpConstants() {
+    }
 }

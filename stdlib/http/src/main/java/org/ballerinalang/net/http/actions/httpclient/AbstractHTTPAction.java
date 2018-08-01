@@ -176,8 +176,8 @@ public abstract class AbstractHTTPAction implements InterruptibleNativeCallableU
 
         } catch (MalformedURLException e) {
             throw new BallerinaException("Malformed url specified. " + e.getMessage());
-        } catch (Throwable t) {
-            throw new BallerinaException("Failed to prepare request. " + t.getMessage());
+        } catch (Exception e) {
+            throw new BallerinaException("Failed to prepare request. " + e.getMessage());
         }
     }
 

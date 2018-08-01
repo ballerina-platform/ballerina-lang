@@ -35,9 +35,7 @@ public class WorkerData {
     public String[] stringRegs;
     
     public int[] intRegs;
-    
-    public byte[][] byteRegs;
-    
+
     public BRefType<?>[] refRegs;
 
     public WorkerData() {}

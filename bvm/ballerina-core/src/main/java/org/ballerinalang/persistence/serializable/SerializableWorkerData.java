@@ -37,12 +37,9 @@ public class SerializableWorkerData {
 
     private int[] intRegs;
 
-    private byte[][] byteRegs;
-
     private ArrayList<Object> refFields;
 
     public SerializableWorkerData(WorkerData workerData, SerializableState state) {
-        byteRegs = workerData.byteRegs;
         doubleRegs = workerData.doubleRegs;
         intRegs = workerData.intRegs;
         longRegs = workerData.longRegs;
@@ -56,7 +53,6 @@ public class SerializableWorkerData {
         workerData.doubleRegs = doubleRegs;
         workerData.stringRegs = stringRegs;
         workerData.intRegs = intRegs;
-        workerData.byteRegs = byteRegs;
         workerData.refRegs = state.deserializeRefFields(refFields, programFile, deserializer);
         return workerData;
     }

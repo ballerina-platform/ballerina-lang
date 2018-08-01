@@ -26,7 +26,6 @@ import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.ArrayList;
@@ -67,11 +66,11 @@ public class SerializableBRefArray implements SerializableRefType {
         }
         BType type = null;
         if (packageInfo != null) {
-            StructureTypeInfo structInfo = packageInfo.getStructInfo(structName);
-            if (structInfo == null) {
+            if (packageInfo.typeDefInfoMap.containsKey(structName)) {
+                type = new BArrayType(packageInfo.getStructInfo(structName).getType());
+            } else {
                 throw new BallerinaException(structName + " not found in package " + pkgPath);
             }
-            type = new BArrayType(structInfo.getType());
         }
         return new BRefValueArray(bRefTypes, type);
     }

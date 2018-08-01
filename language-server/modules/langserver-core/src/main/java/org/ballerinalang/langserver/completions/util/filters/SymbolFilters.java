@@ -26,7 +26,7 @@ import java.util.Map;
  */
 public enum SymbolFilters {
 
-    ACTION_AND_FUNC_FILTER(PackageActionFunctionAndTypesFilter.class, new PackageActionFunctionAndTypesFilter()),
+    ACTION_AND_FUNC_FILTER(DelimiterBasedContentFilter.class, new DelimiterBasedContentFilter()),
 
     STMT_TEMPLATE_FILTER(StatementTemplateFilter.class, new StatementTemplateFilter());
 
@@ -50,10 +50,10 @@ public enum SymbolFilters {
 
     /**
      * Get the item filter by the class.
-     * @param context - context class to extract the relevant filter
-     * @return {@link AbstractSymbolFilter} - Symbol filter for the given context
+     * @param context                           context class to extract the relevant filter
+     * @return {@link AbstractSymbolFilter}     Symbol filter for the given context
      */
-    public static AbstractSymbolFilter getFilterByClass(Class context) {
+    public static AbstractSymbolFilter get(Class context) {
         return resolverMap.get(context);
     }
 

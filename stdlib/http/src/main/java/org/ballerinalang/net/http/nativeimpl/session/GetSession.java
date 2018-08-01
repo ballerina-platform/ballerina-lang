@@ -86,7 +86,7 @@ public class GetSession extends BlockingNativeCallableUnit {
                     return;
                 }
                 //path Validity check
-                if (session != null && session.getPath().equals(path)) {
+                if (session.getPath().equals(path)) {
                     session.setNew(false);
                     session.setAccessed();
                 } else {

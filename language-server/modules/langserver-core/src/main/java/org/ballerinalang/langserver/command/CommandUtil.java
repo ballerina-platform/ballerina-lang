@@ -293,7 +293,7 @@ public class CommandUtil {
                     DiagnosticPos resourcePos = CommonUtil.toZeroBasedPosition(bLangResource.getPosition());
                     if (!annotationAttachments.isEmpty()) {
                         DiagnosticPos lastAttachmentPos = CommonUtil.toZeroBasedPosition(
-                                annotationAttachments.get(annotationAttachments.size() - 1).getPosition());
+                                CommonUtil.getLastItem(annotationAttachments).getPosition());
                         if (lastAttachmentPos.getEndLine() < line && line < resourcePos.getEndLine()) {
                             return getResourceNodeDocumentation(bLangResource, lastAttachmentPos.getEndLine() + 1);
                         }
@@ -334,8 +334,7 @@ public class CommandUtil {
                 List<BLangAnnotationAttachment> annotationAttachments = serviceNode.getAnnotationAttachments();
                 if (!annotationAttachments.isEmpty()) {
                     DiagnosticPos lastAttachmentPos = CommonUtil.toZeroBasedPosition(
-                            annotationAttachments.get(annotationAttachments.size() - 1).getPosition());
-
+                            CommonUtil.getLastItem(annotationAttachments).getPosition());
                     if (lastAttachmentPos.getEndLine() < line && line < servicePos.getEndLine()) {
                         return getServiceNodeDocumentation(serviceNode, lastAttachmentPos.getEndLine() + 1);
                     }
@@ -418,7 +417,7 @@ public class CommandUtil {
         renameContext.put(DocumentServiceKeys.POSITION_KEY,
                           new TextDocumentPositionParams(params.getTextDocument(), position));
         List<BLangPackage> bLangPackages = LSCompiler.getBLangPackage(renameContext, documentManager, false,
-                                                                      LSCustomErrorStrategy.class, true);
+                                                                      LSCustomErrorStrategy.class, true).getLeft();
         // Get the current package.
         BLangPackage currentBLangPackage = CommonUtil.getCurrentPackageByFileName(bLangPackages,
                                                                                   params.getTextDocument().getUri());

@@ -130,7 +130,7 @@ public class HttpResource {
 
         if (produces != null) {
             List<String> subAttributeValues = produces.stream()
-                                                .map(mediaType -> mediaType.trim().substring(0, mediaType.indexOf("/")))
+                                                .map(mediaType -> mediaType.trim().substring(0, mediaType.indexOf('/')))
                                                 .distinct()
                                                 .collect(Collectors.toList());
             setProducesSubTypes(subAttributeValues);

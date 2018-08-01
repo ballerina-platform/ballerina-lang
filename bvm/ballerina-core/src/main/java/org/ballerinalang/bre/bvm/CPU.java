@@ -119,7 +119,6 @@ import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.LongStream;
 
@@ -359,6 +358,7 @@ public class CPU {
                     case InstructionCodes.BIRSHIFT:
                     case InstructionCodes.IRSHIFT:
                     case InstructionCodes.ILSHIFT:
+                    case InstructionCodes.IURSHIFT:
                         execBinaryOpCodes(ctx, sf, opcode, operands);
                         break;
     
@@ -529,7 +529,6 @@ public class CPU {
                     case InstructionCodes.JSON2F:
                     case InstructionCodes.JSON2S:
                     case InstructionCodes.JSON2B:
-                    case InstructionCodes.NULL2S:
                     case InstructionCodes.IS_ASSIGNABLE:
                     case InstructionCodes.O2JSON:
                         execTypeCastOpcodes(ctx, sf, opcode, operands);
@@ -1790,13 +1789,19 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.longRegs[k] = sf.longRegs[i] >>> sf.longRegs[j];
+                sf.longRegs[k] = sf.longRegs[i] >> sf.longRegs[j];
                 break;
             case InstructionCodes.ILSHIFT:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
                 sf.longRegs[k] = sf.longRegs[i] << sf.longRegs[j];
+                break;
+            case InstructionCodes.IURSHIFT:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.longRegs[k] = sf.longRegs[i] >>> sf.longRegs[j];
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -2069,10 +2074,6 @@ public class CPU {
                 break;
             case InstructionCodes.JSON2B:
                 castJSONToBoolean(ctx, operands, sf);
-                break;
-            case InstructionCodes.NULL2S:
-                j = operands[1];
-                sf.stringRegs[j] = null;
                 break;
             case InstructionCodes.ARRAY2JSON:
                 convertArrayToJSON(ctx, operands, sf);
@@ -2956,6 +2957,10 @@ public class CPU {
             rhsType = rhsValue.getType();
         }
 
+        if (isSameOrAnyType(rhsType, lhsType)) {
+            return true;
+        }
+
         if (rhsType.getTag() == TypeTags.INT_TAG && lhsType.getTag() == TypeTags.BYTE_TAG) {
             return isByteLiteral(((BInteger) rhsValue).intValue());
         }
@@ -2992,10 +2997,21 @@ public class CPU {
         return checkCastByType(rhsType, lhsType);
     }
 
+    /**
+     * This method is for use as the first check in checking for cast/assignability for two types.
+     * Checks whether the source type is the same as the target type or if the target type is any type, and if true
+     * the return value would be true.
+     *
+     * @param rhsType   the source type - the type (of the value) being cast/assigned
+     * @param lhsType   the target type against which cast/assignability is checked
+     * @return          true if the lhsType is any or is the same as rhsType
+     */
+    private static boolean isSameOrAnyType(BType rhsType, BType lhsType) {
+        return lhsType.getTag() == TypeTags.ANY_TAG || rhsType.equals(lhsType);
+    }
+
     private static boolean checkCastByType(BType rhsType, BType lhsType) {
-        if (rhsType.equals(lhsType)) {
-            return true;
-        } else if (rhsType.getTag() == TypeTags.INT_TAG &&
+        if (rhsType.getTag() == TypeTags.INT_TAG &&
                 (lhsType.getTag() == TypeTags.JSON_TAG || lhsType.getTag() == TypeTags.FLOAT_TAG)) {
             return true;
         } else if (rhsType.getTag() == TypeTags.FLOAT_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
@@ -3011,10 +3027,6 @@ public class CPU {
         if ((rhsType.getTag() == TypeTags.OBJECT_TYPE_TAG || rhsType.getTag() == TypeTags.RECORD_TYPE_TAG)
                 && (lhsType.getTag() == TypeTags.OBJECT_TYPE_TAG || lhsType.getTag() == TypeTags.RECORD_TYPE_TAG)) {
             return checkStructEquivalency((BStructureType) rhsType, (BStructureType) lhsType);
-        }
-
-        if (lhsType.getTag() == TypeTags.ANY_TAG) {
-            return true;
         }
 
         if (rhsType.getTag() == TypeTags.MAP_TAG && lhsType.getTag() == TypeTags.MAP_TAG) {
@@ -3561,13 +3573,12 @@ public class CPU {
         StructureTypeInfo structInfo = ctx.callableUnitInfo
                 .getPackageInfo().getStructInfo(structType.getName());
 
-        Set<String> keys = bMap.keySet();
         for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
             String key = fieldInfo.getName();
             BType fieldType = fieldInfo.getFieldType();
             BValue mapVal = null;
             try {
-                boolean containsField = keys.contains(key);
+                boolean containsField = bMap.hasKey(key);
                 DefaultValueAttributeInfo defaultValAttrInfo = null;
                 if (containsField) {
                     mapVal = bMap.get(key);
@@ -3770,6 +3781,10 @@ public class CPU {
     }
 
     public static boolean isAssignable(BType sourceType, BType targetType) {
+        if (isSameOrAnyType(sourceType, targetType)) {
+            return true;
+        }
+
         if (targetType.getTag() == TypeTags.UNION_TAG) {
             return checkUnionAssignable(sourceType, targetType);
         }

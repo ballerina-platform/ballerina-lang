@@ -126,9 +126,9 @@ class WebSubSubscriberServiceValidator {
     private static List<String> retrieveResourceNames(BMap<String, BMap<String, BString>> topicResourceMap) {
         List<String> resourceNames = new ArrayList<>();
 
-        for (String key : topicResourceMap.keySet()) {
+        for (String key : topicResourceMap.keys()) {
             BMap<String, BString> topicResourceSubMap = topicResourceMap.get(key);
-            for (String topic: topicResourceSubMap.keySet()) {
+            for (String topic: topicResourceSubMap.keys()) {
                 resourceNames.add(topicResourceSubMap.get(topic).stringValue());
             }
         }
