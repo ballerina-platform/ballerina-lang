@@ -138,6 +138,9 @@ public class TableTest {
         if (dbType == POSTGRES) {
             expected = "[{\"int_type\":1, \"long_type\":9223372036854774807, \"float_type\":123.339996, "
                     + "\"double_type\":2.139095039E9, \"boolean_type\":true, \"string_type\":\"Hello\"}]";
+        } else if (dbType == MYSQL) {
+            expected = "[{\"int_type\":1, \"long_type\":9223372036854774807, \"float_type\":123.34, "
+                    + "\"double_type\":2.139095039E9, \"boolean_type\":true, \"string_type\":\"Hello\"}]";
         } else {
             expected = "[{\"INT_TYPE\":1, \"LONG_TYPE\":9223372036854774807, \"FLOAT_TYPE\":123.34, "
                     + "\"DOUBLE_TYPE\":2.139095039E9, \"BOOLEAN_TYPE\":true, \"STRING_TYPE\":\"Hello\"}]";
@@ -154,6 +157,10 @@ public class TableTest {
         if (dbType == POSTGRES) {
             expected = "<results><result><int_type>1</int_type><long_type>9223372036854774807</long_type>"
                     + "<float_type>123.339996</float_type><double_type>2.139095039E9</double_type><boolean_type>true"
+                    + "</boolean_type><string_type>Hello</string_type></result></results>";
+        } else if (dbType == MYSQL) {
+            expected = "<results><result><int_type>1</int_type><long_type>9223372036854774807</long_type>"
+                    + "<float_type>123.34</float_type><double_type>2.139095039E9</double_type><boolean_type>true"
                     + "</boolean_type><string_type>Hello</string_type></result></results>";
         } else {
             expected = "<results><result><INT_TYPE>1</INT_TYPE><LONG_TYPE>9223372036854774807</LONG_TYPE>"
@@ -270,7 +277,7 @@ public class TableTest {
                 + "\"BOOLEAN_ARRAY\":[true, false, true], \"STRING_ARRAY\":[\"Hello\", \"Ballerina\"]}]");
     }
 
-    @Test(groups = TABLE_TEST, description = "Check json conversion with complex element.")
+    @Test(groups = {TABLE_TEST, MYSQL_NOT_SUPPORTED}, description = "Check json conversion with complex element.")
     public void testToJsonComplexWithStructDef() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testToJsonComplexWithStructDef", connectionArgs);
         Assert.assertEquals(returns.length, 1);
@@ -462,7 +469,7 @@ public class TableTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BRefValueArray);
         String expected;
-        if (dbType == POSTGRES) {
+        if (dbType == POSTGRES || dbType == MYSQL) {
             expected = "[{\"int_type\":0, \"long_type\":0, \"float_type\":0.0, \"double_type\":0.0, "
                     + "\"boolean_type\":false, \"string_type\":null}]";
         } else {
@@ -479,6 +486,11 @@ public class TableTest {
         Assert.assertTrue(returns[0] instanceof BXML);
         String expected;
         if (dbType == POSTGRES) {
+            expected = "<results><result><int_type>0</int_type><long_type>0</long_type><float_type>0.0</float_type>"
+                    + "<double_type>0.0</double_type><boolean_type>false</boolean_type>"
+                    + "<string_type xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\">"
+                    + "</string_type></result></results>";
+        } else if (dbType == MYSQL) {
             expected = "<results><result><int_type>0</int_type><long_type>0</long_type><float_type>0.0</float_type>"
                     + "<double_type>0.0</double_type><boolean_type>false</boolean_type>"
                     + "<string_type xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\">"
@@ -723,9 +735,10 @@ public class TableTest {
                     + "<clob_type>Sample Text</clob_type>"
                     + "<binary_type>U2FtcGxlIFRleHQAAAAAAAAAAAAAAAAAAAAA</binary_type></result><result>"
                     + "<row_id>200</row_id><blob_type xmlns:xsi=\"http://www"
-                    + ".w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/><clob_type xmlns:xsi=\"http://www"
-                    + ".w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/><binary_type xmlns:xsi=\"http://www"
-                    + ".w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/></result></results>";
+                    + ".w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"></blob_type><clob_type xmlns:xsi=\"http://www"
+                    + ".w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"></clob_type><binary_type "
+                    + "xmlns:xsi=\"http://www"
+                    + ".w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"></binary_type></result></results>";
 
         } else if (dbType == H2) {
             expectedJson = "[{\"ROW_ID\":100, \"BLOB_TYPE\":\"U2FtcGxlIFRleHQ=\", \"CLOB_TYPE\":\"Sample Text\", "
@@ -762,7 +775,7 @@ public class TableTest {
         BValue[] returns = BRunUtil.invoke(result, "testJsonXMLConversionwithDuplicateColumnNames", connectionArgs);
         Assert.assertEquals(returns.length, 2);
         String expectedJSON, expectedXML;
-        if (dbType == POSTGRES) {
+        if (dbType == POSTGRES || dbType == MYSQL) {
             expectedJSON = "[{\"row_id\":1, \"int_type\":1, \"DATATABLEREP.row_id\":1, \"DATATABLEREP.int_type\":100}]";
             expectedXML = "<results><result><row_id>1</row_id><int_type>1</int_type>"
                     + "<DATATABLEREP.row_id>1</DATATABLEREP.row_id><DATATABLEREP.int_type>100</DATATABLEREP.int_type>"
