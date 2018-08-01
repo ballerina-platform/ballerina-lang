@@ -1,5 +1,12 @@
 {
     "compilerOptions": {
+        "skipLibCheck": true,
+        "declaration": true,
+        "declarationMap": true,
+        "noImplicitAny": true,
+        "noEmitOnError": false,
+        "noImplicitThis": true,
+        "strictNullChecks": true,
         "strict": true,
         "experimentalDecorators": true,
         "noUnusedLocals": true,

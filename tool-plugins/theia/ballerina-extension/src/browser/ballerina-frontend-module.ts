@@ -7,7 +7,7 @@ import {
     CommandContribution,
     MenuContribution
 } from "@theia/core/lib/common";
-import { bindViewContribution, FrontendApplicationContribution, WidgetFactory } from "@theia/core/lib/browser";
+import { bindViewContribution, WidgetFactory } from "@theia/core/lib/browser";
 import { LanguageClientContribution } from "@theia/languages/lib/browser";
 import { LanguageGrammarDefinitionContribution } from "@theia/monaco/lib/browser/textmate";
 import { BallerinaGrammarContribution } from "./ballerina-grammar-contribution";
@@ -20,14 +20,14 @@ import { BallerinaPreviewWidget } from './ballerina-preview-widget';
 import { ContainerModule } from "inversify";
 
 export default new ContainerModule(bind => {
-    bindViewContribution(bind, BallerinaPreviewContribution);
-    bind(FrontendApplicationContribution).toService(BallerinaPreviewContribution);
 
     bind(BallerinaPreviewWidget).toSelf();
     bind(WidgetFactory).toDynamicValue(context => ({
         id: BALLERINA_PREVIEW_WIDGET_FACTORY_ID,
         createWidget: () => context.container.get<BallerinaPreviewWidget>(BallerinaPreviewWidget)
-    })).inSingletonScope();
+    }));
+
+    bindViewContribution(bind, BallerinaPreviewContribution);
 
     bind(LanguageClientContribution).to(BallerinaLanguageClientContribution).inSingletonScope();
     bind(CommandContribution).to(BallerinaCommandContribution);

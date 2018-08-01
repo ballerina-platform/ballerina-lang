@@ -9,11 +9,11 @@
     "src"
   ],
   "dependencies": {
-    "@theia/callhierarchy": "latest",
-    "@theia/core": "latest",
-    "@theia/languages": "latest",
-    "@theia/monaco": "latest",
-    "@theia/preview": "latest",
+    "@theia/callhierarchy": "^0.3.13",
+    "@theia/core": "^0.3.13",
+    "@theia/languages": "^0.3.13",
+    "@theia/monaco": "^0.3.13",
+    "@theia/preview": "^0.3.13",
     "@types/request-promise": "^4.1.42",
     "axios": "^0.18.0",
     "request-promise": "^4.2.2",
