@@ -323,9 +323,8 @@ public class Types {
             return false;
         }
 
-        // Now both types are not array types and they have to be equal
+        // Now both types are not array types and they have to be assignable
         if (isAssignable(source, target)) {
-            // TODO Figure out this.
             return true;
         }
 

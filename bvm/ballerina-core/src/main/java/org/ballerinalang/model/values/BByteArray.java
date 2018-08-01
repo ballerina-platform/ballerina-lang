@@ -21,7 +21,6 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
@@ -79,11 +78,6 @@ public class BByteArray extends BNewArray {
     @Override
     public void grow(int newLength) {
         values = Arrays.copyOf(values, newLength);
-    }
-
-    @Override
-    public int getTag() {
-        return TypeTags.BYTE_ARRAY_TAG;
     }
 
     @Override

@@ -49,7 +49,6 @@ Student student1 = { name: "John", studentId: 001 };
 
 function testValidTupleAssignment() returns (boolean, int) {
 
-
     (Employee, Employee) employeeTuple;
     (Person, Person) personTuple = employeeTuple; // covariance
 

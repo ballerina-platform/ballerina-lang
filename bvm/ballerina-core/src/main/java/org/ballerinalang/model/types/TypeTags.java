@@ -52,11 +52,4 @@ public class TypeTags {
     public static final int FINITE_TYPE_TAG = 31;
     public static final int OBJECT_TYPE_TAG = 32;
     public static final int RECORD_TYPE_TAG = 33;
-    public static final int BOOLEAN_ARRAY_TAG = 34;
-    public static final int BYTE_ARRAY_TAG = 35;
-    public static final int FLOAT_ARRAY_TAG = 36;
-    public static final int INT_ARRAY_TAG = 37;
-    public static final int REF_ARRAY_TAG = 38;
-    public static final int STRING_ARRAY_TAG = 39;
-
 }

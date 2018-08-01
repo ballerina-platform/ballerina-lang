@@ -1873,7 +1873,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangArrayLiteral createArrayLiteralExprNode() {
         BLangArrayLiteral expr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
         expr.exprs = new ArrayList<>();
-        expr.type = symTable.anyType;
+        expr.type = new BArrayType(symTable.anyType);
         return expr;
     }
 
