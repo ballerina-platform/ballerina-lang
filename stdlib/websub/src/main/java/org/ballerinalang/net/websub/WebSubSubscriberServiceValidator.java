@@ -21,8 +21,6 @@ package org.ballerinalang.net.websub;
 
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -49,10 +47,9 @@ import static org.ballerinalang.net.websub.util.WebSubUtils.validateStructType;
  */
 class WebSubSubscriberServiceValidator {
 
-    static void validateResources(HttpService service, String topicIdentifier, String topicHeader,
-                                  BMap<String, BMap<String, BValue>> topicResourceMap) {
+    static void validateResources(HttpService service, String topicIdentifier, WebSubServicesRegistry serviceRegistry) {
         if (topicIdentifier != null) {
-            validateCustomResources(service.getResources(), topicResourceMap);
+            validateCustomResources(service.getResources(), serviceRegistry);
         } else {
             validateDefaultResources(service.getResources());
         }
@@ -97,9 +94,8 @@ class WebSubSubscriberServiceValidator {
         validateStructType(resource.getName(), paramDetails.get(0), packageName, structName);
     }
 
-    private static void validateCustomResources(List<HttpResource> resources,
-                                                BMap<String, BMap<String, BValue>> topicResourceMap) {
-        HashMap<String, String[]> resourceDetails = retrieveResourceDetails(topicResourceMap);
+    private static void validateCustomResources(List<HttpResource> resources, WebSubServicesRegistry serviceRegistry) {
+        HashMap<String, String[]> resourceDetails = retrieveResourceDetails(serviceRegistry);
         List<String> invalidResourceNames = retrieveInvalidResourceNames(resources, resourceDetails);
 
         if (!invalidResourceNames.isEmpty()) {

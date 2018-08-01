@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.websub.WebSubServicesRegistry;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -53,6 +54,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NA
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_NOTIFICATION_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.TOPIC_ID_HEADER;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.TOPIC_ID_PAYLOAD_KEY;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
 
 /**
@@ -69,8 +71,7 @@ public class WebSubUtils {
         return httpRequest;
     }
 
-    public static HashMap<String, String[]> retrieveResourceDetails(BMap<String,
-                                                                    BMap<String, BValue>> topicResourceMap) {
+    public static HashMap<String, String[]> retrieveResourceDetails(WebSubServicesRegistry serviceRegistry) {
         //Map with resource details where the key is the resource name and the value is the param
         HashMap<String, String[]> resourceDetails = new HashMap<>();
         resourceDetails.put(RESOURCE_NAME_ON_INTENT_VERIFICATION,
@@ -78,38 +79,104 @@ public class WebSubUtils {
         resourceDetails.put(RESOURCE_NAME_ON_NOTIFICATION,
                             new String[]{WEBSUB_PACKAGE, STRUCT_WEBSUB_NOTIFICATION_REQUEST});
 
-        if (topicResourceMap != null) {
-            for (String key : topicResourceMap.keySet()) {
-                BMap<String, BValue> topicResourceSubMap = topicResourceMap.get(key);
-                String resourceName;
-                BStructureType paramDetails;
-                if (TOPIC_ID_HEADER.equals(key)) {
-                    for (String headerValue : topicResourceSubMap.keySet()) {
-                        resourceName = (((BRefValueArray) topicResourceSubMap.get(headerValue)).getBValue(0))
-                                .stringValue();
-                        paramDetails = (BStructureType) ((BTypeDescValue) ((BRefValueArray)
-                                                       topicResourceSubMap.get(headerValue)).getBValue(1)).value();
-                        resourceDetails.put(resourceName,
-                                            new String[]{paramDetails.getPackagePath(), paramDetails.getName()});
+        String topicIdentifier = serviceRegistry.getTopicIdentifier();
+        if (topicIdentifier != null) {
+            switch (topicIdentifier) {
+                case TOPIC_ID_HEADER:
+                    populateResourceDetailsByHeader(serviceRegistry.getHeaderResourceMap(), resourceDetails);
+                    break;
+                case TOPIC_ID_PAYLOAD_KEY:
+                    populateResourceDetailsByPayload(serviceRegistry.getPayloadKeyResourceMap(), resourceDetails);
+                    break;
+                default:
+                    populateResourceDetailsByHeaderAndPayload(serviceRegistry.getHeaderAndPayloadKeyResourceMap(),
+                                                              resourceDetails);
+                    if (serviceRegistry.getHeaderResourceMap() != null) {
+                        populateResourceDetailsByHeader(serviceRegistry.getHeaderResourceMap(), resourceDetails);
                     }
-                } else {
-                    for (String topic : topicResourceSubMap.keySet()) {
-                        BMap<String, BValue> topicResourceInternalMap =
-                                (BMap<String, BValue>) topicResourceSubMap.get(topic);
-                        for (String topicKey : topicResourceInternalMap.keySet()) {
-                            resourceName = (((BRefValueArray) topicResourceInternalMap.get(topicKey))
-                                                    .getBValue(0)).stringValue();
-                            paramDetails = (BStructureType) ((BTypeDescValue) ((BRefValueArray)
-                                                   topicResourceInternalMap.get(topicKey)).getBValue(1)).value();
-                            resourceDetails.put(resourceName,
-                                                new String[]{paramDetails.getPackagePath(), paramDetails.getName()});
-                        }
+                    if (serviceRegistry.getPayloadKeyResourceMap() != null) {
+                        populateResourceDetailsByPayload(serviceRegistry.getPayloadKeyResourceMap(), resourceDetails);
                     }
-                }
+                    break;
             }
+//            for (String key : topicResourceMap.keySet()) {
+//                BMap<String, BValue> topicResourceSubMap = topicResourceMap.get(key);
+//                String resourceName;
+//                BStructureType paramDetails;
+//                if (TOPIC_ID_HEADER.equals(key)) {
+//                    for (String headerValue : topicResourceSubMap.keySet()) {
+//                        resourceName = (((BRefValueArray) topicResourceSubMap.get(headerValue)).getBValue(0))
+//                                .stringValue();
+//                        paramDetails = (BStructureType) ((BTypeDescValue) ((BRefValueArray)
+//                                                       topicResourceSubMap.get(headerValue)).getBValue(1)).value();
+//                        resourceDetails.put(resourceName,
+//                                            new String[]{paramDetails.getPackagePath(), paramDetails.getName()});
+//                    }
+//                } else {
+//                    for (String topic : topicResourceSubMap.keySet()) {
+//                        BMap<String, BValue> topicResourceInternalMap =
+//                                (BMap<String, BValue>) topicResourceSubMap.get(topic);
+//                        for (String topicKey : topicResourceInternalMap.keySet()) {
+//                            resourceName = (((BRefValueArray) topicResourceInternalMap.get(topicKey))
+//                                                    .getBValue(0)).stringValue();
+//                            paramDetails = (BStructureType) ((BTypeDescValue) ((BRefValueArray)
+//                                                   topicResourceInternalMap.get(topicKey)).getBValue(1)).value();
+//                            resourceDetails.put(resourceName,
+//                                                new String[]{paramDetails.getPackagePath(), paramDetails.getName()});
+//                        }
+//                    }
+//                }
+//            }
         }
-
         return resourceDetails;
+    }
+
+    private static void populateResourceDetailsByHeader(BMap<String, BValue> headerResourceMap,
+                                                        HashMap<String, String[]> resourceDetails) {
+        headerResourceMap.getMap().values().forEach(value -> {
+            BRefValueArray resourceDetailTuple = (BRefValueArray) value;
+            String resourceName = resourceDetailTuple.getBValue(0).stringValue();
+            BStructureType paramDetails =
+                    (BStructureType) ((BTypeDescValue) (resourceDetailTuple).getBValue(1)).value();
+            resourceDetails.put(resourceName,
+                                new String[]{paramDetails.getPackagePath(), paramDetails.getName()});
+        });
+//        headerResourceMap.getMap().forEach((resourceName, value) -> {
+//            BStructureType paramDetails = (BStructureType) value;
+//            resourceDetails.put(resourceName,
+//                                new String[]{paramDetails.getPackagePath(), paramDetails.getName()});
+//        });
+    }
+
+    private static void populateResourceDetailsByPayload(BMap<String, BMap<String, BValue>> payloadKeyResourceMap,
+                                                         HashMap<String, String[]> resourceDetails) {
+        payloadKeyResourceMap.getMap().values().forEach(mapByKey -> {
+            mapByKey.getMap().values().forEach(value -> {
+                BRefValueArray resourceDetailTuple = (BRefValueArray) value;
+                String resourceName = resourceDetailTuple.getBValue(0).stringValue();
+                BStructureType paramDetails =
+                        (BStructureType) ((BTypeDescValue) (resourceDetailTuple).getBValue(1)).value();
+                resourceDetails.put(resourceName,
+                                    new String[]{paramDetails.getPackagePath(), paramDetails.getName()});
+            });
+        });
+    }
+
+    private static void populateResourceDetailsByHeaderAndPayload(BMap<String, BMap<String, BMap<String, BValue>>>
+                                                                          headerAndPayloadKeyResourceMap,
+                                                                  HashMap<String, String[]> resourceDetails) {
+        headerAndPayloadKeyResourceMap.getMap().values().forEach(mapByHeader -> {
+            mapByHeader.getMap().values().forEach(mapByKey -> {
+                mapByKey.getMap().values().forEach(value -> {
+                    BRefValueArray resourceDetailTuple = (BRefValueArray) value;
+                    String resourceName = resourceDetailTuple.getBValue(0).stringValue();
+                    BStructureType paramDetails =
+                            (BStructureType) ((BTypeDescValue) (resourceDetailTuple).getBValue(1)).value();
+                    resourceDetails.put(resourceName,
+                                        new String[]{paramDetails.getPackagePath(), paramDetails.getName()});
+                });
+            });
+        });
     }
 
     public static void validateParamNumber(List<ParamDetail> paramDetails, int expectedSize, String resourceName) {

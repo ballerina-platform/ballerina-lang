@@ -97,8 +97,14 @@ public class WebSubSubscriberConstants {
     public static final String SERVICE_CONFIG_HOST = "host";
     public static final String SERVICE_CONFIG_PORT = "port";
     public static final String SERVICE_CONFIG_SECURE_SOCKET = "httpServiceSecureSocket";
-    public static final String SERVICE_CONFIG_TOPIC_IDENTIFIER = "topicIdentifier";
-    public static final String SERVICE_CONFIG_TOPIC_HEADER = "topicHeader";
+    public static final String SERVICE_CONFIG_EXTENSION_CONFIG = "extensionConfig";
+    public static final String EXTENSION_CONFIG_TOPIC_IDENTIFIER = "topicIdentifier";
+    public static final String EXTENSION_CONFIG_HEADER_RESOURCE_MAP = "headerResourceMap";
+    public static final String EXTENSION_CONFIG_PAYLOAD_KEY_RESOURCE_MAP = "payloadKeyResourceMap";
+    public static final String EXTENSION_CONFIG_HEADER_AND_PAYLOAD_KEY_RESOURCE_MAP = "headerAndPayloadKeyResourceMap";
+
+    public static final String EXTENSION_CONFIG_TOPIC_HEADER = "topicHeader";
+
     public static final String SERVICE_CONFIG_TOPIC_PAYLOAD_KEYS = "topicPayloadKeys";
     public static final String SERVICE_CONFIG_TOPIC_RESOURCE_MAP = "topicResourceMap";
 }

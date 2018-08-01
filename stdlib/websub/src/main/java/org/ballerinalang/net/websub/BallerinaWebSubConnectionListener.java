@@ -281,8 +281,8 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
     }
 
     private String[] getParamDetails(String resourceName) {
-        HashMap<String, String[]> resourceDetailMap = retrieveResourceDetails(webSubServicesRegistry
-                                                                                    .getTopicResourceMap());
+        // TODO: 8/1/18 create map once 
+        HashMap<String, String[]> resourceDetailMap = retrieveResourceDetails(webSubServicesRegistry);
         return resourceDetailMap.get(resourceName);
     }
 
