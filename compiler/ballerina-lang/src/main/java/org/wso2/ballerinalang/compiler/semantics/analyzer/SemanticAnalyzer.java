@@ -1507,9 +1507,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         //Add to map to be used by parent scopes
         String uniqueName = getUniqueScopeName(symbol.pkgID, symbol.owner, scopeNode.name.getValue());
         scopesMap.put(scopeNode.name.getValue(), uniqueName);
-        if (!scopeNode.childScopes.isEmpty()) {
-            updateChildScopeNames(scopeNode.childScopes);
-        }
+        scopeNode.childScopes.replaceAll(s -> scopesMap.get(s));
         scopeNode.compensationFunction.function.name.setValue(Names.GEN_VAR_PREFIX + uniqueName);
         scopeNode.compensationFunction.function.symbol.name.value = Names.GEN_VAR_PREFIX + uniqueName;
         scopeNode.name.setValue(uniqueName);
@@ -2067,17 +2065,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
         attribute.type = attributeSymbol.type;
-    }
-
-    private void updateChildScopeNames(Stack<String> childScopes) {
-        Stack<String> reversedStack = new Stack<>();
-        while (!childScopes.isEmpty()) {
-            reversedStack.push(scopesMap.get(childScopes.pop()));
-        }
-
-        while (!reversedStack.empty()) {
-            childScopes.push(reversedStack.pop());
-        }
     }
 
     private String getUniqueScopeName(PackageID pkgID, BSymbol owner, String name) {
