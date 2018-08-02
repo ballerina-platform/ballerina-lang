@@ -21,4 +21,4 @@ documentation {
     P{{encoding}} Encoding to used in byte array conversion to string
     R{{}} String representation of the given byte array
 }
-public native function byteArrayToString(byte[] content, string encoding) returns string;
+public extern function byteArrayToString(byte[] content, string encoding) returns string;

@@ -27,11 +27,11 @@ import Diagram from 'plugins/ballerina/diagram/diagram.jsx';
 import TreeBuilder from 'plugins/ballerina/model/tree-builder.js';
 import '../src/ballerina-theme/semantic.less';
 
-function renderDiagram(target, modelJson, props={}) {
+function renderDiagram(target, modelJson, props = {}) {
     const defaultProps = {
         model: TreeBuilder.build(modelJson),
         mode: 'action',
-        fitToWidth: true,
+        editMode: true,
         height: 300,
         width: 300,
     };

@@ -27,6 +27,13 @@ under the License.
     </listeners>
 
 
+    <test name="ballerina-socket-test-suite" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.nativeimpl.functions.io.socket.ClientSocketTest"/>
+            <class name="org.ballerinalang.test.nativeimpl.functions.io.socket.SecureClientSocketTest"/>
+            <class name="org.ballerinalang.test.nativeimpl.functions.io.socket.ServerSocketTest"/>
+        </classes>
+    </test>
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <groups>
@@ -47,7 +54,9 @@ under the License.
             <package name="org.ballerinalang.test.access.*"/>
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
-            <package name="org.ballerinalang.test.nativeimpl.*"/>
+            <package name="org.ballerinalang.test.nativeimpl.functions.*">
+                <exclude name="org.ballerinalang.test.nativeimpl.functions.io.socket"/>
+            </package>
             <package name="org.ballerinalang.test.connectors.sql.*"/>
             <package name="org.ballerinalang.test.connectors.h2.*"/>
             <package name="org.ballerinalang.test.net.*"/>

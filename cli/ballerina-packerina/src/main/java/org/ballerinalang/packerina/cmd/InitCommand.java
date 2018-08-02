@@ -120,6 +120,8 @@ public class InitCommand implements BLauncherCmd {
                         String packageName = scanner.nextLine().trim();
                         SrcFile srcFile = new SrcFile(packageName, FileType.SERVICE);
                         sourceFiles.add(srcFile);
+                        SrcFile srcTestFile = new SrcFile(packageName, FileType.SERVICE_TEST);
+                        sourceFiles.add(srcTestFile);
                         if (!packageName.isEmpty()) {
                             PackageMdFile packageMdFile = new PackageMdFile(packageName, FileType.SERVICE);
                             packageMdFiles.add(packageMdFile);
@@ -129,6 +131,8 @@ public class InitCommand implements BLauncherCmd {
                         String packageName = scanner.nextLine().trim();
                         SrcFile srcFile = new SrcFile(packageName, FileType.MAIN);
                         sourceFiles.add(srcFile);
+                        SrcFile srcTestFile = new SrcFile(packageName, FileType.MAIN_TEST);
+                        sourceFiles.add(srcTestFile);
                         if (!packageName.isEmpty()) {
                             PackageMdFile packageMdFile = new PackageMdFile(packageName, FileType.MAIN);
                             packageMdFiles.add(packageMdFile);

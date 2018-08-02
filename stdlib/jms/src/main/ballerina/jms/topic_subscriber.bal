@@ -47,9 +47,9 @@ public type TopicSubscriber object {
         self.registerListener(serviceType, consumerActions);
     }
 
-    native function registerListener(typedesc serviceType, TopicSubscriberActions actions);
+    extern function registerListener(typedesc serviceType, TopicSubscriberActions actions);
 
-    native function createSubscriber(Session session, string messageSelector);
+    extern function createSubscriber(Session session, string messageSelector);
 
     documentation { Start topic subscriber endpoint }
     public function start() {
@@ -66,7 +66,7 @@ public type TopicSubscriber object {
         self.closeSubscriber(consumerActions);
     }
 
-    native function closeSubscriber(TopicSubscriberActions actions);
+    extern function closeSubscriber(TopicSubscriberActions actions);
 };
 
 documentation { Configuration related to topic subscriber endpoint
@@ -88,11 +88,11 @@ public type TopicSubscriberActions object {
     documentation { Acknowledges a received message
         P{{message}} JMS message to be acknowledged
     }
-    public native function acknowledge(Message message) returns error?;
+    public extern function acknowledge(Message message) returns error?;
 
     documentation { Synchronously receive a message from the JMS provider
         P{{timeoutInMilliSeconds}} Time to wait until a message is received
         R{{}} Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.
     }
-    public native function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
+    public extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
 };

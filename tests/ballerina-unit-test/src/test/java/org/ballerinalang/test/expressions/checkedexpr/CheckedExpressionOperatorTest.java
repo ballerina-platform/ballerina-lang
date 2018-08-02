@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -205,5 +206,36 @@ public class CheckedExpressionOperatorTest {
         Assert.assertEquals(returns[0].stringValue(), "((((S|S)|(S|S))|((S|S)|(S|S)))|(((S|S)|(S|S))|" +
                 "((S|S)|(S|S)))) ((A|A)|(A|A)) (((M|M)|(M|M))|((M|M)|(M|M))) done", "Invalid string value returned.");
     }
-}
 
+    @Test(description = "Test checked expressions in binary and expression")
+    public void testCheckInBinaryAndExpression() {
+        BValue[] returns = BRunUtil.invoke(result, "testCheckInBinaryAndExpression", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test checked expressions in binary add expression")
+    public void testCheckInBinaryAddExpression() {
+        BValue[] returns = BRunUtil.invoke(result, "testCheckInBinaryAddExpression", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 30);
+    }
+
+    @Test(description = "Test checked expressions in binary div expression")
+    public void testCheckInBinaryDivExpression() {
+        BValue[] returns = BRunUtil.invoke(result, "testCheckInBinaryDivExpression", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+    }
+
+    @Test(description = "Test checked expressions in binary LT expression")
+    public void testCheckInBinaryLTExpression() {
+        BValue[] returns = BRunUtil.invoke(result, "testCheckInBinaryLTExpression", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+    }
+}

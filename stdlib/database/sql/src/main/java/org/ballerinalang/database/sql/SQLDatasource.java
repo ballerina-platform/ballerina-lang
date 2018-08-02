@@ -19,6 +19,7 @@ package org.ballerinalang.database.sql;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.BType;
@@ -37,8 +38,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
+
 import javax.sql.XADataSource;
 
 /**
@@ -147,7 +148,7 @@ public class SQLDatasource implements BValue {
             //Set optional properties
             if (options != null) {
                 boolean isXA = options.getBooleanField(Constants.Options.IS_XA);
-                BMap<String, BRefType> dataSourceConfigMap = populatePropertiesMap(dbOptionsMap);
+                BMap<String, BRefType<?>> dataSourceConfigMap = populatePropertiesMap(dbOptionsMap);
 
                 String dataSourceClassName = options.getStringField(Constants.Options.DATASOURCE_CLASSNAME);
                 if (isXA && dataSourceClassName.isEmpty()) {
@@ -234,7 +235,7 @@ public class SQLDatasource implements BValue {
         return mapProperties;
     }
 
-    private BMap<String, BRefType> setDataSourcePropertiesMap(BMap<String, BRefType> dataSourceConfigMap,
+    private BMap<String, BRefType<?>> setDataSourcePropertiesMap(BMap<String, BRefType<?>> dataSourceConfigMap,
             String jdbcurl, String username, String password) {
         if (dataSourceConfigMap != null) {
             if (!dataSourceConfigMap.hasKey(Constants.URL)) {
@@ -387,9 +388,8 @@ public class SQLDatasource implements BValue {
         return xaDataSource;
     }
 
-    private void setDataSourceProperties(BMap options, HikariConfig config) {
-        Set<String> keySet = options.keySet();
-        for (String key : keySet) {
+    private void setDataSourceProperties(BMap<String, BRefType<?>> options, HikariConfig config) {
+        for (String key : options.keys()) {
             BValue value = options.get(key);
             if (value instanceof BString) {
                 config.addDataSourceProperty(key, value.stringValue());

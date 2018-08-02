@@ -27,7 +27,7 @@ public type WebSocketConnector object {
         P{{final}} True if this is a final frame of a (long) message
         R{{}} `error` if an error occurs when sending
     }
-    public native function pushText(string text, boolean final = true) returns error?;
+    public extern function pushText(string text, boolean final = true) returns error?;
 
     documentation {
         Push binary data to the connection.
@@ -36,7 +36,7 @@ public type WebSocketConnector object {
         P{{final}} True if this is a final frame of a (long) message
         R{{}} `error` if an error occurs when sending
     }
-    public native function pushBinary(byte[] data, boolean final = true) returns error?;
+    public extern function pushBinary(byte[] data, boolean final = true) returns error?;
 
     documentation {
         Ping the connection.
@@ -44,7 +44,7 @@ public type WebSocketConnector object {
         P{{data}} Binary data to be sent.
         R{{}} `error` if an error occurs when sending
     }
-    public native function ping(byte[] data) returns error?;
+    public extern function ping(byte[] data) returns error?;
 
     documentation {
         Send pong message to the connection.
@@ -52,7 +52,7 @@ public type WebSocketConnector object {
         P{{data}} Binary data to be sent
         R{{}} `error` if an error occurs when sending
     }
-    public native function pong(byte[] data) returns error?;
+    public extern function pong(byte[] data) returns error?;
 
     documentation {
         Close the connection.
@@ -66,7 +66,7 @@ public type WebSocketConnector object {
                            within waiting period the connection is terminated immediately.
         R{{}} `error` if an error occurs when sending
     }
-    public native function close(int statusCode, string reason, int timeoutInSecs = 60) returns error?;
+    public extern function close(int statusCode, string reason, int timeoutInSecs = 60) returns error?;
 
     documentation {
         Called when the endpoint is ready to receive messages. Can be called only once per endpoint. For the
@@ -74,7 +74,7 @@ public type WebSocketConnector object {
 
         R{{}} `error` if an error occurs when sending
     }
-    public native function ready() returns error?;
+    public extern function ready() returns error?;
 
 };
 

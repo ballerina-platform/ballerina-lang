@@ -29,7 +29,7 @@ public type Stub object {
         P{{descriptorKey}} - Proto descriptor key. Key of proto descriptor.
         P{{descriptorMap}} - Proto descriptor map. descriptor map with all dependent descriptors.
     }
-    public native function initStub(any clientEndpoint, string stubType, string descriptorKey, map descriptorMap);
+    public extern function initStub(any clientEndpoint, string stubType, string descriptorKey, map descriptorMap);
 
     documentation {
         Calls when executing blocking call with gRPC service.
@@ -39,7 +39,7 @@ public type Stub object {
         P{{headers}} - Optional headers parameter. Passes header value if needed. Default sets to nil.
         R{{}} - Returns response message and headers if executes successfully, error otherwise.
     }
-    public native function blockingExecute(string methodID, any payload, Headers? headers = ())
+    public extern function blockingExecute(string methodID, any payload, Headers? headers = ())
         returns ((any, Headers)|error);
 
     documentation {
@@ -51,7 +51,7 @@ public type Stub object {
         P{{headers}} - Optional headers parameter. Passes header value if needed. Default sets to nil.
         R{{}} - Returns an error if encounters an error while sending the request, returns nil otherwise.
     }
-    public native function nonBlockingExecute(string methodID, any payload, typedesc listenerService, Headers?
+    public extern function nonBlockingExecute(string methodID, any payload, typedesc listenerService, Headers?
     headers = ()) returns error?;
 
 
@@ -63,6 +63,6 @@ public type Stub object {
         P{{headers}} - Optional headers parameter. Passes header value if needed. Default sets to nil.
         R{{}} - Returns client connection if executes successfully, error otherwise.
     }
-    public native function streamingExecute(string methodID, typedesc listenerService, Headers? headers = ())
+    public extern function streamingExecute(string methodID, typedesc listenerService, Headers? headers = ())
         returns Client|error;
 };

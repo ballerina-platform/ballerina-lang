@@ -88,7 +88,7 @@ public type ContentDisposition object {
         Converts the `ContentDisposition` type to a string suitable for use as the value of a corresponding MIME header.
         R{{}} The `string` represnetation of the `ContentDisposition` object
     }
-    public native function toString() returns (string);
+    public extern function toString() returns (string);
 };
 
 documentation {
@@ -286,7 +286,7 @@ public type Entity object {
         P{{contentType}} Content type to be used with the payload. This is an optional parameter. `application/json`
                          is used as the default value.
     }
-    public native function setJson(@sensitive json jsonContent, @sensitive string contentType = "application/json");
+    public extern function setJson(@sensitive json jsonContent, @sensitive string contentType = "application/json");
 
     documentation {
         Extracts JSON body from the entity. If the entity body is not a JSON, an error is returned.
@@ -294,7 +294,7 @@ public type Entity object {
         R{{}} `json` data extracted from the the entity body. An `error` record is returned in case of
               errors.
     }
-    public native function getJson() returns @tainted json|error;
+    public extern function getJson() returns @tainted json|error;
 
     documentation {
         Sets the entity body with the given XML content. This method overrides any existing content-type headers
@@ -305,7 +305,7 @@ public type Entity object {
         P{{contentType}} Content type to be used with the payload. This is an optional parameter. `application/xml`
                          is used as the default value.
     }
-    public native function setXml(@sensitive xml xmlContent, @sensitive string contentType = "application/xml");
+    public extern function setXml(@sensitive xml xmlContent, @sensitive string contentType = "application/xml");
 
     documentation {
         Extracts `xml` body from the entity. If the entity body is not an XML, an error is returned.
@@ -313,7 +313,7 @@ public type Entity object {
         R{{}} `xml` data extracted from the the entity body. An `error` record is returned in case of
               errors.
     }
-    public native function getXml() returns @tainted xml|error;
+    public extern function getXml() returns @tainted xml|error;
 
     documentation {
         Sets the entity body with the given text content. This method overrides any existing content-type headers
@@ -324,14 +324,14 @@ public type Entity object {
         P{{contentType}} Content type to be used with the payload. This is an optional parameter. `text/plain`
                          is used as the default value.
     }
-    public native function setText(@sensitive string textContent, @sensitive string contentType = "text/plain");
+    public extern function setText(@sensitive string textContent, @sensitive string contentType = "text/plain");
 
     documentation {
         Extracts text body from the entity. If the entity body is not text compatible an error is returned.
 
         R{{}} `string` data extracted from the the entity body or `error` in case of errors.
     }
-    public native function getText() returns @tainted string|error;
+    public extern function getText() returns @tainted string|error;
 
     documentation {
         Given an entity, gets the entity body as a string. Content type is checked during entity body construction which
@@ -340,7 +340,7 @@ public type Entity object {
         R{{}} Entity body as a `string` or `error` in case of errors occurred during
               construction of the string body.
     }
-    public native function getBodyAsString() returns @tainted string|error;
+    public extern function getBodyAsString() returns @tainted string|error;
 
     documentation {
         Sets the entity body with the given byte[] content. This method overrides any existing `content-type` headers
@@ -351,7 +351,7 @@ public type Entity object {
         P{{contentType}} Content type to be used with the payload. This is an optional parameter.
                          `application/octet-stream` is used as the default value.
     }
-    public native function setByteArray(@sensitive byte[] blobContent, @sensitive string contentType = "application/octet-stream");
+    public extern function setByteArray(@sensitive byte[] blobContent, @sensitive string contentType = "application/octet-stream");
 
     documentation {
         Given an entity, gets the entity body as a `byte[]`. If the entity size is considerably large consider
@@ -360,7 +360,7 @@ public type Entity object {
         R{{}} `byte[]` data extracted from the the entity body. An `error` record is returned in case of
               errors.
     }
-    public native function getByteArray() returns @tainted byte[]|error;
+    public extern function getByteArray() returns @tainted byte[]|error;
 
     documentation {
         Sets the entity body with the given byte channel content. This method overrides any existing content-type headers
@@ -371,14 +371,14 @@ public type Entity object {
         P{{contentType}} Content-type to be used with the payload. This is an optional parameter.
                          `application/octet-stream` is used as the default value.
     }
-    public native function setByteChannel(io:ByteChannel byteChannel, @sensitive string contentType = "application/octet-stream");
+    public extern function setByteChannel(io:ByteChannel byteChannel, @sensitive string contentType = "application/octet-stream");
 
     documentation {
         Given an entity, gets the entity body as a byte channel.
 
         R{{}} An `io:ByteChannel`. An `error` record will be returned in case of errors
     }
-    public native function getByteChannel() returns @tainted io:ByteChannel|error;
+    public extern function getByteChannel() returns @tainted io:ByteChannel|error;
 
     documentation {
         Given an entity, gets its body parts. If the entity body is not a set of body parts an error will be returned.
@@ -386,14 +386,14 @@ public type Entity object {
         R{{}} An array of body parts(`Entity[]`) extracted from the entity body. An `error` record will be
               returned in case of errors.
     }
-    public native function getBodyParts() returns Entity[]|error;
+    public extern function getBodyParts() returns Entity[]|error;
 
     documentation {
         Given an entity, gets the body parts as a byte channel.
 
         R{{}} Body parts as a byte channel
     }
-    public native function getBodyPartsAsChannel() returns @tainted io:ByteChannel;
+    public extern function getBodyPartsAsChannel() returns @tainted io:ByteChannel;
 
     documentation {
         Sets body parts to entity. This method overrides any existing `content-type` headers
@@ -404,7 +404,7 @@ public type Entity object {
         P{{contentType}} Content-type to be used with the payload. This is an optional parameter.
                          `multipart/form-data` is used as the default value.
     }
-    public native function setBodyParts(@sensitive Entity[] bodyParts, @sensitive string contentType = "multipart/form-data");
+    public extern function setBodyParts(@sensitive Entity[] bodyParts, @sensitive string contentType = "multipart/form-data");
 
     documentation {
         Gets the header value associated with the given header name.
@@ -414,7 +414,7 @@ public type Entity object {
               present, then the first value is returned. An exception is thrown if no header is found. Use
               `hasHeader()` beforehand to check the existence of header.
     }
-    public native function getHeader(@sensitive string headerName) returns @tainted string;
+    public extern function getHeader(@sensitive string headerName) returns @tainted string;
 
     documentation {
         Gets all the header values associated with the given header name.
@@ -423,14 +423,14 @@ public type Entity object {
         R{{}} All the header values associated with the given header name as a `string[]`. An exception is thrown
               if no header is found. Use `hasHeader()` beforehand to check the existence of header.
     }
-    public native function getHeaders(@sensitive string headerName) returns @tainted string[];
+    public extern function getHeaders(@sensitive string headerName) returns @tainted string[];
 
     documentation {
         Gets all header names.
 
         R{{}} All header names as a `string[]`
     }
-    public native function getHeaderNames() returns @tainted string[];
+    public extern function getHeaderNames() returns @tainted string[];
 
     documentation {
         Adds the given header value against the given header.
@@ -438,7 +438,7 @@ public type Entity object {
         P{{headerName}} The header name
         P{{headerValue}} Represents the header value to be added
     }
-    public native function addHeader(@sensitive string headerName, string headerValue);
+    public extern function addHeader(@sensitive string headerName, string headerValue);
 
     documentation {
         Sets the given header value against the existing header. If a header already exists, its value is replaced
@@ -447,19 +447,19 @@ public type Entity object {
         P{{headerName}} The header name
         P{{headerValue}} Represents the header value
     }
-    public native function setHeader(@sensitive string headerName, string headerValue);
+    public extern function setHeader(@sensitive string headerName, string headerValue);
 
     documentation {
         Removes the given header from the entity.
 
         P{{headerName}} Represents the header name
     }
-    public native function removeHeader(@sensitive string headerName);
+    public extern function removeHeader(@sensitive string headerName);
 
     documentation {
         Removes all headers associated with the entity.
     }
-    public native function removeAllHeaders();
+    public extern function removeAllHeaders();
 
     documentation {
         Checks whether the requested header key exists in the header map.
@@ -467,7 +467,7 @@ public type Entity object {
         P{{headerName}} The header name
         R{{}} True if the specified header key exists
     }
-    public native function hasHeader(@sensitive string headerName) returns boolean;
+    public extern function hasHeader(@sensitive string headerName) returns boolean;
 };
 
 function Entity::setFileAsEntityBody(@sensitive string filePath,
@@ -498,7 +498,7 @@ documentation {
           If the given input is of type io:ByteChannel, an encoded `io:ByteChannel` is returned
           In case of errors, an `error` record is returned
 }
-native function base64Encode((string|byte[]|io:ByteChannel) contentToBeEncoded, string charset = "utf-8")
+extern function base64Encode((string|byte[]|io:ByteChannel) contentToBeEncoded, string charset = "utf-8")
     returns (string|byte[]|io:ByteChannel|error);
 
 documentation {
@@ -511,7 +511,7 @@ documentation {
           If the given input is of type io:ByteChannel, a decoded `io:ByteChannel` is returned
           In case of errors, an `error` record is returned
 }
-native function base64Decode((string|byte[]|io:ByteChannel) contentToBeDecoded, string charset = "utf-8")
+extern function base64Decode((string|byte[]|io:ByteChannel) contentToBeDecoded, string charset = "utf-8")
     returns (string|byte[]|io:ByteChannel|error);
 
 documentation {
@@ -628,7 +628,7 @@ documentation {
     P{{contentType}} Content-Type in string
     R{{}} `MediaType` object or an error in case of error
 }
-public native function getMediaType(string contentType) returns MediaType|error;
+public extern function getMediaType(string contentType) returns MediaType|error;
 
 documentation {
     Given the Content-Disposition as a string, gets the ContentDisposition object with it.
@@ -636,7 +636,7 @@ documentation {
     P{{contentDisposition}} Content disposition string
     R{{}} A `ContentDisposition` object
 }
-public native function getContentDispositionObject(string contentDisposition) returns ContentDisposition;
+public extern function getContentDispositionObject(string contentDisposition) returns ContentDisposition;
 
 documentation {
         Converts given byte[] to a string.
@@ -644,18 +644,18 @@ documentation {
         P{{encoding}} Encoding to used in byte[] conversion to string
         R{{}} String representation of the given byte[]
     }
-public native function byteArrayToString(byte[] b, string encoding) returns string;
+public extern function byteArrayToString(byte[] b, string encoding) returns string;
 
 documentation {
         Encode a given byte[] with Base64 encoding scheme.
 
         R{{}} Return an encoded byte[]
     }
-public native function base64EncodeByteArray(byte[] b) returns byte[];
+public extern function base64EncodeByteArray(byte[] b) returns byte[];
 
 documentation {
         Decode a given byte[] with Base64 encoding scheme.
 
         R{{}} Return a decoded byte[]
     }
-public native function base64DecodeByteArray(byte[] b) returns byte[];
+public extern function base64DecodeByteArray(byte[] b) returns byte[];

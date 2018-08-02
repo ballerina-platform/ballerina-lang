@@ -118,12 +118,9 @@ export function getContextMenuItems(node, parentNode, command,
         handler: () => {
             const { editor } = reactContext;
             const deleteFile = () => {
-                remove(node.id)
+                return remove(node.id)
                     .then(() => {
                         onNodeRefresh(parentNode);
-                    })
-                    .catch((err) => {
-                        log.error(err.message);
                     });
             };
             if (editor.isFileOpenedInEditor(node.id)) {
@@ -133,8 +130,9 @@ export function getContextMenuItems(node, parentNode, command,
                     additionalProps: {
                         file: targetEditor.file,
                         onConfirm: () => {
-                            editor.closeEditor(targetEditor);
-                            deleteFile();
+                            return deleteFile().then(() => {
+                                editor.closeEditor(targetEditor);
+                            });
                         },
                     },
                 });

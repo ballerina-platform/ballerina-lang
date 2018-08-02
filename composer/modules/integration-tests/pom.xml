@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>composer</artifactId>
-        <version>0.976.1-SNAPSHOT</version>
+        <version>0.980.2-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <packaging>pom</packaging>
@@ -32,6 +31,12 @@
             <artifactId>composer-server-distribution</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-examples</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -48,6 +53,19 @@
                         <configuration>
                             <includeClassifiers>ballerina-binary-repo</includeClassifiers>
                             <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack-examples</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeArtifactIds>
+                                ballerina-examples
+                            </includeArtifactIds>
+                            <outputDirectory>src/test/resources/ballerina-examples</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -118,16 +136,14 @@
                         <configuration>
                             <skip>${maven.test.skip}</skip>
                             <target name="copy js files to target">
-                                <mkdir dir="${project.build.directory}/js-files-from-web"/>
-                                <copy todir="${project.build.directory}/js-files-from-web" overwrite="true"
-                                      flatten="true">
+                                <mkdir dir="${project.build.directory}/js-files-from-web" />
+                                <copy todir="${project.build.directory}/js-files-from-web" overwrite="true" flatten="true">
                                     <fileset dir="${project.build.directory}/extracted-web-lib/">
-                                        <include name="**/*.js"/>
+                                        <include name="**/*.js" />
                                     </fileset>
                                 </copy>
                             </target>
                         </configuration>
-
                     </execution>
                     <execution>
                         <id>set-npm-executable</id>
@@ -139,10 +155,22 @@
                             <target>
                                 <!-- set executable names based on OS family -->
                                 <condition property="npm.executable" value="npm.cmd" else="npm">
-                                    <os family="windows"/>
+                                    <os family="windows" />
                                 </condition>
                             </target>
                             <exportAntProperties>true</exportAntProperties>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>delete-examples</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <delete dir="src/test/resources/ballerina-examples" includeemptydirs="true" deleteonexit="true" />
+                            </target>
                         </configuration>
                     </execution>
                 </executions>

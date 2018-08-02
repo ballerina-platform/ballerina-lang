@@ -480,6 +480,10 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
         // ignore
     }
 
+    public void visit(BLangIndexBasedAccess.BLangTupleAccessExpr arrayIndexAccessExpr) {
+        // ignore
+    }
+
     public void visit(BLangIndexBasedAccess.BLangXMLAccessExpr xmlIndexAccessExpr) {
         // ignore
     }

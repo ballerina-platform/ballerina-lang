@@ -21,7 +21,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import WorkerTools from 'plugins/ballerina/tool-palette/item-provider/worker-tools';
-import ControllerUtil from 'plugins/ballerina/diagram/views/default/components/controllers/controller-util';
+import ControllerUtil from '../controller-utils/controller-util';
 import TreeUtil from 'plugins/ballerina/model/tree-util';
 import { getActions } from 'api-client/api-client';
 import DefaultNodeFactory from 'plugins/ballerina/model/default-node-factory';
@@ -167,6 +167,11 @@ class DefaultCtrl extends React.Component {
         const currentEndpoints = TreeUtil.getAllEndpoints(model);
         const y = bBox.y + bBox.h;
         const x = bBox.x;
+
+        if (model.parent.viewState.collapsed ||
+            (model.parent.parent && model.parent.parent.viewState.collapsed)) {
+            return null;
+        }
 
         return (
             <HoverButton

@@ -21,11 +21,11 @@ public type NonListener object {
     private ServiceEndpointConfiguration config;
 
     public function init (ServiceEndpointConfiguration c);
-    public native function initEndpoint () returns (error);
-    public native function register (typedesc serviceType);
-    public native function start ();
-    public native function getCallerActions() returns Connection;
-    public native function stop ();
+    public extern function initEndpoint () returns (error);
+    public extern function register (typedesc serviceType);
+    public extern function start ();
+    public extern function getCallerActions() returns Connection;
+    public extern function stop ();
 };
 
 function NonListener::init (ServiceEndpointConfiguration c) {

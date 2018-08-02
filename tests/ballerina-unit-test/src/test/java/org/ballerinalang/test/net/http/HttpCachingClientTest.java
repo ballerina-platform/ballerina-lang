@@ -36,7 +36,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -90,7 +90,7 @@ public class HttpCachingClientTest {
                                                                  PROTOCOL_PACKAGE_HTTP,
                                                                  RESPONSE);
 
-        HTTPCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
+        HttpCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         inResponseMsg.setHeader(AGE, "10");
         inResponseMsg.setProperty(HTTP_STATUS_CODE, 200);
 
@@ -116,7 +116,7 @@ public class HttpCachingClientTest {
                                                              PROTOCOL_PACKAGE_HTTP,
                                                              RESPONSE);
 
-        HTTPCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
+        HttpCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         inResponseMsg.setHeader(DATE, expectedDate);
         inResponseMsg.setProperty(HTTP_STATUS_CODE, 200);
 
@@ -140,7 +140,7 @@ public class HttpCachingClientTest {
                                                              PROTOCOL_PACKAGE_HTTP,
                                                              RESPONSE);
 
-        HTTPCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
+        HttpCarbonMessage inResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         HttpHeaders httpHeaders = inResponseMsg.getHeaders();
         httpHeaders.add(WARNING, "Warning: 110 - \"Response is Stale\"");
         httpHeaders.add(WARNING, "Warning: 111 - \"Revalidation Failed\"");
@@ -175,7 +175,7 @@ public class HttpCachingClientTest {
         BMap<String, BValue> cachedResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
                                                                  PROTOCOL_PACKAGE_HTTP,
                                                                  RESPONSE);
-        HTTPCarbonMessage cachedResponseMsg = HttpUtil.createHttpCarbonMessage(false);
+        HttpCarbonMessage cachedResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         cachedResponseMsg.setProperty(HTTP_STATUS_CODE, 200);
         cachedResponseMsg.setHeader(DATE, cachedDateHeader);
         cachedResponseMsg.setHeader(CACHE_CONTROL, cacheControlHeader);
@@ -186,7 +186,7 @@ public class HttpCachingClientTest {
         BMap<String, BValue> validationResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
                                                                      PROTOCOL_PACKAGE_HTTP,
                                                                      RESPONSE);
-        HTTPCarbonMessage validationResponseMsg = HttpUtil.createHttpCarbonMessage(false);
+        HttpCarbonMessage validationResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         validationResponseMsg.setProperty(HTTP_STATUS_CODE, 304);
         validationResponseMsg.setHeader(DATE, validationDateHeader);
         validationResponseMsg.setHeader(CACHE_CONTROL, cacheControlHeader);
@@ -237,7 +237,7 @@ public class HttpCachingClientTest {
         BMap<String, BValue> validationResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
                                                                      PROTOCOL_PACKAGE_HTTP,
                                                                      RESPONSE);
-        HTTPCarbonMessage validationResponseMsg = HttpUtil.createHttpCarbonMessage(false);
+        HttpCarbonMessage validationResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         validationResponseMsg.setProperty(HTTP_STATUS_CODE, 200);
         validationResponseMsg.setHeader(LAST_MODIFIED, lastModifiedHeader);
         validationResponseMsg.setHeader(ETAG, etagHeader);
@@ -282,7 +282,7 @@ public class HttpCachingClientTest {
                                                          .getPackageInfo(PROTOCOL_PACKAGE_HTTP)
                                                          .getStructInfo(RESPONSE_CACHE_CONTROL));
 
-        HTTPCarbonMessage cachedResponseMsg = HttpUtil.createHttpCarbonMessage(false);
+        HttpCarbonMessage cachedResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         cachedResponseMsg.setProperty(HTTP_STATUS_CODE, 200);
         cachedResponseMsg.setHeader(AGE, "10");
         cachedResponseMsg.setHeader(CACHE_CONTROL, responseCacheControl.buildCacheControlDirectives());
@@ -371,7 +371,7 @@ public class HttpCachingClientTest {
                                                          .getStructInfo(RESPONSE_CACHE_CONTROL));
         responseCacheControl.setSMaxAge(20).setMaxAge(15);
 
-        HTTPCarbonMessage cachedResponseMsg = HttpUtil.createHttpCarbonMessage(false);
+        HttpCarbonMessage cachedResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         cachedResponseMsg.setProperty(HTTP_STATUS_CODE, 200);
         cachedResponseMsg.setHeader(DATE, dateHeader);
         cachedResponseMsg.setHeader(EXPIRES, expiresHeader);
@@ -433,7 +433,7 @@ public class HttpCachingClientTest {
                                                          .getStructInfo(RESPONSE_CACHE_CONTROL));
         responseCacheControl.setMaxAge(300).setSMaxAge(300);
 
-        HTTPCarbonMessage cachedResponseMsg = HttpUtil.createHttpCarbonMessage(false);
+        HttpCarbonMessage cachedResponseMsg = HttpUtil.createHttpCarbonMessage(false);
         cachedResponseMsg.setProperty(HTTP_STATUS_CODE, 200);
         cachedResponseMsg.setHeader(AGE, String.valueOf(200));
         cachedResponseMsg.setHeader(DATE, dateHeader);
@@ -479,7 +479,7 @@ public class HttpCachingClientTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    private void initInboundResponse(BMap<String, BValue> inResponse, HTTPCarbonMessage inResponseMsg) {
+    private void initInboundResponse(BMap<String, BValue> inResponse, HttpCarbonMessage inResponseMsg) {
         HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
         BMap<String, BValue> entity = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
                                                                       PROTOCOL_PACKAGE_MIME, ENTITY);

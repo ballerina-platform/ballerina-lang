@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
 import static org.ballerinalang.langserver.compiler.LSCompiler.UNTITLED_BAL;
@@ -136,7 +137,7 @@ public class BLangFragmentParser {
     }
 
     protected static JsonElement getJsonModel(WorkspaceDocumentManager documentManager, String source)
-            throws IOException {
+            throws IOException, InvocationTargetException, IllegalAccessException {
         BLangCompilationUnit compilationUnit = null;
         java.nio.file.Path filePath = LSCompiler.createAndGetTempFile(UNTITLED_BAL);
         BallerinaFile model = LSCompiler.compileContent(source, filePath, CompilerPhase.DEFINE, documentManager, true);

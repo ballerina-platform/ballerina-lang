@@ -31,7 +31,6 @@ public class WebSocketOpenConnectionInfo {
     private final WebSocketService webSocketService;
     private final BMap<String, BValue> webSocketEndpoint;
     private final WebSocketConnection webSocketConnection;
-    private int closeStatusCode = -1;
 
     public WebSocketOpenConnectionInfo(WebSocketService webSocketService, WebSocketConnection webSocketConnection,
                                        BMap<String, BValue> webSocketEndpoint) {
@@ -50,13 +49,5 @@ public class WebSocketOpenConnectionInfo {
 
     public WebSocketConnection getWebSocketConnection() {
         return webSocketConnection;
-    }
-
-    public int getCloseStatusCode() {
-        return closeStatusCode;
-    }
-
-    public void setCloseStatusCode(int closeStatusCode) {
-        this.closeStatusCode = closeStatusCode;
     }
 }

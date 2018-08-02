@@ -44,11 +44,18 @@ public class StringTemplateLiteralNegativeTest {
     @Test(description = "Test string template literal syntax errors")
     public void testStringTemplateLiteralSyntaxNegativeCases() {
         resultNegative = BCompileUtil.compile("test-src/types/string/string-template-literal-syntax-negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        Assert.assertEquals(resultNegative.getErrorCount(), 6);
         BAssertUtil.validateError(resultNegative, 0,
                 "mismatched input '}'. expecting {'but', '?', '+', '-', '*', '/', '%', '==', '!=', '>', '<', " +
                         "'>=', '<=', '&&', '||', '&', '^', '...', '|', '?:', '..<', ExpressionEnd}", 4, 71);
         BAssertUtil.validateError(resultNegative, 1,
                 "mismatched input ';'. expecting {'[', '?', '|', Identifier}", 5, 13);
+        BAssertUtil.validateError(resultNegative, 2, "mismatched input 'returns'. expecting {'[', '?', '|', " +
+                "Identifier}", 8, 36);
+        BAssertUtil.validateError(resultNegative, 3, "mismatched input '{'. expecting {'[', '?', '|', Identifier}",
+                8, 53);
+        BAssertUtil.validateError(resultNegative, 4, "invalid token '}'", 10, 36);
+        BAssertUtil.validateError(resultNegative, 5, "mismatched input '}'. expecting {'[', '?', '|', Identifier}",
+                10, 36);
     }
 }

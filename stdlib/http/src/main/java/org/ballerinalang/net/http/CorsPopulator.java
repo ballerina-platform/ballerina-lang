@@ -102,4 +102,7 @@ public class CorsPopulator {
         }
         return corsHeaders;
     }
+
+    private CorsPopulator() {
+    }
 }

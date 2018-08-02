@@ -23,7 +23,7 @@ documentation {
     P{{trustStore}} Truststore.
     R{{}} Verified status. true or false.
 }
-native function verifySignature(string data, string signature, string algorithm, TrustStore trustStore)
+extern function verifySignature(string data, string signature, string algorithm, TrustStore trustStore)
     returns (boolean);
 type TrustStore record {
     string certificateAlias,
@@ -39,7 +39,7 @@ documentation {
     P{{keyStore}} Keystore.
     R{{}} Signature. Signed string.
 }
-native function sign(string data, string algorithm, KeyStore keyStore) returns (string);
+extern function sign(string data, string algorithm, KeyStore keyStore) returns (string);
 
 type KeyStore record {
     string keyAlias,
@@ -54,4 +54,4 @@ documentation {
     P{{s}} JSON string
     R{{}} JSON object.
 }
-public native function parseJson(string s) returns (json|error);
+public extern function parseJson(string s) returns (json|error);

@@ -49,7 +49,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
@@ -96,7 +96,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
     }
 
     @Override
-    public void onMessage(HTTPCarbonMessage inboundMessage) {
+    public void onMessage(HttpCarbonMessage inboundMessage) {
         try {
             HttpResource httpResource;
             if (accessed(inboundMessage)) {
@@ -132,7 +132,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
     }
 
 
-    protected void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage httpCarbonMessage,
+    protected void extractPropertiesAndStartResourceExecution(HttpCarbonMessage httpCarbonMessage,
                                                               HttpResource httpResource) {
         BValue subscriberServiceEndpoint = getSubscriberServiceEndpoint(httpResource, httpCarbonMessage);
         BValue httpRequest;
@@ -177,7 +177,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
             //validate signature for requests received at the callback
             validateSignature(httpCarbonMessage, httpResource, notificationRequestStruct);
 
-            HTTPCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
+            HttpCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
             response.waitAndReleaseAllEntities();
             response.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpResponseStatus.ACCEPTED.code());
             response.addHttpContent(new DefaultLastHttpContent());
@@ -190,7 +190,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
         Executor.submit(balResource, callback, null, null, signatureParams);
     }
 
-    private void validateSignature(HTTPCarbonMessage httpCarbonMessage, HttpResource httpResource,
+    private void validateSignature(HttpCarbonMessage httpCarbonMessage, HttpResource httpResource,
                                    BMap<String, BValue> notificationRequestStruct) {
         //invoke processWebSubNotification function
         PackageInfo packageInfo = context.getProgramFile().getPackageInfo(WEBSUB_PACKAGE);
@@ -215,7 +215,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
      * @return the struct representing the subscriber service endpoint
      */
     private BMap<String, BValue> getSubscriberServiceEndpoint(HttpResource httpResource,
-                                                              HTTPCarbonMessage httpCarbonMessage) {
+                                                              HttpCarbonMessage httpCarbonMessage) {
         BMap<String, BValue> subscriberServiceEndpoint =
                 createSubscriberServiceEndpointStruct(httpResource.getBalResource());
         BMap<String, BValue> serviceEndpoint = BLangConnectorSPIUtil.createBStruct(
@@ -269,18 +269,18 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
      *
      * @param httpCarbonMessage the message/request received
      */
-    private void autoRespondToIntentVerification(HTTPCarbonMessage httpCarbonMessage) {
+    private void autoRespondToIntentVerification(HttpCarbonMessage httpCarbonMessage) {
         String annotatedTopic = httpCarbonMessage.getProperty(ANNOTATED_TOPIC).toString();
         if (httpCarbonMessage.getProperty(HttpConstants.QUERY_STR) != null) {
             String queryString = (String) httpCarbonMessage.getProperty(HttpConstants.QUERY_STR);
             BMap<String, BString> params = new BMap<>();
             try {
-                HTTPCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
+                HttpCarbonMessage response = HttpUtil.createHttpCarbonMessage(false);
                 response.waitAndReleaseAllEntities();
                 URIUtil.populateQueryParamMap(queryString, params);
                 String mode = params.get(PARAM_HUB_MODE).stringValue();
-                if (!params.keySet().contains(PARAM_HUB_MODE) || !params.keySet().contains(PARAM_HUB_TOPIC)
-                        || !params.keySet().contains(PARAM_HUB_CHALLENGE)) {
+                if (!params.hasKey(PARAM_HUB_MODE) || !params.hasKey(PARAM_HUB_TOPIC) ||
+                        !params.hasKey(PARAM_HUB_CHALLENGE)) {
                     response.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpResponseStatus.NOT_FOUND.code());
                     response.addHttpContent(new DefaultLastHttpContent());
                     HttpUtil.sendOutboundResponse(httpCarbonMessage, response);

@@ -21,16 +21,15 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.utils.Base64ByteChannel;
@@ -260,8 +259,8 @@ public class IOTest {
         Assert.assertEquals(records.size(), expectedRecordLength);
 
         returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "nextRecord");
-        records = (BStringArray) returns[0];
-        Assert.assertEquals(records.size(), 0);
+        BMap error = (BMap) returns[0];
+        Assert.assertTrue(IOConstants.IO_EOF.equals(error.getMap().get("message").toString()));
         returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertFalse(hasNextRecord.booleanValue(), "Not expecting anymore records");
@@ -343,9 +342,9 @@ public class IOTest {
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initCharacterChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(characterInputOutputProgramFile, "readJson");
-        BJSON readJson = (BJSON) returns[0];
-        Assert.assertNotNull(readJson.getMessageAsString());
-        Assert.assertEquals(readJson.getMessageAsString(), readFileContent(resourceToRead), "JSON content mismatch.");
+        Assert.assertNotNull(returns[0].stringValue());
+        Assert.assertEquals(returns[0].stringValue().replace(", ", ","), readFileContent(resourceToRead),
+                "JSON content mismatch.");
 
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "close");
     }
@@ -362,7 +361,7 @@ public class IOTest {
         BValue[] args = {new BString(sourceToWrite), new BString("w"), new BString("UTF-8")};
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initCharacterChannel", args);
 
-        args = new BValue[]{new BJSON(content)};
+        args = new BValue[] { JsonParser.parse(content) };
         BValue[] result = BRunUtil.invokeStateful(characterInputOutputProgramFile, "writeJson", args);
 
         //Assert if there's no error return
@@ -402,9 +401,8 @@ public class IOTest {
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "initCharacterChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(characterInputOutputProgramFile, "readXml");
-        BXML readJson = (BXML) returns[0];
-        Assert.assertNotNull(readJson.getMessageAsString());
-        Assert.assertEquals(readJson.getMessageAsString(), readFileContent(resourceToRead), "XML content mismatch.");
+        Assert.assertNotNull(returns[0].stringValue());
+        Assert.assertEquals(returns[0].stringValue(), readFileContent(resourceToRead), "XML content mismatch.");
 
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "close");
     }
@@ -416,7 +414,7 @@ public class IOTest {
                 "}";
         BValue[] args = {new BString(content), new BString("UTF-8")};
         BValue[] result = BRunUtil.invokeStateful(stringInputOutputProgramFile, "getJson", args);
-        Assert.assertTrue(((BJSON) result[0]).getMessageAsString().contains("Foo"));
+        Assert.assertTrue(result[0].stringValue().contains("Foo"));
     }
 
     @Test(description = "Test function to convert xml to string")

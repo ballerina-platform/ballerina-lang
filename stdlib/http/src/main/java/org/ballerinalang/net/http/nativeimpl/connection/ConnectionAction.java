@@ -20,19 +20,20 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
+import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
@@ -48,9 +49,9 @@ import static org.ballerinalang.net.http.HttpUtil.extractEntity;
  */
 public abstract class ConnectionAction implements NativeCallableUnit {
 
-    protected void sendOutboundResponseRobust(DataContext dataContext, HTTPCarbonMessage requestMessage,
+    protected void sendOutboundResponseRobust(DataContext dataContext, HttpCarbonMessage requestMessage,
                                               BMap<String, BValue> outboundResponseStruct,
-                                              HTTPCarbonMessage responseMessage) {
+                                              HttpCarbonMessage responseMessage) {
         String contentType = HttpUtil.getContentTypeFromTransportMessage(responseMessage);
         String boundaryString = null;
         if (HeaderUtil.isMultipart(contentType)) {
@@ -69,7 +70,7 @@ public abstract class ConnectionAction implements NativeCallableUnit {
             if (boundaryString != null) {
                 serializeMultiparts(boundaryString, entityStruct, messageOutputStream);
             } else {
-                MessageDataSource outboundMessageSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+                BValue outboundMessageSource = EntityBodyHandler.getMessageDataSource(entityStruct);
                 serializeMsgDataSource(outboundMessageSource, entityStruct, messageOutputStream);
             }
         }
@@ -107,11 +108,18 @@ public abstract class ConnectionAction implements NativeCallableUnit {
         outResponseStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
     }
 
-    protected void serializeMsgDataSource(MessageDataSource outboundMessageSource, BMap<String, BValue> entityStruct,
+    protected void serializeMsgDataSource(BValue outboundMessageSource, BMap<String, BValue> entityStruct,
                                           OutputStream messageOutputStream) {
         try {
             if (outboundMessageSource != null) {
-                outboundMessageSource.serializeData(messageOutputStream);
+                if (MimeUtil.isJSONContentType(entityStruct) &&
+                        MimeUtil.isJSONCompatible(outboundMessageSource.getType())) {
+                    JsonGenerator gen = new JsonGenerator(messageOutputStream);
+                    gen.serialize(outboundMessageSource);
+                    gen.flush();
+                } else {
+                    outboundMessageSource.serialize(messageOutputStream);
+                }
                 HttpUtil.closeMessageOutputStream(messageOutputStream);
             } else { //When the entity body is a byte channel
                 EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);
@@ -122,7 +130,7 @@ public abstract class ConnectionAction implements NativeCallableUnit {
         }
     }
 
-    protected HttpMessageDataStreamer getMessageDataStreamer(HTTPCarbonMessage outboundResponse) {
+    protected HttpMessageDataStreamer getMessageDataStreamer(HttpCarbonMessage outboundResponse) {
         final HttpMessageDataStreamer outboundMsgDataStreamer;
         final PooledDataStreamerFactory pooledDataStreamerFactory = (PooledDataStreamerFactory)
                 outboundResponse.getProperty(HttpConstants.POOLED_BYTE_BUFFER_FACTORY);
@@ -154,7 +162,7 @@ public abstract class ConnectionAction implements NativeCallableUnit {
         }
 
         @Override
-        public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
+        public void onMessage(HttpCarbonMessage httpCarbonMessage) {
             this.dataContext.notifyOutboundResponseStatus(null);
         }
 
