@@ -24,7 +24,6 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -203,17 +202,6 @@ public class TypeCastExprTest {
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
     }
-
-    @Test
-    public void testIntArrayToLongArray() {
-        BValue[] returns = BRunUtil.invoke(result, "intarrtofloatarr");
-        Assert.assertTrue(returns[0] instanceof BFloatArray);
-        BFloatArray result = (BFloatArray) returns[0];
-        Assert.assertEquals(result.get(0), 999.0, DELTA);
-        Assert.assertEquals(result.get(1), 95.0, DELTA);
-        Assert.assertEquals(result.get(2), 889.0, DELTA);
-    }
-
 
     /*@Test
     public void testSimpleJsonToMap() {

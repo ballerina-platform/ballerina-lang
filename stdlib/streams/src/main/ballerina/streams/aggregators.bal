@@ -108,7 +108,7 @@ public type Average object {
                     sum -= i;
                     count--;
                 } else if (eventType == "RESET"){
-                    sum = 0;
+                    sum = 0.0;
                     count = 0;
                 }
             }

@@ -61,19 +61,19 @@ public type Car record {
 
 public function testNestedTypes() returns (boolean) {
     Car c1 = {name: "Charger",
-                 engine: {model: "v8", capacity: 2000},
+                 engine: {model: "v8", capacity: 2000.0},
                  wheels: [{pressure: 30}, {pressure: 31}, {pressure: 30}, {pressure: 29}]};
     Car c2 = {engine: {model: "v8", capacity: 2000.00},
                  name: "Charger",
                  wheels: [{pressure: 30}, {pressure: 31}, {pressure: 30}, {pressure: 29}]};
     Car c3Unmatch = {name: "Charger",
                         wheels: [{pressure: 30}, {pressure: 31}, {pressure: 30}, {pressure: 29}],
-                        engine: {model: "v8", capacity: 1500}};
+                        engine: {model: "v8", capacity: 1500.0}};
     Car c4Unmatch = {name: "Corvette",
                         wheels: [{pressure: 30}, {pressure: 31}, {pressure: 30}, {pressure: 29}],
-                        engine: {model: "v8", capacity: 2000}};
+                        engine: {model: "v8", capacity: 2000.0}};
     Car c5Unmatch = {name: "Charger",
-                        engine: {model: "v8", capacity: 2000},
+                        engine: {model: "v8", capacity: 2000.0},
                         wheels: [{pressure: 29}, {pressure: 31}, {pressure: 28}, {pressure: 29}]};
 
     return reflect:equals(c1,c2) &&

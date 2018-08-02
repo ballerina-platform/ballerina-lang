@@ -160,7 +160,7 @@ function testCreateCacheWithNegativeCapacity() {
 }
 
 function testCreateCacheWithZeroEvictionFactor() {
-    cache:Cache c = new(evictionFactor = 0);
+    cache:Cache c = new(evictionFactor = 0.0);
 }
 
 function testCreateCacheWithInvalidEvictionFactor() {

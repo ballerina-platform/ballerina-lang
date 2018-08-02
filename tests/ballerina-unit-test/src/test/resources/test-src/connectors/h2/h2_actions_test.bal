@@ -162,8 +162,8 @@ function testAddToMirrorTable() returns (Customer[]) {
         var temp = testDB->getProxyTable("Customers", Customer);
         match (temp) {
             table dt => {
-                Customer c1 = { customerId: 40, name: "Manuri", creditLimit: 1000, country: "Sri Lanka" };
-                Customer c2 = { customerId: 41, name: "Devni", creditLimit: 1000, country: "Sri Lanka" };
+                Customer c1 = { customerId: 40, name: "Manuri", creditLimit: 1000.0, country: "Sri Lanka" };
+                Customer c2 = { customerId: 41, name: "Devni", creditLimit: 1000.0, country: "Sri Lanka" };
 
                 var result1 = dt.add(c1);
                 var result2 = dt.add(c2);

@@ -59,7 +59,7 @@ function testUnaryBlockingFloatClient(float salary) returns (float) {
     match unionResp {
         error err => {
             io:println("Error from Connector: " + err.message);
-            return -1;
+            return -1.0;
         }
         (float, grpc:Headers) payload => {
             io:println("Client got response : ");
