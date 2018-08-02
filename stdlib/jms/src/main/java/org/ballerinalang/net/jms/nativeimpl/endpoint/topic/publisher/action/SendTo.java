@@ -34,8 +34,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SendToActionHandler;
 @BallerinaFunction(orgName = "ballerina",
                    packageName = "jms",
                    functionName = "sendTo",
-                   receiver = @Receiver(type = TypeKind.OBJECT,
-                                        structType = "TopicPublisherActions",
+                   receiver = @Receiver(type = TypeKind.OBJECT, structType = "TopicPublisherActions",
                                         structPackage = "ballerina/jms"),
                    args = { 
                             @Argument(name = "destination", type = TypeKind.OBJECT),

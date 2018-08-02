@@ -99,7 +99,9 @@ public type QueueReceiverActions object {
     }
     public extern function receive(int timeoutInMilliSeconds = 0) returns (Message|error)?;
 
-    documentation { Synchronously receive a message from a given destination
+    documentation {
+        Synchronously receive a message from a given destination
+
         P{{destination}} destination to subscribe to.
         P{{timeoutInMilliSeconds}} time to wait until a message is received
         R{{}} Returns a message or nill if the timeout exceededs. Returns an error on jms provider internal error.

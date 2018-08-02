@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.durable.subscriber.action;
+package org.ballerinalang.net.jms.nativeimpl.endpoint.topic.subscriber.action;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
@@ -35,19 +35,14 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.ReceiveFromActionHan
 @BallerinaFunction(orgName = "ballerina",
                    packageName = "jms",
                    functionName = "receiveFrom",
-                   receiver = @Receiver(type = TypeKind.OBJECT,
-                                        structType = "TopicSubscriberActions",
+                   receiver = @Receiver(type = TypeKind.OBJECT, structType = "TopicSubscriberActions",
                                         structPackage = "ballerina/jms"),
                    args = {
-                           @Argument(name = "destination",
-                                     type = TypeKind.OBJECT),
-                           @Argument(name = "timeInMilliSeconds",
-                                     type = TypeKind.INT)
+                           @Argument(name = "destination", type = TypeKind.OBJECT),
+                           @Argument(name = "timeInMilliSeconds", type = TypeKind.INT)
                    },
                    returnType = {
-                           @ReturnType(type = TypeKind.OBJECT,
-                                       structPackage = "ballerina/jms",
-                                       structType = "Message")
+                           @ReturnType(type = TypeKind.OBJECT, structPackage = "ballerina/jms", structType = "Message")
                    },
                    isPublic = true
 )

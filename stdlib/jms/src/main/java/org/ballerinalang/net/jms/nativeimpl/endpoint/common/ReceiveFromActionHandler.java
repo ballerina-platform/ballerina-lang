@@ -58,8 +58,6 @@ public class ReceiveFromActionHandler {
                                                         Constants.JMS_DESTINATION_OBJECT,
                                                         Destination.class,
                                                         context);
-        
-                                                        
 //        long timeInMilliSeconds = context.getIntArgument(2);
         long timeInMilliSeconds = 5000;
         
@@ -83,40 +81,3 @@ public class ReceiveFromActionHandler {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

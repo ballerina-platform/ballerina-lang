@@ -59,13 +59,10 @@ public class CreateTemporaryQueue extends AbstractBlockinAction {
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
 
+        Queue jmsDestination;
         Struct sessionBObject = BallerinaAdapter.getReceiverObject(context);
-
         Session session = BallerinaAdapter.getNativeObject(sessionBObject, Constants.JMS_SESSION, Session.class,
                                                            context);
-
-        Queue jmsDestination;
-
         BMap<String, BValue> bStruct = BLangConnectorSPIUtil.createBStruct(context, Constants.BALLERINA_PACKAGE_JMS,
                                                               Constants.JMS_DESTINATION_STRUCT_NAME);
         try {

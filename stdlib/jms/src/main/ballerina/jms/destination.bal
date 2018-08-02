@@ -14,9 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation { Destination object
+documentation {
+    Destination object
+
     F{{destinationName}} name of the destination
-    F{{destinationType}} type of the destination, either queue or topic.
+    F{{destinationType}} type of the destination, either queue or topic
 }
 public type Destination object {
     public string destinationName;

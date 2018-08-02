@@ -35,19 +35,14 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.ReceiveFromActionHan
 @BallerinaFunction(orgName = "ballerina",
                    packageName = "jms",
                    functionName = "receiveFrom",
-                   receiver = @Receiver(type = TypeKind.OBJECT,
-                                        structType = "QueueReceiverActions",
+                   receiver = @Receiver(type = TypeKind.OBJECT, structType = "QueueReceiverActions",
                                         structPackage = "ballerina/jms"),
                    args = {
-                           @Argument(name = "destination",
-                                     type = TypeKind.OBJECT),
-                           @Argument(name = "timeInMilliSeconds",
-                                     type = TypeKind.INT)
+                           @Argument(name = "destination", type = TypeKind.OBJECT),
+                           @Argument(name = "timeInMilliSeconds", type = TypeKind.INT)
                    },
                    returnType = {
-                           @ReturnType(type = TypeKind.OBJECT,
-                                       structPackage = "ballerina/jms",
-                                       structType = "Message")
+                           @ReturnType(type = TypeKind.OBJECT, structPackage = "ballerina/jms", structType = "Message")
                    },
                    isPublic = true
 )

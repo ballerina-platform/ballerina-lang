@@ -25,8 +25,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -37,8 +35,6 @@ import javax.jms.MessageProducer;
  * Message send action handler.
  */
 public class SendToActionHandler {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SendToActionHandler.class);
 
     private SendToActionHandler() {
     }

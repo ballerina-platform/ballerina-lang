@@ -59,12 +59,16 @@ public type Session object {
     }
     public extern function createTemporaryTopic() returns Destination|error;
 
-    documentation { Creates a JMS Queue which can be used with a message producer.
+    documentation {
+        Creates a JMS Queue which can be used with a message producer.
+
         P{{queueName}} name of the Queue
     }
     public extern function createQueue(string queueName) returns Destination|error;
 
-    documentation { Creates a JMS Topic which can be used with a message producer.
+    documentation {
+        Creates a JMS Topic which can be used with a message producer.
+
         P{{topicName}} name of the Topic
     }
     public extern function createTopic(string topicName) returns Destination|error;

@@ -49,13 +49,9 @@ import javax.jms.Session;
         orgName = "ballerina",
         packageName = "jms",
         functionName = "initQueueSender",
-        receiver = @Receiver(type = TypeKind.OBJECT,
-                             structType = "QueueSender",
-                             structPackage = "ballerina/jms"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "QueueSender", structPackage = "ballerina/jms"),
         args = {
-                @Argument(name = "session",
-                          type = TypeKind.OBJECT,
-                          structType = "Session")
+                @Argument(name = "session", type = TypeKind.OBJECT, structType = "Session")
         }
 )
 public class InitQueueSender implements NativeCallableUnit {
