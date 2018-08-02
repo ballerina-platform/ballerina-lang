@@ -206,12 +206,13 @@ public class LSCompiler {
         context.put(PackageRepository.class, packageRepository);
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot.getSourceRoot());
-
         if (null == compilerPhase) {
             throw new AssertionError("Compiler Phase can not be null.");
         }
+        String phase = compilerPhase.toString().equals(CompilerPhase.COMPILER_PLUGIN.toString()) ? "annotationProcess"
+                : compilerPhase.toString();
 
-        options.put(COMPILER_PHASE, compilerPhase.toString());
+        options.put(COMPILER_PHASE, phase);
         options.put(PRESERVE_WHITESPACE, Boolean.valueOf(preserveWhitespace).toString());
         options.put(TEST_ENABLED, String.valueOf(true));
 

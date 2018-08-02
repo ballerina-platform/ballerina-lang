@@ -30,7 +30,21 @@
       "label":"service",
       "detail":"Snippet",
       "sortText":"190",
-      "insertText":"service\u003c${1:http:Service}\u003e ${2:serviceName} {\n\t${3:newResource} (endpoint ${4:caller}, ${5:http:Request request}) {\n\t}\n}",
+      "insertText":"service\u003c${1:http:Service}\u003e ${2:serviceName} bind { port: 9090 } {\n\t${3:newResource} (endpoint ${4:caller}, ${5:http:Request request}) {\n\t}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"service/webSocket",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"service\u003chttp:WebSocketService\u003e ${1:serviceName} bind { port: 9090 } {\n\tonOpen(endpoint caller) {\n\t\t\n\t}\n\tonText(endpoint caller, string text, boolean final) {\n\t\t\n\t}\n\tonClose(endpoint caller, int statusCode, string reason) {\n\t\t\n\t}\n}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"service/webSub",
+      "detail":"Snippet",
+      "sortText":"190",
+      "insertText":"service\u003cwebsub:Service\u003e ${1:websubSubscriber} bind {port: 9090} {\n\tonIntentVerification(endpoint caller, websub:IntentVerificationRequest request) {\n\t\t\n\t}\n\tonNotification(websub:Notification notification) {\n\t\t\n\t}\n}",
       "insertTextFormat":"Snippet"
     },
     {
