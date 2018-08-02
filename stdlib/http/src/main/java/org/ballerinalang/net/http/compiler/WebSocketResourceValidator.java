@@ -21,8 +21,11 @@ package org.ballerinalang.net.http.compiler;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.List;
 
@@ -31,8 +34,8 @@ import java.util.List;
  */
 public class WebSocketResourceValidator {
 
-    public static final String INVALID_RESOURCE_SIGNATURE_FOR = "Invalid resource signature for ";
-    public static final String RESOURCE_IN_SERVICE = " resource in service ";
+    private static final String INVALID_RESOURCE_SIGNATURE_FOR = "Invalid resource signature for ";
+    private static final String RESOURCE_IN_SERVICE = " resource in service ";
 
     public static void validate(String serviceName, BLangResource resource, DiagnosticLog dlog, boolean isClient) {
         switch (resource.getName().getValue()) {
@@ -82,15 +85,33 @@ public class WebSocketResourceValidator {
         List<BLangVariable> paramDetails = resource.getParameters();
         validateParamDetailsSize(paramDetails, 2, 3, serviceName, resource, dlog);
         validateEndpointParameter(serviceName, resource, dlog, paramDetails, isClient);
-        if (paramDetails.size() < 2 || !"string".equals(paramDetails.get(1).type.toString())) {
+        if (paramDetails.size() < 2) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
                     + resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
-                    ": The second parameter should be a string");
+                    ": A second parameter needs to be specified");
         }
-        if (paramDetails.size() == 3 && !"boolean".equals(paramDetails.get(2).type.toString())) {
+        BType secondParamType = paramDetails.get(1).type;
+        int secondParamTypeTag = secondParamType.tag;
+        if (secondParamTypeTag != TypeTags.STRING && secondParamTypeTag != TypeTags.JSON &&
+                secondParamTypeTag != TypeTags.XML && secondParamTypeTag != TypeTags.RECORD &&
+                (secondParamTypeTag != TypeTags.ARRAY || ((BArrayType) secondParamType).getElementType().tag !=
+                        org.ballerinalang.model.types.TypeTags.BYTE_TAG)) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
                     + resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
-                    ": The third parameter should be a boolean");
+                    ": The second parameter should be a string, json, xml, byte[] or a record type");
+        }
+
+        if (paramDetails.size() == 3) {
+
+            if (!"string".equals(secondParamType.toString())) {
+                dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
+                        + resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
+                        ": Final fragment is not valid if the second parameter is a string");
+            } else if (!"boolean".equals(paramDetails.get(2).type.toString())) {
+                dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
+                        + resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
+                        ": The third parameter should be a boolean");
+            }
         }
     }
 
