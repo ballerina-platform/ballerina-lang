@@ -38,9 +38,22 @@ import java.io.IOException;
 @Test(groups = "http2-test")
 public class Http2ServerPushTestCase extends IntegrationTestCase {
 
+    @BeforeGroups("http2-test")
+    public void start() throws BallerinaTestException {
+        String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
+                "http2").getAbsolutePath();
+        String[] args = new String[] {"--sourceroot", balFile};
+        serverInstance.startBallerinaServer("http2Services", args);
+    }
+
+    @AfterGroups("http2-test")
+    public void cleanup() throws Exception {
+        serverInstance.removeAllLeechers();
+        serverInstance.stopServer();
+    }
+
     @Test(description = "Test HTTP/2.0 Server Push scenario")
     public void testPushPromise() throws IOException {
-        System.out.println("#### Running https2");
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9090, "frontend"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         String responseData = response.getData();

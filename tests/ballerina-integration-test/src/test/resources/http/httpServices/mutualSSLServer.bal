@@ -1,8 +1,8 @@
 import ballerina/io;
 import ballerina/http;
 
-endpoint http:Listener echo {
-    port:9095,
+endpoint http:Listener echo15 {
+    port:9116,
     secureSocket: {
         keyStore: {
             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
@@ -22,11 +22,11 @@ endpoint http:Listener echo {
 };
 
 @http:ServiceConfig {
-     endpoints:[echo],
+     endpoints:[echo15],
      basePath:"/echo"
 }
 
-service<http:Service> helloWorld bind echo {
+service<http:Service> helloWorld15 bind echo15 {
 
     @http:ResourceConfig {
         methods:["GET"],
@@ -40,15 +40,15 @@ service<http:Service> helloWorld bind echo {
     }
 }
 
-endpoint http:Listener echoDummy {
-    port:9090
+endpoint http:Listener echoDummy15 {
+    port:9117
 };
 
 @http:ServiceConfig {
-      endpoints:[echoDummy],
+      endpoints:[echoDummy15],
       basePath:"/echoDummy"
 }
-service<http:Service> echoDummyService bind echoDummy {
+service<http:Service> echoDummyService15 bind echoDummy15 {
 
     @http:ResourceConfig {
         methods:["POST"],

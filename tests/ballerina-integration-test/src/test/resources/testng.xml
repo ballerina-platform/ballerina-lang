@@ -32,7 +32,7 @@
         </groups>
 
         <packages>
-            <!--<package name="org.ballerinalang.test.service.http.*"/>-->
+            <package name="org.ballerinalang.test.service.http.*"/>
             <!--<package name="org.ballerinalang.test.service.http2"/>-->
             <!--<package name="org.ballerinalang.test.transaction"/>-->
             <!--<package name="org.ballerinalang.test.filter"/>-->
@@ -43,15 +43,15 @@
         </packages>
     </test>
 
-    <test name="ballerina-websocket-tests" parallel="false">
-        <packages>
-            <!--<package name="org.ballerinalang.test.service.websocket"/>-->
-        </packages>
-    </test>
-
     <test name="ballerina-http2-tests" parallel="false">
         <packages>
             <package name="org.ballerinalang.test.service.http2"/>
+        </packages>
+    </test>
+
+    <test name="ballerina-websocket-tests" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.test.service.websocket"/>
         </packages>
     </test>
 

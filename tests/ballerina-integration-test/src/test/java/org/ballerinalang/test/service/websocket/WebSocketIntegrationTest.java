@@ -71,7 +71,8 @@ public class WebSocketIntegrationTest extends IntegrationTestCase{
     }
 
     @AfterGroups("websocket-test")
-    public void cleanup() throws Exception {
+    public void stop() throws Exception {
+        serverInstance.removeAllLeechers();
         serverInstance.stopServer();
     }
 
