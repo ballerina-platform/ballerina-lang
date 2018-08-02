@@ -37,9 +37,9 @@ import java.util.List;
  */
 public interface SelectClauseNode extends Node {
 
-    void setSelectExpressions(List<? extends SelectExpressionNode> selectExpressions);
+    void setSelectExpressions(List<SelectExpressionNode> selectExpressions);
 
-    List<? extends SelectExpressionNode> getSelectExpressions();
+    List<SelectExpressionNode> getSelectExpressions();
 
     void setSelectAll(boolean isSelectAll);
 

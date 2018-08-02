@@ -21,7 +21,7 @@ package org.ballerinalang.test.mime;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLItem;
@@ -90,8 +90,8 @@ public class MultipartFormDataDecoderTest {
         HTTPTestRequest cMsg = Util.getCarbonMessageWithBodyParts(messageMap, Util.getArrayOfBodyParts(bodyParts));
         HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(new BJSON(ResponseReader.getReturnValue(response)).value().get("bodyPart").asText(),
-                "jsonPart");
+        BValue json = JsonParser.parse(ResponseReader.getReturnValue(response));
+        Assert.assertEquals(((BMap) json).get("bodyPart").stringValue(), "jsonPart");
     }
 
     @Test(description = "Test sending a multipart request with a json body part where the content is kept in a file")
@@ -103,8 +103,8 @@ public class MultipartFormDataDecoderTest {
         HTTPTestRequest cMsg = Util.getCarbonMessageWithBodyParts(messageMap, Util.getArrayOfBodyParts(bodyParts));
         HttpCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(new BJSON(ResponseReader.getReturnValue(response)).value().get("name").asText(),
-                "wso2");
+        BValue json = JsonParser.parse(ResponseReader.getReturnValue(response));
+        Assert.assertEquals(((BMap) json).get("name").stringValue(), "wso2");
     }
 
     @Test(description = "Test sending a multipart request with a xml body part which is kept in memory")

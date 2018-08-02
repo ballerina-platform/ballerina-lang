@@ -275,6 +275,13 @@ class SourceEditor extends React.Component {
                 }
             }
         });
+
+        editorInstance.onMouseLeave((e) => {
+            // clean up previous decorations
+            this.breakpointHoverDecorations = this.editorInstance.deltaDecorations(
+                this.breakpointHoverDecorations || [], []);
+        });
+
     }
 
     /**
@@ -361,6 +368,12 @@ class SourceEditor extends React.Component {
                         glyphMargin: true,
                         folding: true,
                         lineNumbersMinChars: 2,
+                        scrollBeyondLastLine: false,
+                        scrollbar: {
+                            useShadows: false,
+                            verticalScrollbarSize: 6,
+                            horizontalScrollbarSize: 6,
+                        },
                     }}
                     width={width}
                     height={height}

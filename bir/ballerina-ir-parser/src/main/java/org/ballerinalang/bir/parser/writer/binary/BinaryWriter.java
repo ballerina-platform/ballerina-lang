@@ -2,8 +2,8 @@ package org.ballerinalang.bir.parser.writer.binary;
 
 import org.ballerinalang.bir.model.IrBasicBlock;
 import org.ballerinalang.bir.model.IrFunction;
-import org.ballerinalang.bir.model.IrPackage;
 import org.ballerinalang.bir.model.op.Op;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -26,7 +26,7 @@ public class BinaryWriter {
         this.opWriter = new OpWriter(out);
     }
 
-    public void write(IrPackage pkg) {
+    public void write(BIRNode.BIRPackage pkg) {
         out.put(BIR_MAGIC);
         out.put(BIR_VERSION);
 

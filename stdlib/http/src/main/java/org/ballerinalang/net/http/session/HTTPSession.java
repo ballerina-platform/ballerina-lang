@@ -69,7 +69,7 @@ public class HTTPSession implements Session, Serializable {
 
     @Override
     public String[] getAttributeNames() {
-        return attributeMap.keySet().toArray(new String[attributeMap.size()]);
+        return attributeMap.keys();
     }
 
     @Override

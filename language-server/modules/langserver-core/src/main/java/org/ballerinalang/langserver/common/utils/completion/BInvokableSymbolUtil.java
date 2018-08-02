@@ -193,7 +193,7 @@ public class BInvokableSymbolUtil {
                     || tSymbol.pkgID.getName().getValue().equals(Names.DOT.getValue())) {
                 typeName = tSymbol.getName().getValue();
             } else {
-                typeName = nameComps.get(nameComps.size() - 1).getValue() + UtilSymbolKeys.PKG_DELIMITER_KEYWORD
+                typeName = CommonUtil.getLastItem(nameComps).getValue() + UtilSymbolKeys.PKG_DELIMITER_KEYWORD
                         + tSymbol.getName().getValue();
             }
             

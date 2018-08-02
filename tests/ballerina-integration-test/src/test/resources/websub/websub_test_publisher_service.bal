@@ -9,7 +9,7 @@ endpoint http:Listener publisherServiceEP {
 service<http:Service> publisherService bind publisherServiceEP {
     discover(endpoint caller, http:Request req) {
         http:Response res = new;
-        res = websub:addWebSubLinkHeader(res, ["https://localhost:9494/websub/hub"], "http://websubpubtopictwo.com");
+        websub:addWebSubLinkHeader(res, ["https://localhost:9494/websub/hub"], "http://websubpubtopictwo.com");
         caller->respond(res) but { error e => log:printError("Error sending response", err = e) };
     }
 }

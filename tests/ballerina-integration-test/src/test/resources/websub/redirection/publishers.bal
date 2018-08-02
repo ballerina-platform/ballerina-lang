@@ -21,13 +21,13 @@ service<http:Service> original bind publisherServiceEP {
 service<http:Service> redirected bind publisherServiceEP {
     one(endpoint caller, http:Request req) {
         http:Response res = new;
-        res = websub:addWebSubLinkHeader(res, ["http://localhost:9291/hub/one"], "http://redirectiontopicone.com");
+        websub:addWebSubLinkHeader(res, ["http://localhost:9291/hub/one"], "http://redirectiontopicone.com");
         caller->respond(res) but { error e => log:printError("Error sending response", err = e) };
     }
 
     two(endpoint caller, http:Request req) {
         http:Response res = new;
-        res = websub:addWebSubLinkHeader(res, ["http://localhost:9291/hub/two"], "http://redirectiontopictwo.com");
+        websub:addWebSubLinkHeader(res, ["http://localhost:9291/hub/two"], "http://redirectiontopictwo.com");
         caller->respond(res) but { error e => log:printError("Error sending response", err = e) };
     }
 }

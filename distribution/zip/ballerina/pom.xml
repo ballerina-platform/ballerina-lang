@@ -68,6 +68,10 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-llvm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-h2</artifactId>
         </dependency>
         <dependency>
@@ -159,6 +163,10 @@
         <dependency>
             <groupId>javax.jms</groupId>
             <artifactId>javax.jms-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco.javacpp-presets</groupId>
+            <artifactId>llvm-platform</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.andes.wso2</groupId>
@@ -344,6 +352,12 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-grpc</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-llvm</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
@@ -715,6 +729,7 @@
                                 ballerina-grpc,
                                 ballerina-h2,
                                 ballerina-http,
+                                ballerina-llvm,
                                 ballerina-io,
                                 ballerina-internal,
                                 ballerina-jdbc,

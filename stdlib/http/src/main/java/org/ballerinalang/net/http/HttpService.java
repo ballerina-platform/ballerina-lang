@@ -70,10 +70,6 @@ public class HttpService implements Cloneable {
     private String compression = AUTO; //default behavior
     private String hostName;
 
-    public Service getBallerinaService() {
-        return balService;
-    }
-
     protected HttpService(Service service) {
         this.balService = service;
     }
@@ -199,7 +195,7 @@ public class HttpService implements Cloneable {
             if (basePath.contains(HttpConstants.VERSION)) {
                 prepareBasePathList(serviceConfig.getStructField(VERSIONING_FIELD),
                                     serviceConfig.getStringField(BASE_PATH_FIELD), basePathList,
-                                    httpService.getBallerinaService().getPackageVersion());
+                                    httpService.getBalService().getPackageVersion());
             } else {
                 basePathList.add(basePath);
             }
@@ -207,7 +203,7 @@ public class HttpService implements Cloneable {
 
         List<HttpResource> httpResources = new ArrayList<>();
         List<HttpResource> upgradeToWebSocketResources = new ArrayList<>();
-        for (Resource resource : httpService.getBallerinaService().getResources()) {
+        for (Resource resource : httpService.getBalService().getResources()) {
             Annotation resourceConfigAnnotation =
                     HttpUtil.getResourceConfigAnnotation(resource, HttpConstants.HTTP_PACKAGE_PATH);
             if (resourceConfigAnnotation != null

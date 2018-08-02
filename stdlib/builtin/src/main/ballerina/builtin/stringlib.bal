@@ -198,3 +198,11 @@ documentation {
     R{{}} The byte array representation of the given String
 }
 public extern function string::toByteArray(string encoding) returns byte[];
+
+documentation {
+    Converts byte array to a string.
+
+    P{{encoding}} Encoding to be used in the conversion
+    R{{}} The byte array representation of the given String
+}
+public extern function fromByteArray(byte[] bytes, string encoding) returns string;

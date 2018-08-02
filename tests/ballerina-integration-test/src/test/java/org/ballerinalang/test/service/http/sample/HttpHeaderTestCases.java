@@ -48,14 +48,14 @@ public class HttpHeaderTestCases extends IntegrationTestCase {
         HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("product/value"));
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "{\"header1\":\"aaa\",\"header2\":\"bbb\"}");
+        Assert.assertEquals(response.getData(), "{\"header1\":\"aaa\", \"header2\":\"bbb\"}");
     }
 
     @Test(description = "Test inbound response headers availability with URL. /product/id")
     public void testInboundResponseHeaders() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("product/id"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "{\"header1\":\"kkk\",\"header2\":\"jjj\"}");
+        Assert.assertEquals(response.getData(), "{\"header1\":\"kkk\", \"header2\":\"jjj\"}");
     }
 
     @AfterClass

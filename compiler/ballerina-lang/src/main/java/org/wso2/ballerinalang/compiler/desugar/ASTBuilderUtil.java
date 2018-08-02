@@ -18,6 +18,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -30,7 +31,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -130,9 +130,36 @@ public class ASTBuilderUtil {
         }
         BLangTypeConversionExpr castExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
         castExpr.expr = exprToWrap;
-        castExpr.conversionSymbol = Symbols.createUnboxValueTypeOpSymbol(symTable.anyType, exprToWrap.type);
-        castExpr.type = exprToWrap.type;
+        castExpr.conversionSymbol = createUnboxValueOpSymbolToAnyType(exprToWrap.type, symTable);
+        castExpr.type = symTable.anyType;
         return castExpr;
+    }
+
+    private static BConversionOperatorSymbol createUnboxValueOpSymbolToAnyType(BType sourceType, SymbolTable symTable) {
+        int opcode;
+        switch (sourceType.tag) {
+            case TypeTags.INT:
+                opcode = InstructionCodes.I2ANY;
+                break;
+            case TypeTags.BYTE:
+                opcode = InstructionCodes.BI2ANY;
+                break;
+            case TypeTags.FLOAT:
+                opcode = InstructionCodes.F2ANY;
+                break;
+            case TypeTags.STRING:
+                opcode = InstructionCodes.S2ANY;
+                break;
+            default:
+                opcode = InstructionCodes.B2ANY;
+                break;
+        }
+
+        List<BType> paramTypes = Lists.of(sourceType, symTable.anyType);
+        BInvokableType opType = new BInvokableType(paramTypes, symTable.anyType, null);
+        BConversionOperatorSymbol symbol = new BConversionOperatorSymbol(null, opType, null, false, true, opcode);
+        symbol.kind = SymbolKind.CONVERSION_OPERATOR;
+        return symbol;
     }
 
     static BLangFunction createFunction(DiagnosticPos pos, String name) {

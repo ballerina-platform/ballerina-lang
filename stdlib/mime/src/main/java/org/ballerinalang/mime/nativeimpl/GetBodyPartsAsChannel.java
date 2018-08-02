@@ -41,7 +41,7 @@ public class GetBodyPartsAsChannel extends BlockingNativeCallableUnit {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
         MultipartDataSource multipartDataSource = new MultipartDataSource(entityStruct, multipartDataBoundary);
-        multipartDataSource.serializeData(outputStream);
+        multipartDataSource.serialize(outputStream);
         EntityBodyChannel entityBodyChannel = new EntityBodyChannel(new ByteArrayInputStream(
                 outputStream.toByteArray()));
         byteChannelStruct = BLangConnectorSPIUtil.createBStruct(context, IOConstants.IO_PACKAGE, BYTE_CHANNEL_STRUCT);
