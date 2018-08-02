@@ -132,7 +132,7 @@ public class WebSocketDispatcher {
             Executor.submit(onTextMessageResource, new WebSocketResourceCallableUnitCallback(webSocketConnection),
                             null, null, bValues);
         } else if (dataTypeTag == TypeTags.JSON_TAG || dataTypeTag == TypeTags.RECORD_TYPE_TAG ||
-                dataTypeTag == TypeTags.XML_TAG) {
+                dataTypeTag == TypeTags.XML_TAG || dataTypeTag == TypeTags.ARRAY_TAG) {
             if (finalFragment) {
                 aggregateString += textMessage.getText();
                 dispatchReourceWithAggregatedData(webSocketConnection, onTextMessageResource, bValues, dataType);
@@ -173,6 +173,7 @@ public class WebSocketDispatcher {
                         bValues[1] = new BByteArray(
                                 aggregateString.getBytes(Charset.forName(MimeConstants.UTF_8)));
                     } else {
+                        //Cannot reach here because of compiler validation
                         throw new BallerinaException("Incompatible Element type found inside an array " +
                                                              ((BArrayType) dataType).getElementType()
                                                                      .getName());

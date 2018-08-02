@@ -94,19 +94,17 @@ public class WebSocketResourceValidator {
         int secondParamTypeTag = secondParamType.tag;
         if (secondParamTypeTag != TypeTags.STRING && secondParamTypeTag != TypeTags.JSON &&
                 secondParamTypeTag != TypeTags.XML && secondParamTypeTag != TypeTags.RECORD &&
-                (secondParamTypeTag != TypeTags.ARRAY || ((BArrayType) secondParamType).getElementType().tag !=
-                        org.ballerinalang.model.types.TypeTags.BYTE_TAG)) {
+                (secondParamTypeTag != TypeTags.ARRAY || (secondParamType instanceof BArrayType &&
+                        ((BArrayType) secondParamType).getElementType().tag !=
+                                org.ballerinalang.model.types.TypeTags.BYTE_TAG))) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
                     + resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
                     ": The second parameter should be a string, json, xml, byte[] or a record type");
-        }
-
-        if (paramDetails.size() == 3) {
-
+        } else if (paramDetails.size() == 3) {
             if (!"string".equals(secondParamType.toString())) {
                 dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
                         + resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
-                        ": Final fragment is not valid if the second parameter is a string");
+                        ": Final fragment is not valid if the second parameter is not a string");
             } else if (!"boolean".equals(paramDetails.get(2).type.toString())) {
                 dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
                         + resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
@@ -149,12 +147,12 @@ public class WebSocketResourceValidator {
         List<BLangVariable> paramDetails = resource.getParameters();
         validateParamDetailsSize(paramDetails, 3, serviceName, resource, dlog);
         validateEndpointParameter(serviceName, resource, dlog, paramDetails, isClient);
-        if (paramDetails.size() < 2 || !"int".equals(paramDetails.get(1).type.toString())) {
+        if (paramDetails.size() < 2 || TypeTags.INT != paramDetails.get(1).type.tag) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR +
                     resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
                     ": The second parameter should be an int");
         }
-        if (paramDetails.size() < 3 || !"string".equals(paramDetails.get(2).type.toString())) {
+        if (paramDetails.size() < 3 || TypeTags.STRING != paramDetails.get(2).type.tag) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
                     + resource.getName().getValue() + RESOURCE_IN_SERVICE + serviceName +
                     ": The third parameter should be a string");
