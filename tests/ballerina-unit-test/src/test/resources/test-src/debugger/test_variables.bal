@@ -20,8 +20,8 @@ type Foo record {
 };
 
 type Person object {
-public int age,
-public string name,
-public Person? parent,
-private string email = "default@abc.com",
+    public int age,
+    public string name,
+    public Person? parent,
+    private string email = "default@abc.com",
 };
