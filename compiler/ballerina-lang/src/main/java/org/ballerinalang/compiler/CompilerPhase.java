@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.compiler;
 
-import org.wso2.ballerinalang.compiler.bir.BIRGen;
-
 /**
  * {@code CompilerPhase} represents a phase of the compiler.
  *

@@ -79,9 +79,10 @@ public class BIRGen extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
     }
 
-    public BIRPackage genBIR(BLangPackage astPkg) {
+    public BLangPackage genBIR(BLangPackage astPkg) {
         astPkg.accept(this);
-        return this.env.enclPkg;
+        astPkg.symbol.bir = this.env.enclPkg;
+        return astPkg;
     }
 
     // Nodes
@@ -150,7 +151,8 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     public void visit(BLangVariableDef astVarDefStmt) {
-        BIRVariableDcl birVarDcl = new BIRVariableDcl(astVarDefStmt.var.symbol.type, this.env.nextLocalVarId(names), VarKind.LOCAL);
+        BIRVariableDcl birVarDcl = new BIRVariableDcl(astVarDefStmt.var.symbol.type,
+                this.env.nextLocalVarId(names), VarKind.LOCAL);
         this.env.enclFunc.localVars.add(birVarDcl);
 
         // We maintain a mapping from variable symbol to the bir_variable declaration.
