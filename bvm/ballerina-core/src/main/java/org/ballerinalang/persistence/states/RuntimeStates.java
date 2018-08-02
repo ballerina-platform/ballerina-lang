@@ -32,7 +32,7 @@ public class RuntimeStates {
     private static Map<String, List<State>> states = new HashMap<>();
 
     public static void add(State state) {
-        List<State> stateList = states.computeIfAbsent(state.getInstanceId(), k -> new ArrayList<>());
+        List<State> stateList = states.computeIfAbsent(state.getId(), k -> new ArrayList<>());
         stateList.add(state);
     }
 

@@ -82,6 +82,8 @@ public class WorkerExecutionContext {
 
     public boolean interruptible;
 
+    public boolean markAsCheckPointed;
+
     public WorkerExecutionContext(ProgramFile programFile) {
         this.programFile = programFile;
         this.globalProps = new HashMap<>();

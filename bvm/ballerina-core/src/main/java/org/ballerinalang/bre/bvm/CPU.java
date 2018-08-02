@@ -67,9 +67,6 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
-import org.ballerinalang.persistence.states.PendingCheckpoints;
-import org.ballerinalang.persistence.states.State;
-import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.AttachedFunctionInfo;
@@ -188,13 +185,6 @@ public class CPU {
                 int opcode = instruction.getOpcode();
                 int[] operands = instruction.getOperands();
                 ctx.ip++;
-                if (ctx.interruptible) {
-                    String instanceId = (String) ctx.globalProps.get(Constants.STATE_ID);
-                    if (PendingCheckpoints.checkAndRemove(instanceId, ctx.ip)) {
-                         PersistenceStore.persistState(new State(ctx, instanceId));
-                    }
-                }
-
                 WorkerData sf = ctx.workerLocal;
                 switch (opcode) {
                     case InstructionCodes.ICONST:

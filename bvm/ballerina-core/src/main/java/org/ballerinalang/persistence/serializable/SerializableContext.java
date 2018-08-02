@@ -80,9 +80,9 @@ public class SerializableContext {
         return gson.fromJson(jsonString, SerializableContext.class);
     }
 
-    public SerializableContext(String contextKey, WorkerExecutionContext ctx, SerializableState state) {
+    public SerializableContext(String contextKey, WorkerExecutionContext ctx, SerializableState state, int ip) {
         this.contextKey = contextKey;
-        ip = ctx.ip;
+        this.ip = ip;
         populateProps(state.globalProps, ctx.globalProps, state);
         populateProps(localProps, ctx.localProps, state);
         retRegIndexes = ctx.retRegIndexes;
@@ -112,7 +112,7 @@ public class SerializableContext {
             workerResult = new SerializableWorkerData(ctx.workerResult, state);
         }
         if (ctx.parent != null) {
-            parent = state.addContext(ctx.parent);
+            parent = state.addContext(ctx.parent, ctx.parent.ip);
         }
     }
 
