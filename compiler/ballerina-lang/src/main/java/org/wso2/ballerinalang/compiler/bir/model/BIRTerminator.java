@@ -34,14 +34,18 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
      * @since 0.980.0
      */
     public static class GOTO extends BIRTerminator {
-        public BIRBasicBlock bb;
+
+        public BIRBasicBlock targetBB;
+
+        public GOTO(BIRBasicBlock targetBB) {
+            this.targetBB = targetBB;
+        }
 
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
         }
     }
-
 
     /**
      * A function call instruction.

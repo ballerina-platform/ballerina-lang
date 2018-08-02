@@ -63,6 +63,7 @@ public class BIREmitter extends BIRVisitor {
         birFunction.localVars.forEach(birVariableDcl -> birVariableDcl.accept(this));
         sb.append("\n");
         birFunction.basicBlocks.forEach(birBasicBlock -> birBasicBlock.accept(this));
+        sb.deleteCharAt(sb.lastIndexOf("\n"));
         sb.append("}\n\n");
     }
 
@@ -71,7 +72,7 @@ public class BIREmitter extends BIRVisitor {
         sb.append(birBasicBlock.id).append(" {\n");
         birBasicBlock.instructions.forEach(instruction -> ((BIRNode) instruction).accept(this));
         birBasicBlock.terminator.accept(this);
-        sb.append("\t}\n");
+        sb.append("\t}\n\n");
     }
 
 
@@ -107,6 +108,10 @@ public class BIREmitter extends BIRVisitor {
 
     public void visit(BIRTerminator.Return birReturn) {
         sb.append("\t\treturn;\n");
+    }
+
+    public void visit(BIRTerminator.GOTO birGoto) {
+        sb.append("\t\tgoto ").append(birGoto.targetBB.id).append(";\n");
     }
 
 
