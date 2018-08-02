@@ -30,6 +30,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -95,7 +96,17 @@ public class BCompileUtil {
         return compileResult;
     }
 
-//    Compile methods
+    /**
+     * Compile and return the semantic errors.
+     *
+     * @param sourceFilePath Path to source package/file
+     * @return Semantic errors
+     */
+    public static BIRNode.BIRPackage compileAndGetBIR(String sourceFilePath) {
+        CompileResult result = compile(sourceFilePath, CompilerPhase.BIR_GEN);
+        return ((BLangPackage) result.getAST()).symbol.bir;
+    }
+
     /**
      * Compile and return the semantic errors.
      *
@@ -265,7 +276,9 @@ public class BCompileUtil {
         Compiler compiler = Compiler.getInstance(context);
         BLangPackage packageNode = compiler.compile(packageName, true);
         comResult.setAST(packageNode);
-        if (comResult.getErrorCount() > 0 || CompilerPhase.CODE_GEN.compareTo(compilerPhase) > 0) {
+        if (comResult.getErrorCount() > 0) {
+            return comResult;
+        } else if (CompilerPhase.CODE_GEN.compareTo(compilerPhase) > 0 || compilerPhase == CompilerPhase.BIR_GEN) {
             return comResult;
         }
 
