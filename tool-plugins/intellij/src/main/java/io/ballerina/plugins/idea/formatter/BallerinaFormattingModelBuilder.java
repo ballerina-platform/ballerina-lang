@@ -349,6 +349,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(SIMPLE_TYPE_NAME, IDENTIFIER).spaceIf(true)
                 .between(SIMPLE_TYPE_NAME, EQUAL_GT).spaceIf(true)
                 .after(ANNOTATION_ATTACHMENT).spaceIf(true)
+                .between(FUNCTION, SIMPLE_TYPE_NAME).spaceIf(true)
                 .around(SIMPLE_TYPE_NAME).spaceIf(false)
                 .between(NAME_REFERENCE, RECORD_LITERAL).spaceIf(true)
                 .around(NAME_REFERENCE).spaceIf(false)
