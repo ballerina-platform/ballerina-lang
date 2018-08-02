@@ -32,8 +32,8 @@ service<http:Service> MyService bind testEP {
                   boolean_type, string_type from DataTable WHERE row_id = 1", ());
         json result = check <json>dt;
 
-		http:Response res;
-		res.setPayload(untaint result);
-		caller->respond(res) but { error e => io:println("Error sending response") };
+        http:Response res;
+        res.setPayload(untaint result);
+        caller->respond(res) but { error e => io:println("Error sending response") };
     }
 }

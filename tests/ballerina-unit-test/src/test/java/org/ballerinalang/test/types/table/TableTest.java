@@ -17,6 +17,7 @@
 package org.ballerinalang.test.types.table;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
+
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
@@ -1462,8 +1463,8 @@ public class TableTest {
         Assert.assertEquals(((BBoolean) booleanArray.get(2)).booleanValue(), true);
     }
 
-    @Test(groups = TABLE_TEST,
-            description = "Check table to JSON conversion and streaming back" + "to client in a service.")
+    @Test(description = "Check table to JSON conversion and streaming back" + "to client in a service.",
+            dependsOnMethods = { "testCloseConnectionPool" })
     public void testTableToJsonStreamingInService() {
         CompileResult service =
                 BServiceUtil.setupProgramFile(this, "test-src/types/table/table_to_json_service_test.bal");

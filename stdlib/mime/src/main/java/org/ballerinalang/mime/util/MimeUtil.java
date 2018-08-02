@@ -490,9 +490,9 @@ public class MimeUtil {
     /**
      * Check whether a given value should be serialized specifically as a JSON.
      *
-     * @param value Value to seriaize
+     * @param value Value to serialize
      * @param entityRecord Entity record
-     * @return
+     * @return flag indicating whether the given value should be serialized specifically as a JSON
      */
     public static boolean generateAsJSON(BValue value, BMap<String, BValue> entityRecord) {
         if (value instanceof BStreamingJSON) {
