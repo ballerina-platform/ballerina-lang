@@ -1,0 +1,121 @@
+/*
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+package org.wso2.ballerinalang.compiler.bir;
+
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
+import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
+import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
+
+import java.util.StringJoiner;
+
+/**
+ * This class emits the text version of the BIR.
+ *
+ * @since 0.980.0
+ */
+public class BIREmitter extends BIRVisitor {
+
+    // TODO improve implementation of this class. This is a WIP implementation.
+    // TODO this implementation is just a quick hack to see the generated BIR.
+    // TODO Explore the possibility of using a templating engine here.
+
+    private StringBuilder sb = new StringBuilder();
+
+    public String emit(BIRNode.BIRPackage birPackage) {
+        birPackage.accept(this);
+        return sb.toString();
+    }
+
+    public void visit(BIRNode.BIRPackage birPackage) {
+        // TODO emit package version
+        sb.append("package ").append(birPackage.name).append(";").append("\n\n");
+        birPackage.functions.forEach(birFunction -> birFunction.accept(this));
+    }
+
+    public void visit(BIRNode.BIRVariableDcl birVariableDcl) {
+        sb.append("\t").append(birVariableDcl.type).append(" ").append(birVariableDcl.name).append(";\t\t// ");
+        sb.append(birVariableDcl.kind.name().toLowerCase()).append("\n");
+    }
+
+    public void visit(BIRNode.BIRFunction birFunction) {
+        sb.append("function ").append(birFunction.name).append("(");
+        StringJoiner sj = new StringJoiner(",");
+        birFunction.type.paramTypes.forEach(paramType -> sj.add(paramType.toString()));
+        sb.append(sj.toString()).append(")").append(" -> ").append(birFunction.type.retType).append(" {\n");
+
+        birFunction.localVars.forEach(birVariableDcl -> birVariableDcl.accept(this));
+        sb.append("\n");
+        birFunction.basicBlocks.forEach(birBasicBlock -> birBasicBlock.accept(this));
+        sb.append("}\n\n");
+    }
+
+    public void visit(BIRNode.BIRBasicBlock birBasicBlock) {
+        sb.append("\t");
+        sb.append(birBasicBlock.id).append(" {\n");
+        birBasicBlock.instructions.forEach(instruction -> ((BIRNode) instruction).accept(this));
+        birBasicBlock.terminator.accept(this);
+        sb.append("\t}\n");
+    }
+
+
+    // Non-terminating instructions
+    public void visit(BIRNonTerminator.Move birMove) {
+        sb.append("\t\t");
+        birMove.lhsOp.accept(this);
+        sb.append(" = ");
+        birMove.rhsOp.accept(this);
+        sb.append(";\n");
+    }
+
+    public void visit(BIRNonTerminator.BinaryOp birBinaryOp) {
+        sb.append("\t\t");
+        birBinaryOp.lhsOp.accept(this);
+        sb.append(" = ").append(birBinaryOp.binaryOpKind.name().toLowerCase()).append(" ");
+        birBinaryOp.rhsOp1.accept(this);
+        sb.append(" ");
+        birBinaryOp.rhsOp2.accept(this);
+        sb.append(";\n");
+    }
+
+    public void visit(BIRNonTerminator.UnaryOP birUnaryOp) {
+        throw new AssertionError();
+    }
+
+    public void visit(BIRNonTerminator.ConstantLoad birConstantLoad) {
+        throw new AssertionError();
+    }
+
+
+    // Terminating instructions
+
+    public void visit(BIRTerminator.Return birReturn) {
+        sb.append("\t\treturn;\n");
+    }
+
+
+    // Operands
+    public void visit(BIROperand.BIRVarRef birVarRef) {
+        sb.append(birVarRef.variableDcl.name);
+    }
+
+    public void visit(BIROperand.BIRConstant birConstant) {
+        sb.append("const ").append(birConstant.value);
+    }
+}
