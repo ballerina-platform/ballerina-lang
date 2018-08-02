@@ -18,19 +18,25 @@
 
 package org.wso2.transport.http.netty.config;
 
-import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.wso2.transport.http.netty.common.Constants.CLIENT_ENABLE_SESSION_CREATION;
+import static org.wso2.transport.http.netty.common.Constants.CLIENT_SUPPORT_CIPHERS;
+import static org.wso2.transport.http.netty.common.Constants.CLIENT_SUPPORT_SSL_PROTOCOLS;
 import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
 import static org.wso2.transport.http.netty.common.Constants.JKS;
 import static org.wso2.transport.http.netty.common.Constants.REQUIRE;
+import static org.wso2.transport.http.netty.common.Constants.SERVER_ENABLE_SESSION_CREATION;
+import static org.wso2.transport.http.netty.common.Constants.SERVER_SUPPORTED_SERVER_NAMES;
+import static org.wso2.transport.http.netty.common.Constants.SERVER_SUPPORTED_SNIMATCHERS;
+import static org.wso2.transport.http.netty.common.Constants.SERVER_SUPPORT_CIPHERS;
+import static org.wso2.transport.http.netty.common.Constants.SERVER_SUPPORT_SSL_PROTOCOLS;
 import static org.wso2.transport.http.netty.common.Constants.TLS_PROTOCOL;
-import static org.wso2.transport.http.netty.common.Util.substituteVariables;
-
 /**
  * SSL configuration for HTTP connection.
  */
@@ -41,7 +47,7 @@ public class SslConfiguration {
     private SSLConfig sslConfig = new SSLConfig();
 
     public void setKeyStoreFile(String keyStoreFile) {
-        sslConfig.setKeyStore(new File(substituteVariables(keyStoreFile)));
+        sslConfig.setKeyStore(new File(Util.substituteVariables(keyStoreFile)));
     }
 
     public void setKeyStorePass(String keyStorePassword) {
@@ -63,7 +69,7 @@ public class SslConfiguration {
     }
 
     public void setTrustStoreFile(String trustStoreFile) {
-        sslConfig.setTrustStore(new File(substituteVariables(trustStoreFile)));
+        sslConfig.setTrustStore(new File(Util.substituteVariables(trustStoreFile)));
     }
 
     public void setTrustStorePass(String trustStorePass) {
@@ -130,19 +136,19 @@ public class SslConfiguration {
         sslConfig.setCertPass(sslConfig.getKeyStorePass());
         for (Parameter parameter : parameters) {
             switch (parameter.getName()) {
-            case Constants.SERVER_SUPPORT_CIPHERS:
+            case SERVER_SUPPORT_CIPHERS:
                 sslConfig.setCipherSuites(parameter.getValue());
                 break;
-            case Constants.SERVER_SUPPORT_SSL_PROTOCOLS:
+            case SERVER_SUPPORT_SSL_PROTOCOLS:
                 sslConfig.setEnableProtocols(parameter.getValue());
                 break;
-            case Constants.SERVER_SUPPORTED_SNIMATCHERS:
+            case SERVER_SUPPORTED_SNIMATCHERS:
                 sslConfig.setSniMatchers(parameter.getValue());
                 break;
-            case Constants.SERVER_SUPPORTED_SERVER_NAMES:
+            case SERVER_SUPPORTED_SERVER_NAMES:
                 sslConfig.setServerNames(parameter.getValue());
                 break;
-            case Constants.SERVER_ENABLE_SESSION_CREATION:
+            case SERVER_ENABLE_SESSION_CREATION:
                 sslConfig.setEnableSessionCreation(Boolean.parseBoolean(parameter.getValue()));
                 break;
             default:
@@ -186,11 +192,11 @@ public class SslConfiguration {
         if (parameters != null) {
             for (Parameter parameter : parameters) {
                 String paramName = parameter.getName();
-                if (Constants.CLIENT_SUPPORT_CIPHERS.equals(paramName)) {
+                if (CLIENT_SUPPORT_CIPHERS.equals(paramName)) {
                     sslConfig.setCipherSuites(parameter.getValue());
-                } else if (Constants.CLIENT_SUPPORT_SSL_PROTOCOLS.equals(paramName)) {
+                } else if (CLIENT_SUPPORT_SSL_PROTOCOLS.equals(paramName)) {
                     sslConfig.setEnableProtocols(parameter.getValue());
-                } else if (Constants.CLIENT_ENABLE_SESSION_CREATION.equals(paramName)) {
+                } else if (CLIENT_ENABLE_SESSION_CREATION.equals(paramName)) {
                     sslConfig.setEnableSessionCreation(Boolean.parseBoolean(parameter.getValue()));
                 }
             }
