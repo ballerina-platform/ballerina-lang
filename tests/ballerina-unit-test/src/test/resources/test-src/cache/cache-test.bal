@@ -12,11 +12,17 @@ function testPut(string key, string value) returns (int) {
     return cache.size();
 }
 
-function testGet(string key, string value) returns (int, string) {
+function testGettingExistingValue(string key, string value) returns (int, string) {
     cache:Cache cache = new;
     cache.put(key, value);
     string returnValue = <string>cache.get(key);
     return (cache.size(), returnValue);
+}
+
+function testGettingNonExistingValue(string key) returns any? {
+    cache:Cache cache = new;
+    any? returnValue = cache.get(key);
+    return returnValue;
 }
 
 function testRemove(string key, string value) returns (int) {
