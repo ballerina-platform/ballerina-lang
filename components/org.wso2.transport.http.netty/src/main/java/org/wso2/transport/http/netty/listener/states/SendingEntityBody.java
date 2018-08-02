@@ -53,7 +53,7 @@ import static org.wso2.transport.http.netty.common.Util.createFullHttpResponse;
 import static org.wso2.transport.http.netty.common.Util.setupContentLengthRequest;
 
 /**
- * State between start and end of response payload write
+ * State between start and end of outbound response entity body write
  */
 public class SendingEntityBody implements ListenerState {
 
@@ -69,18 +69,12 @@ public class SendingEntityBody implements ListenerState {
     private ChannelHandlerContext sourceContext;
     private SourceHandler sourceHandler;
 
-
-    public SendingEntityBody(ListenerStateContext stateContext,
-                             HttpResponseFuture outboundRespStatusFuture, boolean headersWritten) {
+    SendingEntityBody(ListenerStateContext stateContext, HttpResponseFuture outboundRespStatusFuture,
+                      boolean headersWritten) {
         this.stateContext = stateContext;
         this.outboundRespStatusFuture = outboundRespStatusFuture;
         this.headersWritten = headersWritten;
-        handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
-    }
-
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) {
-        // Not a dependant action of this state.
+        this.handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
     }
 
     @Override
@@ -208,6 +202,11 @@ public class SendingEntityBody implements ListenerState {
                 outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
             }
             stateContext.setState(new ResponseCompleted(sourceHandler, stateContext, inboundRequestMsg));
+            resetOutboundListenerState();
         });
+    }
+
+    private void resetOutboundListenerState() {
+        contentList.clear();
     }
 }

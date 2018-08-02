@@ -62,11 +62,6 @@ public class Expect100ContinueHeaderReceived implements ListenerState {
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) {
-        // Not a dependant action of this state.
-    }
-
-    @Override
     public void readInboundRequestHeaders(HttpCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
         // Not a dependant action of this state.
     }

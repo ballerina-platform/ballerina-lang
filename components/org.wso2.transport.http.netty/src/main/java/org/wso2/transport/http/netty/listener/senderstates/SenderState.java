@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.listener.states;
+package org.wso2.transport.http.netty.listener.senderstates;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -29,18 +29,17 @@ import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 /**
- * ListenerStates of source handler.
+ * SenderStates of target handler.
  */
-public interface ListenerState {
+public interface SenderState {
 
-    void readInboundRequestHeaders(HttpCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders);
+    void writeOutboundRequestHeaders();
 
-    void readInboundRequestEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException;
+    void writeOutboundRequestEntityBody();
 
-    void writeOutboundResponseHeaders(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent);
+    void readInboundResponseHeaders();
 
-    void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundResponseListener,
-                                         HttpCarbonMessage outboundResponseMsg, HttpContent httpContent);
+    void readInboundResponseEntityBody();
 
     void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture);
 

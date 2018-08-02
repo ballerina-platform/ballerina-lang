@@ -140,11 +140,11 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
     public HttpResponseFuture send(OutboundMsgHolder outboundMsgHolder, HttpCarbonMessage httpOutboundRequest) {
         final HttpResponseFuture httpResponseFuture;
 
+
         SourceHandler srcHandler = (SourceHandler) httpOutboundRequest.getProperty(Constants.SRC_HANDLER);
         if (srcHandler == null && log.isDebugEnabled()) {
             log.debug(Constants.SRC_HANDLER + " property not found in the message."
                               + " Message is not originated from the HTTP Server connector");
-
         }
 
         try {
