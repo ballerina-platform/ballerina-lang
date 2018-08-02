@@ -137,13 +137,8 @@ public class SQLActionsTest {
         BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyOnInsertEmptyResults", connectionArgs);
         BInteger retValue = (BInteger) returns[0];
 
-        int columnCount;
-        if (dbType == POSTGRES) {
-            // Postgres returns all columns when there is no returning clause
-            columnCount = 5;
-        } else {
-            columnCount = 0;
-        }
+        // Postgres returns all columns when there is no returning clause
+        int columnCount = (dbType == POSTGRES) ? 5 : 0;
         Assert.assertEquals(retValue.intValue(), columnCount);
     }
 
