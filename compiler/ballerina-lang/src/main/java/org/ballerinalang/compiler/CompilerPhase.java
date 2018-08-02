@@ -17,7 +17,13 @@
  */
 package org.ballerinalang.compiler;
 
+import org.wso2.ballerinalang.compiler.bir.BIRGen;
+
 /**
+ * {@code CompilerPhase} represents a phase of the compiler.
+ *
+ * Ideally, we should rename this class as ASTPass.
+ *
  * @since 0.94
  */
 public enum CompilerPhase {
@@ -36,7 +42,9 @@ public enum CompilerPhase {
 
     DESUGAR("desugar"),
 
-    CODE_GEN("codeGen");
+    CODE_GEN("codeGen"),
+
+    BIR_GEN("birGen");
 
     private String value;
 
@@ -62,6 +70,8 @@ public enum CompilerPhase {
                 return DESUGAR;
             case "codeGen":
                 return CODE_GEN;
+            case "birGen":
+                return BIR_GEN;
             default:
                 throw new IllegalArgumentException("invalid compiler phase: " + value);
         }
