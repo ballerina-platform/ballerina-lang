@@ -434,8 +434,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         if (entityStruct != null) {
             BValue messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
             if (messageDataSource != null) {
-                if (MimeUtil.isJSONContentType(entityStruct) &&
-                        MimeUtil.isJSONCompatible(messageDataSource.getType())) {
+                if (MimeUtil.generateAsJSON(messageDataSource, entityStruct)) {
                     JsonGenerator gen = new JsonGenerator(messageOutputStream);
                     gen.serialize(messageDataSource);
                     gen.flush();
