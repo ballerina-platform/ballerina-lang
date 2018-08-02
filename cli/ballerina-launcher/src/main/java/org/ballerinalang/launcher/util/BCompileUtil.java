@@ -30,7 +30,6 @@ import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -102,9 +101,8 @@ public class BCompileUtil {
      * @param sourceFilePath Path to source package/file
      * @return Semantic errors
      */
-    public static BIRNode.BIRPackage compileAndGetBIR(String sourceFilePath) {
-        CompileResult result = compile(sourceFilePath, CompilerPhase.BIR_GEN);
-        return ((BLangPackage) result.getAST()).symbol.bir;
+    public static CompileResult compileAndGetBIR(String sourceFilePath) {
+        return compile(sourceFilePath, CompilerPhase.BIR_GEN);
     }
 
     /**
