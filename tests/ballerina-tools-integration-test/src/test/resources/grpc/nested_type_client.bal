@@ -67,111 +67,107 @@ function testOutputNestedStruct(string name) returns Person|string {
 
 public type HelloWorldBlockingStub object {
 
-public grpc:Client clientEndpoint;
-public grpc:Stub stub;
+    public grpc:Client clientEndpoint;
+    public grpc:Stub stub;
 
-function initStub (grpc:Client ep) {
-    grpc:Stub navStub = new;
-    navStub.initStub(ep, "blocking", DESCRIPTOR_KEY, descriptorMap);
-    self.stub = navStub;
-}
+    function initStub(grpc:Client ep) {
+        grpc:Stub navStub = new;
+        navStub.initStub(ep, "blocking", DESCRIPTOR_KEY, descriptorMap);
+        self.stub = navStub;
+    }
 
-function testInputNestedStruct (Person req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
-
-    var unionResp = self.stub.blockingExecute("foo.HelloWorld/testInputNestedStruct", req, headers = headers);
-    match unionResp {
-        error payloadError => {
-            return payloadError;
-        }
-        (any, grpc:Headers) payload => {
-            any result;
-            grpc:Headers resHeaders;
-            (result, resHeaders) = payload;
-            return (<string>result, resHeaders);
+    function testInputNestedStruct(Person req, grpc:Headers? headers = ()) returns ((string, grpc:Headers)|error) {
+        var unionResp = self.stub.blockingExecute("foo.HelloWorld/testInputNestedStruct", req, headers = headers);
+        match unionResp {
+            error payloadError => {
+                return payloadError;
+            }
+            (any, grpc:Headers) payload => {
+                any result;
+                grpc:Headers resHeaders;
+                (result, resHeaders) = payload;
+                return (<string>result, resHeaders);
+            }
         }
     }
-}
 
-function testOutputNestedStruct (string req, grpc:Headers? headers = ()) returns ((Person, grpc:Headers)|error) {
-
-    var unionResp = self.stub.blockingExecute("foo.HelloWorld/testOutputNestedStruct", req, headers = headers);
-    match unionResp {
-        error payloadError => {
-            return payloadError;
-        }
-        (any, grpc:Headers) payload => {
-            any result;
-            grpc:Headers resHeaders;
-            (result, resHeaders) = payload;
-            return (check <Person>result, resHeaders);
+    function testOutputNestedStruct(string req, grpc:Headers? headers = ()) returns ((Person, grpc:Headers)|error) {
+        var unionResp = self.stub.blockingExecute("foo.HelloWorld/testOutputNestedStruct", req, headers = headers);
+        match unionResp {
+            error payloadError => {
+                return payloadError;
+            }
+            (any, grpc:Headers) payload => {
+                any result;
+                grpc:Headers resHeaders;
+                (result, resHeaders) = payload;
+                return (check <Person>result, resHeaders);
+            }
         }
     }
-}
-
 };
 
 public type HelloWorldStub object {
 
-public grpc:Client clientEndpoint;
-public grpc:Stub stub;
+    public grpc:Client clientEndpoint;
+    public grpc:Stub stub;
 
-function initStub (grpc:Client ep) {
-    grpc:Stub navStub = new;
-    navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
-    self.stub = navStub;
-}
+    function initStub(grpc:Client ep) {
+        grpc:Stub navStub = new;
+        navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
+        self.stub = navStub;
+    }
 
-function testInputNestedStruct (Person req, typedesc listener, grpc:Headers? headers = ()) returns error? {
-    return self.stub.nonBlockingExecute("foo.HelloWorld/testInputNestedStruct", req, listener, headers = headers);
-}
+    function testInputNestedStruct(Person req, typedesc listener, grpc:Headers? headers = ()) returns error? {
+        return self.stub.nonBlockingExecute("foo.HelloWorld/testInputNestedStruct", req, listener, headers = headers);
+    }
 
-function testOutputNestedStruct (string req, typedesc listener, grpc:Headers? headers = ()) returns error? {
-    return self.stub.nonBlockingExecute("foo.HelloWorld/testOutputNestedStruct", req, listener, headers = headers);
-}
-
+    function testOutputNestedStruct(string req, typedesc listener, grpc:Headers? headers = ()) returns error? {
+        return self.stub.nonBlockingExecute("foo.HelloWorld/testOutputNestedStruct", req, listener, headers = headers);
+    }
 };
 
 
 public type HelloWorldBlockingClient object {
 
-public grpc:Client client;
-public HelloWorldBlockingStub stub;
+    public grpc:Client client;
+    public HelloWorldBlockingStub stub;
 
-public function init (grpc:ClientEndpointConfig config) {
-    // initialize client endpoint.
-    grpc:Client c = new;
-    c.init(config);
-    self.client = c;
-    // initialize service stub.
-    HelloWorldBlockingStub s = new;
-    s.initStub(c);
-    self.stub = s;
-}
+    public function init(grpc:ClientEndpointConfig config) {
+        // initialize client endpoint.
+        grpc:Client c = new;
+        c.init(config);
+        self.client = c;
+        // initialize service stub.
+        HelloWorldBlockingStub s = new;
+        s.initStub(c);
+        self.stub = s;
+    }
 
-public function getCallerActions () returns (HelloWorldBlockingStub) {
-    return self.stub;
-}
+    public function getCallerActions() returns (HelloWorldBlockingStub) {
+        return self.stub;
+    }
 };
 
 public type HelloWorldClient object {
 
-public grpc:Client client;
-public HelloWorldStub stub;
+    public grpc:Client client;
+    public HelloWorldStub stub;
 
-public function init (grpc:ClientEndpointConfig config) {
-    // initialize client endpoint.
-    grpc:Client c = new;
-    c.init(config);
-    self.client = c;
-    // initialize service stub.
-    HelloWorldStub s = new;
-    s.initStub(c);
-    self.stub = s;
-}
+    public function init(grpc:ClientEndpointConfig config) {
+        // initialize client endpoint.
+        grpc:Client c = new;
+        c.init(config);
+        self.client = c;
+        // initialize service stub.
+        HelloWorldStub s = new;
+        s.initStub(c);
+        self.stub = s;
+    }
 
-public function getCallerActions () returns (HelloWorldStub) {
-    return self.stub;
-}
+    public function getCallerActions() returns (HelloWorldStub) {
+        return self.stub;
+    }
 };
 
 
