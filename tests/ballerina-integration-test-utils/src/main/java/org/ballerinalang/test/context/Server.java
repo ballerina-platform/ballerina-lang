@@ -50,10 +50,10 @@ public interface Server {
      * @param args Ballerina files to be passed as arguments
      * @param envVariables Environment variables passed
      * @param command Command to be executed
-     * @param dirPath Path of the working directory of the sub process
+     * @param workingDir Path of the working directory of the sub process
      * @throws BallerinaTestException if any exception is thrown when running the main function
      */
-    void runMain(String[] args, String[] envVariables, String command, String dirPath)
+    void runMain(String[] args, String[] envVariables, String command, String workingDir)
             throws BallerinaTestException;
 
     /**

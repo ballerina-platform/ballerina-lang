@@ -39,10 +39,9 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Testing pushing, pulling, searching a package from central and installing package to home repository.
+ * Testing init, build with tests and run on a ballerina project.
  */
 public class PackagingInitTestCase extends IntegrationTestCase {
-    private ServerInstance ballerinaServer;
     private String serverZipPath;
     private Path tempProjectDirectory;
 
@@ -52,11 +51,10 @@ public class PackagingInitTestCase extends IntegrationTestCase {
         serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
     }
 
-
     @Test(description = "Test creating a project with a main in a package")
     public void testInitWithMainInPackage() throws Exception {
         // Test ballerina init
-        getNewInstanceOfBallerinaServer();
+        ServerInstance ballerinaServer = createNewBallerinaServer();
         Path projectPath = tempProjectDirectory.resolve("firstTestWithPackagesMain");
         Files.createDirectories(projectPath);
 
@@ -70,7 +68,7 @@ public class PackagingInitTestCase extends IntegrationTestCase {
         Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("tests").resolve("main_test.bal")));
 
         // Test ballerina build
-        getNewInstanceOfBallerinaServer();
+        ballerinaServer = createNewBallerinaServer();
         ballerinaServer.runMain(new String[0], getEnvVariables(), "build", projectPath.toString());
         Path generatedBalx = projectPath.resolve("target").resolve("foo.balx");
         Assert.assertTrue(Files.exists(generatedBalx));
@@ -87,7 +85,7 @@ public class PackagingInitTestCase extends IntegrationTestCase {
     @Test(description = "Test creating a project with a service in a package")
     public void testInitWithServiceInPackage() throws Exception {
         // Test ballerina init
-        getNewInstanceOfBallerinaServer();
+        ServerInstance ballerinaServer = createNewBallerinaServer();
         Path projectPath = tempProjectDirectory.resolve("firstTestWithPackagesService");
         Files.createDirectories(projectPath);
 
@@ -102,7 +100,7 @@ public class PackagingInitTestCase extends IntegrationTestCase {
         Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("tests").resolve("hello_service_test.bal")));
 
         // Test ballerina build
-        getNewInstanceOfBallerinaServer();
+        ballerinaServer = createNewBallerinaServer();
         ballerinaServer.runMain(new String[0], getEnvVariables(), "build", projectPath.toString());
         Path generatedBalx = projectPath.resolve("target").resolve("foo.balx");
         Assert.assertTrue(Files.exists(generatedBalx));
@@ -119,7 +117,7 @@ public class PackagingInitTestCase extends IntegrationTestCase {
     @Test(description = "Test creating a project with a service and main in different packages")
     public void testInitWithMainServiceInDiffPackage() throws Exception {
         // Test ballerina init
-        getNewInstanceOfBallerinaServer();
+        ServerInstance ballerinaServer = createNewBallerinaServer();
         Path projectPath = tempProjectDirectory.resolve("secondTestWithPackages");
         Files.createDirectories(projectPath);
 
@@ -136,7 +134,7 @@ public class PackagingInitTestCase extends IntegrationTestCase {
         Assert.assertTrue(Files.exists(projectPath.resolve("bar").resolve("tests").resolve("hello_service_test.bal")));
 
         // Test ballerina build
-        getNewInstanceOfBallerinaServer();
+        ballerinaServer = createNewBallerinaServer();
         ballerinaServer.runMain(new String[0], getEnvVariables(), "build", projectPath.toString());
         Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("foo.balx")));
         Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("bar.balx")));
@@ -156,7 +154,7 @@ public class PackagingInitTestCase extends IntegrationTestCase {
     @Test(description = "Test creating a project without going to interactive mode")
     public void testInitWithoutGoingToInteractiveMode() throws Exception {
         // Test ballerina init
-        getNewInstanceOfBallerinaServer();
+        ServerInstance ballerinaServer = createNewBallerinaServer();
         Path projectPath = tempProjectDirectory.resolve("testWithoutPackage");
         Files.createDirectories(projectPath);
 
@@ -169,7 +167,7 @@ public class PackagingInitTestCase extends IntegrationTestCase {
         Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina")));
 
         // Test ballerina build
-        getNewInstanceOfBallerinaServer();
+        ballerinaServer = createNewBallerinaServer();
         ballerinaServer.runMain(new String[0], getEnvVariables(), "build", projectPath.toString());
         Path generatedBalx = projectPath.resolve("target").resolve("hello_service.balx");
         Assert.assertTrue(Files.exists(generatedBalx));
@@ -184,7 +182,7 @@ public class PackagingInitTestCase extends IntegrationTestCase {
     @Test(description = "Test creating a project with a main without a package")
     public void testInitWithoutPackage() throws Exception {
         // Test ballerina init
-        getNewInstanceOfBallerinaServer();
+        ServerInstance ballerinaServer = createNewBallerinaServer();
         Path projectPath = tempProjectDirectory.resolve("testWithoutPackageForMain");
         Files.createDirectories(projectPath);
 
@@ -197,8 +195,8 @@ public class PackagingInitTestCase extends IntegrationTestCase {
         Assert.assertTrue(Files.exists(projectPath.resolve("Ballerina.toml")));
 
         // Test ballerina build
-        getNewInstanceOfBallerinaServer();
-        ballerinaServer.runMain(new String[0], getEnvVariables(), "build", projectPath.toString());
+        ballerinaServer = createNewBallerinaServer();        ballerinaServer.runMain(new String[0], getEnvVariables(),
+                                                                                     "build", projectPath.toString());
         Path generatedBalx = projectPath.resolve("target").resolve("main.balx");
         Assert.assertTrue(Files.exists(generatedBalx));
 
@@ -213,7 +211,7 @@ public class PackagingInitTestCase extends IntegrationTestCase {
             dependsOnMethods = "testInitWithMainInPackage")
     public void testInitOnExistingProject() throws Exception {
         // Test ballerina init
-        getNewInstanceOfBallerinaServer();
+        ServerInstance ballerinaServer = createNewBallerinaServer();
         Path projectPath = tempProjectDirectory.resolve("firstTestWithPackagesMain");
         ballerinaServer.runMainWithClientOptions(new String[0], new String[0], getEnvVariables(), "init",
                                                  projectPath.toString());
@@ -224,7 +222,7 @@ public class PackagingInitTestCase extends IntegrationTestCase {
         Assert.assertTrue(Files.exists(packagePath.resolve("tests").resolve("main_test.bal")));
 
         // Test ballerina build
-        getNewInstanceOfBallerinaServer();
+        ballerinaServer = createNewBallerinaServer();
         ballerinaServer.runMain(new String[0], getEnvVariables(), "build", projectPath.toString());
         Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("foo.balx")));
         Assert.assertTrue(Files.exists(projectPath.resolve(".ballerina").resolve("repo").resolve(getOrgName())
@@ -240,7 +238,7 @@ public class PackagingInitTestCase extends IntegrationTestCase {
             dependsOnMethods = "testInitWithMainInPackage")
     public void testInitOnExistingProjectWithNewPackage() throws Exception {
         // Test ballerina init
-        getNewInstanceOfBallerinaServer();
+        ServerInstance ballerinaServer = createNewBallerinaServer();
         Path projectPath = tempProjectDirectory.resolve("firstTestWithPackagesMain");
 
         String[] clientArgsForInit = {"-i"};
@@ -254,7 +252,7 @@ public class PackagingInitTestCase extends IntegrationTestCase {
         Assert.assertTrue(Files.exists(projectPath.resolve("foo").resolve("tests").resolve("main_test.bal")));
 
         // Test ballerina build
-        getNewInstanceOfBallerinaServer();
+        ballerinaServer = createNewBallerinaServer();
         ballerinaServer.runMain(new String[0], getEnvVariables(), "build", projectPath.toString());
         Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("newpkg.balx")));
         Assert.assertTrue(Files.exists(projectPath.resolve("target").resolve("foo.balx")));
@@ -274,7 +272,7 @@ public class PackagingInitTestCase extends IntegrationTestCase {
     @Test(description = "Test creating a project with invalid options")
     public void testInitWithInvalidOptions() throws Exception {
         // Test ballerina init
-        getNewInstanceOfBallerinaServer();
+        ServerInstance ballerinaServer = createNewBallerinaServer();
         Path projectPath = tempProjectDirectory.resolve("testsWithoutPackage");
         Files.createDirectories(projectPath);
 
@@ -290,10 +288,11 @@ public class PackagingInitTestCase extends IntegrationTestCase {
     /**
      * Get new instance of the ballerina server.
      *
+     * @return new ballerina server instance
      * @throws BallerinaTestException
      */
-    private void getNewInstanceOfBallerinaServer() throws BallerinaTestException {
-        ballerinaServer = new ServerInstance(serverZipPath);
+    private ServerInstance createNewBallerinaServer() throws BallerinaTestException {
+        return new ServerInstance(serverZipPath);
     }
 
     /**
@@ -303,8 +302,9 @@ public class PackagingInitTestCase extends IntegrationTestCase {
      * @param pkg         package name or balx file path
      * @throws BallerinaTestException
      */
-    private void runMainFunction(Path projectPath, String pkg) throws BallerinaTestException {
-        getNewInstanceOfBallerinaServer();
+    private void runMainFunction(Path projectPath, String pkg)
+            throws BallerinaTestException {
+        ServerInstance ballerinaServer = createNewBallerinaServer();
         String[] clientArgsForRun = {"--sourceroot", projectPath.toString(), pkg};
         LogLeecher logLeecher = new LogLeecher("Hello World!");
         ballerinaServer.addLogLeecher(logLeecher);
@@ -368,12 +368,12 @@ public class PackagingInitTestCase extends IntegrationTestCase {
      * @return org name
      */
     private String getOrgName() {
-        String guessOrgName = System.getProperty("user.name");
-        if (guessOrgName == null) {
-            guessOrgName = "my_org";
+        String orgName = System.getProperty("user.name");
+        if (orgName == null) {
+            orgName = "my_org";
         } else {
-            guessOrgName = guessOrgName.toLowerCase(Locale.getDefault());
+            orgName = orgName.toLowerCase(Locale.getDefault());
         }
-        return guessOrgName;
+        return orgName;
     }
 }
