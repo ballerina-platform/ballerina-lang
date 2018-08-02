@@ -188,13 +188,9 @@ public type Cache object {
         // Create new arrays to hold keys to be removed and hold the corresponding timestamps.
         string[] cacheKeysToBeRemoved = [];
         int[] timestamps = [];
-
         string[] keys = self.entries.keys();
-        int size = lengthof keys;
-        int index = 0;
-        // Iterate through the map.
-        while (index < size) {
-            string key = keys[index];
+        // Iterate through the keys.
+        foreach key in keys {
             CacheEntry? cacheEntry = entries[key];
             match cacheEntry {
                 CacheEntry entry => {
@@ -206,7 +202,6 @@ public type Cache object {
                     // (possibly by a another worker).
                 }
             }
-            index++;
         }
         // Return the array.
         return cacheKeysToBeRemoved;
