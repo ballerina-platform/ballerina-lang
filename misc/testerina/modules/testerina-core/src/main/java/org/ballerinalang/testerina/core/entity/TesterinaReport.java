@@ -19,8 +19,7 @@
 package org.ballerinalang.testerina.core.entity;
 
 import org.ballerinalang.testerina.util.Utils;
-import org.wso2.ballerinalang.compiler.Logger;
-import org.wso2.ballerinalang.compiler.LoggerRegistry;
+import org.wso2.ballerinalang.compiler.ListenerRegistry;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -45,24 +44,24 @@ public class TesterinaReport {
         }
         if (!testSummary.failedTests.isEmpty()) {
             for (TesterinaResult failedResult : testSummary.failedTests) {
-                LoggerRegistry.triggerTestsFailed(failedResult.getTestFunctionName(),
-                                                  Utils.formatError(failedResult.getAssertFailureMessage()));
+                ListenerRegistry.triggerTestsFailed(failedResult.getTestFunctionName(),
+                                                    Utils.formatError(failedResult.getAssertFailureMessage()));
             }
         }
 
         if (!testSummary.passedTests.isEmpty()) {
             for (TesterinaResult passedResult : testSummary.passedTests) {
-                LoggerRegistry.triggerTestsPassed(passedResult.getTestFunctionName());
+                ListenerRegistry.triggerTestsPassed(passedResult.getTestFunctionName());
             }
-            LoggerRegistry.triggerLineBreak();
+            ListenerRegistry.triggerLineBreak();
         }
         printTestSuiteResult(testSummary.passedTests.size(), testSummary.failedTests.size(), testSummary.skippedTests
                 .size());
-        LoggerRegistry.triggerLineBreak();
+        ListenerRegistry.triggerLineBreak();
     }
 
     private void printTestSuiteResult(int passed, int failed, int skipped) {
-        LoggerRegistry.triggerTestSuiteResultGenerated(passed, failed, skipped);
+        ListenerRegistry.triggerTestSuiteResultGenerated(passed, failed, skipped);
     }
 
     public void addPackageReport(String packageName) {

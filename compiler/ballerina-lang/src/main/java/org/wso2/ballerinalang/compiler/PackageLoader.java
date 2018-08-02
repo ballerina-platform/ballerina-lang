@@ -271,7 +271,7 @@ public class PackageLoader {
 
     public BLangPackage loadEntryPackage(PackageID pkgId, PackageID enclPackageId, boolean isBuild) {
         if (isBuild) {
-            LoggerRegistry.triggerPackageCompiled(pkgId.isUnnamed ? pkgId.sourceFileName.value : pkgId.toString());
+            ListenerRegistry.triggerPackageCompiled(pkgId.isUnnamed ? pkgId.sourceFileName.value : pkgId.toString());
         }
         //even entry package may be already loaded through an import statement.
         BLangPackage bLangPackage = packageCache.get(pkgId);

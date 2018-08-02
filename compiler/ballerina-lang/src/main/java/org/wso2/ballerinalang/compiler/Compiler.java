@@ -60,7 +60,7 @@ public class Compiler {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
-        LoggerRegistry.registerLogger("ConsoleLogger", new ConsoleLogger());
+        ListenerRegistry.registerListener("ConsoleListener", new ConsoleListener());
     }
 
     public static Compiler getInstance(CompilerContext context) {
@@ -89,7 +89,7 @@ public class Compiler {
     }
 
     public BLangPackage build(String sourcePackage) {
-        LoggerRegistry.triggerCompileStarted();
+        ListenerRegistry.triggerCompileStarted();
         BLangPackage bLangPackage = compile(sourcePackage, true);
         if (bLangPackage.diagCollector.hasErrors()) {
             throw new BLangCompilerException("compilation contains errors");
@@ -99,7 +99,7 @@ public class Compiler {
 
     public void write(List<BLangPackage> packageList) {
         if (packageList.stream().anyMatch(bLangPackage -> bLangPackage.symbol.entryPointExists)) {
-            LoggerRegistry.triggerExecutablesGenerated();
+            ListenerRegistry.triggerExecutablesGenerated();
         }
         packageList.forEach(this.binaryFileWriter::write);
         packageList.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));
@@ -160,7 +160,7 @@ public class Compiler {
         if (pkgList.size() == 0) {
             return new ArrayList<>();
         }
-        LoggerRegistry.triggerCompileStarted();
+        ListenerRegistry.triggerCompileStarted();
         List<BLangPackage> compiledPackages = compilePackages(pkgList.stream(), true);
         if (this.dlog.errorCount > 0) {
             throw new BLangCompilerException("compilation contains errors");

@@ -20,106 +20,106 @@ package org.wso2.ballerinalang.compiler;
 import java.util.HashMap;
 import java.util.List;
 
-public class LoggerRegistry {
-    private static HashMap<String, Logger> loggers = new HashMap<>();
+public class ListenerRegistry {
+    private static HashMap<String, Listener> listeners = new HashMap<>();
 
-    static void registerLogger(String loggerName, Logger logger) {
-        loggers.put(loggerName, logger);
+    static void registerListener(String listenerName, Listener listener) {
+        listeners.put(listenerName, listener);
     }
 
     public static void triggerCompileStarted() {
-        for (Logger logger : loggers.values()) {
-            logger.compileStarted();
+        for (Listener listener : listeners.values()) {
+            listener.compileStarted();
         }
     }
 
     public static void triggerExecutablesGenerated() {
-        for (Logger logger : loggers.values()) {
-            logger.executablesGenerated();
+        for (Listener listener : listeners.values()) {
+            listener.executablesGenerated();
         }
     }
 
     public static void triggerExecutableGenerated() {
-        for (Logger logger : loggers.values()) {
-            logger.executableGenerated();
+        for (Listener listener : listeners.values()) {
+            listener.executableGenerated();
         }
     }
 
     public static void triggerExecutableGenerated(String fileName) {
-        for (Logger logger : loggers.values()) {
-            logger.executableGenerated(fileName);
+        for (Listener listener : listeners.values()) {
+            listener.executableGenerated(fileName);
         }
     }
 
     public static void triggerPackageCompiled(String pkg) {
-        for (Logger logger : loggers.values()) {
-            logger.packageCompiled(pkg);
+        for (Listener listener : listeners.values()) {
+            listener.packageCompiled(pkg);
         }
     }
 
     public static void triggerTestSuiteResultGenerated(int passed, int failed, int skipped) {
-        for (Logger logger : loggers.values()) {
-            logger.testSuiteResultGenerated(passed, failed, skipped);
+        for (Listener listener : listeners.values()) {
+            listener.testSuiteResultGenerated(passed, failed, skipped);
         }
     }
 
     public static void triggerTestsCompleted() {
-        for (Logger logger : loggers.values()) {
-            logger.testsCompleted();
+        for (Listener listener : listeners.values()) {
+            listener.testsCompleted();
         }
     }
 
     public static void triggerTestsCompiled() {
-        for (Logger logger : loggers.values()) {
-            logger.testsCompiled();
+        for (Listener listener : listeners.values()) {
+            listener.testsCompiled();
         }
     }
 
     public static void triggerTestsFailed(String functionName, String error) {
-        for (Logger logger : loggers.values()) {
-            logger.testsFailed(functionName, error);
+        for (Listener listener : listeners.values()) {
+            listener.testsFailed(functionName, error);
         }
     }
 
     public static void triggerTestsPassed(String functionName) {
-        for (Logger logger : loggers.values()) {
-            logger.testsPassed(functionName);
+        for (Listener listener : listeners.values()) {
+            listener.testsPassed(functionName);
         }
     }
 
     public static void triggerTestsNotFound() {
-        for (Logger logger : loggers.values()) {
-            logger.testsNotFound();
+        for (Listener listener : listeners.values()) {
+            listener.testsNotFound();
         }
     }
 
     public static void triggerTestsNotFoundInSuite() {
-        for (Logger logger : loggers.values()) {
-            logger.testsNotFoundInSuite();
+        for (Listener listener : listeners.values()) {
+            listener.testsNotFoundInSuite();
         }
     }
 
     public static void triggerNoTestGroupsAvailable() {
-        for (Logger logger : loggers.values()) {
-            logger.noTestGroupsAvailable();
+        for (Listener listener : listeners.values()) {
+            listener.noTestGroupsAvailable();
         }
     }
 
     public static void triggerTestGroupsAvailable(List<String> groupList) {
-        for (Logger logger : loggers.values()) {
-            logger.testGroupsAvailable(groupList);
+        for (Listener listener : listeners.values()) {
+            listener.testGroupsAvailable(groupList);
         }
     }
 
     public static void triggerBeforeAndAfterTestsFailed(String errorMsg) {
-        for (Logger logger : loggers.values()) {
-            logger.beforeAndAfterTestsFailed(errorMsg);
+        for (Listener listener : listeners.values()) {
+            listener.beforeAndAfterTestsFailed(errorMsg);
         }
     }
 
     public static void triggerLineBreak() {
-        for (Logger logger : loggers.values()) {
-            logger.lineBreak();
+        for (Listener listener : listeners.values()) {
+            listener.lineBreak();
         }
     }
 }

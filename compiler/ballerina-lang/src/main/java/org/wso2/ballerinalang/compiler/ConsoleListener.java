@@ -3,7 +3,7 @@ package org.wso2.ballerinalang.compiler;
 import java.io.PrintStream;
 import java.util.List;
 
-public class ConsoleLogger implements Logger {
+public class ConsoleListener implements Listener {
     private PrintStream outStream = System.out;
 
     @Override

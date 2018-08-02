@@ -35,7 +35,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.ballerinalang.compiler.LoggerRegistry;
+import org.wso2.ballerinalang.compiler.ListenerRegistry;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.PrintStream;
@@ -113,9 +113,9 @@ public class BTestRunner {
         compileAndBuildSuites(sourceRoot, sourceFilePaths, false);
         List<String> groupList = getGroupList();
         if (groupList.size() == 0) {
-            LoggerRegistry.triggerNoTestGroupsAvailable();
+            ListenerRegistry.triggerNoTestGroupsAvailable();
         } else {
-            LoggerRegistry.triggerTestGroupsAvailable(groupList);
+            ListenerRegistry.triggerTestGroupsAvailable(groupList);
         }
     }
 
@@ -150,11 +150,11 @@ public class BTestRunner {
         // We need a new line to show a clear separation between the outputs of 'Compiling Sources' and
         // 'Compiling tests'
         if (buildWithTests) {
-            LoggerRegistry.triggerLineBreak();
+            ListenerRegistry.triggerLineBreak();
         }
-        LoggerRegistry.triggerTestsCompiled();
+        ListenerRegistry.triggerTestsCompiled();
         if (sourceFilePaths.length == 0) {
-            LoggerRegistry.triggerTestsNotFound();
+            ListenerRegistry.triggerTestsNotFound();
             return;
         }
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
@@ -207,14 +207,14 @@ public class BTestRunner {
      */
     private void execute(boolean buildWithTests) {
         Map<String, TestSuite> testSuites = registry.getTestSuites();
-        LoggerRegistry.triggerLineBreak();
-        LoggerRegistry.triggerTestsCompleted();
+        ListenerRegistry.triggerLineBreak();
+        ListenerRegistry.triggerTestsCompleted();
         if (testSuites.isEmpty()) {
-            LoggerRegistry.triggerTestsNotFound();
+            ListenerRegistry.triggerTestsNotFound();
             // We need a new line to show a clear separation between the outputs of 'Running Tests' and
             // 'Generating Executable'
             if (buildWithTests) {
-                LoggerRegistry.triggerLineBreak();
+                ListenerRegistry.triggerLineBreak();
             }
             return;
         }
@@ -226,12 +226,12 @@ public class BTestRunner {
         keys.forEach(packageName -> {
             TestSuite suite = testSuites.get(packageName);
             if (packageName.equals(Names.DOT.value)) {
-                LoggerRegistry.triggerPackageCompiled(suite.getSourceFileName());
+                ListenerRegistry.triggerPackageCompiled(suite.getSourceFileName());
             } else {
-                LoggerRegistry.triggerPackageCompiled(packageName);
+                ListenerRegistry.triggerPackageCompiled(packageName);
             }
             if (suite.getTests().size() == 0) {
-                LoggerRegistry.triggerTestsNotFoundInSuite();
+                ListenerRegistry.triggerTestsNotFoundInSuite();
                 return;
             }
             shouldSkip.set(false);
@@ -249,7 +249,7 @@ public class BTestRunner {
                     shouldSkip.set(true);
                     errorMsg = "\t[fail] " + test.getName() + " [before test suite function]" + ":\n\t    "
                             + Utils.formatError(e.getMessage());
-                    LoggerRegistry.triggerBeforeAndAfterTestsFailed(errorMsg);
+                    ListenerRegistry.triggerBeforeAndAfterTestsFailed(errorMsg);
                 }
             });
             List<String> failedOrSkippedTests = new ArrayList<>();
@@ -267,7 +267,7 @@ public class BTestRunner {
                                                      " [before each test function for the test %s] :\n\t    %s",
                                                      test.getTestFunction().getName(),
                                                      Utils.formatError(e.getMessage()));
-                            LoggerRegistry.triggerBeforeAndAfterTestsFailed(errorMsg);
+                            ListenerRegistry.triggerBeforeAndAfterTestsFailed(errorMsg);
                         }
                     });
                 }
@@ -284,7 +284,7 @@ public class BTestRunner {
                                                  " [before test function for the test %s] :\n\t    %s",
                                                  test.getTestFunction().getName(),
                                                  Utils.formatError(e.getMessage()));
-                        LoggerRegistry.triggerBeforeAndAfterTestsFailed(errorMsg);
+                        ListenerRegistry.triggerBeforeAndAfterTestsFailed(errorMsg);
                     }
                 }
                 // run the test
@@ -342,7 +342,7 @@ public class BTestRunner {
                                           " [after test function for the test %s] :\n\t    %s",
                                           test.getTestFunction().getName(),
                                           Utils.formatError(e.getMessage()));
-                    LoggerRegistry.triggerBeforeAndAfterTestsFailed(error);
+                    ListenerRegistry.triggerBeforeAndAfterTestsFailed(error);
                 }
 
                 // run the afterEach tests
@@ -355,7 +355,7 @@ public class BTestRunner {
                                                   " [after each test function for the test %s] :\n\t    %s",
                                                   test.getTestFunction().getName(),
                                                   Utils.formatError(e.getMessage()));
-                        LoggerRegistry.triggerBeforeAndAfterTestsFailed(errorMsg2);
+                        ListenerRegistry.triggerBeforeAndAfterTestsFailed(errorMsg2);
                     }
                 });
             });
@@ -369,7 +369,7 @@ public class BTestRunner {
                 } catch (Throwable e) {
                     errorMsg = String.format("\t[fail] " + func.getName() + " [after test suite function] :\n\t    " +
                                                      "%s", Utils.formatError(e.getMessage()));
-                    LoggerRegistry.triggerBeforeAndAfterTestsFailed(errorMsg);
+                    ListenerRegistry.triggerBeforeAndAfterTestsFailed(errorMsg);
                 }
             });
             // print package test results

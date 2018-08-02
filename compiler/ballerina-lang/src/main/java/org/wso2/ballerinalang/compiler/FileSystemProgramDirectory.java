@@ -98,7 +98,7 @@ public class FileSystemProgramDirectory implements SourceDirectory {
         // the user
         Path targetFilePath = Paths.get(fileName);
         try {
-            LoggerRegistry.triggerExecutableGenerated(fileName);
+            ListenerRegistry.triggerExecutableGenerated(fileName);
             Files.copy(source, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
             return targetFilePath;
         } catch (DirectoryNotEmptyException e) {

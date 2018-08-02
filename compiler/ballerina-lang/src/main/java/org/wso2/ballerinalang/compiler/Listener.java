@@ -2,7 +2,7 @@ package org.wso2.ballerinalang.compiler;
 
 import java.util.List;
 
-public interface Logger {
+public interface Listener {
     void compileStarted();
 
     void executablesGenerated();

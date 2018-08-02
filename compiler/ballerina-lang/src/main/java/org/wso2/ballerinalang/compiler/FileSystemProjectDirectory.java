@@ -138,7 +138,7 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
     public Path saveCompiledProgram(InputStream source, String fileName) {
         Path targetFilePath = ensureAndGetTargetDirPath().resolve(fileName);
         try {
-            LoggerRegistry.triggerExecutableGenerated("./target/" + fileName);
+            ListenerRegistry.triggerExecutableGenerated("./target/" + fileName);
             Files.copy(source, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
             return targetFilePath;
         } catch (DirectoryNotEmptyException e) {

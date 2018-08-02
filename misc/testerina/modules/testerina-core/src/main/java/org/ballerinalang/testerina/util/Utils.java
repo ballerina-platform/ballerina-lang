@@ -29,7 +29,7 @@ import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
-import org.wso2.ballerinalang.compiler.LoggerRegistry;
+import org.wso2.ballerinalang.compiler.ListenerRegistry;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.TomlParserUtils;
@@ -155,7 +155,7 @@ public class Utils {
             srcDirectory = new FileSystemProjectDirectory(sourceRootPath);
             sourceFileList = srcDirectory.getSourcePackageNames();
         } else if (sourceFileList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
-            LoggerRegistry.triggerLineBreak();
+            ListenerRegistry.triggerLineBreak();
             return;
         }
 
