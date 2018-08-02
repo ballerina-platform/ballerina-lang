@@ -24,23 +24,26 @@ import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static org.ballerinalang.test.service.websocket.WebSocketIntegrationTest.TIMEOUT_IN_SECS;
+
 /**
  * Test whether upgrade resource failure after handshake causes a close frame to be sent.
  */
-public class UpgradeResourceFailureTest extends WebSocketIntegrationTest {
+@Test(groups = "websocket-test")
+public class UpgradeResourceFailureTest {
 
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9090/simple";
+    private static final String URL = "ws://localhost:9097/simple7";
 
     @BeforeClass(description = "Initializes the Ballerina server with the resource_failure.bal file")
-    public void setup() throws BallerinaTestException, URISyntaxException {
-        initBallerinaServer("resource_failure.bal");
+    public void setup() throws URISyntaxException {
         client = new WebSocketTestClient(URL);
     }
 
@@ -60,8 +63,7 @@ public class UpgradeResourceFailureTest extends WebSocketIntegrationTest {
     }
 
     @AfterClass(description = "Stops the Ballerina server")
-    public void cleanup() throws BallerinaTestException, InterruptedException {
+    public void cleanup() throws InterruptedException {
         client.shutDown();
-        stopBallerinaServerInstance();
     }
 }

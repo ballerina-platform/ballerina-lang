@@ -17,8 +17,8 @@
 import ballerina/http;
 import ballerina/io;
 
-@final string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
-service<http:Service> simple bind { port: 9090 } {
+@final string ASSOCIATED_CONNECTION4 = "ASSOCIATED_CONNECTION";
+service<http:Service> simple7 bind { port: 9097 } {
 
     @http:ResourceConfig {
         webSocketUpgrade: {
@@ -38,22 +38,22 @@ service<http:WebSocketService> castErrror {
 
     onText(endpoint wsEp, string text) {
         endpoint http:WebSocketClient val;
-        val = check <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION];
+        val = check <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
     }
     onBinary(endpoint wsEp, byte[] data) {
         endpoint http:WebSocketClient val;
-        val = check <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION];
+        val = check <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
     }
     onPing(endpoint wsEp, byte[] data) {
         endpoint http:WebSocketClient val;
-        val = check <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION];
+        val = check <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
     }
     onIdleTimeout(endpoint wsEp) {
         endpoint http:WebSocketClient val;
-        val = check <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION];
+        val = check <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
     }
     onClose(endpoint wsEp, int code, string reason) {
         endpoint http:WebSocketClient val;
-        val = check <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION];
+        val = check <http:WebSocketClient>wsEp.attributes[ASSOCIATED_CONNECTION4];
     }
 }

@@ -19,32 +19,37 @@
 package org.ballerinalang.test.service.websocket;
 
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static org.ballerinalang.test.service.websocket.WebSocketIntegrationTest.TIMEOUT_IN_SECS;
+
 /**
  * Test whether the errors are received correctly to the onError resource in WebSocket server.
  */
-public class OnErrorWebSocketTest extends WebSocketIntegrationTest {
+@Test(groups = "websocket-test")
+public class OnErrorWebSocketTest extends IntegrationTestCase{
 
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9090/error/ws";
+    private static final String URL = "ws://localhost:9094/error/ws";
     private LogLeecher logLeecher;
 
     @BeforeClass(description = "Initializes the Ballerina server with the error_log_service.bal file")
     public void setup() throws InterruptedException, BallerinaTestException, URISyntaxException {
         String expectingErrorLog = "error occurred: received continuation data frame outside fragmented message";
         logLeecher = new LogLeecher(expectingErrorLog);
-        initBallerinaServer("error_log_service.bal", logLeecher);
+        serverInstance.addLogLeecher(logLeecher);
 
         client = new WebSocketTestClient(URL);
         client.handshake();
@@ -68,6 +73,5 @@ public class OnErrorWebSocketTest extends WebSocketIntegrationTest {
     @AfterClass(description = "Stops the Ballerina server")
     public void cleanup() throws BallerinaTestException, InterruptedException {
         client.shutDown();
-        stopBallerinaServerInstance();
     }
 }

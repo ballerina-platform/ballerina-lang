@@ -33,26 +33,14 @@ import java.io.IOException;
 /**
  * Test case for HTTP/2.0 server to HTTP/1.1 fallback scenario.
  */
+@Test(groups = "http2-test")
 public class Http2ToHttp1FallbackTestCase extends IntegrationTestCase {
-
-    @BeforeClass
-    private void setup() throws Exception {
-        String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "http2" + File.separator + "http_2.0_to_http_1.0_fallback_test.bal")
-                .getAbsolutePath();
-        serverInstance.startBallerinaServer(balFile);
-    }
 
     @Test(description = "Test HTTP/2.0 to HTTP/1.1 server fallback scenario")
     public void testFallback() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp("hello"));
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9095, "hello"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         String responseData = response.getData();
         Assert.assertTrue(responseData.contains("1.1"), responseData);
-    }
-
-    @AfterClass
-    private void cleanup() throws BallerinaTestException {
-        serverInstance.stopServer();
     }
 }

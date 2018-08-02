@@ -17,25 +17,25 @@
 import ballerina/http;
 import ballerina/log;
 
-@final string REMOTE_BACKEND_URL = "ws://localhost:15500/websocket";
-@final string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
-@final string data = "data";
-@final byte[] APPLICATION_DATA = data.toByteArray("UTF-8");
+@final string REMOTE_BACKEND_URL2 = "ws://localhost:15500/websocket";
+@final string ASSOCIATED_CONNECTION2 = "ASSOCIATED_CONNECTION";
+@final string strData1 = "data";
+@final byte[] APPLICATION_DATA = strData1.toByteArray("UTF-8");
 
 @http:WebSocketServiceConfig {
     path: "/pingpong/ws"
 }
-service<http:WebSocketService> PingPongTestService bind { port: 9092 } {
+service<http:WebSocketService> PingPongTestService1 bind { port: 9092 } {
 
     onOpen(endpoint wsEp) {
         endpoint http:WebSocketClient wsClientEp {
-            url: REMOTE_BACKEND_URL,
+            url: REMOTE_BACKEND_URL2,
             callbackService: clientCallbackService,
             readyOnConnect: false,
             customHeaders: { "X-some-header": "some-header-value" }
         };
-        wsEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
-        wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsEp;
+        wsEp.attributes[ASSOCIATED_CONNECTION2] = wsClientEp;
+        wsClientEp.attributes[ASSOCIATED_CONNECTION2] = wsEp;
         wsClientEp->ready() but {
             error e => log:printError(e.message, err = e)
         };
@@ -44,13 +44,13 @@ service<http:WebSocketService> PingPongTestService bind { port: 9092 } {
     onText(endpoint wsEp, string text) {
         endpoint http:WebSocketClient clientEp;
         if (text == "custom-headers") {
-            clientEp = getAssociatedClientEndpoint(wsEp);
+            clientEp = getAssociatedClientEndpoint1(wsEp);
             clientEp->pushText(text + ":X-some-header") but {
                 error e => log:printError("Error sending request headers", err = e)
             };
         }
         if (text == "server-headers") {
-            clientEp = getAssociatedClientEndpoint(wsEp);
+            clientEp = getAssociatedClientEndpoint1(wsEp);
             clientEp->pushText(clientEp.response.getHeader("X-server-header")) but {
                 error e => log:printError("Error sending response headers", err = e)
             };
@@ -61,17 +61,17 @@ service<http:WebSocketService> PingPongTestService bind { port: 9092 } {
 service<http:WebSocketClientService> clientCallbackService {
 
     onText(endpoint wsEp, string text) {
-        endpoint http:WebSocketListener serverEp = getAssociatedListener(wsEp);
+        endpoint http:WebSocketListener serverEp = getAssociatedListener1(wsEp);
         serverEp->pushText(text) but {
             error e => log:printError("Error sending text to client", err = e)
         };
     }
 }
 
-public function getAssociatedClientEndpoint(http:WebSocketListener wsServiceEp) returns (http:WebSocketClient) {
-    return check <http:WebSocketClient>wsServiceEp.attributes[ASSOCIATED_CONNECTION];
+public function getAssociatedClientEndpoint1(http:WebSocketListener wsServiceEp) returns (http:WebSocketClient) {
+    return check <http:WebSocketClient>wsServiceEp.attributes[ASSOCIATED_CONNECTION2];
 }
 
-public function getAssociatedListener(http:WebSocketClient wsClientEp) returns (http:WebSocketListener) {
-    return check <http:WebSocketListener>wsClientEp.attributes[ASSOCIATED_CONNECTION];
+public function getAssociatedListener1(http:WebSocketClient wsClientEp) returns (http:WebSocketListener) {
+    return check <http:WebSocketListener>wsClientEp.attributes[ASSOCIATED_CONNECTION2];
 }

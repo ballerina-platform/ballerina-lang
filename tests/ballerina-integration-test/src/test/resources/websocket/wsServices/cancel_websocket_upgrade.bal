@@ -17,25 +17,45 @@
 import ballerina/log;
 import ballerina/http;
 
-@http:ServiceConfig {
-    basePath: "/proxy"
-}
-service<http:Service> simple bind { port: 9090 } {
+endpoint http:Listener ep1 {
+    port: 9090
+};
+
+service<http:Service> simple bind ep1 {
 
     @http:ResourceConfig {
         webSocketUpgrade: {
             upgradePath: "/cancel",
-            upgradeService: simpleProxy
+            upgradeService: simpleProxy1
         }
     }
     websocketProxy(endpoint httpEp, http:Request req, string path1, string path2) {
+        httpEp->cancelWebSocketUpgrade(404, "Cannot proceed") but {
+            error e => log:printError("Error sending message", err = e)
+        };
 
     }
 }
 
-service<http:WebSocketService> simpleProxy {
+service<http:WebSocketService> simpleProxy1 {
 
     onOpen(endpoint wsEp) {
+    }
+}
+
+service<http:Service> cannotcancel bind ep1 {
+
+    @http:ResourceConfig {
+        webSocketUpgrade: {
+            upgradePath: "/cannot/cancel",
+            upgradeService: simpleProxy1
+        }
+    }
+    websocketProxy(endpoint httpEp, http:Request req, string path1, string path2) {
+        httpEp->cancelWebSocketUpgrade(200, "Cannot proceed") but {
+            error e => log:printError("Error sending message", err = e)
+        };
+
     }
 }
 

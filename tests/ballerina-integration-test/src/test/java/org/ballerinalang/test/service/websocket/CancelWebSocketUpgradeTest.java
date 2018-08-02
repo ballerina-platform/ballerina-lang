@@ -30,14 +30,10 @@ import java.net.URISyntaxException;
 /**
  * This Class tests the cancelWebSocketUpgrade method of the http connector.
  */
-public class CancelWebSocketUpgradeTest extends WebSocketIntegrationTest {
+@Test(groups = "websocket-test")
+public class CancelWebSocketUpgradeTest {
 
     private WebSocketTestClient client;
-
-    @BeforeClass(description = "Initializes Ballerina with the cancel_websocket_upgrade.bal file")
-    public void setup() throws BallerinaTestException {
-        initBallerinaServer("cancel_websocket_upgrade.bal");
-    }
 
     @Test(description = "Tests the cancelWebSocketUpgrade method",
           expectedExceptions = WebSocketHandshakeException.class,
@@ -55,11 +51,6 @@ public class CancelWebSocketUpgradeTest extends WebSocketIntegrationTest {
         client = new WebSocketTestClient("ws://localhost:9090/cannotcancel/cannot/cancel");
         client.handshake();
         client.shutDown();
-    }
-
-    @AfterClass(description = "Stops Ballerina")
-    public void cleanup() throws BallerinaTestException {
-        stopBallerinaServerInstance();
     }
 }
 

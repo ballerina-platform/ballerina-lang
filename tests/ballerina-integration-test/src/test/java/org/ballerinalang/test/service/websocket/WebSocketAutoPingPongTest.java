@@ -23,6 +23,7 @@ import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;
@@ -33,15 +34,15 @@ import java.util.concurrent.TimeUnit;
 /**
  * This Class tests auto ping pong support of WebSocket client server if there's no onPing resource.
  */
+@Test(groups = "websocket-test")
 public class WebSocketAutoPingPongTest extends WebSocketIntegrationTest {
 
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9090/test/without/ping/resource";
+    private static final String URL = "ws://localhost:9100/test/without/ping/resource";
     private static final ByteBuffer SENDING_BYTE_BUFFER = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
 
     @BeforeClass(description = "Initializes Ballerina with the simple_server_without_ping_resource.bal file")
-    public void setup() throws InterruptedException, BallerinaTestException, URISyntaxException {
-        initBallerinaServer("simple_server_without_ping_resource.bal");
+    public void setup() throws InterruptedException, URISyntaxException {
         client = new WebSocketTestClient(URL);
         client.handshake();
     }
@@ -57,8 +58,7 @@ public class WebSocketAutoPingPongTest extends WebSocketIntegrationTest {
     }
 
     @AfterClass(description = "Stops Ballerina")
-    public void cleanup() throws BallerinaTestException, InterruptedException {
+    public void cleanup() throws InterruptedException {
         client.shutDown();
-        stopBallerinaServerInstance();
     }
 }

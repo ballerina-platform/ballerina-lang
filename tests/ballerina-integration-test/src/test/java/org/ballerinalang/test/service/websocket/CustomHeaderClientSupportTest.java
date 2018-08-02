@@ -24,29 +24,31 @@ import org.ballerinalang.test.util.websocket.server.WebSocketRemoteServer;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static org.ballerinalang.test.service.websocket.WebSocketIntegrationTest.REMOTE_SERVER_PORT;
+import static org.ballerinalang.test.service.websocket.WebSocketIntegrationTest.TIMEOUT_IN_SECS;
+
 /**
  * This Class tests receiving and sending of custom headers by Ballerina WebSocket client.
  */
-public class CustomHeaderClientSupportTest extends WebSocketIntegrationTest {
+@Test(groups = "websocket-test")
+public class CustomHeaderClientSupportTest {
 
     private WebSocketRemoteServer remoteServer;
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9090/pingpong/ws";
+    private static final String URL = "ws://localhost:9092/pingpong/ws";
     private static final String RECEIVED_TEXT = "some-header-value";
 
     @BeforeClass(description = "Initializes the Ballerina server with the custom_header_client.bal file")
-    public void setup() throws InterruptedException, BallerinaTestException, URISyntaxException {
+    public void setup() throws InterruptedException, URISyntaxException {
         remoteServer = new WebSocketRemoteServer(REMOTE_SERVER_PORT);
         remoteServer.run();
-
-        initBallerinaServer("custom_header_client.bal");
-
         client = new WebSocketTestClient(URL);
         client.handshake();
     }
@@ -71,7 +73,6 @@ public class CustomHeaderClientSupportTest extends WebSocketIntegrationTest {
 
     @AfterClass(description = "Stops the Ballerina server")
     public void cleanup() throws BallerinaTestException, InterruptedException {
-        stopBallerinaServerInstance();
         client.shutDown();
         remoteServer.stop();
     }

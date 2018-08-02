@@ -19,12 +19,12 @@ import ballerina/http;
 
 @final string CUSTOM_HEADER = "X-some-header";
 
-service<http:Service> simple bind { port: 9090 } {
+service<http:Service> simple3 bind { port: 9093 } {
 
     @http:ResourceConfig {
         webSocketUpgrade: {
             upgradePath: "/custom/header/server",
-            upgradeService: simpleProxy
+            upgradeService: simpleProxy3
         }
     }
     websocketProxy(endpoint httpEp, http:Request req) {
@@ -34,7 +34,7 @@ service<http:Service> simple bind { port: 9090 } {
     }
 }
 
-service<http:WebSocketService> simpleProxy {
+service<http:WebSocketService> simpleProxy3 {
 
     onText(endpoint wsEp, string text) {
         if (text == "custom-headers"){

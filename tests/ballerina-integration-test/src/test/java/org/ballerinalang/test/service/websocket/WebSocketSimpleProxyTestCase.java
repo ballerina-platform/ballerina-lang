@@ -24,6 +24,7 @@ import org.ballerinalang.test.util.websocket.server.WebSocketRemoteServer;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -35,16 +36,16 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test case to test simple WebSocket pass through scenarios.
  */
+@Test(groups = "websocket-test")
 public class WebSocketSimpleProxyTestCase extends WebSocketIntegrationTest {
 
     private WebSocketRemoteServer remoteServer;
-    private static final String URL = "ws://localhost:9090/proxy/ws";
+    private static final String URL = "ws://localhost:9099/proxy/ws";
 
     @BeforeClass(description = "Initializes Ballerina")
-    public void setup() throws InterruptedException, BallerinaTestException {
+    public void setup() throws InterruptedException {
         remoteServer = new WebSocketRemoteServer(REMOTE_SERVER_PORT);
         remoteServer.run();
-        initBallerinaServer("simple_proxy_server.bal");
     }
 
     @Test(priority = 1, description = "Tests sending and receiving of text frames in WebSockets")
@@ -61,7 +62,7 @@ public class WebSocketSimpleProxyTestCase extends WebSocketIntegrationTest {
     }
 
     @Test(priority = 2, description = "Tests sending and receiving of binary frames in WebSockets")
-    public void testSendBinary() throws URISyntaxException, InterruptedException, IOException {
+    public void testSendBinary() throws URISyntaxException, InterruptedException {
         WebSocketTestClient client = new WebSocketTestClient(URL);
         client.handshake();
         CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -74,8 +75,7 @@ public class WebSocketSimpleProxyTestCase extends WebSocketIntegrationTest {
     }
 
     @AfterClass(description = "Stops Ballerina")
-    public void cleanup() throws BallerinaTestException {
-        stopBallerinaServerInstance();
+    public void cleanup() {
         remoteServer.stop();
     }
 }

@@ -35,7 +35,7 @@ public class HttpBaseTest extends IntegrationTestCase {
     }
 
     @AfterGroups("http-test")
-    private void cleanup() throws Exception {
+    public void cleanup() throws Exception {
         serverInstance.stopServer();
     }
 }

@@ -22,12 +22,12 @@ import ballerina/http;
 @final string QUERY1 = "QUERY1";
 @final string QUERY2 = "QUERY2";
 
-service<http:Service> simple bind { port: 9090 } {
+service<http:Service> simple6 bind { port: 9096 } {
 
     @http:ResourceConfig {
         webSocketUpgrade: {
             upgradePath: "/{path1}/{path2}",
-            upgradeService: simpleProxy
+            upgradeService: simpleProxy6
         }
     }
     websocketProxy(endpoint httpEp, http:Request req, string path1, string path2) {
@@ -40,7 +40,7 @@ service<http:Service> simple bind { port: 9090 } {
     }
 }
 
-service<http:WebSocketService> simpleProxy {
+service<http:WebSocketService> simpleProxy6 {
 
     onText(endpoint wsEp, string text) {
         if (text == "send") {

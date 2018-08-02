@@ -24,7 +24,7 @@
     </listeners>
 
     <!-- Below tests should run sequentially since it will use same port in each test -->
-    <test name="ballerina-sample-tests" preserve-order="true" parallel="false">
+    <test name="ballerina-sample-tests" parallel="false">
         <groups>
             <run>
                 <exclude name="broken"/>
@@ -32,7 +32,7 @@
         </groups>
 
         <packages>
-            <package name="org.ballerinalang.test.service.http.*"/>
+            <!--<package name="org.ballerinalang.test.service.http.*"/>-->
             <!--<package name="org.ballerinalang.test.service.http2"/>-->
             <!--<package name="org.ballerinalang.test.transaction"/>-->
             <!--<package name="org.ballerinalang.test.filter"/>-->
@@ -40,6 +40,18 @@
             <!--<package name="org.ballerinalang.test.securelistener"/>-->
             <!--<package name="org.ballerinalang.test.service.websocket"/>-->
             <!--<package name="org.ballerinalang.test.invocationcontext"/>-->
+        </packages>
+    </test>
+
+    <test name="ballerina-websocket-tests" parallel="false">
+        <packages>
+            <!--<package name="org.ballerinalang.test.service.websocket"/>-->
+        </packages>
+    </test>
+
+    <test name="ballerina-http2-tests" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.test.service.http2"/>
         </packages>
     </test>
 
@@ -88,14 +100,6 @@
     <!--<test name="ballerina-security-tests" preserve-order="true" parallel="false">-->
         <!--<classes>-->
             <!--<class name="org.ballerinalang.test.security.HTTPResponseXMLSecurityTestCase"/>-->
-        <!--</classes>-->
-    <!--</test>-->
-
-    <!--<test name="ballerina-test-example" parallel="false">-->
-        <!--<classes>-->
-            <!--<class name="org.ballerinalang.test.service.http.sample.CompressionTestCase"/>-->
-            <!--<class name="org.ballerinalang.test.service.http.sample.EchoServiceSampleTestCase"/>-->
-            <!--<class name="org.ballerinalang.test.service.http.sample.EcommerceSampleTestCase"/>-->
         <!--</classes>-->
     <!--</test>-->
 </suite>

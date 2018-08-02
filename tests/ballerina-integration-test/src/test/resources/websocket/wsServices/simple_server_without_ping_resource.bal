@@ -1,4 +1,4 @@
-// Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -12,27 +12,17 @@
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
-// under the License.package http2;
+// under the License.
 
 import ballerina/http;
+import ballerina/io;
 
-endpoint http:Listener helloWorldEP {
-    port: 9090,
-    httpVersion: "2.0"
-};
-
-@http:ServiceConfig {
-    basePath: "/hello"
+@http:WebSocketServiceConfig {
+    path: "/test/without/ping/resource"
 }
-service helloWorld bind helloWorldEP {
+service<http:WebSocketService> SimpleServerWithoutPingResource bind { port: 9100 } {
 
-    @http:ResourceConfig {
-        methods: ["GET"],
-        path: "/"
-    }
-    sayHelloGet(endpoint caller, http:Request req) {
-        http:Response res = new;
-        res.setTextPayload("Version: " + untaint req.httpVersion);
-        _ = caller->respond(res);
+    onOpen(endpoint wsEp) {
+        io:println("New Client Connected");
     }
 }

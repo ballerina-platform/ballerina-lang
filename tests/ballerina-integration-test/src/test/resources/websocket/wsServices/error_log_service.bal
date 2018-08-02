@@ -14,24 +14,30 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/io;
 import ballerina/http;
 
-@final string REMOTE_BACKEND_URL = "ws://localhost:15500/websocket";
 
 @http:WebSocketServiceConfig {
-    path: "/client/failure"
+    path: "/error/ws"
 }
-service<http:WebSocketService> clientFailure bind { port: 9091 } {
+service<http:WebSocketService> errorService bind {port: 9094} {
+    onOpen(endpoint ep) {
+        io:println("connection open");
+    }
 
-    onOpen(endpoint wsEp) {
-        endpoint http:WebSocketClient wsClientEp {
-            url: REMOTE_BACKEND_URL,
-            callbackService: clientCallbackService,
-            readyOnConnect: false
+    onText(endpoint ep, string text) {
+        io:println(string `text received: {{text}}`);
+        ep->pushText(text) but {
+            error => io:println("error sending message")
         };
     }
-}
 
-service<http:WebSocketClientService> clientCallbackService {
+    onError(endpoint ep, error err) {
+        io:println(string `error occurred: {{err.message}}`);
+    }
 
+    onClose(endpoint ep, int statusCode, string reason) {
+        io:println(string `Connection closed with {{statusCode}}, {{reason}}`);
+    }
 }

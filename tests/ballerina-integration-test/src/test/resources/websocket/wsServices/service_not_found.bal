@@ -14,30 +14,28 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
+import ballerina/log;
 import ballerina/http;
 
-
-@http:WebSocketServiceConfig {
-    path: "/error/ws"
+@http:ServiceConfig {
+    basePath: "/proxy"
 }
-service<http:WebSocketService> errorService bind {port: 9090} {
-    onOpen(endpoint ep) {
-        io:println("connection open");
-    }
+service<http:Service> simple8 bind { port: 9098 } {
 
-    onText(endpoint ep, string text) {
-        io:println(string `text received: {{text}}`);
-        ep->pushText(text) but {
-            error => io:println("error sending message")
-        };
+    @http:ResourceConfig {
+        webSocketUpgrade: {
+            upgradePath: "/cancel",
+            upgradeService: simpleProxy8
+        }
     }
+    websocketProxy(endpoint httpEp, http:Request req, string path1, string path2) {
 
-    onError(endpoint ep, error err) {
-        io:println(string `error occurred: {{err.message}}`);
-    }
-
-    onClose(endpoint ep, int statusCode, string reason) {
-        io:println(string `Connection closed with {{statusCode}}, {{reason}}`);
     }
 }
+
+service<http:WebSocketService> simpleProxy8 {
+
+    onOpen(endpoint wsEp) {
+    }
+}
+

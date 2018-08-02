@@ -19,34 +19,34 @@ import ballerina/http;
 import ballerina/mime;
 
 endpoint http:Listener serviceEndpoint1 {
-    port: 9090,
+    port: 9092,
     httpVersion: "2.0"
 };
 
 endpoint http:Listener serviceEndpoint2 {
-    port: 9091,
-    httpVersion: "2.0"
-};
-
-endpoint http:Listener serviceEndpoint3 {
     port: 9093,
     httpVersion: "2.0"
 };
 
+endpoint http:Listener serviceEndpoint3 {
+    port: 9094,
+    httpVersion: "2.0"
+};
+
 endpoint http:Client endPoint1 {
-    url: "http://localhost:9091",
+    url: "http://localhost:9093",
     httpVersion: "2.0",
     followRedirects: { enabled: true, maxCount: 3 }
 };
 
 endpoint http:Client endPoint2 {
-    url: "http://localhost:9091",
+    url: "http://localhost:9093",
     httpVersion: "2.0",
     followRedirects: { enabled: true, maxCount: 5 }
 };
 
 endpoint http:Client endPoint3 {
-    url: "http://localhost:9093",
+    url: "http://localhost:9094",
     httpVersion: "2.0",
     followRedirects: { enabled: true }
 };
@@ -223,7 +223,7 @@ service<http:Service> redirect1 bind serviceEndpoint2 {
     }
     redirect1(endpoint client, http:Request req) {
         http:Response res = new;
-        _ = client->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, ["http://localhost:9093/redirect2"]);
+        _ = client->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, ["http://localhost:9094/redirect2"]);
     }
 
     @http:ResourceConfig {
@@ -268,7 +268,7 @@ service<http:Service> redirect1 bind serviceEndpoint2 {
     }
     round5(endpoint client, http:Request req) {
         http:Response res = new;
-        _ = client->redirect(res, http:REDIRECT_FOUND_302, ["http://localhost:9093/redirect2"]);
+        _ = client->redirect(res, http:REDIRECT_FOUND_302, ["http://localhost:9094/redirect2"]);
     }
 
     @http:ResourceConfig {
@@ -288,7 +288,7 @@ service<http:Service> redirect1 bind serviceEndpoint2 {
     qpWithAbsolutePath(endpoint client, http:Request req) {
         http:Response res = new;
         _ = client->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, [
-                "http://localhost:9091/redirect1/processQP?key=value&lang=ballerina"]);
+                "http://localhost:9093/redirect1/processQP?key=value&lang=ballerina"]);
     }
 
     @http:ResourceConfig {

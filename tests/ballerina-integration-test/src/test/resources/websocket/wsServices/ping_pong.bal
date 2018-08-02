@@ -18,24 +18,24 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/log;
 
-@final string REMOTE_BACKEND_URL = "ws://localhost:15500/websocket";
-@final string ASSOCIATED_CONNECTION = "ASSOCIATED_CONNECTION";
-@final string data = "data";
-@final byte[] APPLICATION_DATA = data.toByteArray("UTF-8");
+@final string REMOTE_BACKEND_URL3 = "ws://localhost:15500/websocket";
+@final string ASSOCIATED_CONNECTION3 = "ASSOCIATED_CONNECTION";
+@final string strData2 = "data";
+@final byte[] APPLICATION_DATA3 = strData2.toByteArray("UTF-8");
 
 @http:WebSocketServiceConfig {
     path: "/pingpong/ws"
 }
-service<http:WebSocketService> PingPongTestService bind { port: 9090 } {
+service<http:WebSocketService> PingPongTestService2 bind { port: 9095 } {
 
     onOpen(endpoint wsEp) {
         endpoint http:WebSocketClient wsClientEp {
-            url: REMOTE_BACKEND_URL,
-            callbackService: clientCallbackService,
+            url: REMOTE_BACKEND_URL3,
+            callbackService: clientCallbackService2,
             readyOnConnect: false
         };
-        wsEp.attributes[ASSOCIATED_CONNECTION] = wsClientEp;
-        wsClientEp.attributes[ASSOCIATED_CONNECTION] = wsEp;
+        wsEp.attributes[ASSOCIATED_CONNECTION3] = wsClientEp;
+        wsClientEp.attributes[ASSOCIATED_CONNECTION3] = wsEp;
         wsClientEp->ready() but {
             error e => io:println(e.message)
         };
@@ -45,33 +45,33 @@ service<http:WebSocketService> PingPongTestService bind { port: 9090 } {
         endpoint http:WebSocketClient clientEp;
 
         if (text == "ping-me") {
-            wsEp->ping(APPLICATION_DATA) but {
+            wsEp->ping(APPLICATION_DATA3) but {
                 error e => io:println("error sending server ping")
             };
         }
 
         if (text == "ping-remote-server") {
-            clientEp = getAssociatedClientEndpoint(wsEp);
-            clientEp->ping(APPLICATION_DATA) but {
+            clientEp = getAssociatedClientEndpoint2(wsEp);
+            clientEp->ping(APPLICATION_DATA3) but {
                 error e => io:println("error sending client ping")
             };
         }
 
         if (text == "tell-remote-server-to-ping") {
-            clientEp = getAssociatedClientEndpoint(wsEp);
+            clientEp = getAssociatedClientEndpoint2(wsEp);
             io:println(clientEp.response.getHeader("upgrade"));
             clientEp->pushText("ping") but {
                 error e => io:println("error sending client ping")
             };
         }
         if (text == "custom-headers") {
-            clientEp = getAssociatedClientEndpoint(wsEp);
+            clientEp = getAssociatedClientEndpoint2(wsEp);
             clientEp->pushText(text + ":X-some-header") but {
                 error e => log:printError("Error sending request headers", err = e)
             };
         }
         if (text == "server-headers") {
-            clientEp = getAssociatedClientEndpoint(wsEp);
+            clientEp = getAssociatedClientEndpoint2(wsEp);
             clientEp->pushText(clientEp.response.getHeader("X-server-header")) but {
                 error e => log:printError("Error sending response headers", err = e)
             };
@@ -92,34 +92,34 @@ service<http:WebSocketService> PingPongTestService bind { port: 9090 } {
 
 }
 
-service<http:WebSocketClientService> clientCallbackService {
+service<http:WebSocketClientService> clientCallbackService2 {
 
     onText(endpoint wsEp, string text) {
-        endpoint http:WebSocketListener serverEp = getAssociatedListener(wsEp);
+        endpoint http:WebSocketListener serverEp = getAssociatedListener2(wsEp);
         serverEp->pushText(text) but {
             error e => io:println("error sending client text")
         };
     }
 
     onPing(endpoint wsEp, byte[] localData) {
-        endpoint http:WebSocketListener serverEp = getAssociatedListener(wsEp);
+        endpoint http:WebSocketListener serverEp = getAssociatedListener2(wsEp);
         serverEp->pushText("ping-from-remote-server-received") but {
             error e => io:println("error sending client text")
         };
     }
 
     onPong(endpoint wsEp, byte[] localData) {
-        endpoint http:WebSocketListener serverEp = getAssociatedListener(wsEp);
+        endpoint http:WebSocketListener serverEp = getAssociatedListener2(wsEp);
         serverEp->pushText("pong-from-remote-server-received") but {
             error e => io:println("error sending client text")
         };
     }
 }
 
-public function getAssociatedClientEndpoint(http:WebSocketListener wsServiceEp) returns (http:WebSocketClient) {
-    return check <http:WebSocketClient>wsServiceEp.attributes[ASSOCIATED_CONNECTION];
+public function getAssociatedClientEndpoint2(http:WebSocketListener wsServiceEp) returns (http:WebSocketClient) {
+    return check <http:WebSocketClient>wsServiceEp.attributes[ASSOCIATED_CONNECTION3];
 }
 
-public function getAssociatedListener(http:WebSocketClient wsClientEp) returns (http:WebSocketListener) {
-    return check <http:WebSocketListener>wsClientEp.attributes[ASSOCIATED_CONNECTION];
+public function getAssociatedListener2(http:WebSocketClient wsClientEp) returns (http:WebSocketListener) {
+    return check <http:WebSocketListener>wsClientEp.attributes[ASSOCIATED_CONNECTION3];
 }

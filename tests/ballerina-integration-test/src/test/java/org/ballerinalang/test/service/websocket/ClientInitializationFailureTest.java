@@ -24,23 +24,26 @@ import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static org.ballerinalang.test.service.websocket.WebSocketIntegrationTest.TIMEOUT_IN_SECS;
+
 /**
  * Test whether resource failure during client initialization causes a close frame to be sent.
  */
-public class ClientInitializationFailureTest extends WebSocketIntegrationTest {
+@Test(groups = "websocket-test")
+public class ClientInitializationFailureTest {
 
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9090/client/failure";
+    private static final String URL = "ws://localhost:9091/client/failure";
 
     @BeforeClass(description = "Initializes the Ballerina server with the client_failure.bal file")
-    public void setup() throws BallerinaTestException, URISyntaxException {
-        initBallerinaServer("client_failure.bal");
+    public void setup() throws URISyntaxException {
         client = new WebSocketTestClient(URL);
     }
 
@@ -62,6 +65,5 @@ public class ClientInitializationFailureTest extends WebSocketIntegrationTest {
     @AfterClass(description = "Stops the Ballerina server")
     public void cleanup() throws BallerinaTestException, InterruptedException {
         client.shutDown();
-        stopBallerinaServerInstance();
     }
 }

@@ -24,7 +24,9 @@ import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -33,25 +35,15 @@ import java.io.IOException;
 /**
  * Test case for HTTP/2.0 server push scenario.
  */
+@Test(groups = "http2-test")
 public class Http2ServerPushTestCase extends IntegrationTestCase {
-
-    @BeforeClass
-    private void setup() throws Exception {
-        String balFile = new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "http2" + File.separator + "http-2.0-server-push-test.bal").getAbsolutePath();
-        serverInstance.startBallerinaServer(balFile);
-    }
 
     @Test(description = "Test HTTP/2.0 Server Push scenario")
     public void testPushPromise() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp("frontend"));
+        System.out.println("#### Running https2");
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9090, "frontend"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         String responseData = response.getData();
         Assert.assertTrue(responseData.contains("successful"), responseData);
-    }
-
-    @AfterClass
-    private void cleanup() throws BallerinaTestException {
-        serverInstance.stopServer();
     }
 }
