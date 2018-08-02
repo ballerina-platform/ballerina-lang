@@ -16,12 +16,12 @@
 import ballerina/io;
 import ballerina/grpc;
 
-endpoint grpc:Listener ep {
+endpoint grpc:Listener ep3 {
     host:"localhost",
-    port:9090
+    port:9092
 };
 
-service HelloWorld bind ep {
+service HelloWorld3 bind ep3 {
 
     testIntArrayInput(endpoint caller, TestInt req) {
         io:println(req);

@@ -23,37 +23,37 @@
         <listener class-name="org.ballerinalang.test.listener.TestNGListener"/>
     </listeners>
 
-    <!-- Below tests should run sequentially since it will use same port in each test -->
-    <test name="ballerina-sample-tests" parallel="false">
-        <groups>
-            <run>
-                <exclude name="broken"/>
-            </run>
-        </groups>
+    <!--&lt;!&ndash; Below tests should run sequentially since it will use same port in each test &ndash;&gt;-->
+    <!--<test name="ballerina-sample-tests" parallel="false">-->
+        <!--<groups>-->
+            <!--<run>-->
+                <!--<exclude name="broken"/>-->
+            <!--</run>-->
+        <!--</groups>-->
 
-        <packages>
-            <package name="org.ballerinalang.test.service.http.*"/>
+        <!--<packages>-->
+            <!--<package name="org.ballerinalang.test.service.http.*"/>-->
+            <!--&lt;!&ndash;<package name="org.ballerinalang.test.service.http2"/>&ndash;&gt;-->
+            <!--&lt;!&ndash;<package name="org.ballerinalang.test.transaction"/>&ndash;&gt;-->
+            <!--&lt;!&ndash;<package name="org.ballerinalang.test.filter"/>&ndash;&gt;-->
+            <!--&lt;!&ndash;<package name="org.ballerinalang.test.auth"/>&ndash;&gt;-->
+            <!--&lt;!&ndash;<package name="org.ballerinalang.test.securelistener"/>&ndash;&gt;-->
+            <!--&lt;!&ndash;<package name="org.ballerinalang.test.service.websocket"/>&ndash;&gt;-->
+            <!--&lt;!&ndash;<package name="org.ballerinalang.test.invocationcontext"/>&ndash;&gt;-->
+        <!--</packages>-->
+    <!--</test>-->
+
+    <!--<test name="ballerina-http2-tests" parallel="false">-->
+        <!--<packages>-->
             <!--<package name="org.ballerinalang.test.service.http2"/>-->
-            <!--<package name="org.ballerinalang.test.transaction"/>-->
-            <!--<package name="org.ballerinalang.test.filter"/>-->
-            <!--<package name="org.ballerinalang.test.auth"/>-->
-            <!--<package name="org.ballerinalang.test.securelistener"/>-->
+        <!--</packages>-->
+    <!--</test>-->
+
+    <!--<test name="ballerina-websocket-tests" parallel="false">-->
+        <!--<packages>-->
             <!--<package name="org.ballerinalang.test.service.websocket"/>-->
-            <!--<package name="org.ballerinalang.test.invocationcontext"/>-->
-        </packages>
-    </test>
-
-    <test name="ballerina-http2-tests" parallel="false">
-        <packages>
-            <package name="org.ballerinalang.test.service.http2"/>
-        </packages>
-    </test>
-
-    <test name="ballerina-websocket-tests" parallel="false">
-        <packages>
-            <package name="org.ballerinalang.test.service.websocket"/>
-        </packages>
-    </test>
+        <!--</packages>-->
+    <!--</test>-->
 
     <!--<test name="ballerina-jms-tests" preserve-order="true" parallel="false">-->
         <!--<packages>-->
@@ -67,22 +67,11 @@
         <!--</packages>-->
     <!--</test>-->
 
-    <!--<test name="ballerina-grpc-sample-tests" preserve-order="true" parallel="false">-->
-        <!--<classes>-->
-            <!--<class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingBasicTestCase"/>-->
-            <!--<class name="org.ballerinalang.test.service.grpc.sample.ServerStreamingTestCase"/>-->
-            <!--<class name="org.ballerinalang.test.service.grpc.sample.ClientStreamingTestCase"/>-->
-            <!--<class name="org.ballerinalang.test.service.grpc.sample.UnarySecuredBlockingBasicTestCase"/>-->
-            <!--<class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingHeaderTestCase"/>-->
-            <!--<class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingNestedStructTestCase"/>-->
-            <!--<class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingEmptyValueTestCase"/>-->
-            <!--<class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingArrayValueTestCase"/>-->
-            <!--<class name="org.ballerinalang.test.service.grpc.sample.ServiceUnavailableTestCase"/>-->
-            <!--<class name="org.ballerinalang.test.service.grpc.sample.InvalidServiceMethodTestCase"/>-->
-            <!--<class name="org.ballerinalang.test.service.grpc.tool.ClientStubGeneratorTestCase" />-->
-            <!--<class name="org.ballerinalang.test.service.grpc.tool.InvalidServiceContractTestCase" />-->
-        <!--</classes>-->
-    <!--</test>-->
+    <test name="ballerina-grpc-sample-tests" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.test.service.grpc.*"/>
+        </packages>
+    </test>
 
     <!--<test name="ballerina-observability-tests" preserve-order="true" parallel="false">-->
         <!--<classes>-->

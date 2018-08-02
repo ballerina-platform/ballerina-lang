@@ -18,14 +18,14 @@ import ballerina/io;
 import ballerina/grpc;
 
 // Server endpoint configuration
-endpoint grpc:Listener ep {
+endpoint grpc:Listener ep7 {
     host:"localhost",
-    port:9090
+    port:9096
 };
 
 @grpc:ServiceConfig {name:"lotsOfGreetings",
     clientStreaming:true}
-service HelloWorld bind ep {
+service HelloWorld7 bind ep7 {
     onOpen(endpoint caller) {
         io:println("connected sucessfully.");
     }

@@ -26,6 +26,7 @@ import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -35,6 +36,7 @@ import java.nio.file.Paths;
 /**
  * Protobuf to bal generation function testcase.
  */
+@Test(groups = "grpc-test")
 public class ClientStubGeneratorTestCase {
 
     private static final String PACKAGE_NAME = ".";

@@ -16,12 +16,12 @@
 import ballerina/io;
 import ballerina/grpc;
 
-endpoint grpc:Listener ep {
+endpoint grpc:Listener ep98 {
     host:"localhost",
-    port:9090
+    port:9098
 };
 
-service HelloWorld bind ep {
+service HelloWorld98 bind ep98 {
     hello(endpoint caller, string name) {
         io:println("name: " + name);
         string message = "Hello " + name;
@@ -35,9 +35,14 @@ service HelloWorld bind ep {
         _ = caller->complete();
     }
 
-    testInt(endpoint caller, int age) {
+    testInt(endpoint caller, string age) {
         io:println("age: " + age);
-        int displayAge = age - 2;
+        int displayAge;
+        if (age == null) {
+            displayAge = -1;
+        } else {
+            displayAge = 1;
+        }
         error? err = caller->send(displayAge);
         io:println(err.message but { () => ("display age : " + displayAge) });
         _ = caller->complete();
@@ -45,46 +50,9 @@ service HelloWorld bind ep {
 
     testFloat(endpoint caller, float salary) {
         io:println("gross salary: " + salary);
-        float netSalary = salary * 0.88;
+        string netSalary = <string>(salary * 0.88);
         error? err = caller->send(netSalary);
         io:println(err.message but { () => ("net salary : " + netSalary) });
         _ = caller->complete();
     }
-
-    testBoolean(endpoint caller, boolean available) {
-        io:println("is available: " + available);
-        boolean aval = available || true;
-        error? err = caller->send(aval);
-        io:println(err.message but { () => ("avaliability : " + aval) });
-        _ = caller->complete();
-    }
-
-    testStruct(endpoint caller, Request msg) {
-        io:println(msg.name + " : " + msg.message);
-        Response response = {resp:"Acknowledge " + msg.name};
-        error? err = caller->send(response);
-        io:println(err.message but { () => ("msg : " + response.resp) });
-        _ = caller->complete();
-    }
-
-    testNoRequest(endpoint caller) {
-        string resp = "service invoked with no request";
-        error? err = caller->send(resp);
-        io:println(err.message but { () => ("response : " + resp) });
-        _ = caller->complete();
-    }
-
-    testNoResponse(endpoint caller, string msg) {
-        io:println("Request: " + msg);
-    }
 }
-
-type Request record {
-    string name;
-    string message;
-    int age;
-};
-
-type Response record {
-    string resp;
-};

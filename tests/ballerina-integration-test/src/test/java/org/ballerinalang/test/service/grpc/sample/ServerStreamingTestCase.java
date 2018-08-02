@@ -31,6 +31,7 @@ import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
@@ -41,22 +42,18 @@ import java.util.stream.Stream;
  * Test class for gRPC server streaming service with non-blocking client.
  *
  */
+@Test(groups = "grpc-test")
 public class ServerStreamingTestCase extends IntegrationTestCase {
-
-    private ServerInstance ballerinaServer;
 
     @BeforeClass
     private void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer(9090);
-        Path serviceBalPath = Paths.get("src", "test", "resources", "grpc", "server_streaming_service.bal");
-        ballerinaServer.startBallerinaServer(serviceBalPath.toAbsolutePath().toString());
         TestUtils.prepareBalo(this);
     }
 
     @Test
     public void testNonBlockingBallerinaClient() {
 
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "server_streaming_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "server_streaming_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BString request = new BString("WSO2");
 
@@ -70,10 +67,5 @@ public class ServerStreamingTestCase extends IntegrationTestCase {
         Assert.assertTrue(Stream.of(responseValues.getStringArray()).anyMatch("GM WSO2"::equals));
         Assert.assertTrue(Stream.of(responseValues.getStringArray()).anyMatch(("Server Complete Sending Response" +
                 ".")::equals));
-    }
-
-    @AfterClass
-    private void cleanup() throws BallerinaTestException {
-        ballerinaServer.stopServer();
     }
 }

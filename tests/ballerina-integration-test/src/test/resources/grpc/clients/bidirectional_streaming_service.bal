@@ -14,26 +14,26 @@
 // specific language governing permissions and limitations
 // under the License.
 // This is server implementation for bidirectional streaming scenario
-import ballerina/io;
-import ballerina/grpc;
-import ballerina/log;
+// import ballerina/io;
+// import ballerina/grpc;
+// import ballerina/log;
 
 // Server endpoint configuration
-endpoint grpc:Service ep {
+endpoint grpc:Service ep5 {
     host:"localhost",
-    port:9090
+    port:9095
 };
 
 @grpc:ServiceConfig {name:"chat",
     clientStreaming:true,
     serverStreaming:true}
-service<grpc:Listener> Chat bind ep {
+service<grpc:Listener> Chat bind ep5 {
     map consMap;
     onOpen(endpoint client) {
         consMap[<string>client.id] = client;
     }
 
-    onMessage(endpoint client, ChatMessage chatMsg) {
+    onMessage(endpoint client, ChatMessage5 chatMsg) {
         endpoint grpc:Service con;
         string msg = string `{{chatMsg.name}}: {{chatMsg.message}}`;
         io:println(msg);
@@ -71,7 +71,7 @@ service<grpc:Listener> Chat bind ep {
     }
 }
 
-type ChatMessage record {
+type ChatMessage5 record {
     string name;
     string message;
 };

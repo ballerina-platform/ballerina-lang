@@ -29,6 +29,7 @@ import org.ballerinalang.test.context.ServerInstance;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
@@ -38,22 +39,13 @@ import java.nio.file.Paths;
  * Test class for WebSocket client connector.
  * This test the mediation of wsClient <-> balServer <-> balWSClient <-> remoteServer.
  */
+@Test(groups = "grpc-test")
 public class UnarySecuredBlockingBasicTestCase extends IntegrationTestCase {
-    
-    private ServerInstance ballerinaServer;
-    
-    @BeforeClass
-    private void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer(8085);
-        System.setProperty("ballerina.home", ballerinaServer.getServerHome());
-        Path serviceBalPath = Paths.get("src", "test", "resources", "grpc", "grpc_secured_unary_service.bal");
-        ballerinaServer.startBallerinaServer(serviceBalPath.toAbsolutePath().toString());
-    }
-    
-    @Test
+
+    @Test (enabled = false)
     public void testUnarySecuredBlocking() {
         
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "grpc_secured_unary_client.bal");
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "grpc_secured_unary_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         final String serverMsg = "Hello WSO2";
         
@@ -62,10 +54,5 @@ public class UnarySecuredBlockingBasicTestCase extends IntegrationTestCase {
         Assert.assertTrue(responses[0] instanceof BString);
         BString responseValues = (BString) responses[0];
         Assert.assertEquals(responseValues.stringValue(), serverMsg);
-    }
-    
-    @AfterClass
-    private void cleanup() throws BallerinaTestException {
-        ballerinaServer.stopServer();
     }
 }

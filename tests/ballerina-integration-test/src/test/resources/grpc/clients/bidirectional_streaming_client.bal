@@ -13,115 +13,118 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-// This is client implementation for server streaming scenario
+// This is client implementation for bidirectional streaming scenario
+
 import ballerina/grpc;
 import ballerina/io;
+import ballerina/log;
 import ballerina/runtime;
 
-string[] responses;
 int total = 0;
-function testServerStreaming(string name) returns (string[]) {
-    // Client endpoint configuration
-    endpoint HelloWorldClient helloWorldEp {
-        url:"http://localhost:9090"
-    };
-    // Executing unary non-blocking call registering server message listener.
-    error? result = helloWorldEp->lotsOfReplies(name, HelloWorldMessageListener);
-    match result {
-        error payloadError => {
-            io:println("Error occured while sending event " + payloadError.message);
-            responses[total] = "Error occured while sending event " + payloadError.message;
-            return responses;
-        }
-        () => {
-            io:println("Connected successfully");
-        }
-    }
+function main(string... args) {
 
-    int wait = 0;
-    while(total < 4) {
-        runtime:sleep(1000);
-        io:println("msg count: " + total);
-        if (wait > 10) {
-            break;
+    endpoint ChatClient chatEp {
+        url:"http://localhost:9094"
+    };
+
+    endpoint grpc:Client ep;
+    // Executing unary non-blocking call registering server message listener.
+    var res = chatEp->chat(ChatMessageListener);
+    match res {
+        grpc:error err => {
+            io:print("error");
         }
-        wait++;
+        grpc:Client con => {
+            ep = con;
+        }
     }
-    io:println("Client got response successfully.");
-    return responses;
+    ChatMessage mes = new;
+    mes.name = "Sam";
+    mes.message = "Hi ";
+    error? connErr = ep->send(mes);
+    io:println(err.message but { () => "" });
+    //this will hold forever since this is chat application
+    runtime:sleep(6000);
+    _ = ep->complete();
 }
 
-// Server Message Listener.
-service<grpc:Service> HelloWorldMessageListener {
 
-    // Resource registered to receive server messages
+service<grpc:Service> ChatMessageListener {
+
     onMessage(string message) {
         io:println("Response received from server: " + message);
-        responses[total] = message;
-        total = total + 1;
     }
 
-    // Resource registered to receive server error messages
     onError(error err) {
         if (err != ()) {
             io:println("Error reported from server: " + err.message);
         }
     }
 
-    // Resource registered to receive server completed message.
     onComplete() {
-        io:println("Server Complete Sending Response.");
-        responses[total] = "Server Complete Sending Response.";
-        total = total + 1;
+        io:println("Server Complete Sending Responses.");
     }
 }
 
 // Non-blocking client
-public type HelloWorldStub object {
+public type ChatStub object {
 
-    public grpc:Client clientEndpoint;
+    public grpc:Client clientEndpoint44;
     public grpc:Stub stub;
+
 
     function initStub(grpc:Client ep) {
         grpc:Stub navStub = new;
-        navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
+        navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY4, descriptorMap4);
         self.stub = navStub;
     }
 
-    function lotsOfReplies(string req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
-        return self.stub.nonBlockingExecute("HelloWorld/lotsOfReplies", req, listener, headers = headers);
+    function chat(typedesc listener, grpc:Headers? headers = ()) returns (grpc:Client|error) {
+        var res = stub.stub.streamingExecute("Chat/chat", listener, headers = headers);
+        match res {
+            error err1 => {
+                return err1;
+            }
+            grpc:Client con => {
+                return con;
+            }
+        }
     }
 };
 
 
 // Non-blocking client endpoint
-public type HelloWorldClient object {
+public type ChatClient object {
 
     public grpc:Client client;
-    public HelloWorldStub stub;
+    public ChatStub stub;
 
 
     public function init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
-        grpc:Client c = new;
-        c.init(config);
-        self.client = c;
+        grpc:Client client = new;
+        client.init(config);
+        self.client = client;
         // initialize service stub.
-        HelloWorldStub s = new;
-        s.initStub(c);
-        self.stub = s;
+        ChatStub stub = new;
+        stub.initStub(client);
+        self.stub = stub;
     }
-
-    public function getCallerActions() returns (HelloWorldStub) {
+    public function getCallerActions() returns (ChatStub) {
         return self.stub;
     }
 };
 
-@final string DESCRIPTOR_KEY = "HelloWorld.proto";
-map descriptorMap =
+type ChatMessage record {
+    string name;
+    string message;
+};
+
+@final string DESCRIPTOR_KEY4 = "Chat.proto";
+map descriptorMap4 =
 {
-    "HelloWorld.proto":
-    "0A1048656C6C6F576F726C642E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F325B0A0A48656C6C6F576F726C64124D0A0D6C6F74734F665265706C696573121B676F6F676C652E70726F746F6275662E537472696E6756616C75651A1B676F6F676C652E70726F746F6275662E537472696E6756616C756528003001620670726F746F33"
+    "Chat.proto":
+    "0A0A436861742E70726F746F1A1E676F6F676C652F70726F746F6275662F77726170706572732E70726F746F22280A0B436861744D657373616765120A0A046E616D6518012809120D0A076D65737361676518022809323C0A044368617412340A0463686174120B436861744D6573736167651A1B676F6F676C652E70726F746F6275662E537472696E6756616C756528013001620670726F746F33"
     ,
 
     "google.protobuf.google/protobuf/wrappers.proto":

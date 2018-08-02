@@ -16,43 +16,23 @@
 import ballerina/io;
 import ballerina/grpc;
 
-endpoint grpc:Listener ep {
+endpoint grpc:Listener ep85 {
     host:"localhost",
-    port:9090
+    port:8085,
+    secureSocket:{
+        keyStore:{
+            path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password:"ballerina"
+        }
+    }
 };
 
-service HelloWorld bind ep {
+service HelloWorld85 bind ep85 {
     hello(endpoint caller, string name) {
         io:println("name: " + name);
         string message = "Hello " + name;
-        error? err;
-        if (name == "invalid") {
-            err = caller->sendError(grpc:ABORTED, "Operation aborted");
-        } else {
-            err = caller->send(message);
-        }
+        error? err = caller->send(message);
         io:println(err.message but { () => ("Server send response : " + message) });
-        _ = caller->complete();
-    }
-
-    testInt(endpoint caller, string age) {
-        io:println("age: " + age);
-        int displayAge;
-        if (age == null) {
-            displayAge = -1;
-        } else {
-            displayAge = 1;
-        }
-        error? err = caller->send(displayAge);
-        io:println(err.message but { () => ("display age : " + displayAge) });
-        _ = caller->complete();
-    }
-
-    testFloat(endpoint caller, float salary) {
-        io:println("gross salary: " + salary);
-        string netSalary = <string>(salary * 0.88);
-        error? err = caller->send(netSalary);
-        io:println(err.message but { () => ("net salary : " + netSalary) });
         _ = caller->complete();
     }
 }

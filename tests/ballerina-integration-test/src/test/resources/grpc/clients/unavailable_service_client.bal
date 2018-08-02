@@ -17,7 +17,7 @@ import ballerina/io;
 import ballerina/grpc;
 
 endpoint HelloWorldBlockingClient helloWorldBlockingEp {
-    url:"http://localhost:9096"
+    url:"http://localhost:9110"
 };
 
 function testUnaryBlockingClient(string name) returns (string) {
