@@ -15,16 +15,23 @@ import '../../src/browser/style/preview.css';
 
 const { BallerinaDesignView, TreeBuilder } = require('../../../../../../../lib/ballerina-diagram-library');
 
+const TREE_MODIFIED = 'tree-modified';
 export interface EditModeChangeEvent {
     editMode: boolean,
 }
 export interface DiagramModeChangeEvent {
     mode: string,
 }
+
+export interface AST {
+    on(evt: string, handler: Function): void;
+    off(evt: string, handler: Function): void;
+    getSource(): string;
+}
 @injectable()
 export class BallerinaPreviewWidget extends ReactWidget {
 
-    protected currentAST: Object | undefined;
+    protected currentAST: AST | undefined;
     protected readonly toDisposePerCurrentEditor = new DisposableCollection();
     protected editMode: boolean = true;
     protected diagramMode: string = 'action';
@@ -54,7 +61,13 @@ export class BallerinaPreviewWidget extends ReactWidget {
         this.getAST()
                 .then((parserReply: ParserReply) => {
                     if (parserReply.model) {
+                        if (this.currentAST) {
+                            this.currentAST.off(TREE_MODIFIED, this.onModelUpdate);
+                        }
                         this.currentAST = TreeBuilder.build(parserReply.model);
+                        if (this.currentAST) {
+                            this.currentAST.on(TREE_MODIFIED, this.onModelUpdate.bind(this));
+                        }
                         super.update();
                     }
                 });
@@ -78,6 +91,13 @@ export class BallerinaPreviewWidget extends ReactWidget {
             }
         } else if (this.isHidden) {
             this.show();
+        }
+    }
+
+    protected onModelUpdate(evt: any) {
+        if (this.currentAST) {
+            const newContent = this.currentAST.getSource();
+            console.log(newContent);
         }
     }
 
