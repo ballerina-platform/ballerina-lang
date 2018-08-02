@@ -23,6 +23,8 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
+import org.testng.annotations.AfterGroups;
+import org.testng.annotations.BeforeGroups;
 
 import java.io.File;
 import java.util.concurrent.CountDownLatch;
@@ -58,6 +60,19 @@ public class WebSocketIntegrationTest extends IntegrationTestCase{
     public void initBallerinaServer(String fileName) throws BallerinaTestException {
         String balPath = new File("src/test/resources/websocket/" + fileName).getAbsolutePath();
         serverInstance.startBallerinaServer(balPath);
+    }
+
+    @BeforeGroups("websocket-test")
+    public void start() throws BallerinaTestException {
+        String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
+                "websocket").getAbsolutePath();
+        String[] args = new String[] {"--sourceroot", balFile};
+        serverInstance.startBallerinaServer("wsServices", args);
+    }
+
+    @AfterGroups("websocket-test")
+    private void cleanup() throws Exception {
+        serverInstance.stopServer();
     }
 
     public void stopBallerinaServerInstance() throws BallerinaTestException {

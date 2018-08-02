@@ -25,7 +25,7 @@ import ballerina/log;
 @http:WebSocketServiceConfig {
     path: "/pingpong/ws"
 }
-service<http:WebSocketService> PingPongTestService bind { port: 9090 } {
+service<http:WebSocketService> PingPongTestService bind { port: 9092 } {
 
     onOpen(endpoint wsEp) {
         endpoint http:WebSocketClient wsClientEp {

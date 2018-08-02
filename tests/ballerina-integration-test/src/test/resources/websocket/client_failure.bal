@@ -21,7 +21,7 @@ import ballerina/http;
 @http:WebSocketServiceConfig {
     path: "/client/failure"
 }
-service<http:WebSocketService> clientFailure bind { port: 9090 } {
+service<http:WebSocketService> clientFailure bind { port: 9091 } {
 
     onOpen(endpoint wsEp) {
         endpoint http:WebSocketClient wsClientEp {

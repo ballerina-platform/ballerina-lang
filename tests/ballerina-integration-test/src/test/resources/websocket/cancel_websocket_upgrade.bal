@@ -17,11 +17,11 @@
 import ballerina/log;
 import ballerina/http;
 
-endpoint http:Listener ep {
+endpoint http:Listener ep1 {
     port: 9090
 };
 
-service<http:Service> simple bind ep {
+service<http:Service> simple bind ep1 {
 
     @http:ResourceConfig {
         webSocketUpgrade: {
@@ -37,13 +37,13 @@ service<http:Service> simple bind ep {
     }
 }
 
-service<http:WebSocketService> simpleProxy {
+service<http:WebSocketService> simpleProxy1 {
 
     onOpen(endpoint wsEp) {
     }
 }
 
-service<http:Service> cannotcancel bind ep {
+service<http:Service> cannotcancel bind ep1 {
 
     @http:ResourceConfig {
         webSocketUpgrade: {
