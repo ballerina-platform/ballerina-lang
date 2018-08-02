@@ -105,10 +105,11 @@ function testCovarianceBooleanOrFloatOrRecordTuple() {
     y[0] = person1;  // Runtime Exception
 }
 
-function testComplexTupleTypes() returns (float, json, boolean, json) {
+function testComplexTupleTypes() returns (float, json, boolean, json, float) {
     ((float|boolean), float) var1 = (12, 5);
     (json|int, Person) var2 = (true, person1);
     ((int|boolean, float), (float|json, string)) var3 = ((true, 6.0), ("json", "string"));
+    (((float|boolean, int), float), boolean) var4 = (((12, 2), 3), true);
 
     float|boolean x1 = var1[0];
     float x2 = var1[1];
@@ -116,6 +117,7 @@ function testComplexTupleTypes() returns (float, json, boolean, json) {
     (int|boolean, float) x4 = var3[0];
     int|boolean x5 = var3[0][0];
     float|json x6 = var3[1][0];
+    float|boolean x7 = var4[0][0][0];
 
-    return (x1 but {boolean => 0.0}, x3 but {int => ""}, x5 but {int => false}, x6 but {float => ""});
+    return (x1 but {boolean => 0.0}, x3 but {int => ""}, x5 but {int => false}, x6 but {float => ""}, x7 but {boolean => 0.0});
 }

@@ -123,10 +123,24 @@ public class ArrayMutabilityTest {
         BRunUtil.invoke(compileResult, "testObjectTypes");
     }
 
+    @Test
+    public void testUnionOfArrays() {
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testUnionOfArrays");
+        Assert.assertEquals((returnValues[0]).stringValue(), "BOOL");
+    }
+
+    @Test(description = "Test mutation of boolean array assigned to a union",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp =
+                    ".*message: incompatible types: expected 'boolean', found 'int'.*")
+    public void testUnionOfArrays2() {
+        BRunUtil.invoke(compileResult, "testUnionOfArrays2");
+    }
+
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
         int i = 0;
-        Assert.assertEquals(resultNegative.getErrorCount(), 8);
+        Assert.assertEquals(resultNegative.getErrorCount(), 9);
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'Employee[]', found 'Person[]'", 34, 21);
         BAssertUtil.validateError(resultNegative, i++,
@@ -143,5 +157,7 @@ public class ArrayMutabilityTest {
                 "incompatible types: expected 'int[3][3]', found 'int[3][]'", 54, 21);
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'Animal[]', found 'Cat[]'", 80, 28);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'int[]|boolean[]', found 'int|boolean[]'", 90, 10);
     }
 }

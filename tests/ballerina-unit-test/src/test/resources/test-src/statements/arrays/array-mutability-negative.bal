@@ -79,3 +79,13 @@ function mismatchingCovariace2() {
     Cat[] catArray = [new, new];
     Animal[] animalArray = catArray; // Compile Error
 }
+
+function testUnionOfArrays2() {
+    (int|boolean)[] x1;
+    int[]|boolean[] x2;
+
+    int[] intArray;
+    boolean[] boolArray;
+
+    x2 = x1; // Compile Error
+}

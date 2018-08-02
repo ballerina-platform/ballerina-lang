@@ -119,5 +119,6 @@ public class TupleMutabilityTest {
         Assert.assertTrue(((BBoolean) returnValues[1]).booleanValue());
         Assert.assertTrue(((BBoolean) returnValues[2]).booleanValue());
         Assert.assertEquals(returnValues[3].stringValue(), "json");
+        Assert.assertEquals(((BFloat) returnValues[4]).floatValue(), 12.0);
     }
 }

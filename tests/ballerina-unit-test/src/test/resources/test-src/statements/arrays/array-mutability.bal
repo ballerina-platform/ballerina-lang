@@ -141,3 +141,22 @@ function testObjectTypes() {
 
     animalArray[0] = animal1; // Runtime Exception
 }
+
+function testUnionOfArrays() returns string {
+
+    boolean[] boolArray = [true, true];
+
+    int[]|boolean[] x2 = boolArray;
+    match x2 {
+        int[] => return "INT";
+        boolean[] => return "BOOL";
+    }
+}
+
+function testUnionOfArrays2() {
+    int[]|boolean[] x2 = [true];
+
+    (int|boolean)[] x1 = x2;
+
+    x1[0] = 3; // Runtime Exception
+}
