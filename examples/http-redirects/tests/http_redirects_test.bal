@@ -5,7 +5,7 @@ import ballerina/http;
 boolean serviceStarted;
 
 function startService() {
-    serviceStarted = test:startServices("http-redirects");
+    //serviceStarted = test:startServices("http-redirects");
 }
 
 @test:Config {
@@ -17,7 +17,7 @@ function testFunc() {
     endpoint http:Client httpEndpoint { url: "http://localhost:9090" ,
         followRedirects: { enabled: true, maxCount: 5 }};
     // Check whether the server is started
-    test:assertTrue(serviceStarted, msg = "Unable to start the service");
+    //test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
     string response1 = "Hello World!";
 
@@ -33,5 +33,5 @@ function testFunc() {
 }
 
 function stopService() {
-    test:stopServices("http-redirects");
+    //test:stopServices("http-redirects");
 }

@@ -5,7 +5,7 @@ import ballerina/http;
 boolean serviceStarted;
 
 function startService() {
-    serviceStarted = test:startServices("config-api");
+    //serviceStarted = test:startServices("config-api");
 }
 
 // Execute this test as ballerina test config-api -e hello.keystore.password=@encrypted:{jFMAXsuMSiOCaxuDLuQjVXzMzZxQrten0652/j93Amw=}
@@ -18,7 +18,7 @@ function testFunc() {
     // Invoking the main function
     endpoint http:Client httpEndpoint {url: "https://localhost:9095"};
     // Chck whether the server is started
-    test:assertTrue(serviceStarted, msg = "Unable to start the service");
+    //test:assertTrue(serviceStarted, msg = "Unable to start the service");
 
     string response1 = "Hello World!";
 
@@ -34,5 +34,5 @@ function testFunc() {
 }
 
 function stopService() {
-    test:stopServices("config-api");
+    //test:stopServices("config-api");
 }

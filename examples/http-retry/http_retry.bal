@@ -7,11 +7,24 @@ endpoint http:Client backendClientEP {
     url: "http://localhost:8080",
     // Retry configuration options.
     retryConfig: {
-        interval: 3000,
-        count: 3,
-        backOffFactor: 0.5
-    },
 
+        // Initial retry interval in milliseconds.
+        interval: 3000,
+
+        // Number of retry attempts before giving up
+        count: 3,
+
+        // Multiplier of the retry interval to exponentailly
+        // increase; retry interval
+        backOffFactor: 2,
+
+        // Upper limit of the retry interval in milliseconds
+        // If interval into backOffFactor value exceeded
+        // maxWaitInterval interval values. maxWaitInterval
+        // will be considered as the retry intrval.
+        maxWaitInterval: 20000
+
+    },
     timeoutMillis: 2000
 };
 

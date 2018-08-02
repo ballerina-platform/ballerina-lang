@@ -38,4 +38,34 @@ function main(string... args) {
             io:println("[join-block] fW2: ", fW2);
         }
     }
+
+    fork {
+        worker w1 {
+            int i = 23;
+            string s = "Colombo";
+            io:println("[w1] i: ", i, " s: ", s);
+            runtime:sleep(100);
+            // Reply to the `join` block from worker w1.
+            (i, s) -> fork;
+        }
+
+        worker w2 {
+            // Sleep the `w2` for 2 seconds.
+            runtime:sleep(2000);
+        }
+    } join (all) (map results) {
+        // This line will not be reached since all workers will not be able to finish their tasks before the timeout.
+    } timeout (1000) (map results) {
+        // The `timeout` clause provides an upper bound on how long the `fork` will run until it is aborted.
+        // Timeout should be provided in `milliseconds`. Results of any workers which were completed before the
+        // timeout will be available in the `results` map (similar to the join condition).
+
+        // Check whether the `w1` was finished before the timeout.
+        if (results["w1"] != null) {
+            int iW1;
+            string sW1;
+            (iW1, sW1) = check <(int, string)>results["w1"];
+            io:println("[timeout-block] iW1: ", iW1, " sW1: ", sW1);
+        }
+    }
 }

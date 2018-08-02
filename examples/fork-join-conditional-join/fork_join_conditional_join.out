@@ -5,3 +5,4 @@ $ ballerina run fork_join_conditional_join.bal
 [w2] f: 10.344
 #The worker that has finished executing is `w2`.
 [join-block] fW2: 10.344
+[timeout-block] iW1: 23 sW1: Colombo

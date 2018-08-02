@@ -16,13 +16,25 @@ services:
   - mysql
 
 script:
-- BALLERINA_VERSION=0.976.1-SNAPSHOT
-- DISTRIBUTION_NAME=ballerina-platform-$BALLERINA_VERSION
 - MYSQL_CONNECTOR_VERSION=mysql-connector-java-5.1.45
 - ACTIVEMQ_VERSION=apache-activemq-5.12.0
 
 # Ballerina
-- wget https://product-dist.ballerina.io/nightly/$BALLERINA_VERSION/$DISTRIBUTION_NAME.zip
+- BALLERINA_VERSION="${VERSION:-0.980.2-SNAPSHOT}"
+- echo -e "\033[36m${BALLERINA_VERSION}\033[m"
+
+- DISTRIBUTION_NAME=ballerina-platform-$BALLERINA_VERSION
+- echo -e "\033[36m${DISTRIBUTION_NAME}\033[m"
+
+- DOWNLOAD_CHANNEL="${CHANNEL:-nightly}"
+- echo -e "\033[36m${DOWNLOAD_CHANNEL}\033[m"
+
+- DOWNLOAD_LOCATION="${URL:-https://product-dist.ballerina.io}"
+- echo -e "\033[36m${DOWNLOAD_LOCATION}\033[m"
+
+- echo -e "\033[36m$DOWNLOAD_LOCATION/$DOWNLOAD_CHANNEL/$BALLERINA_VERSION/$DISTRIBUTION_NAME.zip\033[m"
+- wget $DOWNLOAD_LOCATION/$DOWNLOAD_CHANNEL/$BALLERINA_VERSION/$DISTRIBUTION_NAME.zip
+
 - unzip -q $DISTRIBUTION_NAME.zip
 - export PATH=$PATH:$(pwd)/$DISTRIBUTION_NAME/bin
 - ballerina version
@@ -31,7 +43,6 @@ script:
 - wget http://dev.mysql.com/get/Downloads/Connector-J/$MYSQL_CONNECTOR_VERSION.tar.gz
 - tar xzf $MYSQL_CONNECTOR_VERSION.tar.gz
 - mv $MYSQL_CONNECTOR_VERSION/$MYSQL_CONNECTOR_VERSION-bin.jar $DISTRIBUTION_NAME/bre/lib
-
 
 # ActiveMQ
 - wget https://archive.apache.org/dist/activemq/5.12.0/$ACTIVEMQ_VERSION-bin.tar.gz
@@ -43,30 +54,172 @@ script:
 
 - ballerina init
 
-- ballerina test --exclude-packages proto-to-ballerina,swagger-to-ballerina,taint-checking,websub-hub-client-sample,websub-remote-hub-sample,config-api,secured-service-with-basic-auth,secured-service-with-jwt,http-disable-chunking,http-failover,http-filters,http-forwarded-extension,http-load-balancer,http-retry,join-multiple-streams,http-1.1-to-2.0-protocol-switch,http-redirects,testerina-function-mocks,counter-metrics,gauge-metrics
+- ballerina test any-type
+- ballerina test arrays
+- ballerina test async
+- ballerina test ballerina-to-swagger
+- ballerina test base-path-and-path
+- ballerina test basic-https-listener-client
+- ballerina test byte-io
+- ballerina test byte-type
+- ballerina test cache
+- ballerina test character-io
+- ballerina test check
+- ballerina test client-generation
+- ballerina test closures
+- ballerina test constrained-json
+- ballerina test content-based-routing
+- ballerina test csv-io
+- ballerina test data-io
+- ballerina test date-time
+- ballerina test different-payload-types
+- ballerina test directory-listener
+- ballerina test documentation
+- ballerina test elvis-operator
+- ballerina test error-handling
+- ballerina test error-lifting
+- ballerina test foreach
+- ballerina test fork-join
+- ballerina test fork-join-conditional-join
+- ballerina test fork-join-variable-access
+- ballerina test function-pointers
+- ballerina test functional-iteration
+- ballerina test functions
+- ballerina test functions-with-defaultable-parameters
+- ballerina test functions-with-rest-parameter
+- ballerina test grpc-bidirectional-streaming
+- ballerina test grpc-client-streaming
+- ballerina test grpc-secured-unary
+- ballerina test grpc-server-streaming
+- ballerina test grpc-unary-blocking
+- ballerina test grpc-unary-non-blocking
+- ballerina test h2-client
+- ballerina test header-based-routing
+- ballerina test hello-world
+- ballerina test hello-world-client
+- ballerina test hello-world-parallel
+- ballerina test hello-world-service
+- ballerina test hello-world-streams
+- ballerina test http-100-continue
+- ballerina test http-1.1-to-2.0-protocol-switch
+- ballerina test http-2.0-server-push
+- ballerina test http-access-logs
+- ballerina test http-disable-chunking
+- ballerina test http-caching-client
+- ballerina test http-circuit-breaker
+- ballerina test http-client-endpoint
+- ballerina test http-cors
+- ballerina test http-data-binding
+- ballerina test http-failover
+- ballerina test http-filters
+- ballerina test http-forwarded-extension
+- ballerina test http-load-balancer
+- ballerina test http-redirects
+- ballerina test http-retry
+- ballerina test http-streaming
+- ballerina test http-to-websocket-upgrade
+- ballerina test http-trace-logs
+- ballerina test https-listener
+- ballerina test identify-patterns
+- ballerina test identify-trends
+- ballerina test if-else
+- ballerina test integer-ranges
+- ballerina test jdbc-client
+- ballerina test jms-durable-topic-message-subscriber
+- ballerina test jms-headers-and-properties
+- ballerina test jms-queue-message-producer
+- ballerina test jms-queue-message-receiver
+- ballerina test jms-queue-message-receiver-with-client-acknowledgment
+- ballerina test jms-simple-durable-topic-message-subscriber
+- ballerina test jms-simple-queue-message-producer
+- ballerina test jms-simple-queue-message-receiver
+- ballerina test jms-simple-topic-message-producer
+- ballerina test jms-simple-topic-message-subscriber
+- ballerina test jms-synchronous-queue-message-receiver
+- ballerina test jms-topic-message-producer
+- ballerina test jms-topic-message-subscriber
+- ballerina test join-multiple-streams
+- ballerina test json
+- ballerina test json-arrays
+- ballerina test json-io
+- ballerina test json-struct-map-conversion
+- ballerina test json-to-xml-conversion
+- ballerina test lambda
+- ballerina test lengthof
+- ballerina test local-transactions
+- ballerina test locks
+- ballerina test log-api
+- ballerina test maps
+- ballerina test match
+- ballerina test match-expression
+- ballerina test math-functions
+- ballerina test mb-simple-durable-topic-message-subscriber
+- ballerina test mb-simple-queue-message-producer
+- ballerina test mb-simple-queue-message-receiver
+- ballerina test mb-simple-topic-message-publisher
+- ballerina test mb-simple-topic-message-subscriber
+- ballerina test mutual-ssl
+- ballerina test mysql-client
+- ballerina test nil-lifting
+- ballerina test object-assignability
+- ballerina test object-initializer
+- ballerina test object-member-functions
+- ballerina test objects
+- ballerina test optional-type
+- ballerina test packages
+- ballerina test passthrough
+- ballerina test query-path-matrix-param
+- ballerina test record-io
+- ballerina test records
+- ballerina test request-with-multiparts
+- ballerina test response-with-multiparts
+- ballerina test restrict-by-media-type
+- ballerina test secured-service-with-basic-auth
+- ballerina test secured-service-with-jwt
+- ballerina test send-jms-message-to-http-endpoint
+- ballerina test streams
+- ballerina test string-template
+- ballerina test strings
+- ballerina test table
+- ballerina test table-queries
+- ballerina test task-appointment
+- ballerina test task-timer
+- ballerina test temporal-aggregations-and-windows
+- ballerina test testerina-assertions
+- ballerina test testerina-before-and-after-suite
+- ballerina test testerina-before-and-after-test
+- ballerina test testerina-before-each-test
+- ballerina test testerina-data-driven-tests
+- ballerina test testerina-group-tests
+- ballerina test testerina-guarantee-test-execution-order
+- ballerina test throw
+- ballerina test tracing
+- ballerina test transactional-queue-message-producer
+- ballerina test transactions-distributed
+- ballerina test try-catch-finally
+- ballerina test tuple-type
+- ballerina test type-conversion
+- ballerina test union-type
+- ballerina test values
+- ballerina test var
+- ballerina test variables
+- ballerina test websocket-basic-sample
+- ballerina test websocket-chat-application
+- ballerina test websocket-proxy-server
+- ballerina test websub-internal-hub-sample
+- ballerina test while
+- ballerina test worker-interaction
+- ballerina test workers
+- ballerina test xa-transactions
+- ballerina test xml
+- ballerina test xml-attributes
+- ballerina test xml-functions
+- ballerina test xml-io
+- ballerina test xml-literal
+- ballerina test xml-namespaces
+- ballerina test xml-to-json-conversion
 
 - ballerina build config-api --skiptests
+- ballerina test testerina-function-mocks/testerina_function_mocks.bal
 
-- ballerina test secured-service-with-basic-auth
-
-- ballerina test secured-service-with-jwt
-
-- ballerina test http-disable-chunking
-
-- ballerina test http-failover
-
-- ballerina test http-filters
-
-- ballerina test http-forwarded-extension
-
-- ballerina test http-load-balancer
-
-- ballerina test http-retry
-
-- ballerina test join-multiple-streams
-
-- ballerina test http-1.1-to-2.0-protocol-switch
-
-- ballerina test http-redirects
-
-#- ballerina test testerina-function-mocks
+# excluded packages proto-to-ballerina,swagger-to-ballerina,taint-checking,websub-hub-client-sample,websub-remote-hub-sample,counter-metrics,gauge-metrics
