@@ -112,6 +112,14 @@ public class SslConfiguration {
         sslConfig.setOcspStaplingEnabled(ocspStaplingEnabled);
     }
 
+    public String getKeyStoreFile() {
+        return String.valueOf(sslConfig.getKeyStore());
+    }
+
+    public String getKeyStorePass() {
+        return sslConfig.getKeyStorePass();
+    }
+
     public SSLConfig getClientSSLConfig() {
         if (scheme == null || !scheme.equalsIgnoreCase(HTTPS_SCHEME)) {
             return null;
