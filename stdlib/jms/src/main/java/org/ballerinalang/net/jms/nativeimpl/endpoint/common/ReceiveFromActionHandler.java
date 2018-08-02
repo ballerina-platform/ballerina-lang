@@ -58,9 +58,8 @@ public class ReceiveFromActionHandler {
                                                         Constants.JMS_DESTINATION_OBJECT,
                                                         Destination.class,
                                                         context);
-//        long timeInMilliSeconds = context.getIntArgument(2);
-        long timeInMilliSeconds = 5000;
-        
+        long timeInMilliSeconds = context.getIntArgument(0);
+
         try {
             Session session = sessionConnector.getSession();
             sessionConnector.handleTransactionBlock(context);
