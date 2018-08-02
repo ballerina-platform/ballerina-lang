@@ -53,6 +53,11 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         keyValuePairs = new ArrayList<>();
     }
 
+    public BLangRecordLiteral(BType type) {
+        keyValuePairs = new ArrayList<>();
+        this.type = type;
+    }
+
     @Override
     public NodeKind getKind() {
         return NodeKind.RECORD_LITERAL_EXPR;
