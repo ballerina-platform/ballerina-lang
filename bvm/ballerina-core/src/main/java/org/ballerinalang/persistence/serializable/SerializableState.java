@@ -63,7 +63,8 @@ public class SerializableState {
 
     public static SerializableState deserialize(String json) {
         StateSerializer stateSerializer = Serializer.getStateSerializer();
-        return (SerializableState) stateSerializer.deserialize(json.getBytes(StandardCharsets.UTF_8), SerializableState.class);
+        return (SerializableState) stateSerializer.deserialize(
+                json.getBytes(StandardCharsets.UTF_8), SerializableState.class);
     }
 
     public SerializableState(WorkerExecutionContext executionContext, int ip) {

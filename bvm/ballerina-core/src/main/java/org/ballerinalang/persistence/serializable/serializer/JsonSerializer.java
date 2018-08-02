@@ -52,7 +52,7 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
 
     @Override
     public byte[] serialize(SerializableState sState) {
-        BRefType<?> jsonState = toBValue(sState);
+        BRefType<?> jsonState = toBValue(sState, SerializableState.class);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         jsonState.serialize(outputStream);
         return outputStream.toByteArray();
@@ -63,7 +63,7 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
         if (object == null) {
             return null;
         }
-        BRefType<?> jsonObj = toBValue(object);
+        BRefType<?> jsonObj = toBValue(object, object.getClass());
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         jsonObj.serialize(outputStream);
         try {
@@ -73,16 +73,17 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
         }
     }
 
-    private BMap toBValue(Map<String, Object> source, String valueType) {
+    private BMap toBValue(Map<String, Object> source) {
         if (source == null) {
             return null;
         }
 
         BMap<String, BValue> target = new BMap<>();
         for (Map.Entry<String, Object> key : source.entrySet()) {
-            target.put(key.getKey(), toBValue(key.getValue()));
+            target.put(key.getKey(), toBValue(key.getValue(), Object.class));
         }
-        return wrapMap("string", valueType, target);
+        // due to type erasure any map<K, V> at runtime is just map<Object, Object>
+        return wrapObject("map", target);
     }
 
     private BIntArray toBValue(int[] array) {
@@ -142,7 +143,7 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
     private BMap<String, BValue> toBValue(List list) {
         BRefValueArray array = new BRefValueArray(BTypes.typeAny);
         for (Object item : list) {
-            array.append(toBValue(item));
+            array.append(toBValue(item, Object.class));
         }
         return wrapObject("list", array);
     }
@@ -197,7 +198,7 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
             return toBValue((Enum) obj);
         }
         if (obj instanceof Map) {
-            return toBValue((Map) obj, Object.class.getSimpleName());
+            return toBValue((Map) obj);
         }
         if (obj instanceof List) {
             return toBValue((List) obj);
@@ -218,8 +219,11 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
             }
         }
 
-        
-        return wrapObject(objClass.getSimpleName(), map);
+        if (leftSideType != objClass) {
+            return wrapObject(objClass.getSimpleName(), map);
+        } else {
+            return map;
+        }
     }
 
     private List<Field> getAllFields(Class clazz) {
@@ -236,15 +240,6 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
         map.put("type", new BString(type));
         map.put("payload", payload);
         return map;
-    }
-
-    private BMap wrapMap(String keyType, String valType, BValue payload) {
-        BMap<String, BValue> mapInfo = new BMap<>();
-        mapInfo.put("type", new BString("map"));
-        mapInfo.put("keyType", new BString(keyType));
-        mapInfo.put("valType", new BString(valType));
-        mapInfo.put("payload", payload);
-        return mapInfo;
     }
 
     @Override

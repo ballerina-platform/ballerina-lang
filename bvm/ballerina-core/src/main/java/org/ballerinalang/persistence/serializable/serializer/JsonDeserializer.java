@@ -108,7 +108,14 @@ public class JsonDeserializer {
         int arrayLen = (int) jArray.size();
         Object[] array = new Object[arrayLen];
         for (int i = 0; i < arrayLen; i++) {
-            array[i] = deserialize(jArray.getBValue(i), targetType);
+            BValue bValue = jArray.getBValue(i);
+            Class itemType = Object.class;
+            if (bValue instanceof BMap) {
+                String typeName = ((BMap) bValue).get("type").stringValue();
+                TypeSerializationProvider itemTypeProvider = serializationProviderRegistry.findTypeProvider(typeName);
+                itemType = itemTypeProvider.getTypeClass();
+            }
+            array[i] = deserialize(jArray.getBValue(i), itemType);
         }
         return array;
     }
@@ -127,6 +134,9 @@ public class JsonDeserializer {
             String type = typeNode.stringValue();
             return getObjectOf(type);
         }
+        if (target != null) {
+            return getObjectOf(target);
+        }
         return null;
     }
 
@@ -139,8 +149,12 @@ public class JsonDeserializer {
         return Enum.valueOf(enumClass, enumConst);
     }
 
-    private boolean isEnum(BValue typeNode) {
-        return typeNode.stringValue() != null && typeNode.stringValue().toLowerCase().equals("enum");
+    private Object getObjectOf(Class<?> clazz) {
+        TypeSerializationProvider typeProvider = serializationProviderRegistry.findTypeProvider(clazz.getSimpleName());
+        if (typeProvider != null) {
+            return clazz.cast(typeProvider.newInstance());
+        }
+        return null;
     }
 
     private Object getObjectOf(String type) {
@@ -152,21 +166,25 @@ public class JsonDeserializer {
     }
 
     private Object deserializeObject(BMap<String, BValue> jsonNode, Object object, Class<?> targetType) {
-        String objType = jsonNode.get("type").stringValue();
         BValue payload = jsonNode.get("payload");
-
-        if ("map".equals(objType.toLowerCase())) {
-            return deserializeMap((BMap<String, BValue>) payload, (Map) object, targetType);
-        } else if ("list".equals(objType.toLowerCase())) {
-            return deserializeList(payload, object, targetType);
-        } else if ("enum".equals(objType.toLowerCase())) {
-            return object;
+        if (jsonNode.get("type") != null) {
+            String objType = jsonNode.get("type").stringValue();
+            if ("map".equals(objType.toLowerCase())) {
+                return deserializeMap((BMap<String, BValue>) payload, (Map) object, targetType);
+            } else if ("list".equals(objType.toLowerCase())) {
+                return deserializeList(payload, object, targetType);
+            } else if ("enum".equals(objType.toLowerCase())) {
+                return object;
+            }
         }
 
-        if (payload instanceof BMap) {
-            BMap<String, BValue> payloadMap = (BMap<String, BValue>) payload;
-            for (String key : payloadMap.keySet()) {
-                BValue fieldNode = payloadMap.get(key);
+        if (payload == null) {
+            payload = jsonNode;
+        }
+        if (jsonNode instanceof BMap) {
+            BMap<String, BValue> jMap = (BMap<String, BValue>) payload;
+            for (String key : jMap.keySet()) {
+                BValue fieldNode = jMap.get(key);
                 setField(object, key, fieldNode);
             }
         }
@@ -177,7 +195,7 @@ public class JsonDeserializer {
         try {
             Field field = target.getClass().getDeclaredField(fieldName);
             field.setAccessible(true);
-            Object obj = deserialize(fieldNode, /* TODO: just for now */ field.getType());
+            Object obj = deserialize(fieldNode, field.getType());
             field.set(target, cast(obj, field.getType()));
         } catch (NoSuchFieldException e) {
             String message = String.format("Field: %s is not found in %s class",
@@ -232,13 +250,14 @@ public class JsonDeserializer {
             if (value instanceof BMap) {
                 BMap<String, BValue> item = (BMap<String, BValue>) value;
                 BValue typeName = item.get("type");
-                TypeSerializationProvider typeProvider = serializationProviderRegistry.findTypeProvider(typeName.stringValue());
+                TypeSerializationProvider typeProvider =
+                        serializationProviderRegistry.findTypeProvider(typeName.stringValue());
                 fieldType = typeProvider.getTypeClass();
+            } else if (value instanceof BBoolean) {
+                fieldType = BBoolean.class;
             } else {
                 throw new BallerinaException("Uncompatible type in JSON Map");
             }
-
-
             map.put(key, deserialize(value, fieldType));
         }
         return map;

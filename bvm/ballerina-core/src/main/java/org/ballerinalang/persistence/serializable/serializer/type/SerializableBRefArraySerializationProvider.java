@@ -22,6 +22,9 @@ import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBRefArray;
 import org.ballerinalang.persistence.serializable.serializer.TypeSerializationProvider;
 
+/**
+ * Provide object instance to represent {@link SerializableBRefArray}.
+ */
 public class SerializableBRefArraySerializationProvider implements TypeSerializationProvider {
     @Override
     public String getTypeName() {

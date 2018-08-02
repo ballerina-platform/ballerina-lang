@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.persistence.Deserializer;
 import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap;
@@ -103,7 +104,7 @@ public class JsonSerializerTest {
 
         SerializableState state = serializableState.deserialize(json);
         SerializableRefType bmapKey1 = state.sRefTypes.get("var_r1");
-        BMap<String, BValue> bmap = (BMap) bmapKey1.getBRefType(compileResult.getProgFile(), state, null);
+        BMap<String, BValue> bmap = (BMap) bmapKey1.getBRefType(compileResult.getProgFile(), state, new Deserializer());
         BString value = (BString) bmap.get("bmapKey1");
         Assert.assertEquals(value.value(), "bmap_str_val");
     }

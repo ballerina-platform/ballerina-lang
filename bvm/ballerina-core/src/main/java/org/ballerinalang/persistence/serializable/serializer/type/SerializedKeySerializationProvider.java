@@ -20,6 +20,9 @@ package org.ballerinalang.persistence.serializable.serializer.type;
 import org.ballerinalang.persistence.serializable.SerializedKey;
 import org.ballerinalang.persistence.serializable.serializer.TypeSerializationProvider;
 
+/**
+ * Provide object instance to represent {@link SerializedKey}.
+ */
 public class SerializedKeySerializationProvider implements TypeSerializationProvider {
     @Override
     public String getTypeName() {
