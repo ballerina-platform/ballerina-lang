@@ -40,7 +40,7 @@ public class SerializableRespContext {
     public SerializableRespContext(
             String key, CallableWorkerResponseContext respCtx, SerializableState state) {
         this.key = key;
-        targetContextKey = state.addContext(respCtx.getTargetContext());
+        targetContextKey = state.addContext(respCtx.getTargetContext(), respCtx.getTargetContext().ip);
         retRegIndexes = respCtx.getRetRegIndexes();
         workerCount = respCtx.getWorkerCount();
     }

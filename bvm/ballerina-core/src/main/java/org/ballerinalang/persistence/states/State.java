@@ -37,6 +37,12 @@ public class State {
         this.id = id;
     }
 
+    public State(WorkerExecutionContext context, String id, int ip) {
+        this.context = context;
+        this.id = id;
+        this.ip = ip;
+    }
+
     public WorkerExecutionContext getContext() {
         return context;
     }

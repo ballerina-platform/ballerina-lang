@@ -42,7 +42,7 @@ public class PersistenceStore {
     private static StorageProvider storageProvider = new FileStorageProvider();
 
     public static void persistState(State state) {
-        SerializableState sState = new SerializableState(state.getContext());
+        SerializableState sState = new SerializableState(state.getContext(), state.getIp());
         sState.setId(state.getId());
         String stateString = sState.serialize();
         storageProvider.persistState(state.getId(), stateString);

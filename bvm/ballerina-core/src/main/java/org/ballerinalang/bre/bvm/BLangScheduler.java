@@ -24,7 +24,6 @@ import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.states.PendingCheckpoints;
 import org.ballerinalang.persistence.states.RuntimeStates;
 import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.persistence.store.PersistenceStore;
@@ -103,15 +102,22 @@ public class BLangScheduler {
         }
     }
 
-    private static void removeInterruptibleState(WorkerExecutionContext ctx) {
+    private static void handleInterruptibleAfterExecution(WorkerExecutionContext ctx) {
         if (ctx.interruptible && ctx.parent != null && ctx.parent.parent == null) {
             String instanceId = (String) ctx.globalProps.get(Constants.STATE_ID);
             List<State> stateList = RuntimeStates.get(instanceId);
             if (stateList != null && !stateList.isEmpty()) {
                 RuntimeStates.remove(instanceId);
-                PendingCheckpoints.remove(instanceId);
                 PersistenceStore.removeStates(instanceId);
             }
+        }
+    }
+
+    public static void handleInterruptibleAfterCallback(WorkerExecutionContext ctx) {
+        if (ctx != null && ctx.markAsCheckPointed) {
+            String stateId = (String) ctx.globalProps.get(Constants.STATE_ID);
+            PersistenceStore.persistState(new State(ctx, stateId, ctx.ip + 1));
+            ctx.markAsCheckPointed = false;
         }
     }
     
@@ -170,7 +176,7 @@ public class BLangScheduler {
     public static void workerDone(WorkerExecutionContext ctx) {
         schedulerStats.stateTransition(ctx, WorkerState.DONE);
         ctx.state = WorkerState.DONE;
-        removeInterruptibleState(ctx);
+        handleInterruptibleAfterExecution(ctx);
         workerCountDown();
     }
     
@@ -202,7 +208,7 @@ public class BLangScheduler {
     public static void workerExcepted(WorkerExecutionContext ctx) {
         schedulerStats.stateTransition(ctx, WorkerState.EXCEPTED);
         ctx.state = WorkerState.EXCEPTED;
-        removeInterruptibleState(ctx);
+        handleInterruptibleAfterExecution(ctx);
         workerCountDown();
     }
     

@@ -40,7 +40,6 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BCallableFuture;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.states.PendingCheckpoints;
 import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.runtime.Constants;
@@ -257,11 +256,11 @@ public class BLangFunctions {
         BLangScheduler.workerWaitForResponse(parentCtx);
         WorkerExecutionContext resultCtx;
         if (callableUnitInfo.isNative()) {
-            checkAndHandleInterruptibleCallable(callableUnitInfo, parentCtx);
             if (FunctionFlags.isAsync(flags)) {
                 invokeNativeCallableAsync(callableUnitInfo, parentCtx, argRegs, retRegs, flags);
                 resultCtx = parentCtx;
             } else {
+                checkAndHandleInterruptibleCallable(callableUnitInfo, parentCtx);
                 resultCtx = invokeNativeCallable(callableUnitInfo, parentCtx, argRegs, retRegs, flags);
             }
         } else {
@@ -394,6 +393,7 @@ public class BLangFunctions {
                 nativeCallable.execute(ctx, null);
                 BLangVMUtils.populateWorkerDataWithValues(parentLocalData, retRegs, ctx.getReturnValues(), retTypes);
                 checkAndStopCallableObservation(observerContext, flags);
+                BLangScheduler.handleInterruptibleAfterCallback(parentCtx);
                 /* we want the parent to continue, since we got the response of the native call already */
                 return parentCtx;
             } else {
@@ -426,6 +426,7 @@ public class BLangFunctions {
             respCtx = BLangScheduler.executeBlockingNativeAsync(nativeCallable, nativeCtx, flags);
         } else {
             respCtx = BLangScheduler.executeNonBlockingNativeAsync(nativeCallable, nativeCtx, flags);
+
         }
         BLangVMUtils.populateWorkerDataWithValues(parentCtx.workerLocal, retRegs,
                 new BValue[] { new BCallableFuture(callableUnitInfo.getName(), respCtx) },
@@ -623,7 +624,7 @@ public class BLangFunctions {
                 PersistenceStore.persistState(new State(parentCtx, instanceId));
             }
             if (interruptibleNativeCallableUnit.persistAfterOperation()) {
-                PendingCheckpoints.add(instanceId, (parentCtx.ip + 1));
+                parentCtx.markAsCheckPointed = true;
             }
         }
     }

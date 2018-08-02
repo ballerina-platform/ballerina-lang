@@ -52,6 +52,7 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
     public void notifySuccess() {
         BLangVMUtils.populateWorkerDataWithValues(this.parentCtx.workerLocal, this.retRegs,
                 this.nativeCallCtx.getReturnValues(), this.retTypes);
+        BLangScheduler.handleInterruptibleAfterCallback(this.parentCtx);
         BLangScheduler.resume(this.parentCtx);
     }
 

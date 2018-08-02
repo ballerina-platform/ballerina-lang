@@ -57,12 +57,13 @@ public class SerializableState {
         return gson.fromJson(json, SerializableState.class);
     }
 
-    public SerializableState(WorkerExecutionContext executionContext) {
+    public SerializableState(WorkerExecutionContext executionContext, int ip) {
         if (executionContext == null) {
             return;
         }
         currentContextKey = String.valueOf(executionContext.hashCode());
-        SerializableContext serializableContext = new SerializableContext(currentContextKey, executionContext, this);
+        SerializableContext serializableContext = new SerializableContext(currentContextKey, executionContext,
+                                                                          this, ip);
         sContexts.put(currentContextKey, serializableContext);
     }
 
@@ -76,13 +77,13 @@ public class SerializableState {
         return serializableContext.getWorkerExecutionContext(programFile, this, deserializer);
     }
 
-    public String addContext(WorkerExecutionContext context) {
+    public String addContext(WorkerExecutionContext context, int ip) {
         if (context == null) {
             return null;
         }
         String contextKey = String.valueOf(context.hashCode());
         if (!sContexts.containsKey(contextKey)) {
-            SerializableContext serializableContext = new SerializableContext(contextKey, context, this);
+            SerializableContext serializableContext = new SerializableContext(contextKey, context, this, ip);
             sContexts.put(contextKey, serializableContext);
         }
         return contextKey;
