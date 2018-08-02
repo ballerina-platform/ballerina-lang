@@ -7,8 +7,8 @@ function main (string... args) {
 
     int intArg = check <int> args[0];
 
-    io:ByteChannel bchannel = io:openFile(filePath, permission);
-    io:CharacterChannel channel = new io:CharacterChannel(bchannel, "UTF-8");
+    io:ByteChannel byteChannel = io:openFile(filePath, permission);
+    io:CharacterChannel channel = new io:CharacterChannel(byteChannel, "UTF-8");
     var writeOutput = channel.write(chars, 0);
     var readOutput = channel.read(intArg);
     match readOutput {

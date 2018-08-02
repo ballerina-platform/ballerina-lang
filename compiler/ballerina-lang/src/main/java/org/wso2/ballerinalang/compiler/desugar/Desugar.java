@@ -199,6 +199,7 @@ public class Desugar extends BLangNodeVisitor {
     private static final String QUERY_TABLE_WITHOUT_JOIN_CLAUSE = "queryTableWithoutJoinClause";
     private static final String CREATE_FOREVER = "startForever";
     private static final String BASE_64 = "base64";
+    private static final String CREATE_CHANNEL_FUNC = "createBChannelTable";
 
     private SymbolTable symTable;
     private SymbolResolver symResolver;
@@ -1804,7 +1805,7 @@ public class Desugar extends BLangNodeVisitor {
         literal.type = symTable.stringType;
         args.add(literal);
 
-        return createInvocationNode("createWF_channelTable", args, symTable.noType);
+        return createInvocationNode(CREATE_CHANNEL_FUNC, args, symTable.noType);
     }
 
     private BLangInvocation createInvocationFromTableExpr(BLangTableQueryExpression tableQueryExpression) {

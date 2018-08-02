@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "builtin",
-        functionName = "createWF_channelTable",
+        functionName = "createBChannelTable",
         args = {
                 @Argument(name = "name", type = TypeKind.STRING),
         },

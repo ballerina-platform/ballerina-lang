@@ -19,4 +19,4 @@ documentation {
 
     P{{channelname}} The identifier of the declared channel
 }
-extern function createWF_channelTable (string channelname);
+extern function createBChannelTable (string channelname);

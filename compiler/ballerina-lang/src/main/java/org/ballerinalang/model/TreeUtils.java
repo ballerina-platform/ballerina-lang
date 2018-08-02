@@ -46,7 +46,7 @@ public class TreeUtils {
         stringTypeKindMap.put("message", TypeKind.MESSAGE);
         stringTypeKindMap.put("()", TypeKind.NIL);
         stringTypeKindMap.put("null", TypeKind.NIL);
-        stringTypeKindMap.put("wf_channel", TypeKind.CHANNEL);
+        stringTypeKindMap.put("bchannel", TypeKind.CHANNEL);
     }
 
     public static TypeKind stringToTypeKind(String typeName) {

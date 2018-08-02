@@ -5,8 +5,8 @@ function main (string... args) {
     io:Mode permission = "r";
     string chars = "data";
 
-    io:ByteChannel bchannel = io:openFile(filePath, permission);
-    io:CharacterChannel channel = new io:CharacterChannel(bchannel, "UTF-8");
+    io:ByteChannel byteChannel = io:openFile(filePath, permission);
+    io:CharacterChannel channel = new io:CharacterChannel(byteChannel, "UTF-8");
 
     var writeOutput = channel.write(chars, 0);
     var readOutput = channel.read(1);
