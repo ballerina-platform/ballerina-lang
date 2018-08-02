@@ -26,10 +26,12 @@ import HTML5Backend from 'react-dnd-html5-backend';
 import PropTypes from 'prop-types';
 
 import Diagram from 'plugins/ballerina/diagram/diagram.jsx';
+import DesignView from 'plugins/ballerina/views/design-view.jsx';
 import TreeBuilder from 'plugins/ballerina/model/tree-builder.js';
 import '../src/ballerina-theme/semantic.less';
 
 const BalDiagram = DragDropContext(HTML5Backend)(Diagram);
+const BallerinaDesignView = DragDropContext(HTML5Backend)(DesignView);
 
 function renderDiagram(target, modelJson, props = {}) {
     const defaultProps = {
@@ -139,6 +141,7 @@ export {
     Diagram,
     BalDiagram,
     BallerinaDiagramWrapper,
+    BallerinaDesignView,
     renderDiagram,
     renderEditableDiagram,
     createContextProvider,

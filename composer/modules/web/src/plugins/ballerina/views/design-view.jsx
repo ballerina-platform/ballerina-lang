@@ -238,21 +238,23 @@ DesignView.propTypes = {
         on: PropTypes.func.isRequired,
         dispatch: PropTypes.func.isRequired,
         getCommands: PropTypes.func.isRequired,
-    }).isRequired,
+    }),
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
     panelResizeInProgress: PropTypes.bool.isRequired,
     disabled: PropTypes.bool.isRequired,
-    zoomLevel: PropTypes.number,
-    setZoom: PropTypes.func.isRequired,
     editMode: PropTypes.bool,
 };
 
 DesignView.defaultProps = {
     show: true,
     model: undefined,
+    commandProxy: {
+        on: () => undefined,
+        dispatch: () => undefined,
+        getCommands: () => [],
+    },
     disabled: false,
-    zoomLevel: 1,
     editMode: true,
 };
 

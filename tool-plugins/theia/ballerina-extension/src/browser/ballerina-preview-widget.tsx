@@ -1,4 +1,5 @@
 import { ReactWidget } from '@theia/core/lib/browser/widgets/react-widget';
+import { Widget } from '@theia/core/lib/browser/widgets/widget';
 import { injectable, postConstruct, inject } from 'inversify';
 import { EditorManager, TextEditor, EditorWidget, TextDocumentChangeEvent } from "@theia/editor/lib/browser";
 import { DisposableCollection } from '@theia/core/lib/common/disposable';
@@ -9,15 +10,24 @@ import '../../../../../../../lib/bundle.css';
 import '../../../../../../../lib/theme.css';
 import '../../../../../../../lib/less.css';
 
+import '../../src/browser/style/preview.css';
 
-const { BalDiagram, TreeBuilder, BallerinaDiagramWrapper } = require('../../../../../../../lib/ballerina-diagram-library');
 
+const { BallerinaDesignView, TreeBuilder } = require('../../../../../../../lib/ballerina-diagram-library');
 
+export interface EditModeChangeEvent {
+    editMode: boolean,
+}
+export interface DiagramModeChangeEvent {
+    mode: string,
+}
 @injectable()
 export class BallerinaPreviewWidget extends ReactWidget {
 
     protected currentAST: Object | undefined;
     protected readonly toDisposePerCurrentEditor = new DisposableCollection();
+    protected editMode: boolean = true;
+    protected diagramMode: string = 'action';
 
     constructor(
         @inject(EditorManager) readonly editorManager: EditorManager
@@ -27,13 +37,17 @@ export class BallerinaPreviewWidget extends ReactWidget {
         this.title.label = 'Ballerina Interaction';
         this.title.closable = true;
         this.addClass('ballerina-preview');
-        
     }
 
     @postConstruct()
     protected init(): void {
         this.update();
         this.toDispose.push(this.editorManager.onCurrentEditorChanged(this.onCurrentEditorChanged.bind(this)));
+    }
+
+    protected onResize(msg: Widget.ResizeMessage): void {
+        super.onResize(msg);
+        super.update();
     }
 
     update() : void {
@@ -57,6 +71,14 @@ export class BallerinaPreviewWidget extends ReactWidget {
             );
         }
         this.update();
+        const currentEditor = this.getCurrentEditor();
+        if (currentEditor && currentEditor.document.languageId !== BALLERINA_LANGUAGE_ID) {
+            if (this.isVisible) {
+                this.hide();
+            }
+        } else if (this.isHidden) {
+            this.show();
+        }
     }
 
     protected onDocumentContentChanged(editor: TextEditor, event: TextDocumentChangeEvent): void {
@@ -68,21 +90,39 @@ export class BallerinaPreviewWidget extends ReactWidget {
     protected render(): React.ReactNode {
         const currentEditor = this.getCurrentEditor();
         if (currentEditor && currentEditor.document.languageId !== BALLERINA_LANGUAGE_ID) {
-            return <div>{'Unsupported file type.'}</div>
+            return (
+                <div className="ballerina-preview">
+                    <div>
+                        {'Unsupported file type.'}
+                    </div>
+                </div>
+            )
         }
         if (!this.currentAST) {
-            return <div>{'Unable to render diagram.'}</div>
-        }
+            return (
+                <div className='spinnerContainer'>
+                    <div className='fa fa-spinner fa-pulse fa-3x fa-fw' style={{ color: "grey" }}></div>
+                </div>
+            )
+        } 
         return <React.Fragment>
-                    <BallerinaDiagramWrapper>
-                        <BalDiagram 
-                            model={this.currentAST}
-                            mode='action'
-                            editMode={true}
-                            height={300}
-                            width={300}
-                        />
-                    </BallerinaDiagramWrapper>
+                <div className='ballerina-editor design-view-container'>
+                    <BallerinaDesignView 
+                        model={this.currentAST}
+                        mode={this.diagramMode}
+                        editMode={this.editMode}
+                        height={this.node.clientHeight}
+                        width={this.node.clientWidth}
+                        onModeChange={(evt: EditModeChangeEvent) => {
+                            this.editMode = evt.editMode;
+                            this.update();
+                        }}
+                        onCodeExpandToggle={(evt: DiagramModeChangeEvent) => {
+                            this.diagramMode = evt.mode;
+                            this.update();
+                        }}
+                    />
+                </div>
             </React.Fragment>;
     }
 
