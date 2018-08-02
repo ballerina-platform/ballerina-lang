@@ -54,6 +54,16 @@ public class BTypes {
 
     public static BType getTypeFromName(String typeName) {
         switch (typeName) {
+            case TypeConstants.INT_TNAME:
+                return typeInt;
+            case TypeConstants.BYTE_TNAME:
+                return typeByte;
+            case TypeConstants.FLOAT_TNAME:
+                return typeFloat;
+            case TypeConstants.STRING_TNAME:
+                return typeString;
+            case TypeConstants.BOOLEAN_TNAME:
+                return typeBoolean;
             case TypeConstants.JSON_TNAME:
                 return typeJSON;
             case TypeConstants.XML_TNAME:
@@ -66,6 +76,10 @@ public class BTypes {
                 return typeTable;
             case TypeConstants.STREAM_TNAME:
                 return typeStream;
+            case TypeConstants.ANY_TNAME:
+                return typeAny;
+            case TypeConstants.TYPEDESC_TNAME:
+                return typeDesc;
             default:
                 throw new IllegalStateException("Unknown type name");
         }

@@ -42,6 +42,7 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.DefaultValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -57,6 +58,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.model.types.BTypes.getTypeFromName;
 import static org.ballerinalang.util.codegen.attributes.AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE;
 import static org.ballerinalang.util.codegen.attributes.AttributeInfo.Kind.PARAMETERS_ATTRIBUTE;
 import static org.ballerinalang.util.codegen.attributes.AttributeInfo.Kind.PARAMETER_DEFAULTS_ATTRIBUTE;
@@ -174,12 +176,13 @@ public class ArgumentParser {
 
     private static BValue getBValue(BType type, String value) {
         switch (type.getTag()) {
+            case TypeTags.STRING_TAG:
+            case TypeTags.ANY_TAG:
+                return new BString(value);
             case TypeTags.INT_TAG:
                 return new BInteger(getIntegerValue(value));
             case TypeTags.FLOAT_TAG:
                 return new BFloat(getFloatValue(value));
-            case TypeTags.STRING_TAG:
-                return new BString(value);
             case TypeTags.BOOLEAN_TAG:
                 return new BBoolean(getBooleanValue(value));
             case TypeTags.BYTE_TAG:
@@ -228,6 +231,12 @@ public class ArgumentParser {
                 }
             case TypeTags.UNION_TAG:
                 return parseUnionArg((BUnionType) type, value);
+            case TypeTags.TYPEDESC_TAG:
+                try {
+                    return new BTypeDescValue(getTypeFromName(value));
+                } catch (IllegalStateException e) {
+                    throw new BLangUsageException("unsupported/unknown typedesc expected with main function: " + value);
+                }
             default:
                 throw new BLangUsageException("unsupported type expected with main function: " + type);
         }
