@@ -4,3 +4,6 @@
 [submodule "composer/modules/integration-tests/src/test/resources/ballerina-examples"]
 	path = composer/modules/integration-tests/src/test/resources/ballerina-examples
 	url = https://github.com/ballerina-platform/ballerina-examples
+[submodule "tool-plugins/intellij/src/test/resources/BBE"]
+	path = tool-plugins/intellij/src/test/resources/BBE
+	url = https://github.com/ballerina-platform/ballerina-examples.git
