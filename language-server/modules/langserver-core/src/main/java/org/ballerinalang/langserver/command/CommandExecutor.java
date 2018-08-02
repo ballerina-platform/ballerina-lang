@@ -69,8 +69,9 @@ public class CommandExecutor {
 
     /**
      * Command Execution router.
-     * @param params    Parameters for the command
-     * @param context   Workspace service context
+     * @param params            Parameters for the command
+     * @param context           Workspace service context
+     * @param lsGlobalContext   Global Language Server context               
      */
     public static void executeCommand(ExecuteCommandParams params, LSServiceOperationContext context,
                                       LSGlobalContext lsGlobalContext) {
