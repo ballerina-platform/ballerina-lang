@@ -36,7 +36,7 @@ function main(string... args) {
     }
 }
 
-function testInputNestedStruct(Person p) returns (string) {
+function testInputNestedStruct(Person p) returns string {
     (string, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testInputNestedStruct(p);
     match unionResp {
         (string, grpc:Headers) payload => {
@@ -51,7 +51,7 @@ function testInputNestedStruct(Person p) returns (string) {
     }
 }
 
-function testOutputNestedStruct(string name) returns (Person|string) {
+function testOutputNestedStruct(string name) returns Person|string {
     (Person, grpc:Headers)|error unionResp = HelloWorldBlockingEp->testOutputNestedStruct(name);
     match unionResp {
         (Person, grpc:Headers) payload => {
@@ -121,11 +121,11 @@ function initStub (grpc:Client ep) {
     self.stub = navStub;
 }
 
-function testInputNestedStruct (Person req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
+function testInputNestedStruct (Person req, typedesc listener, grpc:Headers? headers = ()) returns error? {
     return self.stub.nonBlockingExecute("foo.HelloWorld/testInputNestedStruct", req, listener, headers = headers);
 }
 
-function testOutputNestedStruct (string req, typedesc listener, grpc:Headers? headers = ()) returns (error?) {
+function testOutputNestedStruct (string req, typedesc listener, grpc:Headers? headers = ()) returns error? {
     return self.stub.nonBlockingExecute("foo.HelloWorld/testOutputNestedStruct", req, listener, headers = headers);
 }
 
