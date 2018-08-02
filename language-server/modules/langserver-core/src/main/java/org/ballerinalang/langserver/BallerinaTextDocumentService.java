@@ -547,7 +547,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
         if (tempFileId != null) {
             compilationPath = LSCompiler.createAndGetTempFile(tempFileId);
         }
-        balFile = LSCompiler.compileContent(content, compilationPath, CompilerPhase.TAINT_ANALYZE, documentManager,
+        balFile = LSCompiler.compileContent(content, compilationPath, CompilerPhase.COMPILER_PLUGIN, documentManager,
                 true);
         if (balFile.getDiagnostics() != null) {
             balDiagnostics = balFile.getDiagnostics();
