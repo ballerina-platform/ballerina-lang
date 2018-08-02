@@ -38,7 +38,7 @@ public class FilterUtils {
      *
      * @param context               Text Document Service context (Completion Context)
      * @param variableName          Variable name to evaluate against (Can be package alias or defined variable)
-     * @param delimiter             delimiter String (. or ->)
+     * @param delimiter             delimiter String either dot or action invocation symbol
      * @param symbolInfos           List of visible symbol info
      * @return {@link ArrayList}    List of filtered symbol info
      */
