@@ -20,12 +20,17 @@ package org.ballerinalang.test.checkpointing;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap;
+import org.ballerinalang.persistence.serializable.serializer.JsonSerializer;
 import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.test.utils.debug.TestDebugger;
 import org.testng.Assert;
@@ -36,7 +41,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class JsonSerializerTest {
-    public static final String INSTANCE_ID = "ABC123";
+    private static final String INSTANCE_ID = "ABC123";
     private CompileResult compileResult;
     private TestStorageProvider storageProvider;
 
@@ -59,6 +64,16 @@ public class JsonSerializerTest {
         Assert.assertTrue(json.matches(".*?\"Item-1\", ?\"Item-2\", ?\"Item-3\".*"));
         Assert.assertTrue(json.matches(".*?\"var_r1\" ?: ?\\{.*"));
         Assert.assertTrue(json.contains("bmap_str_val"));
+    }
+
+    @Test(description = "Text serializing any Object")
+    public void testObjectSerializationToJson() {
+        JsonSerializer jsonSerializer = new JsonSerializer();
+        String json = jsonSerializer.serialize(Arrays.asList("1", "2", "3"));
+        Assert.assertTrue(json.contains("\"1\", \"2\", \"3\""));
+
+        String numJson = jsonSerializer.serialize(Arrays.asList(3, 3, 3, 3, 3));
+        Assert.assertTrue(numJson.contains("3, 3, 3, 3, 3"));
     }
 
     @Test(description = "Test deserialization of JSON into SerializableState object")
@@ -88,8 +103,8 @@ public class JsonSerializerTest {
 
         SerializableState state = serializableState.deserialize(json);
         SerializableRefType bmapKey1 = state.sRefTypes.get("var_r1");
-        BMap<String, BValue> bmap = (BMap)bmapKey1.getBRefType(compileResult.getProgFile(), state, null);
-        BString value = (BString)bmap.get("bmapKey1");
+        BMap<String, BValue> bmap = (BMap) bmapKey1.getBRefType(compileResult.getProgFile(), state, null);
+        BString value = (BString) bmap.get("bmapKey1");
         Assert.assertEquals(value.value(), "bmap_str_val");
     }
 
@@ -97,8 +112,20 @@ public class JsonSerializerTest {
         serializableState.globalProps.put("gProp1", new BString("gProp1:BString"));
         serializableState.globalProps.put("gProp2", Arrays.asList("Item-1", "Item-2", "Item-3"));
 
-        BMap<String, BString> bMap = new BMap<>();
+        BMap<String, BRefType> bMap = new BMap<>();
         bMap.put("bmapKey1", new BString("bmap_str_val"));
+        bMap.put("obj1", getInnerBMap());
         serializableState.sRefTypes.put("var_r1", new SerializableBMap(bMap, serializableState));
+    }
+
+    private BRefType getInnerBMap() {
+        BMap<String, BRefType> map = new BMap<>();
+        map.put("A", new BString("A"));
+        map.put("B", new BString("B"));
+        BRefValueArray value = new BRefValueArray(new BArrayType(BTypes.typeString));
+        value.append(new BString("List item 1"));
+        value.append(new BString("List item 2"));
+        map.put("C", value);
+        return map;
     }
 }

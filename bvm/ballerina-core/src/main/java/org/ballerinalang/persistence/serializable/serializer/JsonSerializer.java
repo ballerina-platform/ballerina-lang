@@ -33,10 +33,12 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.serializable.SerializableState;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -46,15 +48,29 @@ import java.util.Map;
 /**
  * Serialize @{@link SerializableState} into JSON and back.
  */
-public class JsonSerializer implements StateSerializer {
+public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
 
     @Override
     public byte[] serialize(SerializableState sState) {
         BRefType<?> jsonState = toBValue(sState);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         jsonState.serialize(outputStream);
-
         return outputStream.toByteArray();
+    }
+
+    @Override
+    public String serialize(Object object) {
+        if (object == null) {
+            return null;
+        }
+        BRefType<?> jsonObj = toBValue(object);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        jsonObj.serialize(outputStream);
+        try {
+            return outputStream.toString("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new BallerinaException(e);
+        }
     }
 
     private BMap toBValue(Map<String, Object> source, String valueType) {
@@ -131,8 +147,13 @@ public class JsonSerializer implements StateSerializer {
         return wrapObject("list", array);
     }
 
+    private BMap toBValue(Enum obj) {
+        String fullEnumName = obj.getClass().getSimpleName() + "." + obj.toString();
+        BString name = new BString(fullEnumName);
+        return wrapObject("enum", name);
+    }
 
-    private BRefType<?> toBValue(Object obj) {
+    private BRefType toBValue(Object obj, Class<?> leftSideType) {
         if (obj == null) {
             return null;
         }
@@ -175,40 +196,29 @@ public class JsonSerializer implements StateSerializer {
         if (obj instanceof Enum) {
             return toBValue((Enum) obj);
         }
-        return objToBValue(obj);
-    }
-
-    private BMap toBValue(Enum obj) {
-        String fullEnumName = obj.getClass().getSimpleName() + "." + obj.toString();
-        BString name = new BString(fullEnumName);
-        return wrapObject("enum", name);
-    }
-
-    private BRefType objToBValue(Object obj) {
-        if (obj == null) {
-            return null;
-        }
         if (obj instanceof Map) {
             return toBValue((Map) obj, Object.class.getSimpleName());
         }
         if (obj instanceof List) {
             return toBValue((List) obj);
         }
-        return convertToBValueViaReflection(obj);
+        return convertToBValueViaReflection(obj, leftSideType);
     }
 
-    private BMap convertToBValueViaReflection(Object obj) {
+    private BMap convertToBValueViaReflection(Object obj, Class<?> leftSideType) {
         Class objClass = obj.getClass();
         BMap<String, BValue> map = new BMap<>();
 
         for (Field field : getAllFields(objClass)) {
             field.setAccessible(true);
             try {
-                map.put(field.getName(), toBValue(field.get(obj)));
+                map.put(field.getName(), toBValue(field.get(obj), field.getType()));
             } catch (IllegalAccessException e) {
                 // field is set to be accessible
             }
         }
+
+        
         return wrapObject(objClass.getSimpleName(), map);
     }
 
@@ -238,11 +248,11 @@ public class JsonSerializer implements StateSerializer {
     }
 
     @Override
-    public SerializableState deserialize(byte[] bytes) {
+    public Object deserialize(byte[] bytes, Class<?> destinationType) {
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
         InputStreamReader inputStreamReader = new InputStreamReader(byteArrayInputStream, StandardCharsets.UTF_8);
         BRefType<?> objTree = JsonParser.parse(inputStreamReader);
         JsonDeserializer jsonDeserializer = new JsonDeserializer(objTree);
-        return jsonDeserializer.deserialize();
+        return destinationType.cast(jsonDeserializer.deserialize(destinationType));
     }
 }

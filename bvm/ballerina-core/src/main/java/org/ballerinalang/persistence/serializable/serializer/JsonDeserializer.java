@@ -30,9 +30,11 @@ import org.ballerinalang.persistence.serializable.serializer.type.BStringSeriali
 import org.ballerinalang.persistence.serializable.serializer.type.ListSerializationProvider;
 import org.ballerinalang.persistence.serializable.serializer.type.MapSerializationProvider;
 import org.ballerinalang.persistence.serializable.serializer.type.SerializableBMapSerializationProvider;
+import org.ballerinalang.persistence.serializable.serializer.type.SerializableBRefArraySerializationProvider;
 import org.ballerinalang.persistence.serializable.serializer.type.SerializableContextSerializationProvider;
 import org.ballerinalang.persistence.serializable.serializer.type.SerializableStateSerializationProvider;
 import org.ballerinalang.persistence.serializable.serializer.type.SerializableWorkerDataSerializationProvider;
+import org.ballerinalang.persistence.serializable.serializer.type.SerializedKeySerializationProvider;
 import org.ballerinalang.persistence.serializable.serializer.type.WorkerStateSerializationProvider;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
@@ -65,45 +67,63 @@ public class JsonDeserializer {
         registry.addTypeProvider(new WorkerStateSerializationProvider());
         registry.addTypeProvider(new SerializableBMapSerializationProvider());
         registry.addTypeProvider(new BStringSerializationProvider());
+        registry.addTypeProvider(new SerializedKeySerializationProvider());
+        registry.addTypeProvider(new SerializableBRefArraySerializationProvider());
     }
 
-    public SerializableState deserialize() {
-        return (SerializableState) deserialize(treeHead);
+    public SerializableState deserialize(Class<?> destinationType) {
+        return (SerializableState) deserialize(treeHead, destinationType);
     }
 
-    private Object deserialize(BValue jsonValueNode) {
-        if (jsonValueNode instanceof BMap) {
-            Object object = createInstance((BMap) jsonValueNode);
-            return deserializeObject((BMap<String, BValue>) jsonValueNode, object);
+    @SuppressWarnings("unchecked")
+    private Object deserialize(BValue jValue, Class<?> targetType) {
+        if (jValue instanceof BMap) {
+            BMap<String, BValue> jBMap = (BMap<String, BValue>) jValue;
+            Object emptyInstance = createInstance(jBMap, targetType);
+            return deserializeObject(jBMap, targetType.cast(emptyInstance), targetType);
         }
-        if (jsonValueNode instanceof BNewArray) {
-            return deserializeArray((BNewArray) jsonValueNode);
+        if (jValue instanceof BNewArray) {
+            return deserializeArray((BNewArray) jValue, targetType);
         }
-        if (jsonValueNode instanceof BString) {
-            return jsonValueNode.stringValue();
+        if (jValue instanceof BString) {
+            return jValue.stringValue();
         }
-        if (jsonValueNode instanceof BInteger) {
-            return ((BInteger) jsonValueNode).intValue();
+        if (jValue instanceof BInteger) {
+            return ((BInteger) jValue).intValue();
         }
-        if (jsonValueNode instanceof BFloat) {
-            return ((BFloat) jsonValueNode).floatValue();
+        if (jValue instanceof BFloat) {
+            return ((BFloat) jValue).floatValue();
         }
-        if (jsonValueNode instanceof BBoolean) {
-            return ((BBoolean) jsonValueNode).booleanValue();
+        if (jValue instanceof BBoolean) {
+            return ((BBoolean) jValue).booleanValue();
         }
-        if (jsonValueNode == null) {
+        if (jValue == null) {
             return null;
         }
         throw new BallerinaException(
-                String.format("Unknown BValue type to deserialize: ", jsonValueNode.getClass().getSimpleName()));
+                String.format("Unknown BValue type to deserialize: %s", jValue.getClass().getSimpleName()));
     }
 
-    private Object createInstance(BMap jsonNode) {
+    private Object deserializeArray(BNewArray jArray, Class<?> targetType) {
+        int arrayLen = (int) jArray.size();
+        Object[] array = new Object[arrayLen];
+        for (int i = 0; i < arrayLen; i++) {
+            array[i] = deserialize(jArray.getBValue(i), targetType);
+        }
+        return array;
+    }
+
+    /**
+     * Create a empty java object instance for target type.
+     * @param jsonNode
+     * @return
+     */
+    private Object createInstance(BMap<String, BValue> jsonNode, Class<?> target) {
+        if (Enum.class.isAssignableFrom(target)) {
+            return createEnumInstance(jsonNode);
+        }
         BValue typeNode = jsonNode.get("type");
         if (typeNode != null) {
-            if (isEnum(typeNode)) {
-                return createEnumInstance(jsonNode);
-            }
             String type = typeNode.stringValue();
             return getObjectOf(type);
         }
@@ -131,23 +151,14 @@ public class JsonDeserializer {
         return null;
     }
 
-    private Object deserializeArray(BNewArray jsonNode) {
-        int arrayLen = new Long(jsonNode.size()).intValue();
-        Object[] array = new Object[arrayLen];
-        for (int i = 0; i < arrayLen; i++) {
-            array[i] = deserialize(jsonNode.getBValue(i));
-        }
-        return array;
-    }
-
-    private Object deserializeObject(BMap jsonNode, Object object) {
+    private Object deserializeObject(BMap<String, BValue> jsonNode, Object object, Class<?> targetType) {
         String objType = jsonNode.get("type").stringValue();
         BValue payload = jsonNode.get("payload");
 
         if ("map".equals(objType.toLowerCase())) {
-            return deserializeMap((BMap<String, BValue>) payload, (Map) object);
+            return deserializeMap((BMap<String, BValue>) payload, (Map) object, targetType);
         } else if ("list".equals(objType.toLowerCase())) {
-            return deserializeList(payload, object);
+            return deserializeList(payload, object, targetType);
         } else if ("enum".equals(objType.toLowerCase())) {
             return object;
         }
@@ -166,7 +177,7 @@ public class JsonDeserializer {
         try {
             Field field = target.getClass().getDeclaredField(fieldName);
             field.setAccessible(true);
-            Object obj = deserialize(fieldNode);
+            Object obj = deserialize(fieldNode, /* TODO: just for now */ field.getType());
             field.set(target, cast(obj, field.getType()));
         } catch (NoSuchFieldException e) {
             String message = String.format("Field: %s is not found in %s class",
@@ -202,10 +213,10 @@ public class JsonDeserializer {
         return obj;
     }
 
-    private Object deserializeList(BValue payload, Object targetList) {
+    private Object deserializeList(BValue payload, Object targetList, Class<?> targetType) {
         if (targetList instanceof List) {
             List list = (List) targetList;
-            Object[] array = (Object[]) deserializeArray((BNewArray) payload);
+            Object[] array = (Object[]) deserializeArray((BNewArray) payload, targetType);
             for (int i = 0; i < array.length; i++) {
                 list.add(array[i]);
             }
@@ -213,10 +224,22 @@ public class JsonDeserializer {
         return targetList;
     }
 
-    private Object deserializeMap(BMap<String, BValue> payload, Map map) {
+    private Object deserializeMap(BMap<String, BValue> payload, Map map, Class<?> targetType) {
         for (String key : payload.keySet()) {
             BValue value = payload.get(key);
-            map.put(key, deserialize(value));
+
+            Class<?> fieldType;
+            if (value instanceof BMap) {
+                BMap<String, BValue> item = (BMap<String, BValue>) value;
+                BValue typeName = item.get("type");
+                TypeSerializationProvider typeProvider = serializationProviderRegistry.findTypeProvider(typeName.stringValue());
+                fieldType = typeProvider.getTypeClass();
+            } else {
+                throw new BallerinaException("Uncompatible type in JSON Map");
+            }
+
+
+            map.put(key, deserialize(value, fieldType));
         }
         return map;
     }

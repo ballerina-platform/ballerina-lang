@@ -34,5 +34,5 @@ public interface StateSerializer {
      * @param bytes
      * @return
      */
-    SerializableState deserialize(byte[] bytes);
+    Object deserialize(byte[] bytes, Class<?> targetClass);
 }
