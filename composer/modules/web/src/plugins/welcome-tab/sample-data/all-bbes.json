@@ -412,10 +412,6 @@
       {
         "name": "Ballerina To Swagger",
         "url": "ballerina-to-swagger"
-      },
-      {
-        "name": "Swagger To Ballerina",
-        "url": "swagger-to-ballerina"
       }
     ]
   },
@@ -542,7 +538,7 @@
     "column": 2,
     "samples": [
       {
-        "name": "Header Based Routing",
+        "name": "Header-Based Routing",
         "url": "header-based-routing"
       },
       {
@@ -550,7 +546,7 @@
         "url": "passthrough"
       },
       {
-        "name": "Content Based Routing",
+        "name": "Content-Based Routing",
         "url": "content-based-routing"
       }
     ]
@@ -836,11 +832,11 @@
         "url": "tracing"
       },
       {
-        "name": "Counter based Metrics",
+        "name": "Counter-Based Metrics",
         "url": "counter-metrics"
       },
       {
-        "name": "Gauge based Metrics",
+        "name": "Gauge-Based Metrics",
         "url": "gauge-metrics"
       }
     ]
