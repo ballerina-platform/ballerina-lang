@@ -412,6 +412,10 @@
       {
         "name": "Ballerina To Swagger",
         "url": "ballerina-to-swagger"
+      },
+      {
+        "name": "Swagger To Ballerina",
+        "url": "swagger-to-ballerina"
       }
     ]
   },
