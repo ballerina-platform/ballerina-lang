@@ -231,12 +231,13 @@ public class SourceGen {
                 kind.equals("XmlElementLiteral") ||
                 kind.equals("XmlTextLiteral") ||
                 kind.equals("XmlPiLiteral")) &&
-                        node.has("ws") &&
-                        node.getAsJsonArray("ws").get(0) != null &&
-                        node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString().contains("xml")
-                        && node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString().contains("`")) {
+                node.has("ws") &&
+                node.getAsJsonArray("ws").get(0) != null &&
+                node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString().contains("xml")
+                && node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString().contains("`")) {
             node.addProperty("root", true);
-            node.addProperty("startLiteral", node.getAsJsonArray("ws").get(0).getAsJsonObject().get("text").getAsString());
+            node.addProperty("startLiteral", node.getAsJsonArray("ws").get(0).getAsJsonObject()
+                    .get("text").getAsString());
         }
 
         if (parentKind.equals("XmlElementLiteral") ||
@@ -272,8 +273,10 @@ public class SourceGen {
                 JsonObject target = node.getAsJsonObject("target");
                 for (int i = 0; i < target.getAsJsonArray("ws").size(); i++) {
                     if (target.getAsJsonArray("ws").get(i).getAsJsonObject().get("text").getAsString().contains("<?")
-                            && target.getAsJsonArray("ws").get(i).getAsJsonObject().get("text").getAsString().contains(target.get("unescapedValue").getAsString())) {
-                        target.addProperty("unescapedValue", target.getAsJsonArray("ws").get(i).getAsJsonObject().get("text").getAsString().replace("<?", ""));
+                            && target.getAsJsonArray("ws").get(i).getAsJsonObject().get("text")
+                            .getAsString().contains(target.get("unescapedValue").getAsString())) {
+                        target.addProperty("unescapedValue", target.getAsJsonArray("ws")
+                                .get(i).getAsJsonObject().get("text").getAsString().replace("<?", ""));
                     }
                 }
             }
@@ -337,18 +340,20 @@ public class SourceGen {
                 node.addProperty("isAnonType", true);
             }
 
-            if (node.has("initialExpression") &&
-                    node.getAsJsonObject("initialExpression").has("async") &&
-                    node.getAsJsonObject("initialExpression").get("async").getAsBoolean()) {
-                if (node.has("ws")) {
-                    JsonArray ws = node.getAsJsonArray("ws");
-                    for (int i = 0; i < ws.size(); i++) {
-                        if (ws.get(i).getAsJsonObject().get("text").getAsString().equals("start")) {
-                            if (node.getAsJsonObject("initialExpression").has("ws")) {
-                                node.getAsJsonObject("initialExpression").add("ws",
-                                        addDataToArray(0, node.getAsJsonArray("ws").get(i),
-                                                node.getAsJsonObject("initialExpression").getAsJsonArray("ws")));
-                                node.getAsJsonArray("ws").remove(i);
+            if (node.has("initialExpression")) {
+                node.getAsJsonObject("initialExpression").addProperty("isExpression", true);
+                if (node.getAsJsonObject("initialExpression").has("async") &&
+                        node.getAsJsonObject("initialExpression").get("async").getAsBoolean()) {
+                    if (node.has("ws")) {
+                        JsonArray ws = node.getAsJsonArray("ws");
+                        for (int i = 0; i < ws.size(); i++) {
+                            if (ws.get(i).getAsJsonObject().get("text").getAsString().equals("start")) {
+                                if (node.getAsJsonObject("initialExpression").has("ws")) {
+                                    node.getAsJsonObject("initialExpression").add("ws",
+                                            addDataToArray(0, node.getAsJsonArray("ws").get(i),
+                                                    node.getAsJsonObject("initialExpression").getAsJsonArray("ws")));
+                                    node.getAsJsonArray("ws").remove(i);
+                                }
                             }
                         }
                     }
@@ -411,7 +416,8 @@ public class SourceGen {
 
         if (kind.equals("Resource") && node.has("parameters") && node.getAsJsonArray("parameters").size() > 0) {
             if (node.getAsJsonArray("parameters").get(0).getAsJsonObject().has("ws")) {
-                for (JsonElement ws : node.getAsJsonArray("parameters").get(0).getAsJsonObject().getAsJsonArray("ws")) {
+                for (JsonElement ws : node.getAsJsonArray("parameters").get(0).getAsJsonObject()
+                        .getAsJsonArray("ws")) {
                     if (ws.getAsJsonObject().get("text").getAsString().equals("endpoint")) {
                         JsonObject endpointParam = node.getAsJsonArray("parameters").get(0).getAsJsonObject();
                         String valueWithBar = endpointParam.get("name").getAsJsonObject().has("valueWithBar")
@@ -420,7 +426,8 @@ public class SourceGen {
 
                         endpointParam.addProperty("serviceEndpoint", true);
                         endpointParam.get("name").getAsJsonObject().addProperty("value",
-                                endpointParam.get("name").getAsJsonObject().get("value").getAsString().replace("$", ""));
+                                endpointParam.get("name").getAsJsonObject().get("value")
+                                        .getAsString().replace("$", ""));
                         endpointParam.get("name").getAsJsonObject().addProperty("valueWithBar",
                                 valueWithBar.replace("$", ""));
                         break;
@@ -526,7 +533,8 @@ public class SourceGen {
                         && (a.getAsJsonObject().getAsJsonObject("position").get("endLine").getAsInt() ==
                         b.getAsJsonObject().getAsJsonObject("position").get("endLine").getAsInt())) ||
                         (a.getAsJsonObject().getAsJsonObject("position").get("endLine").getAsInt() >
-                                b.getAsJsonObject().getAsJsonObject("position").get("endLine").getAsInt())) ? 1 : -1;
+                                b.getAsJsonObject().getAsJsonObject("position")
+                                        .get("endLine").getAsInt())) ? 1 : -1;
                 return comparator;
             });
 
@@ -570,7 +578,8 @@ public class SourceGen {
 
             if (node.has("restParameters") &&
                     node.getAsJsonObject("restParameters").has("typeNode")) {
-                node.getAsJsonObject("restParameters").getAsJsonObject("typeNode").addProperty("isRestParam", true);
+                node.getAsJsonObject("restParameters").getAsJsonObject("typeNode")
+                        .addProperty("isRestParam", true);
             }
         }
 
@@ -885,6 +894,16 @@ public class SourceGen {
             } else {
                 literalWSAssignForTemplates(1, 2, node.getAsJsonArray("textFragments"),
                         node.getAsJsonArray("ws"), 2);
+            }
+        }
+
+        if (kind.equals("Assignment")) {
+            if (node.has("expression")) {
+                node.getAsJsonObject("expression").addProperty("isExpression", true);
+            }
+
+            if (node.has("variable")) {
+                node.getAsJsonObject("variable").addProperty("isVariable", true);
             }
         }
     }
