@@ -48,13 +48,13 @@ public class ServicePackagingTestCase extends IntegrationTestCase {
         serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
     }
 
-    @Test
+    @Test(description = "Test packaged service with nested ballerina record type for input and output")
     public void testNestedMessageType() throws Exception {
-        ServerInstance ballerinaBuildServer = new ServerInstance(serverZipPath);
-
         Path projectPath = tempProjectDirectory.resolve("pkg1");
         Files.createDirectories(projectPath);
 
+        // perform ballerina init and copy grpc service to the project.
+        ServerInstance ballerinaBuildServer = new ServerInstance(serverZipPath);
         String[] args = {"-i"};
         String[] options = {"\n", "\n", "\n", "s\n", "foo\n", "f\n"};
         ballerinaBuildServer.runMainWithClientOptions(args, options, getEnvVariables(), "init",
@@ -63,14 +63,16 @@ public class ServicePackagingTestCase extends IntegrationTestCase {
                 (projectPath.resolve("foo").toString(), "nested_type_service.bal"));
         Files.deleteIfExists(projectPath.resolve("foo").resolve("hello_service.bal"));
 
+        // perform ballerina build and generate balx file.
         ballerinaBuildServer = new ServerInstance(serverZipPath);
         ballerinaBuildServer.runMain(new String[0], getEnvVariables(), "build", projectPath.toString());
         Path generatedBalx = projectPath.resolve("target").resolve("foo.balx");
-
+        // Run gRPC service from the balx file.
         ServerInstance ballerinaServerForService = ServerInstance.initBallerinaServer(9090);
         ballerinaServerForService.startBallerinaServer(generatedBalx.toString());
 
         try {
+            // run gRPC client to connect with the service.
             Path balFilePath = Paths.get("src", "test", "resources", "grpc", "nested_type_client.bal");
             ServerInstance ballerinaClientServer = new ServerInstance(serverZipPath);
             String[] clientArgsForRun = {balFilePath.toAbsolutePath().toString()};
