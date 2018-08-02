@@ -71,6 +71,9 @@ public class ArgumentParser {
     private static final String DEFAULT_PARAM_PREFIX = "-";
     private static final String DEFAULT_PARAM_DELIMETER = "=";
     private static final String INCOMPATIBLE_TYPES = "incompatible types: ";
+    private static final String INVALID_ARG = "invalid argument: ";
+    private static final String INVALID_ARG_AS_REST_ARG = "invalid argument as rest argument: ";
+    private static final String JSON_PARSER_ERROR = "at line: ";
     private static final String COMMA = ",";
 
     private static final String NIL = "()";
@@ -204,7 +207,7 @@ public class ArgumentParser {
                     return JSONUtils.convertJSONToStruct(JsonParser.parse(value), (BStructureType) type);
                 } catch (BallerinaException e) {
                     throw new BLangUsageException("error constructing record of type: " + type + ": "
-                                                          + e.getLocalizedMessage());
+                                                          + e.getLocalizedMessage().split(JSON_PARSER_ERROR)[0]);
                 }
             case TypeTags.TUPLE_TAG:
                 if (!value.startsWith("(") || !value.endsWith(")")) {
@@ -279,52 +282,74 @@ public class ArgumentParser {
     }
 
     private static BNewArray getRestArgArray(BType type, int index, String[] args) {
-        switch (((BArrayType) type).getElementType().getTag()) {
-            case TypeTags.INT_TAG:
-                BIntArray intArrayArgs = new BIntArray();
-                for (int i = index; i < args.length; i++) {
-                    intArrayArgs.add(i - index, getIntegerValue(args[i]));
-                }
-                return intArrayArgs;
-            case TypeTags.FLOAT_TAG:
-                BFloatArray floatArrayArgs = new BFloatArray();
-                for (int i = index; i < args.length; i++) {
-                    floatArrayArgs.add(i - index, getFloatValue(args[i]));
-                }
-                return floatArrayArgs;
+        BType elementType = ((BArrayType) type).getElementType();
+        switch (elementType.getTag()) {
+            case TypeTags.ANY_TAG:
             case TypeTags.STRING_TAG:
                 BStringArray stringArrayArgs = new BStringArray();
                 for (int i = index; i < args.length; i++) {
                     stringArrayArgs.add(i - index, args[i]);
                 }
                 return stringArrayArgs;
+            case TypeTags.INT_TAG:
+                BIntArray intArrayArgs = new BIntArray();
+                for (int i = index; i < args.length; i++) {
+                    try {
+                        intArrayArgs.add(i - index, getIntegerValue(args[i]));
+                    } catch (BLangUsageException e) {
+                        throw new BLangUsageException(e.getLocalizedMessage().replace(INVALID_ARG,
+                                                                                      INVALID_ARG_AS_REST_ARG));
+                    }
+                }
+                return intArrayArgs;
+            case TypeTags.FLOAT_TAG:
+                BFloatArray floatArrayArgs = new BFloatArray();
+                for (int i = index; i < args.length; i++) {
+                    try {
+                        floatArrayArgs.add(i - index, getFloatValue(args[i]));
+                    } catch (BLangUsageException e) {
+                        throw new BLangUsageException(e.getLocalizedMessage().replace(INVALID_ARG,
+                                                                                      INVALID_ARG_AS_REST_ARG));
+                    }
+                }
+                return floatArrayArgs;
             case TypeTags.BOOLEAN_TAG:
                 BBooleanArray booleanArrayArgs = new BBooleanArray();
                 for (int i = index; i < args.length; i++) {
-                    booleanArrayArgs.add(i - index, getBooleanValue(args[i]) ? 1 : 0);
+                    try {
+                        booleanArrayArgs.add(i - index, getBooleanValue(args[i]) ? 1 : 0);
+                    } catch (BLangUsageException e) {
+                        throw new BLangUsageException(e.getLocalizedMessage().replace(INVALID_ARG,
+                                                                                      INVALID_ARG_AS_REST_ARG));
+                    }
                 }
                 return booleanArrayArgs;
             case TypeTags.BYTE_TAG:
                 BByteArray byteArrayArgs = new BByteArray();
                 for (int i = index; i < args.length; i++) {
-                    byteArrayArgs.add(i - index, getByteValue(args[i]));
+                    try {
+                        byteArrayArgs.add(i - index, getByteValue(args[i]));
+                    } catch (BLangUsageException e) {
+                        throw new BLangUsageException(e.getLocalizedMessage().replace(INVALID_ARG,
+                                                                                      INVALID_ARG_AS_REST_ARG));
+                    }
                 }
                 return byteArrayArgs;
-            case TypeTags.XML_TAG:
-                BRefValueArray xmlArrayArgs = new BRefValueArray();
-                for (int i = index; i < args.length; i++) {
-                    xmlArrayArgs.add(i - index, XMLUtils.parse(args[i]));
-                }
-                return xmlArrayArgs;
-            case TypeTags.JSON_TAG:
-                BRefValueArray jsonArrayArgs = new BRefValueArray();
-                for (int i = index; i < args.length; i++) {
-                    jsonArrayArgs.add(i - index, JsonParser.parse(args[i]));
-                }
-                return jsonArrayArgs;
             default:
-                //Ideally shouldn't reach here
-                throw new BLangUsageException("array of unsupported element type as main function argument: " + type);
+                try {
+                    BRefValueArray refValueArray = new BRefValueArray();
+                    for (int i = index; i < args.length; i++) {
+                        refValueArray.add(i - index, (BRefType<?>) getBValue(elementType, args[i]));
+                    }
+                    return refValueArray;
+                } catch (BLangUsageException e) {
+                    throw new BLangUsageException(e.getLocalizedMessage().replace(INVALID_ARG,
+                                                                                  INVALID_ARG_AS_REST_ARG));
+                } catch (Exception e) {
+                    //Ideally shouldn't reach here
+                    throw new BLangUsageException("error parsing rest arg: " + e.getLocalizedMessage());
+                }
+
         }
     }
 
