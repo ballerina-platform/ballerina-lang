@@ -42,33 +42,20 @@ public class BIRGenEnv {
     public BIRPackage enclPkg;
 
     public BIRFunction enclFunc;
+    // This is a cache which can be stored inside the BIRFunction
+    public Map<BSymbol, BIRVariableDcl> symbolVarMap = new HashMap<>();
     private int currentBBId = -1;
     private int currentLocalVarId = -1;
-    private Map<BSymbol, BIRVariableDcl> symbolVarMap;
 
     public BIRBasicBlock enclBB;
     public BIROperand targetOperand;
 
-    private BIRGenEnv() {
-    }
+    // This is the basic block that contains the return instruction for the current function.
+    // A function can have only one basic block that has a return instruction.
+    public BIRBasicBlock returnBB;
 
-    public static BIRGenEnv packageEnv(BIRPackage birPkg) {
-        BIRGenEnv env = new BIRGenEnv();
-        env.enclPkg = birPkg;
-        return env;
-    }
-
-    public static BIRGenEnv funcEnv(BIRGenEnv enclEnv, BIRFunction birFunc) {
-        BIRGenEnv env = duplicate(enclEnv);
-        env.symbolVarMap = new HashMap<>();
-        env.enclFunc = birFunc;
-        return env;
-    }
-
-    public static BIRGenEnv bbEnv(BIRGenEnv enclEnv, BIRBasicBlock bb) {
-        BIRGenEnv env = duplicate(enclEnv);
-        env.enclBB = bb;
-        return env;
+    public BIRGenEnv(BIRPackage birPkg) {
+        this.enclPkg = birPkg;
     }
 
     public Name nextBBId(Names names) {
@@ -81,26 +68,14 @@ public class BIRGenEnv {
         return names.merge(Names.BIR_LOCAL_VAR_PREFIX, names.fromString(Integer.toString(currentLocalVarId)));
     }
 
-    public void addVarDcl(BSymbol varSymbol, BIRVariableDcl variableDcl) {
-        this.symbolVarMap.put(varSymbol, variableDcl);
-    }
+    public void clear() {
+        this.symbolVarMap.clear();
+        this.currentLocalVarId = -1;
+        this.currentBBId = -1;
+        this.targetOperand = null;
+        this.enclBB = null;
+        this.returnBB = null;
+        this.enclFunc = null;
 
-    public BIRVariableDcl getVarDcl(BSymbol varSymbol) {
-        return this.symbolVarMap.get(varSymbol);
-    }
-
-
-    // private methods
-
-    private static BIRGenEnv duplicate(BIRGenEnv fromEnv) {
-        BIRGenEnv toEnv = new BIRGenEnv();
-        toEnv.node = fromEnv.node;
-        toEnv.enclPkg = fromEnv.enclPkg;
-        toEnv.enclFunc = fromEnv.enclFunc;
-        toEnv.currentBBId = fromEnv.currentBBId;
-        toEnv.currentLocalVarId = fromEnv.currentLocalVarId;
-        toEnv.symbolVarMap = fromEnv.symbolVarMap;
-        toEnv.enclBB = fromEnv.enclBB;
-        return toEnv;
     }
 }

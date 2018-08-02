@@ -34,11 +34,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
@@ -49,7 +47,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
-
 
 /**
  * Lower the AST to BIR.
@@ -90,10 +87,10 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangPackage astPkg) {
         BIRPackage birPkg = new BIRPackage(astPkg.packageID.name, astPkg.packageID.version);
 
-        this.env = BIRGenEnv.packageEnv(birPkg);
+        this.env = new BIRGenEnv(birPkg);
         // Lower function nodes in AST to bir function nodes.
         // TODO handle init, start, stop functions
-        astPkg.functions.forEach(astFunc -> genNode(astFunc, this.env));
+        astPkg.functions.forEach(astFunc -> astFunc.accept(this));
     }
 
     public void visit(BLangFunction astFunc) {
@@ -103,42 +100,33 @@ public class BIRGen extends BLangNodeVisitor {
         birFunc.argsCount = astFunc.requiredParams.size() +
                 astFunc.defaultableParams.size() + (astFunc.restParam != null ? 1 : 0);
         birFunc.type = (BInvokableType) astFunc.symbol.type;
+
         this.env.enclPkg.functions.add(birFunc);
+        this.env.enclFunc = birFunc;
 
-        // TODO Support for multiple workers
-        BLangBlockStmt astFuncBlock = astFunc.body;
-        BIRGenEnv funcEnv = BIRGenEnv.funcEnv(this.env, birFunc);
-
-        // Return bir variable declaration
+        // Special %0 location for storing return values
         BIRVariableDcl retVarDcl = new BIRVariableDcl(astFunc.symbol.retType,
-                funcEnv.nextLocalVarId(names), VarKind.RETURN);
-        funcEnv.enclFunc.localVars.add(retVarDcl);
+                this.env.nextLocalVarId(names), VarKind.RETURN);
+        birFunc.localVars.add(retVarDcl);
 
+        // Create variable declaration for function params
         for (BLangVariable requiredParam : astFunc.requiredParams) {
             BIRVariableDcl birVarDcl = new BIRVariableDcl(requiredParam.symbol.type,
-                    funcEnv.nextLocalVarId(names), VarKind.ARG);
-            funcEnv.enclFunc.localVars.add(birVarDcl);
+                    this.env.nextLocalVarId(names), VarKind.ARG);
+            birFunc.localVars.add(birVarDcl);
 
             // We maintain a mapping from variable symbol to the bir_variable declaration.
             // This is required to pull the correct bir_variable declaration for variable references.
-            funcEnv.addVarDcl(requiredParam.symbol, birVarDcl);
+            this.env.symbolVarMap.put(requiredParam.symbol, birVarDcl);
         }
 
-        // Create variable declarations
-
         // Create the entry basic block
-        BIRBasicBlock birBB = new BIRBasicBlock(funcEnv.nextBBId(names));
-        funcEnv.enclFunc.basicBlocks.add(birBB);
-        BIRGenEnv bbEnv = BIRGenEnv.bbEnv(funcEnv, birBB);
+        BIRBasicBlock entryBB = new BIRBasicBlock(this.env.nextBBId(names));
+        birFunc.basicBlocks.add(entryBB);
+        this.env.enclBB = entryBB;
 
-        genNode(astFuncBlock, bbEnv);
-    }
-
-    public void visit(BLangWorker astWorker) {
-        BIRBasicBlock birBB = new BIRBasicBlock(this.env.nextBBId(names));
-        this.env.enclFunc.basicBlocks.add(birBB);
-        BIRGenEnv bbEnv = BIRGenEnv.bbEnv(this.env, birBB);
-        genNode(astWorker.body, bbEnv);
+        astFunc.body.accept(this);
+        this.env.clear();
     }
 
 
@@ -146,7 +134,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     public void visit(BLangBlockStmt astBlockStmt) {
         for (BLangStatement astStmt : astBlockStmt.stmts) {
-            genNode(astStmt, this.env);
+            astStmt.accept(this);
         }
     }
 
@@ -157,14 +145,14 @@ public class BIRGen extends BLangNodeVisitor {
 
         // We maintain a mapping from variable symbol to the bir_variable declaration.
         // This is required to pull the correct bir_variable declaration for variable references.
-        this.env.addVarDcl(astVarDefStmt.var.symbol, birVarDcl);
+        this.env.symbolVarMap.put(astVarDefStmt.var.symbol, birVarDcl);
 
         if (astVarDefStmt.var.expr == null) {
             return;
         }
 
         // Visit the rhs expression.
-        genNode(astVarDefStmt.var.expr, this.env);
+        astVarDefStmt.var.expr.accept(this);
 
         // Create a variable reference and
         BIRVarRef varRef = new BIRVarRef(birVarDcl);
@@ -175,16 +163,27 @@ public class BIRGen extends BLangNodeVisitor {
         // TODO The following works only for local variable references.
         BLangLocalVarRef astVarRef = (BLangLocalVarRef) astAssignStmt.varRef;
 
-        genNode(astAssignStmt.expr, this.env);
-        BIRVarRef varRef = new BIRVarRef(this.env.getVarDcl(astVarRef.symbol));
+        astAssignStmt.expr.accept(this);
+        BIRVarRef varRef = new BIRVarRef(this.env.symbolVarMap.get(astVarRef.symbol));
         emit(new Move(this.env.targetOperand, varRef));
     }
 
     public void visit(BLangReturn astReturnStmt) {
-        genNode(astReturnStmt.expr, this.env);
+        astReturnStmt.expr.accept(this);
         BIRVarRef retVarRef = new BIRVarRef(this.env.enclFunc.localVars.get(0));
         emit(new Move(this.env.targetOperand, retVarRef));
-        this.env.enclBB.terminator = new BIRTerminator.Return();
+
+        // Check whether this function already has returnBB.
+        // A given function can have only one BB that has a return instruction.
+        if (this.env.returnBB == null) {
+            // If not create one
+            BIRBasicBlock returnBB = new BIRBasicBlock(this.env.nextBBId(names));
+            returnBB.terminator = new BIRTerminator.Return();
+            this.env.enclFunc.basicBlocks.add(returnBB);
+            this.env.returnBB = returnBB;
+        }
+
+        this.env.enclBB.terminator = new BIRTerminator.GOTO(this.env.returnBB);
     }
 
 
@@ -199,16 +198,16 @@ public class BIRGen extends BLangNodeVisitor {
                 this.env.nextLocalVarId(names), VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIRVarRef tempVarRef = new BIRVarRef(tempVarDcl);
-        BIRVarRef fromVarRef = new BIRVarRef(this.env.getVarDcl(astVarRefExpr.symbol));
+        BIRVarRef fromVarRef = new BIRVarRef(this.env.symbolVarMap.get(astVarRefExpr.symbol));
         emit(new Move(fromVarRef, tempVarRef));
         this.env.targetOperand = tempVarRef;
     }
 
     public void visit(BLangBinaryExpr astBinaryExpr) {
-        genNode(astBinaryExpr.lhsExpr, this.env);
+        astBinaryExpr.lhsExpr.accept(this);
         BIROperand rhsOp1 = this.env.targetOperand;
 
-        genNode(astBinaryExpr.rhsExpr, this.env);
+        astBinaryExpr.rhsExpr.accept(this);
         BIROperand rhsOp2 = this.env.targetOperand;
 
         // Create a temporary variable to store the binary operation result.
@@ -225,15 +224,6 @@ public class BIRGen extends BLangNodeVisitor {
 
 
     // private methods
-
-    // TODO Replace string with the proper env
-    private <T extends BLangNode, U extends BIRGenEnv> T genNode(T t, U u) {
-        BIRGenEnv prevEnv = this.env;
-        this.env = u;
-        t.accept(this);
-        this.env = prevEnv;
-        return t;
-    }
 
     private Visibility getVisibility(BSymbol symbol) {
         if (Symbols.isPublic(symbol)) {
