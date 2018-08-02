@@ -1542,7 +1542,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), false);
+        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), false, ctx
+                .expression(1) != null);
     }
 
     @Override
@@ -1551,7 +1552,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), getWS(ctx), "FORK", true);
+        this.pkgBuilder.addWorkerSendStmt(getCurrentPos(ctx), getWS(ctx), "FORK", true, false);
     }
 
     @Override
@@ -1560,7 +1561,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.addWorkerReceiveStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText());
+        this.pkgBuilder.addWorkerReceiveStmt(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(), ctx
+                .expression(1) != null);
     }
 
     /**
