@@ -109,7 +109,7 @@ public class ManifestProcessorTest {
 
     @Test(description = "Version in non-package section has no effect")
     public void testVersionNeg() throws IOException {
-        Manifest manifest = ManifestProcessor.parseTomlContentFromString("[patch] \n version = \"v1\"");
+        Manifest manifest = ManifestProcessor.parseTomlContentFromString("[patches] \n version = \"v1\"");
         Assert.assertNotEquals(manifest.getVersion(), "v1");
     }
 

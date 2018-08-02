@@ -27,6 +27,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BByteArray;
@@ -34,7 +35,6 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
@@ -217,7 +217,7 @@ public class TableIterator implements DataIterator {
                     break;
                 case TypeTags.JSON_TAG:
                     String jsonValue = rs.getString(index);
-                    value = new BJSON(jsonValue);
+                    value = JsonParser.parse(jsonValue);
                     break;
                 case TypeTags.XML_TAG:
                     String xmlValue = rs.getString(index);

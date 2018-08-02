@@ -22,8 +22,6 @@ import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
 import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
 import './compound-statement-decorator.css';
-import ActionBox from '../decorators/action-box';
-import ActiveArbiter from '../decorators/active-arbiter';
 import Breakpoint from '../decorators/breakpoint';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 
@@ -47,10 +45,6 @@ class CompoundStatementDecorator extends React.Component {
         this.state = {
             active: 'hidden',
         };
-        this.onDelete = this.onDelete.bind(this);
-        this.onJumpToCodeLine = this.onJumpToCodeLine.bind(this);
-        this.setActionVisibilityFalse = this.setActionVisibility.bind(this, false);
-        this.setActionVisibilityTrue = this.setActionVisibility.bind(this, true);
         this.openParameterEditor = e => this.openEditor(this.props.parameterEditorOptions.value,
             this.props.parameterEditorOptions, e);
     }
@@ -69,80 +63,10 @@ class CompoundStatementDecorator extends React.Component {
     }
 
     /**
-     * Removes self on delete button click. Note that model is retried form dropTarget for
-     * backward compatibility with old components written when model was not required.
-     * @returns {void}
-     */
-    onDelete() {
-        const model = this.props.model || this.props.dropTarget;
-        model.remove();
-    }
-    /**
-     * Navigates to codeline in the source view from the design view node
-     *
-     */
-    onJumpToCodeLine() {
-        const { editor } = this.context;
-        editor.goToSource(this.props.model);
-    }
-
-    /**
      * Call-back for when a new value is entered via expression editor.
      */
     onUpdate() {
         // TODO: implement validate logic.
-    }
-
-    /**
-     * Shows the action box, depending on whether on child element, delays display.
-     * @param {boolean} show - Display action box.
-     * @param {MouseEvent} e - Mouse move event from moving on to or out of statement.
-     */
-    setActionVisibility(show, e) {
-        e.stopPropagation();
-        if (show) {
-            const isInChildStatement = this.isInFocusableChild(e.target);
-            const isFromChildStatement = this.isInFocusableChild(e.relatedTarget);
-
-            if (!isInChildStatement) {
-                if (isFromChildStatement) {
-                    this.context.activeArbiter.readyToDelayedActivate(this);
-                } else {
-                    this.context.activeArbiter.readyToActivate(this);
-                }
-            }
-        } else {
-            let elm = e.relatedTarget;
-            let isInMe = false;
-            while (elm && elm.getAttribute) {
-                if (elm === this.myRoot) {
-                    isInMe = true;
-                }
-                elm = elm.parentNode;
-            }
-            if (!isInMe) {
-                this.context.activeArbiter.readyToDeactivate(this);
-            }
-        }
-    }
-
-    /**
-     * True if the given element is a child of this element that has it's own focus.
-     * @private
-     * @param {HTMLElement} elmToCheck - child to be checked.
-     * @return {boolean} True if child is focusable.
-     */
-    isInFocusableChild(elmToCheck) {
-        const regex = new RegExp('(^|\\s)((compound-)?statement|life-line-group)(\\s|$)');
-        let isInStatement = false;
-        let elm = elmToCheck;
-        while (elm && elm !== this.myRoot && elm.getAttribute) {
-            if (regex.test(elm.getAttribute('class'))) {
-                isInStatement = true;
-            }
-            elm = elm.parentNode;
-        }
-        return isInStatement;
     }
 
     /**
@@ -205,13 +129,7 @@ class CompoundStatementDecorator extends React.Component {
         }
 
         this.conditionBox = new SimpleBBox(p1X, statementBBox.y, bBox.w, titleH);
-        const { designer } = this.context;
-        const actionBoxBbox = new SimpleBBox();
-        const headerHeight = viewState.components['block-header'].h;
-        actionBoxBbox.w = (3 * designer.config.actionBox.width) / 4;
-        actionBoxBbox.h = designer.config.actionBox.height;
-        actionBoxBbox.x = bBox.x + ((bBox.w - actionBoxBbox.w) / 2);
-        actionBoxBbox.y = statementBBox.y + headerHeight + designer.config.actionBox.padding.top;
+
         const utilClassName = CLASS_MAP[this.state.active];
 
         let statementRectClass = 'statement-title-rect';
@@ -227,17 +145,8 @@ class CompoundStatementDecorator extends React.Component {
             body = getComponentForNodeArray(this.props.body);
         }
 
-        let bodyBBox = {};
-
-        if (this.props.model.kind === 'ForkJoin') {
-            bodyBBox = this.props.model.viewState.components['statement-body'];
-        } else if (this.props.body && !(this.props.body instanceof Array)) {
-            bodyBBox = this.props.body.viewState.bBox;
-        }
         return (
             <g
-                onMouseOut={this.setActionVisibilityFalse}
-                onMouseOver={this.setActionVisibilityTrue}
                 ref={(group) => {
                     this.myRoot = group;
                 }}
@@ -392,7 +301,6 @@ CompoundStatementDecorator.contextTypes = {
     environment: PropTypes.instanceOf(Object).isRequired,
     editor: PropTypes.instanceOf(Object).isRequired,
     mode: PropTypes.string,
-    activeArbiter: PropTypes.instanceOf(ActiveArbiter).isRequired,
     designer: PropTypes.instanceOf(Object),
 };
 

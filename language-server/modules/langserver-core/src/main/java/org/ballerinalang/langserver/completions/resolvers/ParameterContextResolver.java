@@ -22,7 +22,6 @@ import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.eclipse.lsp4j.CompletionItem;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,8 +30,6 @@ import java.util.List;
 public class ParameterContextResolver extends AbstractItemResolver {
     @Override
     public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        this.populateBasicTypes(completionItems, completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
-        return completionItems;
+        return this.populateBasicTypes(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
     }
 }

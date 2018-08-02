@@ -20,7 +20,7 @@ import React from 'react';
 import { Menu } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import WorkerTools from 'plugins/ballerina/tool-palette/item-provider/worker-tools';
-import ControllerUtil from 'plugins/ballerina/diagram/views/default/components/controllers/controller-util';
+import ControllerUtil from '../controller-utils/controller-util';
 import HoverButton from '../controller-utils/hover-button';
 import Toolbox from 'plugins/ballerina/diagram/views/default/components/decorators/action-box';
 import TreeUtil from 'plugins/ballerina/model/tree-util';

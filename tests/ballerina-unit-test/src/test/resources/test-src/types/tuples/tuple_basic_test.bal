@@ -100,3 +100,49 @@ function testIgnoredValue3 () returns string {
     (a, _, _) = x;
     return a;
 }
+
+function testIndexBasedAccess () returns (string, int, boolean) {
+    (boolean, int, string) x = (true, 3, "abc");
+    boolean tempBool = x[0];
+    int tempInt = x[1];
+    string tempString = x[2];
+    x[0] = false;
+    x[1] = 4;
+    x[2] = "def";
+    return (x[2], x[1], x[0]);
+}
+
+type Person record {
+    string name,
+    !...
+};
+
+type Employee record {
+    string name,
+    boolean intern,
+};
+
+function testIndexBasedAccessOfRecords () returns (string, boolean, string, string, float) {
+    Person p1 = { name: "Foo" };
+    Person p2 = { name: "Bar" };
+    Employee e1 = { name: "FooBar", intern: false };
+
+    (Person, Employee, Person, float) x = (p1, e1, p2, 12.0);
+    Person p3 = x[0];
+    Employee e2 = x[1];
+    Person p4 = x[2];
+
+    Person p5 = { name: "NewFoo" };
+    Person p6 = { name: "NewBar" };
+    Employee e3 = { name: "NewFooBar", intern: true };
+    x[0] = p5;
+    x[1] = e3;
+    x[2] = p6;
+    x[3] = 15.5;
+    return (x[0].name, x[1].intern, x[2].name, p3.name, x[3]);
+}
+
+function testDefaultValuesInTuples () returns (string, int, boolean, float) {
+    (boolean, int, string, float) x;
+    return (x[2], x[1], x[0], x[3]);
+}

@@ -29,7 +29,6 @@ const template = fs.readFileSync(templatePath, 'utf8').split('// auto-gen-code')
 const emptyDefaultWS = {};
 
 function join(arr, sep, indent) {
-    // const indentLen = indent.lenght;
     const maxLen = 65;
     const str = arr.join(sep);
     let s = 0;

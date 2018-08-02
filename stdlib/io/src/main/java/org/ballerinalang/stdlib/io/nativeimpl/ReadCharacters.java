@@ -30,12 +30,15 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.events.EventContext;
+import org.ballerinalang.stdlib.io.events.EventRegister;
 import org.ballerinalang.stdlib.io.events.EventResult;
+import org.ballerinalang.stdlib.io.events.Register;
+import org.ballerinalang.stdlib.io.events.characters.ReadCharactersEvent;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 
 /**
- * Native function ballerina/io#readCharacters.
+ * Extern function ballerina/io#readCharacters.
  *
  * @since 0.94
  */
@@ -78,6 +81,7 @@ public class ReadCharacters implements NativeCallableUnit {
             String readChars = result.getResponse();
             context.setReturnValues(new BString(readChars));
         }
+        IOUtils.validateChannelState(eventContext);
         callback.notifySuccess();
         return result;
     }
@@ -96,7 +100,10 @@ public class ReadCharacters implements NativeCallableUnit {
         CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants
                 .CHARACTER_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
-        IOUtils.read(characterChannel, (int) numberOfCharacters, eventContext, ReadCharacters::readCharactersResponse);
+        ReadCharactersEvent event = new ReadCharactersEvent(characterChannel, (int) numberOfCharacters, eventContext);
+        Register register = EventRegister.getFactory().register(event, ReadCharacters::readCharactersResponse);
+        eventContext.setRegister(register);
+        register.submit();
     }
 
     @Override

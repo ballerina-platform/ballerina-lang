@@ -82,15 +82,9 @@ public class BArrayType extends BType implements BIndexedType {
                     return (V) new BStringArray(size);
                 case TypeTags.BYTE_TAG:
                     return (V) new BByteArray(size);
-                case TypeTags.ARRAY_TAG:
-                    BType bType = ((BArrayType) elementType).getElementType();
-                    if (bType.getTag() == TypeTags.ARRAY_TAG) {
-                        return (V) new BRefValueArray(elementType);
-                    } else {
-                        return (V) elementType.getZeroValue();
-                    }
+                case TypeTags.ARRAY_TAG: // fall through
                 default:
-                    return (V) new BRefValueArray();
+                    return (V) new BRefValueArray(this);
             }
         } else {
             return getEmptyValue();

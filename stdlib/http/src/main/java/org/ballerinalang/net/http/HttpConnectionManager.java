@@ -27,7 +27,7 @@ import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
+import org.wso2.transport.http.netty.message.HttpConnectorUtil;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,7 +53,7 @@ public class HttpConnectionManager {
 
     private HttpConnectionManager() {
         trpConfig = buildDefaultTransportConfig();
-        serverBootstrapConfiguration = HTTPConnectorUtil
+        serverBootstrapConfiguration = HttpConnectorUtil
                 .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
     }
 
@@ -82,7 +82,7 @@ public class HttpConnectionManager {
             listenerConfig.setHttpAccessLogEnabled(true);
         }
 
-        serverBootstrapConfiguration = HTTPConnectorUtil
+        serverBootstrapConfiguration = HttpConnectorUtil
                 .getServerBootstrapConfiguration(trpConfig.getTransportProperties());
         ServerConnector serverConnector =
                 httpConnectorFactory.createServerConnector(serverBootstrapConfiguration, listenerConfig);
@@ -198,12 +198,4 @@ public class HttpConnectionManager {
         return transportsConfiguration;
     }
 
-    private String makeFirstLetterLowerCase(String str) {
-        if (str == null) {
-            return null;
-        }
-        char ch[] = str.toCharArray();
-        ch[0] = Character.toLowerCase(ch[0]);
-        return new String(ch);
-    }
 }

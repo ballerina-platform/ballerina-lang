@@ -23,7 +23,7 @@ import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -43,12 +43,12 @@ public class CorsHeaderGenerator {
     private static final Pattern spacePattern = Pattern.compile(" ");
     private static final Pattern fieldCommaPattern = Pattern.compile(",");
     private static final Logger bLog = LoggerFactory.getLogger(BLogManager.BALLERINA_ROOT_LOGGER_NAME);
-    private static final String action = "Failed to process CORS : ";
+    private static final String ACTION = "Failed to process CORS :";
 
-    public static void process(HTTPCarbonMessage requestMsg, HTTPCarbonMessage responseMsg, boolean isSimpleRequest) {
+    public static void process(HttpCarbonMessage requestMsg, HttpCarbonMessage responseMsg, boolean isSimpleRequest) {
 
         boolean isCorsResponseHeadersAvailable = false;
-        Map<String, String> responseHeaders = null;
+        Map<String, String> responseHeaders;
         CorsHeaders resourceCors;
         if (isSimpleRequest) {
             resourceCors = (CorsHeaders) requestMsg.getProperty(HttpConstants.RESOURCES_CORS);
@@ -70,9 +70,7 @@ public class CorsHeaderGenerator {
             }
         }
         if (isCorsResponseHeadersAvailable) {
-            responseHeaders.entrySet().stream().forEach(header -> {
-                responseMsg.setHeader(header.getKey(), header.getValue());
-            });
+            responseHeaders.forEach(responseMsg::setHeader);
             responseMsg.removeHeader(HttpHeaderNames.ALLOW.toString());
         }
     }
@@ -81,13 +79,13 @@ public class CorsHeaderGenerator {
         Map<String, String> responseHeaders = new HashMap<>();
         //6.1.1 - There should be an origin
         List<String> requestOrigins = getOriginValues(origin);
-        if (requestOrigins == null || requestOrigins.size() == 0) {
-            bLog.info(action + "origin header field parsing failed");
+        if (requestOrigins == null || requestOrigins.isEmpty()) {
+            bLog.info("{} origin header field parsing failed", ACTION);
             return null;
         }
         //6.1.2 - check all the origins
         if (!isEffectiveOrigin(requestOrigins, resourceCors.getAllowOrigins())) {
-            bLog.info(action + "not allowed origin");
+            bLog.info("{} not allowed origin", ACTION);
             return null;
         }
         //6.1.3 - set origin and credentials
@@ -97,12 +95,12 @@ public class CorsHeaderGenerator {
         return responseHeaders;
     }
 
-    private static Map<String, String> processPreflightRequest(String originValue, HTTPCarbonMessage cMsg) {
+    private static Map<String, String> processPreflightRequest(String originValue, HttpCarbonMessage cMsg) {
         Map<String, String> responseHeaders = new HashMap<>();
         //6.2.1 - request must have origin, must have one origin.
         List<String> requestOrigins = getOriginValues(originValue);
         if (requestOrigins == null || requestOrigins.size() != 1) {
-            bLog.info(action + "origin header field parsing failed");
+            bLog.info("{} origin header field parsing failed", ACTION);
             return null;
         }
         String origin = requestOrigins.get(0);
@@ -111,7 +109,7 @@ public class CorsHeaderGenerator {
         if (requestMethods == null || requestMethods.size() != 1) {
             String error = requestMethods == null ? "Access-Control-Request-Method header is unavailable" :
                     "Access-Control-Request-Method header value must be single-valued";
-            bLog.info(action + error);
+            bLog.info("{} {}", ACTION, error);
             return null;
         }
         String requestMethod = requestMethods.get(0);
@@ -119,22 +117,22 @@ public class CorsHeaderGenerator {
         if (resourceCors == null || !resourceCors.isAvailable()) {
             String error = resourceCors == null ? "access control request method not allowed" :
                     "CORS headers not declared properly";
-            bLog.info(action + error);
+            bLog.info("{} {}", ACTION, error);
             return null;
         }
         if (!isEffectiveMethod(requestMethod, resourceCors.getAllowMethods())) {
-            bLog.info(action + "access control request method not allowed");
+            bLog.info("{} access control request method not allowed", ACTION);
             return null;
         }
         //6.2.2 - request origin must be on the list or match with *.
         if (!isEffectiveOrigin(Arrays.asList(origin), resourceCors.getAllowOrigins())) {
-            bLog.info(action + "origin not allowed");
+            bLog.info("{} origin not allowed", ACTION);
             return null;
         }
         //6.2.4 - get list of request headers.
         List<String> requestHeaders = getHeaderValues(HttpHeaderNames.ACCESS_CONTROL_REQUEST_HEADERS.toString(), cMsg);
         if (!isEffectiveHeader(requestHeaders, resourceCors.getAllowHeaders())) {
-            bLog.info(action + "header field parsing failed");
+            bLog.info("{} header field parsing failed", ACTION);
             return null;
         }
         //6.2.7 - set origin and credentials
@@ -181,7 +179,7 @@ public class CorsHeaderGenerator {
         return false;
     }
 
-    private static CorsHeaders getResourceCors(HTTPCarbonMessage cMsg, String requestMethod) {
+    private static CorsHeaders getResourceCors(HttpCarbonMessage cMsg, String requestMethod) {
         List<HttpResource> resources = (List<HttpResource>) cMsg.getProperty(HttpConstants.PREFLIGHT_RESOURCES);
         if (resources == null) {
             return null;
@@ -202,7 +200,7 @@ public class CorsHeaderGenerator {
         return null;
     }
 
-    private static List<String> getHeaderValues(String key, HTTPCarbonMessage cMsg) {
+    private static List<String> getHeaderValues(String key, HttpCarbonMessage cMsg) {
         String value = cMsg.getHeader(key);
         if (value != null) {
             String[] values = fieldCommaPattern.split(value);
@@ -236,5 +234,8 @@ public class CorsHeaderGenerator {
     private static List<String> getOriginValues(String originValue) {
         String[] origins = spacePattern.split(originValue);
         return Arrays.stream(origins).filter(value -> (value.contains("://"))).collect(Collectors.toList());
+    }
+
+    private CorsHeaderGenerator() {
     }
 }

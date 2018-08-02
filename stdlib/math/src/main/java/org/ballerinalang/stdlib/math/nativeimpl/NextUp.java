@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.math:nextUp.
+ * Extern function ballerina.math:nextUp.
  *
  * @since 0.94
  */

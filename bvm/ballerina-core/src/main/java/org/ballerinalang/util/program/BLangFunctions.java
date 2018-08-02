@@ -524,7 +524,7 @@ public class BLangFunctions {
         if (forkjoinInfo.isTimeoutAvailable()) {
             long timeout = parentCtx.workerLocal.longRegs[timeoutRegIndex];
             //fork join timeout is in seconds, hence converting to milliseconds
-            AsyncTimer.schedule(new ForkJoinTimeoutCallback(respCtx), timeout * 1000);
+            AsyncTimer.schedule(new ForkJoinTimeoutCallback(respCtx), timeout);
         }
         Map<String, Object> globalProps = parentCtx.globalProps;
         BLangScheduler.workerWaitForResponse(parentCtx);

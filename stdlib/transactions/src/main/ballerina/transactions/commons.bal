@@ -358,6 +358,6 @@ function getParticipantId(int transactionBlockId) returns string {
     return participantId;
 }
 
-native function getAvailablePort() returns int;
+extern function getAvailablePort() returns int;
 
-native function getHostAddress() returns string;
+extern function getHostAddress() returns string;

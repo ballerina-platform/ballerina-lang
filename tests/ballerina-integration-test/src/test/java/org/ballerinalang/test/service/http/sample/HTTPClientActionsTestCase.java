@@ -70,7 +70,7 @@ public class HTTPClientActionsTestCase extends IntegrationTestCase {
         HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
                 "test2/clientPostWithBody"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "Sample TextSample Xml{\"name\":\"apple\",\"color\":\"red\"}",
+        Assert.assertEquals(response.getData(), "Sample TextSample Xml{\"name\":\"apple\", \"color\":\"red\"}",
                 "Message content mismatched");
     }
 

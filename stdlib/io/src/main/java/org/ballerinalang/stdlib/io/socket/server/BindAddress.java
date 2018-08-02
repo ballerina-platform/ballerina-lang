@@ -26,19 +26,19 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.stdlib.io.socket.SelectorManager;
 import org.ballerinalang.stdlib.io.socket.SocketConstants;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 
 /**
- * Native function for ServerSocket bind address.
+ * Extern function for ServerSocket bind address.
  *
  * @since 0.971.1
  */
@@ -72,7 +72,7 @@ public class BindAddress extends BlockingNativeCallableUnit {
             final Selector selector = SelectorManager.getInstance();
             serverSocket.register(selector, SelectionKey.OP_ACCEPT, serverSocket);
             SelectorManager.start();
-        } catch (IOException e) {
+        } catch (Throwable e) {
             String message = "Error occurred while bind the socket address: " + e.getMessage();
             log.error(message, e);
             throw new BallerinaIOException(message, e);
