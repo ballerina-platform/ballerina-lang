@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test whether resource failure causes a close frame to be sent.
  */
-public class ResourceFailureTest extends WebSocketIntegrationTest {
+public class ResourceFailureTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
     private static final String URL = "ws://localhost:9090/simple?q1=name";

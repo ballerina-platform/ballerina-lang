@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Facilitate the common functionality of WebSocket integration tests.
  */
-public class WebSocketIntegrationTest {
+public class WebSocketTestCommons {
     private ServerInstance ballerinaServerInstance;
     protected static final int TIMEOUT_IN_SECS = 10;
     protected static final int REMOTE_SERVER_PORT = 15500;

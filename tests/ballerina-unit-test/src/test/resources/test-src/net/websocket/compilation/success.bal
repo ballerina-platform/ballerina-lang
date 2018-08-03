@@ -29,7 +29,7 @@ service<http:WebSocketService> wsService bind wsCaller {
     onOpen(endpoint caller) {
     }
 
-    onText(endpoint caller, string text) {
+    onText(endpoint caller, string text, boolean final) {
     }
 
     onBinary(endpoint caller, byte[] data, boolean final) {
@@ -48,5 +48,36 @@ service<http:WebSocketService> wsService bind wsCaller {
     }
 
     onError(endpoint caller, error err) {
+    }
+}
+
+
+service<http:WebSocketService> onTextJSON bind wsCaller {
+
+    onText(endpoint caller, json data) {
+    }
+}
+
+service<http:WebSocketService> onTextXML bind wsCaller {
+
+    onText(endpoint caller, xml data) {
+    }
+}
+
+service<http:WebSocketService> onTextbyteArray bind wsCaller {
+
+    onText(endpoint caller, byte[] data) {
+    }
+}
+
+type Person record {
+    int id,
+    string name,
+    !...
+};
+
+service<http:WebSocketService> onTextRecord bind wsCaller {
+
+    onText(endpoint caller, Person data) {
     }
 }

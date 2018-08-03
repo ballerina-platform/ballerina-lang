@@ -36,7 +36,7 @@ import org.ballerinalang.net.http.WebSocketUtil;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
-        functionName = "pushText",
+        functionName = "externPushText",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
                              structPackage = "ballerina/http"),
         args = {
