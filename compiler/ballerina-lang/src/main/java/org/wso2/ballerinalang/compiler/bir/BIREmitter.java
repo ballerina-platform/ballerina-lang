@@ -38,9 +38,11 @@ public class BIREmitter extends BIRVisitor {
 
     private StringBuilder sb = new StringBuilder();
 
-    public String emit(BIRNode.BIRPackage birPackage) {
-        birPackage.accept(this);
-        return sb.toString();
+    public String emit(BIRNode birNode) {
+        birNode.accept(this);
+        String value = sb.toString();
+        sb = new StringBuilder();
+        return value;
     }
 
     public void visit(BIRNode.BIRPackage birPackage) {
@@ -118,7 +120,7 @@ public class BIREmitter extends BIRVisitor {
         sb.append("\t\tbranch ");
         birBranch.op.accept(this);
         sb.append(" [true:").append(birBranch.trueBB.id).append(", false:");
-        sb.append(birBranch.falseBB.id).append("]\n");
+        sb.append(birBranch.falseBB.id).append("];\n");
     }
 
 
