@@ -96,6 +96,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangChannelLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
@@ -199,7 +200,6 @@ public class Desugar extends BLangNodeVisitor {
     private static final String QUERY_TABLE_WITHOUT_JOIN_CLAUSE = "queryTableWithoutJoinClause";
     private static final String CREATE_FOREVER = "startForever";
     private static final String BASE_64 = "base64";
-    private static final String CREATE_CHANNEL_FUNC = "createBChannelTable";
 
     private SymbolTable symTable;
     private SymbolResolver symResolver;
@@ -1798,16 +1798,6 @@ public class Desugar extends BLangNodeVisitor {
 
     // private functions
 
-    private BLangInvocation createChannelTable(String channelName) {
-        List<BLangExpression> args = new ArrayList<>();
-        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        literal.setValue(channelName);
-        literal.type = symTable.stringType;
-        args.add(literal);
-
-        return createInvocationNode(CREATE_CHANNEL_FUNC, args, symTable.noType);
-    }
-
     private BLangInvocation createInvocationFromTableExpr(BLangTableQueryExpression tableQueryExpression) {
         List<BLangExpression> args = new ArrayList<>();
         String functionName = QUERY_TABLE_WITHOUT_JOIN_CLAUSE;
@@ -2461,7 +2451,7 @@ public class Desugar extends BLangNodeVisitor {
                 tuple.type = type;
                 return rewriteExpr(tuple);
             case TypeTags.CHANNEL:
-                return createChannelTable(name.getValue());
+                return new BLangChannelLiteral(type, name);
             default:
                 break;
         }

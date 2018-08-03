@@ -46,11 +46,24 @@ public class ChannelRegistry {
         return channelRegistry;
     }
 
+    /**
+     * Add a new channel if not exist.
+     * @param name Channel identifier
+     */
     public void addChannel(String name) {
-        channelList.put(name, new HashMap<>());
+        channelList.computeIfAbsent(name, chn -> new HashMap<>());
     }
 
+    /**
+     * Add a worker context to the channels map that is waiting for a message.
+     * @param channel Channel the worker is waiting for
+     * @param key key of the message
+     * @param ctx requested context
+     * @param regIndex variable index to assign the channel message
+     */
     public void addWaitingContext(String channel, BValue key, WorkerExecutionContext ctx, int regIndex) {
+        //add channel if absent
+        addChannel(channel);
         Map<BValue, LinkedList<PendingContext>> channelEntries = channelList.get(channel);
         LinkedList<PendingContext> ctxList = channelEntries.computeIfAbsent(key, bValue -> new LinkedList<>());
 
@@ -61,7 +74,15 @@ public class ChannelRegistry {
         channelEntries.put(key, ctxList);
     }
 
+    /**
+     * return a {@code PendingContext} that is waiting on a message from the given channel.
+     * @param channel Channel to check the waiting context
+     * @param key message key
+     * @return Worker context or null
+     */
     public PendingContext pollOnChannel(String channel, BValue key) {
+        //add channel if absent
+        addChannel(channel);
         LinkedList<PendingContext> pendingCtxs = channelList.get(channel).get(key);
         if (pendingCtxs != null) {
             return pendingCtxs.poll();

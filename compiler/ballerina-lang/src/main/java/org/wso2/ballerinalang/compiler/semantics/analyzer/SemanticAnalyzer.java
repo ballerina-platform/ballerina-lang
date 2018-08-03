@@ -1541,9 +1541,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             typeChecker.checkExpr(node.keyExpr, env);
         }
 
-        int constraintTag = ((BChannelType) channelSymbol.type).constraint.tag;
-        if (node.expr.type.tag != constraintTag) {
-            dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, constraintTag, node.expr.type.tag);
+        BType constraint = ((BChannelType) channelSymbol.type).constraint;
+        if (node.expr.type.tag != constraint.tag) {
+            dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, constraint, node.expr.type);
         }
     }
 
@@ -1563,9 +1563,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         typeChecker.checkExpr(node.expr, env);
 
-        int constraintTag = ((BChannelType) symbol.type).constraint.tag;
-        if (node.expr.type.tag != constraintTag) {
-            dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, constraintTag, node.expr.type.tag);
+        BType constraint = ((BChannelType) symbol.type).constraint;
+        if (node.expr.type.tag != constraint.tag) {
+            dlog.error(node.pos, DiagnosticCode.INCOMPATIBLE_TYPES, constraint, node.expr.type);
         }
 
         if (node.keyExpr != null) {
