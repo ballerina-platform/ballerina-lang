@@ -8,31 +8,54 @@ import ballerina/runtime;
 // the backend until the `resetTime`.
 endpoint http:Client backendClientEP {
     url: "http://localhost:8080",
-    // Circuit breaker configuration options
+    // Circuit breaker configuration options that control the
+    // behavior of the Ballerina circuit breaker
     circuitBreaker: {
-        // Failure calculation window.
+        // Failure calculation window. This is how long Ballerina
+        // circuit breaker keeps the statistics for the operations.
         rollingWindow: {
+
             // Time period in milliseconds for which the failure threshold
             // is calculated.
             timeWindowMillis: 10000,
+
             // The granularity at which the time window slides.
             // This is measured in milliseconds.
+            // The `RollingWindow` is divided into buckets
+            //  and slides by these increments.
+            // For example, if this timeWindowMillis is set to
+            // 10000 milliseconds and bucketSizeMillis 2000.
+            // Then RollingWindow breaks into sub windows with
+            // 2-second buckets and stats will be collected with
+            // respect to the buckets. As time rolls a new bucket
+            // will be appended to the end of the window and the
+            // old bucket will be removed.
             bucketSizeMillis: 2000,
+
             // Minimum number of requests in a `RollingWindow`
             // that will; trip the circuit.
             requestVolumeThreshold: 0
+
         },
         // The threshold for request failures.
         // When this threshold exceeds, the circuit trips.
-        // This is the ratio between failures and total requests.
+        // This is the ratio between failures and total requests
+        //  and the ratio is considered only within the configured
+        // `RollingWindow`
         failureThreshold: 0.2,
+
         // The time period(in milliseconds) to wait before
         // attempting to make another request to the upstream service.
+        // When the failure threshold exceeds, the circuit trips to
+        // OPEN state. Once the circuit is in OPEN state
+        // circuit breaker waits for the time configured in `resetTimeMillis`
+        // and switch the circuit to the HALF_OPEN state.
         resetTimeMillis: 10000,
+
         // HTTP response status codes which are considered as failures
         statusCodes: [400, 404, 500]
-    },
 
+    },
     timeoutMillis: 2000
 };
 
