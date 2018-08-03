@@ -128,7 +128,7 @@ public class HttpFiltersDesugar {
      */
     void invokeFilters(BLangResource resourceNode, SymbolEnv env) {
         BLangVariable endpoint;
-        if (resourceNode.requiredParams.size() == 2) {
+        if (resourceNode.requiredParams.size() >= 2) {
             endpoint = resourceNode.requiredParams.get(0);
             if (ORG_NAME.equals(endpoint.type.tsymbol.pkgID.orgName.value) && PACKAGE_NAME.equals(
                     endpoint.type.tsymbol.pkgID.name.value) && ENDPOINT_TYPE_NAME.equals(
