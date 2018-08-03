@@ -23,14 +23,14 @@ function testFunc() {
     string jt2 = "5.36";
     string jt3 = "true";
     string jt4 = "false";
-    string jt5 = "{\"name\":\"apple\",\"color\":\"red\",\"price\":5.36}";
-    string jt6 = "[1,false,null,\"foo\",{\"first\":\"John\",\"last\":\"Pala\"}]";
-    string jt7 = "{\"fname\":\"John\",\"lname\":\"Stallone\",\"age\":30}";
+    string jt5 = "{\"name\":\"apple\", \"color\":\"red\", \"price\":5.36}";
+    string jt6 = "[1, false, null, \"foo\", {\"first\":\"John\", \"last\":\"Pala\"}]";
+    string jt7 = "{\"fname\":\"John\", \"lname\":\"Stallone\", \"age\":30}";
     string jt8 = "John";
     string jt9 = "Stallone";
-    string jt10 = "{\"fname\":\"John\",\"lname\":\"Silva\",\"age\":31}";
-    string jt11 = "{\"fname\":\"Peter\",\"lname\":\"Stallone\",\"age\":30,\"address\":{\"line\":\"20 Palm Grove\",\"city\":\"Colombo 03\",\"country\":\"Sri Lanka\"}}";
-    string jt12 = "{\"fname\":\"Peter\",\"lname\":\"Stallone\",\"age\":30,\"address\":{\"line\":\"20 Palm Grove\",\"city\":\"Colombo 03\",\"country\":\"Sri Lanka\",\"province\":\"Western\"}}";
+    string jt10 = "{\"fname\":\"John\", \"lname\":\"Silva\", \"age\":31}";
+    string jt11 = "{\"fname\":\"Peter\", \"lname\":\"Stallone\", \"age\":30, \"address\":{\"line\":\"20 Palm Grove\", \"city\":\"Colombo 03\", \"country\":\"Sri Lanka\"}}";
+    string jt12 = "{\"fname\":\"Peter\", \"lname\":\"Stallone\", \"age\":30, \"address\":{\"line\":\"20 Palm Grove\", \"city\":\"Colombo 03\", \"country\":\"Sri Lanka\", \"province\":\"Western\"}}";
 
     test:assertEquals(jt1, outputs[0]);
     test:assertEquals(jt2, outputs[1]);
