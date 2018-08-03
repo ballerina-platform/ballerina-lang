@@ -1,3 +1,13 @@
-# To run the service, place the code in the  'grpc_bidirectional_streaming.bal' file in the required location.
-# Then navigate to that location and issue the 'ballerina run' command as shown here.
-$ ballerina run grpc_bidirectional_streaming.bal
+# Create a Ballerina project and a package inside it.
+# Add grpc_bidirectional_streaming.bal file inside the package directory and
+# build the project.
+# For example, if you create a package named 'service', execute the following command to build
+# the 'service' package.
+$ ballerina build service
+
+# Once you build the project, following files will be generated inside target directory.
+# * service.balx
+# * grpc/Chat.proto
+
+# Run the service using the following command.
+$ ballerina run target/service.balx
