@@ -5,7 +5,7 @@
 # the 'service' package.
 $ ballerina build service
 
-# Once you build the project, following files will be generated inside target directory.
+# Once you build the project, the following files will be generated inside target directory.
 # * service.balx
 # * grpc/HelloWorld.proto
 

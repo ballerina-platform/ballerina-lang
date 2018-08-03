@@ -3,7 +3,7 @@
 # For example, if you create a package named 'client', execute the following command to generate stub code.
 $ ballerina grpc --input HelloWorld.proto --output client
 
-# Once you run the command, following files will be generated inside client directory.
+# Once you run the command, the following files will be generated inside client directory.
 # * HelloWorld_pb.bal
 # * HelloWorld_sample_client.bal
 # Replace the content of HelloWorld_sample_client.bal file with the content of grpc_client_streaming_client.bal file.
