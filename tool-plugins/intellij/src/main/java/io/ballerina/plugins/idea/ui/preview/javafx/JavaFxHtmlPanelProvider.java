@@ -13,36 +13,35 @@
 // limitations under the License.
 package io.ballerina.plugins.idea.ui.preview.javafx;
 
+import io.ballerina.plugins.idea.ui.preview.BallerinaHtmlPanelProvider;
 import io.ballerina.plugins.idea.ui.preview.MarkdownHtmlPanel;
-import io.ballerina.plugins.idea.ui.preview.MarkdownHtmlPanelProvider;
 import org.jetbrains.annotations.NotNull;
 
-public class JavaFxHtmlPanelProvider extends MarkdownHtmlPanelProvider {
+public class JavaFxHtmlPanelProvider extends BallerinaHtmlPanelProvider {
 
-  @NotNull
-  @Override
-  public MarkdownHtmlPanel createHtmlPanel() {
-    return new MarkdownJavaFxHtmlPanel();
-  }
-
-  @NotNull
-  @Override
-  public AvailabilityInfo isAvailable() {
-    try {
-      if (Class.forName("javafx.scene.web.WebView", false, getClass().getClassLoader()) != null) {
-        return AvailabilityInfo.AVAILABLE;
-      }
-    }
-    catch (ClassNotFoundException ignored) {
+    @NotNull
+    @Override
+    public MarkdownHtmlPanel createHtmlPanel() {
+        return new MarkdownJavaFxHtmlPanel();
     }
 
-    return AvailabilityInfo.UNAVAILABLE;
-  }
+    @NotNull
+    @Override
+    public BallerinaHtmlPanelProvider.AvailabilityInfo isAvailable() {
+        try {
+            if (Class.forName("javafx.scene.web.WebView", false, getClass().getClassLoader()) != null) {
+                return BallerinaHtmlPanelProvider.AvailabilityInfo.AVAILABLE;
+            }
+        } catch (ClassNotFoundException ignored) {
+        }
 
-  @NotNull
-  @Override
-  public ProviderInfo getProviderInfo() {
-    return new ProviderInfo("JavaFX WebView", JavaFxHtmlPanelProvider.class.getName());
-  }
+        return AvailabilityInfo.UNAVAILABLE;
+    }
+
+    @NotNull
+    @Override
+    public ProviderInfo getProviderInfo() {
+        return new ProviderInfo("JavaFX WebView", JavaFxHtmlPanelProvider.class.getName());
+    }
 
 }

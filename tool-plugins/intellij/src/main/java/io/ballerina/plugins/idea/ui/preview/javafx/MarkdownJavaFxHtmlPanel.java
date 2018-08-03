@@ -16,7 +16,7 @@ import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.javafx.JavaFxHtmlPanel;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.messages.MessageBusConnection;
-import io.ballerina.plugins.idea.ui.preview.MarkdownApplicationSettings;
+import io.ballerina.plugins.idea.ui.settings.MarkdownApplicationSettings;
 import io.ballerina.plugins.idea.ui.preview.MarkdownHtmlPanel;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -92,11 +92,15 @@ public class MarkdownJavaFxHtmlPanel extends JavaFxHtmlPanel implements Markdown
         super.setHtml(html);
     }
 
+    @Override
+    public void setCSS(@Nullable String inlineCss, @NotNull String... fileUris) {
+
+    }
+
     @NotNull
     @Override
     protected String prepareHtml(@NotNull String html) {
-        return ImageRefreshFix.setStamps(html.replace("<head>",
-                "<head>" + "<meta http-equiv=\"Content-Security-Policy\" content=\"" + myCSP + "\"/>"));
+        return ImageRefreshFix.setStamps(html.replace("<head>", "<head>" + "<meta http-equiv=\"Content-Security-Policy\" content=\"" + myCSP + "\"/>"));
     }
 
     @Override

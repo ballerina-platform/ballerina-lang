@@ -29,14 +29,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.*;
-
-//import org.owasp.html.HtmlPolicyBuilder;
-//import org.owasp.html.PolicyFactory;
-//import org.owasp.html.Sanitizers;
 
 public class BallerinaDiagramVisualizer extends UserDataHolderBase implements FileEditor {
     private final static long PARSING_CALL_TIMEOUT_MS = 50L;
@@ -66,7 +60,7 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
 
     private volatile int myLastScrollOffset;
     @NotNull
-    private String myLastRenderedHtml = "";
+    private String myLastRenderedHtml = "<html><header></header><body>Broke</body></html>";
 
     public BallerinaDiagramVisualizer(@NotNull Project project, @NotNull VirtualFile file) {
         myFile = file;
@@ -83,7 +77,6 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
                 @Override
                 public void documentChanged(final DocumentEvent e) {
                     myPooledAlarm.addRequest(() -> {
-                        //myLastScrollOffset = e.getOffset();
                         updateHtml(false);
                     }, PARSING_CALL_TIMEOUT_MS);
                 }
@@ -91,30 +84,33 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
         }
 
         myHtmlPanelWrapper = new JPanel(new BorderLayout());
-
-        myHtmlPanelWrapper.addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentShown(ComponentEvent e) {
-                mySwingAlarm.addRequest(() -> {
-                    if (myPanel != null) {
-                        return;
-                    }
-
-                    attachHtmlPanel();
-                }, 0, ModalityState.stateForComponent(getComponent()));
-            }
-
-            @Override
-            public void componentHidden(ComponentEvent e) {
-                mySwingAlarm.addRequest(() -> {
-                    if (myPanel == null) {
-                        return;
-                    }
-
-                    detachHtmlPanel();
-                }, 0, ModalityState.stateForComponent(getComponent()));
-            }
-        });
+        //TODO:Restore component listener if needed
+        //        myHtmlPanelWrapper.addComponentListener(new ComponentAdapter() {
+        //            @Override
+        //            public void componentShown(ComponentEvent e) {
+        //                mySwingAlarm.addRequest(() -> {
+        //                    if (myPanel != null) {
+        //                        return;
+        //                    }
+        //                    attachHtmlPanel();
+        //                }, 0, ModalityState.stateForComponent(getComponent()));
+        //
+        //                myPooledAlarm.addRequest(() -> {
+        //                    updateHtml(false);
+        //                }, PARSING_CALL_TIMEOUT_MS);
+        //            }
+        //
+        //            @Override
+        //            public void componentHidden(ComponentEvent e) {
+        //                mySwingAlarm.addRequest(() -> {
+        //                    if (myPanel == null) {
+        //                        return;
+        //                    }
+        //                    //TODO:
+        //              //      detachHtmlPanel();
+        //                }, 0, ModalityState.stateForComponent(getComponent()));
+        //            }
+        //        });
 
         if (isPreviewShown(project, file)) {
             attachHtmlPanel();
@@ -288,7 +284,7 @@ public class BallerinaDiagramVisualizer extends UserDataHolderBase implements Fi
                     return;
                 }
 
-                final String currentHtml = "<html><head></head>" + html + "</html>";
+                final String currentHtml = html;
                 if (!currentHtml.equals(myLastRenderedHtml)) {
                     myLastRenderedHtml = currentHtml;
                     myPanel.setHtml(myLastRenderedHtml);

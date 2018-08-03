@@ -33,9 +33,10 @@ public class VisualizerUtil {
     @NotNull
     public static String generateMarkdownHtml(@NotNull VirtualFile file, @NotNull String text) {
         final VirtualFile parent = file.getParent();
+
         final URI baseUri = parent != null ? new File(parent.getPath()).toURI() : null;
 
-        String html = "<html> <header><title>This is title</title></header> <body> Hello world </body></html>";
+        String html = "<html><header><title>This is title</title></header><body>" + text + "</body></html>";
 
         // MarkdownCodeFencePluginCache.getInstance().registerCacheProvider(cacheCollector);
 
