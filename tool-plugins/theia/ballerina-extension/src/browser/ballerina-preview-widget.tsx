@@ -4,6 +4,7 @@ import { injectable, postConstruct, inject } from 'inversify';
 import { EditorManager, TextEditor, EditorWidget, TextDocumentChangeEvent } from "@theia/editor/lib/browser";
 import { DisposableCollection } from '@theia/core/lib/common/disposable';
 import * as React from 'react';
+import * as lsp from 'vscode-languageserver-types';
 import { parseContent, ParserReply, BALLERINA_LANGUAGE_ID } from '../common'
 
 import '../../../../../../../lib/bundle.css';
@@ -97,6 +98,18 @@ export class BallerinaPreviewWidget extends ReactWidget {
     protected onModelUpdate(evt: any) {
         if (this.currentAST) {
             const newContent = this.currentAST.getSource();
+            const currentEditor: TextEditor | undefined = this.getCurrentEditor();
+            if (currentEditor && currentEditor.document.languageId === BALLERINA_LANGUAGE_ID) {
+                const endLine = currentEditor.document.lineCount;
+                const endOffset = currentEditor.document.getLineContent(endLine).length;
+                const startPosition = lsp.Position.create(0,0);
+                const endPosition = lsp.Position.create(endLine, endOffset);
+                const editOperation: lsp.TextEdit = {
+                    newText: newContent,
+                    range: lsp.Range.create(startPosition, endPosition)
+                };
+                currentEditor.executeEdits([editOperation])
+            }
             console.log(newContent);
         }
     }
