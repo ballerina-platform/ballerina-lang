@@ -7,7 +7,7 @@ function main(string... args) {
 
     // Specify the port that the internal Ballerina hub needs to start on and start the hub.
     io:println("Starting up the Ballerina Hub Service");
-    websub:WebSubHub webSubHub = websub:startUpBallerinaHub(port = 9191) but {
+    websub:WebSubHub webSubHub = websub:startHub(9191) but {
         websub:HubStartedUpError hubStartedUpErr => hubStartedUpErr.startedUpHub
     };
 
@@ -21,7 +21,7 @@ function main(string... args) {
     }
 
     // Make the publisher wait until the subscriber subscribes at the hub.
-    runtime:sleep(20000);
+    runtime:sleep(5000);
 
     // Publish directly to the internal Ballerina hub.
     io:println("Publishing update to internal Hub");
@@ -34,5 +34,5 @@ function main(string... args) {
     }
 
     // Make sure the service is running until the subscriber receives the update notification.
-    runtime:sleep(5000);
+    runtime:sleep(2000);
 }
