@@ -16,9 +16,13 @@
  */
 package org.ballerinalang.test.types.table;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
+
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BByteArray;
@@ -31,8 +35,13 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.test.services.testutils.HTTPTestRequest;
+import org.ballerinalang.test.services.testutils.MessageUtils;
+import org.ballerinalang.test.services.testutils.Services;
+import org.ballerinalang.test.utils.ResponseReader;
 import org.ballerinalang.test.utils.SQLDBUtils;
 import org.ballerinalang.test.utils.SQLDBUtils.ContainerizedTestDatabase;
+import org.ballerinalang.test.utils.SQLDBUtils.DBType;
 import org.ballerinalang.test.utils.SQLDBUtils.FileBasedTestDatabase;
 import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -42,6 +51,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.Lists;
+import org.wso2.carbon.messaging.Header;
+import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -51,7 +63,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import static org.ballerinalang.test.utils.SQLDBUtils.DBType;
 import static org.ballerinalang.test.utils.SQLDBUtils.DBType.H2;
 import static org.ballerinalang.test.utils.SQLDBUtils.DBType.MYSQL;
 import static org.ballerinalang.test.utils.SQLDBUtils.DBType.POSTGRES;
@@ -1382,5 +1393,31 @@ public class TableTest {
         Assert.assertEquals(booleanArray.get(0), null);
         Assert.assertEquals(booleanArray.get(1), null);
         Assert.assertEquals(((BBoolean) booleanArray.get(2)).booleanValue(), true);
+    }
+
+    @Test(description = "Check table to JSON conversion and streaming back" + "to client in a service.",
+            dependsOnMethods = { "testCloseConnectionPool" })
+    public void testTableToJsonStreamingInService() {
+        CompileResult service =
+                BServiceUtil.setupProgramFile(this, "test-src/types/table/table_to_json_service_test.bal");
+        String payload = "{ \"jdbcUrl\" : \"" + connectionArgs[0] + "\", \"userName\" : \"" + connectionArgs[1] +
+                "\", \"password\" : \"" + connectionArgs[2] + "\"}";
+        Header header = new Header(HttpHeaderNames.CONTENT_TYPE.toString(), MimeConstants.APPLICATION_JSON);
+        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/foo/bar", "POST", Lists.of(header), payload);
+        HttpCarbonMessage responseMsg = Services.invokeNew(service, "testEP", requestMsg);
+
+        String expected;
+        if (dbType == POSTGRES) {
+            expected = "[{\"int_type\":1, \"long_type\":9223372036854774807, \"float_type\":123.339996, " +
+                    "\"double_type\":2.139095039E9, \"boolean_type\":true, \"string_type\":\"Hello\"}]";
+        } else if (dbType == MYSQL) {
+            expected = "[{\"int_type\":1, \"long_type\":9223372036854774807, \"float_type\":123.34, " +
+                    "\"double_type\":2.139095039E9, \"boolean_type\":true, \"string_type\":\"Hello\"}]";
+        } else {
+            expected = "[{\"INT_TYPE\":1, \"LONG_TYPE\":9223372036854774807, \"FLOAT_TYPE\":123.34, " +
+                    "\"DOUBLE_TYPE\":2.139095039E9, \"BOOLEAN_TYPE\":true, \"STRING_TYPE\":\"Hello\"}]";
+        }
+
+        Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), expected);
     }
 }
