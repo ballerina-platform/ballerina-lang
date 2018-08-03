@@ -20,7 +20,7 @@ function main(string... args) {
     }
 
     // Make the publisher wait until the subscriber subscribes at the hub.
-    runtime:sleep(10000);
+    runtime:sleep(5000);
 
     // Publish updates to the remote hub.
     io:println("Publishing update to remote Hub");
