@@ -25,6 +25,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import static org.ballerinalang.BLangProgramRunner.COLON;
+import static org.ballerinalang.BLangProgramRunner.MAIN;
+
 /**
  * This represents the Ballerina package provider.
  *
@@ -33,7 +36,17 @@ import java.net.URL;
 @JavaSPIService("org.ballerinalang.spi.EmbeddedExecutor")
 public class BVMEmbeddedExecutor implements EmbeddedExecutor {
     @Override
-    public void execute(String balxPath, boolean isFunction, String... args) {
+    public void execute(String programArg, boolean isFunction, String... args) {
+        String balxPath = programArg;
+        String functionName = MAIN;
+
+        if (isFunction && programArg.contains(COLON)) {
+            //assumes one colon
+            String[] programArgConstituents = programArg.split(COLON);
+            balxPath = programArgConstituents[0];
+            functionName = programArgConstituents[1];
+        }
+
         URL resource = BVMEmbeddedExecutor.class.getClassLoader()
                                                 .getResource("META-INF/ballerina/" + balxPath);
         if (resource == null) {
@@ -41,7 +54,7 @@ public class BVMEmbeddedExecutor implements EmbeddedExecutor {
         }
         try {
             URI balxResource = resource.toURI();
-            ExecutorUtils.execute(balxResource, isFunction, args);
+            ExecutorUtils.execute(balxResource, isFunction, isFunction ? functionName : null, args);
         } catch (URISyntaxException e) {
             throw new BLangCompilerException("Error loading internal modules when retrieving remote package");
         }

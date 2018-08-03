@@ -29,6 +29,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BLangUsageException;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObservabilityConstants;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -58,6 +59,7 @@ import java.util.ServiceLoader;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.LogManager;
 
+import static org.ballerinalang.BLangProgramRunner.MAIN;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
@@ -72,7 +74,7 @@ import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
  */
 public class LauncherUtils {
 
-    public static void runProgram(Path sourceRootPath, Path sourcePath, boolean runServices,
+    public static void runProgram(Path sourceRootPath, Path sourcePath, boolean runServices, String functionName,
                                   Map<String, String> runtimeParams, String configFilePath, String[] args,
                                   boolean offline, boolean observeFlag) {
         ProgramFile programFile;
@@ -99,35 +101,39 @@ public class LauncherUtils {
                             " files can be used with the 'ballerina run' command.");
         }
 
-        // If there is no main or service entry point, throw an error
-        if (!programFile.isMainEPAvailable() && !programFile.isServiceEPAvailable()) {
+        // If a function named main is expected to be the entry point but such a function does not exist and there is
+        // no service entry point either, throw an error
+        if ((MAIN.equals(functionName) && !programFile.isMainEPAvailable()) && !programFile.isServiceEPAvailable()) {
             throw LauncherUtils.createLauncherException(
                     "error: '" + programFile.getProgramFilePath() + "' does not contain a main function or a service");
         }
 
-        boolean runServicesOrNoMainEP = runServices || !programFile.isMainEPAvailable();
+        boolean runServicesOrNoFunctionEP = runServices
+                                                || (MAIN.equals(functionName) && !programFile.isMainEPAvailable());
 
         // Load launcher listeners
         ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
-        listeners.forEach(listener -> listener.beforeRunProgram(runServicesOrNoMainEP));
+        listeners.forEach(listener -> listener.beforeRunProgram(runServicesOrNoFunctionEP));
 
-        if (runServicesOrNoMainEP) {
+        if (runServicesOrNoFunctionEP) {
             if (args.length > 0) {
                 throw LauncherUtils.createUsageException("too many arguments");
             }
             runServices(programFile);
         } else {
-            runMain(programFile, args);
+            runMain(programFile, functionName, args);
         }
 
-        listeners.forEach(listener -> listener.afterRunProgram(runServicesOrNoMainEP));
+        listeners.forEach(listener -> listener.afterRunProgram(runServicesOrNoFunctionEP));
     }
 
-    public static void runMain(ProgramFile programFile, String[] args) {
+    public static void runMain(ProgramFile programFile, String functionName, String[] args) {
         try {
-            BLangProgramRunner.runMain(programFile, args);
+            BLangProgramRunner.runMain(programFile, functionName, args);
         } catch (BLangUsageException e) {
             throw createLauncherException("usage error: " + makeFirstLetterLowerCase(e.getLocalizedMessage()));
+        } catch (BallerinaException e) {
+            throw createLauncherException(makeFirstLetterLowerCase(e.getLocalizedMessage()));
         }
 
         if (programFile.isServiceEPAvailable()) {

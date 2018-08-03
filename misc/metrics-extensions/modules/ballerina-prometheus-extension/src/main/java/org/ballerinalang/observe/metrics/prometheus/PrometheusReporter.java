@@ -58,7 +58,7 @@ public class PrometheusReporter implements MetricReporter {
                 PROMETHEUS_PACKAGE);
         Path repoterBalxPath = Paths.get(ballerinaHome, BALX_LIB_DIRECTORY, BLangConstants.BLANG_EXEC_FILE_EXT,
                 PROMETHEUS_PACKAGE, REPORTER_BALX_FILE_NAME);
-        LauncherUtils.runProgram(reporterSourcePath, repoterBalxPath, true,
+        LauncherUtils.runProgram(reporterSourcePath, repoterBalxPath, true, null,
                 loadCurrentConfigs(), null, new String[0], true, false);
         String hostname = ConfigRegistry.getInstance().
                 getConfigOrDefault(PROMETHEUS_HOST_CONFIG, DEFAULT_PROMETHEUS_HOST);

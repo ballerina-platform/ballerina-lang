@@ -32,6 +32,9 @@ import static org.ballerinalang.util.cli.ArgumentParser.extractMainArgs;
  */
 public class BLangProgramRunner {
 
+    public static final String MAIN = "main";
+    public static final String COLON = ":";
+
     public static void runService(ProgramFile programFile) {
         if (!programFile.isServiceEPAvailable()) {
             throw new BallerinaException("no services found in '" + programFile.getProgramFilePath() + "'");
@@ -50,20 +53,20 @@ public class BLangProgramRunner {
         BLangFunctions.invokePackageStartFunctions(programFile);
     }
 
-    public static void runMain(ProgramFile programFile, String[] args) {
-        if (!programFile.isMainEPAvailable()) {
+    public static void runMain(ProgramFile programFile, String functionName, String[] args) {
+        if (MAIN.equals(functionName) && !programFile.isMainEPAvailable()) {
             throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
         }
-        PackageInfo mainPkgInfo = programFile.getEntryPackage();
-        if (mainPkgInfo == null) {
-            throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
+        PackageInfo entryPkgInfo = programFile.getEntryPackage();
+        if (entryPkgInfo == null) {
+            throw new BallerinaException("entry package not found in  '" + programFile.getProgramFilePath() + "'");
         }
         Debugger debugger = new Debugger(programFile);
         initDebugger(programFile, debugger);
 
-        FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
+        FunctionInfo functionInfo = getFunctionInfo(entryPkgInfo, functionName);
         try {
-            BLangFunctions.invokeEntrypointCallable(programFile, mainFuncInfo, extractMainArgs(mainFuncInfo, args));
+            BLangFunctions.invokeEntrypointCallable(programFile, functionInfo, extractMainArgs(functionInfo, args));
         } finally {
             if (programFile.isServiceEPAvailable()) {
                 return;
@@ -83,19 +86,19 @@ public class BLangProgramRunner {
         }
     }
 
-    public static FunctionInfo getMainFunction(PackageInfo mainPkgInfo) {
-        String errorMsg = "main function not found in  '" +
-                mainPkgInfo.getProgramFile().getProgramFilePath() + "'";
+    public static FunctionInfo getFunctionInfo(PackageInfo entryPkgInfo, String functionName) {
+        String errorMsg = functionName + " function not found in  '"
+                            + entryPkgInfo.getProgramFile().getProgramFilePath() + "'";
 
-        FunctionInfo mainFuncInfo = mainPkgInfo.getFunctionInfo("main");
-        if (mainFuncInfo == null) {
+        FunctionInfo functionInfo = entryPkgInfo.getFunctionInfo(functionName);
+        if (functionInfo == null) {
             throw new BallerinaException(errorMsg);
         }
 
-        if (mainFuncInfo.getRetParamTypes().length != 0) {
-            throw new BallerinaException(errorMsg);
+        if (functionInfo.getRetParamTypes().length != 0) {
+            throw new BallerinaException("return not allowed with entry function"); // TODO: 8/3/18 temp 
         }
 
-        return mainFuncInfo;
+        return functionInfo;
     }
 }

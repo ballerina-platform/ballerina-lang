@@ -90,10 +90,9 @@ public class BinaryFileWriter {
 
     public void write(BLangPackage packageNode, String fileName) {
         // TODO Reuse binary content in PackageFile when writing the program file..
-        if (packageNode.symbol.entryPointExists) {
-            outStream.println("Generating executable");
-            writeExecutableBinary(packageNode, fileName);
-        }
+        // TODO: 8/3/18 should we check if there are functions at least?
+        outStream.println("Generating executable");
+        writeExecutableBinary(packageNode, fileName);
         writeLibraryPackage(packageNode);
     }
 

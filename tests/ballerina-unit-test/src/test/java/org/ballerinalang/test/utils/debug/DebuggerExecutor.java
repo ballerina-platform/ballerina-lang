@@ -32,6 +32,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+import static org.ballerinalang.BLangProgramRunner.MAIN;
+
 /**
  * {@link DebuggerExecutor} represents executor class which runs the main program when debugging.
  *
@@ -41,13 +43,16 @@ public class DebuggerExecutor implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(DebuggerExecutor.class);
 
     private CompileResult result;
+    private String functionName;
     private String[] args;
     private TestDebugger debugger;
     private List<BreakPointDTO> breakPoints;
-    private PackageInfo mainPkgInfo;
+    private PackageInfo entryPkgInfo;
 
-    DebuggerExecutor(CompileResult result, String[] args, TestDebugger debugger, List<BreakPointDTO> breakPoints) {
+    DebuggerExecutor(CompileResult result, String functionName, String[] args, TestDebugger debugger,
+                     List<BreakPointDTO> breakPoints) {
         this.result = result;
+        this.functionName = functionName;
         this.args = args;
         this.debugger = debugger;
         this.breakPoints = breakPoints;
@@ -57,14 +62,14 @@ public class DebuggerExecutor implements Runnable {
     private void init() {
         ProgramFile programFile = result.getProgFile();
 
-        if (!programFile.isMainEPAvailable()) {
+        if ((MAIN.equals(functionName) && !programFile.isMainEPAvailable())) {
             throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
         }
 
         // Get the main entry package
-        mainPkgInfo = programFile.getEntryPackage();
-        if (mainPkgInfo == null) {
-            throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
+        entryPkgInfo = programFile.getEntryPackage();
+        if (entryPkgInfo == null) {
+            throw new BallerinaException("entry package not found in  '" + programFile.getProgramFilePath() + "'");
         }
     }
 
@@ -86,13 +91,13 @@ public class DebuggerExecutor implements Runnable {
         }
 
         // Invoke package init function
-        FunctionInfo mainFuncInfo = BLangProgramRunner.getMainFunction(mainPkgInfo);
+        FunctionInfo funcInfo = BLangProgramRunner.getFunctionInfo(entryPkgInfo, functionName);
         try {
-            BLangFunctions.invokeEntrypointCallable(programFile, mainFuncInfo, new BValue[]{arrayArgs});
+            BLangFunctions.invokeEntrypointCallable(programFile, funcInfo, new BValue[]{arrayArgs});
         } catch (Exception e) {
             log.debug("error occurred, invoking the function - " + e.getMessage(), e);
         } finally {
-            BLangFunctions.invokeVMUtilFunction(mainPkgInfo.getStopFunctionInfo());
+            BLangFunctions.invokeVMUtilFunction(entryPkgInfo.getStopFunctionInfo());
         }
 
         debugger.notifyExit();

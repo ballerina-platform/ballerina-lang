@@ -27,6 +27,9 @@ import org.testng.Assert;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static org.ballerinalang.BLangProgramRunner.COLON;
+import static org.ballerinalang.BLangProgramRunner.MAIN;
+
 /**
  * Test debug util class to test debug scenarios.
  *
@@ -34,9 +37,9 @@ import java.util.Arrays;
  */
 public class VMDebuggerUtil {
 
-    public static void startDebug(String srcPath, BreakPointDTO[] bPoints, ExpectedResults expRes) {
+    public static void startDebug(String programArgs, BreakPointDTO[] bPoints, ExpectedResults expRes) {
 
-        TestDebugger debugger = setupProgram(srcPath, bPoints);
+        TestDebugger debugger = setupProgram(programArgs, bPoints);
 
         if (!debugger.tryAcquireLock(1000)) {
             Assert.fail("VM doesn't start within 1000ms");
@@ -81,16 +84,25 @@ public class VMDebuggerUtil {
         }
     }
 
-    private static TestDebugger setupProgram(String sourceFilePath, BreakPointDTO[] breakPoints) {
-        CompileResult result = BCompileUtil.compile(sourceFilePath);
+    private static TestDebugger setupProgram(String programArg, BreakPointDTO[] breakPoints) {
+        String srcPath = programArg;
+        String functionName = MAIN;
 
+        if (programArg.contains(COLON)) {
+            //assumes one colon
+            String[] programArgConstituents = programArg.split(COLON);
+            srcPath = programArgConstituents[0];
+            functionName = programArgConstituents[1];
+        }
+
+        CompileResult result = BCompileUtil.compile(srcPath);
         TestDebugger debugger = new TestDebugger(result.getProgFile());
         result.getProgFile().setDebugger(debugger);
         debugger.setDebugEnabled();
 
         String[] args = {"Hello", "World"};
-        DebuggerExecutor executor = new DebuggerExecutor(result, args, debugger,
-                new ArrayList<>(Arrays.asList(breakPoints)));
+        DebuggerExecutor executor = new DebuggerExecutor(result, functionName, args, debugger,
+                                                         new ArrayList<>(Arrays.asList(breakPoints)));
         (new Thread(executor)).start();
         return debugger;
     }

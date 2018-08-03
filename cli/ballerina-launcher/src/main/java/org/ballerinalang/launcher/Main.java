@@ -45,6 +45,8 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.ServiceLoader;
 
+import static org.ballerinalang.BLangProgramRunner.COLON;
+import static org.ballerinalang.BLangProgramRunner.MAIN;
 import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
@@ -243,7 +245,17 @@ public class Main {
             System.setProperty("ballerina.source.root", sourceRootPath.toString());
             VMOptions.getInstance().addOptions(vmOptions);
 
-            Path sourcePath = Paths.get(argList.get(0));
+            String programArg = argList.get(0);
+            String functionName = MAIN;
+            Path sourcePath;
+            if (programArg.contains(COLON)) {
+                String[] programArgConstituents = programArg.split(COLON);
+                sourcePath = Paths.get(programArgConstituents[0]);
+                functionName = programArgConstituents[1];
+            } else {
+                sourcePath = Paths.get(argList.get(0));
+            }
+
             // Filter out the list of arguments given to the ballerina program.
             String[] programArgs;
             if (argList.size() >= 2) {
@@ -253,8 +265,8 @@ public class Main {
                 programArgs = new String[0];
             }
 
-            LauncherUtils.runProgram(sourceRootPath, sourcePath, false, runtimeParams, configFilePath,
-                    programArgs, offline, observeFlag);
+            LauncherUtils.runProgram(sourceRootPath, sourcePath, false, functionName, runtimeParams,
+                                     configFilePath, programArgs, offline, observeFlag);
         }
 
         @Override
