@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test whether resource failure during client initialization causes a close frame to be sent.
  */
-public class ClientInitializationFailureTest extends WebSocketIntegrationTest {
+public class ClientInitializationFailureTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
     private static final String URL = "ws://localhost:9090/client/failure";
