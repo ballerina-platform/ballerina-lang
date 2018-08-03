@@ -4,11 +4,11 @@ function dump(int arg1, int arg2) returns int {
 
     if a == b  {
         a = b;
-        //if (a != b) {
-        //    a = a * b;
-        //} else if ( a < b ) {
-        //    return a;
-        //}
+        if (a != b) {
+            a = a * b;
+        } else if ( a < b ) {
+            return a;
+        }
     } else if ( a > b ) {
         a = a -b;
     } else {

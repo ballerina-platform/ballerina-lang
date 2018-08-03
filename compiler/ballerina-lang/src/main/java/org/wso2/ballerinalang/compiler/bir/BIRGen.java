@@ -212,8 +212,8 @@ public class BIRGen extends BLangNodeVisitor {
         astIfStmt.body.accept(this);
 
         // If a terminator statement has not been set for the then-block then just add it.
-        if (thenBB.terminator == null) {
-            thenBB.terminator = new BIRTerminator.GOTO(nextBB);
+        if (this.env.enclBB.terminator == null) {
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(nextBB);
         }
 
         // Check whether there exists an else-if or an else block.
@@ -228,9 +228,6 @@ public class BIRGen extends BLangNodeVisitor {
             astIfStmt.elseStmt.accept(this);
 
             // If a terminator statement has not been set for the else-block then just add it.
-//            if (elseBB.terminator == null) {
-//                elseBB.terminator = new BIRTerminator.GOTO(nextBB);
-//            }
             if (this.env.enclBB.terminator == null) {
                 this.env.enclBB.terminator = new BIRTerminator.GOTO(nextBB);
             }
