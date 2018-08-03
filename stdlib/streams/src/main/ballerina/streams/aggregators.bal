@@ -89,6 +89,11 @@ public type Sum object {
 
 };
 
+public function sum() returns Aggregator {
+    Sum sumAggregator = new();
+    return sumAggregator;
+}
+
 public type Average object {
 
     public int count = 0;
@@ -139,6 +144,11 @@ public type Average object {
 
 };
 
+public function avg() returns Aggregator {
+    Average avgAggregator = new();
+    return avgAggregator;
+}
+
 public type Count object {
 
     public int count = 0;
@@ -164,6 +174,11 @@ public type Count object {
     }
 
 };
+
+public function count() returns Aggregator {
+    Count countAggregator = new();
+    return countAggregator;
+}
 
 public type DistinctCount object {
 
@@ -199,6 +214,11 @@ public type DistinctCount object {
     }
 };
 
+public function distinctCount() returns Aggregator {
+    DistinctCount distinctCountAggregator = new();
+    return distinctCountAggregator;
+}
+
 
 public type Max object {
 
@@ -226,8 +246,8 @@ public type Max object {
                     }
                     iMaxQueue.addLast(i);
                     match iMax {
-                        int max => {
-                            iMax = (max < i) ? i : max;
+                        int tempMax => {
+                            iMax = (tempMax < i) ? i : tempMax;
                         }
                         () => {
                             iMax = i;
@@ -264,8 +284,8 @@ public type Max object {
                     }
                     fMaxQueue.addLast(f);
                     match fMax {
-                        float max => {
-                            fMax = (max < f) ? f : max;
+                        float tempMax => {
+                            fMax = (tempMax < f) ? f : tempMax;
                         }
                         () => {
                             fMax = f;
@@ -303,6 +323,11 @@ public type Max object {
 
 };
 
+public function max() returns Aggregator {
+    Max maxAggregator = new();
+    return maxAggregator;
+}
+
 
 public type Min object {
 
@@ -330,8 +355,8 @@ public type Min object {
                     }
                     iMinQueue.addLast(i);
                     match iMin {
-                        int min => {
-                            iMin = (min > i) ? i : min;
+                        int tempMin => {
+                            iMin = (tempMin > i) ? i : tempMin;
                         }
                         () => {
                             iMin = i;
@@ -368,8 +393,8 @@ public type Min object {
                     }
                     fMinQueue.addLast(f);
                     match fMin {
-                        float min => {
-                            fMin = (min > f) ? f : min;
+                        float tempMin => {
+                            fMin = (tempMin > f) ? f : tempMin;
                         }
                         () => {
                             fMin = f;
@@ -407,13 +432,18 @@ public type Min object {
 
 };
 
+public function min() returns Aggregator {
+    Min minAggregator = new();
+    return minAggregator;
+}
+
 
 
 public type StdDev object {
 
     public float mean = 0.0;
     public float stdDeviation = 0.0;
-    public float sum = 0.0;
+    public float sumValue = 0.0;
     public int count = 0;
 
     public new() {
@@ -441,21 +471,21 @@ public type StdDev object {
             if (count == 0) {
                 return ();
             } else if (count == 1) {
-                sum = fVal;
+                sumValue = fVal;
                 mean = fVal;
                 stdDeviation = 0.0;
                 return 0.0;
             } else {
                 float oldMean = mean;
-                sum += fVal;
-                mean = sum / count;
+                sumValue += fVal;
+                mean = sumValue / count;
                 stdDeviation += (fVal - oldMean) * (fVal - mean);
                 return math:sqrt(stdDeviation / count);
             }
         } else if (eventType == "EXPIRED") {
             count--;
             if (count == 0) {
-                sum = 0.0;
+                sumValue = 0.0;
                 mean = 0.0;
                 stdDeviation = 0.0;
                 return ();
@@ -463,15 +493,15 @@ public type StdDev object {
                 return 0.0;
             } else {
                 float oldMean = mean;
-                sum -= fVal;
-                mean = sum / count;
+                sumValue -= fVal;
+                mean = sumValue / count;
                 stdDeviation -= (fVal - oldMean) * (fVal - mean);
                 return math:sqrt(stdDeviation / count);
             }
         } else if (eventType == "RESET") {
             mean = 0.0;
             stdDeviation = 0.0;
-            sum = 0.0;
+            sumValue = 0.0;
             count = 0;
             return 0.0;
         } else {
@@ -485,6 +515,11 @@ public type StdDev object {
     }
 
 };
+
+public function stdDev() returns Aggregator {
+    StdDev stdDevAggregator = new();
+    return stdDevAggregator;
+}
 
 public type MaxForever object {
 
@@ -500,8 +535,8 @@ public type MaxForever object {
             int i => {
                 if (eventType == "CURRENT" || eventType == "EXPIRED") {
                     match iMax {
-                        int max => {
-                            iMax = (max < i) ? i : max;
+                        int tempMax => {
+                            iMax = (tempMax < i) ? i : tempMax;
                         }
                         () => {
                             iMax = i;
@@ -513,8 +548,8 @@ public type MaxForever object {
             float f => {
                 if (eventType == "CURRENT" || eventType == "EXPIRED") {
                     match fMax {
-                        float max => {
-                            fMax = (max < f) ? f : max;
+                        float tempMax => {
+                            fMax = (tempMax < f) ? f : tempMax;
                         }
                         () => {
                             fMax = f;
@@ -537,6 +572,11 @@ public type MaxForever object {
 
 };
 
+public function maxForever() returns Aggregator {
+    MaxForever maxForeverAggregator = new();
+    return maxForeverAggregator;
+}
+
 public type MinForever object {
 
     public int? iMin = ();
@@ -551,8 +591,8 @@ public type MinForever object {
             int i => {
                 if (eventType == "CURRENT" || eventType == "EXPIRED") {
                     match iMin {
-                        int min => {
-                            iMin = (min > i) ? i : min;
+                        int tempMin => {
+                            iMin = (tempMin > i) ? i : tempMin;
                         }
                         () => {
                             iMin = i;
@@ -564,8 +604,8 @@ public type MinForever object {
             float f => {
                 if (eventType == "CURRENT" || eventType == "EXPIRED") {
                     match fMin {
-                        float min => {
-                            fMin = (min > f) ? f : min;
+                        float tempMin => {
+                            fMin = (tempMin > f) ? f : tempMin;
                         }
                         () => {
                             fMin = f;
@@ -588,10 +628,7 @@ public type MinForever object {
 
 };
 
-
-public function createSumAggregator() returns Sum {
-    Sum sumAggregator = new();
-    return sumAggregator;
+public function minForever() returns Aggregator {
+    MinForever minForeverAggregator = new();
+    return minForeverAggregator;
 }
-
-

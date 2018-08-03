@@ -137,6 +137,22 @@ public class ArrayMutabilityTest {
         BRunUtil.invoke(compileResult, "testUnionOfArrays2");
     }
 
+    @Test(description = "Test mutation of int array assigned to a json array",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp =
+                    ".*message: incompatible types: expected 'int', found 'string'.*")
+    public void testJsonArrayMutability() {
+        BRunUtil.invoke(compileResult, "testJsonArrayMutability");
+    }
+
+    @Test(description = "Test mutation of boolean array assigned to a json array",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp =
+                    ".*message: incompatible types: expected 'boolean', found 'string'.*")
+    public void testJsonArrayMutability2() {
+        BRunUtil.invoke(compileResult, "testJsonArrayMutability2");
+    }
+
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
         int i = 0;

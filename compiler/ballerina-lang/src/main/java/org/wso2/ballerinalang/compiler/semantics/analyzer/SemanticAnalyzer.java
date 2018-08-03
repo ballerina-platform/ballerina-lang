@@ -195,6 +195,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private DiagnosticCode diagCode;
     private BType resType;
     private boolean isSiddhiRuntimeEnabled;
+    private boolean isGroupByAvailable;
 
     private Map<BLangBlockStmt, SymbolEnv> blockStmtEnvMap = new HashMap<>();
 
@@ -1334,6 +1335,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (variableReferenceNode != null) {
             ((BLangVariableReference) variableReferenceNode).accept(this);
         }
+        if (!isSiddhiRuntimeEnabled && isGroupByAvailable) {
+            for (BLangExpression arg : invocationExpr.argExprs) {
+                typeChecker.checkExpr(arg, env);
+            }
+        }
     }
 
     @Override
@@ -1359,6 +1365,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSelectClause selectClause) {
         GroupByNode groupByNode = selectClause.getGroupBy();
         if (groupByNode != null) {
+            isGroupByAvailable = true;
             ((BLangGroupBy) groupByNode).accept(this);
         }
 
@@ -1373,6 +1380,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 ((BLangSelectExpression) selectExpressionNode).accept(this);
             }
         }
+        isGroupByAvailable = false;
     }
 
     @Override
@@ -1409,7 +1417,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSelectExpression selectExpression) {
         ExpressionNode expressionNode = selectExpression.getExpression();
         if (!isSiddhiRuntimeEnabled) {
-            this.typeChecker.checkExpr((BLangExpression) expressionNode, env);
+            if (isGroupByAvailable && expressionNode.getKind() == NodeKind.INVOCATION) {
+                ((BLangExpression) expressionNode).accept(this);
+            } else {
+                this.typeChecker.checkExpr((BLangExpression) expressionNode, env);
+            }
         } else {
             ((BLangExpression) expressionNode).accept(this);
         }
