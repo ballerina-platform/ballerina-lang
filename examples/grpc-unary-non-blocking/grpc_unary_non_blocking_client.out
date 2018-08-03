@@ -6,7 +6,7 @@ $ ballerina grpc --input HelloWorld.proto --output client
 # Once you run the command, following files will be generated inside client directory.
 # * HelloWorld_pb.bal
 # * HelloWorld_sample_client.bal
-# Replace the content of HelloWorld_sample_client.bal file with the content of grpc_unary_blocking_client.bal file.
+# Replace the content of HelloWorld_sample_client.bal file with the content of grpc_unary_non_blocking_client.bal file.
 
 # Execute the following command to build the 'client' package.
 $ ballerina build client
