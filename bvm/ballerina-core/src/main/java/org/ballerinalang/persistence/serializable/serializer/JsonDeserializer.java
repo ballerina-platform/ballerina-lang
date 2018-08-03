@@ -48,17 +48,22 @@ import java.util.Map;
  * Reconstruct Java object tree from JSON input.
  */
 public class JsonDeserializer {
-    private final SerializationProviderRegistry serializationProviderRegistry;
+    private final TypeInstanceProvider typeInstanceProvider;
     private static final Logger logger = LoggerFactory.getLogger(JsonDeserializer.class);
     private BRefType<?> treeHead;
 
     public JsonDeserializer(BRefType<?> objTree) {
         treeHead = objTree;
-        serializationProviderRegistry = SerializationProviderRegistry.getInstance();
-        registerTypeSerializationProviders(serializationProviderRegistry);
+        typeInstanceProvider = TypeInstanceProvider.getInstance();
+        registerTypeSerializationProviders(typeInstanceProvider);
+        registerTypePath(typeInstanceProvider);
     }
 
-    private void registerTypeSerializationProviders(SerializationProviderRegistry registry) {
+    private void registerTypePath(TypeInstanceProvider registry) {
+        // TODO:
+    }
+
+    private void registerTypeSerializationProviders(TypeInstanceProvider registry) {
         registry.addTypeProvider(new SerializableStateSerializationProvider());
         registry.addTypeProvider(new SerializableWorkerDataSerializationProvider());
         registry.addTypeProvider(new SerializableContextSerializationProvider());
@@ -112,7 +117,7 @@ public class JsonDeserializer {
             Class itemType = Object.class;
             if (bValue instanceof BMap) {
                 String typeName = ((BMap) bValue).get("type").stringValue();
-                TypeSerializationProvider itemTypeProvider = serializationProviderRegistry.findTypeProvider(typeName);
+                TypeSerializationProvider itemTypeProvider = typeInstanceProvider.findTypeProvider(typeName);
                 itemType = itemTypeProvider.getTypeClass();
             }
             array[i] = deserialize(jArray.getBValue(i), itemType);
@@ -122,6 +127,7 @@ public class JsonDeserializer {
 
     /**
      * Create a empty java object instance for target type.
+     *
      * @param jsonNode
      * @return
      */
@@ -144,13 +150,13 @@ public class JsonDeserializer {
         String enumName = jsonNode.get("payload").stringValue();
         String[] frag = enumName.split("\\.");
         String type = frag[0];
-        Class enumClass = serializationProviderRegistry.findTypeProvider(type).getTypeClass();
+        Class enumClass = typeInstanceProvider.findTypeProvider(type).getTypeClass();
         String enumConst = frag[1];
         return Enum.valueOf(enumClass, enumConst);
     }
 
     private Object getObjectOf(Class<?> clazz) {
-        TypeSerializationProvider typeProvider = serializationProviderRegistry.findTypeProvider(clazz.getSimpleName());
+        TypeSerializationProvider typeProvider = typeInstanceProvider.findTypeProvider(clazz.getSimpleName());
         if (typeProvider != null) {
             return clazz.cast(typeProvider.newInstance());
         }
@@ -158,7 +164,7 @@ public class JsonDeserializer {
     }
 
     private Object getObjectOf(String type) {
-        TypeSerializationProvider typeProvider = serializationProviderRegistry.findTypeProvider(type);
+        TypeSerializationProvider typeProvider = typeInstanceProvider.findTypeProvider(type);
         if (typeProvider != null) {
             return typeProvider.newInstance();
         }
@@ -177,36 +183,52 @@ public class JsonDeserializer {
                 return object;
             }
         }
-
+        // if this is not a wrapped object
         if (payload == null) {
             payload = jsonNode;
         }
         if (jsonNode instanceof BMap) {
             BMap<String, BValue> jMap = (BMap<String, BValue>) payload;
-            for (String key : jMap.keys()) {
-                BValue fieldNode = jMap.get(key);
-                setField(object, key, fieldNode);
-            }
+            setFields(object, jMap, object.getClass());
         }
         return object;
     }
 
-    private void setField(Object target, String fieldName, BValue fieldNode) {
-        try {
-            Field field = target.getClass().getDeclaredField(fieldName);
+    private void setFields(Object target, BMap<String, BValue> jMap, Class<?> targetClass) {
+        for (Field field : targetClass.getDeclaredFields()) {
+            BValue value = jMap.get(field.getName());
+            Object obj = deserialize(value, field.getType());
             field.setAccessible(true);
-            Object obj = deserialize(fieldNode, field.getType());
-            field.set(target, cast(obj, field.getType()));
-        } catch (NoSuchFieldException e) {
-            String message = String.format("Field: %s is not found in %s class",
-                    fieldName, target.getClass().getSimpleName());
-            logger.error(message);
-            throw new BallerinaException(String.format("Error while SerializableState reconstruction: %s", message));
-        } catch (IllegalAccessException e) {
-            logger.error(e.getMessage());
-            throw new BallerinaException();
+            try {
+                field.set(target, cast(obj, field.getType()));
+            } catch (IllegalAccessException e) {
+                logger.error(e.getMessage());
+                throw new BallerinaException();
+            }
+
+            // recursively set fields in super types.
+            if (targetClass != Object.class) {
+                setFields(target, jMap, targetClass.getSuperclass());
+            }
         }
     }
+
+//    private void setField(Object target, String fieldName, BValue fieldNode) {
+//        try {
+//            Field field = target.getClass().getDeclaredField(fieldName);
+//            field.setAccessible(true);
+//            Object obj = deserialize(fieldNode, field.getType());
+//            field.set(target, cast(obj, field.getType()));
+//        } catch (NoSuchFieldException e) {
+//            String message = String.format("Field: %s is not found in %s class",
+//                    fieldName, target.getClass().getSimpleName());
+//            logger.error(message);
+//            throw new BallerinaException(String.format("Error while SerializableState reconstruction: %s", message));
+//        } catch (IllegalAccessException e) {
+//            logger.error(e.getMessage());
+//            throw new BallerinaException();
+//        }
+//    }
 
     /**
      * Convert to desired type if special conditions are matched.
@@ -251,7 +273,7 @@ public class JsonDeserializer {
                 BMap<String, BValue> item = (BMap<String, BValue>) value;
                 BValue typeName = item.get("type");
                 TypeSerializationProvider typeProvider =
-                        serializationProviderRegistry.findTypeProvider(typeName.stringValue());
+                        typeInstanceProvider.findTypeProvider(typeName.stringValue());
                 fieldType = typeProvider.getTypeClass();
             } else if (value instanceof BBoolean) {
                 fieldType = BBoolean.class;

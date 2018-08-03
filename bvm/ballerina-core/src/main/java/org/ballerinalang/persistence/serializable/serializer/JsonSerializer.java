@@ -50,6 +50,11 @@ import java.util.Map;
  */
 public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
 
+    public static final String PAYLOAD_TAG = "payload";
+    public static final String ENUM_TAG = "enum";
+    public static final String LIST_TAG = "list";
+    public static final String MAP_TAG = "map";
+
     @Override
     public byte[] serialize(SerializableState sState) {
         BRefType<?> jsonState = toBValue(sState, SerializableState.class);
@@ -83,7 +88,7 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
             target.put(key.getKey(), toBValue(key.getValue(), Object.class));
         }
         // due to type erasure any map<K, V> at runtime is just map<Object, Object>
-        return wrapObject("map", target);
+        return wrapObject(MAP_TAG, target);
     }
 
     private BIntArray toBValue(int[] array) {
@@ -145,13 +150,13 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
         for (Object item : list) {
             array.append(toBValue(item, Object.class));
         }
-        return wrapObject("list", array);
+        return wrapObject(LIST_TAG, array);
     }
 
     private BMap toBValue(Enum obj) {
         String fullEnumName = obj.getClass().getSimpleName() + "." + obj.toString();
         BString name = new BString(fullEnumName);
-        return wrapObject("enum", name);
+        return wrapObject(ENUM_TAG, name);
     }
 
     private BRefType toBValue(Object obj, Class<?> leftSideType) {
@@ -207,9 +212,12 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
     }
 
     private BMap convertToBValueViaReflection(Object obj, Class<?> leftSideType) {
-        Class objClass = obj.getClass();
-        BMap<String, BValue> map = new BMap<>();
+        Class<?> objClass = obj.getClass();
+        return convertToBValueViaReflection(obj, objClass, leftSideType);
+    }
 
+    private BMap convertToBValueViaReflection(Object obj, Class<?> objClass, Class<?> leftSideType) {
+        BMap<String, BValue> map = new BMap<>();
         for (Field field : getAllFields(objClass)) {
             field.setAccessible(true);
             try {
@@ -238,7 +246,7 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
     private BMap wrapObject(String type, BValue payload) {
         BMap<String, BValue> map = new BMap<>();
         map.put("type", new BString(type));
-        map.put("payload", payload);
+        map.put(PAYLOAD_TAG, payload);
         return map;
     }
 

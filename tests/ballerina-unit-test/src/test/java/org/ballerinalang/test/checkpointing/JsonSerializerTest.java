@@ -32,9 +32,12 @@ import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap;
 import org.ballerinalang.persistence.serializable.serializer.JsonSerializer;
+import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProvider;
+import org.ballerinalang.persistence.serializable.serializer.TypeSerializationProvider;
 import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.test.utils.debug.TestDebugger;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -53,6 +56,14 @@ public class JsonSerializerTest {
         compileResult = BCompileUtil.compile("test-src/checkpointing/checkpoint.bal");
         TestDebugger debugger = new TestDebugger(compileResult.getProgFile());
         compileResult.getProgFile().setDebugger(debugger);
+
+        TypeInstanceProvider.getInstance().addTypeNameMapping(
+                StringFieldAB.class.getSimpleName(), StringFieldAB.class.getName());
+    }
+
+    @AfterClass
+    public void teardown() {
+        TypeInstanceProvider.getInstance().clearTypeNameMappings();
     }
 
     @Test(description = "Test serializing simple mocked SerializableState object")
@@ -107,11 +118,15 @@ public class JsonSerializerTest {
         BMap<String, BValue> bmap = (BMap) bmapKey1.getBRefType(compileResult.getProgFile(), state, new Deserializer());
         BString value = (BString) bmap.get("bmapKey1");
         Assert.assertEquals(value.value(), "bmap_str_val");
+        StringFieldAB multiLevel = (StringFieldAB)state.globalProps.get("multiLevel");
+        Assert.assertEquals(multiLevel.B, "B");
+        Assert.assertEquals(multiLevel.A, "A");
     }
 
     private void mock(SerializableState serializableState) {
         serializableState.globalProps.put("gProp1", new BString("gProp1:BString"));
         serializableState.globalProps.put("gProp2", Arrays.asList("Item-1", "Item-2", "Item-3"));
+        serializableState.globalProps.put("multiLevel", new StringFieldAB("A", "B"));
 
         BMap<String, BRefType> bMap = new BMap<>();
         bMap.put("bmapKey1", new BString("bmap_str_val"));
@@ -128,5 +143,22 @@ public class JsonSerializerTest {
         value.append(new BString("List item 2"));
         map.put("C", value);
         return map;
+    }
+
+    public static class StringFieldA {
+        public final String A;
+
+        public StringFieldA(String a) {
+            A = a;
+        }
+    }
+
+    public static class StringFieldAB extends StringFieldA {
+        public final String B;
+
+        public StringFieldAB(String a, String b) {
+            super(a);
+            this.B = b;
+        }
     }
 }
