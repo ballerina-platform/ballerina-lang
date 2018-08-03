@@ -359,17 +359,34 @@ public class JSONUtils {
     /**
      * Get an element from a JSON array.
      * 
-     * @param json JSON array to get the element from
+     * @param jsonArray JSON array to get the element from
      * @param index Index of the element needed
      * @return Element at the given index, if the provided JSON is an array. Null, otherwise. 
      */
-    public static BRefType<?> getArrayElement(BRefType<?> json, long index) {
-        if (!isJSONArray(json)) {
+    public static BRefType<?> getArrayElement(BRefType<?> jsonArray, long index) {
+        if (!isJSONArray(jsonArray)) {
             return null;
         }
 
         try {
-            return (BRefType<?>) ((BRefValueArray) json).getBValue(index);
+            switch (((BArrayType) jsonArray.getType()).getElementType().getTag()) {
+                case TypeTags.BOOLEAN_TAG:
+                    BBooleanArray bBooleanArray = (BBooleanArray) jsonArray;
+                    int i = bBooleanArray.get(index);
+                    return i == 0 ? new BBoolean(false) : new BBoolean(true);
+                case TypeTags.FLOAT_TAG:
+                    BFloatArray bFloatArray = (BFloatArray) jsonArray;
+                    return new BFloat(bFloatArray.get(index));
+                case TypeTags.INT_TAG:
+                    BIntArray bIntArray = (BIntArray) jsonArray;
+                    return new BInteger(bIntArray.get(index));
+                case TypeTags.STRING_TAG:
+                    BStringArray bStringArray = (BStringArray) jsonArray;
+                    return new BString(bStringArray.get(index));
+                default:
+                    BRefValueArray bRefValueArray = (BRefValueArray) jsonArray;
+                    return bRefValueArray.get(index);
+            }
         } catch (Throwable t) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, t.getMessage());
         }
@@ -383,13 +400,41 @@ public class JSONUtils {
      * @param index Index of the element to be set
      * @param element Element to be set
      */
-    public static void setArrayElement(BValue json, long index, BRefType<?> element) {
+    public static void setArrayElement(BValue json, long index, BRefType element) {
         if (!isJSONArray(json)) {
             return;
         }
 
+        BArrayType jsonArray = (BArrayType) json.getType();
+        BType elementType = jsonArray.getElementType();
+        if (!CPU.checkCast(element, elementType)) {
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
+                    elementType, (element != null) ? element.getType() : BTypes.typeNull);
+        }
+
         try {
-            ((BRefValueArray) json).add(index, element);
+            switch (jsonArray.getElementType().getTag()) {
+                case TypeTags.BOOLEAN_TAG:
+                    BBooleanArray bBooleanArray = (BBooleanArray) json;
+                    bBooleanArray.add(index, ((BBoolean) element).value() ? 1 : 0);
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    BFloatArray bFloatArray = (BFloatArray) json;
+                    bFloatArray.add(index, (double) element.value());
+                    break;
+                case TypeTags.INT_TAG:
+                    BIntArray bIntArray = (BIntArray) json;
+                    bIntArray.add(index, (long) element.value());
+                    break;
+                case TypeTags.STRING_TAG:
+                    BStringArray bStringArray = (BStringArray) json;
+                    bStringArray.add(index, (String) element.value());
+                    break;
+                default:
+                    BRefValueArray bRefValueArray = (BRefValueArray) json;
+                    bRefValueArray.add(index, element);
+                    break;
+            }
         } catch (Throwable t) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_SET_ERROR, t.getMessage());
         }

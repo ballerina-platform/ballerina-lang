@@ -2549,6 +2549,10 @@ public class CPU {
     private static void execListAddOperation(BNewArray array, long index, BRefType refType) {
         if (array.getType().getTag() == TypeTags.ARRAY_TAG) {
             switch (((BArrayType) array.getType()).getElementType().getTag()) {
+                case TypeTags.BOOLEAN_TAG:
+                    BBooleanArray bBooleanArray = (BBooleanArray) array;
+                    bBooleanArray.add(index, ((BBoolean) refType).value() ? 1 : 0);
+                    return;
                 case TypeTags.BYTE_TAG:
                     BByteArray bByteArray = (BByteArray) array;
                     bByteArray.add(index, (byte) refType.value());

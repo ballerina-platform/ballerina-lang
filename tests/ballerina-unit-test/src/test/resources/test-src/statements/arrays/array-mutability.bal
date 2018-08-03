@@ -160,3 +160,17 @@ function testUnionOfArrays2() {
 
     x1[0] = 3; // Runtime Exception
 }
+
+function testJsonArrayMutability() {
+    int[] x1 = [1, 2];
+    json[] x2 = x1;
+    x2[2] = 3;
+    x2[3] = "json"; // Runtime Exception
+}
+
+function testJsonArrayMutability2() {
+    boolean[] x1 = [true, true];
+    json[] x2 = x1;
+    x2[2] = true;
+    x2[3] = "json"; // Runtime Exception
+}
