@@ -183,7 +183,7 @@ public class JsonDeserializer {
         }
         if (jsonNode instanceof BMap) {
             BMap<String, BValue> jMap = (BMap<String, BValue>) payload;
-            for (String key : jMap.keySet()) {
+            for (String key : jMap.keys()) {
                 BValue fieldNode = jMap.get(key);
                 setField(object, key, fieldNode);
             }
@@ -243,7 +243,7 @@ public class JsonDeserializer {
     }
 
     private Object deserializeMap(BMap<String, BValue> payload, Map map, Class<?> targetType) {
-        for (String key : payload.keySet()) {
+        for (String key : payload.keys()) {
             BValue value = payload.get(key);
 
             Class<?> fieldType;

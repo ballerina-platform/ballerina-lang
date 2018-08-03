@@ -81,12 +81,12 @@ public class JsonSerializerTest {
     public void testJsonDeserializeSerializableState() {
         WorkerExecutionContext weContext = new WorkerExecutionContext(compileResult.getProgFile());
         SerializableState serializableState = new SerializableState(weContext);
-        serializableState.setInstanceId(INSTANCE_ID);
+        serializableState.setId(INSTANCE_ID);
         mock(serializableState);
         String json = serializableState.serialize();
 
         SerializableState state = serializableState.deserialize(json);
-        Assert.assertEquals(state.instanceId, INSTANCE_ID);
+        Assert.assertEquals(state.getId(), INSTANCE_ID);
 
         List list = (List) state.globalProps.get("gProp2");
         Assert.assertEquals("Item-1", list.get(0));
@@ -98,7 +98,7 @@ public class JsonSerializerTest {
     public void testJsonDeserializeSerializableStateDeepBMapReconstruction() {
         WorkerExecutionContext weContext = new WorkerExecutionContext(compileResult.getProgFile());
         SerializableState serializableState = new SerializableState(weContext);
-        serializableState.setInstanceId(INSTANCE_ID);
+        serializableState.setId(INSTANCE_ID);
         mock(serializableState);
         String json = serializableState.serialize();
 
