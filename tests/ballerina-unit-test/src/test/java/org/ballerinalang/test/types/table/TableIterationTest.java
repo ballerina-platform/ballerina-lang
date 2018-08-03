@@ -53,8 +53,7 @@ public class TableIterationTest {
     public void testNegative() {
         BAssertUtil.validateError(resultNegative, 0, "incompatible types: expected 'int', found 'float'", 24, 30);
         BAssertUtil.validateError(resultNegative, 1,
-                "incompatible types: expected 'float', found 'int'", 29,
-                42);
+                "incompatible types: expected 'float', found 'int'", 29, 42);
         BAssertUtil.validateError(resultNegative, 2,
                 "incompatible lambda function types: expected 'Employee', found " + "'EmployeeIncompatible'", 55,
                 41);

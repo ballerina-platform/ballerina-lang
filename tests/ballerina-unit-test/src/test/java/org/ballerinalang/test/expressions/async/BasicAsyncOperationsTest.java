@@ -37,7 +37,7 @@ public class BasicAsyncOperationsTest {
     @BeforeClass
     public void setup() {
         this.result = BCompileUtil.compile("test-src/expressions/async/basic-async-operations.bal");
-//        Assert.assertEquals(this.result.getErrorCount(), 0);
+        Assert.assertEquals(this.result.getErrorCount(), 0);
     }
     
     @Test

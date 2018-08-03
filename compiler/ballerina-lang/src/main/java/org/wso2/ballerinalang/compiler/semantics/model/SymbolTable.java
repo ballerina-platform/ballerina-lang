@@ -355,7 +355,6 @@ public class SymbolTable {
         // Define both implicit and explicit conversion operators
         defineImplicitConversionOperator(intType, jsonType, true, InstructionCodes.I2ANY);
         defineImplicitConversionOperator(intType, anyType, true, InstructionCodes.I2ANY);
-//        defineImplicitConversionOperator(intType, floatType, true, InstructionCodes.I2F);
         defineImplicitConversionOperator(byteType, anyType, true, InstructionCodes.BI2ANY);
         defineImplicitConversionOperator(floatType, jsonType, true, InstructionCodes.F2ANY);
         defineImplicitConversionOperator(floatType, anyType, true, InstructionCodes.F2ANY);
