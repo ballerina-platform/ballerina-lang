@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
@@ -126,6 +127,11 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBB = entryBB;
 
         astFunc.body.accept(this);
+        birFunc.basicBlocks.add(this.env.returnBB);
+        this.env.clear();
+
+        // Rearrange basic block ids.
+        birFunc.basicBlocks.forEach(bb -> bb.id = this.env.nextBBId(names));
         this.env.clear();
     }
 
@@ -179,11 +185,63 @@ public class BIRGen extends BLangNodeVisitor {
             // If not create one
             BIRBasicBlock returnBB = new BIRBasicBlock(this.env.nextBBId(names));
             returnBB.terminator = new BIRTerminator.Return();
-            this.env.enclFunc.basicBlocks.add(returnBB);
             this.env.returnBB = returnBB;
         }
 
         this.env.enclBB.terminator = new BIRTerminator.GOTO(this.env.returnBB);
+    }
+
+    public void visit(BLangIf astIfStmt) {
+        astIfStmt.expr.accept(this);
+        BIROperand ifExprResult = this.env.targetOperand;
+
+        // Create the basic block for the if-then block.
+        BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
+        this.env.enclFunc.basicBlocks.add(thenBB);
+
+        // This basic block will contain statement that comes right after this 'if' statement.
+        BIRBasicBlock nextBB = new BIRBasicBlock(this.env.nextBBId(names));
+
+        // Add the branch instruction to the current basic block.
+        // This is the end of the current basic block.
+        BIRTerminator.Branch branchIns = new BIRTerminator.Branch(ifExprResult, thenBB, null);
+        this.env.enclBB.terminator = branchIns;
+
+        // Visit the then-block
+        this.env.enclBB = thenBB;
+        astIfStmt.body.accept(this);
+
+        // If a terminator statement has not been set for the then-block then just add it.
+        if (thenBB.terminator == null) {
+            thenBB.terminator = new BIRTerminator.GOTO(nextBB);
+        }
+
+        // Check whether there exists an else-if or an else block.
+        if (astIfStmt.elseStmt != null) {
+            // Create a basic block for the else block.
+            BIRBasicBlock elseBB = new BIRBasicBlock(this.env.nextBBId(names));
+            this.env.enclFunc.basicBlocks.add(elseBB);
+            branchIns.falseBB = elseBB;
+
+            // Visit the else block. This could be an else-if block or an else block.
+            this.env.enclBB = elseBB;
+            astIfStmt.elseStmt.accept(this);
+
+            // If a terminator statement has not been set for the else-block then just add it.
+//            if (elseBB.terminator == null) {
+//                elseBB.terminator = new BIRTerminator.GOTO(nextBB);
+//            }
+            if (this.env.enclBB.terminator == null) {
+                this.env.enclBB.terminator = new BIRTerminator.GOTO(nextBB);
+            }
+
+        } else {
+            branchIns.falseBB = nextBB;
+        }
+
+        // Set the elseBB as the basic block for the rest of statements followed by this if.
+        this.env.enclFunc.basicBlocks.add(nextBB);
+        this.env.enclBB = nextBB;
     }
 
 

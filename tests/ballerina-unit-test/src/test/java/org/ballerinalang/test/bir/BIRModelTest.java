@@ -35,6 +35,8 @@ public class BIRModelTest {
     @Test(description = "Test AST to BIR lowering")
     public void testBIRGen() {
         CompileResult result = BCompileUtil.compileAndGetBIR("test-src/bir/bir_model.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
+
         BIRNode.BIRPackage birPackage = ((BLangPackage) result.getAST()).symbol.bir;
         BIREmitter birEmitter = new BIREmitter();
         String birText = birEmitter.emit(birPackage);

@@ -68,6 +68,10 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRTerminator.Branch birBranch) {
+        throw new AssertionError();
+    }
+
     // Non-terminating instructions
     public void visit(Move birMove) {
         throw new AssertionError();

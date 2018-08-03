@@ -114,6 +114,13 @@ public class BIREmitter extends BIRVisitor {
         sb.append("\t\tgoto ").append(birGoto.targetBB.id).append(";\n");
     }
 
+    public void visit(BIRTerminator.Branch birBranch) {
+        sb.append("\t\tbranch ");
+        birBranch.op.accept(this);
+        sb.append(" [true:").append(birBranch.trueBB.id).append(", false:");
+        sb.append(birBranch.falseBB.id).append("]\n");
+    }
+
 
     // Operands
     public void visit(BIROperand.BIRVarRef birVarRef) {
