@@ -24,29 +24,52 @@ import java.util.HashMap;
 /**
  * Keep track of {@link TypeSerializationProvider} implementations.
  */
-public class SerializationProviderRegistry {
-    private static final SerializationProviderRegistry INSTANCE = new SerializationProviderRegistry();
+public class TypeInstanceProvider {
+    private static final TypeInstanceProvider INSTANCE = new TypeInstanceProvider();
     private final HashMap<String, TypeSerializationProvider> providerMap = new HashMap<>();
+    final HashMap<String, String> typeNameMap = new HashMap<>();
 
-    private SerializationProviderRegistry() {
+    private TypeInstanceProvider() {
         if (INSTANCE != null) {
             throw new IllegalStateException("Singleton instance exists");
         }
     }
 
-    public static SerializationProviderRegistry getInstance() {
+    public static TypeInstanceProvider getInstance() {
         return INSTANCE;
     }
 
     public TypeSerializationProvider findTypeProvider(String type) {
         TypeSerializationProvider provider = providerMap.get(type);
         if (provider == null) {
+            provider = generateProvider(type);
+            if (provider != null) {
+                addTypeProvider(provider);
+            }
+        }
+        if (provider == null) {
             throw new BallerinaException(String.format("No TypeSerializationProvider found for: %s", type));
         }
         return provider;
     }
 
+    private TypeSerializationProvider generateProvider(String type) {
+        String fullClassName = typeNameMap.get(type);
+        if (fullClassName == null) {
+            return null;
+        }
+        return new TypeSerializationProviderFactory().getProvider(fullClassName);
+    }
+
     public void addTypeProvider(TypeSerializationProvider provider) {
         providerMap.put(provider.getTypeName(), provider);
+    }
+
+    public void addTypeNameMapping(String typeName, String fullQClassName) {
+        this.typeNameMap.put(typeName, fullQClassName);
+    }
+
+    public void clearTypeNameMappings() {
+        typeNameMap.clear();
     }
 }
