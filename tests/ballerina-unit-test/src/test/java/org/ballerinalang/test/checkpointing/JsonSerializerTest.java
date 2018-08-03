@@ -41,6 +41,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -127,6 +128,7 @@ public class JsonSerializerTest {
         serializableState.globalProps.put("gProp1", new BString("gProp1:BString"));
         serializableState.globalProps.put("gProp2", Arrays.asList("Item-1", "Item-2", "Item-3"));
         serializableState.globalProps.put("multiLevel", new StringFieldAB("A", "B"));
+        serializableState.globalProps.put("dec", new BigDecimal("123456789999"));
 
         BMap<String, BRefType> bMap = new BMap<>();
         bMap.put("bmapKey1", new BString("bmap_str_val"));

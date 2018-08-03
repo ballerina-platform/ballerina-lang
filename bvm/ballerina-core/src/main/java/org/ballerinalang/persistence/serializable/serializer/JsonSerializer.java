@@ -42,6 +42,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,6 +51,9 @@ import java.util.Map;
  */
 public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
 
+    public static final String EXISTING_TAG = "#existing#";
+    public static final String HASH_TAG = "#hash#";
+    private final IdentityHashMap<Object, Object> identityMap = new IdentityHashMap<>();
     public static final String PAYLOAD_TAG = "payload";
     public static final String ENUM_TAG = "enum";
     public static final String LIST_TAG = "list";
@@ -202,18 +206,35 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
         if (obj instanceof Enum) {
             return toBValue((Enum) obj);
         }
+        return convertReferenceSemanticObjec(obj, leftSideType);
+    }
+
+    private BMap convertReferenceSemanticObjec(Object obj, Class<?> leftSideType) {
+        if (identityMap.containsKey(obj)) {
+            return getHashReference(obj);
+        }
+        identityMap.put(obj, obj);
         if (obj instanceof Map) {
             return toBValue((Map) obj);
         }
         if (obj instanceof List) {
             return toBValue((List) obj);
         }
-        return convertToBValueViaReflection(obj, leftSideType);
+        Class<?> objClass = obj.getClass();
+        BMap map = convertToBValueViaReflection(obj, objClass, leftSideType);
+        addHashValue(obj, map);
+        return map;
     }
 
-    private BMap convertToBValueViaReflection(Object obj, Class<?> leftSideType) {
-        Class<?> objClass = obj.getClass();
-        return convertToBValueViaReflection(obj, objClass, leftSideType);
+    private void addHashValue(Object obj, BMap map) {
+        map.put(HASH_TAG, new BInteger(obj.hashCode()));
+    }
+
+    private BMap<String, BValue> getHashReference(Object obj) {
+        BMap<String, BValue> map = new BMap<>();
+        int hashCode = obj.hashCode();
+        map.put(EXISTING_TAG, new BInteger(hashCode));
+        return map;
     }
 
     private BMap convertToBValueViaReflection(Object obj, Class<?> objClass, Class<?> leftSideType) {
