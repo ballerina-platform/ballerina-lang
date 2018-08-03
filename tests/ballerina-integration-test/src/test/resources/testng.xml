@@ -107,11 +107,11 @@
         </classes>
     </test>
 
-    <!--<test name="ballerina-jms-tests" parallel="false">-->
-    <!--<packages>-->
-    <!--<package name="org.ballerinalang.test.jms"/>-->
-    <!--</packages>-->
-    <!--</test>-->
+    <test name="ballerina-jms-tests" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.test.jms"/>
+        </packages>
+    </test>
 
     <!--<test name="ballerina-websub-tests" parallel="false">-->
     <!--<packages>-->

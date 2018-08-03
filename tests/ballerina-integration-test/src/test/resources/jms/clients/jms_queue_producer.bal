@@ -14,7 +14,7 @@ jms:Session jmsSession = new (jmsConnection, {
 
 endpoint jms:QueueSender queueSender {
     session: jmsSession,
-    queueName: "MyQueue"
+    queueName: "MyQueue4"
 };
 
 function main (string... args) {

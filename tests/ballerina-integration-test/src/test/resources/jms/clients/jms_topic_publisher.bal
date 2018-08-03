@@ -14,7 +14,7 @@ jms:Session jmsSession = new (jmsConnection, {
 
 endpoint jms:TopicPublisher publisher {
     session: jmsSession,
-    topicPattern: "testDurableTopicSubscriberPublisher"
+    topicPattern: "testDurableTopicSubscriberPublisher6"
 };
 
 function main (string... args) {

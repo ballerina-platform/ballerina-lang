@@ -1,18 +1,18 @@
-import ballerina/jms;
+import ballerina/mb;
 import ballerina/io;
 import ballerina/http;
 
-endpoint jms:SimpleQueueReceiver queueConsumer {
-    initialContextFactory: "bmbInitialContextFactory",
-    providerUrl: "amqp://admin:admin@carbon/carbon?brokerlist='tcp://localhost:5772'",
+endpoint mb:SimpleQueueReceiver queueConsumer7 {
+    host: "localhost",
+    port: 5772,
     queueName: "testMbSimpleQueueReceiverProducer"
 };
 
 // Bind the created consumer to the listener service.
-service<jms:Consumer> jmsListener bind queueConsumer {
+service<mb:Consumer> jmsListener7 bind queueConsumer7 {
 
     // OnMessage resource get invoked when a message is received.
-    onMessage(endpoint consumer, jms:Message message) {
+    onMessage(endpoint consumer, mb:Message message) {
         string messageText = check message.getTextMessageContent();
         io:println("Message : " + messageText);
     }
@@ -20,14 +20,14 @@ service<jms:Consumer> jmsListener bind queueConsumer {
 
 // This is to make sure that the test case can detect the PID using port. Removing following will result in
 // intergration testframe work failing to kill the ballerina service.
-endpoint http:Listener helloWorldEp {
-    port:9090
+endpoint http:Listener helloWorldEp7 {
+    port:9097
 };
 
 @http:ServiceConfig {
     basePath:"/jmsDummyService"
 }
-service<http:Service> helloWorld bind helloWorldEp {
+service<http:Service> helloWorld7 bind helloWorldEp7 {
 
     @http:ResourceConfig {
         methods:["GET"],

@@ -29,36 +29,27 @@ import java.util.concurrent.TimeUnit;
 /**
  * Client handler class to handle JMS client related operations.
  */
-public class BallerinaClientHandler {
-    private final String filename;
-    private final String expectedLog;
-    private LogLeecher clientLeecher;
+public class JMSClientHandler {
     private ServerInstance ballerinaClient;
 
-    public BallerinaClientHandler(String filename, String expectedLog) {
-        this.filename = filename;
-        this.expectedLog = expectedLog;
-    }
-
-    public void start() throws BallerinaTestException {
-        String[] clientArgs = {
-                new File("src" + File.separator + "test" + File.separator + "resources" + File.separator + "jms"
-                                 + File.separator + filename).getAbsolutePath()
-        };
-
+    public JMSClientHandler() throws BallerinaTestException {
         String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
         ballerinaClient = new ServerInstance(serverZipPath);
-
-        clientLeecher = new LogLeecher(expectedLog);
-        ballerinaClient.addLogLeecher(clientLeecher);
-        ballerinaClient.runMain(clientArgs);
     }
 
-    public void waitForText(TimeUnit timeUnit, int length) throws BallerinaTestException {
-        clientLeecher.waitForText(timeUnit.toMillis(length));
+    public LogLeecher start(String filename, String expectedLog) throws BallerinaTestException {
+        String[] clientArgs = {
+                new File("src" + File.separator + "test" + File.separator + "resources" + File.separator + "jms" +
+                        File.separator + "clients" + File.separator + filename).getAbsolutePath()
+        };
+        LogLeecher clientLeecher = new LogLeecher(expectedLog);
+        ballerinaClient.addLogLeecher(clientLeecher);
+        ballerinaClient.runMain(clientArgs);
+        return clientLeecher;
     }
 
     public void stop() throws BallerinaTestException {
+        ballerinaClient.removeAllLeechers();
         ballerinaClient.stopServer();
     }
 }

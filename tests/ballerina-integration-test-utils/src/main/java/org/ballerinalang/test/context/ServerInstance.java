@@ -207,6 +207,16 @@ public class ServerInstance implements Server {
             httpServerPort = Constant.DEFAULT_HTTP_PORT;
             log.info("Server Stopped Successfully");
         }
+
+        if (serverInfoLogReader != null) {
+            serverInfoLogReader.stop();
+            serverInfoLogReader = null;
+        }
+
+        if (serverErrorLogReader != null) {
+            serverErrorLogReader.stop();
+            serverErrorLogReader = null;
+        }
     }
 
     public void cleanup() {
@@ -271,7 +281,7 @@ public class ServerInstance implements Server {
             serverErrorLogReader.start();
 
             process.waitFor();
-            deleteWorkDir();
+//            deleteWorkDir();
         } catch (IOException e) {
             throw new BallerinaTestException("Error executing ballerina", e);
         } catch (InterruptedException e) {
@@ -346,6 +356,7 @@ public class ServerInstance implements Server {
 
     public void removeAllLeechers() {
         serverInfoLogReader.removeAllLeechers();
+        tmpLeechers.forEach(logLeecher -> tmpLeechers.remove(logLeecher));
     }
 
     /**
