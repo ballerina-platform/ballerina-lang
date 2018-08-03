@@ -38,15 +38,12 @@ import java.util.Map;
  */
 public class HTTPResponseXMLSecurityTestCase  extends IntegrationTestCase {
 
-    private ServerInstance ballerinaServer;
-
     @BeforeClass
     public void setup() throws Exception {
         String balFilePath = new File("src" + File.separator + "test" + File.separator + "resources"
                 + File.separator + "xmlSecurity" + File.separator +
                 "xml-parsing-service.bal").getAbsolutePath();
-        ballerinaServer = ServerInstance.initBallerinaServer();
-        ballerinaServer.startBallerinaServer(balFilePath);
+        serverInstance.startBallerinaServer(balFilePath);
     }
 
     @Test(description = "Test the service for XML External Entity Injection attack")
@@ -98,6 +95,6 @@ public class HTTPResponseXMLSecurityTestCase  extends IntegrationTestCase {
 
     @AfterClass
     private void cleanup() throws Exception {
-        ballerinaServer.stopServer();
+        serverInstance.stopServer();
     }
 }

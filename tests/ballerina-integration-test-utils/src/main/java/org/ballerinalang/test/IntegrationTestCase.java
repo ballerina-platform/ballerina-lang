@@ -22,6 +22,7 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.listener.TestExecutionListener;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 
@@ -37,14 +38,9 @@ public abstract class IntegrationTestCase {
         serverInstance = ServerInstance.initBallerinaServer();
     }
 
-    @BeforeClass(alwaysRun = true)
-    public void init() {
-
-    }
-
-    @AfterClass(alwaysRun = true)
+    @AfterSuite
     public void destroy() {
-
+        serverInstance.cleanup();
     }
 
     public String getServiceURLHttp(String servicePath) {

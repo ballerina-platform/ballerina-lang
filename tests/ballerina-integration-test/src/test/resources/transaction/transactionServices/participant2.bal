@@ -20,7 +20,7 @@ import ballerina/sql;
 import ballerina/jdbc;
 import ballerina/system;
 
-endpoint http:Listener participant2EP {
+endpoint http:Listener participant2EP02 {
     port:8890
 };
 
@@ -36,17 +36,17 @@ endpoint jdbc:Client testDB {
     poolOptions: {maximumPoolSize:10}
 };
 
-State state = new;
+State2 state2 = new;
 
 @http:ServiceConfig {
     basePath:"/"
 }
-service<http:Service> participant2 bind participant2EP {
+service<http:Service> participant2 bind participant2EP02 {
 
     getState(endpoint ep, http:Request req) {
         http:Response res = new;
-        res.setTextPayload(state.toString());
-        state.reset();
+        res.setTextPayload(state2.toString());
+        state2.reset();
         _ = ep -> respond(res);
     }
 
@@ -123,8 +123,8 @@ type Registration record {
 function saveToDatabase(http:Listener conn, http:Request req, boolean shouldAbort) {
     endpoint http:Listener ep = conn;
     http:Response res = new;  res.statusCode = 200;
-    transaction with oncommit=onCommit, onabort=onAbort {
-        transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort {
+    transaction with oncommit=onCommit2, onabort=onAbort2 {
+        transaction with oncommit=onLocalParticipantCommit2, onabort=onLocalParticipantAbort2 {
         }
         string uuid = system:uuid();
 
@@ -149,23 +149,23 @@ function saveToDatabase(http:Listener conn, http:Request req, boolean shouldAbor
     }
 }
 
-function onAbort(string transactionid) {
-    state.abortedFunctionCalled = true;
+function onAbort2(string transactionid) {
+    state2.abortedFunctionCalled = true;
 }
 
-function onCommit(string transactionid) {
-    state.committedFunctionCalled = true;
+function onCommit2(string transactionid) {
+    state2.committedFunctionCalled = true;
 }
 
-function onLocalParticipantAbort(string transactionid) {
-    state.localParticipantAbortedFunctionCalled = true;
+function onLocalParticipantAbort2(string transactionid) {
+    state2.localParticipantAbortedFunctionCalled = true;
 }
 
-function onLocalParticipantCommit(string transactionid) {
-    state.localParticipantCommittedFunctionCalled = true;
+function onLocalParticipantCommit2(string transactionid) {
+    state2.localParticipantCommittedFunctionCalled = true;
 }
 
-type State object {
+type State2 object {
 
     boolean abortedFunctionCalled;
     boolean committedFunctionCalled;

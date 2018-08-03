@@ -5,7 +5,7 @@ import ballerina/runtime;
 @final string attributeName = "attribute";
 @final string attributeValue = "value";
 
-public type Filter1 object {
+public type Filter15 object {
     public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context)
                         returns boolean {
         log:printInfo("Add attribute to invocation context from filter");
@@ -18,17 +18,17 @@ public type Filter1 object {
     }
 };
 
-Filter1 filter1;
+Filter15 filter15;
 
-endpoint http:Listener echoEP {
-    port:9090,
-    filters:[filter1]
+endpoint http:Listener echoEP08 {
+    port:9098,
+    filters:[filter15]
 };
 
 @http:ServiceConfig {
     basePath:"/echo"
 }
-service<http:Service> echo bind echoEP {
+service<http:Service> echo08 bind echoEP08 {
     @http:ResourceConfig {
         methods:["GET"],
         path:"/test"

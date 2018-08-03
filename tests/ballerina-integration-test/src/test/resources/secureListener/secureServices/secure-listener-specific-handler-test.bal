@@ -1,10 +1,10 @@
 import ballerina/http;
 import ballerina/auth;
 
-http:AuthProvider basicAuthProvider = {id: "basic1", scheme:"basic", authStoreProvider:"config"};
-endpoint http:SecureListener listener {
-    port:9090,
-    authProviders:[basicAuthProvider]
+http:AuthProvider basicAuthProvider02 = {id: "basic1", scheme:"basic", authStoreProvider:"config"};
+endpoint http:SecureListener listener02 {
+    port:9093,
+    authProviders:[basicAuthProvider02]
 };
 
 @http:ServiceConfig {
@@ -15,7 +15,7 @@ endpoint http:SecureListener listener {
         scopes:["scope2"]
     }
 }
-service<http:Service> echo bind listener {
+service<http:Service> echo02 bind listener02 {
     @http:ResourceConfig {
         methods:["GET"],
         path:"/test"

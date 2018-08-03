@@ -19,7 +19,7 @@ import ballerina/log;
 
 // Filter1
 
-public type Filter1 object {
+public type Filter06 object {
     public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context) returns
                                                                                                                 boolean
     {
@@ -32,35 +32,13 @@ public type Filter1 object {
     }
 };
 
-Filter1 filter1;
+Filter06 filter06;
 
 // Filter2
 
-public type Filter2 object {
-    public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context) returns
-                                                                                                                boolean
-    {
-        endpoint http:Listener caller = listener;
-        log:printInfo("Intercepting request for filter 2");
-        http:Response response;
-        response.statusCode = 405;
-        response.setTextPayload("Not Allowed");
-        _ = caller->respond(response);
-        return false;
-    }
-
-    public function filterResponse(http:Response response, http:FilterContext context) returns boolean {
-        return true;
-    }
-};
-
-Filter2 filter2;
-
-// Filter3
-
-public type Filter3 object {
+public type Filter07 object {
     public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context) returns boolean {
-        log:printInfo("Intercepting request for filter 3");
+        log:printInfo("Intercepting request for filter 2");
         return true;
     }
 
@@ -69,17 +47,17 @@ public type Filter3 object {
     }
 };
 
-Filter3 filter3;
+Filter07 filter07;
 
-endpoint http:Listener echoEP {
-    port: 9090,
-    filters: [filter1, filter2, filter3]
+endpoint http:Listener echoEP02 {
+    port: 9092,
+    filters: [filter06, filter07]
 };
 
 @http:ServiceConfig {
     basePath: "/echo"
 }
-service<http:Service> echo bind echoEP {
+service<http:Service> echo02 bind echoEP02 {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/test"

@@ -83,7 +83,7 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
 
         String subscriberBal = new File("src" + File.separator + "test" + File.separator + "resources"
                         + File.separator + "websub" + File.separator + "websub_test_subscriber.bal").getAbsolutePath();
-//        ballerinaWebSubSubscriber = ServerInstance.initBallerinaServer(8181);
+        ballerinaWebSubSubscriber = ServerInstance.initBallerinaServer(8181);
         ballerinaWebSubSubscriber.addLogLeecher(intentVerificationLogLeecher);
         ballerinaWebSubSubscriber.addLogLeecher(internalHubNotificationLogLeecher);
         ballerinaWebSubSubscriber.addLogLeecher(remoteHubNotificationLogLeecher);

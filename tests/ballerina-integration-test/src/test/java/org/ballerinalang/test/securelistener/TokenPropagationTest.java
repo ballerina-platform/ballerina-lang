@@ -26,6 +26,7 @@ import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -35,35 +36,16 @@ import java.util.Map;
 /**
  * Test cases for verifying token propagation scenario.
  */
+@Test(groups = "secure-listener-test")
 public class TokenPropagationTest extends IntegrationTestCase {
-
-    private ServerInstance ballerinaServer;
-
-    @BeforeClass
-    public void setup() throws Exception {
-        String basePath = new File(
-                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "secureListener")
-                .getAbsolutePath();
-        String balFilePath = basePath + File.separator + "secure-listener-token-propagation-test.bal";
-        String ballerinaConfPath = basePath + File.separator + "ballerina.conf";
-        startServer(balFilePath, ballerinaConfPath);
-    }
-
-    private void startServer(String balFile, String configPath) throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer();
-        ballerinaServer.startBallerinaServerWithConfigPath(balFile, configPath);
-    }
 
     @Test(description = "With JWT Token propagation, authn success test")
     public void testTokenPropagationSuccess() throws Exception {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Basic aXN1cnU6eHh4");
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("passthrough"), headers);
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9094, "passthrough"),
+                headers);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-    }
-
-    @AfterClass public void tearDown() throws Exception {
-        ballerinaServer.stopServer();
     }
 }

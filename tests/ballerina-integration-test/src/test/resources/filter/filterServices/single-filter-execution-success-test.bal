@@ -17,7 +17,8 @@
 import ballerina/http;
 import ballerina/log;
 
-public type Filter1 object {
+// Filter 1
+public type Filter12 object {
     public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context)
                         returns boolean {
         log:printInfo("Intercepting request for filter 1");
@@ -25,21 +26,21 @@ public type Filter1 object {
     }
 
     public function filterResponse(http:Response response, http:FilterContext context) returns boolean {
-        return false;
+        return true;
     }
 };
 
-Filter1 filter1;
+Filter12 filter12;
 
-endpoint http:Listener echoEP {
-    port: 9090,
-    filters: [filter1]
+endpoint http:Listener echoEP05 {
+    port: 9095,
+    filters: [filter12]
 };
 
 @http:ServiceConfig {
     basePath: "/echo"
 }
-service<http:Service> echo bind echoEP {
+service<http:Service> echo05 bind echoEP05 {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/test"

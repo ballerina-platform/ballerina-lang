@@ -104,7 +104,7 @@ public class ServerInstance implements Server {
 
     public void startBallerinaServer(String balFile, String[] args) throws BallerinaTestException {
         String[] newArgs = {balFile};
-        newArgs = ArrayUtils.addAll(args, newArgs);
+        newArgs = ArrayUtils.addAll(newArgs, args);
         setArguments(newArgs);
 
         startServer();
@@ -204,10 +204,13 @@ public class ServerInstance implements Server {
             process = null;
             //wait until port to close
             Utils.waitForPortToClosed(httpServerPort, 30000);
+            httpServerPort = Constant.DEFAULT_HTTP_PORT;
             log.info("Server Stopped Successfully");
-
-//            deleteWorkDir();
         }
+    }
+
+    public void cleanup() {
+        deleteWorkDir();
     }
 
     /**

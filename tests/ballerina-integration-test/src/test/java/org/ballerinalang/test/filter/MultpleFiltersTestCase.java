@@ -19,11 +19,14 @@ package org.ballerinalang.test.filter;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
+import org.testng.annotations.AfterGroups;
+import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -33,103 +36,67 @@ import java.util.Map;
 /**
  * Test cases for verifying multiple http filters for a service.
  */
+@Test(groups = "filter-test")
 public class MultpleFiltersTestCase extends IntegrationTestCase {
-
-    private ServerInstance ballerinaServer;
 
     @Test(description = "Single filter execution success case")
     public void testMultipleFiltersSuccess() throws Exception {
-        try {
-            String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
-                    + File.separator + "filter" + File.separator +
-                    "multiple-filters-execution-sucess-test.bal").getAbsolutePath();
-            startServer(relativePath);
-            Map<String, String> headers = new HashMap<>();
-            headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
-            HttpResponse response = HttpClientRequest.doGet(ballerinaServer
-                    .getServiceURLHttp("echo/test"), headers);
-            Assert.assertNotNull(response);
-            Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        } finally {
-            ballerinaServer.stopServer();
-        }
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9092, "echo/test"), headers);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
     }
 
     @Test(description = "Single filter execution failure case")
     public void testMultipleFiltersFailureFromLast() throws Exception {
-        try {
-            String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
-                    + File.separator + "filter" + File.separator +
-                    "multipler-filters-execution-failure-from-last-test.bal").getAbsolutePath();
-            startServer(relativePath);
-            Map<String, String> headers = new HashMap<>();
-            headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
-            HttpResponse response = HttpClientRequest.doGet(ballerinaServer
-                    .getServiceURLHttp("echo/test"), headers);
-            Assert.assertNotNull(response);
-            Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
-        } finally {
-            ballerinaServer.stopServer();
-        }
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9094, "echo/test"), headers);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 403, "Response code mismatched");
     }
 
     @Test(description = "Single filter execution failure case")
     public void testMultipleFiltersFailureFromMiddle() throws Exception {
-        try {
-            String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
-                    + File.separator + "filter" + File.separator +
-                    "multiple-filters-execution-failure-from-middle-test.bal").getAbsolutePath();
-            startServer(relativePath);
-            Map<String, String> headers = new HashMap<>();
-            headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
-            HttpResponse response = HttpClientRequest.doGet(ballerinaServer
-                    .getServiceURLHttp("echo/test"), headers);
-            Assert.assertNotNull(response);
-            Assert.assertEquals(response.getResponseCode(), 405, "Response code mismatched");
-        } finally {
-            ballerinaServer.stopServer();
-        }
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9091, "echo/test"), headers);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 405, "Response code mismatched");
     }
 
     @Test(description = "Multiple filter attribute sharing test")
     public void testMultipleFiltersContextSharingTest() throws Exception {
-        try {
-            String relativePath = new File("src" + File.separator + "test" + File.separator + "resources" + File
-                    .separator + "filter" + File.separator + "multiple-filters-attribute-share-test.bal")
-                    .getAbsolutePath();
-            startServer(relativePath);
-            Map<String, String> headers = new HashMap<>();
-            headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
-            HttpResponse response = HttpClientRequest.doGet(ballerinaServer
-                    .getServiceURLHttp("echo/test"), headers);
-            Assert.assertNotNull(response);
-            Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        } finally {
-            ballerinaServer.stopServer();
-        }
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9090, "echo/test"),
+                headers);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
     }
 
     @Test(description = "Single response filter execution failure case")
     public void testMultipleResponseFiltersFailure() throws Exception {
-        try {
-            String relativePath = new File(
-                    "src" + File.separator + "test" + File.separator + "resources" + File.separator + "filter" +
-                            File.separator + "multiple-response-filters-execution-failure-test.bal").getAbsolutePath();
-            startServer(relativePath);
-            Map<String, String> headers = new HashMap<>();
-            headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
-            HttpResponse response = HttpClientRequest.doGet(ballerinaServer
-                                                                    .getServiceURLHttp("echo/test"), headers);
-            Assert.assertNotNull(response);
-            Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
-        } finally {
-            ballerinaServer.stopServer();
-        }
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
+        HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(9093, "echo/test"),
+                headers);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
     }
 
-    private void startServer(String balFile) throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer();
-        ballerinaServer.startBallerinaServer(balFile);
+    @BeforeGroups("filter-test")
+    public void start() throws BallerinaTestException {
+        String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
+                "filter").getAbsolutePath();
+        String[] args = new String[] {"--sourceroot", basePath};
+        serverInstance.startBallerinaServer("filterServices", args);
     }
 
+    @AfterGroups("filter-test")
+    public void cleanup() throws Exception {
+        serverInstance.removeAllLeechers();
+        serverInstance.stopServer();
+    }
 }

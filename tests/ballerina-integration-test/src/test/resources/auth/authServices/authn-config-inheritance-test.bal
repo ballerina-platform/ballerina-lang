@@ -2,8 +2,8 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/auth;
 
-endpoint http:APIListener listener {
-    port:9090
+endpoint http:APIListener listener01 {
+    port:9091
 };
 
 @http:ServiceConfig {
@@ -14,7 +14,7 @@ endpoint http:APIListener listener {
     }
 }
 
-service<http:Service> echo bind listener {
+service<http:Service> echo01 bind listener01 {
     @http:ResourceConfig {
         methods:["GET"],
         path:"/test",

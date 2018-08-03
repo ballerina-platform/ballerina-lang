@@ -23,72 +23,99 @@
         <listener class-name="org.ballerinalang.test.listener.TestNGListener"/>
     </listeners>
 
-    <!--&lt;!&ndash; Below tests should run sequentially since it will use same port in each test &ndash;&gt;-->
-    <!--<test name="ballerina-sample-tests" parallel="false">-->
-        <!--<groups>-->
-            <!--<run>-->
-                <!--<exclude name="broken"/>-->
-            <!--</run>-->
-        <!--</groups>-->
+    <!-- Below tests should run sequentially since it will use same port in each test -->
+    <test name="ballerina-http-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
 
-        <!--<packages>-->
-            <!--<package name="org.ballerinalang.test.service.http.*"/>-->
-            <!--&lt;!&ndash;<package name="org.ballerinalang.test.service.http2"/>&ndash;&gt;-->
-            <!--&lt;!&ndash;<package name="org.ballerinalang.test.transaction"/>&ndash;&gt;-->
-            <!--&lt;!&ndash;<package name="org.ballerinalang.test.filter"/>&ndash;&gt;-->
-            <!--&lt;!&ndash;<package name="org.ballerinalang.test.auth"/>&ndash;&gt;-->
-            <!--&lt;!&ndash;<package name="org.ballerinalang.test.securelistener"/>&ndash;&gt;-->
-            <!--&lt;!&ndash;<package name="org.ballerinalang.test.service.websocket"/>&ndash;&gt;-->
-            <!--&lt;!&ndash;<package name="org.ballerinalang.test.invocationcontext"/>&ndash;&gt;-->
-        <!--</packages>-->
-    <!--</test>-->
+        <packages>
+            <package name="org.ballerinalang.test.service.http.*"/>
+        </packages>
+    </test>
 
-    <!--<test name="ballerina-http2-tests" parallel="false">-->
-        <!--<packages>-->
-            <!--<package name="org.ballerinalang.test.service.http2"/>-->
-        <!--</packages>-->
-    <!--</test>-->
+    <test name="ballerina-http2-tests" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.test.service.http2"/>
+        </packages>
+    </test>
 
-    <!--<test name="ballerina-websocket-tests" parallel="false">-->
-        <!--<packages>-->
-            <!--<package name="org.ballerinalang.test.service.websocket"/>-->
-        <!--</packages>-->
-    <!--</test>-->
+    <test name="ballerina-auth-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="org.ballerinalang.test.auth"/>
+        </packages>
+    </test>
 
-    <!--<test name="ballerina-jms-tests" preserve-order="true" parallel="false">-->
-        <!--<packages>-->
-            <!--<package name="org.ballerinalang.test.jms"/>-->
-        <!--</packages>-->
-    <!--</test>-->
+    <test name="ballerina-filter-tests" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.test.filter"/>
+        </packages>
+    </test>
 
-    <!--<test name="ballerina-websub-tests" preserve-order="true" parallel="false">-->
-        <!--<packages>-->
-            <!--<package name="org.ballerinalang.test.service.websub"/>-->
-        <!--</packages>-->
-    <!--</test>-->
+    <test name="ballerina-transaction-tests" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.test.transaction"/>
+        </packages>
+    </test>
 
-    <test name="ballerina-grpc-sample-tests" parallel="false">
+    <test name="ballerina-secure-listener-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="org.ballerinalang.test.securelistener"/>
+        </packages>
+    </test>
+
+    <test name="ballerina-websocket-tests" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.test.service.websocket"/>
+        </packages>
+    </test>
+
+    <test name="ballerina-grpc-tests" parallel="false">
         <packages>
             <package name="org.ballerinalang.test.service.grpc.*"/>
         </packages>
     </test>
 
-    <!--<test name="ballerina-observability-tests" preserve-order="true" parallel="false">-->
-        <!--<classes>-->
-            <!--<class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>-->
-            <!--<class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>-->
-        <!--</classes>-->
+    <test name="ballerina-observability-tests" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
+            <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-streaming-tests" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.streaming.StreamsWithinServicesTestCase"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-security-tests" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.security.HTTPResponseXMLSecurityTestCase"/>
+        </classes>
+    </test>
+
+    <!--<test name="ballerina-jms-tests" parallel="false">-->
+    <!--<packages>-->
+    <!--<package name="org.ballerinalang.test.jms"/>-->
+    <!--</packages>-->
     <!--</test>-->
 
-    <!--<test name="ballerina-streaming-tests" preserve-order="true" parallel="false">-->
-        <!--<classes>-->
-            <!--<class name="org.ballerinalang.test.streaming.StreamsWithinServicesTestCase"/>-->
-        <!--</classes>-->
-    <!--</test>-->
-
-    <!--<test name="ballerina-security-tests" preserve-order="true" parallel="false">-->
-        <!--<classes>-->
-            <!--<class name="org.ballerinalang.test.security.HTTPResponseXMLSecurityTestCase"/>-->
-        <!--</classes>-->
+    <!--<test name="ballerina-websub-tests" parallel="false">-->
+    <!--<packages>-->
+    <!--<package name="org.ballerinalang.test.service.websub"/>-->
+    <!--</packages>-->
     <!--</test>-->
 </suite>

@@ -19,7 +19,7 @@ import ballerina/log;
 
 // Filter1
 
-public type Filter1 object {
+public type Filter03 object {
     public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context) returns
                                                                                                                 boolean
     {
@@ -32,32 +32,54 @@ public type Filter1 object {
     }
 };
 
-Filter1 filter1;
+Filter03 filter03;
 
 // Filter2
 
-public type Filter2 object {
-    public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context) returns boolean {
+public type Filter04 object {
+    public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context) returns
+                                                                                                                boolean
+    {
+        endpoint http:Listener caller = listener;
         log:printInfo("Intercepting request for filter 2");
+        http:Response response;
+        response.statusCode = 405;
+        response.setTextPayload("Not Allowed");
+        _ = caller->respond(response);
+        return false;
+    }
+
+    public function filterResponse(http:Response response, http:FilterContext context) returns boolean {
+        return true;
+    }
+};
+
+Filter04 filter04;
+
+// Filter3
+
+public type Filter05 object {
+    public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context) returns boolean {
+        log:printInfo("Intercepting request for filter 3");
         return true;
     }
 
     public function filterResponse(http:Response response, http:FilterContext context) returns boolean {
-        return false;
+        return true;
     }
 };
 
-Filter2 filter2;
+Filter05 filter05;
 
-endpoint http:Listener echoEP {
-    port: 9090,
-    filters: [filter1, filter2]
+endpoint http:Listener echoEP01 {
+    port: 9091,
+    filters: [filter03, filter04, filter05]
 };
 
 @http:ServiceConfig {
     basePath: "/echo"
 }
-service<http:Service> echo bind echoEP {
+service<http:Service> echo01 bind echoEP01 {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/test"

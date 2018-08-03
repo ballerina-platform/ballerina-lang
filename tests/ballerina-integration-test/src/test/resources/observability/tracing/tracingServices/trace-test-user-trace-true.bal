@@ -18,18 +18,18 @@ import ballerina/http;
 import ballerina/testobserve;
 import ballerina/observe;
 
-endpoint http:Listener listener {
+endpoint http:Listener listener2 {
     port : 9092
 };
 
 @http:ServiceConfig {
     basePath:"/echoService"
 }
-service echoService bind listener {
+service echoService2 bind listener2 {
     resourceOne (endpoint caller, http:Request clientRequest) {
-        int spanId = observe:startRootSpan("uSpanOne");
+        int spanId = observe:startRootSpan("uSpanThree");
         http:Response outResponse = new;
-        var response = check callNextResource(spanId);
+        var response = check callNextResource2(spanId);
         outResponse.setTextPayload("Hello, World!");
         _ = caller -> respond(outResponse);
         _ = observe:finishSpan(spanId);
@@ -49,11 +49,11 @@ service echoService bind listener {
     }
 }
 
-function callNextResource(int parentSpanId) returns (http:Response | error) {
+function callNextResource2(int parentSpanId) returns (http:Response | error) {
     endpoint http:Client httpEndpoint {
         url: "http://localhost:9092/echoService"
     };
-    int spanId = check observe:startSpan("uSpanTwo", parentSpanId = parentSpanId);
+    int spanId = check observe:startSpan("uSpanFour", parentSpanId = parentSpanId);
     http:Response resp = check httpEndpoint -> get("/resourceTwo");
     _ = observe:addTagToSpan(spanId, "Allowed", "Successful");
     _ = observe:finishSpan(spanId);

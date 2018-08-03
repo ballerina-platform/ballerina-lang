@@ -2,23 +2,20 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/auth;
 
-endpoint http:APIListener listener {
-    port:9090
+endpoint http:APIListener listener03 {
+    port:9093
 };
 
 @http:ServiceConfig {
-    basePath:"/echo",
-    authConfig:{
-        authentication:{enabled:true},
-        scopes:["xxx"]
-    }
+    basePath:"/echo"
 }
-service<http:Service> echo bind listener {
+service<http:Service> echo03 bind listener03 {
     @http:ResourceConfig {
         methods:["GET"],
         path:"/test",
         authConfig:{
-            scopes:["scope2", "scope4"]
+            authentication:{enabled:true},
+            scopes:["scope2"]
         }
     }
     echo (endpoint caller, http:Request req) {

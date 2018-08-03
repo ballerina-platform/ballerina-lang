@@ -16,20 +16,23 @@
 
 import ballerina/http;
 import ballerina/testobserve;
+import ballerina/observe;
 
-endpoint http:Listener listener {
-    port : 9090
+endpoint http:Listener listener1 {
+    port : 9091
 };
 
 @http:ServiceConfig {
     basePath:"/echoService"
 }
-service echoService bind listener {
+service echoService1 bind listener1 {
     resourceOne (endpoint caller, http:Request clientRequest) {
+        int spanId = check observe:startSpan("uSpanOne");
         http:Response outResponse = new;
-        var response = check callNextResource();
+        var response = check callNextResource1();
         outResponse.setTextPayload("Hello, World!");
         _ = caller -> respond(outResponse);
+        _ = observe:finishSpan(spanId);
     }
 
     resourceTwo (endpoint caller, http:Request clientRequest) {
@@ -46,10 +49,12 @@ service echoService bind listener {
     }
 }
 
-function callNextResource() returns (http:Response | error) {
+function callNextResource1() returns (http:Response | error) {
     endpoint http:Client httpEndpoint {
-        url: "http://localhost:9090/echoService"
+        url: "http://localhost:9091/echoService"
     };
+    int spanId = check observe:startSpan("uSpanTwo");
     http:Response resp = check httpEndpoint -> get("/resourceTwo");
+    _ = observe:finishSpan(spanId);
     return resp;
 }

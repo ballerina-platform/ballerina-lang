@@ -17,34 +17,34 @@
 import ballerina/io;
 import ballerina/http;
 
-endpoint http:Listener participant1EP {
+endpoint http:Listener participant1EP01 {
     port:8889
 };
 
-endpoint http:Client participant2EP {
+endpoint http:Client participant2EP01 {
     url: "http://localhost:8890"
 };
 
-State state = new();
+State1 state1 = new();
 
 @http:ServiceConfig {
     basePath:"/"
 }
-service<http:Service> participant1 bind participant1EP {
+service<http:Service> participant1 bind participant1EP01 {
 
     getState(endpoint ep, http:Request req) {
         http:Response res = new;
-        res.setTextPayload(state.toString());
-        state.reset();
+        res.setTextPayload(state1.toString());
+        state1.reset();
         _ = ep -> respond(res);
     }
 
     testRemoteParticipantAbort(endpoint ep, http:Request req) {
 
-        transaction with oncommit=onCommit, onabort=onAbort {
-            transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
+        transaction with oncommit=onCommit1, onabort=onAbort1 {
+            transaction with oncommit=onLocalParticipantCommit1, onabort=onLocalParticipantAbort1 { // local participant
             }
-            state.abortedByParticipant = true;
+            state1.abortedByParticipant = true;
             abort;
         }
         http:Response res = new;  res.statusCode = 200;
@@ -53,8 +53,8 @@ service<http:Service> participant1 bind participant1EP {
 
     noOp(endpoint ep, http:Request req) {
 
-        transaction with oncommit=onCommit, onabort=onAbort {
-            transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
+        transaction with oncommit=onCommit1, onabort=onAbort1 {
+            transaction with oncommit=onLocalParticipantCommit1, onabort=onLocalParticipantAbort1 { // local participant
             }
         }
         http:Response res = new;  res.statusCode = 200;
@@ -66,8 +66,8 @@ service<http:Service> participant1 bind participant1EP {
     }
     nonInfectable(endpoint ep, http:Request req) {
 
-        transaction with oncommit=onCommit, onabort=onAbort {
-            transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
+        transaction with oncommit=onCommit1, onabort=onAbort1 {
+            transaction with oncommit=onLocalParticipantCommit1, onabort=onLocalParticipantAbort1 { // local participant
                 abort;
             }
         }
@@ -81,8 +81,8 @@ service<http:Service> participant1 bind participant1EP {
     }
     infectable(endpoint ep, http:Request req) {
 
-        transaction with oncommit=onCommit, onabort=onAbort {
-            transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort { // local participant
+        transaction with oncommit=onCommit1, onabort=onAbort1 {
+            transaction with oncommit=onLocalParticipantCommit1, onabort=onLocalParticipantAbort1 { // local participant
                 abort;
             }
         }
@@ -98,7 +98,7 @@ service<http:Service> participant1 bind participant1EP {
         http:Request newReq = new;
         newReq.setHeader("participant-id", req.getHeader("x-b7a-xid"));
         transaction {
-            var forwardResult = participant2EP -> forward("/task1", req);
+            var forwardResult = participant2EP01 -> forward("/task1", req);
             match forwardResult {
                 error err => {
                     io:print("Participant1 could not send get request to participant2/task1. Error:");
@@ -106,7 +106,7 @@ service<http:Service> participant1 bind participant1EP {
                     abort;
                 }
                 http:Response forwardRes => {
-                    var getResult = participant2EP -> get("/task2", message = newReq);
+                    var getResult = participant2EP01 -> get("/task2", message = newReq);
                     match getResult {
                         error err => {
                             io:print("Participant1 could not send get request to participant2/task2. Error:");
@@ -134,7 +134,7 @@ service<http:Service> participant1 bind participant1EP {
     testSaveToDatabaseSuccessfulInParticipant(endpoint ep, http:Request req) {
         http:Response res = new;  res.statusCode = 500;
         http:Request newReq = new;
-        var result = participant2EP -> get("/testSaveToDatabaseSuccessfulInParticipant", message = newReq);
+        var result = participant2EP01 -> get("/testSaveToDatabaseSuccessfulInParticipant", message = newReq);
         match result {
             http:Response participant1Res => {
                 res = participant1Res;
@@ -148,11 +148,11 @@ service<http:Service> participant1 bind participant1EP {
 
     testSaveToDatabaseFailedInParticipant(endpoint ep, http:Request req) {
         http:Response res = new;  res.statusCode = 500;
-        transaction with oncommit=onCommit, onabort=onAbort {
-            transaction with oncommit=onLocalParticipantCommit, onabort=onLocalParticipantAbort {
+        transaction with oncommit=onCommit1, onabort=onAbort1 {
+            transaction with oncommit=onLocalParticipantCommit1, onabort=onLocalParticipantAbort1 {
             }
             http:Request newReq = new;
-            var result = participant2EP -> get("/testSaveToDatabaseFailedInParticipant", message = newReq);
+            var result = participant2EP01 -> get("/testSaveToDatabaseFailedInParticipant", message = newReq);
             match result {
                 http:Response participant1Res => {
                     res = participant1Res;
@@ -179,23 +179,23 @@ function sendErrorResponseToInitiator(http:Listener conn) {
     }
 }
 
-function onAbort(string transactionid) {
-    state.abortedFunctionCalled = true;
+function onAbort1(string transactionid) {
+    state1.abortedFunctionCalled = true;
 }
 
-function onCommit(string transactionid) {
-    state.committedFunctionCalled = true;
+function onCommit1(string transactionid) {
+    state1.committedFunctionCalled = true;
 }
 
-function onLocalParticipantAbort(string transactionid) {
-    state.localParticipantAbortedFunctionCalled = true;
+function onLocalParticipantAbort1(string transactionid) {
+    state1.localParticipantAbortedFunctionCalled = true;
 }
 
-function onLocalParticipantCommit(string transactionid) {
-    state.localParticipantCommittedFunctionCalled = true;
+function onLocalParticipantCommit1(string transactionid) {
+    state1.localParticipantCommittedFunctionCalled = true;
 }
 
-type State object {
+type State1 object {
 
     boolean abortedByParticipant;
     boolean abortedFunctionCalled;
