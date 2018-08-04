@@ -80,20 +80,20 @@ public class ArgumentParser {
     private static final String TRUE = "TRUE";
     private static final String FALSE = "FALSE";
 
-    public static BValue[] extractMainArgs(FunctionInfo mainFuncInfo, String[] args) {
-        BType[] paramTypes = mainFuncInfo.getParamTypes();
+    public static BValue[] extractEntryFuncArgs(FunctionInfo entryFuncInfo, String[] args) {
+        BType[] paramTypes = entryFuncInfo.getParamTypes();
         BValue[] bValueArgs = new BValue[paramTypes.length];
 
         ParameterAttributeInfo parameterAttributeInfo =
-                (ParameterAttributeInfo) mainFuncInfo.getAttributeInfo(PARAMETERS_ATTRIBUTE);
+                (ParameterAttributeInfo) entryFuncInfo.getAttributeInfo(PARAMETERS_ATTRIBUTE);
         int requiredParamsCount = parameterAttributeInfo.requiredParamsCount;
         int defaultableParamsCount = parameterAttributeInfo.defaultableParamsCount;
         int restParamCount = parameterAttributeInfo.restParamCount;
 
         LocalVariableAttributeInfo localVariableAttributeInfo =
-                (LocalVariableAttributeInfo) mainFuncInfo.getAttributeInfo(LOCAL_VARIABLES_ATTRIBUTE);
+                (LocalVariableAttributeInfo) entryFuncInfo.getAttributeInfo(LOCAL_VARIABLES_ATTRIBUTE);
         ParamDefaultValueAttributeInfo paramDefaultValueAttributeInfo =
-                (ParamDefaultValueAttributeInfo) mainFuncInfo.getAttributeInfo(PARAMETER_DEFAULTS_ATTRIBUTE);
+                (ParamDefaultValueAttributeInfo) entryFuncInfo.getAttributeInfo(PARAMETER_DEFAULTS_ATTRIBUTE);
 
         if (defaultableParamsCount > 0) {
             args = populateNamedArgs(args, bValueArgs, localVariableAttributeInfo, paramDefaultValueAttributeInfo,
@@ -101,7 +101,13 @@ public class ArgumentParser {
         }
 
         if (args.length < requiredParamsCount) {
-            throw new BLangUsageException("insufficient arguments specified for main function");
+            throw new BLangUsageException("insufficient arguments to call entry function '" + entryFuncInfo.getName()
+                                                  + "'");
+        }
+
+        if (args.length > requiredParamsCount && restParamCount == 0) {
+            throw new BLangUsageException("too many arguments to call entry function '" + entryFuncInfo.getName()
+                                                  + "'");
         }
 
         for (int index = 0; index < paramTypes.length - defaultableParamsCount - restParamCount; index++) {

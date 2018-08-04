@@ -24,7 +24,7 @@ import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
-import static org.ballerinalang.util.cli.ArgumentParser.extractMainArgs;
+import static org.ballerinalang.util.cli.ArgumentParser.extractEntryFuncArgs;
 /**
  * This class contains utilities to execute Ballerina main and service programs.
  *
@@ -64,9 +64,10 @@ public class BLangProgramRunner {
         Debugger debugger = new Debugger(programFile);
         initDebugger(programFile, debugger);
 
-        FunctionInfo functionInfo = getFunctionInfo(entryPkgInfo, functionName);
+        FunctionInfo functionInfo = getEntryFunctionInfo(entryPkgInfo, functionName);
         try {
-            BLangFunctions.invokeEntrypointCallable(programFile, functionInfo, extractMainArgs(functionInfo, args));
+            BLangFunctions.invokeEntrypointCallable(programFile, functionInfo,
+                                                    extractEntryFuncArgs(functionInfo, args));
         } finally {
             if (programFile.isServiceEPAvailable()) {
                 return;
@@ -86,13 +87,18 @@ public class BLangProgramRunner {
         }
     }
 
-    public static FunctionInfo getFunctionInfo(PackageInfo entryPkgInfo, String functionName) {
+    public static FunctionInfo getEntryFunctionInfo(PackageInfo entryPkgInfo, String functionName) {
         String errorMsg = functionName + " function not found in  '"
                             + entryPkgInfo.getProgramFile().getProgramFilePath() + "'";
 
         FunctionInfo functionInfo = entryPkgInfo.getFunctionInfo(functionName);
         if (functionInfo == null) {
             throw new BallerinaException(errorMsg);
+        }
+        
+        if (!functionInfo.isPublic()) {
+            // TODO: 8/4/18 check if we should special case main?
+            throw new BallerinaException("non public function '" + functionName + "' not allowed as entry function");
         }
 
         if (functionInfo.getRetParamTypes().length != 0) {

@@ -726,6 +726,8 @@ public class PackageInfoReader {
         boolean nativeFunc = Flags.isFlagOn(flags, Flags.NATIVE);
         functionInfo.setNative(nativeFunc);
 
+        functionInfo.setPublic(Flags.isFlagOn(flags, Flags.PUBLIC));
+
         String uniqueFuncName;
         boolean attached = Flags.isFlagOn(flags, Flags.ATTACHED);
         if (attached) {

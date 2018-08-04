@@ -259,11 +259,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyseType(typeDefinition.symbol.type, typeDefinition.pos);
     }
 
-    private void validateMainFunction(BLangFunction funcNode) {
-        if (MAIN_FUNC_NAME.equals(funcNode.name.value) && Symbols.isPublic(funcNode.symbol)) {
-            this.dlog.error(funcNode.pos, DiagnosticCode.MAIN_CANNOT_BE_PUBLIC);
-        }
-    }
+//    TODO: remove error code
+//    private void validateMainFunction(BLangFunction funcNode) {
+//        if (MAIN_FUNC_NAME.equals(funcNode.name.value) && Symbols.isPublic(funcNode.symbol)) {
+//            this.dlog.error(funcNode.pos, DiagnosticCode.MAIN_CANNOT_BE_PUBLIC);
+//        }
+//    }
     
     @Override
     public void visit(BLangFunction funcNode) {
@@ -272,7 +273,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         this.returnWithintransactionCheckStack.push(true);
         this.doneWithintransactionCheckStack.push(true);
-        this.validateMainFunction(funcNode);
+//        this.validateMainFunction(funcNode);
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         this.visitInvocable(funcNode, funcEnv);
         this.returnWithintransactionCheckStack.pop();
