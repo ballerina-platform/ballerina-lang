@@ -29,6 +29,7 @@ import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.serializer.type.BStringSerializationProvider;
 import org.ballerinalang.persistence.serializable.serializer.type.ListSerializationProvider;
 import org.ballerinalang.persistence.serializable.serializer.type.MapSerializationProvider;
+import org.ballerinalang.persistence.serializable.serializer.type.NumericSerializationProviders;
 import org.ballerinalang.persistence.serializable.serializer.type.SerializableBMapSerializationProvider;
 import org.ballerinalang.persistence.serializable.serializer.type.SerializableBRefArraySerializationProvider;
 import org.ballerinalang.persistence.serializable.serializer.type.SerializableContextSerializationProvider;
@@ -74,6 +75,7 @@ public class JsonDeserializer {
         registry.addTypeProvider(new BStringSerializationProvider());
         registry.addTypeProvider(new SerializedKeySerializationProvider());
         registry.addTypeProvider(new SerializableBRefArraySerializationProvider());
+        NumericSerializationProviders.register(registry);
     }
 
     public SerializableState deserialize(Class<?> destinationType) {
