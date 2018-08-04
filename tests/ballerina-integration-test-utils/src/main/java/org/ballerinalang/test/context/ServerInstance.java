@@ -97,6 +97,14 @@ public class ServerInstance implements Server {
         startServer();
     }
 
+    public void startBallerinaServer(String balFile, int httpServerPort) throws BallerinaTestException {
+        this.httpServerPort = httpServerPort;
+        String[] args = {balFile};
+        setArguments(args);
+
+        startServer();
+    }
+
     public void startBallerinaServer(String balFile, String[] args, int httpServerPort) throws BallerinaTestException {
         this.httpServerPort = httpServerPort;
         startBallerinaServer(balFile, args);
@@ -210,11 +218,13 @@ public class ServerInstance implements Server {
 
         if (serverInfoLogReader != null) {
             serverInfoLogReader.stop();
+            serverErrorLogReader.removeAllLeechers();
             serverInfoLogReader = null;
         }
 
         if (serverErrorLogReader != null) {
             serverErrorLogReader.stop();
+            serverErrorLogReader.removeAllLeechers();
             serverErrorLogReader = null;
         }
     }
@@ -356,6 +366,7 @@ public class ServerInstance implements Server {
 
     public void removeAllLeechers() {
         serverInfoLogReader.removeAllLeechers();
+        serverErrorLogReader.removeAllLeechers();
         tmpLeechers.forEach(logLeecher -> tmpLeechers.remove(logLeecher));
     }
 
