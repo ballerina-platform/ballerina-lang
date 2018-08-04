@@ -57,6 +57,10 @@ class DebuggerPanel extends View {
     }
 
     componentDidMount() {
+        this.setState({
+            active: this.props.LaunchManager.active,
+            isDebugging: this.props.DebugManager.active,
+        });
         this.props.LaunchManager.on('execution-started', () => {
             this.setState({
                 active: true,

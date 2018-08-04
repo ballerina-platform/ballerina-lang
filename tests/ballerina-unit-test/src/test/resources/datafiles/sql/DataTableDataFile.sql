@@ -131,7 +131,6 @@ CREATE TABLE IF NOT EXISTS DataTypeTableNillable(
   tinyint_type TINYINT,
   smallint_type SMALLINT,
   clob_type    CLOB,
-  blob_type    BLOB,
   binary_type  BINARY(27),
   date_type      DATE,
   time_type      TIME,
@@ -140,16 +139,27 @@ CREATE TABLE IF NOT EXISTS DataTypeTableNillable(
   PRIMARY KEY (row_id)
 );
 /
-insert into DataTypeTableNillable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type,
-  numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, blob_type, binary_type, date_type,
-  time_type, datetime_type, timestamp_type) values
-  (1, 10, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello',1234.567, 1234.567, 1234.567, 1, 5555,
-  CONVERT('very long text', CLOB), X'77736F322062616C6C6572696E6120626C6F6220746573742E',
-  X'77736F322062616C6C6572696E612062696E61727920746573742E', '2017-02-03', '11:35:45', '2017-02-03 11:53:00',
-  '2017-02-03 11:53:00');
+CREATE TABLE IF NOT EXISTS DataTypeTableNillableBlob(
+  row_id       INTEGER,
+  blob_type    BLOB,
+  PRIMARY KEY (row_id)
+);
 /
 insert into DataTypeTableNillable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type,
-  numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, blob_type, binary_type, date_type,
+  numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, binary_type, date_type,
   time_type, datetime_type, timestamp_type) values
-  (2, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+  (1, 10, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello',1234.567, 1234.567, 1234.567, 1, 5555,
+  CONVERT('very long text', CLOB), X'77736F322062616C6C6572696E612062696E61727920746573742E', '2017-02-03', 
+  '11:35:45', '2017-02-03 11:53:00', '2017-02-03 11:53:00');
+/
+insert into DataTypeTableNillable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type,
+  numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, binary_type, date_type,
+  time_type, datetime_type, timestamp_type) values
+  (2, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+/
+insert into DataTypeTableNillableBlob (row_id, blob_type) values
+  (3, X'77736F322062616C6C6572696E6120626C6F6220746573742E');
+/
+insert into DataTypeTableNillableBlob (row_id, blob_type) values
+  (4, null);
 /
