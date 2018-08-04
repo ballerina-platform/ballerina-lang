@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -239,6 +240,42 @@ public class BIRGen extends BLangNodeVisitor {
         // Set the elseBB as the basic block for the rest of statements followed by this if.
         this.env.enclFunc.basicBlocks.add(nextBB);
         this.env.enclBB = nextBB;
+    }
+
+    public void visit(BLangWhile astWhileStmt) {
+        // Create a basic block for the while expression.
+        BIRBasicBlock whileExprBB = new BIRBasicBlock(this.env.nextBBId(names));
+        this.env.enclFunc.basicBlocks.add(whileExprBB);
+
+        // Insert a GOTO instruction as the terminal instruction into current basic block.
+        this.env.enclBB.terminator = new BIRTerminator.GOTO(whileExprBB);
+
+        // Visit condition expression
+        this.env.enclBB = whileExprBB;
+        astWhileStmt.expr.accept(this);
+        BIROperand whileExprResult = this.env.targetOperand;
+
+        // Create the basic block for the while-body block.
+        BIRBasicBlock whileBodyBB = new BIRBasicBlock(this.env.nextBBId(names));
+        this.env.enclFunc.basicBlocks.add(whileBodyBB);
+
+        // Create the basic block for the statements that comes after the while statement.
+        BIRBasicBlock whileEndBB = new BIRBasicBlock(this.env.nextBBId(names));
+
+        // Add the branch instruction to the while expression basic block.
+        whileExprBB.terminator = new BIRTerminator.Branch(whileExprResult, whileBodyBB, whileEndBB);
+
+        // Visit while body
+        this.env.enclBB = whileBodyBB;
+        astWhileStmt.body.accept(this);
+        if (this.env.enclBB.terminator == null) {
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(whileExprBB);
+        } else {
+            throw new RuntimeException("there cannot be a terminator while body basic block");
+        }
+
+        this.env.enclFunc.basicBlocks.add(whileEndBB);
+        this.env.enclBB = whileEndBB;
     }
 
 
