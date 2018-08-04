@@ -37,6 +37,8 @@ import static org.ballerinalang.BLangProgramRunner.MAIN;
  */
 public class VMDebuggerUtil {
 
+    private static ArrayList<MessageDTO> debugHits = new ArrayList<>();
+
     public static void startDebug(String programArgs, BreakPointDTO[] bPoints, ExpectedResults expRes) {
 
         TestDebugger debugger = setupProgram(programArgs, bPoints);
@@ -54,6 +56,8 @@ public class VMDebuggerUtil {
                 break;
             }
             MessageDTO debugHit = debugger.getClientHandler().getDebugHit();
+            debugHits.add(debugHit);
+
             DebugPoint debugPoint = expRes.getDebugHit(debugHit.getLocation());
             Assert.assertNotNull(debugPoint, "Invalid debug point hit - " + debugHit.getLocation());
             int hits = debugPoint.decrementAndGetHits();
@@ -105,5 +109,9 @@ public class VMDebuggerUtil {
                                                          new ArrayList<>(Arrays.asList(breakPoints)));
         (new Thread(executor)).start();
         return debugger;
+    }
+
+    public static ArrayList<MessageDTO> getDebugHits() {
+        return debugHits;
     }
 }

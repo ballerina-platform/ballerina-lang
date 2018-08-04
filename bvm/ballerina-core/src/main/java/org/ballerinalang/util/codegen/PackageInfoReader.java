@@ -683,8 +683,9 @@ public class PackageInfoReader {
 
         int globalMemIndex = dataInStream.readInt();
 
+        BType type = getBTypeFromDescriptor(packageInfo, sigUTF8CPEntry.getValue());
         PackageVarInfo packageVarInfo = new PackageVarInfo(nameCPIndex, nameUTF8CPEntry.getValue(),
-                sigCPIndex, sigUTF8CPEntry.getValue(), globalMemIndex);
+                sigCPIndex, globalMemIndex, type);
 
         // Read attributes
         readAttributeInfoEntries(packageInfo, constantPool, packageVarInfo);
