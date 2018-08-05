@@ -23,6 +23,8 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
 import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.LaunchListener;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -66,6 +68,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.util.BLangConstants.BLANG_EXEC_FILE_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
+import static org.ballerinalang.util.BLangConstants.MAIN_FUNCTION_NAME;
 
 /**
  * Contains utility methods for executing a Ballerina program.
@@ -73,6 +76,8 @@ import static org.ballerinalang.util.BLangConstants.BLANG_SRC_FILE_SUFFIX;
  * @since 0.8.0
  */
 public class LauncherUtils {
+
+    private static PrintStream outStream = System.out; // TODO: 8/5/18 or err?
 
     public static void runProgram(Path sourceRootPath, Path sourcePath, boolean runServices, String functionName,
                                   Map<String, String> runtimeParams, String configFilePath, String[] args,
@@ -128,8 +133,17 @@ public class LauncherUtils {
     }
 
     public static void runMain(ProgramFile programFile, String functionName, String[] args) {
+        int exitStatus = 0;
         try {
-            BLangProgramRunner.runMain(programFile, functionName, args);
+            BValue[] entryFuncResult = BLangProgramRunner.runEntryFunc(programFile, functionName, args);
+            if (entryFuncResult != null && entryFuncResult.length >= 1) {
+                // TODO: 8/5/18 depends on return -  change return to single BValue instead of array and change here?
+                if (MAIN_FUNCTION_NAME.equals(functionName)) {
+                    exitStatus = (int) (((BInteger) entryFuncResult[0]).intValue());
+                } else {
+                    outStream.println(entryFuncResult[0] == null ? "()" : entryFuncResult[0]);
+                }
+            }
         } catch (BLangUsageException e) {
             throw createLauncherException("usage error: " + makeFirstLetterLowerCase(e.getLocalizedMessage()));
         } catch (BallerinaException e) {
@@ -145,7 +159,7 @@ public class LauncherUtils {
         } catch (InterruptedException ex) {
             // Ignore the error
         }
-        Runtime.getRuntime().exit(0);
+        Runtime.getRuntime().exit(exitStatus);
     }
 
     public static void runServices(ProgramFile programFile) {

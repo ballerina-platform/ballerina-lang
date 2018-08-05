@@ -54,6 +54,7 @@ public class BVMEmbeddedExecutor implements EmbeddedExecutor {
         }
         try {
             URI balxResource = resource.toURI();
+            // TODO: 8/5/18 return BValue[] ignored 
             ExecutorUtils.execute(balxResource, isFunction, isFunction ? functionName : null, args);
         } catch (URISyntaxException e) {
             throw new BLangCompilerException("Error loading internal modules when retrieving remote package");

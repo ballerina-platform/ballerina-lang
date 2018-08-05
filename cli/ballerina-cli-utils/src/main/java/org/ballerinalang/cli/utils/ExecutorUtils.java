@@ -18,6 +18,7 @@
 package org.ballerinalang.cli.utils;
 
 import org.ballerinalang.BLangProgramRunner;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
 
@@ -46,16 +47,17 @@ public class ExecutorUtils {
      * @param functionName the function name, if a function is to be invoked
      * @param args         arguments passed to the function
      */
-    public static void execute(URI balxResource, boolean isFunction, String functionName, String... args) {
+    public static BValue[] execute(URI balxResource, boolean isFunction, String functionName, String... args) {
         // TODO: 8/3/18 check if we can unify isFunction and functionName
         initFileSystem(balxResource);
         Path baloFilePath = Paths.get(balxResource);
         ProgramFile programFile = readExecutableProgram(baloFilePath);
 
         if (isFunction) {
-            BLangProgramRunner.runMain(programFile, functionName, args);
+            return BLangProgramRunner.runEntryFunc(programFile, functionName, args);
         } else {
             BLangProgramRunner.runService(programFile);
+            return new BValue[]{};
         }
     }
 

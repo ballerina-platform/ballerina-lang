@@ -17,6 +17,7 @@
 */
 package org.ballerinalang;
 
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -53,7 +54,9 @@ public class BLangProgramRunner {
         BLangFunctions.invokePackageStartFunctions(programFile);
     }
 
-    public static void runMain(ProgramFile programFile, String functionName, String[] args) {
+    public static BValue[] runEntryFunc(ProgramFile programFile, String functionName, String[] args) {
+        BValue[] entryFuncResult = null;
+        RuntimeException runtimeException = null;
         if (MAIN.equals(functionName) && !programFile.isMainEPAvailable()) {
             throw new BallerinaException("main function not found in  '" + programFile.getProgramFilePath() + "'");
         }
@@ -66,17 +69,25 @@ public class BLangProgramRunner {
 
         FunctionInfo functionInfo = getEntryFunctionInfo(entryPkgInfo, functionName);
         try {
-            BLangFunctions.invokeEntrypointCallable(programFile, functionInfo,
-                                                    extractEntryFuncArgs(functionInfo, args));
+            entryFuncResult = BLangFunctions.invokeEntrypointCallable(programFile, functionInfo,
+                                                                      extractEntryFuncArgs(functionInfo, args));
+        } catch (RuntimeException e) {
+            runtimeException = e;
         } finally {
             if (programFile.isServiceEPAvailable()) {
-                return;
+                // TODO: 8/5/18 errors not propagated? change to perform subseq logic if
+                // !programFile .isServiceEPAvailable()?
+                return entryFuncResult;
             }
             if (debugger.isDebugEnabled()) {
                 debugger.notifyExit();
             }
             BLangFunctions.invokePackageStopFunctions(programFile);
         }
+        if (runtimeException != null) {
+            throw runtimeException;
+        }
+        return entryFuncResult;
     }
 
     private static void initDebugger(ProgramFile programFile, Debugger debugger) {
@@ -99,10 +110,6 @@ public class BLangProgramRunner {
         if (!functionInfo.isPublic()) {
             // TODO: 8/4/18 check if we should special case main?
             throw new BallerinaException("non public function '" + functionName + "' not allowed as entry function");
-        }
-
-        if (functionInfo.getRetParamTypes().length != 0) {
-            throw new BallerinaException("return not allowed with entry function"); // TODO: 8/3/18 temp 
         }
 
         return functionInfo;
