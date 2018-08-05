@@ -23,60 +23,42 @@ public type StreamEvent record {
 };
 
 public type LengthWindow object {
-    public int counter;
     public int size;
-    public EventType eventType = "ALL";
-
-    private StreamEvent[] events = [];
+    private LinkedList linkedList;
     private function (StreamEvent[]) nextProcessorPointer;
 
-    new(nextProcessorPointer, size, eventType) {
-
+    new(nextProcessorPointer, size) {
+        linkedList = new;
     }
 
-    public function add(StreamEvent event) {
+    public function process(StreamEvent[] streamEvents) {
+        StreamEvent[] outputEvents = [];
+        foreach event in streamEvents {
+            if (linkedList.getSize() == size) {
+                match linkedList.removeFirst() {
+                    StreamEvent streamEvent => {
+                        outputEvents[lengthof outputEvents] = streamEvent;
+                    }
+                    () => {
+                        // do nothing
+                    }
+                    any anyValue => {
 
-        StreamEvent? streamEvent = getEventToBeExpired();
-        match streamEvent {
-            StreamEvent value => {
-                StreamEvent[] streamEvents = [];
-                streamEvents[0] = value;
-                nextProcessorPointer(streamEvents);
+                    }
+                }
             }
-            () => {
-                //do nothing
-            }
+            outputEvents[lengthof outputEvents] = event;
+            StreamEvent expiredVeresionOfEvent = {eventType : "EXPIRED", eventObject: event.eventObject,
+                timestamp: event.timestamp};
+            linkedList.addLast(expiredVeresionOfEvent);
         }
-        events[counter % size] = event;
-        counter = counter + 1;
-        nextProcessorPointer(getCurrentEvents());
-    }
-
-    function getCurrentEvents() returns (StreamEvent[]) {
-        return events;
-    }
-
-    public function getEventToBeExpired() returns (StreamEvent?) {
-        StreamEvent? eventToBeExpired;
-        if (counter > size) {
-            eventToBeExpired = events[counter % size];
-        }
-        match eventToBeExpired {
-            StreamEvent value => {
-                EventType evType = "EXPIRED";
-                StreamEvent event = { eventType: evType, eventObject: value.eventObject, timestamp: value.timestamp };
-                return event;
-            }
-            () => {
-                return ();
-            }
-        }
+        nextProcessorPointer(outputEvents);
     }
 };
 
-public function lengthWindow(int length, EventType eventType, function (StreamEvent[]) nextProcessorPointer)
+public function lengthWindow(function (StreamEvent[]) nextProcessorPointer, int length)
                     returns LengthWindow {
-    LengthWindow lengthWindow1 = new(nextProcessorPointer, length, eventType);
+    LengthWindow lengthWindow1 = new(nextProcessorPointer, length);
     return lengthWindow1;
 }
 

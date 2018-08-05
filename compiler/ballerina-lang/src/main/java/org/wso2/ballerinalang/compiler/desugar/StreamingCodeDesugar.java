@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.desugar;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.clauses.SelectExpressionNode;
-import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -51,6 +50,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectExpression;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
@@ -95,6 +95,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     private static final String FUNC_CALLER = "$lambda$streaming";
     private static final String OUTPUT_FUNC_REFERENCE = "$lambda$streaming$output$function";
+    private static final String WINDOW_FUNC_REFERENCE = "$lambda$streaming$window$reference";
     private static final String OUTPUT_PROCESS_FUNC_REFERENCE = "$lambda$streaming$output$process";
     private static final String FILTER_FUNC_REFERENCE = "$lambda$streaming$filter";
     private static final String SIMPLE_SELECT_FUNC_REFERENCE = "$lambda$streaming$simple$select";
@@ -111,6 +112,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private static final String NEXT_PROCESS_METHOD_NAME = "process";
     private static final String STREAM_EVENT_OBJECT_NAME = "StreamEvent";
     private static final String FILTER_OBJECT_NAME = "Filter";
+    private static final String WINDOW_OBJECT_NAME = "LengthWindow";
     private static final String OUTPUT_PROCESS_OBJECT_NAME = "OutputProcess";
     private static final String CREATE_OUTPUT_PROCESS_METHOD_NAME = "createOutputProcess";
     private static final String CREATE_FILTER_METHOD_NAME = "createFilter";
@@ -702,9 +704,19 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         //Lambda function parameter
         BType lambdaParameterType = inputStreamEventType;
 
-        WhereNode beforeWhereNode = streamingInput.getAfterStreamingCondition();
+        BLangWhere afterWhereNode = (BLangWhere) streamingInput.getAfterStreamingCondition();
+        if (afterWhereNode != null) {
+            afterWhereNode.accept(this);
+        }
+
+        BLangWindow windowClauseNode = (BLangWindow) streamingInput.getWindowClause();
+        if (windowClauseNode != null) {
+            windowClauseNode.accept(this);
+        }
+
+        BLangWhere beforeWhereNode = (BLangWhere) streamingInput.getBeforeStreamingCondition();
         if (beforeWhereNode != null) {
-            ((BLangWhere) beforeWhereNode).accept(this);
+             beforeWhereNode.accept(this);
         }
 
         BVarSymbol nextProcessInvokableTypeVarSymbol = nextProcessVarSymbolStack.pop();
@@ -804,6 +816,67 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         stmts.add(inputStreamSubscribeStatement);
     }
 
+    /*
+        e.g: window lengthWindow(5) will be turned into,
+
+        streams:LengthWindow lengthWindow = streams:lengthWindow(select.process, 5);
+     */
+    @Override
+    public void visit(BLangWindow window) {
+        //Create event filter definition
+        BVarSymbol nextProcessInvokableTypeVarSymbol = nextProcessVarSymbolStack.pop();
+        BInvokableSymbol nextProcessInvokableSymbol = getNextProcessFunctionSymbol(nextProcessInvokableTypeVarSymbol);
+
+        BLangSimpleVarRef nextProcessSimpleVarRef = ASTBuilderUtil.createVariableRef(window.pos,
+                nextProcessInvokableTypeVarSymbol);
+        BLangFieldBasedAccess nextProcessMethodAccess = createFieldBasedAccessForProcessFunc(window.pos,
+                nextProcessInvokableSymbol, nextProcessSimpleVarRef);
+
+        BInvokableSymbol windowInvokableSymbol = (BInvokableSymbol) symResolver.
+                resolvePkgSymbol(window.pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
+                scope.lookup(new Name(((BLangInvocation) window.getFunctionInvocation()).name.value)).symbol;
+
+        BType windowInvokableType = windowInvokableSymbol.type.getReturnType();
+
+        BVarSymbol windowInvokableTypeVarSymbol = new BVarSymbol(0,
+                new Name(getVariableName(WINDOW_FUNC_REFERENCE)), windowInvokableSymbol.pkgID,
+                windowInvokableType, env.scope.owner);
+        nextProcessVarSymbolStack.push(windowInvokableTypeVarSymbol);
+
+        List<BLangExpression> args = new ArrayList<>();
+        args.add(nextProcessMethodAccess);
+        args.addAll(((BLangInvocation) window.getFunctionInvocation()).argExprs);
+
+        BLangInvocation windowInvocation = ASTBuilderUtil.
+                createInvocationExprForMethod(window.pos, windowInvokableSymbol, args,
+                                              symResolver);
+        windowInvocation.argExprs = args;
+        BLangVariable windowInvokableTypeVariable = ASTBuilderUtil.createVariable(window.pos,
+                getVariableName(WINDOW_FUNC_REFERENCE), windowInvokableType, windowInvocation,
+                windowInvokableTypeVarSymbol);
+
+        BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
+        userDefinedType.typeName = ASTBuilderUtil.createIdentifier(window.pos, WINDOW_OBJECT_NAME);
+        userDefinedType.type = windowInvokableType;
+        windowInvokableTypeVariable.setTypeNode(userDefinedType);
+        BLangVariableDef windowInvokableTypeVariableDef = ASTBuilderUtil.createVariableDef(window.pos,
+                windowInvokableTypeVariable);
+        stmts.add(windowInvokableTypeVariableDef);
+    }
+
+    private BLangFieldBasedAccess createFieldBasedAccessForProcessFunc(DiagnosticPos pos,
+                                                                       BInvokableSymbol nextProcessInvokableSymbol,
+                                                                       BLangSimpleVarRef nextProcessSimpleVarRef) {
+        BLangFieldBasedAccess nextProcessMethodAccess = (BLangFieldBasedAccess)
+                TreeBuilder.createFieldBasedAccessNode();
+        nextProcessMethodAccess.expr = nextProcessSimpleVarRef;
+        nextProcessMethodAccess.symbol = nextProcessInvokableSymbol;
+        nextProcessMethodAccess.type = nextProcessInvokableSymbol.type;
+        nextProcessMethodAccess.pos = pos;
+        nextProcessMethodAccess.field = ASTBuilderUtil.createIdentifier(pos, NEXT_PROCESS_METHOD_NAME);
+        return nextProcessMethodAccess;
+    }
+
     //
     // Below method creates the constructs to perform filtering based on the 'where' clause of the streaming query.
     //
@@ -880,13 +953,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         BLangSimpleVarRef nextProcessSimpleVarRef = ASTBuilderUtil.createVariableRef(where.pos,
                 nextProcessInvokableTypeVarSymbol);
-        BLangFieldBasedAccess nextProcessMethodAccess = (BLangFieldBasedAccess)
-                TreeBuilder.createFieldBasedAccessNode();
-        nextProcessMethodAccess.expr = nextProcessSimpleVarRef;
-        nextProcessMethodAccess.symbol = nextProcessInvokableSymbol;
-        nextProcessMethodAccess.type = nextProcessInvokableSymbol.type;
-        nextProcessMethodAccess.pos = where.pos;
-        nextProcessMethodAccess.field = ASTBuilderUtil.createIdentifier(where.pos, NEXT_PROCESS_METHOD_NAME);
+        BLangFieldBasedAccess nextProcessMethodAccess = createFieldBasedAccessForProcessFunc(where.pos,
+                nextProcessInvokableSymbol, nextProcessSimpleVarRef);
 
         BInvokableSymbol filterInvokableSymbol = (BInvokableSymbol) symResolver.
                 resolvePkgSymbol(where.pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
