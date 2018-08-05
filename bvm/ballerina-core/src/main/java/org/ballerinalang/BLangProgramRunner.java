@@ -107,7 +107,7 @@ public class BLangProgramRunner {
             throw new BallerinaException(errorMsg);
         }
         
-        if (!functionInfo.isPublic()) {
+        if (!MAIN.equals(functionName) && !functionInfo.isPublic()) {
             // TODO: 8/4/18 check if we should special case main?
             throw new BallerinaException("non public function '" + functionName + "' not allowed as entry function");
         }

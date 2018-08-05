@@ -52,6 +52,7 @@ public class ServerInstance implements Server {
     private boolean isServerRunning;
     private int httpServerPort = 9099; //Constant.DEFAULT_HTTP_PORT;
     private ConcurrentHashSet<LogLeecher> tmpLeechers = new ConcurrentHashSet<>();
+    private ConcurrentHashSet<LogLeecher> tmpErrLeechers = new ConcurrentHashSet<>();
 
     /**
      * The parent directory which the ballerina runtime will be extracted to.
@@ -161,6 +162,7 @@ public class ServerInstance implements Server {
         tmpLeechers.forEach(leacher -> serverInfoLogReader.addLeecher(leacher));
         serverInfoLogReader.start();
         serverErrorLogReader = new ServerLogReader("errorStream", process.getErrorStream());
+        tmpErrLeechers.forEach(leacher -> serverErrorLogReader.addLeecher(leacher));
         serverErrorLogReader.start();
         log.info("Waiting for port " + httpServerPort + " to open");
         Utils.waitForPort(httpServerPort, 1000 * 60 * 2, false, "localhost");
@@ -272,10 +274,11 @@ public class ServerInstance implements Server {
             tmpLeechers.forEach(leacher -> serverInfoLogReader.addLeecher(leacher));
             serverInfoLogReader.start();
             serverErrorLogReader = new ServerLogReader("errorStream", process.getErrorStream());
+            tmpErrLeechers.forEach(leacher -> serverErrorLogReader.addLeecher(leacher));
             serverErrorLogReader.start();
 
             process.waitFor();
-            deleteWorkDir();
+//            deleteWorkDir();
         } catch (IOException e) {
             throw new BallerinaTestException("Error executing ballerina", e);
         } catch (InterruptedException e) {
@@ -421,6 +424,19 @@ public class ServerInstance implements Server {
             return;
         }
         serverInfoLogReader.addLeecher(leecher);
+    }
+
+    /**
+     * Add a Leecher which is going to listen to an expected text on the error stream.
+     *
+     * @param leecher The Leecher instance
+     */
+    public void addErrorLogLeecher(LogLeecher leecher) {
+        if (serverErrorLogReader == null) {
+            tmpErrLeechers.add(leecher);
+            return;
+        }
+        serverErrorLogReader.addLeecher(leecher);
     }
 
     /**

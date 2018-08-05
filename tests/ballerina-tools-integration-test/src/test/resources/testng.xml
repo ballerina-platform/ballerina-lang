@@ -30,4 +30,10 @@
         </classes>
     </test>
 
+    <test name="ballerina-run-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.test.run.*"/>
+        </packages>
+    </test>
+
 </suite>

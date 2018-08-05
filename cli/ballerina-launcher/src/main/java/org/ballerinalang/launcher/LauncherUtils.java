@@ -141,7 +141,7 @@ public class LauncherUtils {
                 if (MAIN_FUNCTION_NAME.equals(functionName)) {
                     exitStatus = (int) (((BInteger) entryFuncResult[0]).intValue());
                 } else {
-                    outStream.println(entryFuncResult[0] == null ? "()" : entryFuncResult[0]);
+                    outStream.println(entryFuncResult[0] == null ? "()" : entryFuncResult[0].stringValue());
                 }
             }
         } catch (BLangUsageException e) {

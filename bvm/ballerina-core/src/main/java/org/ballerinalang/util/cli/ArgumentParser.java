@@ -217,7 +217,7 @@ public class ArgumentParser {
                 }
             case TypeTags.TUPLE_TAG:
                 if (!value.startsWith("(") || !value.endsWith(")")) {
-                    throw new BLangUsageException("expected tuple notation (\"(a, b)\") for tuple typed parameter");
+                    throw new BLangUsageException("expected tuple notation (\"()\") with tuple arg");
                 }
                 return parseTupleArg((BTupleType) type, value.substring(1, value.length() - 1));
             case TypeTags.ARRAY_TAG:
@@ -228,15 +228,13 @@ public class ArgumentParser {
                         throw new BLangUsageException("incompatible types: expected array elements of type: "
                                                              + ((BArrayType) type).getElementType());
                     }
-                    throw new BLangUsageException("expected array notation (\"[\\\"a\\\", \\\"b\\\", \\\"c\\\"]\") for "
-                                                         + "array typed main function parameter");
+                    throw new BLangUsageException("expected array notation (\"[]\") with array arg");
                 }
             case TypeTags.MAP_TAG:
                 try {
                     return JSONUtils.jsonToBMap(JsonParser.parse(value), (BMapType) type);
                 } catch (BallerinaException e) {
-                    throw new BLangUsageException("expected map notation (\"{\\\"a\\\":\\\"b\\\"}\") for "
-                                                         + "map typed main function parameter");
+                    throw new BLangUsageException("expected map notation (\"{\\\"a\\\":\\\"b\\\"}\") with map arg");
                 }
             case TypeTags.UNION_TAG:
                 return parseUnionArg((BUnionType) type, value);
