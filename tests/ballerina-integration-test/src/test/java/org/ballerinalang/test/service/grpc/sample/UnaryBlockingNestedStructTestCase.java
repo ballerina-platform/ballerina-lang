@@ -82,7 +82,7 @@ public class UnaryBlockingNestedStructTestCase extends IntegrationTestCase {
         Assert.assertEquals(responses[0].stringValue(), "Client got response: Submitted name: Sam");
     }
 
-    @Test (enabled = false)
+    @Test
     public void testOutputNestedStructClient() {
         BString request = new BString("WSO2");
 
@@ -99,7 +99,7 @@ public class UnaryBlockingNestedStructTestCase extends IntegrationTestCase {
         Assert.assertEquals(nestedStruct.get("country").stringValue(), "USA");
     }
 
-    @Test (enabled = false)
+    @Test
     public void testInputStructOutputStruct() {
         //StockRequest request = {name: "WSO2"};
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");

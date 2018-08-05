@@ -57,7 +57,7 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
 
     private CompileResult result;
 
-    @BeforeClass
+    @BeforeClass (alwaysRun = true)
     private void setup() throws Exception {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "array_field_type_client.bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
@@ -175,7 +175,7 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
         Assert.assertEquals(response.stringValue(), ",Sam,John");
     }
 
-    @Test (enabled = false)
+    @Test
     public void testIntArrayOutputClient() {
         BValue[] responses = BRunUtil.invoke(result, "testIntArrayOutput", new BValue[]{});
         Assert.assertEquals(responses.length, 1);
@@ -192,7 +192,7 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
         Assert.assertEquals(structArray.get(4), 5);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testStringArrayOutputClient() {
         BValue[] responses = BRunUtil.invoke(result, "testStringArrayOutput", new BValue[]{});
         Assert.assertEquals(responses.length, 1);
@@ -207,7 +207,7 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
         Assert.assertEquals(structArray.get(2), "C");
     }
 
-    @Test (enabled = false)
+    @Test
     public void testFloatArrayOutputClient() {
         BValue[] responses = BRunUtil.invoke(result, "testFloatArrayOutput", new BValue[]{});
         Assert.assertEquals(responses.length, 1);
@@ -222,7 +222,7 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
         Assert.assertEquals(structArray.get(2), 1.3);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testBooleanArrayOutputClient() {
         BValue[] responses = BRunUtil.invoke(result, "testBooleanArrayOutput", new BValue[]{});
         Assert.assertEquals(responses.length, 1);
@@ -237,7 +237,7 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
         Assert.assertEquals(structArray.get(2), 1);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testStructArrayOutputClient() {
         BValue[] responses = BRunUtil.invoke(result, "testStructArrayOutput", new BValue[]{});
         Assert.assertEquals(responses.length, 1);

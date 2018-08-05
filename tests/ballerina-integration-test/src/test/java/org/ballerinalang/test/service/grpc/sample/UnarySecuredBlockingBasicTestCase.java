@@ -42,7 +42,7 @@ import java.nio.file.Paths;
 @Test(groups = "grpc-test")
 public class UnarySecuredBlockingBasicTestCase extends IntegrationTestCase {
 
-    @Test (enabled = false)
+    @Test
     public void testUnarySecuredBlocking() {
         
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "grpc_secured_unary_client.bal");

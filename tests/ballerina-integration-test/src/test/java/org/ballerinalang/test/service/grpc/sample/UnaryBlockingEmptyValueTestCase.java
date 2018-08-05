@@ -58,7 +58,7 @@ public class UnaryBlockingEmptyValueTestCase extends IntegrationTestCase {
         TestUtils.prepareBalo(this);
     }
 
-    @Test (enabled = false)
+    @Test
     public void testNoInputOutputStructClient() {
         //Person p = {name:"Danesh", address:{postalCode:10300, state:"Western", country:"Sri Lanka"}};
         BValue[] responses = BRunUtil.invoke(result, "testNoInputOutputStruct", new BValue[]{});
