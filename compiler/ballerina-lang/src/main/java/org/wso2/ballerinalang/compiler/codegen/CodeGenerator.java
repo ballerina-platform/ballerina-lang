@@ -515,6 +515,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
             varSymbol.varIndex = getLVIndex(varSymbol.type.tag);
             LocalVariableInfo localVarInfo = getLocalVarAttributeInfo(varSymbol);
+            setVariableScopeStart(localVarInfo, varNode);
+            setVariableScopeEnd(localVarInfo, varNode);
             localVarAttrInfo.localVars.add(localVarInfo);
         } else {
             // TODO Support other variable nodes
@@ -1619,6 +1621,13 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // Add local variable indexes to the parameters and return parameters
         visitInvokableNodeParams(invokableNode.symbol, callableUnitInfo, localVarAttributeInfo);
+
+        if(invokableNode.pos != null) {
+            localVarAttributeInfo.localVars.forEach(param -> {
+                param.scopeStartLineNumber = invokableNode.pos.sLine;
+                param.scopeEndLineNumber = invokableNode.pos.eLine;
+            });
+        }
 
         if (Symbols.isNative(invokableNode.symbol)) {
             this.processWorker(callableUnitInfo.defaultWorkerInfo, null,
@@ -3691,6 +3700,28 @@ public class CodeGenerator extends BLangNodeVisitor {
             RegIndex targetRegIndex = getRegIndex(TypeTags.ANY);
             emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, targetRegIndex, exceptOp);
             emit(opcode, targetRegIndex, calcAndGetExprRegIndex(fieldAccessExpr));
+        }
+    }
+
+    private void setVariableScopeStart(LocalVariableInfo localVarInfo, BLangVariable varNode) {
+        if (varNode.pos != null) {
+            localVarInfo.scopeStartLineNumber = varNode.pos.sLine;
+        }
+    }
+
+    private void setVariableScopeEnd(LocalVariableInfo localVarInfo, BLangVariable varNode) {
+        if ((varNode.parent == null) && (varNode.pos != null)) {
+            localVarInfo.scopeEndLineNumber = varNode.pos.eLine;
+        } else {
+            BLangNode parentNode = varNode;
+            while ((parentNode.parent != null)) {
+                parentNode = parentNode.parent;
+                if ((parentNode.getKind().equals(NodeKind.BLOCK)) && (parentNode.parent != null) &&
+                        (parentNode.parent.pos != null)) {
+                    localVarInfo.scopeEndLineNumber = parentNode.parent.pos.eLine;
+                    break;
+                }
+            }
         }
     }
 }

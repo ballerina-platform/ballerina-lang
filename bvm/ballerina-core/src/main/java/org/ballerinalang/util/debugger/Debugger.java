@@ -411,7 +411,12 @@ public class Debugger {
                     variableDTO.setBValue(ctx.workerLocal.refRegs[l.getVariableIndex()]);
                     break;
             }
-            frameDTO.addVariable(variableDTO);
+
+            // Show only the variables within the current scope
+            if ((l.getScopeStartLineNumber() < callingLine.getLineNumber()) &&
+                    (callingLine.getLineNumber() <= l.getScopeEndLineNumber())) {
+                frameDTO.addVariable(variableDTO);
+            }
         });
         return message;
     }
