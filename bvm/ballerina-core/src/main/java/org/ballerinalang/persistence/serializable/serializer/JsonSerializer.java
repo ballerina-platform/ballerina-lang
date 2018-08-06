@@ -52,6 +52,10 @@ import java.util.Map;
 public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
 
     private final IdentityHashMap<Object, Object> identityMap = new IdentityHashMap<>();
+    private final BValueProvider bValueProvider = BValueProvider.getInstance();
+
+    public JsonSerializer() {
+    }
 
     @Override
     public byte[] serialize(SerializableState sState) {
@@ -211,22 +215,40 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
         if (obj instanceof Enum) {
             return toBValue((Enum) obj);
         }
-        return convertReferenceSemanticObjec(obj, leftSideType);
+        return convertReferenceSemanticObject(obj, leftSideType);
     }
 
-    private BMap convertReferenceSemanticObjec(Object obj, Class<?> leftSideType) {
+    private BMap convertReferenceSemanticObject(Object obj, Class<?> leftSideType) {
         if (identityMap.containsKey(obj)) {
-            return getHashReference(obj);
+            return getExistingReference(obj);
         }
         identityMap.put(obj, obj);
+
+        // if obj is of known type to serialize
+        SerializationBValueProvider provider = bValueProvider.find(obj.getClass().getName());
+        if (provider != null) {
+            @SuppressWarnings("unchecked")
+            BMap<String, BValue> converted = (BMap<String, BValue>) provider.toBValue(obj);
+            addHashValue(obj, converted);
+            return converted;
+        }
         if (obj instanceof Map) {
-            return toBValue((Map) obj);
+            BMap map = toBValue((Map) obj);
+            addHashValue(obj, map);
+            return map;
         }
         if (obj instanceof List) {
-            return toBValue((List) obj);
+            BMap<String, BValue> map = toBValue((List) obj);
+            addHashValue(obj, map);
+            return map;
         }
-        Class<?> objClass = obj.getClass();
-        BMap map = convertToBValueViaReflection(obj, objClass, leftSideType);
+        if (obj.getClass().isArray()) {
+            BMap<String, BValue> map = arrayToBValue(obj);
+            addHashValue(obj, map);
+            return map;
+        }
+
+        BMap map = convertToBValueViaReflection(obj, leftSideType);
         addHashValue(obj, map);
         return map;
     }
@@ -252,17 +274,17 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
     }
 
     private void addHashValue(Object obj, BMap map) {
-        map.put(HASH_TAG, new BInteger(obj.hashCode()));
+        map.put(JsonSerializerConst.HASH_TAG, getHashCode(obj));
     }
 
-    private BMap<String, BValue> getHashReference(Object obj) {
+    private BMap<String, BValue> getExistingReference(Object obj) {
         BMap<String, BValue> map = new BMap<>();
-        int hashCode = obj.hashCode();
-        map.put(EXISTING_TAG, new BInteger(hashCode));
+        map.put(JsonSerializerConst.EXISTING_TAG, getHashCode(obj));
         return map;
     }
 
-    private BMap convertToBValueViaReflection(Object obj, Class<?> objClass, Class<?> leftSideType) {
+    private BMap convertToBValueViaReflection(Object obj, Class<?> leftSideType) {
+        Class<?> objClass = obj.getClass();
         BMap<String, BValue> map = new BMap<>();
         for (Field field : getAllFields(objClass)) {
             field.setAccessible(true);

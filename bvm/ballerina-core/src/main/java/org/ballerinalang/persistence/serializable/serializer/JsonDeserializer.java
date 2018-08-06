@@ -40,9 +40,13 @@ import org.ballerinalang.persistence.serializable.serializer.type.WorkerStateSer
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.jvm.hotspot.utilities.Assert;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,18 +55,16 @@ import java.util.Map;
  */
 public class JsonDeserializer {
     private final TypeInstanceProvider typeInstanceProvider;
+    private final BValueProvider bValueProvider;
     private static final Logger logger = LoggerFactory.getLogger(JsonDeserializer.class);
+    private final HashMap<String, Object> identityMap = new HashMap<>();
     private BRefType<?> treeHead;
 
     public JsonDeserializer(BRefType<?> objTree) {
         treeHead = objTree;
         typeInstanceProvider = TypeInstanceProvider.getInstance();
+        bValueProvider = BValueProvider.getInstance();
         registerTypeSerializationProviders(typeInstanceProvider);
-        registerTypePath(typeInstanceProvider);
-    }
-
-    private void registerTypePath(TypeInstanceProvider registry) {
-        // TODO:
     }
 
     private void registerTypeSerializationProviders(TypeInstanceProvider registry) {
@@ -87,8 +89,7 @@ public class JsonDeserializer {
     private Object deserialize(BValue jValue, Class<?> targetType) {
         if (jValue instanceof BMap) {
             BMap<String, BValue> jBMap = (BMap<String, BValue>) jValue;
-            Object emptyInstance = createInstance(jBMap, targetType);
-            return deserializeObject(jBMap, targetType.cast(emptyInstance), targetType);
+            return deserialize(jBMap, targetType);
         }
         if (jValue instanceof BNewArray) {
             return deserializeArray((BNewArray) jValue, targetType);
@@ -112,6 +113,64 @@ public class JsonDeserializer {
                 String.format("Unknown BValue type to deserialize: %s", jValue.getClass().getSimpleName()));
     }
 
+    private Object deserialize(BMap<String, BValue> jBMap, Class<?> targetType) {
+        Object object = findExisting(jBMap);
+        if (object != null) {
+            return object;
+        }
+        // try BValueProvider
+        String typeName = getTargetTypeName(targetType, jBMap);
+        if (typeName != null) {
+            SerializationBValueProvider provider = this.bValueProvider.find(typeName);
+            if (provider != null) {
+                return provider.toObject(jBMap);
+            }
+        }
+
+        Object emptyInstance = createInstance(jBMap, targetType);
+        addIdentity(jBMap, emptyInstance);
+        object = deserializeObject(jBMap, emptyInstance, targetType);
+        // check to make sure deserializeObject does not return a new object other than populating 'emptyInstance'
+        // we need it to return the same object so that we know object identity for handling #existing# objects.
+        if (object != emptyInstance) {
+            throw new BallerinaException("Internal error: deserializeObject should not create it's own objects.");
+        }
+        return object;
+    }
+
+    private String getTargetTypeName(Class<?> targetType, BMap<String, BValue> jBMap) {
+        String typeName = null;
+        if (targetType != null) {
+            typeName = targetType.getName();
+        } else {
+            BValue typeVal = jBMap.get(JsonSerializerConst.TYPE_TAG);
+            if (typeVal != null){
+                typeName = typeVal.stringValue();
+            }
+        }
+        return typeName;
+    }
+
+    private void addIdentity(BMap<String, BValue> jBMap, Object object) {
+        BValue hash = jBMap.get(JsonSerializerConst.HASH_TAG);
+        if (hash != null) {
+            identityMap.put(hash.stringValue(), object);
+        }
+    }
+
+    /**
+     * Try to find existing object if possible.
+     * @param jBMap
+     * @return
+     */
+    private Object findExisting(BMap<String, BValue> jBMap) {
+        BValue existingKey = jBMap.get(JsonSerializerConst.EXISTING_TAG);
+        if (existingKey != null) {
+            return identityMap.get(existingKey.stringValue());
+        }
+        return null;
+    }
+
     private Object deserializeArray(BNewArray jArray, Class<?> targetType) {
         int arrayLen = (int) jArray.size();
         Object[] array = new Object[arrayLen];
@@ -120,8 +179,7 @@ public class JsonDeserializer {
             Class itemType = Object.class;
             if (bValue instanceof BMap) {
                 String typeName = ((BMap) bValue).get("type").stringValue();
-                TypeSerializationProvider itemTypeProvider = typeInstanceProvider.findTypeProvider(typeName);
-                itemType = itemTypeProvider.getTypeClass();
+                itemType = findClass(typeName);
             }
             array[i] = deserialize(jArray.getBValue(i), itemType);
         }
@@ -203,7 +261,18 @@ public class JsonDeserializer {
             Object obj = deserialize(value, field.getType());
             primeFinalFieldForAssignment(field);
             try {
-                field.set(target, cast(obj, field.getType()));
+                Object newValue = cast(obj, field.getType());
+                if (newValue != null && field.getType().isArray()) {
+                    Object array;
+                    if (newValue instanceof List) {
+                        array = createArray(field, ((List) newValue).toArray());
+                    } else {
+                        array = createArray(field, (Object[]) newValue);
+                    }
+                    field.set(target, array);
+                } else {
+                    field.set(target, newValue);
+                }
             } catch (IllegalAccessException e) {
                 logger.warn(String.format(
                         "Cannot set field: %s, this probably is a final field \n" +
@@ -271,11 +340,10 @@ public class JsonDeserializer {
 
             Class<?> fieldType;
             if (value instanceof BMap) {
+                @SuppressWarnings("unchecked")
                 BMap<String, BValue> item = (BMap<String, BValue>) value;
-                BValue typeName = item.get("type");
-                TypeSerializationProvider typeProvider =
-                        typeInstanceProvider.findTypeProvider(typeName.stringValue());
-                fieldType = typeProvider.getTypeClass();
+                String typeName = item.get(JsonSerializerConst.TYPE_TAG).stringValue();
+                fieldType = findClass(typeName);
             } else if (value instanceof BBoolean) {
                 fieldType = BBoolean.class;
             } else {
@@ -284,5 +352,14 @@ public class JsonDeserializer {
             map.put(key, deserialize(value, fieldType));
         }
         return map;
+    }
+
+    private Class<?> findClass(String typeName) {
+        SerializationBValueProvider provider = this.bValueProvider.find(typeName);
+        if (provider != null) {
+            return provider.getType();
+        }
+        TypeSerializationProvider typeProvider = this.typeInstanceProvider.findTypeProvider(typeName);
+        return typeProvider.getTypeClass();
     }
 }
