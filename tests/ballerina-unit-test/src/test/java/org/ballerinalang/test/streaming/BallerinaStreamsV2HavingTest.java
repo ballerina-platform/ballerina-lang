@@ -28,7 +28,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This contains methods to test `where` clause behaviour in Ballerina Streaming V2.
+ * This contains methods to test `having` clause behaviour in Ballerina Streaming V2.
  *
  * @since 0.980.0
  */
