@@ -118,7 +118,7 @@ public class InitCommand implements BLauncherCmd {
                     if (srcInput.equalsIgnoreCase("service") || srcInput.equalsIgnoreCase("s") || srcInput.isEmpty()) {
                         String packageName;
                         do {
-                            out.print("Package for the service : (no package) ");
+                            out.print("Package for the service: (no package) ");
                             packageName = scanner.nextLine().trim();
                         } while (!validatePkgName(out, packageName));
                         SrcFile srcFile = new SrcFile(packageName, FileType.SERVICE);
@@ -132,7 +132,7 @@ public class InitCommand implements BLauncherCmd {
                     } else if (srcInput.equalsIgnoreCase("main") || srcInput.equalsIgnoreCase("m")) {
                         String packageName;
                         do {
-                            out.print("Package for the main : (no package) ");
+                            out.print("Package for the main: (no package) ");
                             packageName = scanner.nextLine().trim();
                         } while (!validatePkgName(out, packageName));
                         SrcFile srcFile = new SrcFile(packageName, FileType.MAIN);
@@ -249,7 +249,7 @@ public class InitCommand implements BLauncherCmd {
      */
     private boolean validatePkgName(PrintStream out, String pkgName) {
         if (pkgName.isEmpty()) {
-           return pkgName.isEmpty();
+           return true;
         }
         String validRegex = "^[a-zA-Z0-9_.]*$";
         Pattern pattern = Pattern.compile(validRegex);
