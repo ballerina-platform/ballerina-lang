@@ -33,7 +33,6 @@ import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap;
 import org.ballerinalang.persistence.serializable.serializer.JsonSerializer;
 import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProvider;
-import org.ballerinalang.persistence.serializable.serializer.TypeSerializationProvider;
 import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.test.utils.debug.TestDebugger;
 import org.testng.Assert;
@@ -49,6 +48,7 @@ public class JsonSerializerTest {
     private static final String INSTANCE_ID = "ABC123";
     private CompileResult compileResult;
     private TestStorageProvider storageProvider;
+    private BigDecimal bigDecimal;
 
     @BeforeClass
     public void setup() {
@@ -119,16 +119,20 @@ public class JsonSerializerTest {
         BMap<String, BValue> bmap = (BMap) bmapKey1.getBRefType(compileResult.getProgFile(), state, new Deserializer());
         BString value = (BString) bmap.get("bmapKey1");
         Assert.assertEquals(value.value(), "bmap_str_val");
-        StringFieldAB multiLevel = (StringFieldAB)state.globalProps.get("multiLevel");
+        StringFieldAB multiLevel = (StringFieldAB) state.globalProps.get("multiLevel");
         Assert.assertEquals(multiLevel.B, "B");
         Assert.assertEquals(multiLevel.A, "A");
+
+        BigDecimal dec = (BigDecimal) state.globalProps.get("dec");
+        Assert.assertTrue(dec.equals(bigDecimal));
     }
 
     private void mock(SerializableState serializableState) {
         serializableState.globalProps.put("gProp1", new BString("gProp1:BString"));
         serializableState.globalProps.put("gProp2", Arrays.asList("Item-1", "Item-2", "Item-3"));
         serializableState.globalProps.put("multiLevel", new StringFieldAB("A", "B"));
-        serializableState.globalProps.put("dec", new BigDecimal("123456789999"));
+        bigDecimal = new BigDecimal("123456789999");
+        serializableState.globalProps.put("dec", bigDecimal);
 
         BMap<String, BRefType> bMap = new BMap<>();
         bMap.put("bmapKey1", new BString("bmap_str_val"));
