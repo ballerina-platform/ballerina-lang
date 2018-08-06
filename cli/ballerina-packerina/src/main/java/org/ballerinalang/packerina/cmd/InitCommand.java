@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -219,16 +218,11 @@ public class InitCommand implements BLauncherCmd {
      */
     private boolean validateVersion(PrintStream out, String versionAsString) {
         String semverRegex = "((?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*))";
-        Pattern pattern = Pattern.compile(semverRegex);
-        Matcher matcher = pattern.matcher(versionAsString);
-        int count = 0;
-        while (matcher.find()) {
-            count++;
-        }
-        if (count != 1) {
+        boolean matches = Pattern.matches(semverRegex, versionAsString);
+        if (!matches) {
             out.println("--Invalid version: \"" + versionAsString + "\"");
         }
-        return count == 1;
+        return matches;
     }
 
     private String guessOrgName() {
@@ -252,16 +246,11 @@ public class InitCommand implements BLauncherCmd {
            return true;
         }
         String validRegex = "^[a-zA-Z0-9_.]*$";
-        Pattern pattern = Pattern.compile(validRegex);
-        Matcher matcher = pattern.matcher(pkgName);
-        int count = 0;
-        while (matcher.find()) {
-            count++;
-        }
-        if (count != 1) {
+        boolean matches = Pattern.matches(validRegex, pkgName);
+        if (!matches) {
             out.println("--Invalid package name: \"" + pkgName + "\"." + " Package name can only contain " +
                                 "alphanumeric, underscore and DOT");
         }
-        return count == 1;
+        return matches;
     }
 }
