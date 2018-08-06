@@ -38,7 +38,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import java.util.NoSuchElementException;
 
 /**
- * Native function to get session if valid session id exist.
+ * Extern function to get session if valid session id exist.
  *
  * @since 0.89
  */
@@ -86,7 +86,7 @@ public class GetSession extends BlockingNativeCallableUnit {
                     return;
                 }
                 //path Validity check
-                if (session != null && session.getPath().equals(path)) {
+                if (session.getPath().equals(path)) {
                     session.setNew(false);
                     session.setAccessed();
                 } else {

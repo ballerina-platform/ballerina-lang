@@ -63,7 +63,7 @@ public class GetQueryParams extends BlockingNativeCallableUnit {
             } else {
                 context.setReturnValues(new BMap<>(mapType));
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new BallerinaException("Error while retrieving query param from message: " + e.getMessage());
         }
     }

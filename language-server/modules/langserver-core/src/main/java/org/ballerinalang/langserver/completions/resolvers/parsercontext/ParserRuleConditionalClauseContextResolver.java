@@ -17,23 +17,24 @@
 */
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.util.filters.PackageActionFunctionAndTypesFilter;
+import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.ballerinalang.langserver.completions.util.sorters.ConditionalStatementItemSorter;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,23 +51,16 @@ public class ParserRuleConditionalClauseContextResolver extends AbstractItemReso
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         Either<List<CompletionItem>, List<SymbolInfo>> itemList;
         if (isInvocationOrFieldAccess(completionContext)) {
-            itemList = SymbolFilters.getFilterByClass(PackageActionFunctionAndTypesFilter.class)
-                    .filterItems(completionContext);
+            itemList = SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(completionContext);
         } else {
-            List<SymbolInfo> symbolInfoList =
-                    this.filterConditionalSymbols(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
-            itemList = Either.forRight(symbolInfoList);
+            List<SymbolInfo> symbolInfoList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+            symbolInfoList.removeIf(CommonUtil.invalidSymbolsPredicate());
+            itemList = Either.forRight(this.filterConditionalSymbols(symbolInfoList));
             this.populateTrueFalseKeywords(completionItems);
         }
-        
-        if (itemList.isLeft()) {
-            completionItems.addAll(itemList.getLeft());
-        } else {
-            this.populateCompletionItemList(itemList.getRight(), completionItems);
-        }
 
-        ItemSorters.getSorterByClass(ConditionalStatementItemSorter.class)
-                .sortItems(completionContext, completionItems);
+        completionItems.addAll(this.getCompletionsFromEither(itemList));
+        ItemSorters.get(ConditionalStatementItemSorter.class).sortItems(completionContext, completionItems);
 
         return completionItems;
     }
@@ -76,11 +70,11 @@ public class ParserRuleConditionalClauseContextResolver extends AbstractItemReso
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
             return (bSymbol instanceof BTypeSymbol && bSymbol instanceof BPackageSymbol)
                     || (bSymbol instanceof BVarSymbol && !(bSymbol instanceof BInvokableSymbol))
-                    || (bSymbol instanceof BInvokableSymbol && !(bSymbol instanceof BOperatorSymbol)
-                    && (((BInvokableSymbol) bSymbol).receiverSymbol == null));
+                    || (CommonUtil.isValidInvokableSymbol(bSymbol)
+                    && ((bSymbol.flags & Flags.ATTACHED) != Flags.ATTACHED));
         }).collect(Collectors.toList());
     }
-    
+
     private void populateTrueFalseKeywords(List<CompletionItem> completionItems) {
         CompletionItem trueItem = new CompletionItem();
         CompletionItem falseItem = new CompletionItem();

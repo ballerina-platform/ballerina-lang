@@ -69,8 +69,9 @@ public class CommandExecutor {
 
     /**
      * Command Execution router.
-     * @param params    Parameters for the command
-     * @param context   Workspace service context
+     * @param params            Parameters for the command
+     * @param context           Workspace service context
+     * @param lsGlobalContext   Global Language Server context               
      */
     public static void executeCommand(ExecuteCommandParams params, LSServiceOperationContext context,
                                       LSGlobalContext lsGlobalContext) {
@@ -120,7 +121,7 @@ public class CommandExecutor {
             int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
             BLangPackage bLangPackage = LSCompiler.getBLangPackage(context,
                     context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class,
-                    false).get(0);
+                    false).getRight();
             context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                     bLangPackage.symbol.getName().getValue());
             String pkgName = context.get(ExecuteCommandKeys.PKG_NAME_KEY);
@@ -132,7 +133,7 @@ public class CommandExecutor {
                     .collect(Collectors.toList());
 
             if (!imports.isEmpty()) {
-                BLangImportPackage lastImport = bLangPackage.getImports().get(bLangPackage.getImports().size() - 1);
+                BLangImportPackage lastImport = CommonUtil.getLastItem(bLangPackage.getImports());
                 pos = lastImport.getPosition();
             } else {
                 pos = null;
@@ -204,7 +205,7 @@ public class CommandExecutor {
         int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
 
         BLangPackage bLangPackage = LSCompiler.getBLangPackage(context, documentManager, false,
-                                                               LSCustomErrorStrategy.class, false).get(0);
+                                                               LSCustomErrorStrategy.class, false).getRight();
         if (bLangPackage == null) {
             return;
         }
@@ -239,7 +240,7 @@ public class CommandExecutor {
 
         BLangPackage bLangPackage = LSCompiler.getBLangPackage(context,
                 context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class,
-                false).get(0);
+                false).getRight();
 
         CommandUtil.DocAttachmentInfo docAttachmentInfo = getDocumentEditForNodeByPosition(topLevelNodeType,
                 bLangPackage, line);
@@ -276,7 +277,8 @@ public class CommandExecutor {
             }
         }
         BLangPackage bLangPackage = LSCompiler.getBLangPackage(context,
-                context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class, false).get(0);
+                context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class, false)
+                .getRight();
 
         String fileContent = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY)
                 .getFileContent(Paths.get(URI.create(documentUri)));
@@ -413,7 +415,7 @@ public class CommandExecutor {
     private static int getReplaceFromForServiceOrResource(BLangNode bLangNode,
                                                           List<BLangAnnotationAttachment> annotationAttachments) {
         if (!annotationAttachments.isEmpty()) {
-            return CommonUtil.toZeroBasedPosition(annotationAttachments.get(annotationAttachments.size() - 1)
+            return CommonUtil.toZeroBasedPosition(CommonUtil.getLastItem(annotationAttachments)
                     .getPosition()).getEndLine() + 1;
         }
 

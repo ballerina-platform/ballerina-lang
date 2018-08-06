@@ -60,6 +60,7 @@ public class WebSocketTestClient {
     private WebSocketTestClientHandler webSocketHandler;
     private final URI uri;
     private EventLoopGroup group;
+    private boolean first = true;
 
     public WebSocketTestClient(String url) throws URISyntaxException {
         this(url, new HashMap<>());
@@ -109,6 +110,31 @@ public class WebSocketTestClient {
             throw new IllegalArgumentException("Cannot find the channel to write");
         }
         channel.writeAndFlush(new TextWebSocketFrame(text)).sync();
+    }
+
+    /**
+     * Send text to the server.
+     *
+     * @param text    text need to be sent.
+     * @param isFinal whether the text is final
+     * @throws InterruptedException if connection is interrupted while sending the message.
+     */
+    public void sendText(String text, boolean isFinal) throws InterruptedException {
+        if (channel == null) {
+            logger.error("Channel is null. Cannot send text.");
+            throw new IllegalArgumentException("Cannot find the channel to write");
+        }
+        if (!isFinal) {
+            if (first) {
+                channel.writeAndFlush(new TextWebSocketFrame(false, 0, text)).sync();
+                first = false;
+            } else {
+                channel.writeAndFlush(new ContinuationWebSocketFrame(false, 0, text));
+            }
+        } else {
+            channel.writeAndFlush(new ContinuationWebSocketFrame(true, 0, text));
+            first = true;
+        }
     }
 
     /**

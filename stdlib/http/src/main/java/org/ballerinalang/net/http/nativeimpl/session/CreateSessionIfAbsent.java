@@ -38,7 +38,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import java.util.NoSuchElementException;
 
 /**
- * Native function to create session if session id not exist, otherwise return existing session.
+ * Extern function to create session if session id not exist, otherwise return existing session.
  *
  * @since 0.89
  */
@@ -81,7 +81,7 @@ public class CreateSessionIfAbsent extends BlockingNativeCallableUnit {
                 }
                 if (session == null) {
                     session = SessionManager.getInstance().createHTTPSession(path);
-                } else if (session != null && session.getPath().equals(path)) { //path validity check
+                } else if (session.getPath().equals(path)) { //path validity check
                     session.setNew(false);
                     session.setAccessed();
                 } else {
@@ -100,8 +100,6 @@ public class CreateSessionIfAbsent extends BlockingNativeCallableUnit {
             httpCarbonMessage.setProperty(HttpConstants.HTTP_SESSION, session);
             httpCarbonMessage.removeHeader(HttpConstants.COOKIE_HEADER);
             context.setReturnValues(HttpUtil.createSessionStruct(context, session));
-            return;
-
         } catch (IllegalStateException e) {
             throw new BallerinaException(e.getMessage(), e);
         }

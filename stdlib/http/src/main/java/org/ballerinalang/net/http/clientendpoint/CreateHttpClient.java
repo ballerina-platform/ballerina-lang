@@ -62,7 +62,6 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 )
 public class CreateHttpClient extends BlockingNativeCallableUnit {
 
-    private static final int DEFAULT_MAX_REDIRECT_COUNT = 5;
     private HttpWsConnectorFactory httpConnectorFactory = HttpUtil.createHttpWsConnectionFactory();
 
     @Override

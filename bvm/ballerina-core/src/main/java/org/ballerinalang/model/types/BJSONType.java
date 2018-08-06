@@ -17,7 +17,8 @@
 */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BValue;
 
 /**
@@ -36,11 +37,11 @@ public class BJSONType extends BType {
      * @param pkgPath of the type
      */
     public BJSONType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, BJSON.class);
+        super(typeName, pkgPath, BRefType.class);
     }
 
     public BJSONType(BType constraint) {
-        super(TypeConstants.JSON_TNAME, null, BJSON.class);
+        super(TypeConstants.JSON_TNAME, null, BRefType.class);
         this.constraint = constraint;
     }
 
@@ -55,7 +56,7 @@ public class BJSONType extends BType {
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return (V) new BJSON("{}");
+        return (V) new BMap();
     }
 
     @Override

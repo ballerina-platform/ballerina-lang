@@ -21,16 +21,24 @@ package org.ballerinalang.net.websub;
 
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpService;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SERVICE_ENDPOINT;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_NOTIFICATION_REQUEST;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
+import static org.ballerinalang.net.websub.WebSubUtils.retrieveResourceDetails;
+import static org.ballerinalang.net.websub.WebSubUtils.validateParamNumber;
+import static org.ballerinalang.net.websub.WebSubUtils.validateStructType;
 
 /**
  * Resource validator for WebSub Subscriber Services.
@@ -39,12 +47,9 @@ import java.util.List;
  */
 class WebSubSubscriberServiceValidator {
 
-    private static final Logger logger = LoggerFactory.getLogger(WebSubSubscriberServiceValidator.class);
-
-    static void validateResources(HttpService service, String topicHeader,
-                                  BMap<String, BMap<String, BString>> topicResourceMap) {
-        if (topicHeader != null && topicResourceMap != null) {
-            validateCustomResources(service.getResources(), topicResourceMap);
+    static void validateResources(HttpService service, String topicIdentifier, WebSubServicesRegistry serviceRegistry) {
+        if (topicIdentifier != null) {
+            validateCustomResources(service.getResources(), serviceRegistry);
         } else {
             validateDefaultResources(service.getResources());
         }
@@ -54,17 +59,17 @@ class WebSubSubscriberServiceValidator {
         for (HttpResource resource : resources) {
             String resourceName = resource.getName();
             switch (resourceName) {
-                case WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION:
+                case RESOURCE_NAME_ON_INTENT_VERIFICATION:
                     validateOnIntentVerificationResource(resource.getBalResource());
                     break;
-                case WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION:
+                case RESOURCE_NAME_ON_NOTIFICATION:
                     validateOnNotificationResource(resource.getBalResource());
                     break;
                 default:
                     throw new BallerinaException(String.format("Invalid resource name %s for WebSubSubscriberService. "
                                                         + "Allowed resource names [%s, %s]", resourceName,
-                                                        WebSubSubscriberConstants.RESOURCE_NAME_ON_INTENT_VERIFICATION,
-                                                        WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION));
+                                                        RESOURCE_NAME_ON_INTENT_VERIFICATION,
+                                                        RESOURCE_NAME_ON_NOTIFICATION));
             }
         }
     }
@@ -72,71 +77,38 @@ class WebSubSubscriberServiceValidator {
     private static void validateOnIntentVerificationResource(Resource resource) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         validateParamNumber(paramDetails, 2, resource.getName());
-        validateStructType(resource.getName(), paramDetails.get(0), WebSubSubscriberConstants.WEBSUB_PACKAGE,
-                           WebSubSubscriberConstants.SERVICE_ENDPOINT);
-        validateStructType(resource.getName(), paramDetails.get(1), WebSubSubscriberConstants.WEBSUB_PACKAGE,
-                           WebSubSubscriberConstants.STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST);
+        validateStructType(resource.getName(), paramDetails.get(0), WEBSUB_PACKAGE, SERVICE_ENDPOINT);
+        validateStructType(resource.getName(), paramDetails.get(1), WEBSUB_PACKAGE,
+                           STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST);
     }
 
     private static void validateOnNotificationResource(Resource resource) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         validateParamNumber(paramDetails, 1, resource.getName());
-        validateStructType(resource.getName(), paramDetails.get(0), WebSubSubscriberConstants.WEBSUB_PACKAGE,
-                           WebSubSubscriberConstants.STRUCT_WEBSUB_NOTIFICATION_REQUEST);
+        validateStructType(resource.getName(), paramDetails.get(0), WEBSUB_PACKAGE, STRUCT_WEBSUB_NOTIFICATION_REQUEST);
     }
 
-    private static void validateParamNumber(List<ParamDetail> paramDetails, int expectedSize, String resourceName) {
-        if (paramDetails == null || paramDetails.size() < expectedSize) {
-            throw new BallerinaException(String.format("Invalid resource signature for WebSub Resource \"%s\"",
-                                                       resourceName));
-        }
+    private static void validateCustomNotificationResource(Resource resource, String packageName, String structName) {
+        List<ParamDetail> paramDetails = resource.getParamDetails();
+        validateParamNumber(paramDetails, 2, resource.getName());
+        validateStructType(resource.getName(), paramDetails.get(0), WEBSUB_PACKAGE, STRUCT_WEBSUB_NOTIFICATION_REQUEST);
+        validateStructType(resource.getName(), paramDetails.get(1), packageName, structName);
     }
 
-    private static void validateStructType(String resourceName, ParamDetail paramDetail, String packageName,
-                                           String structName) {
-        if (!paramDetail.getVarType().getPackagePath().equals(packageName)) {
-            throw new BallerinaException(
-                    String.format("Invalid parameter type %s:%s %s in resource %s. Requires %s:%s",
-                                  paramDetail.getVarType().getPackagePath(), paramDetail.getVarType().getName(),
-                                  paramDetail.getVarName(), resourceName, packageName, structName));
-        }
+    private static void validateCustomResources(List<HttpResource> resources, WebSubServicesRegistry serviceRegistry) {
+        HashMap<String, String[]> resourceDetails = retrieveResourceDetails(serviceRegistry);
+        List<String> invalidResourceNames = retrieveInvalidResourceNames(resources, resourceDetails);
 
-        if (!paramDetail.getVarType().getName().equals(structName)) {
-            throw new BallerinaException(
-                    String.format("Invalid parameter type %s:%s %s in resource %s. Requires %s:%s",
-                                  paramDetail.getVarType().getPackagePath(), paramDetail.getVarType().getName(),
-                                  paramDetail.getVarName(), resourceName, packageName, structName));
-        }
-    }
-
-    private static void validateCustomResources(List<HttpResource> resources,
-                                                BMap<String, BMap<String, BString>> topicResourceMap) {
-        List<String> resourceNames = retrieveResourceNames(topicResourceMap);
-        List<String> invalidResourceNames = retrieveInvalidResourceNames(resources, resourceNames);
-
-        if (!resourceNames.isEmpty()) {
-            logger.warn("Resource(s) specified in topic-resource mapping not found: " + resourceNames);
-        }
         if (!invalidResourceNames.isEmpty()) {
             throw new BallerinaException("Resource name(s) not included in the topic-resource mapping found: "
                                                  + invalidResourceNames);
         }
     }
 
-    private static List<String> retrieveResourceNames(BMap<String, BMap<String, BString>> topicResourceMap) {
-        List<String> resourceNames = new ArrayList<>();
 
-        for (String key : topicResourceMap.keySet()) {
-            BMap<String, BString> topicResourceSubMap = topicResourceMap.get(key);
-            for (String topic: topicResourceSubMap.keySet()) {
-                resourceNames.add(topicResourceSubMap.get(topic).stringValue());
-            }
-        }
-
-        return resourceNames;
-    }
-
-    private static List<String> retrieveInvalidResourceNames(List<HttpResource> resources, List<String> resourceNames) {
+    private static List<String> retrieveInvalidResourceNames(List<HttpResource> resources,
+                                                             HashMap<String, String[]> resourceDetails) {
+        Set<String> resourceNames = resourceDetails.keySet();
         List<String> invalidResourceNames = new ArrayList<>();
 
         for (HttpResource resource : resources) {
@@ -144,7 +116,9 @@ class WebSubSubscriberServiceValidator {
             if (!resourceNames.contains(resourceName)) {
                 invalidResourceNames.add(resourceName);
             } else {
-                validateOnNotificationResource(resource.getBalResource());
+                String[] resourceParamDetails = resourceDetails.get(resourceName);
+                validateCustomNotificationResource(resource.getBalResource(), resourceParamDetails[0],
+                                                   resourceParamDetails[1]);
                 resourceNames.remove(resourceName);
             }
         }

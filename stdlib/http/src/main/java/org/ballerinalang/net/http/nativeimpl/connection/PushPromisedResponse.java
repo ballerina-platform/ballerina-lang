@@ -30,7 +30,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -43,7 +42,7 @@ import java.io.OutputStream;
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 
 /**
- * {@code PushPromisedResponse} is the native function to respond back the client with Server Push response.
+ * {@code PushPromisedResponse} is the extern function to respond back the client with Server Push response.
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
@@ -97,7 +96,7 @@ public class PushPromisedResponse extends ConnectionAction {
 
         BMap<String, BValue> entityStruct = extractEntity(outboundResponseStruct);
         if (entityStruct != null) {
-            MessageDataSource outboundMessageSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+            BValue outboundMessageSource = EntityBodyHandler.getMessageDataSource(entityStruct);
             serializeMsgDataSource(outboundMessageSource, entityStruct, messageOutputStream);
         }
     }

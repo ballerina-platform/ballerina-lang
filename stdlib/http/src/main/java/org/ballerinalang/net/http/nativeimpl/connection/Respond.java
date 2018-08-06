@@ -47,7 +47,7 @@ import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIEL
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
 
 /**
- * Native function to respond back the caller with outbound response.
+ * Extern function to respond back the caller with outbound response.
  *
  * @since 0.96
  */

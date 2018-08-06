@@ -43,31 +43,31 @@ public type Listener object {
     }
     public function init(ServiceEndpointConfiguration c);
 
-    public native function initEndpoint() returns error;
+    public extern function initEndpoint() returns error;
 
     documentation {
         Gets invoked when binding a service to the endpoint.
 
         P{{serviceType}} The type of the service to be registered
     }
-    public native function register(typedesc serviceType);
+    public extern function register(typedesc serviceType);
 
     documentation {
         Starts the registered service.
     }
-    public native function start();
+    public extern function start();
 
     documentation {
         Returns the connector that client code uses.
 
         R{{}} The connector that client code uses
     }
-    public native function getCallerActions() returns (Connection);
+    public extern function getCallerActions() returns (Connection);
 
     documentation {
         Stops the registered service.
     }
-    public native function stop();
+    public extern function stop();
 };
 
 documentation {
@@ -245,6 +245,8 @@ public type WebSocketListener object {
         Stops the registered service.
     }
     public function stop() {
+        WebSocketConnector webSocketConnector = getCallerActions();
+        check webSocketConnector.close(1001, "going away", timeoutInSecs = 0);
         httpEndpoint.stop();
     }
 };

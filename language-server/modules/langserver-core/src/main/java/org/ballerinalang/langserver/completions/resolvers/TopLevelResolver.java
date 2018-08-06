@@ -43,26 +43,23 @@ public class TopLevelResolver extends AbstractItemResolver {
     public List<CompletionItem> resolveItems(LSServiceOperationContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         ParserRuleContext parserRuleContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
-        AbstractItemResolver errorContextResolver = parserRuleContext == null ? null :
+        AbstractItemResolver itemResolver = parserRuleContext == null ? null :
                 CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
         Stack<Token> poppedTokens = ctx.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY);
 
         if (this.isAnnotationStart(ctx)) {
             completionItems.addAll(CompletionItemResolver
                     .getResolverByClass(ParserRuleAnnotationAttachmentResolver.class).resolveItems(ctx));
-        } else {
-            if (errorContextResolver == null
-                    || errorContextResolver == this
-                    || (errorContextResolver instanceof ParserRuleGlobalVariableDefinitionContextResolver
-                    && poppedTokens.size() < 2)) {
+        } else if (itemResolver == null
+                || (itemResolver instanceof ParserRuleGlobalVariableDefinitionContextResolver
+                && poppedTokens.size() < 2)) {
                 addTopLevelItems(completionItems);
-                this.populateBasicTypes(completionItems, ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
-            } else {
-                completionItems.addAll(errorContextResolver.resolveItems(ctx));
-            }
+                completionItems.addAll(this.populateBasicTypes(ctx.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
+        } else {
+            completionItems.addAll(itemResolver.resolveItems(ctx));
         }
 
-        ItemSorters.getSorterByClass(DefaultItemSorter.class).sortItems(ctx, completionItems);
+        ItemSorters.get(DefaultItemSorter.class).sortItems(ctx, completionItems);
         return completionItems;
     }
 
@@ -88,6 +85,10 @@ public class TopLevelResolver extends AbstractItemResolver {
         addStaticItem(completionItems, ItemResolverConstants.MAIN_FUNCTION, Snippet.MAIN_FUNCTION.toString(),
                 ItemResolverConstants.SNIPPET_TYPE);
         addStaticItem(completionItems, ItemResolverConstants.SERVICE, Snippet.SERVICE.toString(),
+                ItemResolverConstants.SNIPPET_TYPE);
+        addStaticItem(completionItems, ItemResolverConstants.SERVICE_WEBSOCKET, Snippet.SERVICE_WEBSOCKET.toString(),
+                ItemResolverConstants.SNIPPET_TYPE);
+        addStaticItem(completionItems, ItemResolverConstants.SERVICE_WEBSUB, Snippet.SERVICE_WEBSUB.toString(),
                 ItemResolverConstants.SNIPPET_TYPE);
         addStaticItem(completionItems, ItemResolverConstants.ANNOTATION, Snippet.ANNOTATION_DEFINITION.toString(),
                 ItemResolverConstants.SNIPPET_TYPE);

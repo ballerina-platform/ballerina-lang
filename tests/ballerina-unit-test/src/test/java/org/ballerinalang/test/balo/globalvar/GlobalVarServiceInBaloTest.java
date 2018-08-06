@@ -20,7 +20,9 @@ package org.ballerinalang.test.balo.globalvar;
 
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.util.JsonParser;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.balo.BaloCreator;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
@@ -57,10 +59,12 @@ public class GlobalVarServiceInBaloTest {
         HttpCarbonMessage response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"glbVarInt":800, "glbVarString":"value", "glbVarFloat":99.34323}
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("glbVarInt").asText(), "800");
-        Assert.assertEquals(bJson.value().get("glbVarString").asText(), "value");
-        Assert.assertEquals(bJson.value().get("glbVarFloat").asText(), "99.34323");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertTrue(bJson instanceof BMap);
+        BMap<String, BValue> jsonObject = (BMap<String, BValue>) bJson;
+        Assert.assertEquals(jsonObject.get("glbVarInt").stringValue(), "800");
+        Assert.assertEquals(jsonObject.get("glbVarString").stringValue(), "value");
+        Assert.assertEquals(jsonObject.get("glbVarFloat").stringValue(), "99.34323");
     }
 
     @Test(description = "Test accessing global variables in service level")
@@ -69,8 +73,8 @@ public class GlobalVarServiceInBaloTest {
         HttpCarbonMessage response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"serviceVarFloat":99.34323}
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("serviceVarFloat").asText(), "99.34323");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("serviceVarFloat").stringValue(), "99.34323");
     }
 
     @Test(description = "Test accessing global arrays in resource level")
@@ -81,12 +85,14 @@ public class GlobalVarServiceInBaloTest {
         Assert.assertNotNull(response);
         //Expected Json message : {"glbArrayElement":1, "glbSealedArrayElement":0,
         // "glbSealedArray2Element":3, "glbSealed2DArrayElement":0, "glbSealed2DArray2Element":2}
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("glbArrayElement").asText(), "1");
-        Assert.assertEquals(bJson.value().get("glbSealedArrayElement").asText(), "0");
-        Assert.assertEquals(bJson.value().get("glbSealedArray2Element").asText(), "3");
-        Assert.assertEquals(bJson.value().get("glbSealed2DArrayElement").asText(), "0");
-        Assert.assertEquals(bJson.value().get("glbSealed2DArray2Element").asText(), "2");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertTrue(bJson instanceof BMap);
+        BMap<String, BValue> jsonObject = (BMap<String, BValue>) bJson;
+        Assert.assertEquals(jsonObject.get("glbArrayElement").stringValue(), "1");
+        Assert.assertEquals(jsonObject.get("glbSealedArrayElement").stringValue(), "0");
+        Assert.assertEquals(jsonObject.get("glbSealedArray2Element").stringValue(), "3");
+        Assert.assertEquals(jsonObject.get("glbSealed2DArrayElement").stringValue(), "0");
+        Assert.assertEquals(jsonObject.get("glbSealed2DArray2Element").stringValue(), "2");
     }
 
     @Test(description = "Test changing global variables in resource level")
@@ -95,8 +101,9 @@ public class GlobalVarServiceInBaloTest {
         HttpCarbonMessage response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"glbVarFloatChange":77.87}
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("glbVarFloatChange").asText(), "77.87");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertTrue(bJson instanceof BMap);
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("glbVarFloatChange").stringValue(), "77.87");
     }
 
     @Test(description = "Test accessing changed global var in another resource in same service")
@@ -108,8 +115,9 @@ public class GlobalVarServiceInBaloTest {
         HttpCarbonMessage response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"glbVarFloatChange":77.87}
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("glbVarFloatChange").asText(), "77.87");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertTrue(bJson instanceof BMap);
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("glbVarFloatChange").stringValue(), "77.87");
     }
 
     @Test(description = "Test accessing changed global var in another resource in different service")
@@ -122,8 +130,9 @@ public class GlobalVarServiceInBaloTest {
         HttpCarbonMessage response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, cMsg);
         Assert.assertNotNull(response);
         //Expected Json message : {"glbVarFloatChange":77.87}
-        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
-        Assert.assertEquals(bJson.value().get("glbVarFloatChange").asText(), "77.87");
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertTrue(bJson instanceof BMap);
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("glbVarFloatChange").stringValue(), "77.87");
     }
 
     @AfterClass

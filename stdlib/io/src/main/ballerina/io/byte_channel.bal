@@ -30,7 +30,7 @@ public type ByteChannel object {
         P{{nBytes}} Positive integer. Represents the number of bytes which should be read
         R{{}} Content, the number of bytes read or an error
     }
-    public native function read(@sensitive int nBytes) returns @tainted (byte[], int)|error;
+    public extern function read(@sensitive int nBytes) returns @tainted (byte[], int)|error;
 
     documentation {
         Sink bytes from a given input/output resource.
@@ -41,26 +41,26 @@ public type ByteChannel object {
         R{{offset}} Offset which should be kept when writing bytes
         R{{}} Number of bytes written or an error
     }
-    public native function write(byte[] content, int offset) returns int|error;
+    public extern function write(byte[] content, int offset) returns int|error;
 
     documentation {
         Closes a given byte channel.
 
         R{{}} Will return () if there's no error
     }
-    public native function close() returns error?;
+    public extern function close() returns error?;
 
     documentation {
         Encodes a given ByteChannel with Base64 encoding scheme.
 
         R{{}} Return an encoded ByteChannel or an error
     }
-    public native function base64Encode() returns ByteChannel|error;
+    public extern function base64Encode() returns ByteChannel|error;
 
     documentation {
         Decodes a given ByteChannel with Base64 encoding scheme.
 
         R{{}} Return a decoded ByteChannel or an error
     }
-    public native function base64Decode() returns ByteChannel|error;
+    public extern function base64Decode() returns ByteChannel|error;
 };

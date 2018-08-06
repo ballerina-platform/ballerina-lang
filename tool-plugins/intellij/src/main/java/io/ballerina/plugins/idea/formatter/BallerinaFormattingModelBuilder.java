@@ -83,6 +83,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.EVENTS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EVERY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXPRESSION_LIST;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FAIL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FIELD;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FIELD_DEFINITION;
@@ -143,7 +144,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.MONTH;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.MUL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.NAMED_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.NAME_REFERENCE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.NATIVE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.NEW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.NOT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.NOT_EQUAL;
@@ -254,7 +254,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(AS).spaceIf(true)
                 .around(PUBLIC).spaceIf(true)
                 .around(PRIVATE).spaceIf(true)
-                .around(NATIVE).spaceIf(true)
+                .around(EXTERN).spaceIf(true)
                 .around(RESOURCE).spaceIf(true)
                 .around(OBJECT).spaceIf(true)
                 .around(ENUM).spaceIf(true)
@@ -526,7 +526,8 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
 
                 .around(STATEMENT).lineBreakOrForceSpace(true, true)
                 .between(MATCH_EXPRESSION_PATTERN_CLAUSE, COMMA).lineBreakOrForceSpace(false, false)
-                .around(MATCH_EXPRESSION_PATTERN_CLAUSE).lineBreakOrForceSpace(true, true)
+                 //TODO verify whether this should be removed
+                 // .around(MATCH_EXPRESSION_PATTERN_CLAUSE).lineBreakOrForceSpace(true, true)
                 .aroundInside(BLOCK, NAMED_PATTERN).lineBreakOrForceSpace(true, true)
 
                 .betweenInside(RIGHT_PARENTHESIS, LEFT_BRACE, IF_CLAUSE).spaceIf(true)

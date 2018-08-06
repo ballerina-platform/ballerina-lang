@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/internal;
+
 documentation {
     Represents a WebSocket connector in ballerina. This include all connector oriented operations.
 }
@@ -23,12 +25,39 @@ public type WebSocketConnector object {
     documentation {
         Push text to the connection.
 
-        P{{text}} Text to be sent
+        P{{data}} Data to be sent, if byte[] it is converted to a UTF-8 string for sending
         P{{final}} True if this is a final frame of a (long) message
         R{{}} `error` if an error occurs when sending
     }
-    public native function pushText(string text, boolean final = true) returns error?;
+    public function pushText(string|json|xml|boolean|int|float|byte|byte[] data, boolean final = true) returns error? {
+        string text;
+        match data {
+            byte byteContent => {
+                text = <string>(<int>byteContent);
+            }
+            int integerContent => {
+                text = <string>integerContent;
+            }
+            float floatContent => {
+                text = <string>floatContent;
+            }
+            byte[] byteArrayContent => {
+                text = internal:byteArrayToString(byteArrayContent, "UTF-8");
+            }
+            string textContent => {
+                text = textContent;
+            }
+            xml xmlContent => {
+                text = <string>xmlContent;
+            }
+            json jsonContent => {
+                text = jsonContent.toString();
+            }
+        }
+        return externPushText(text, final);
+    }
 
+    extern function externPushText(string text, boolean final) returns error?;
     documentation {
         Push binary data to the connection.
 
@@ -36,7 +65,7 @@ public type WebSocketConnector object {
         P{{final}} True if this is a final frame of a (long) message
         R{{}} `error` if an error occurs when sending
     }
-    public native function pushBinary(byte[] data, boolean final = true) returns error?;
+    public extern function pushBinary(byte[] data, boolean final = true) returns error?;
 
     documentation {
         Ping the connection.
@@ -44,7 +73,7 @@ public type WebSocketConnector object {
         P{{data}} Binary data to be sent.
         R{{}} `error` if an error occurs when sending
     }
-    public native function ping(byte[] data) returns error?;
+    public extern function ping(byte[] data) returns error?;
 
     documentation {
         Send pong message to the connection.
@@ -52,7 +81,7 @@ public type WebSocketConnector object {
         P{{data}} Binary data to be sent
         R{{}} `error` if an error occurs when sending
     }
-    public native function pong(byte[] data) returns error?;
+    public extern function pong(byte[] data) returns error?;
 
     documentation {
         Close the connection.
@@ -66,7 +95,7 @@ public type WebSocketConnector object {
                            within waiting period the connection is terminated immediately.
         R{{}} `error` if an error occurs when sending
     }
-    public native function close(int statusCode, string reason, int timeoutInSecs = 60) returns error?;
+    public extern function close(int statusCode, string reason, int timeoutInSecs = 60) returns error?;
 
     documentation {
         Called when the endpoint is ready to receive messages. Can be called only once per endpoint. For the
@@ -74,7 +103,7 @@ public type WebSocketConnector object {
 
         R{{}} `error` if an error occurs when sending
     }
-    public native function ready() returns error?;
+    public extern function ready() returns error?;
 
 };
 

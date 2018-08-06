@@ -810,7 +810,7 @@ public class Types {
                 return getExplicitArrayConversionOperator(t, s, t, s);
             } else if (s.tag == TypeTags.UNION) {
                 if (checkUnionTypeToJSONConvertibility((BUnionType) s, t)) {
-                    return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECK_CONVERSION);
+                    return createConversionOperatorSymbol(s, t, false, InstructionCodes.O2JSON);
                 }
                 return symTable.notFoundSymbol;
             } else if (s.tag == TypeTags.MAP) {

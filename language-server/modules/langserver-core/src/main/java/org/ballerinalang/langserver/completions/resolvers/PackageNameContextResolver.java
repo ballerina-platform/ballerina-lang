@@ -47,18 +47,12 @@ public class PackageNameContextResolver extends AbstractItemResolver {
                 .stream()
                 .map(Token::getText)
                 .collect(Collectors.toList());
-        String lastPoppedToken = poppedTokens.get(poppedTokens.size() - 1);
-        if (lastPoppedToken.equals(UtilSymbolKeys.IMPORT_KEYWORD_KEY)) {
+        
+        if (poppedTokens.contains(UtilSymbolKeys.SLASH_KEYWORD_KEY)) {
+            String orgName = poppedTokens.get(poppedTokens.indexOf(UtilSymbolKeys.SLASH_KEYWORD_KEY) - 1);
+            completionItems.addAll(this.getPackageNameCompletions(orgName, packagesList));
+        } else if (poppedTokens.contains(UtilSymbolKeys.IMPORT_KEYWORD_KEY)) {
             completionItems.addAll(this.getOrgNameCompletionItems(packagesList));
-        } else {
-            int slashIndex = poppedTokens.indexOf(UtilSymbolKeys.SLASH_KEYWORD_KEY);
-            
-            if (slashIndex > 0) {
-                String orgName = poppedTokens.get(slashIndex - 1);
-                completionItems.addAll(this.getPackageNameCompletions(orgName, packagesList));
-            } else {
-                completionItems.addAll(this.getOrgNameCompletionItems(packagesList));
-            }
         }
 
         return completionItems;
@@ -68,11 +62,12 @@ public class PackageNameContextResolver extends AbstractItemResolver {
         List<String> orgNames = new ArrayList<>();
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
-        packagesList.stream()
-                .filter(ballerinaPackage -> !orgNames.contains(ballerinaPackage.getOrgName()))
-                .forEach(ballerinaPackage -> orgNames.add(ballerinaPackage.getOrgName()));
-
-        orgNames.forEach(orgName -> fillImportCompletion(orgName, orgName, completionItems));
+        packagesList.forEach(pkg -> {
+            if (!orgNames.contains(pkg.getOrgName())) {
+                completionItems.add(getImportCompletion(pkg.getOrgName(), pkg.getOrgName()));
+                orgNames.add(pkg.getOrgName());
+            }
+        });
 
         return completionItems;
     }
@@ -86,19 +81,20 @@ public class PackageNameContextResolver extends AbstractItemResolver {
             if (orgName.equals(ballerinaPackage.getOrgName()) && !pkgNameLabels.contains(label)) {
                 pkgNameLabels.add(label);
                 String insertText = label + ";";
-                fillImportCompletion(label, insertText, completionItems);
+                completionItems.add(getImportCompletion(label, insertText));
             }
         });
         
         return completionItems;
     }
     
-    private static void fillImportCompletion(String label, String insertText, List<CompletionItem> completionItems) {
+    private static CompletionItem getImportCompletion(String label, String insertText) {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
         item.setInsertText(insertText);
         item.setKind(CompletionItemKind.File);
         item.setDetail(ItemResolverConstants.PACKAGE_TYPE);
-        completionItems.add(item);
+        
+        return item;
     }
 }

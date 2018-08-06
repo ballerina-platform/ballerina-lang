@@ -25,7 +25,6 @@ import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.symbols.SymbolKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
@@ -35,12 +34,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 
 /**
@@ -49,7 +48,6 @@ import java.util.Queue;
 public class BLangAnnotationAttachmentContextResolver extends AbstractItemResolver {
     @Override
     public List<CompletionItem> resolveItems(LSServiceOperationContext ctx) {
-
         BLangNode symbolEnvNode = ctx.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
         if (symbolEnvNode instanceof BLangAnnotationAttachment
                 && ((BLangAnnotationAttachment) symbolEnvNode).expr instanceof BLangRecordLiteral) {
@@ -62,52 +60,56 @@ public class BLangAnnotationAttachmentContextResolver extends AbstractItemResolv
 
         return new ArrayList<>();
     }
-    
+
     private ArrayList<CompletionItem> findAllFieldsFromMetaInfo(LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        AnnotationAttachmentMetaInfo annotationMeta = ctx.get(CompletionKeys.ANNOTATION_ATTACHMENT_META_KEY);
+        Optional<BRecordType> filteredRecord = Optional.empty();
+        AnnotationAttachmentMetaInfo metaInfo = ctx.get(CompletionKeys.ANNOTATION_ATTACHMENT_META_KEY);
         HashMap<PackageID, List<BAnnotationSymbol>> annotationMap =
-                LSAnnotationCache.getInstance().getAnnotationMapForType(annotationMeta.getAttachmentPoint(), ctx);
-        BAnnotationSymbol filteredAnnotation = null;
+                LSAnnotationCache.getInstance().getAnnotationMapForType(metaInfo.getAttachmentPoint(), ctx);
+
+        /*
+        Iterate over the annotations map and find the package entry for the given package alias.
+        From this entry extract the particular annotation attachment and extract the record field
+         */
         for (Map.Entry<PackageID, List<BAnnotationSymbol>> packageIDListEntry : annotationMap.entrySet()) {
-            List<Name> pkgNameComps = packageIDListEntry.getKey().getNameComps();
-            if (annotationMeta.getPackageAlias().equals(pkgNameComps.get(pkgNameComps.size() - 1).getValue())) {
-                String finalAnnotationName = annotationMeta.getAttachmentName();
-                filteredAnnotation = packageIDListEntry.getValue().stream().filter(annotationSymbol ->
-                        annotationSymbol.getName().getValue().equals(finalAnnotationName)).findFirst().orElse(null);
+            String packageName = CommonUtil.getLastItem(packageIDListEntry.getKey().getNameComps()).getValue();
+            if (metaInfo.getPackageAlias().equals(packageName)) {
+                Optional<BAnnotationSymbol> filteredAnnotation = packageIDListEntry.getValue()
+                        .stream()
+                        .filter(symbol -> symbol.getName().getValue().equals(metaInfo.getAttachmentName()))
+                        .findFirst();
+                filteredRecord = filteredAnnotation.isPresent()
+                        ? getRecordType(filteredAnnotation.get())
+                        : Optional.empty();
                 break;
             }
         }
 
-        if (filteredAnnotation == null || filteredAnnotation.kind != SymbolKind.ANNOTATION) {
-            return null;
+        // Populate the fields from the record field.
+        if (filteredRecord.isPresent()) {
+            List<BField> fields = metaInfo.getFieldQueue().isEmpty()
+                    ? filteredRecord.get().fields
+                    : findAllRecordFields(filteredRecord.get(), metaInfo.getFieldQueue().poll(),
+                    metaInfo.getFieldQueue());
+            completionItems.addAll(CommonUtil.getStructFieldCompletionItems(fields));
         }
-        if (filteredAnnotation.attachedType instanceof BRecordTypeSymbol
-                && ((BRecordTypeSymbol) filteredAnnotation.attachedType).type instanceof BRecordType) {
-            
-            BRecordType recordType = (BRecordType) ((BRecordTypeSymbol) filteredAnnotation.attachedType).type;
-            if (annotationMeta.getFieldQueue().isEmpty()) {
-                completionItems.addAll(CommonUtil.getStructFieldPopulateCompletionItems(recordType.fields));
-            } else {
-                completionItems.addAll(CommonUtil.getStructFieldPopulateCompletionItems(
-                        findAllRecordFieldsOnFieldsQueue(recordType, annotationMeta.getFieldQueue().poll(), 
-                                annotationMeta.getFieldQueue())
-                ));
-            }
-            
-        }
-        
+
         return completionItems;
     }
 
     /**
      * Find all the record fields from the field stack found going through the token stream.
+     * 
+     * Note: Here, go through the fields stack (fields stack represent the nested record structure) and get the fields
+     *       for the inner most record.
+     * 
      * @param recordType    BLang Record
      * @param fieldName     Field name to find
      * @param fieldsQueue   Field queue containing the remaining field hierarchy
      * @return {@link List} List of fields
      */
-    private List<BField> findAllRecordFieldsOnFieldsQueue(BRecordType recordType, String fieldName,
+    private List<BField> findAllRecordFields(BRecordType recordType, String fieldName,
                                              Queue<String> fieldsQueue) {
         for (BField field : recordType.fields) {
             BType bType = field.getType();
@@ -118,10 +120,25 @@ public class BLangAnnotationAttachmentContextResolver extends AbstractItemResolv
                 if (fieldsQueue.isEmpty()) {
                     return ((BRecordType) bType).fields;
                 }
-                return findAllRecordFieldsOnFieldsQueue((BRecordType) bType, fieldsQueue.poll(), fieldsQueue);
+                return findAllRecordFields((BRecordType) bType, fieldsQueue.poll(), fieldsQueue);
             }
         }
 
         return new ArrayList<>();
+    }
+
+    /**
+     * Get the record type from the given annotation symbol.
+     *
+     * @param symbol                Annotation symbol to extract the record type
+     * @return {@link Optional}     BRecordType extracted
+     */
+    private Optional<BRecordType> getRecordType(BAnnotationSymbol symbol) {
+        if (symbol.attachedType instanceof BRecordTypeSymbol
+                && ((BRecordTypeSymbol) symbol.attachedType).type instanceof BRecordType) {
+            return Optional.of((BRecordType) ((BRecordTypeSymbol) symbol.attachedType).type);
+        }
+        
+        return Optional.empty();
     }
 }
