@@ -35,7 +35,7 @@ function main(string... args) {
     handleUpdate(ret, "Insert to student table with no parameters");
 
     // The query parameters are given as variables for the update operation. Only int,
-    // float, boolean, string and blob values are supported as direct variables.
+    // float, boolean, and string values are supported as direct variables.
     int age = 24;
     string name = "Anne";
     ret = testDB->update("INSERT INTO student(age, name) values (?, ?)",
