@@ -116,8 +116,11 @@ public class InitCommand implements BLauncherCmd {
                     srcInput = scanner.nextLine().trim();
 
                     if (srcInput.equalsIgnoreCase("service") || srcInput.equalsIgnoreCase("s") || srcInput.isEmpty()) {
-                        out.print("Package for the service : (no package) ");
-                        String packageName = scanner.nextLine().trim();
+                        String packageName;
+                        do {
+                            out.print("Package for the service : (no package) ");
+                            packageName = scanner.nextLine().trim();
+                        } while (!validatePkgName(out, packageName));
                         SrcFile srcFile = new SrcFile(packageName, FileType.SERVICE);
                         sourceFiles.add(srcFile);
                         SrcFile srcTestFile = new SrcFile(packageName, FileType.SERVICE_TEST);
@@ -127,8 +130,11 @@ public class InitCommand implements BLauncherCmd {
                             packageMdFiles.add(packageMdFile);
                         }
                     } else if (srcInput.equalsIgnoreCase("main") || srcInput.equalsIgnoreCase("m")) {
-                        out.print("Package for the main : (no package) ");
-                        String packageName = scanner.nextLine().trim();
+                        String packageName;
+                        do {
+                            out.print("Package for the main : (no package) ");
+                            packageName = scanner.nextLine().trim();
+                        } while (!validatePkgName(out, packageName));
                         SrcFile srcFile = new SrcFile(packageName, FileType.MAIN);
                         sourceFiles.add(srcFile);
                         SrcFile srcTestFile = new SrcFile(packageName, FileType.MAIN_TEST);
@@ -235,4 +241,23 @@ public class InitCommand implements BLauncherCmd {
         return guessOrgName;
     }
 
+    /**
+     * Validates the package name.
+     *
+     * @param pkgName The package name.
+     * @return True if valid package name, else false.
+     */
+    private boolean validatePkgName(PrintStream out, String pkgName) {
+        String validRegex = "^([a-zA-Z0-9]|(^\\s))*$";
+        Pattern pattern = Pattern.compile(validRegex);
+        Matcher matcher = pattern.matcher(pkgName);
+        int count = 0;
+        while (matcher.find()) {
+            count++;
+        }
+        if (count != 1) {
+            out.println("Invalid package name: \"" + pkgName + "\"");
+        }
+        return count == 1;
+    }
 }
