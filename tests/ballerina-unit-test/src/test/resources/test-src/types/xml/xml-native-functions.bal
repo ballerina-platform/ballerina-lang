@@ -842,3 +842,45 @@ function testGetChildrenOfSequence() returns (int, xml) {
     xml x4 = x3.*;
     return (lengthof x4, x4);
 }
+
+function testAddChildren() returns (xml, xml) {
+    xml x1 = xml `<name><fname>John</fname><lname>Doe</lname></name>`;
+    xml children = x1.*;
+    xml x2 = xml `<age>50</age>`;
+    xml x3 = xml `<city>Colombo</city>`;
+    xml x4 = xml `<country>SL</country>`;
+    xml x5 = xml `<!-- unknown person -->`;
+    xml x6 = xml `marital status: unknown`;
+    xml x7 = x3 + x4;
+    x1.appendChildren(x2);
+    x1.appendChildren(x5);
+    x1.appendChildren(x6);
+    x1.appendChildren(x7);
+    return (x1, children);
+}
+
+function testRemoveSingleChild() returns (xml, xml) {
+    xml x1 = xml `<name><fname>John</fname><lname>Doe</lname></name>`;
+    xml children = x1.*;
+    xml x2 = xml `<age>50</age>`;
+    x1.appendChildren(x2);
+    x1.removeChildren("foo"); // remove non existing child
+    x1.removeChildren("lname");
+    return (children, x1.*);
+}
+
+function testRemoveChildren() returns (xml, xml) {
+    xml x1 = xml `<person><name>John</name><name>Jane</name><age>50</age><name>Doe</name></person>`;
+    xml children = x1.*;
+    x1.removeChildren("foo"); // remove non existing child
+    x1.removeChildren("name");
+    return (children, x1.*);
+}
+
+function testRemoveChildrenWithNamesapces() returns (xml, xml) {
+    xmlns "http://wso2.com" as ns0;
+    xml x1 = xml `<person><name>John</name><ns0:name>Foo</ns0:name><age>50</age><name>Doe</name></person>`;
+    xml children = x1.*;
+    x1.removeChildren(ns0:name);
+    return (children, x1.*);
+}
