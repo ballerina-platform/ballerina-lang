@@ -190,12 +190,11 @@ public class Equals extends BlockingNativeCallableUnit {
         }
         
         // Check if key set is equal.
-        if (!lhsMap.keySet().containsAll(rhsMap.keySet())) {
+        if (!lhsMap.getMap().keySet().containsAll(rhsMap.getMap().keySet())) {
             return false;
         }
-        
-        List<String> keys = Arrays.stream(lhsMap.keySet().toArray()).map(String.class::cast).collect
-                (Collectors.toList());
+
+        List<String> keys = Arrays.stream(lhsMap.keys()).map(String.class::cast).collect(Collectors.toList());
         for (int i = 0; i < lhsMap.size(); i++) {
             if (!isEqual(lhsMap.get(keys.get(i)), rhsMap.get(keys.get(i)))) {
                 return false;

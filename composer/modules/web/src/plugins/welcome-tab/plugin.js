@@ -28,6 +28,7 @@ import WelcomeTab from './views/welcome-tab';
 import { LABELS, VIEWS as WELCOME_TAB_VIEWS, WELCOME_TAB_PLUGIN_ID, COMMANDS as COMMAND_IDS } from './constants';
 import allBBes from './sample-data/all-bbes.json';
 import builtBBes from './sample-data/built-bbes.json';
+import skipBBes from './sample-data/skip-bbes.json';
 
 /**
  * Plugin for Welcome tab.
@@ -86,6 +87,9 @@ class WelcomeTabPlugin extends Plugin {
         // remove unbuilt samples
         const cleaned = allBBes.map((group) => {
             group.samples = group.samples.filter((item) => {
+                if (skipBBes.indexOf(item.url) > -1) {
+                    return false;
+                }
                 return builtBBes.indexOf(item.url) > -1;
             });
             return group;

@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * This Class tests receiving and sending of custom headers by Ballerina WebSocket client.
  */
-public class CustomHeaderClientSupportTest extends WebSocketIntegrationTest {
+public class CustomHeaderClientSupportTest extends WebSocketTestCommons {
 
     private WebSocketRemoteServer remoteServer;
     private WebSocketTestClient client;

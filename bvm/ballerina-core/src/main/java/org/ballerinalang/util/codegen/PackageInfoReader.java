@@ -682,8 +682,9 @@ public class PackageInfoReader {
 
         int globalMemIndex = dataInStream.readInt();
 
+        BType type = getBTypeFromDescriptor(packageInfo, sigUTF8CPEntry.getValue());
         PackageVarInfo packageVarInfo = new PackageVarInfo(nameCPIndex, nameUTF8CPEntry.getValue(),
-                sigCPIndex, sigUTF8CPEntry.getValue(), globalMemIndex);
+                sigCPIndex, globalMemIndex, type);
 
         // Read attributes
         readAttributeInfoEntries(packageInfo, constantPool, packageVarInfo);
@@ -1231,7 +1232,6 @@ public class PackageInfoReader {
                 case InstructionCodes.ANY2SCONV:
                 case InstructionCodes.S2XML:
                 case InstructionCodes.XML2S:
-                case InstructionCodes.NULL2S:
                 case InstructionCodes.AWAIT:
                 case InstructionCodes.XMLLOADALL:
                 case InstructionCodes.ARRAY2JSON:
@@ -1297,6 +1297,7 @@ public class PackageInfoReader {
                 case InstructionCodes.BIRSHIFT:
                 case InstructionCodes.IRSHIFT:
                 case InstructionCodes.ILSHIFT:
+                case InstructionCodes.IURSHIFT:
                 case InstructionCodes.XMLATTRLOAD:
                 case InstructionCodes.XMLATTRSTORE:
                 case InstructionCodes.S2QNAME:

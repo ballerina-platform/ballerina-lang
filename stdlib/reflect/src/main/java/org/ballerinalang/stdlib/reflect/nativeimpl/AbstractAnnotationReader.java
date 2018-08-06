@@ -54,7 +54,7 @@ abstract class AbstractAnnotationReader extends BlockingNativeCallableUnit {
         BRefValueArray annotationArray = new BRefValueArray(structInfo.getType());
         BMap<String, BValue> annotationMap = (BMap<String, BValue>) map;
         long index = 0;
-        for (String key : annotationMap.keySet()) {
+        for (String key : annotationMap.keys()) {
             final String annotationQName = key.split("\\$")[0];
             final String annotationName = annotationQName.substring(annotationQName.lastIndexOf(":") + 1);
             final String pkgQName = annotationQName.substring(0, annotationQName.lastIndexOf(":"));

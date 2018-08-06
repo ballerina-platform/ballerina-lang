@@ -64,11 +64,7 @@ public type WebSocketClient object {
     }
     public function stop() {
         WebSocketConnector webSocketConnector = getCallerActions();
-        error|() value = webSocketConnector.close(1001, "going away");
-        match value {
-            error err => throw err;
-            () => {}
-        }
+        check webSocketConnector.close(1001, "going away", timeoutInSecs = 0);
     }
 };
 

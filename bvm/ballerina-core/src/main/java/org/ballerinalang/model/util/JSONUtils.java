@@ -63,7 +63,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -96,9 +95,9 @@ public class JSONUtils {
     }
 
     /**
-     * Convert {@link BIntArray} to {@link BJSON}.
+     * Convert {@link BIntArray} to JSON.
      *
-     * @param intArray {@link BIntArray} to be converted to {@link BJSON}
+     * @param intArray {@link BIntArray} to be converted to JSON
      * @return JSON representation of the provided intArray
      */
     public static BRefValueArray convertArrayToJSON(BIntArray intArray) {
@@ -111,9 +110,9 @@ public class JSONUtils {
     }
 
     /**
-     * Convert {@link BFloatArray} to {@link BJSON}.
+     * Convert {@link BFloatArray} to JSON.
      *
-     * @param floatArray {@link BFloatArray} to be converted to {@link BJSON}
+     * @param floatArray {@link BFloatArray} to be converted to JSON
      * @return JSON representation of the provided floatArray
      */
     public static BRefValueArray convertArrayToJSON(BFloatArray floatArray) {
@@ -126,9 +125,9 @@ public class JSONUtils {
     }
 
     /**
-     * Convert {@link BStringArray} to {@link BJSON}.
+     * Convert {@link BStringArray} to JSON.
      *
-     * @param stringArray {@link BStringArray} to be converted to {@link BJSON}
+     * @param stringArray {@link BStringArray} to be converted to JSON
      * @return JSON representation of the provided stringArray
      */
     public static BRefValueArray convertArrayToJSON(BStringArray stringArray) {
@@ -141,9 +140,9 @@ public class JSONUtils {
     }
 
     /**
-     * Convert {@link BBooleanArray} to {@link BJSON}.
+     * Convert {@link BBooleanArray} to JSON.
      *
-     * @param booleanArray {@link BBooleanArray} to be converted to {@link BJSON}
+     * @param booleanArray {@link BBooleanArray} to be converted to JSON
      * @return JSON representation of the provided booleanArray
      */
     public static BRefValueArray convertArrayToJSON(BBooleanArray booleanArray) {
@@ -156,9 +155,9 @@ public class JSONUtils {
     }
 
     /**
-     * Convert {@link BNewArray} to {@link BJSON}.
+     * Convert {@link BNewArray} to JSON.
      *
-     * @param bArray {@link BNewArray} to be converted to {@link BJSON}
+     * @param bArray {@link BNewArray} to be converted to JSON
      * @return JSON representation of the provided bArray
      */
     public static BRefValueArray convertArrayToJSON(BNewArray bArray) {
@@ -179,9 +178,9 @@ public class JSONUtils {
     }
 
     /**
-     * Convert {@link BRefValueArray} to {@link BJSON}.
+     * Convert {@link BRefValueArray} to JSON.
      *
-     * @param refValueArray {@link BRefValueArray} to be converted to {@link BJSON}
+     * @param refValueArray {@link BRefValueArray} to be converted to JSON
      * @return JSON representation of the provided refValueArray
      */
     @SuppressWarnings({ "rawtypes" })
@@ -214,7 +213,7 @@ public class JSONUtils {
     }
 
     /**
-     * Convert map value to {@link BJSON}.
+     * Convert map value to JSON.
      *
      * @param map value {@link BMap} to be converted to JSON
      * @param targetType the target JSON type to be convert to
@@ -707,7 +706,7 @@ public class JSONUtils {
     /**
      * Returns the keys of a JSON as a {@link BStringArray}.
      * 
-     * @param json {@link BJSON} to get the keys
+     * @param json JSON to get the keys
      * @return Keys of the JSON as a {@link BStringArray}
      */
     public static BStringArray getKeys(BValue json) {
@@ -715,8 +714,8 @@ public class JSONUtils {
             return new BStringArray();
         }
 
-        Set<String> keys = ((BMap<String, BValue>) json).keySet();
-        return new BStringArray(keys.toArray(new String[keys.size()]));
+        String[] keys = ((BMap<String, BValue>) json).keys();
+        return new BStringArray(keys);
     }
 
     public static BRefType<?> convertUnionTypeToJSON(BRefType<?> source, BJSONType targetType) {

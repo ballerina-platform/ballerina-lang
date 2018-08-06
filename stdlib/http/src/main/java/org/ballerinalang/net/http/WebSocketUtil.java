@@ -40,7 +40,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 
 import java.util.List;
 
@@ -73,13 +73,13 @@ public class WebSocketUtil {
     }
 
     public static void handleHandshake(WebSocketService wsService, WebSocketConnectionManager connectionManager,
-                                       HttpHeaders headers, WebSocketInitMessage initMessage, Context context,
+                                       HttpHeaders headers, WebSocketHandshaker webSocketHandshaker, Context context,
                                        CallableUnitCallback callback) {
         String[] subProtocols = wsService.getNegotiableSubProtocols();
         int idleTimeoutInSeconds = wsService.getIdleTimeoutInSeconds();
         int maxFrameSize = wsService.getMaxFrameSize();
-        ServerHandshakeFuture future = initMessage.handshake(subProtocols, true, idleTimeoutInSeconds * 1000, headers,
-                                                             maxFrameSize);
+        ServerHandshakeFuture future = webSocketHandshaker.handshake(subProtocols, true, idleTimeoutInSeconds * 1000,
+                                                                     headers, maxFrameSize);
         future.setHandshakeListener(new ServerHandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
@@ -94,7 +94,7 @@ public class WebSocketUtil {
                 populateEndpoint(webSocketConnection, webSocketEndpoint);
                 WebSocketOpenConnectionInfo connectionInfo =
                         new WebSocketOpenConnectionInfo(wsService, webSocketConnection, webSocketEndpoint);
-                connectionManager.addConnection(webSocketConnection.getId(), connectionInfo);
+                connectionManager.addConnection(webSocketConnection.getChannelId(), connectionInfo);
                 webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO,
                                                  connectionInfo);
                 if (context != null && callback != null) {
@@ -159,7 +159,7 @@ public class WebSocketUtil {
 
     public static void populateEndpoint(WebSocketConnection webSocketConnection,
                                         BMap<String, BValue> webSocketEndpoint) {
-        webSocketEndpoint.put(WebSocketConstants.LISTENER_ID_FIELD, new BString(webSocketConnection.getId()));
+        webSocketEndpoint.put(WebSocketConstants.LISTENER_ID_FIELD, new BString(webSocketConnection.getChannelId()));
         webSocketEndpoint.put(WebSocketConstants.LISTENER_NEGOTIATED_SUBPROTOCOLS_FIELD,
                 new BString(webSocketConnection.getNegotiatedSubProtocol()));
         webSocketEndpoint.put(WebSocketConstants.LISTENER_IS_SECURE_FIELD,

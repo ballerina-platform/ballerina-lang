@@ -195,7 +195,7 @@ class ExplorerItem extends React.Component {
                         }
                     >
                         <div className={classnames('arrow', { collapsed: this.state.node.collapsed })} />
-                        <i className='fw fw-ballerina-project-fill' />
+                        <i className='fw fw-ballerina-project-fill fw-fw tree-node-icon' />
                         <span className='root-label'>{this.state.node.label}</span>
                         <span className='root-actions'>
                             <i

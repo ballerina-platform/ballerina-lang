@@ -29,6 +29,7 @@ import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.completions.util.CursorPositionResolvers;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.BlockStatementScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.CursorPositionResolver;
+import org.ballerinalang.langserver.completions.util.positioning.resolvers.FunctionNodeScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.InvocationParameterScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.MatchExpressionScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.MatchStatementScopeResolver;
@@ -220,7 +221,12 @@ public class TreeVisitor extends LSNodeVisitor {
         funcNode.endpoints.forEach(bLangEndpoint -> this.acceptNode(bLangEndpoint, funcEnv));
 
         if (!funcNode.getWorkers().isEmpty()) {
-            funcNode.workers.forEach(e -> this.acceptNode(e, funcEnv));
+            funcNode.workers.forEach(e -> {
+                this.blockOwnerStack.push(funcNode);
+                this.cursorPositionResolver = FunctionNodeScopeResolver.class;
+                this.acceptNode(e, funcEnv);
+                this.blockOwnerStack.pop();
+            });
         } else if (funcNode.getBody() != null) {
             this.blockOwnerStack.push(funcNode);
             this.cursorPositionResolver = BlockStatementScopeResolver.class;
@@ -465,7 +471,12 @@ public class TreeVisitor extends LSNodeVisitor {
         resourceNode.endpoints.forEach(bLangEndpoint -> this.acceptNode(bLangEndpoint, resourceEnv));
 
         cursorPositionResolver = ResourceParamScopeResolver.class;
-        resourceNode.workers.forEach(w -> this.acceptNode(w, resourceEnv));
+        resourceNode.workers.forEach(w -> {
+            this.blockOwnerStack.push(resourceNode);
+            this.cursorPositionResolver = FunctionNodeScopeResolver.class;
+            this.acceptNode(w, resourceEnv);
+            this.blockOwnerStack.pop();
+        });
         this.blockOwnerStack.push(resourceNode);
         cursorPositionResolver = BlockStatementScopeResolver.class;
         acceptNode(resourceNode.body, resourceEnv);

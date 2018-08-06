@@ -139,7 +139,7 @@ import ballerina/websub;
 function main(string... args) {
 
     log:printInfo("Starting up the Ballerina Hub Service");
-    websub:WebSubHub webSubHub = websub:startUpBallerinaHub(port = 9191) but {
+    websub:WebSubHub webSubHub = websub:startHub(9191) but {
         websub:HubStartedUpError hubStartedUpErr => hubStartedUpErr.startedUpHub
     };
 

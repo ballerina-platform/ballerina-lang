@@ -18,7 +18,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Header, Icon, Grid, Popup, Button, Label } from 'semantic-ui-react';
+import { Icon, Popup, Label } from 'semantic-ui-react';
 import CompilationUnitNode from '../model/tree/compilation-unit-node';
 import TreeUtil from '../model/tree-util';
 import { RESPOSIVE_MENU_TRIGGER } from '../constants';
@@ -78,19 +78,29 @@ class DefinitionViewMenu extends React.Component {
                 { structs.length > 0 &&
                     <Popup
                         trigger={
-                          <Label as='a' color='white'>
-                              <Icon name={'fw fw-struct'} />
-                              <span>Objects</span>
-                              <Label.Detail>{structs.length}</Label.Detail>
-                          </Label>
+                            <Label as='a' color='white'>
+                                <Icon name={'fw fw-struct'} />
+                                <span>Objects</span>
+                                <Label.Detail>{structs.length}</Label.Detail>
+                            </Label>
                         }
                         className='definitions-popup-window'
                         position='bottom right'
                         flowing
                         wide
-                        hideOnScroll>
+                        hideOnScroll
+                    >
                         {
                             <div>
+                                { this.props.width < RESPOSIVE_MENU_TRIGGER.ICON_MODE &&
+                                    <div className='definitions-popup-window-header'>
+                                        <Label as='span' color='white'>
+                                            <Icon name={'fw fw-struct'} />
+                                            <span>Objects</span>
+                                        </Label>
+                                        <hr />
+                                    </div>
+                                }
                                 {
                                     structs.map((element) => {
                                         return this.getItem(element.getName().getValue(),
@@ -104,19 +114,29 @@ class DefinitionViewMenu extends React.Component {
                 { records.length > 0 &&
                     <Popup
                         trigger={
-                          <Label as='a' color='white'>
-                              <Icon name={'fw fw-records'} />
-                              <span>Records</span>
-                              <Label.Detail>{records.length}</Label.Detail>
-                          </Label>
+                            <Label as='a' color='white'>
+                                <Icon name={'fw fw-records'} />
+                                <span>Records</span>
+                                <Label.Detail>{records.length}</Label.Detail>
+                            </Label>
                         }
                         className='definitions-popup-window'
                         position='bottom right'
                         flowing
                         wide
-                        hideOnScroll>
+                        hideOnScroll
+                    >
                         {
                             <div>
+                                { this.props.width < RESPOSIVE_MENU_TRIGGER.ICON_MODE &&
+                                    <div className='definitions-popup-window-header'>
+                                        <Label as='span' color='white'>
+                                            <Icon name={'fw fw-records'} />
+                                            <span>Records</span>
+                                        </Label>
+                                        <hr />
+                                    </div>
+                                }
                                 {
                                     records.map((element) => {
                                         return this.getItem(element.getName().getValue(),
@@ -130,19 +150,29 @@ class DefinitionViewMenu extends React.Component {
                 { endpoints.length > 0 &&
                     <Popup
                         trigger={
-                          <Label as='a' color='white'>
-                              <Icon name={'fw fw-endpoint'} />
-                              <span>Endpoints</span>
-                              <Label.Detail>{endpoints.length}</Label.Detail>
-                          </Label>
+                            <Label as='a' color='white'>
+                                <Icon name={'fw fw-endpoint'} />
+                                <span>Endpoints</span>
+                                <Label.Detail>{endpoints.length}</Label.Detail>
+                            </Label>
                         }
                         className='definitions-popup-window'
                         position='bottom right'
                         flowing
                         wide
-                        hideOnScroll>
+                        hideOnScroll
+                    >
                             {
                                 <div>
+                                    { this.props.width < RESPOSIVE_MENU_TRIGGER.ICON_MODE &&
+                                        <div className='definitions-popup-window-header'>
+                                            <Label as='span' color='white'>
+                                                <Icon name={'fw fw-endpoint'} />
+                                                <span>Endpoints</span>
+                                            </Label>
+                                            <hr />
+                                        </div>
+                                    }
                                     {
                                         endpoints.map((element) => {
                                             return this.getItem(element.getName().getValue(),
@@ -160,6 +190,7 @@ class DefinitionViewMenu extends React.Component {
 
 DefinitionViewMenu.propTypes = {
     model: PropTypes.instanceOf(CompilationUnitNode).isRequired,
+    width: PropTypes.number.isRequired,
 };
 
 DefinitionViewMenu.defaultProps = {
