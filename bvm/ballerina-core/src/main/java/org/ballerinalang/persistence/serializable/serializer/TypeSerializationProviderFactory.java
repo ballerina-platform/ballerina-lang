@@ -23,15 +23,15 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * Dynamically generate {@link TypeSerializationProvider} for given class.
+ * Dynamically generate {@link TypeInstanceProvider} for given class.
  */
 public class TypeSerializationProviderFactory {
     /**
-     * Given fully qualified class name get {@link TypeSerializationProvider} dynamically implemented.
-     * @param fullClassName class name of requested {@link TypeSerializationProvider}
+     * Given fully qualified class name get {@link TypeInstanceProvider} dynamically implemented.
+     * @param fullClassName class name of requested {@link TypeInstanceProvider}
      * @return
      */
-    public TypeSerializationProvider getProvider(String fullClassName) {
+    public TypeInstanceProvider getProvider(String fullClassName) {
         try {
             Class<?> clazz = Class.forName(fullClassName);
             try {
@@ -39,7 +39,7 @@ public class TypeSerializationProviderFactory {
                 if (declaredConstructor == null) {
                     return null;
                 }
-                TypeSerializationProvider implement = implementUsingNoparamConstructor(clazz, declaredConstructor);
+                TypeInstanceProvider implement = implementUsingNoparamConstructor(clazz, declaredConstructor);
                 if (implement != null) {
                     return implement;
                 }
@@ -52,8 +52,8 @@ public class TypeSerializationProviderFactory {
         }
     }
 
-    private TypeSerializationProvider implementUsingNoparamConstructor(Class<?> clazz, Constructor<?> constructor) {
-        return new TypeSerializationProvider() {
+    private TypeInstanceProvider implementUsingNoparamConstructor(Class<?> clazz, Constructor<?> constructor) {
+        return new TypeInstanceProvider() {
             @Override
             public String getTypeName() {
                 return clazz.getSimpleName();
@@ -76,8 +76,8 @@ public class TypeSerializationProviderFactory {
         };
     }
 
-    private TypeSerializationProvider implementUnsafe(Class<?> clazz) {
-        return new TypeSerializationProvider() {
+    private TypeInstanceProvider implementUnsafe(Class<?> clazz) {
+        return new TypeInstanceProvider() {
             @Override
             public String getTypeName() {
                 return clazz.getSimpleName();
@@ -91,7 +91,7 @@ public class TypeSerializationProviderFactory {
                             String.format("%s cannot instantiate object of %s, maybe add a %s",
                                     JsonSerializer.class.getSimpleName(),
                                     clazz.getName(),
-                                    TypeSerializationProvider.class.getSimpleName()));
+                                    TypeInstanceProvider.class.getSimpleName()));
                 }
                 return obj;
             }

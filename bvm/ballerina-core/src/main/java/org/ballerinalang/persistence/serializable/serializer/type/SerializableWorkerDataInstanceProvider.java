@@ -17,26 +17,27 @@
  */
 package org.ballerinalang.persistence.serializable.serializer.type;
 
-import org.ballerinalang.persistence.serializable.serializer.TypeSerializationProvider;
-
-import java.util.HashMap;
+import org.ballerinalang.bre.bvm.WorkerData;
+import org.ballerinalang.persistence.serializable.SerializableState;
+import org.ballerinalang.persistence.serializable.SerializableWorkerData;
+import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProvider;
 
 /**
- * Provide object instance to serialize map.
+ * Provide object instance to serialize {@link SerializableWorkerData}.
  */
-public class MapSerializationProvider implements TypeSerializationProvider {
+public class SerializableWorkerDataInstanceProvider implements TypeInstanceProvider {
     @Override
     public String getTypeName() {
-        return "map";
+        return SerializableWorkerData.class.getSimpleName();
     }
 
     @Override
     public Object newInstance() {
-        return new HashMap<>();
+        return new SerializableWorkerData(new WorkerData(), new SerializableState(null));
     }
 
     @Override
     public Class getTypeClass() {
-        return HashMap.class;
+        return SerializableWorkerData.class;
     }
 }

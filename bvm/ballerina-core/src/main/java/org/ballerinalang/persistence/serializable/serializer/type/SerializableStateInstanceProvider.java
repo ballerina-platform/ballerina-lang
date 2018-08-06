@@ -17,25 +17,28 @@
  */
 package org.ballerinalang.persistence.serializable.serializer.type;
 
-import org.ballerinalang.bre.bvm.WorkerState;
-import org.ballerinalang.persistence.serializable.serializer.TypeSerializationProvider;
+import org.ballerinalang.persistence.serializable.SerializableState;
+import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProvider;
 
 /**
- * Provide object instance to serialize {@link WorkerState}.
+ * Provide object instance to serialize {@link SerializableState}.
  */
-public class WorkerStateSerializationProvider implements TypeSerializationProvider {
+public class SerializableStateInstanceProvider implements TypeInstanceProvider {
+
+    private static final String name = SerializableState.class.getSimpleName();
+
     @Override
     public String getTypeName() {
-        return "WorkerState";
+        return name;
     }
 
     @Override
     public Object newInstance() {
-        throw new UnsupportedOperationException();
+        return new SerializableState(null);
     }
 
     @Override
     public Class getTypeClass() {
-        return WorkerState.class;
+        return SerializableState.class;
     }
 }

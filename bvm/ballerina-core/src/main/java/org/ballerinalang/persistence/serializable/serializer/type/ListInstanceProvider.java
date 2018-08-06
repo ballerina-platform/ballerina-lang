@@ -17,25 +17,26 @@
  */
 package org.ballerinalang.persistence.serializable.serializer.type;
 
-import org.ballerinalang.persistence.serializable.SerializedKey;
-import org.ballerinalang.persistence.serializable.serializer.TypeSerializationProvider;
+import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProvider;
+
+import java.util.ArrayList;
 
 /**
- * Provide object instance to represent {@link SerializedKey}.
+ * Provide object instance to represent list.
  */
-public class SerializedKeySerializationProvider implements TypeSerializationProvider {
+public class ListInstanceProvider implements TypeInstanceProvider {
     @Override
     public String getTypeName() {
-        return SerializedKey.class.getSimpleName();
+        return "list";
     }
 
     @Override
     public Object newInstance() {
-        return new SerializedKey(null);
+        return new ArrayList<>();
     }
 
     @Override
     public Class getTypeClass() {
-        return SerializedKey.class;
+        return ArrayList.class;
     }
 }

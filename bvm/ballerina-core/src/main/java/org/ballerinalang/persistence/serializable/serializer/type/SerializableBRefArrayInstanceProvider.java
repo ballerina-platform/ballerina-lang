@@ -17,27 +17,27 @@
  */
 package org.ballerinalang.persistence.serializable.serializer.type;
 
-import org.ballerinalang.bre.bvm.WorkerData;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.persistence.serializable.SerializableState;
-import org.ballerinalang.persistence.serializable.SerializableWorkerData;
-import org.ballerinalang.persistence.serializable.serializer.TypeSerializationProvider;
+import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBRefArray;
+import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProvider;
 
 /**
- * Provide object instance to serialize {@link SerializableWorkerData}.
+ * Provide object instance to represent {@link SerializableBRefArray}.
  */
-public class SerializableWorkerDataSerializationProvider implements TypeSerializationProvider {
+public class SerializableBRefArrayInstanceProvider implements TypeInstanceProvider {
     @Override
     public String getTypeName() {
-        return SerializableWorkerData.class.getSimpleName();
+        return SerializableBRefArray.class.getSimpleName();
     }
 
     @Override
     public Object newInstance() {
-        return new SerializableWorkerData(new WorkerData(), new SerializableState(null));
+        return new SerializableBRefArray(new BRefValueArray(), new SerializableState(null));
     }
 
     @Override
     public Class getTypeClass() {
-        return SerializableWorkerData.class;
+        return SerializableBRefArray.class;
     }
 }

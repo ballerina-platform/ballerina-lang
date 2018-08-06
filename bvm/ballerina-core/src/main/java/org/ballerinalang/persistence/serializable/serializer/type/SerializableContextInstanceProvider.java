@@ -17,26 +17,29 @@
  */
 package org.ballerinalang.persistence.serializable.serializer.type;
 
-import org.ballerinalang.persistence.serializable.serializer.TypeSerializationProvider;
-
-import java.util.ArrayList;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.persistence.serializable.SerializableContext;
+import org.ballerinalang.persistence.serializable.SerializableState;
+import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProvider;
+import org.ballerinalang.util.codegen.ProgramFile;
 
 /**
- * Provide object instance to represent list.
+ * Provide object instance for serializing {@lin SerializableContext}.
  */
-public class ListSerializationProvider implements TypeSerializationProvider {
+public class SerializableContextInstanceProvider implements TypeInstanceProvider {
     @Override
     public String getTypeName() {
-        return "list";
+        return SerializableContext.class.getSimpleName();
     }
 
     @Override
     public Object newInstance() {
-        return new ArrayList<>();
+        WorkerExecutionContext ctx = new WorkerExecutionContext(new ProgramFile());
+        return new SerializableContext(null, ctx, new SerializableState(ctx));
     }
 
     @Override
     public Class getTypeClass() {
-        return ArrayList.class;
+        return SerializableContext.class;
     }
 }

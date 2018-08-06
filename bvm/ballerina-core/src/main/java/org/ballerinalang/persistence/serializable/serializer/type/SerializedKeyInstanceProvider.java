@@ -17,27 +17,25 @@
  */
 package org.ballerinalang.persistence.serializable.serializer.type;
 
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.persistence.serializable.SerializableState;
-import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap;
-import org.ballerinalang.persistence.serializable.serializer.TypeSerializationProvider;
+import org.ballerinalang.persistence.serializable.SerializedKey;
+import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProvider;
 
 /**
- * Provide object instance to represent {@link SerializableBMap}.
+ * Provide object instance to represent {@link SerializedKey}.
  */
-public class SerializableBMapSerializationProvider implements TypeSerializationProvider {
+public class SerializedKeyInstanceProvider implements TypeInstanceProvider {
     @Override
     public String getTypeName() {
-        return SerializableBMap.class.getSimpleName();
+        return SerializedKey.class.getSimpleName();
     }
 
     @Override
     public Object newInstance() {
-        return new SerializableBMap<>(new BMap<>(), new SerializableState(null));
+        return new SerializedKey(null);
     }
 
     @Override
     public Class getTypeClass() {
-        return SerializableBMap.class;
+        return SerializedKey.class;
     }
 }

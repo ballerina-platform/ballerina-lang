@@ -17,92 +17,11 @@
  */
 package org.ballerinalang.persistence.serializable.serializer;
 
-import org.ballerinalang.util.exceptions.BallerinaException;
-
-import java.lang.reflect.Array;
-import java.util.HashMap;
-
 /**
- * Keep track of {@link TypeSerializationProvider} implementations.
+ * Implementors of this interface provide plugable mechanisms to deserialize some specified type of objects.
  */
-public class TypeInstanceProvider {
-    private static final TypeInstanceProvider INSTANCE = new TypeInstanceProvider();
-    private final HashMap<String, TypeSerializationProvider> providerMap = new HashMap<>();
-    final HashMap<String, String> typeNameMap = new HashMap<>();
-
-    private TypeInstanceProvider() {
-        if (INSTANCE != null) {
-            throw new IllegalStateException("Singleton instance exists");
-        }
-    }
-
-    public static TypeInstanceProvider getInstance() {
-        return INSTANCE;
-    }
-
-    public TypeSerializationProvider findTypeProvider(String type) {
-        TypeSerializationProvider provider = providerMap.get(type);
-        if (provider == null) {
-            provider = generateProvider(type);
-            if (provider != null) {
-                addTypeProvider(provider);
-            }
-        }
-        if (type.endsWith("[]")) {
-            return new ArrayInstanceProvider(type.substring(0, type.length() - 2));
-        }
-        if (provider == null) {
-            throw new BallerinaException(String.format("No TypeSerializationProvider found for: %s", type));
-        }
-        return provider;
-    }
-
-    private TypeSerializationProvider generateProvider(String type) {
-        String fullClassName = typeNameMap.get(type);
-        if (fullClassName == null) {
-            return null;
-        }
-        return new TypeSerializationProviderFactory().getProvider(fullClassName);
-    }
-
-    public void addTypeProvider(TypeSerializationProvider provider) {
-        providerMap.put(provider.getTypeName(), provider);
-    }
-
-    public void addTypeNameMapping(String typeName, String fullQClassName) {
-        this.typeNameMap.put(typeName, fullQClassName);
-    }
-
-    public void clearTypeNameMappings() {
-        typeNameMap.clear();
-    }
-
-
-    public static class ArrayInstanceProvider implements TypeSerializationProvider {
-        final String type;
-        private TypeSerializationProvider typeProvider;
-
-        public ArrayInstanceProvider(String type) {
-            this.type = type;
-            typeProvider = INSTANCE.findTypeProvider(type);
-
-        }
-
-        @Override
-        public String getTypeName() {
-            return type + "[]";
-        }
-
-        @Override
-        public Object newInstance() {
-            Class typeClass = typeProvider.getTypeClass();
-            Object array = Array.newInstance(typeClass, 0);
-            return array;
-        }
-
-        @Override
-        public Class getTypeClass() {
-            return newInstance().getClass();
-        }
-    }
+public interface TypeInstanceProvider {
+    String getTypeName();
+    Object newInstance();
+    Class getTypeClass();
 }

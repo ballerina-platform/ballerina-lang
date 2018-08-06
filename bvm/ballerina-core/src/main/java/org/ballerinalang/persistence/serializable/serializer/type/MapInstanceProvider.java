@@ -17,29 +17,26 @@
  */
 package org.ballerinalang.persistence.serializable.serializer.type;
 
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.persistence.serializable.SerializableContext;
-import org.ballerinalang.persistence.serializable.SerializableState;
-import org.ballerinalang.persistence.serializable.serializer.TypeSerializationProvider;
-import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProvider;
+
+import java.util.HashMap;
 
 /**
- * Provide object instance for serializing {@lin SerializableContext}.
+ * Provide object instance to serialize map.
  */
-public class SerializableContextSerializationProvider implements TypeSerializationProvider {
+public class MapInstanceProvider implements TypeInstanceProvider {
     @Override
     public String getTypeName() {
-        return SerializableContext.class.getSimpleName();
+        return "map";
     }
 
     @Override
     public Object newInstance() {
-        WorkerExecutionContext ctx = new WorkerExecutionContext(new ProgramFile());
-        return new SerializableContext(null, ctx, new SerializableState(ctx));
+        return new HashMap<>();
     }
 
     @Override
     public Class getTypeClass() {
-        return SerializableContext.class;
+        return HashMap.class;
     }
 }

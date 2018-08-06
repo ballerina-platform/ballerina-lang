@@ -26,15 +26,15 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.serializable.SerializableState;
-import org.ballerinalang.persistence.serializable.serializer.type.ListSerializationProvider;
-import org.ballerinalang.persistence.serializable.serializer.type.MapSerializationProvider;
-import org.ballerinalang.persistence.serializable.serializer.type.SerializableBMapSerializationProvider;
-import org.ballerinalang.persistence.serializable.serializer.type.SerializableBRefArraySerializationProvider;
-import org.ballerinalang.persistence.serializable.serializer.type.SerializableContextSerializationProvider;
-import org.ballerinalang.persistence.serializable.serializer.type.SerializableStateSerializationProvider;
-import org.ballerinalang.persistence.serializable.serializer.type.SerializableWorkerDataSerializationProvider;
-import org.ballerinalang.persistence.serializable.serializer.type.SerializedKeySerializationProvider;
-import org.ballerinalang.persistence.serializable.serializer.type.WorkerStateSerializationProvider;
+import org.ballerinalang.persistence.serializable.serializer.type.ListInstanceProvider;
+import org.ballerinalang.persistence.serializable.serializer.type.MapInstanceProvider;
+import org.ballerinalang.persistence.serializable.serializer.type.SerializableBMapInstanceProvider;
+import org.ballerinalang.persistence.serializable.serializer.type.SerializableBRefArrayInstanceProvider;
+import org.ballerinalang.persistence.serializable.serializer.type.SerializableContextInstanceProvider;
+import org.ballerinalang.persistence.serializable.serializer.type.SerializableStateInstanceProvider;
+import org.ballerinalang.persistence.serializable.serializer.type.SerializableWorkerDataInstanceProvider;
+import org.ballerinalang.persistence.serializable.serializer.type.SerializedKeyInstanceProvider;
+import org.ballerinalang.persistence.serializable.serializer.type.WorkerStateInstanceProvider;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +50,7 @@ import java.util.Map;
  * Reconstruct Java object tree from JSON input.
  */
 public class JsonDeserializer {
-    private final TypeInstanceProvider typeInstanceProvider;
+    private final TypeInstanceProviderRegistry typeInstanceProviderRegistry;
     private final BValueProvider bValueProvider;
     private static final Logger logger = LoggerFactory.getLogger(JsonDeserializer.class);
     private final HashMap<String, Object> identityMap = new HashMap<>();
@@ -58,21 +58,21 @@ public class JsonDeserializer {
 
     public JsonDeserializer(BRefType<?> objTree) {
         treeHead = objTree;
-        typeInstanceProvider = TypeInstanceProvider.getInstance();
+        typeInstanceProviderRegistry = TypeInstanceProviderRegistry.getInstance();
         bValueProvider = BValueProvider.getInstance();
-        registerTypeSerializationProviders(typeInstanceProvider);
+        registerTypeSerializationProviders(typeInstanceProviderRegistry);
     }
 
-    private void registerTypeSerializationProviders(TypeInstanceProvider registry) {
-        registry.addTypeProvider(new SerializableStateSerializationProvider());
-        registry.addTypeProvider(new SerializableWorkerDataSerializationProvider());
-        registry.addTypeProvider(new SerializableContextSerializationProvider());
-        registry.addTypeProvider(new MapSerializationProvider());
-        registry.addTypeProvider(new ListSerializationProvider());
-        registry.addTypeProvider(new WorkerStateSerializationProvider());
-        registry.addTypeProvider(new SerializableBMapSerializationProvider());
-        registry.addTypeProvider(new SerializedKeySerializationProvider());
-        registry.addTypeProvider(new SerializableBRefArraySerializationProvider());
+    private void registerTypeSerializationProviders(TypeInstanceProviderRegistry registry) {
+        registry.addTypeProvider(new SerializableStateInstanceProvider());
+        registry.addTypeProvider(new SerializableWorkerDataInstanceProvider());
+        registry.addTypeProvider(new SerializableContextInstanceProvider());
+        registry.addTypeProvider(new MapInstanceProvider());
+        registry.addTypeProvider(new ListInstanceProvider());
+        registry.addTypeProvider(new WorkerStateInstanceProvider());
+        registry.addTypeProvider(new SerializableBMapInstanceProvider());
+        registry.addTypeProvider(new SerializedKeyInstanceProvider());
+        registry.addTypeProvider(new SerializableBRefArrayInstanceProvider());
     }
 
     public SerializableState deserialize(Class<?> destinationType) {
@@ -202,13 +202,13 @@ public class JsonDeserializer {
         String enumName = jsonNode.get("payload").stringValue();
         String[] frag = enumName.split("\\.");
         String type = frag[0];
-        Class enumClass = typeInstanceProvider.findTypeProvider(type).getTypeClass();
+        Class enumClass = typeInstanceProviderRegistry.findTypeProvider(type).getTypeClass();
         String enumConst = frag[1];
         return Enum.valueOf(enumClass, enumConst);
     }
 
     private Object getObjectOf(Class<?> clazz) {
-        TypeSerializationProvider typeProvider = typeInstanceProvider.findTypeProvider(clazz.getSimpleName());
+        TypeInstanceProvider typeProvider = typeInstanceProviderRegistry.findTypeProvider(clazz.getSimpleName());
         if (typeProvider != null) {
             return clazz.cast(typeProvider.newInstance());
         }
@@ -216,7 +216,7 @@ public class JsonDeserializer {
     }
 
     private Object getObjectOf(String type) {
-        TypeSerializationProvider typeProvider = typeInstanceProvider.findTypeProvider(type);
+        TypeInstanceProvider typeProvider = typeInstanceProviderRegistry.findTypeProvider(type);
         if (typeProvider != null) {
             return typeProvider.newInstance();
         }
@@ -377,7 +377,7 @@ public class JsonDeserializer {
         if (provider != null) {
             return provider.getType();
         }
-        TypeSerializationProvider typeProvider = this.typeInstanceProvider.findTypeProvider(typeName);
+        TypeInstanceProvider typeProvider = this.typeInstanceProviderRegistry.findTypeProvider(typeName);
         return typeProvider.getTypeClass();
     }
 }
