@@ -197,19 +197,19 @@
                     id="io.ballerina.plugins.idea.ui.actions.editorLayout.EditorOnlyLayoutChangeAction"
                     text="Show editor only"
                     description="Sets ballerina editor layout to show editor only"
-                    icon="AllIcons.Actions.PreviewDetails">
+                    icon="BallerinaIcons.Layout.EDITOR_ONLY">
             </action>
             <action class="io.ballerina.plugins.idea.ui.actions.editorLayout.EditorAndPreviewLayoutChangeAction"
                     id="io.ballerina.plugins.idea.ui.actions.editorLayout.EditorAndPreviewLayoutChangeAction"
                     text="Show editor and preview"
                     description="Sets ballerina editor layout to show editor and preview in split"
-                    icon="AllIcons.Actions.PreviewDetails">
+                    icon="BallerinaIcons.Layout.EDITOR_PREVIEW">
             </action>
             <action class="io.ballerina.plugins.idea.ui.actions.editorLayout.PreviewOnlyLayoutChangeAction"
                     id="io.ballerina.plugins.idea.ui.actions.editorLayout.PreviewOnlyLayoutChangeAction"
                     text="Show preview only"
                     description="Sets ballerina editor layout to show preview only"
-                    icon="AllIcons.Actions.PreviewDetails">
+                    icon="BallerinaIcons.Layout.PREVIEW_ONLY">
             </action>
         </group>
         <!-- Add your actions here -->
