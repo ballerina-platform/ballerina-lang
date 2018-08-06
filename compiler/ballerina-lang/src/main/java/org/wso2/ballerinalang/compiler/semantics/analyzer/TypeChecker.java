@@ -1197,8 +1197,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangHaving having) {
-        BLangExpression expr = (BLangExpression) having.getExpression();
-        expr.accept(this);
+        // Note: Some stream attributes might not be resolved at this phase. Therefore, skipping this phase.
     }
 
     @Override
