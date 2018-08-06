@@ -18,7 +18,7 @@
 package org.ballerinalang.test.listener;
 
 import org.ballerinalang.test.context.Constant;
-import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.context.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.IExecutionListener;
@@ -33,26 +33,18 @@ import java.util.List;
 public class TestExecutionListener implements IExecutionListener {
     private static final Logger log = LoggerFactory.getLogger(TestExecutionListener.class);
 
-    private static ServerInstance serverInstance;
-
-    static {
-        try {
-            serverInstance = ServerInstance.initBallerinaServer();
-        } catch (Exception e) {
-            throw new RuntimeException("Exception occurred in creating ballerina test server instance", e);
-        }
-    }
+    private static Server newServer;
 
     /**
      * To het the server instance started by listener.
      *
      * @return up and running server instance.
      */
-    public static ServerInstance getServerInstance() {
-        if (serverInstance == null || !serverInstance.isRunning()) {
+    public static Server getServerInstance() {
+        if (newServer == null || !newServer.isRunning()) {
             throw new RuntimeException("Server startup failed");
         }
-        return serverInstance;
+        return newServer;
     }
 
     /**
@@ -101,9 +93,9 @@ public class TestExecutionListener implements IExecutionListener {
      */
     @Override
     public void onExecutionFinish() {
-        if (serverInstance != null && serverInstance.isRunning()) {
+        if (newServer != null && newServer.isRunning()) {
             try {
-                serverInstance.stopServer();
+                newServer.stopServer();
             } catch (Exception e) {
                 log.error("Server failed to stop. " + e.getMessage(), e);
                 throw new RuntimeException("Server failed to stop. " + e.getMessage(), e);

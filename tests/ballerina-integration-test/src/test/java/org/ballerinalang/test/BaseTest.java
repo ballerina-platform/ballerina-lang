@@ -23,20 +23,20 @@ import org.ballerinalang.test.context.ServerInstance;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 
+/**
+ * Parent test class for all integration test cases under test-integration module. This will provide basic
+ * functionality for integration test.
+ */
 public class BaseTest {
     protected static ServerInstance serverInstance;
 
     @BeforeSuite(alwaysRun = true)
-    public void init() throws BallerinaTestException {
+    public void initialize() throws BallerinaTestException {
         serverInstance = ServerInstance.initBallerinaServer();
     }
 
     @AfterSuite
     public void destroy() {
         serverInstance.cleanup();
-    }
-
-    public String getServiceURLHttp(String servicePath) {
-        return serverInstance.getServiceURLHttp(servicePath);
     }
 }

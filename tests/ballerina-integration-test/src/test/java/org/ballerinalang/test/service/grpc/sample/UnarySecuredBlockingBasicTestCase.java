@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.BaseTest;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
@@ -37,14 +38,18 @@ import java.nio.file.Paths;
 @Test(groups = "grpc-test")
 public class UnarySecuredBlockingBasicTestCase extends BaseTest {
 
+    @BeforeClass
+    public void setup() {
+        System.setProperty("ballerina.home", serverInstance.getServerHome());
+    }
+
     @Test
     public void testUnarySecuredBlocking() {
-        
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "grpc_secured_unary_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         final String serverMsg = "Hello WSO2";
-        
-        BValue[] responses = BRunUtil.invoke(result, "testUnarySecuredBlocking", new BValue[] {});
+
+        BValue[] responses = BRunUtil.invoke(result, "testUnarySecuredBlocking", new BValue[]{});
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
         BString responseValues = (BString) responses[0];

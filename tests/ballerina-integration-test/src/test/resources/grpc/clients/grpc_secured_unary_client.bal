@@ -24,9 +24,18 @@ function testUnarySecuredBlocking() returns (string) {
             trustStore:{
                 path:"${ballerina.home}/bre/security/ballerinaTruststore.p12",
                 password:"ballerina"
-            }
+            },
+            keyStore: {
+                path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+                password: "ballerina"
+            },
+            protocol: {
+                name: "TLSv1.2",
+                versions: ["TLSv1.2","TLSv1.1"]
+            },
+            ciphers:["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"],
+            sslVerifyClient:"require"
         }
-
     };
 
     (string, grpc:Headers)|error unionResp = helloWorldBlockingEp->hello("WSO2");
