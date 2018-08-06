@@ -20,42 +20,12 @@ package org.ballerinalang.persistence.serializable.serializer.bvalueprovider;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.serializable.serializer.JsonSerializerConst;
 import org.ballerinalang.persistence.serializable.serializer.SerializationBValueProvider;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 public class NumericBValueProviders {
-    private static BallerinaException incorrectObjectType(Object target, String converterType) {
-        return new BallerinaException(
-                String.format("Cannot convert %s using %s converter.",
-                        target.getClass().getSimpleName(), converterType));
-    }
-
-    private static BallerinaException deserializationIncorrectType(BValue source, String target) {
-        return new BallerinaException(
-                String.format("Can not convert %s to %s", source, target));
-    }
-
-
-    private static BValue wrap(String typeName, BString payload) {
-        BMap<String, BValue> wrapper = new BMap<>();
-        wrapper.put(JsonSerializerConst.TYPE_TAG, new BString(typeName));
-        wrapper.put(JsonSerializerConst.PAYLOAD_TAG, payload);
-        return wrapper;
-    }
-
-
-    private static BValue getPayload(BMap<String, BValue> wrapper) {
-        return wrapper.get(JsonSerializerConst.PAYLOAD_TAG);
-    }
-
-    private static boolean isWrapperOfType(BMap<String, BValue> wrapper, String type) {
-        return wrapper.get(JsonSerializerConst.TYPE_TAG).stringValue().equals(type);
-    }
-
     /**
      * Convert {@link BigInteger} into {@link BValue} object and back to facilitate serialization.
      */
@@ -76,9 +46,9 @@ public class NumericBValueProviders {
         public BValue toBValue(Object object) {
             if (object instanceof BigInteger) {
                 BigInteger bigInteger = (BigInteger) object;
-                return wrap(BIG_INT, new BString(bigInteger.toString(10)));
+                return BValueProviderHelper.wrap(BIG_INT, new BString(bigInteger.toString(10)));
             }
-            throw incorrectObjectType(object, BIG_INT);
+            throw BValueProviderHelper.incorrectObjectType(object, BIG_INT);
         }
 
         @Override
@@ -86,12 +56,12 @@ public class NumericBValueProviders {
             if (bValue instanceof BMap) {
                 @SuppressWarnings("unchecked")
                 BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
-                if (isWrapperOfType(wrapper, BIG_INT)) {
-                    String payload = getPayload(wrapper).stringValue();
+                if (BValueProviderHelper.isWrapperOfType(wrapper, BIG_INT)) {
+                    String payload = BValueProviderHelper.getPayload(wrapper).stringValue();
                     return new BigInteger(payload, 10);
                 }
             }
-            throw deserializationIncorrectType(bValue, BIG_INT);
+            throw BValueProviderHelper.deserializationIncorrectType(bValue, BIG_INT);
         }
     }
 
@@ -112,21 +82,21 @@ public class NumericBValueProviders {
         public BValue toBValue(Object object) {
             if (object instanceof BigDecimal) {
                 BigDecimal bigDecimal = (BigDecimal) object;
-                return wrap(BIG_DEC, new BString(bigDecimal.toString()));
+                return BValueProviderHelper.wrap(BIG_DEC, new BString(bigDecimal.toString()));
             }
-            throw incorrectObjectType(object, BIG_DEC);
+            throw BValueProviderHelper.incorrectObjectType(object, BIG_DEC);
         }
 
         @Override
         public Object toObject(BValue bValue) {
             if (bValue instanceof BMap) {
                 BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
-                if (isWrapperOfType(wrapper, BIG_DEC)) {
-                    String payload = getPayload(wrapper).stringValue();
+                if (BValueProviderHelper.isWrapperOfType(wrapper, BIG_DEC)) {
+                    String payload = BValueProviderHelper.getPayload(wrapper).stringValue();
                     return new BigDecimal(payload);
                 }
             }
-            throw deserializationIncorrectType(bValue, BIG_DEC);
+            throw BValueProviderHelper.deserializationIncorrectType(bValue, BIG_DEC);
         }
     }
 }

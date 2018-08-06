@@ -55,10 +55,16 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
 
     private final IdentityHashMap<Object, Object> identityMap = new IdentityHashMap<>();
     private final BValueProvider bValueProvider = BValueProvider.getInstance();
+    private final String bValuePackagePath;
 
     public JsonSerializer() {
         bValueProvider.register(new NumericBValueProviders.BigIntegerBValueProvider());
         bValueProvider.register(new NumericBValueProviders.BigDecimalBValueProvider());
+        bValuePackagePath = getBValuePackagePath();
+    }
+
+    private String getBValuePackagePath() {
+        return BValue.class.getPackage().getName();
     }
 
     @Override
@@ -238,7 +244,12 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
         identityMap.put(obj, obj);
 
         // if obj is of known type to serialize
-        SerializationBValueProvider provider = bValueProvider.find(obj.getClass().getName());
+        String className = obj.getClass().getName();
+        // if obj is a BValue, trim fully qualified name to class name.
+        if (obj instanceof BValue && className.startsWith(bValuePackagePath)) {
+            className = className.substring(bValuePackagePath.length() + 1);
+        }
+        SerializationBValueProvider provider = bValueProvider.find(className);
         if (provider != null) {
             @SuppressWarnings("unchecked")
             BMap<String, BValue> converted = (BMap<String, BValue>) provider.toBValue(obj);

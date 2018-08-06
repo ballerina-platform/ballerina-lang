@@ -26,10 +26,8 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.serializable.SerializableState;
-import org.ballerinalang.persistence.serializable.serializer.type.BStringSerializationProvider;
 import org.ballerinalang.persistence.serializable.serializer.type.ListSerializationProvider;
 import org.ballerinalang.persistence.serializable.serializer.type.MapSerializationProvider;
-import org.ballerinalang.persistence.serializable.serializer.type.NumericSerializationProviders;
 import org.ballerinalang.persistence.serializable.serializer.type.SerializableBMapSerializationProvider;
 import org.ballerinalang.persistence.serializable.serializer.type.SerializableBRefArraySerializationProvider;
 import org.ballerinalang.persistence.serializable.serializer.type.SerializableContextSerializationProvider;
@@ -40,14 +38,11 @@ import org.ballerinalang.persistence.serializable.serializer.type.WorkerStateSer
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.jvm.hotspot.utilities.Assert;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -76,10 +71,8 @@ public class JsonDeserializer {
         registry.addTypeProvider(new ListSerializationProvider());
         registry.addTypeProvider(new WorkerStateSerializationProvider());
         registry.addTypeProvider(new SerializableBMapSerializationProvider());
-        registry.addTypeProvider(new BStringSerializationProvider());
         registry.addTypeProvider(new SerializedKeySerializationProvider());
         registry.addTypeProvider(new SerializableBRefArraySerializationProvider());
-        NumericSerializationProviders.register(registry);
     }
 
     public SerializableState deserialize(Class<?> destinationType) {
@@ -140,16 +133,13 @@ public class JsonDeserializer {
     }
 
     private String getTargetTypeName(Class<?> targetType, BMap<String, BValue> jBMap) {
-        String typeName = null;
-        if (targetType != null) {
-            typeName = targetType.getName();
-        } else {
-            BValue typeVal = jBMap.get(JsonSerializerConst.TYPE_TAG);
-            if (typeVal != null){
-                typeName = typeVal.stringValue();
-            }
+        BValue typeVal = jBMap.get(JsonSerializerConst.TYPE_TAG);
+        if (typeVal != null){
+            return typeVal.stringValue();
+        } else if (targetType != null) {
+            return targetType.getName();
         }
-        return typeName;
+        return null;
     }
 
     private void addIdentity(BMap<String, BValue> jBMap, Object object) {
