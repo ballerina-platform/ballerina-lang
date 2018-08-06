@@ -88,11 +88,15 @@ public class BuilderUtils {
             if (packages.size() > 0) {
                 outStream.println();
                 compiler.write(packages);
+            } else {
+                outStream.println("No ballerina source files to compile");
             }
         } else {
             if (packages.size() > 0) {
                 Utils.testWithBuild(sourceRootPath, null);
                 compiler.write(packages);
+            } else {
+                outStream.println("No ballerina source files to compile");
             }
         }
     }
