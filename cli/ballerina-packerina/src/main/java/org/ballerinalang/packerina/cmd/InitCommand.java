@@ -260,7 +260,7 @@ public class InitCommand implements BLauncherCmd {
         }
         if (count != 1) {
             out.println("--Invalid package name: \"" + pkgName + "\"." + " Package name can only contain " +
-                                "alphanumerics, underscore and DOT");
+                                "alphanumeric, underscore and DOT");
         }
         return count == 1;
     }
