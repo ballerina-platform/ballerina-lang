@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
 
@@ -200,12 +201,16 @@ public class JsonDeserializer {
         for (Field field : targetClass.getDeclaredFields()) {
             BValue value = jMap.get(field.getName());
             Object obj = deserialize(value, field.getType());
-            field.setAccessible(true);
+            primeFinalFieldForAssignment(field);
             try {
                 field.set(target, cast(obj, field.getType()));
             } catch (IllegalAccessException e) {
+                logger.warn(String.format(
+                        "Cannot set field: %s, this probably is a final field \n" +
+                                "initialized to a compile-time constant", field.getName()));
+            } catch (IllegalArgumentException e) {
                 logger.error(e.getMessage());
-                throw new BallerinaException();
+                throw new BallerinaException(e);
             }
 
             // recursively set fields in super types.
@@ -215,22 +220,16 @@ public class JsonDeserializer {
         }
     }
 
-//    private void setField(Object target, String fieldName, BValue fieldNode) {
-//        try {
-//            Field field = target.getClass().getDeclaredField(fieldName);
-//            field.setAccessible(true);
-//            Object obj = deserialize(fieldNode, field.getType());
-//            field.set(target, cast(obj, field.getType()));
-//        } catch (NoSuchFieldException e) {
-//            String message = String.format("Field: %s is not found in %s class",
-//                    fieldName, target.getClass().getSimpleName());
-//            logger.error(message);
-//            throw new BallerinaException(String.format("Error while SerializableState reconstruction: %s", message));
-//        } catch (IllegalAccessException e) {
-//            logger.error(e.getMessage());
-//            throw new BallerinaException();
-//        }
-//    }
+    private void primeFinalFieldForAssignment(Field field) {
+        try {
+            field.setAccessible(true);
+            Field modifiers = Field.class.getDeclaredField("modifiers");
+            modifiers.setAccessible(true);
+            modifiers.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            new BallerinaException();
+        }
+    }
 
     /**
      * Convert to desired type if special conditions are matched.
