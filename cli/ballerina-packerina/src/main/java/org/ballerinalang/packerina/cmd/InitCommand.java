@@ -248,7 +248,10 @@ public class InitCommand implements BLauncherCmd {
      * @return True if valid package name, else false.
      */
     private boolean validatePkgName(PrintStream out, String pkgName) {
-        String validRegex = "^([a-zA-Z0-9]|(^\\s))*$";
+        if (pkgName.isEmpty()) {
+           return pkgName.isEmpty();
+        }
+        String validRegex = "^[a-zA-Z0-9_.]*$";
         Pattern pattern = Pattern.compile(validRegex);
         Matcher matcher = pattern.matcher(pkgName);
         int count = 0;
@@ -256,7 +259,8 @@ public class InitCommand implements BLauncherCmd {
             count++;
         }
         if (count != 1) {
-            out.println("Invalid package name: \"" + pkgName + "\"");
+            out.println("--Invalid package name: \"" + pkgName + "\"." + " Package name can only contain " +
+                                "alphanumerics, underscore and DOT");
         }
         return count == 1;
     }
