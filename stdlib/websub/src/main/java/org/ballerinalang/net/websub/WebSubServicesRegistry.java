@@ -20,8 +20,7 @@ package org.ballerinalang.net.websub;
 
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HTTPServicesRegistry;
 import org.ballerinalang.net.http.HttpService;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
@@ -42,11 +41,25 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
 
     private String topicIdentifier;
     private String topicHeader;
-    private BStringArray topicPayloadKeys;
-    private BMap<String, BMap<String, BString>> topicResourceMap;
+
+    private BMap<String, BValue> headerResourceMap;
+    private BMap<String, BMap<String, BValue>> payloadKeyResourceMap;
+    private BMap<String, BMap<String, BMap<String, BValue>>> headerAndPayloadKeyResourceMap;
 
     public WebSubServicesRegistry(WebSocketServicesRegistry webSocketServicesRegistry) {
         super(webSocketServicesRegistry);
+    }
+
+    public WebSubServicesRegistry(WebSocketServicesRegistry webSocketServicesRegistry,
+                                  String topicIdentifier, String topicHeader, BMap<String, BValue> headerResourceMap,
+                                  BMap<String, BMap<String, BValue>> payloadKeyResourceMap,
+                                  BMap<String, BMap<String, BMap<String, BValue>>> headerAndPayloadKeyResourceMap) {
+        super(webSocketServicesRegistry);
+        this.topicIdentifier = topicIdentifier;
+        this.topicHeader = topicHeader;
+        this.headerResourceMap = headerResourceMap;
+        this.payloadKeyResourceMap = payloadKeyResourceMap;
+        this.headerAndPayloadKeyResourceMap = headerAndPayloadKeyResourceMap;
     }
 
     /**
@@ -55,18 +68,8 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
      *
      * @return the identifier for topics
      */
-    String getTopicIdentifier() {
+    public String getTopicIdentifier() {
         return topicIdentifier;
-    }
-
-    /**
-     * Method to set the identifier for topics based on which dispatching should happen for custom subscriber
-     * services.
-     *
-     * @param topicIdentifier the identifier for topics to set
-     */
-    public void setTopicIdentifier(String topicIdentifier) {
-        this.topicIdentifier = topicIdentifier;
     }
 
     /**
@@ -78,40 +81,12 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
         return topicHeader;
     }
 
-    /**
-     * Method to set the topic header upon which routing should be based, if specified.
-     *
-     * @param topicHeader the topic header to consider
-     */
-    public void setTopicHeader(String topicHeader) {
-        this.topicHeader = topicHeader;
+    public BMap<String, BValue> getHeaderResourceMap() {
+        return headerResourceMap;
     }
 
-    /**
-     * Method to retrieve the payload keys upon which routing would be based, if specified.
-     *
-     * @return the payload keys to consider
-     */
-    BStringArray getTopicPayloadKeys() {
-        return topicPayloadKeys;
-    }
-
-    /**
-     * Method to set the payload keys upon which routing should be based, if specified.
-     *
-     * @param topicPayloadKeys the payload keys to consider
-     */
-    public void setTopicPayloadKeys(BStringArray topicPayloadKeys) {
-        this.topicPayloadKeys = topicPayloadKeys;
-    }
-
-    /**
-     * Method to set the topic resource mapping if specified.
-     *
-     * @param topicResourceMap topic-resource map specified for the service
-     */
-    public void setTopicResourceMap(BMap<String, BMap<String, BString>> topicResourceMap) {
-        this.topicResourceMap = topicResourceMap;
+    public BMap<String, BMap<String, BValue>> getPayloadKeyResourceMap() {
+        return payloadKeyResourceMap;
     }
 
     /**
@@ -119,8 +94,8 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
      *
      * @return the topic-resource map specified for the service
      */
-    BMap<String, BMap<String, BString>> getTopicResourceMap() {
-        return topicResourceMap;
+    public BMap<String, BMap<String, BMap<String, BValue>>> getHeaderAndPayloadKeyResourceMap() {
+        return headerAndPayloadKeyResourceMap;
     }
 
     /**
@@ -146,7 +121,7 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
         sortedServiceURIs.add(httpService.getBasePath());
         sortedServiceURIs.sort((basePath1, basePath2) -> basePath2.length() - basePath1.length());
 
-        WebSubSubscriberServiceValidator.validateResources(httpService, topicHeader, topicResourceMap);
+        WebSubSubscriberServiceValidator.validateResources(httpService, topicIdentifier, this);
     }
 
 }

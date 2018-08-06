@@ -167,7 +167,7 @@ service<http:Service> hubService {
                     byte[]|error binaryPayload;
                     string stringPayload;
                     string contentType;
-                    if (hubRemotePublishingMode == REMOTE_PUBLISHING_MODE_FETCH) {
+                    if (hubRemotePublishMode == PUBLISH_MODE_FETCH) {
                         match (fetchTopicUpdate(topic)) {
                             http:Response fetchResp => {
                                 binaryPayload = fetchResp.getBinaryPayload();
