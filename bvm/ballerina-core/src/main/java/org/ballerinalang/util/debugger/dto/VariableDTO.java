@@ -78,8 +78,11 @@ public class VariableDTO {
             BMap bmap = (BMap) bValue;
             bValueString = "Map[" + bmap.size() + "] ";
             bValueString = bValueString + bmap.stringValue();
-        } else if (bValue.getType().getTag() == TypeTags.RECORD || bValue.getType().getTag() == TypeTags.OBJECT) {
-            bValueString = "struct " + bValue.getType().getName() + " ";
+        } else if (bValue.getType().getTag() == TypeTags.RECORD) {
+            bValueString = "Record " + bValue.getType().getName() + " ";
+            bValueString = bValueString + bValue.stringValue();
+        } else if (bValue.getType().getTag() == TypeTags.OBJECT) {
+            bValueString = "Object " + bValue.getType().getName() + " ";
             bValueString = bValueString + bValue.stringValue();
         } else {
             bValueString = "<Complex_Value>";
