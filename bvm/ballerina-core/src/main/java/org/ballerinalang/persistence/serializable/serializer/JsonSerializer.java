@@ -181,7 +181,7 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
     private BMap<String, BValue> arrayToBValue(Object array) {
         BRefValueArray bArray = new BRefValueArray(BTypes.typeAny);
         int arrayLength = Array.getLength(array);
-        for(int i = 0; i < arrayLength; i++) {
+        for (int i = 0; i < arrayLength; i++) {
             bArray.append(toBValue(Array.get(array, i), null));
         }
         return wrapObject(JsonSerializerConst.LIST_TAG, bArray);

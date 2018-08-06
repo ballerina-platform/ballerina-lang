@@ -22,6 +22,9 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.serializable.serializer.SerializationBValueProvider;
 
+/**
+ * Provide mapping between {@link BString} and {@link BValue} representation of it.
+ */
 public class BStringBValueProvider implements SerializationBValueProvider {
     private static final String B_STRING = BString.class.getSimpleName();
 

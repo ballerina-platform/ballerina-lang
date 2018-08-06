@@ -23,6 +23,9 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.serializable.serializer.JsonSerializerConst;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+/**
+ * Hold useful helper functions used in mapping between Java objects and BValue objects.
+ */
 public class BValueProviderHelper {
     public static BallerinaException incorrectObjectType(Object target, String converterType) {
         return new BallerinaException(

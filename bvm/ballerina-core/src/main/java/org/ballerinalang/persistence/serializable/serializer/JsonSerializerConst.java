@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.persistence.serializable.serializer;
 
+/**
+ * Hold constant values used in JSON serialization.
+ */
 public class JsonSerializerConst {
     public static final String EXISTING_TAG = "#existing#";
     public static final String HASH_TAG = "#hash#";

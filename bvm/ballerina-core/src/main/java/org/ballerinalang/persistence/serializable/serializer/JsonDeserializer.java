@@ -134,7 +134,7 @@ public class JsonDeserializer {
 
     private String getTargetTypeName(Class<?> targetType, BMap<String, BValue> jBMap) {
         BValue typeVal = jBMap.get(JsonSerializerConst.TYPE_TAG);
-        if (typeVal != null){
+        if (typeVal != null) {
             return typeVal.stringValue();
         } else if (targetType != null) {
             return targetType.getName();

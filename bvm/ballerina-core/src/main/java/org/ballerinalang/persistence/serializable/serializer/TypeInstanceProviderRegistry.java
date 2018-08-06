@@ -78,6 +78,9 @@ public class TypeInstanceProviderRegistry {
     }
 
 
+    /**
+     * Provide instance of arrays of given type.
+     */
     public static class ArrayInstanceProvider implements TypeInstanceProvider {
         final String type;
         private TypeInstanceProvider typeProvider;

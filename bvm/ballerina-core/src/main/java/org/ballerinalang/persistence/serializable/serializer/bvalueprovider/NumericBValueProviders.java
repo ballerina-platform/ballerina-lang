@@ -25,6 +25,9 @@ import org.ballerinalang.persistence.serializable.serializer.SerializationBValue
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+/**
+ * Host class for various Numeric BValue providers.
+ */
 public class NumericBValueProviders {
     /**
      * Convert {@link BigInteger} into {@link BValue} object and back to facilitate serialization.
@@ -65,6 +68,9 @@ public class NumericBValueProviders {
         }
     }
 
+    /**
+     * Provide mapping between {@link BigDecimal} and its {@link BValue} representation.
+     */
     public static class BigDecimalBValueProvider implements SerializationBValueProvider {
         public static final String BIG_DEC = BigDecimal.class.getName();
 
