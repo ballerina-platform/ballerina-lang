@@ -33,12 +33,14 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.serializable.SerializableState;
+import org.ballerinalang.persistence.serializable.serializer.bvalueprovider.NumericBValueProviders;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -55,6 +57,8 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
     private final BValueProvider bValueProvider = BValueProvider.getInstance();
 
     public JsonSerializer() {
+        bValueProvider.register(new NumericBValueProviders.BigIntegerBValueProvider());
+        bValueProvider.register(new NumericBValueProviders.BigDecimalBValueProvider());
     }
 
     @Override
@@ -164,6 +168,15 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
             array.append(toBValue(item, Object.class));
         }
         return wrapObject(JsonSerializerConst.LIST_TAG, array);
+    }
+
+    private BMap<String, BValue> arrayToBValue(Object array) {
+        BRefValueArray bArray = new BRefValueArray(BTypes.typeAny);
+        int arrayLength = Array.getLength(array);
+        for(int i = 0; i < arrayLength; i++) {
+            bArray.append(toBValue(Array.get(array, i), null));
+        }
+        return wrapObject(JsonSerializerConst.LIST_TAG, bArray);
     }
 
     private BMap toBValue(Enum obj) {

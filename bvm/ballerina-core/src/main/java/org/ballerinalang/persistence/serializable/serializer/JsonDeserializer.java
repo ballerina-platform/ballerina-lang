@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.jvm.hotspot.utilities.Assert;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -289,6 +290,20 @@ public class JsonDeserializer {
         }
     }
 
+    private Object createArray(Field field, Object[] array) {
+        Class<?> componentType = field.getType().getComponentType();
+        Object newArray = Array.newInstance(componentType, array.length);
+        for (int i = 0; i < array.length; i++) {
+            Object value = array[i];
+            if (componentType == int.class && value instanceof Long) {
+                Array.set(newArray, i, ((Long) value).intValue());
+            } else {
+                Array.set(newArray, i, value);
+            }
+        }
+        return newArray;
+    }
+
     private void primeFinalFieldForAssignment(Field field) {
         try {
             field.setAccessible(true);
@@ -308,6 +323,19 @@ public class JsonDeserializer {
      * @return
      */
     private Object cast(Object obj, Class targetType) {
+        if (obj == null) {
+            // how on earth a final int field contain null?
+            if (targetType == int.class
+                    || targetType == long.class
+                    || targetType == char.class
+                    || targetType == short.class
+                    || targetType == byte.class) {
+                return 0;
+            } else if (targetType == float.class
+                    || targetType == double.class) {
+                return 0.0;
+            }
+        }
         // JsonParser always treat integer numbers as longs, if target field is int then cast to int.
         if ((targetType == Integer.class && obj.getClass() == Long.class)
                 || (targetType.getName().equals("int") && obj.getClass() == Long.class)) {
