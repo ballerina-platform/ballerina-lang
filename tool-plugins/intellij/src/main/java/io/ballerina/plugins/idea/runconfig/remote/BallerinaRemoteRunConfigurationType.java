@@ -21,7 +21,7 @@ import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.openapi.extensions.Extensions;
 import com.intellij.openapi.project.Project;
 import io.ballerina.plugins.idea.BallerinaConstants;
-import io.ballerina.plugins.idea.BallerinaIcons;
+import icons.BallerinaIcons;
 import io.ballerina.plugins.idea.runconfig.BallerinaConfigurationFactoryBase;
 import org.jetbrains.annotations.NotNull;
 
