@@ -225,10 +225,6 @@ HexIntegerLiteral
     :   HexNumeral
     ;
 
-OctalIntegerLiteral
-    :   OctalNumeral
-    ;
-
 BinaryIntegerLiteral
     :   BinaryNumeral
     ;

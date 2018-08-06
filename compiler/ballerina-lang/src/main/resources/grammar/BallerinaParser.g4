@@ -711,7 +711,6 @@ simpleLiteral
 integerLiteral
     :   DecimalIntegerLiteral
     |   HexIntegerLiteral
-    |   OctalIntegerLiteral
     |   BinaryIntegerLiteral
     ;
 

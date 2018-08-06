@@ -3279,11 +3279,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             String processedNodeValue = nodeValue.toLowerCase().replace("0x", "");
             return parseLong(simpleLiteralContext, nodeValue, processedNodeValue, 16,
                     DiagnosticCode.HEXADECIMAL_TOO_SMALL, DiagnosticCode.HEXADECIMAL_TOO_LARGE);
-        } else if (integerLiteralContext.OctalIntegerLiteral() != null) {
-            String nodeValue = getNodeValue(simpleLiteralContext, integerLiteralContext.OctalIntegerLiteral());
-            String processedNodeValue = nodeValue.replace("0_", "");
-            return parseLong(simpleLiteralContext, nodeValue, processedNodeValue, 8,
-                    DiagnosticCode.OCTAL_TOO_SMALL, DiagnosticCode.OCTAL_TOO_LARGE);
         } else if (integerLiteralContext.BinaryIntegerLiteral() != null) {
             String nodeValue = getNodeValue(simpleLiteralContext, integerLiteralContext.BinaryIntegerLiteral());
             String processedNodeValue = nodeValue.toLowerCase().replace("0b", "");
