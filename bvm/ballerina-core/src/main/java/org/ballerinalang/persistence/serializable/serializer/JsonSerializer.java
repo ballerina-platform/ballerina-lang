@@ -33,6 +33,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.serializable.SerializableState;
+import org.ballerinalang.persistence.serializable.serializer.bvalueprovider.BStringBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.bvalueprovider.NumericBValueProviders;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -60,6 +61,7 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
     public JsonSerializer() {
         bValueProvider.register(new NumericBValueProviders.BigIntegerBValueProvider());
         bValueProvider.register(new NumericBValueProviders.BigDecimalBValueProvider());
+        bValueProvider.register(new BStringBValueProvider());
         bValuePackagePath = getBValuePackagePath();
     }
 
@@ -243,12 +245,8 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
         }
         identityMap.put(obj, obj);
 
-        // if obj is of known type to serialize
         String className = obj.getClass().getName();
-        // if obj is a BValue, trim fully qualified name to class name.
-        if (obj instanceof BValue && className.startsWith(bValuePackagePath)) {
-            className = className.substring(bValuePackagePath.length() + 1);
-        }
+        className = trimBValueClassNames(obj, className);
         SerializationBValueProvider provider = bValueProvider.find(className);
         if (provider != null) {
             @SuppressWarnings("unchecked")
@@ -257,6 +255,7 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
             return converted;
         }
         if (obj instanceof Map) {
+            @SuppressWarnings("unchecked")
             BMap map = toBValue((Map) obj);
             addHashValue(obj, map);
             return map;
@@ -275,6 +274,14 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
         BMap map = convertToBValueViaReflection(obj, leftSideType);
         addHashValue(obj, map);
         return map;
+    }
+
+    private String trimBValueClassNames(Object obj, String className) {
+        // if obj is a BValue, trim fully qualified name to class name.
+        if (obj instanceof BValue && className.startsWith(bValuePackagePath)) {
+            className = className.substring(bValuePackagePath.length() + 1);
+        }
+        return className;
     }
 
     private BString getHashCode(Object obj) {
