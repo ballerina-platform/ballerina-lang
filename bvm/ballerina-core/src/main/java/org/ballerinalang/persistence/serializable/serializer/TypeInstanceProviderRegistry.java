@@ -58,11 +58,27 @@ public class TypeInstanceProviderRegistry {
     }
 
     private TypeInstanceProvider generateProvider(String type) {
-        String fullClassName = typeNameMap.get(type);
-        if (fullClassName == null) {
+        String className = null;
+        if (isClassLoadable(type)) {
+            className = type;
+        }
+        if (className == null) {
+            className = typeNameMap.get(type);
+        }
+        if (className == null) {
             return null;
         }
-        return new TypeSerializationProviderFactory().getProvider(fullClassName);
+        return new TypeSerializationProviderFactory().createProvider(className);
+    }
+
+    private boolean isClassLoadable(String type) {
+        // try to load the class and see.
+        try {
+            Class<?> clazz = Class.forName(type, false, this.getClass().getClassLoader());
+            return clazz != null;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
     public void addTypeProvider(TypeInstanceProvider provider) {

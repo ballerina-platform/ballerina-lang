@@ -246,7 +246,7 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
         identityMap.put(obj, obj);
 
         String className = obj.getClass().getName();
-        className = trimBValueClassNames(obj, className);
+        className = getTrimmedClassName(obj);
         SerializationBValueProvider provider = bValueProvider.find(className);
         if (provider != null) {
             @SuppressWarnings("unchecked")
@@ -276,7 +276,8 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
         return map;
     }
 
-    private String trimBValueClassNames(Object obj, String className) {
+    private String getTrimmedClassName(Object obj) {
+        String className = obj.getClass().getName();
         // if obj is a BValue, trim fully qualified name to class name.
         if (obj instanceof BValue && className.startsWith(bValuePackagePath)) {
             className = className.substring(bValuePackagePath.length() + 1);
@@ -327,7 +328,8 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
         }
 
         if (leftSideType != objClass) {
-            return wrapObject(objClass.getSimpleName(), map);
+            String className = getTrimmedClassName(obj);
+            return wrapObject(className, map);
         } else {
             return map;
         }

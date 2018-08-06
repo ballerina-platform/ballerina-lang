@@ -42,7 +42,9 @@ import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class JsonSerializerTest {
     private static final String INSTANCE_ID = "ABC123";
@@ -148,6 +150,26 @@ public class JsonSerializerTest {
         value.append(new BString("List item 1"));
         value.append(new BString("List item 2"));
         map.put("C", value);
+        return map;
+    }
+
+    @Test(description = "Test complex keys in a Map")
+    public void testComplexKeysInAMap() {
+        JsonSerializer jsonSerializer = new JsonSerializer();
+        String serialize = jsonSerializer.serialize(mockComplexKeyMap());
+        Object destinationMap = jsonSerializer.deserialize(serialize.getBytes(), Map.class);
+
+        Map map = (Map) destinationMap;
+        boolean matchedKey1 = map.keySet().stream().anyMatch(k -> ((StringFieldA) k).A.equals("Key1"));
+        boolean matchedKey2 = map.keySet().stream().anyMatch(k -> ((StringFieldA) k).A.equals("Key2"));
+        Assert.assertTrue(matchedKey1 && matchedKey2);
+    }
+
+    private Map mockComplexKeyMap() {
+        Map<StringFieldA, String> map = new HashMap<>();
+        map.put(new StringFieldA("Key1"),"Key1");
+        map.put(new StringFieldA("Key2"),"Key2");
+
         return map;
     }
 

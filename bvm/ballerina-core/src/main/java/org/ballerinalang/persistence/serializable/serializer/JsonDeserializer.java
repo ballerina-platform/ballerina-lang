@@ -25,7 +25,6 @@ import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.serializer.type.ListInstanceProvider;
 import org.ballerinalang.persistence.serializable.serializer.type.MapInstanceProvider;
 import org.ballerinalang.persistence.serializable.serializer.type.SerializableBMapInstanceProvider;
@@ -49,18 +48,19 @@ import java.util.Map;
 /**
  * Reconstruct Java object tree from JSON input.
  */
-public class JsonDeserializer {
+class JsonDeserializer {
     private final TypeInstanceProviderRegistry typeInstanceProviderRegistry;
     private final BValueProvider bValueProvider;
     private static final Logger logger = LoggerFactory.getLogger(JsonDeserializer.class);
     private final HashMap<String, Object> identityMap = new HashMap<>();
     private BRefType<?> treeHead;
 
-    public JsonDeserializer(BRefType<?> objTree) {
+    JsonDeserializer(BRefType<?> objTree) {
         treeHead = objTree;
         typeInstanceProviderRegistry = TypeInstanceProviderRegistry.getInstance();
         bValueProvider = BValueProvider.getInstance();
         registerTypeSerializationProviders(typeInstanceProviderRegistry);
+
     }
 
     private void registerTypeSerializationProviders(TypeInstanceProviderRegistry registry) {
@@ -75,8 +75,8 @@ public class JsonDeserializer {
         registry.addTypeProvider(new SerializableBRefArrayInstanceProvider());
     }
 
-    public SerializableState deserialize(Class<?> destinationType) {
-        return (SerializableState) deserialize(treeHead, destinationType);
+    Object deserialize(Class<?> destinationType) {
+        return deserialize(treeHead, destinationType);
     }
 
     @SuppressWarnings("unchecked")
@@ -314,7 +314,7 @@ public class JsonDeserializer {
      */
     private Object cast(Object obj, Class targetType) {
         if (obj == null) {
-            // how on earth a final int field contain null?
+            // get default value for primitive type
             if (targetType == int.class
                     || targetType == long.class
                     || targetType == char.class
@@ -353,10 +353,19 @@ public class JsonDeserializer {
     }
 
     private Object deserializeMap(BMap<String, BValue> payload, Map map, Class<?> targetType) {
+        BValue complexKeyMap = payload.get(JsonSerializerConst.COMPLEX_KEY_MAP_TAG);
+        if (complexKeyMap instanceof BMap) {
+            return deserializeComplexKeyMap((BMap<String, BValue>) complexKeyMap, payload, map);
+        }
+
         for (String key : payload.keys()) {
+            if (key.equals(JsonSerializerConst.COMPLEX_KEY_MAP_TAG)) {
+                // don't process this entry here, as this is the complex key-map entry
+                continue;
+            }
             BValue value = payload.get(key);
 
-            Class<?> fieldType;
+            Class<?> fieldType = Object.class;
             if (value instanceof BMap) {
                 @SuppressWarnings("unchecked")
                 BMap<String, BValue> item = (BMap<String, BValue>) value;
@@ -364,12 +373,35 @@ public class JsonDeserializer {
                 fieldType = findClass(typeName);
             } else if (value instanceof BBoolean) {
                 fieldType = BBoolean.class;
-            } else {
-                throw new BallerinaException("Uncompatible type in JSON Map");
             }
             map.put(key, deserialize(value, fieldType));
         }
         return map;
+    }
+
+    private Object deserializeComplexKeyMap(BMap<String, BValue> complexKeyMap,
+                                            BMap<String, BValue> payload, Map targetMap) {
+        for (String key : payload.keys()) {
+            if (key.equals(JsonSerializerConst.COMPLEX_KEY_MAP_TAG)) {
+                // don't process this entry here, as this is the complex key-map entry
+                continue;
+            }
+            BValue value = payload.get(key);
+            BValue complexKey = complexKeyMap.get(key);
+            Object ckObj = deserialize(complexKey, Object.class);
+
+            Class<?> fieldType = Object.class;
+            if (value instanceof BMap) {
+                @SuppressWarnings("unchecked")
+                BMap<String, BValue> item = (BMap<String, BValue>) value;
+                String typeName = item.get(JsonSerializerConst.TYPE_TAG).stringValue();
+                fieldType = findClass(typeName);
+            } else if (value instanceof BBoolean) {
+                fieldType = BBoolean.class;
+            }
+            targetMap.put(ckObj, deserialize(value, fieldType));
+        }
+        return targetMap;
     }
 
     private Class<?> findClass(String typeName) {

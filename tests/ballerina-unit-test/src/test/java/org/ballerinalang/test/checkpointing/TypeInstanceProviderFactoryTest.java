@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
 public class TypeInstanceProviderFactoryTest {
     @Test
     public void testNoParamConstructorObject() {
-        TypeInstanceProvider provider = new TypeSerializationProviderFactory().getProvider(Foo.class.getName());
+        TypeInstanceProvider provider = new TypeSerializationProviderFactory().createProvider(Foo.class.getName());
         Object o = provider.newInstance();
         Assert.assertTrue(o instanceof Foo);
         Assert.assertTrue(((Foo)o).secretNum == 42);

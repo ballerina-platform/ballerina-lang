@@ -31,7 +31,7 @@ public class TypeSerializationProviderFactory {
      * @param fullClassName class name of requested {@link TypeInstanceProvider}
      * @return
      */
-    public TypeInstanceProvider getProvider(String fullClassName) {
+    public TypeInstanceProvider createProvider(String fullClassName) {
         try {
             Class<?> clazz = Class.forName(fullClassName);
             try {
@@ -39,7 +39,7 @@ public class TypeSerializationProviderFactory {
                 if (declaredConstructor == null) {
                     return null;
                 }
-                TypeInstanceProvider implement = implementUsingNoparamConstructor(clazz, declaredConstructor);
+                TypeInstanceProvider implement = implementUsingNoParamConstructor(clazz, declaredConstructor);
                 if (implement != null) {
                     return implement;
                 }
@@ -52,7 +52,7 @@ public class TypeSerializationProviderFactory {
         }
     }
 
-    private TypeInstanceProvider implementUsingNoparamConstructor(Class<?> clazz, Constructor<?> constructor) {
+    private TypeInstanceProvider implementUsingNoParamConstructor(Class<?> clazz, Constructor<?> constructor) {
         return new TypeInstanceProvider() {
             @Override
             public String getTypeName() {
