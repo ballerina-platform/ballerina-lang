@@ -19,7 +19,7 @@
 package org.ballerinalang.test.auth;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
@@ -33,7 +33,7 @@ import java.util.Map;
  * Test cases for service level authorization.
  */
 @Test(groups = "auth-test")
-public class ServiceLevelAuthnTest extends IntegrationTestCase {
+public class ServiceLevelAuthnTest extends BaseTest {
     private final int servicePort = 9094;
 
     @Test(description = "Authn and authz success test case")

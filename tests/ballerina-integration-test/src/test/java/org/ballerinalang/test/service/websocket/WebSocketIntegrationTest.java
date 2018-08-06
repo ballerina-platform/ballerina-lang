@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.service.websocket;
 
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.testng.annotations.AfterGroups;
@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Facilitate the common functionality of WebSocket integration tests.
  */
-public class WebSocketIntegrationTest extends IntegrationTestCase {
+public class WebSocketIntegrationTest extends BaseTest {
     protected static final int TIMEOUT_IN_SECS = 10;
     protected static final int REMOTE_SERVER_PORT = 15500;
 

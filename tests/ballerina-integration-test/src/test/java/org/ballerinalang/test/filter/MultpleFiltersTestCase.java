@@ -18,7 +18,7 @@
 package org.ballerinalang.test.filter;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
@@ -36,7 +36,7 @@ import java.util.Map;
  * Test cases for verifying multiple http filters for a service.
  */
 @Test(groups = "filter-test")
-public class MultpleFiltersTestCase extends IntegrationTestCase {
+public class MultpleFiltersTestCase extends BaseTest {
 
     @Test(description = "Single filter execution success case")
     public void testMultipleFiltersSuccess() throws Exception {

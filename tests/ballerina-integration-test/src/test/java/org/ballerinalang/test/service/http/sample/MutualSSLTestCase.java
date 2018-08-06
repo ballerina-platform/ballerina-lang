@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.service.http.sample;
 
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerInstance;
@@ -30,7 +30,7 @@ import java.io.File;
  * Testing Mutual SSL.
  */
 @Test(groups = "http-test")
-public class MutualSSLTestCase extends IntegrationTestCase {
+public class MutualSSLTestCase extends BaseTest {
 
     private ServerInstance ballerinaClient;
 

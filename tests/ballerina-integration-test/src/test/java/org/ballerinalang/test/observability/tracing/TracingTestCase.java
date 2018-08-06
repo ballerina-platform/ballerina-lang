@@ -21,7 +21,7 @@ package org.ballerinalang.test.observability.tracing;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -41,7 +41,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 /**
  * Test cases for observability tracing.
  */
-public class TracingTestCase extends IntegrationTestCase {
+public class TracingTestCase extends BaseTest {
 
     private static final String BASEDIR = System.getProperty("basedir");
     private static final String RESOURCE_LOCATION = "src" + File.separator + "test" + File.separator +

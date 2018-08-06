@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.auth;
 
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
@@ -31,7 +31,7 @@ import java.util.Map;
  * Test cases for resource level authorization.
  */
 @Test(groups = "auth-test")
-public class ResourceLevelAuthTest extends IntegrationTestCase {
+public class ResourceLevelAuthTest extends BaseTest {
     private final int servicePort = 9093;
 
     @Test(description = "Authn and authz success test case")

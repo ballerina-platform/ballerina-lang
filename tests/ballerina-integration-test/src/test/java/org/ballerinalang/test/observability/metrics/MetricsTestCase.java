@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.observability.metrics;
 
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.SQLDBUtils;
 import org.testng.Assert;
@@ -43,7 +43,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 /**
  * Integration test for observability of metrics.
  */
-public class MetricsTestCase extends IntegrationTestCase {
+public class MetricsTestCase extends BaseTest {
 
     private SQLDBUtils.SqlServer sqlServer;
     private static final String RESOURCE_LOCATION = "src" + File.separator + "test" + File.separator +

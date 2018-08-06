@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.service.http.sample;
 
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
@@ -35,7 +35,7 @@ import java.nio.channels.SocketChannel;
  * @since 0.975.1
  */
 @Test(groups = "http-test")
-public class IdleTimeoutResponseTestCase extends IntegrationTestCase {
+public class IdleTimeoutResponseTestCase extends BaseTest {
 
     /**
      * A larger client payload to be sent in chunks.

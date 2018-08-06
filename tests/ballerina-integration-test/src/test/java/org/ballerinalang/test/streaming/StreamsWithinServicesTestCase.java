@@ -19,7 +19,7 @@
 package org.ballerinalang.test.streaming;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
@@ -35,7 +35,7 @@ import java.util.Map;
 /**
  * This class tests the streaming functionality in a service.
  */
-public class StreamsWithinServicesTestCase extends IntegrationTestCase {
+public class StreamsWithinServicesTestCase extends BaseTest {
 
     @BeforeClass
     public void setup() throws Exception {

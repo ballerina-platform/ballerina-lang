@@ -18,7 +18,7 @@
 package org.ballerinalang.test.service.http.sample;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
@@ -34,7 +34,7 @@ import java.util.Map;
  * ballerina_home/samples/routingServices/routingServices.bal.
  */
 @Test(groups = "http-test")
-public class RoutingServiceSampleTestCase extends IntegrationTestCase {
+public class RoutingServiceSampleTestCase extends BaseTest {
     private final String requestNyseMessage = "{\"name\":\"nyse\"}";
     private final String responseNyseMessage = "{\"exchange\":\"nyse\",\"name\":\"IBM\",\"value\":\"127.50\"}";
     private final String requestNasdaqMessage = "{\"name\":\"nasdaq\"}";

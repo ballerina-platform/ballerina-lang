@@ -19,7 +19,7 @@
 package org.ballerinalang.test.service.websocket;
 
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
@@ -38,7 +38,7 @@ import static org.ballerinalang.test.service.websocket.WebSocketIntegrationTest.
  * Test whether the errors are received correctly to the onError resource in WebSocket server.
  */
 @Test(groups = "websocket-test")
-public class OnErrorWebSocketTest extends IntegrationTestCase {
+public class OnErrorWebSocketTest extends BaseTest {
 
     private WebSocketTestClient client;
     private static final String URL = "ws://localhost:9094/error/ws";

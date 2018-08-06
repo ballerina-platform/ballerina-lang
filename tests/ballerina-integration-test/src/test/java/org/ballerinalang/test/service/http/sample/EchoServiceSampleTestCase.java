@@ -18,7 +18,7 @@
 package org.ballerinalang.test.service.http.sample;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
@@ -35,7 +35,7 @@ import java.util.Map;
  * Request message should be returned as response message
  */
 @Test(groups = "http-test")
-public class EchoServiceSampleTestCase extends IntegrationTestCase {
+public class EchoServiceSampleTestCase extends BaseTest {
     private final String requestMessage = "{\"exchange\":\"nyse\",\"name\":\"WSO2\",\"value\":\"127.50\"}";
 
     @Test(description = "Test echo service sample test case invoking base path")

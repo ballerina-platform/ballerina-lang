@@ -18,7 +18,7 @@
 package org.ballerinalang.test.service.http.sample;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
@@ -34,7 +34,7 @@ import java.util.Map;
  * ballerina_home/samples/serviceChaining/ATMLocatorService.bal.
  */
 @Test(groups = "http-test")
-public class ServiceChainingSampleTestCase extends IntegrationTestCase {
+public class ServiceChainingSampleTestCase extends BaseTest {
     private static final String requestMessage = "{\"ATMLocator\": {\"ZipCode\": \"95999\"}}";
     private static final String responseMessage = "{\"ABC Bank\":{\"Address\":\"111 River Oaks Pkwy" +
             ", San Jose, CA 95999\"}}";

@@ -19,7 +19,7 @@
 
 package org.ballerinalang.test.securelistener;
 
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
@@ -32,7 +32,7 @@ import java.util.Map;
  * Test cases for verifying token propagation scenario.
  */
 @Test(groups = "secure-listener-test")
-public class TokenPropagationTest extends IntegrationTestCase {
+public class TokenPropagationTest extends BaseTest {
 
     @Test(description = "With JWT Token propagation, authn success test")
     public void testTokenPropagationSuccess() throws Exception {

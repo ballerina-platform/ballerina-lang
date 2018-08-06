@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.service.http2;
 
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
@@ -33,7 +33,7 @@ import java.io.IOException;
  * Test case for HTTP/2.0 server push scenario.
  */
 @Test(groups = "http2-test")
-public class Http2ServerPushTestCase extends IntegrationTestCase {
+public class Http2ServerPushTestCase extends BaseTest {
 
     @BeforeGroups("http2-test")
     public void start() throws BallerinaTestException {

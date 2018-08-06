@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.service.http;
 
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeGroups;
@@ -29,7 +29,7 @@ import java.io.File;
  * Base test class for Http integration test cases which starts/stops the http services as ballerina package before
  * and after tests are run.
  */
-public class HttpBaseTest extends IntegrationTestCase {
+public class HttpBaseTest extends BaseTest {
     @BeforeGroups("http-test")
     public void start() throws BallerinaTestException {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.service.websub;
 
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
 import org.testng.annotations.AfterSuite;
@@ -28,7 +28,7 @@ import org.testng.annotations.BeforeSuite;
  * Base test class for WebSub integration test cases which initializes required ballerina server instances before
  * and after tests are run.
  */
-public class WebSubBaseTest extends IntegrationTestCase {
+public class WebSubBaseTest extends BaseTest {
     static ServerInstance webSubSubscriber;
     static ServerInstance webSubPublisher;
     static ServerInstance webSubPublisherService;

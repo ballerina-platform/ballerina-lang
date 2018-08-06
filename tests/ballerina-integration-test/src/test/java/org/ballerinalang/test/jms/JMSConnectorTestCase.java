@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.jms;
 
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.jms.util.EmbeddedBroker;
@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  * Testing Mutual SSL.
  */
 @Test(groups = "jms-test")
-public class JMSConnectorTestCase extends IntegrationTestCase {
+public class JMSConnectorTestCase extends BaseTest {
 
     private EmbeddedBroker embeddedBroker;
     private JMSClientHandler clientHandler;

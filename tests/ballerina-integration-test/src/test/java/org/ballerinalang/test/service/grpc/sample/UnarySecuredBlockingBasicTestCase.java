@@ -23,7 +23,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -35,7 +35,7 @@ import java.nio.file.Paths;
  * This test the mediation of wsClient <-> balServer <-> balWSClient <-> remoteServer.
  */
 @Test(groups = "grpc-test")
-public class UnarySecuredBlockingBasicTestCase extends IntegrationTestCase {
+public class UnarySecuredBlockingBasicTestCase extends BaseTest {
 
     @Test
     public void testUnarySecuredBlocking() {

@@ -19,7 +19,7 @@
 package org.ballerinalang.test.filter;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
@@ -34,7 +34,7 @@ import java.util.Map;
  * Test cases for verifying single http filter for a service.
  */
 @Test(groups = "filter-test")
-public class SingleFilterTestCase extends IntegrationTestCase {
+public class SingleFilterTestCase extends BaseTest {
     private Map<String, String> headers = new HashMap<>();
 
     @BeforeClass

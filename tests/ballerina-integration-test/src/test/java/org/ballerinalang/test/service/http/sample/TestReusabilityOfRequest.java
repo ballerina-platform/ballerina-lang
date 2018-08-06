@@ -19,7 +19,7 @@
 package org.ballerinalang.test.service.http.sample;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
@@ -36,7 +36,7 @@ import java.util.Map;
  * @since 0.970.0
  */
 @Test(groups = "http-test")
-public class TestReusabilityOfRequest extends IntegrationTestCase {
+public class TestReusabilityOfRequest extends BaseTest {
 
     private final int servicePort = 9115;
 

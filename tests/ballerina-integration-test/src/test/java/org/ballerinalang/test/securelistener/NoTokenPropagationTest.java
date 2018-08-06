@@ -19,7 +19,7 @@
 
 package org.ballerinalang.test.securelistener;
 
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
@@ -36,7 +36,7 @@ import java.util.Map;
  * Test cases for verifying no token propagation scenario.
  */
 @Test(groups = "secure-listener-test")
-public class NoTokenPropagationTest extends IntegrationTestCase {
+public class NoTokenPropagationTest extends BaseTest {
 
     @BeforeGroups("secure-listener-test")
     public void start() throws BallerinaTestException {

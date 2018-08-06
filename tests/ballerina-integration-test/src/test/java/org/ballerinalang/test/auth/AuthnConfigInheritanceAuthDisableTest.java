@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.auth;
 
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
@@ -37,7 +37,7 @@ import java.util.Map;
  * @since 0.970.0
  */
 @Test(groups = "auth-test")
-public class AuthnConfigInheritanceAuthDisableTest extends IntegrationTestCase {
+public class AuthnConfigInheritanceAuthDisableTest extends BaseTest {
 
     private final int servicePort = 9090;
 

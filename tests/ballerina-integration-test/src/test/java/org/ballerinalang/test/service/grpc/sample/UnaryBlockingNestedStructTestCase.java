@@ -27,7 +27,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.TestUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
@@ -42,7 +42,7 @@ import java.nio.file.Paths;
  * Test class for gRPC unary service with nested struct input/output.
  */
 @Test(groups = "grpc-test")
-public class UnaryBlockingNestedStructTestCase extends IntegrationTestCase {
+public class UnaryBlockingNestedStructTestCase extends BaseTest {
 
     private CompileResult result;
 

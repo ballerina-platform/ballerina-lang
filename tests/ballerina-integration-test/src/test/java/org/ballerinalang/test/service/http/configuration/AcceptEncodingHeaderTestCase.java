@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.service.http.configuration;
 
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
@@ -31,7 +31,7 @@ import java.util.Map;
  * Testing accept-encoding header.
  */
 @Test(groups = "http-test")
-public class AcceptEncodingHeaderTestCase extends IntegrationTestCase {
+public class AcceptEncodingHeaderTestCase extends BaseTest {
 
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String ACCEPT_VALUE = "AcceptValue";

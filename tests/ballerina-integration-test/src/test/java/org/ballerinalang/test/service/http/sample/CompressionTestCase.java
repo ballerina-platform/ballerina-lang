@@ -19,7 +19,7 @@
 package org.ballerinalang.test.service.http.sample;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
@@ -39,7 +39,7 @@ import static org.ballerinalang.test.util.TestConstant.ENCODING_GZIP;
  * @since 0.966.0
  */
 @Test(groups = "http-test")
-public class CompressionTestCase extends IntegrationTestCase {
+public class CompressionTestCase extends BaseTest {
 
     private int servicePort = 9093;
 

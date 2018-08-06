@@ -19,7 +19,7 @@
 package org.ballerinalang.test.securelistener;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
@@ -37,7 +37,7 @@ import java.util.Map;
  * Test cases for verifying specific auth handler with secured listener.
  */
 @Test(groups = "broken")
-public class SecureListenerSpecificHandlerTest extends IntegrationTestCase {
+public class SecureListenerSpecificHandlerTest extends BaseTest {
     private ServerInstance ballerinaServer;
 
     @BeforeClass

@@ -20,7 +20,7 @@ package org.ballerinalang.test.service.http.sample;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.util.internal.PlatformDependent;
 import io.netty.util.internal.StringUtil;
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
@@ -35,7 +35,7 @@ import java.util.Map;
  * Testcase for the retry sample.
  */
 @Test(groups = "http-test")
-public class RetrySampleTestCase extends IntegrationTestCase {
+public class RetrySampleTestCase extends BaseTest {
 
     private final int servicePort = 9105;
 

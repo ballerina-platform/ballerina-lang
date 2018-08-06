@@ -18,7 +18,7 @@
 package org.ballerinalang.test.service.http.sample;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
@@ -32,7 +32,7 @@ import java.io.IOException;
  * ballerina_home/samples/passthroughService/passthroughService.bal.
  */
 @Test(groups = "http-test")
-public class PassthroughServiceSampleTestCase extends IntegrationTestCase {
+public class PassthroughServiceSampleTestCase extends BaseTest {
 
     @Test(description = "Test Passthrough sample test case invoking base path")
     public void testPassthroughServiceByBasePath() throws IOException {
