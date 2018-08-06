@@ -291,7 +291,6 @@ public class ServerInstance implements Server {
             serverErrorLogReader.start();
 
             process.waitFor();
-//            deleteWorkDir();
         } catch (IOException e) {
             throw new BallerinaTestException("Error executing ballerina", e);
         } catch (InterruptedException e) {

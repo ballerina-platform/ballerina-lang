@@ -41,9 +41,12 @@ public class WebSubBaseTest extends BaseTest {
     }
 
     @AfterSuite(alwaysRun = true)
-    public void clean() {
+    public void clean() throws BallerinaTestException {
+        webSubSubscriber.stopServer();
         webSubSubscriber.cleanup();
+        webSubPublisher.stopServer();
         webSubPublisher.cleanup();
+        webSubPublisherService.stopServer();
         webSubPublisherService.cleanup();
     }
 }

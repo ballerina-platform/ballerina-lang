@@ -173,7 +173,7 @@ public class JMSConnectorTestCase extends BaseTest {
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "jms").getAbsolutePath();
         String[] args = new String[]{"--sourceroot", basePath};
-        serverInstance.startBallerinaServer("jmsServices", args);
+        serverInstance.startBallerinaServer("jmsservices", args);
     }
 
     @AfterGroups(groups = "jms-test")

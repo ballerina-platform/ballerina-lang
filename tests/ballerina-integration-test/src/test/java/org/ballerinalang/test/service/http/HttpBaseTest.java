@@ -35,7 +35,7 @@ public class HttpBaseTest extends BaseTest {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "http").getAbsolutePath();
         String[] args = new String[]{"--sourceroot", balFile};
-        serverInstance.startBallerinaServer("httpServices", args);
+        serverInstance.startBallerinaServer("httpservices", args);
     }
 
     @AfterGroups("http-test")

@@ -54,7 +54,7 @@ public class InvalidServiceMethodTestCase extends BaseTest {
     public void testInvalidRemoteMethod() {
         BString request = new BString("WSO2");
         final String expectedMsg = "Error from Connector: No registered method descriptor for " +
-                "'grpcServices.HelloWorld98/hello1'";
+                "'grpcservices.HelloWorld98/hello1'";
 
         BValue[] responses = BRunUtil.invoke(result, "testInvalidRemoteMethod", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);
@@ -90,7 +90,7 @@ public class InvalidServiceMethodTestCase extends BaseTest {
     public void testNonExistenceRemoteMethod() {
         BBoolean request = new BBoolean(false);
         final String expectedMsg = "Error from Connector: No registered method descriptor for " +
-                "'grpcServices.HelloWorld98/testBoolean'";
+                "'grpcservices.HelloWorld98/testBoolean'";
 
         BValue[] responses = BRunUtil.invoke(result, "testNonExistenceRemoteMethod", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);

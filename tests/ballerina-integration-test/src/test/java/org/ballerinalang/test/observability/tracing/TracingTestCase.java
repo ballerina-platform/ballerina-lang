@@ -67,7 +67,7 @@ public class TracingTestCase extends BaseTest {
 
         String configFile = new File(RESOURCE_LOCATION + "ballerina.conf").getAbsolutePath();
         String[] args = new String[]{"--sourceroot", basePath, "--config", configFile};
-        serverInstance.startBallerinaServer("tracingServices", args);
+        serverInstance.startBallerinaServer("tracingservices", args);
     }
 
     @Test

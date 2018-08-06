@@ -36,7 +36,7 @@ public class GrpcBaseTest extends BaseTest {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "grpc").getAbsolutePath();
         String[] args = new String[] {"--sourceroot", balFile};
-        serverInstance.startBallerinaServer("grpcServices", args);
+        serverInstance.startBallerinaServer("grpcservices", args);
     }
 
     @AfterGroups("grpc-test")

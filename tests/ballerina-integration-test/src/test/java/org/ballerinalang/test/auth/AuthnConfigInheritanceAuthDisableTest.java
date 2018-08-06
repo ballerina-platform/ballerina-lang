@@ -66,7 +66,7 @@ public class AuthnConfigInheritanceAuthDisableTest extends BaseTest {
                 "auth").getAbsolutePath();
         String ballerinaConfPath = basePath + File.separator + "ballerina.conf";
         String[] args = new String[]{"--sourceroot", basePath, "--config", ballerinaConfPath};
-        serverInstance.startBallerinaServer("authServices", args);
+        serverInstance.startBallerinaServer("authservices", args);
     }
 
     @AfterGroups("auth-test")

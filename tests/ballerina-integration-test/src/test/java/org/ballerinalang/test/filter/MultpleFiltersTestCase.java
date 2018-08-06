@@ -90,7 +90,7 @@ public class MultpleFiltersTestCase extends BaseTest {
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "filter").getAbsolutePath();
         String[] args = new String[]{"--sourceroot", basePath};
-        serverInstance.startBallerinaServer("filterServices", args);
+        serverInstance.startBallerinaServer("filterservices", args);
     }
 
     @AfterGroups("filter-test")

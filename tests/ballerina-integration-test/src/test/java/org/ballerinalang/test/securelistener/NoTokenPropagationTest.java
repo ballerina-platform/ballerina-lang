@@ -44,7 +44,7 @@ public class NoTokenPropagationTest extends BaseTest {
                 "secureListener").getAbsolutePath();
         String ballerinaConfPath = basePath + File.separator + "ballerina.conf";
         String[] args = new String[]{"--sourceroot", basePath, "--config", ballerinaConfPath};
-        serverInstance.startBallerinaServer("secureServices", args);
+        serverInstance.startBallerinaServer("secureservices", args);
     }
 
     @Test(description = "No JWT Token propagation, authn failure test")

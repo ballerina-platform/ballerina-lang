@@ -339,7 +339,7 @@ public class MicroTransactionTestCase extends BaseTest {
                 new File(serverInstance.getServerHome() + File.separator + "bre" + File.separator + "lib" +
                         File.separator + "hsqldb.jar"));
 
-        serverInstance.startBallerinaServer("transactionServices", args, initiatorServicePort);
+        serverInstance.startBallerinaServer("transactionservices", args, initiatorServicePort);
     }
 
     @AfterGroups("transactions-test")

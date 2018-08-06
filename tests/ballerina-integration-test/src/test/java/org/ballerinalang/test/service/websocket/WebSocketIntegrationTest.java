@@ -46,7 +46,7 @@ public class WebSocketIntegrationTest extends BaseTest {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "websocket").getAbsolutePath();
         String[] args = new String[]{"--sourceroot", balFile};
-        serverInstance.startBallerinaServer("wsServices", args);
+        serverInstance.startBallerinaServer("wsservices", args);
     }
 
     @AfterGroups("websocket-test")

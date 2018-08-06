@@ -40,7 +40,7 @@ public class Http2ServerPushTestCase extends BaseTest {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "http2").getAbsolutePath();
         String[] args = new String[]{"--sourceroot", balFile};
-        serverInstance.startBallerinaServer("http2Services", args);
+        serverInstance.startBallerinaServer("http2services", args);
     }
 
     @AfterGroups("http2-test")

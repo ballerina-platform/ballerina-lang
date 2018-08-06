@@ -35,8 +35,9 @@ public class BaseTest {
         serverInstance = ServerInstance.initBallerinaServer();
     }
 
-    @AfterSuite
-    public void destroy() {
+    @AfterSuite(alwaysRun = true)
+    public void destroy() throws BallerinaTestException {
+        serverInstance.stopServer();
         serverInstance.cleanup();
     }
 }
