@@ -22,13 +22,9 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
@@ -36,7 +32,6 @@ import java.nio.file.Paths;
 
 /**
  * Test class for headers for gRPC unary service with blocking and non-blocking client.
- *
  */
 @Test(groups = "grpc-test")
 public class UnaryBlockingHeaderTestCase {

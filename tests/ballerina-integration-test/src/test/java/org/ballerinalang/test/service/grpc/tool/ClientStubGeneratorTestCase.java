@@ -26,7 +26,6 @@ import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -36,7 +35,6 @@ import java.nio.file.Paths;
 /**
  * Protobuf to bal generation function testcase.
  */
-@Test(groups = "grpc-test")
 public class ClientStubGeneratorTestCase {
 
     private static final String PACKAGE_NAME = ".";
@@ -51,8 +49,7 @@ public class ClientStubGeneratorTestCase {
     }
 
     @Test
-    public void testUnaryHelloWorld() throws IllegalAccessException,
-            ClassNotFoundException, InstantiationException {
+    public void testUnaryHelloWorld() throws IllegalAccessException, ClassNotFoundException, InstantiationException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
         Path sourcePath = Paths.get("grpc", "tool");
@@ -81,8 +78,8 @@ public class ClientStubGeneratorTestCase {
     }
 
     @Test
-    public void testClientStreamingHelloWorld() throws IllegalAccessException,
-            ClassNotFoundException, InstantiationException {
+    public void testClientStreamingHelloWorld() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
         Path sourcePath = Paths.get("grpc", "tool");
@@ -127,8 +124,7 @@ public class ClientStubGeneratorTestCase {
     }
 
     @Test
-    public void testStandardDataTypes() throws IllegalAccessException,
-            ClassNotFoundException, InstantiationException {
+    public void testStandardDataTypes() throws IllegalAccessException, ClassNotFoundException, InstantiationException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
         Path sourcePath = Paths.get("grpc", "tool");
@@ -159,8 +155,8 @@ public class ClientStubGeneratorTestCase {
     }
 
     @Test
-    public void testDifferentOutputPath() throws IllegalAccessException,
-            ClassNotFoundException, InstantiationException {
+    public void testDifferentOutputPath() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
         Path sourcePath = Paths.get("grpc", "client");

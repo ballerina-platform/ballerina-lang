@@ -25,12 +25,16 @@ import org.testng.annotations.BeforeGroups;
 
 import java.io.File;
 
+/**
+ * Base test class for Http integration test cases which starts/stops the http services as ballerina package before
+ * and after tests are run.
+ */
 public class HttpBaseTest extends IntegrationTestCase {
     @BeforeGroups("http-test")
     public void start() throws BallerinaTestException {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "http").getAbsolutePath();
-        String[] args = new String[] {"--sourceroot", balFile};
+        String[] args = new String[]{"--sourceroot", balFile};
         serverInstance.startBallerinaServer("httpServices", args);
     }
 

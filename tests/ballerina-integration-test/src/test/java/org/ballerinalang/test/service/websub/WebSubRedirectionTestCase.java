@@ -19,17 +19,14 @@ package org.ballerinalang.test.service.websub;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.awaitility.Duration;
-import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.HttpsClientRequest;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.io.File;

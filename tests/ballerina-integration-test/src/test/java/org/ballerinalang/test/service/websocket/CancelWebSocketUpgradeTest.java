@@ -19,10 +19,7 @@
 package org.ballerinalang.test.service.websocket;
 
 import io.netty.handler.codec.http.websocketx.WebSocketHandshakeException;
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;
@@ -36,8 +33,8 @@ public class CancelWebSocketUpgradeTest {
     private WebSocketTestClient client;
 
     @Test(description = "Tests the cancelWebSocketUpgrade method",
-          expectedExceptions = WebSocketHandshakeException.class,
-          expectedExceptionsMessageRegExp = "Invalid handshake response getStatus: 404 Not Found")
+            expectedExceptions = WebSocketHandshakeException.class,
+            expectedExceptionsMessageRegExp = "Invalid handshake response getStatus: 404 Not Found")
     public void testCancelUpgrade() throws InterruptedException, URISyntaxException {
         client = new WebSocketTestClient("ws://localhost:9090/simple/cancel");
         client.handshake();
@@ -45,8 +42,8 @@ public class CancelWebSocketUpgradeTest {
     }
 
     @Test(description = "Tests the cancelWebSocketUpgrade method with a success status code",
-          expectedExceptions = WebSocketHandshakeException.class,
-          expectedExceptionsMessageRegExp = "Invalid handshake response getStatus: 400 Bad Request")
+            expectedExceptions = WebSocketHandshakeException.class,
+            expectedExceptionsMessageRegExp = "Invalid handshake response getStatus: 400 Bad Request")
     public void testCancelUpgradeSuccessStatusCode() throws InterruptedException, URISyntaxException {
         client = new WebSocketTestClient("ws://localhost:9090/cannotcancel/cannot/cancel");
         client.handshake();

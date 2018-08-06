@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.service.grpc;
+package org.ballerinalang.test.service.grpc.sample;
 
 import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -25,7 +25,12 @@ import org.testng.annotations.BeforeGroups;
 
 import java.io.File;
 
+/**
+ * Base test class for GRPC integration test cases which starts/stops the grpc services as ballerina package before
+ * and after tests are run.
+ */
 public class GrpcBaseTest extends IntegrationTestCase {
+
     @BeforeGroups("grpc-test")
     public void start() throws BallerinaTestException {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +

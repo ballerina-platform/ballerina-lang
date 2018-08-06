@@ -18,12 +18,10 @@
 
 package org.ballerinalang.test.service.websocket;
 
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;

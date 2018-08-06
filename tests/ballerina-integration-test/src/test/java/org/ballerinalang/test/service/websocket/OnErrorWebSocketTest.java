@@ -26,7 +26,6 @@ import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;
@@ -39,7 +38,7 @@ import static org.ballerinalang.test.service.websocket.WebSocketIntegrationTest.
  * Test whether the errors are received correctly to the onError resource in WebSocket server.
  */
 @Test(groups = "websocket-test")
-public class OnErrorWebSocketTest extends IntegrationTestCase{
+public class OnErrorWebSocketTest extends IntegrationTestCase {
 
     private WebSocketTestClient client;
     private static final String URL = "ws://localhost:9094/error/ws";

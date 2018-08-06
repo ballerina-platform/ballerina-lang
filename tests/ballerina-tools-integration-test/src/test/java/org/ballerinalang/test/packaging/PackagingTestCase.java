@@ -53,7 +53,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 /**
  * Testing pushing, pulling, searching a package from central and installing package to home repository.
  */
-public class PackagingTestCase extends IntegrationTestCase {
+public class PackagingTestCase {
     private ServerInstance ballerinaClient;
     private String serverZipPath;
     private Path tempHomeDirectory;

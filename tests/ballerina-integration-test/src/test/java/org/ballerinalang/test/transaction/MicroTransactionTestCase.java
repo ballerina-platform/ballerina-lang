@@ -18,15 +18,12 @@
 
 package org.ballerinalang.test.transaction;
 
-import org.ballerinalang.test.IntegrationTestCase;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.SQLDBUtils;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterGroups;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
@@ -45,7 +42,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  * Testing micro transaction header behaviour.
  */
 @Test(groups = "transactions-test")
-public class MicroTransactionTestCase extends IntegrationTestCase {
+public class MicroTransactionTestCase extends BaseTest {
     private SQLDBUtils.SqlServer sqlServer;
     private static final String DB_NAME = "TEST_SQL_CONNECTOR";
     private final int initiatorServicePort = 8888;

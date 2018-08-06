@@ -20,8 +20,6 @@ package org.ballerinalang.test.service.websocket;
 
 import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeGroups;
@@ -33,40 +31,21 @@ import java.util.concurrent.TimeUnit;
 /**
  * Facilitate the common functionality of WebSocket integration tests.
  */
-public class WebSocketIntegrationTest extends IntegrationTestCase{
+public class WebSocketIntegrationTest extends IntegrationTestCase {
     protected static final int TIMEOUT_IN_SECS = 10;
     protected static final int REMOTE_SERVER_PORT = 15500;
 
 
     /**
-     * Initializes Ballerina with the given bal file.
+     * Initializes ans start Ballerina with the websocket services package.
      *
-     * @param fileName the filename to initialize the Ballerina server with.
-     * @param logLeecher Log leecher match the logs in the bal file.
      * @throws BallerinaTestException on Ballerina related issues.
      */
-    public void initBallerinaServer(String fileName, LogLeecher logLeecher) throws BallerinaTestException {
-        String balPath = new File("src/test/resources/websocket/" + fileName).getAbsolutePath();
-        serverInstance.addLogLeecher(logLeecher);
-        serverInstance.startBallerinaServer(balPath);
-    }
-
-    /**
-     * Initializes Ballerina with the given bal file.
-     *
-     * @param fileName the filename to initialize the Ballerina server with.
-     * @throws BallerinaTestException on Ballerina related issues.
-     */
-    public void initBallerinaServer(String fileName) throws BallerinaTestException {
-        String balPath = new File("src/test/resources/websocket/" + fileName).getAbsolutePath();
-        serverInstance.startBallerinaServer(balPath);
-    }
-
     @BeforeGroups("websocket-test")
     public void start() throws BallerinaTestException {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "websocket").getAbsolutePath();
-        String[] args = new String[] {"--sourceroot", balFile};
+        String[] args = new String[]{"--sourceroot", balFile};
         serverInstance.startBallerinaServer("wsServices", args);
     }
 
@@ -76,9 +55,6 @@ public class WebSocketIntegrationTest extends IntegrationTestCase{
         serverInstance.stopServer();
     }
 
-    public void stopBallerinaServerInstance() throws BallerinaTestException {
-        serverInstance.stopServer();
-    }
     /**
      * This method is only used when ack is needed from Ballerina WebSocket Proxy in order to sync ballerina
      * WebSocket Server and Client after the handshake in initiated from the {@link WebSocketTestClient}.

@@ -30,15 +30,11 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.IntegrationTestCase;
-import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.TestUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
@@ -47,13 +43,12 @@ import java.util.stream.Stream;
 
 /**
  * Test class for gRPC unary service with blocking and non-blocking client.
- *
  */
 @Test(groups = "grpc-test")
 public class UnaryBlockingBasicTestCase extends IntegrationTestCase {
 
     private CompileResult result;
-    
+
     @BeforeClass
     private void setup() throws Exception {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "unary1_blocking_client.bal");

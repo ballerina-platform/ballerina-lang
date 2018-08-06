@@ -25,7 +25,6 @@ import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -35,7 +34,6 @@ import java.nio.file.Paths;
 /**
  * Class used for test purposes related to invalid input types.
  */
-@Test(groups = "grpc-test")
 public class InvalidServiceContractTestCase {
 
     private static String protoExeName = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";

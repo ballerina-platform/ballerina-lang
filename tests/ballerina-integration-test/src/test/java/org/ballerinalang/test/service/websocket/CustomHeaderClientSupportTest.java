@@ -24,7 +24,6 @@ import org.ballerinalang.test.util.websocket.server.WebSocketRemoteServer;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;

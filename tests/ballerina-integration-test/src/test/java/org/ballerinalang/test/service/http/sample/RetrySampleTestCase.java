@@ -21,17 +21,12 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.util.internal.PlatformDependent;
 import io.netty.util.internal.StringUtil;
 import org.ballerinalang.test.IntegrationTestCase;
-import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -84,7 +79,7 @@ public class RetrySampleTestCase extends IntegrationTestCase {
         Assert.assertTrue(response.getData().contains("form-data;name=\"foo\"content-id: 0Part1"),
                 "Message content mismatched");
         Assert.assertTrue(response.getData().
-                contains("form-data;name=\"filepart\";filename=\"file-01.txt\"content-id: 1Part2"),
+                        contains("form-data;name=\"filepart\";filename=\"file-01.txt\"content-id: 1Part2"),
                 "Message content mismatched");
     }
 

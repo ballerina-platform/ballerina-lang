@@ -28,17 +28,11 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.ballerinalang.test.IntegrationTestCase;
-import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.TestUtils;
 import org.ballerinalang.test.util.client.HttpClient;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
-import java.io.File;
-import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -72,6 +66,6 @@ public class ExpectContinueTestCase extends IntegrationTestCase {
         Assert.assertEquals(responsePayload, TestUtils.LARGE_ENTITY);
         Assert.assertEquals(responsePayload.getBytes().length, TestUtils.LARGE_ENTITY.getBytes().length);
         Assert.assertEquals(Integer.parseInt(responses.get(1).headers().get(HttpHeaderNames.CONTENT_LENGTH)),
-                            TestUtils.LARGE_ENTITY.getBytes().length);
+                TestUtils.LARGE_ENTITY.getBytes().length);
     }
 }

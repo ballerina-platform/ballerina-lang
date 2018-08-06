@@ -25,13 +25,9 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.IntegrationTestCase;
-import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
@@ -40,7 +36,6 @@ import java.util.stream.Stream;
 
 /**
  * Test class for gRPC server streaming service with non-blocking client.
- *
  */
 @Test(groups = "grpc-test")
 public class ServerStreamingTestCase extends IntegrationTestCase {
@@ -52,7 +47,6 @@ public class ServerStreamingTestCase extends IntegrationTestCase {
 
     @Test
     public void testNonBlockingBallerinaClient() {
-
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "server_streaming_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BString request = new BString("WSO2");

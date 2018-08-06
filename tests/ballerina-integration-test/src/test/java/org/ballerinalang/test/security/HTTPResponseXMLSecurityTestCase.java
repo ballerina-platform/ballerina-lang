@@ -20,7 +20,6 @@ package org.ballerinalang.test.security;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.test.IntegrationTestCase;
-import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
@@ -36,7 +35,7 @@ import java.util.Map;
 /**
  * Testing actual runtime behaviour of the XML parser from security point of view.
  */
-public class HTTPResponseXMLSecurityTestCase  extends IntegrationTestCase {
+public class HTTPResponseXMLSecurityTestCase extends IntegrationTestCase {
 
     @BeforeClass
     public void setup() throws Exception {

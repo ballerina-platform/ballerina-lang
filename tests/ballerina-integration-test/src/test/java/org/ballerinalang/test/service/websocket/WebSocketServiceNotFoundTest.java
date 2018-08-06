@@ -19,11 +19,7 @@
 package org.ballerinalang.test.service.websocket;
 
 import io.netty.handler.codec.http.websocketx.WebSocketHandshakeException;
-import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;
@@ -37,8 +33,8 @@ public class WebSocketServiceNotFoundTest {
     private WebSocketTestClient client;
 
     @Test(description = "Tests the service not found scenario",
-          expectedExceptions = WebSocketHandshakeException.class,
-          expectedExceptionsMessageRegExp = "Invalid handshake response getStatus: 404 Not Found")
+            expectedExceptions = WebSocketHandshakeException.class,
+            expectedExceptionsMessageRegExp = "Invalid handshake response getStatus: 404 Not Found")
     public void testServiceNotFound() throws InterruptedException, URISyntaxException {
         client = new WebSocketTestClient("ws://localhost:9098/prox");
         client.handshake();
@@ -46,8 +42,8 @@ public class WebSocketServiceNotFoundTest {
     }
 
     @Test(description = "Tests resource not found scenario",
-          expectedExceptions = WebSocketHandshakeException.class,
-          expectedExceptionsMessageRegExp = "Invalid handshake response getStatus: 404 Not Found")
+            expectedExceptions = WebSocketHandshakeException.class,
+            expectedExceptionsMessageRegExp = "Invalid handshake response getStatus: 404 Not Found")
     public void testResourceNotFound() throws InterruptedException, URISyntaxException {
         client = new WebSocketTestClient("ws://localhost:9090/proxy/cancell");
         client.handshake();

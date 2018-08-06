@@ -20,8 +20,8 @@ package org.ballerinalang.test.jms;
 import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.jms.util.JMSClientHandler;
 import org.ballerinalang.test.jms.util.EmbeddedBroker;
+import org.ballerinalang.test.jms.util.JMSClientHandler;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeClass;
@@ -170,9 +170,9 @@ public class JMSConnectorTestCase extends IntegrationTestCase {
 
     @BeforeGroups(groups = "jms-test")
     public void start() throws BallerinaTestException {
-        String basePath = new File("src" + File.separator + "test" + File.separator + "resources" +
-                File.separator + "jms").getAbsolutePath();
-        String[] args = new String[] {"--sourceroot", basePath};
+        String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
+                "jms").getAbsolutePath();
+        String[] args = new String[]{"--sourceroot", basePath};
         serverInstance.startBallerinaServer("jmsServices", args);
     }
 

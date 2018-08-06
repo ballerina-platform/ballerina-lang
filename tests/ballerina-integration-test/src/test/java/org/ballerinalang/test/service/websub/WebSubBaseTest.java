@@ -24,6 +24,10 @@ import org.ballerinalang.test.context.ServerInstance;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 
+/**
+ * Base test class for WebSub integration test cases which initializes required ballerina server instances before
+ * and after tests are run.
+ */
 public class WebSubBaseTest extends IntegrationTestCase {
     static ServerInstance webSubSubscriber;
     static ServerInstance webSubPublisher;

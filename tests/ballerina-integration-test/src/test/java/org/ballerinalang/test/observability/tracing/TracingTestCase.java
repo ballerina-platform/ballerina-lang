@@ -22,14 +22,10 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.IntegrationTestCase;
-import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
 import java.io.File;

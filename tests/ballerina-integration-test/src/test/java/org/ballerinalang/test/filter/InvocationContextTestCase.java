@@ -16,19 +16,16 @@
  *  under the License.
  */
 
-
 package org.ballerinalang.test.filter;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.test.IntegrationTestCase;
-import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
