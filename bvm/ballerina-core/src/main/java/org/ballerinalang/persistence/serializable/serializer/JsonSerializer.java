@@ -82,17 +82,28 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
         }
     }
 
-    private BMap toBValue(Map<String, Object> source) {
+    private BMap toBValue(Map<Object, Object> source) {
         if (source == null) {
             return null;
         }
 
         BMap<String, BValue> target = new BMap<>();
-        for (Map.Entry<String, Object> key : source.entrySet()) {
-            target.put(key.getKey(), toBValue(key.getValue(), Object.class));
+        BMap<String, BValue> complexKeyMap = new BMap<>();
+        for (Map.Entry<Object, Object> entry : source.entrySet()) {
+            Object key = entry.getKey();
+            if (key instanceof String) {
+                target.put((String) key, toBValue(entry.getValue(), Object.class));
+            } else {
+                String complexKeyHash = getHashCode(key, JsonSerializerConst.COMPLEX_KEY_TAG, null);
+                target.put(complexKeyHash, toBValue(entry.getValue(), Object.class));
+                complexKeyMap.put(complexKeyHash, toBValue(key, null));
+            }
+        }
+        if (!complexKeyMap.isEmpty()) {
+            target.put(JsonSerializerConst.COMPLEX_KEY_MAP_TAG, complexKeyMap);
         }
         // due to type erasure any map<K, V> at runtime is just map<Object, Object>
-        return wrapObject(MAP_TAG, target);
+        return wrapObject(JsonSerializerConst.MAP_TAG, target);
     }
 
     private BIntArray toBValue(int[] array) {
@@ -224,6 +235,26 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
         BMap map = convertToBValueViaReflection(obj, objClass, leftSideType);
         addHashValue(obj, map);
         return map;
+    }
+
+    private BString getHashCode(Object obj) {
+        return new BString(getHashCode(obj, null, null));
+    }
+
+    private String getHashCode(Object obj, String prefix, String sufix) {
+        StringBuilder sb = new StringBuilder();
+        if (prefix != null) {
+            sb.append(prefix);
+            sb.append("#");
+        }
+        sb.append(obj.getClass().getSimpleName());
+        sb.append("#");
+        sb.append(obj.hashCode());
+        if (sufix != null) {
+            sb.append("#");
+            sb.append(sufix);
+        }
+        return sb.toString();
     }
 
     private void addHashValue(Object obj, BMap map) {

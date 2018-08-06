@@ -21,6 +21,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+/**
+ * Use sun.misc.Unsafe.allocateInstance to allocate empty object of {@code} clazz.
+ * Notice that this attempt may fail due to security restrictions or maybe due to
+ * module not being available in JAVA9 plus.
+ */
 class UnsafeObjectAllocator {
     static Object allocateFor(Class<?> clazz) {
         try {

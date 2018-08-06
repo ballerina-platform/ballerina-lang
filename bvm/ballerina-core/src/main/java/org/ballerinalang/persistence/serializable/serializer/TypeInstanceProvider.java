@@ -19,6 +19,7 @@ package org.ballerinalang.persistence.serializable.serializer;
 
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.lang.reflect.Array;
 import java.util.HashMap;
 
 /**
@@ -47,6 +48,9 @@ public class TypeInstanceProvider {
                 addTypeProvider(provider);
             }
         }
+        if (type.endsWith("[]")) {
+            return new ArrayInstanceProvider(type.substring(0, type.length() - 2));
+        }
         if (provider == null) {
             throw new BallerinaException(String.format("No TypeSerializationProvider found for: %s", type));
         }
@@ -71,5 +75,34 @@ public class TypeInstanceProvider {
 
     public void clearTypeNameMappings() {
         typeNameMap.clear();
+    }
+
+
+    public static class ArrayInstanceProvider implements TypeSerializationProvider {
+        final String type;
+        private TypeSerializationProvider typeProvider;
+
+        public ArrayInstanceProvider(String type) {
+            this.type = type;
+            typeProvider = INSTANCE.findTypeProvider(type);
+
+        }
+
+        @Override
+        public String getTypeName() {
+            return type + "[]";
+        }
+
+        @Override
+        public Object newInstance() {
+            Class typeClass = typeProvider.getTypeClass();
+            Object array = Array.newInstance(typeClass, 0);
+            return array;
+        }
+
+        @Override
+        public Class getTypeClass() {
+            return newInstance().getClass();
+        }
     }
 }
