@@ -99,8 +99,9 @@ public class Compiler {
     }
 
     public void write(List<BLangPackage> packageList) {
-        // TODO: 8/3/18 should we check if there are functions at least?
-        outStream.println("Generating executables");
+        if (packageList.stream().anyMatch(bLangPackage -> bLangPackage.symbol.entryPointExists)) {
+            outStream.println("Generating executables");
+        }
         packageList.forEach(this.binaryFileWriter::write);
         packageList.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));
         this.lockFileWriter.writeLockFile(this.manifest);
