@@ -25,12 +25,14 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.stdlib.crypto.util.BallerinaHashException;
 import org.ballerinalang.stdlib.crypto.util.HashUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -46,6 +48,7 @@ import javax.crypto.spec.SecretKeySpec;
         args = {
                 @Argument(name = "baseString", type = TypeKind.STRING),
                 @Argument(name = "keyString", type = TypeKind.STRING),
+                @Argument(name = "keyEncoding", type = TypeKind.STRING),
                 @Argument(name = "algorithm", type = TypeKind.STRING)
         },
         returnType = {@ReturnType(type = TypeKind.STRING)},
@@ -57,8 +60,10 @@ public class Hmac extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         String baseString = context.getStringArgument(0);
         String keyString = context.getStringArgument(1);
-        BString algorithm = context.getNullableRefArgument(0) != null ?
-                (BString) context.getNullableRefArgument(0) : new BString("");
+        BString algorithm = context.getNullableRefArgument(1) != null ?
+                (BString) context.getNullableRefArgument(1) : new BString("");
+        BString encoding = (BString) context.getRefArgument(0);
+
         String hmacAlgorithm;
 
         //todo document the supported algorithm
@@ -73,12 +78,27 @@ public class Hmac extends BlockingNativeCallableUnit {
                 hmacAlgorithm = "HmacMD5";
                 break;
             default:
-                throw new BallerinaException("Unsupported algorithm " + algorithm + " for HMAC calculation");
+                throw new BallerinaHashException("Unsupported algorithm " + algorithm + " for HMAC calculation");
         }
 
         String result;
         try {
-            byte[] keyBytes = keyString.getBytes(Charset.defaultCharset());
+            byte[] keyBytes;
+
+            switch (encoding.stringValue()) {
+            case "BASE64":
+                keyBytes = Base64.getDecoder().decode(keyString.getBytes(Charset.defaultCharset()));
+                break;
+            case "HEX":
+                keyBytes = HashUtils.decodeHex(keyString);
+                break;
+            case "NONE":
+                keyBytes = keyString.getBytes(Charset.defaultCharset());
+                break;
+            default:
+                throw new BallerinaHashException(
+                            "Unsupported encoding " + encoding.stringValue() + " for the key of HMAC Calculation");
+            }
             SecretKey secretKey = new SecretKeySpec(keyBytes, hmacAlgorithm);
             Mac mac = Mac.getInstance(hmacAlgorithm);
             mac.init(secretKey);
