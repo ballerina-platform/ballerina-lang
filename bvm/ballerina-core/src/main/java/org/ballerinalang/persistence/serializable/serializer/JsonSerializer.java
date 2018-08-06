@@ -51,13 +51,7 @@ import java.util.Map;
  */
 public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
 
-    public static final String EXISTING_TAG = "#existing#";
-    public static final String HASH_TAG = "#hash#";
     private final IdentityHashMap<Object, Object> identityMap = new IdentityHashMap<>();
-    public static final String PAYLOAD_TAG = "payload";
-    public static final String ENUM_TAG = "enum";
-    public static final String LIST_TAG = "list";
-    public static final String MAP_TAG = "map";
 
     @Override
     public byte[] serialize(SerializableState sState) {
@@ -165,13 +159,13 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
         for (Object item : list) {
             array.append(toBValue(item, Object.class));
         }
-        return wrapObject(LIST_TAG, array);
+        return wrapObject(JsonSerializerConst.LIST_TAG, array);
     }
 
     private BMap toBValue(Enum obj) {
         String fullEnumName = obj.getClass().getSimpleName() + "." + obj.toString();
         BString name = new BString(fullEnumName);
-        return wrapObject(ENUM_TAG, name);
+        return wrapObject(JsonSerializerConst.ENUM_TAG, name);
     }
 
     private BRefType toBValue(Object obj, Class<?> leftSideType) {
@@ -297,8 +291,8 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
 
     private BMap wrapObject(String type, BValue payload) {
         BMap<String, BValue> map = new BMap<>();
-        map.put("type", new BString(type));
-        map.put(PAYLOAD_TAG, payload);
+        map.put(JsonSerializerConst.TYPE_TAG, new BString(type));
+        map.put(JsonSerializerConst.PAYLOAD_TAG, payload);
         return map;
     }
 
