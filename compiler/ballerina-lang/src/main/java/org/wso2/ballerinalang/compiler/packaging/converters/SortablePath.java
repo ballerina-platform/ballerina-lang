@@ -24,7 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Sorts paths by the latest version.
+ * Sorts paths by the getLatestVersion version.
  */
 public class SortablePath implements Comparable<SortablePath> {
     private static final BigInteger MINUS_ONE = BigInteger.valueOf(-1);

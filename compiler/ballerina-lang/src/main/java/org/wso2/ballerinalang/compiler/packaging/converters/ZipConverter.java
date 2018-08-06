@@ -55,9 +55,9 @@ public class ZipConverter extends PathConverter {
                     pathToZip.getQuery(), pathToZip.getFragment());
             initFS(pathInZip);
             return Paths.get(pathInZip);
-        } catch (URISyntaxException ignore) {
+        } catch (URISyntaxException ex) {
+            return Paths.get(pathToZip);
         }
-        return Paths.get(pathToZip);
     }
 
     private static void initFS(URI uri) {
@@ -66,36 +66,41 @@ public class ZipConverter extends PathConverter {
         try {
             FileSystems.newFileSystem(uri, env);
         } catch (FileSystemAlreadyExistsException ignore) {
+            // A file system will be always created when we are accessing zip/jar when resolving dependencies. So when
+            // we are accessing the same zip/jar for the second time sometimes that filesystem might already exist.
+            // Since we have no way to check if a filesystem is already created for a particular zip/jar, we have
+            // ignored this exception.
         } catch (IOException e) {
             throw new BLangCompilerException("Error loading balo " + uri.getPath(), e);
         }
     }
 
     @Override
-    public Stream<Path> latest(Path path, PackageID packageID) {
-        if (Files.isDirectory(path)) {
-            try {
-                List<Path> pathList = new ArrayList<>();
-                if (packageID != null) {
-                    String pkgName = packageID.getName().getValue();
-                    pathList = Files.list(path)
-                                    .map(SortablePath::new)
-                                    .filter(SortablePath::valid)
-                                    .filter(sortablePath -> validBaloPath(pkgName, sortablePath))
-                                    .sorted(Comparator.reverseOrder())
-                                    .limit(1)
-                                    .map(SortablePath::getPath)
-                                    .collect(Collectors.toList());
-                    if (packageID.version.value.isEmpty() && !packageID.orgName.equals(Names.BUILTIN_ORG)
-                            && !packageID.orgName.equals(Names.ANON_ORG) && pathList.size() > 0) {
-                        packageID.version = new Name(pathList.get(0).toFile().getName());
-                    }
-                }
-                return pathList.stream();
-            } catch (IOException ignore) {
-            }
+    public Stream<Path> getLatestVersion(Path path, PackageID packageID) {
+        if (!Files.isDirectory(path)) {
+            return Stream.of();
         }
-        return Stream.of();
+        try {
+            List<Path> pathList = new ArrayList<>();
+            if (packageID != null) {
+                String pkgName = packageID.getName().getValue();
+                pathList = Files.list(path)
+                                .map(SortablePath::new)
+                                .filter(SortablePath::valid)
+                                .filter(sortablePath -> validBaloPath(pkgName, sortablePath))
+                                .sorted(Comparator.reverseOrder())
+                                .limit(1)
+                                .map(SortablePath::getPath)
+                                .collect(Collectors.toList());
+                if (packageID.version.value.isEmpty() && !packageID.orgName.equals(Names.BUILTIN_ORG)
+                        && !packageID.orgName.equals(Names.ANON_ORG) && pathList.size() > 0) {
+                    packageID.version = new Name(pathList.get(0).toFile().getName());
+                }
+            }
+            return pathList.stream();
+        } catch (IOException ex) {
+            return Stream.of();
+        }
     }
 
     /**
@@ -120,13 +125,14 @@ public class ZipConverter extends PathConverter {
      */
     private boolean filterByBaloVersion(Path path) {
         try (InputStream stream = Files.newInputStream(path)) {
-            byte[] data = new byte[6];
+            byte[] data = new byte[ProgramFileConstants.VERSION_BYTE];
             if (stream.read(data) != -1) {
                 short version = data[data.length - 1];
                 return (version >= ProgramFileConstants.MIN_SUPPORTED_VERSION) &&
                         (version <= ProgramFileConstants.MAX_SUPPORTED_VERSION);
             }
-        } catch (IOException ignore) {
+        } catch (IOException ex) {
+            return false;
         }
         return false;
     }
