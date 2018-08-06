@@ -267,8 +267,8 @@ class TreeNode extends React.Component {
         } = this.props;
         const treeNodeHeader = (
             <div
-                data-placement="bottom"
-                data-toggle="tooltip"
+                data-placement='bottom'
+                data-toggle='tooltip'
                 title={id}
                 className={classnames('tree-node-header', { active })}
                 onClick={() => {
@@ -285,14 +285,14 @@ class TreeNode extends React.Component {
                     this.nodeRef = ref;
                 }}
             >
-                <div className="tree-node-highlight-row" />
-                {!node.loading && <div className="tree-node-arrow" />}
-                {node.loading && <i className="tree-node-loading fw fw-loader4 fw-spin" />}
+                <div className='tree-node-highlight-row' />
+                {!node.loading && <div className='tree-node-arrow' />}
+                {node.loading && <i className='tree-node-loading fw fw-loader4 fw-spin' />}
                 <i
                     className={
                         classnames(
                             'tree-node-icon',
-                            'fw',
+                            'fw fw-fw',
                             { 'fw-ballerina-package-fill': enableContextMenu && type === NODE_TYPES.FOLDER },
                             { 'fw-folder-open': !collapsed && !enableContextMenu && type === NODE_TYPES.FOLDER },
                             { 'fw-folder': collapsed && !enableContextMenu && type === NODE_TYPES.FOLDER },
@@ -303,7 +303,7 @@ class TreeNode extends React.Component {
                 />
                 {enableEdit &&
                     <div
-                        className="tree-node-focus-highlighter"
+                        className='tree-node-focus-highlighter'
                         onClick={() => {
                             if (!_.isEmpty(this.state.editError)) {
                                 this.onEditEscape();
@@ -314,13 +314,13 @@ class TreeNode extends React.Component {
                         ref={(ref) => {
                             this.focusHighligher = ref;
                         }}
-                        title=""
+                        title=''
                     />
                 }
                 {enableEdit &&
                     <div className={classnames('tree-node-name-input-wrapper', { error: !_.isEmpty(this.state.editError) })} >
                         <input
-                            type="text"
+                            type='text'
                             className={classnames('tree-node-name-input')}
                             spellCheck={false}
                             value={this.state.inputValue}
@@ -336,11 +336,11 @@ class TreeNode extends React.Component {
                             ref={(nameInput) => {
                                 this.nameInput = nameInput;
                             }}
-                            title=""
+                            title=''
                         />
                         {!_.isEmpty(this.state.editError) && this.nameInput &&
                             <div
-                                className="tree-node-name-input-error"
+                                className='tree-node-name-input-error'
                                 style={{
                                     top: this.nameInput.offsetTop + this.nameInput.clientHeight,
                                     left: this.nameInput.offsetLeft,
@@ -362,7 +362,7 @@ class TreeNode extends React.Component {
                     </div>
                 }
                 {!enableEdit &&
-                    <span className="tree-node-label" >
+                    <span className='tree-node-label'>
                         {label}
                     </span>
                 }
@@ -394,7 +394,7 @@ class TreeNode extends React.Component {
                 </ContextMenuTrigger>
                 }
                 {(!this.props.enableContextMenu || enableEdit) && treeNodeHeader}
-                <div className="tree-node-children">
+                <div className='tree-node-children'>
                     {collapsed ? null : children}
                 </div>
             </div>

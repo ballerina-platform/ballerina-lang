@@ -18,6 +18,6 @@ import ballerina/http;
 
 service<http:WebSocketService> wsService bind { port: 9090 } {
 
-    onText(endpoint caller, int text, boolean final) {
+    onText(endpoint caller, json text, boolean final) {
     }
 }

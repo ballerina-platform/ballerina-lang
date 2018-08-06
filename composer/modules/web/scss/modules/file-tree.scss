@@ -11,7 +11,7 @@
         overflow-y: hidden;
         &.empty {
             .tree-node-header {
-                margin-left: 14px;
+                margin-left: 18px;
                 .tree-node-arrow {
                     display: none;
                 }
@@ -20,11 +20,11 @@
         .tree-node-header {
             white-space: nowrap;
             overflow-x: hidden;
-            line-height: 24px;
             .tooltip {
                 background-color: white;
             }
-            &.active, &.active:hover  {
+            &.active,
+            &.active:hover {
                 .tree-node-highlight-row {
                     background: #444;
                 }
@@ -32,10 +32,12 @@
             &:hover {
                 .tree-node-highlight-row {
                     background: #444;
+                    opacity: .5;
                 }
-                .tree-node-label, &.tree-node-arrow, &.tree-node-icon{
+                .tree-node-label,
+                &.tree-node-arrow,
+                &.tree-node-icon {
                     color: #f1f1f1 !important;
-                    font-weight: 400;
                 }
             }
             .tree-node-highlight-row {
@@ -47,20 +49,20 @@
             }
             .tree-node-focus-highlighter {
                 position: absolute;
-                top:0;
+                top: 0;
                 left: 0;
                 width: 100%;
                 height: 100%;
                 background-color: black;
                 margin-top: 1px;
-                opacity: 0.5;
+                opacity: .4;
                 z-index: 5;
             }
             .tree-node-name-input-wrapper {
                 display: inline;
                 .tree-node-name-input {
                     z-index: 6;
-                    position:relative;
+                    position: relative;
                     background-color: #3D3D3D;
                     padding-left: 5px;
                     padding-right: 5px;
@@ -95,8 +97,9 @@
             }
             .tree-node-icon {
                 margin-right: 5px;
-            }
-            .tree-node-label {
+                &:before {
+                    vertical-align: text-top;
+                }
             }
         }
         .tree-node-children {
@@ -113,7 +116,6 @@
             }
         }
     }
-
     .rc-tree {
         .rc-tree-node-selected {
             border: none;
@@ -126,18 +128,17 @@
         height: 24px;
         position: absolute;
         margin-left: -300px;
-        z-index: -2; 
+        z-index: -2;
     }
     .file-tree-item:hover {
         background-color: #2E2E2E;
     }
-
     .active-file-node {
         width: calc(100% + 600px);
         background: #232323;
         height: 24px;
         position: absolute;
         margin-left: -600px;
-        z-index: -2;    
+        z-index: -2;
     }
 }
