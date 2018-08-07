@@ -25,7 +25,8 @@ import org.testng.annotations.BeforeSuite;
 
 /**
  * Parent test class for all integration test cases under test-integration module. This will provide basic
- * functionality for integration test.
+ * functionality for integration test. This will initialize a single ballerina instance which will be used
+ * by all the test cases throughout.
  */
 public class BaseTest {
     protected static ServerInstance serverInstance;
