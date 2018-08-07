@@ -42,13 +42,13 @@
         </packages>
     </test>
 
-    <test name="ballerina-http2-tests" parallel="false">
+    <test name="ballerina-http2-tests" parallel="methods" thread-count="6">
         <packages>
             <package name="org.ballerinalang.test.service.http2"/>
         </packages>
     </test>
 
-    <test name="ballerina-auth-tests" parallel="false">
+    <test name="ballerina-auth-tests" parallel="methods" thread-count="6">
         <groups>
             <run>
                 <exclude name="broken"/>
@@ -59,19 +59,19 @@
         </packages>
     </test>
 
-    <test name="ballerina-filter-tests" parallel="false">
+    <test name="ballerina-filter-tests" parallel="methods" thread-count="6">
         <packages>
             <package name="org.ballerinalang.test.filter"/>
         </packages>
     </test>
 
-    <test name="ballerina-transaction-tests" parallel="false">
+    <test name="ballerina-transaction-tests" parallel="methods" thread-count="6">
         <packages>
             <package name="org.ballerinalang.test.transaction"/>
         </packages>
     </test>
 
-    <test name="ballerina-secure-listener-tests" parallel="false">
+    <test name="ballerina-secure-listener-tests" parallel="methods" thread-count="6">
         <groups>
             <run>
                 <exclude name="broken"/>

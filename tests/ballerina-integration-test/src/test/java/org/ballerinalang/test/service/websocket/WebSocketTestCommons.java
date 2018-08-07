@@ -21,8 +21,8 @@ package org.ballerinalang.test.service.websocket;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
-import org.testng.annotations.AfterGroups;
-import org.testng.annotations.BeforeGroups;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
 
 import java.io.File;
 import java.util.concurrent.CountDownLatch;
@@ -41,7 +41,7 @@ public class WebSocketTestCommons extends BaseTest {
      *
      * @throws BallerinaTestException on Ballerina related issues.
      */
-    @BeforeGroups("websocket-test")
+    @BeforeTest(groups = "websocket-test")
     public void start() throws BallerinaTestException {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "websocket").getAbsolutePath();
@@ -49,7 +49,7 @@ public class WebSocketTestCommons extends BaseTest {
         serverInstance.startBallerinaServer("wsservices", args);
     }
 
-    @AfterGroups("websocket-test")
+    @AfterTest(groups = "websocket-test")
     public void stop() throws Exception {
         serverInstance.removeAllLeechers();
         serverInstance.stopServer();

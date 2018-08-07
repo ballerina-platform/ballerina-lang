@@ -23,8 +23,8 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.SQLDBUtils;
-import org.testng.annotations.AfterGroups;
-import org.testng.annotations.BeforeGroups;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -327,7 +327,7 @@ public class MicroTransactionTestCase extends BaseTest {
         }
     }
 
-    @BeforeGroups("transactions-test")
+    @BeforeTest(groups = "transactions-test")
     public void start() throws BallerinaTestException, IOException {
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         sqlServer = SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "transaction/data.sql");
@@ -342,7 +342,7 @@ public class MicroTransactionTestCase extends BaseTest {
         serverInstance.startBallerinaServer("transactionservices", args, initiatorServicePort);
     }
 
-    @AfterGroups("transactions-test")
+    @AfterTest(groups = "transactions-test")
     public void stop() throws Exception {
         serverInstance.removeAllLeechers();
         serverInstance.stopServer();

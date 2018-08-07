@@ -20,8 +20,8 @@ package org.ballerinalang.test.service.grpc.sample;
 
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.testng.annotations.AfterGroups;
-import org.testng.annotations.BeforeGroups;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
 
 import java.io.File;
 
@@ -31,7 +31,7 @@ import java.io.File;
  */
 public class GrpcBaseTest extends BaseTest {
 
-    @BeforeGroups("grpc-test")
+    @BeforeTest(groups = "grpc-test")
     public void start() throws BallerinaTestException {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "grpc").getAbsolutePath();
@@ -39,7 +39,7 @@ public class GrpcBaseTest extends BaseTest {
         serverInstance.startBallerinaServer("grpcservices", args);
     }
 
-    @AfterGroups("grpc-test")
+    @AfterTest(groups = "grpc-test")
     public void cleanup() throws Exception {
         serverInstance.removeAllLeechers();
         serverInstance.stopServer();
