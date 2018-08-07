@@ -28,7 +28,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.crypto.util.HashUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -87,7 +86,7 @@ public class Hmac extends BlockingNativeCallableUnit {
 
             switch (encoding) {
             case "BASE64":
-                keyBytes = Base64.getDecoder().decode(keyString.getBytes(Charset.defaultCharset()));
+                keyBytes = Base64.getDecoder().decode(keyString.getBytes(StandardCharsets.UTF_8));
                 break;
             case "HEX":
                 keyBytes = HashUtils.decodeHex(keyString);
