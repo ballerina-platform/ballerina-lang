@@ -176,16 +176,17 @@ class DesignView extends React.Component {
     mouseUpHandle(event) {
         if (this.state.dragging) {
             this.diagramContainer.classList.remove('grabbing');
-
-            this.state.dragging = false;
-            this.setState(this.state);
+            this.setState({
+                dragging: false,
+            });
         }
     }
 
     mouseDownHandle(event) {
         if (!this.state.dragging) {
-            this.state.dragging = true;
-            this.setState(this.state);
+            this.setState({
+                dragging: true,
+            });
             this.lastClientX = event.clientX;
             this.lastClientY = event.clientY;
 
