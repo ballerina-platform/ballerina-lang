@@ -33,7 +33,7 @@ export function getMenuDefinitions(plugin) {
             isActive: (appContext) => {
                 return true;
             },
-            order: 5,
+            order: 0,
             command: COMMANDS.SHOW_WELCOME,
             type: MENU_DEF_TYPES.ITEM,
         },
