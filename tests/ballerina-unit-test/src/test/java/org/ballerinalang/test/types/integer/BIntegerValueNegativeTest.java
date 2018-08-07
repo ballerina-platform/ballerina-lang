@@ -31,7 +31,7 @@ public class BIntegerValueNegativeTest {
     @Test
     public void testIntegerValue() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/integer/integer-value-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 8);
+        Assert.assertEquals(compileResult.getErrorCount(), 10);
 
         int index = 0;
         String expectedError = "mismatched input 'int'. expecting {'but', ';', '?', '+', '-', '*', '/', '%', '==', " +
@@ -56,8 +56,14 @@ public class BIntegerValueNegativeTest {
         expectedError = "Binary '-0b1111111111111111111111111111111111111111111111111111111111111111' too small";
         BAssertUtil.validateError(compileResult, index++, expectedError, 11, 13);
 
+        expectedError = "extraneous input '672'";
+        BAssertUtil.validateError(compileResult, index++, expectedError, 13, 14);
+
+        expectedError = "extraneous input '912'";
+        BAssertUtil.validateError(compileResult, index++, expectedError, 14, 14);
+
         expectedError = "mismatched input '}'. expecting {'but', ';', '?', '+', '-', '*', '/', '%', '==', '!=', '>', " +
                 "'<', '>=', '<=', '&&', '||', '&', '^', '...', '|', '?:', '..<'}";
-        BAssertUtil.validateError(compileResult, index, expectedError, 15, 1);
+        BAssertUtil.validateError(compileResult, index, expectedError, 18, 1);
     }
 }

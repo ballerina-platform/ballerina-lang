@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.types.floattype;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -26,8 +27,6 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-//import org.ballerinalang.util.program.BLangFunctions;
 
 /**
  * This test class will test the behaviour of double values with expressions.
@@ -42,13 +41,14 @@ import org.testng.annotations.Test;
  */
 public class BFloatValueTest {
     private static final double DELTA = 0.01;
-    private ProgramFile bLangProgram;
     private CompileResult result;
+    private CompileResult negativeResult;
 
 
     @BeforeClass(alwaysRun = true)
     public void setup() {
         result = BCompileUtil.compile("test-src/types/float/float-value.bal");
+        negativeResult = BCompileUtil.compile("test-src/types/float/float-value-negative.bal");
     }
 
     @Test(description = "Test double value assignment")
@@ -132,5 +132,13 @@ public class BFloatValueTest {
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 1.234e2, "Invalid float value returned.");
         Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.4d, "Invalid float value returned.");
         Assert.assertEquals(((BFloat) returns[3]).floatValue(), 1.234e2d, "Invalid float value returned.");
+    }
+
+    @Test
+    public void testIntegerValue() {
+        Assert.assertEquals(negativeResult.getErrorCount(), 1);
+        int index = 0;
+        String expectedError = "extraneous input '10.1'";
+        BAssertUtil.validateError(negativeResult, index, expectedError, 3, 10);
     }
 }
