@@ -282,6 +282,43 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection {
         }
     }
 
+    /**
+     * String value ignoring the access restrictions.
+     * Non-public fields of an object will also be stringified.
+     *
+     * @return string value
+     */
+    public String stringValueIgnoreAccessRestriction () {
+        readLock.lock();
+        StringJoiner sj = new StringJoiner(", ", "{", "}");
+        try {
+            switch (type.getTag()) {
+                case TypeTags.OBJECT_TYPE_TAG:
+                    for (BField field : ((BStructureType) this.type).getFields()) {
+                        String fieldName = field.getFieldName();
+                        V fieldVal = get((K) fieldName);
+                        sj.add(fieldName + ":" + getStringValue(fieldVal));
+                    }
+                    break;
+                case TypeTags.JSON_TAG:
+                    return getJSONString();
+                default:
+                    String keySeparator = type.getTag() == TypeTags.MAP_TAG ? "\"" : "";
+                    for (Iterator<Map.Entry<K, V>> i = map.entrySet().iterator(); i.hasNext();) {
+                        String key;
+                        Map.Entry<K, V> e = i.next();
+                        key = keySeparator + (String) e.getKey() + keySeparator;
+                        V value = e.getValue();
+                        sj.add(key + ":" + getStringValue(value));
+                    }
+                    break;
+            }
+            return sj.toString();
+        } finally {
+            readLock.unlock();
+        }
+    }
+
     @Override
     public BType getType() {
         return this.type;
