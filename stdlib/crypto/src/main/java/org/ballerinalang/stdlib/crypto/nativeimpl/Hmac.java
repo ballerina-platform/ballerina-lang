@@ -30,6 +30,7 @@ import org.ballerinalang.stdlib.crypto.util.HashUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -60,9 +61,9 @@ public class Hmac extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         String baseString = context.getStringArgument(0);
         String keyString = context.getStringArgument(1);
-        BString algorithm = context.getNullableRefArgument(1) != null ?
-                (BString) context.getNullableRefArgument(1) : new BString("");
-        BString encoding = (BString) context.getRefArgument(0);
+        BString algorithm = context.getNullableRefArgument(0) != null ?
+                (BString) context.getNullableRefArgument(0) : new BString("");
+        String encoding = context.getStringArgument(2);
 
         String hmacAlgorithm;
 
@@ -85,24 +86,24 @@ public class Hmac extends BlockingNativeCallableUnit {
         try {
             byte[] keyBytes;
 
-            switch (encoding.stringValue()) {
+            switch (encoding) {
             case "BASE64":
                 keyBytes = Base64.getDecoder().decode(keyString.getBytes(Charset.defaultCharset()));
                 break;
             case "HEX":
                 keyBytes = HashUtils.decodeHex(keyString);
                 break;
-            case "NONE":
-                keyBytes = keyString.getBytes(Charset.defaultCharset());
+            case "UTF-8":
+                keyBytes = keyString.getBytes(StandardCharsets.UTF_8);
                 break;
             default:
                 throw new BallerinaHashException(
-                            "Unsupported encoding " + encoding.stringValue() + " for the key of HMAC Calculation");
+                            "Unsupported encoding " + encoding + " for the key of HMAC Calculation");
             }
             SecretKey secretKey = new SecretKeySpec(keyBytes, hmacAlgorithm);
             Mac mac = Mac.getInstance(hmacAlgorithm);
             mac.init(secretKey);
-            byte[] baseStringBytes = baseString.getBytes(Charset.defaultCharset());
+            byte[] baseStringBytes = baseString.getBytes(StandardCharsets.UTF_8);
             result = HashUtils.toHexString(mac.doFinal(baseStringBytes));
         } catch (IllegalArgumentException | InvalidKeyException | NoSuchAlgorithmException e) {
             throw new BallerinaException("Error while calculating HMAC for " + hmacAlgorithm + ": " + e.getMessage(),
