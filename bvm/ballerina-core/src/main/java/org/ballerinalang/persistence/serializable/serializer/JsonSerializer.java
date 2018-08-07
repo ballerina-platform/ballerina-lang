@@ -33,6 +33,8 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.serializable.SerializableState;
+import org.ballerinalang.persistence.serializable.serializer.bvalueprovider.BMapBValueProvider;
+import org.ballerinalang.persistence.serializable.serializer.bvalueprovider.BRefValueArrayBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.bvalueprovider.BStringBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.bvalueprovider.NumericBValueProviders;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -52,7 +54,7 @@ import java.util.Map;
 /**
  * Serialize @{@link SerializableState} into JSON and back.
  */
-public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
+public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer, BValueSerializer {
 
     private final IdentityHashMap<Object, Object> identityMap = new IdentityHashMap<>();
     private final BValueProvider bValueProvider = BValueProvider.getInstance();
@@ -62,6 +64,8 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
         bValueProvider.register(new NumericBValueProviders.BigIntegerBValueProvider());
         bValueProvider.register(new NumericBValueProviders.BigDecimalBValueProvider());
         bValueProvider.register(new BStringBValueProvider());
+        bValueProvider.register(new BRefValueArrayBValueProvider());
+        bValueProvider.register(new BMapBValueProvider());
         bValuePackagePath = getBValuePackagePath();
     }
 
@@ -193,7 +197,7 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
         return wrapObject(JsonSerializerConst.ENUM_TAG, name);
     }
 
-    private BRefType toBValue(Object obj, Class<?> leftSideType) {
+    public BRefType toBValue(Object obj, Class<?> leftSideType) {
         if (obj == null) {
             return null;
         }
@@ -250,7 +254,7 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer {
         SerializationBValueProvider provider = bValueProvider.find(className);
         if (provider != null) {
             @SuppressWarnings("unchecked")
-            BMap<String, BValue> converted = (BMap<String, BValue>) provider.toBValue(obj);
+            BMap<String, BValue> converted = (BMap<String, BValue>) provider.toBValue(obj, this);
             addHashValue(obj, converted);
             return converted;
         }

@@ -18,46 +18,52 @@
 package org.ballerinalang.persistence.serializable.serializer.bvalueprovider;
 
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.serializable.serializer.BValueDeserializer;
 import org.ballerinalang.persistence.serializable.serializer.BValueSerializer;
 import org.ballerinalang.persistence.serializable.serializer.SerializationBValueProvider;
 
-/**
- * Provide mapping between {@link BString} and {@link BValue} representation of it.
- */
-public class BStringBValueProvider implements SerializationBValueProvider {
-    private static final String B_STRING = BString.class.getSimpleName();
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
+/**
+ * Provide mapping between {@link BMap} and {@link BValue} representation of it.
+ */
+public class BMapBValueProvider implements SerializationBValueProvider {
     @Override
     public String typeName() {
-        return BString.class.getSimpleName();
+        return BMap.class.getSimpleName();
     }
 
     @Override
     public Class<?> getType() {
-        return BString.class;
+        return BMap.class;
     }
 
     @Override
     public BValue toBValue(Object object, BValueSerializer serializer) {
-        if (object instanceof BString) {
-            BString bString = (BString) object;
-            return BValueProviderHelper.wrap(B_STRING, bString);
+        if (object instanceof BMap) {
+            BMap map = (BMap) object;
+            LinkedHashMap implMap = map.getMap();
+            BValue serialized = serializer.toBValue(implMap, implMap.getClass());
+            return BValueProviderHelper.wrap(typeName(), serialized);
         }
-        throw BValueProviderHelper.incorrectObjectType(object, B_STRING);
+        throw BValueProviderHelper.incorrectObjectType(object, typeName());
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Object toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
         if (bValue instanceof BMap) {
-            @SuppressWarnings("unchecked")
             BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
-            if (BValueProviderHelper.isWrapperOfType(wrapper, B_STRING)) {
-                return BValueProviderHelper.getPayload(wrapper);
+            if (BValueProviderHelper.isWrapperOfType(wrapper, typeName())) {
+                BMap payload = (BMap) BValueProviderHelper.getPayload(wrapper);
+                HashMap deserializedMap = (HashMap) bValueDeserializer.deserialize(payload, HashMap.class);
+                BMap bMap = new BMap();
+                bMap.getMap().putAll(deserializedMap);
+                return bMap;
             }
         }
-        throw BValueProviderHelper.deserializationIncorrectType(bValue, B_STRING);
+        throw BValueProviderHelper.deserializationIncorrectType(bValue, typeName());
     }
 }

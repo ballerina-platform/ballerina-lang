@@ -48,7 +48,7 @@ import java.util.Map;
 /**
  * Reconstruct Java object tree from JSON input.
  */
-class JsonDeserializer {
+class JsonDeserializer implements BValueDeserializer {
     private final TypeInstanceProviderRegistry typeInstanceProviderRegistry;
     private final BValueProvider bValueProvider;
     private static final Logger logger = LoggerFactory.getLogger(JsonDeserializer.class);
@@ -80,10 +80,12 @@ class JsonDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-    private Object deserialize(BValue jValue, Class<?> targetType) {
+    public Object deserialize(BValue jValue, Class<?> targetType) {
         if (jValue instanceof BMap) {
             BMap<String, BValue> jBMap = (BMap<String, BValue>) jValue;
-            return deserialize(jBMap, targetType);
+            Object obj = deserialize(jBMap, targetType);
+            addIdentity(jBMap, obj);
+            return obj;
         }
         if (jValue instanceof BNewArray) {
             return deserializeArray((BNewArray) jValue, targetType);
@@ -117,7 +119,7 @@ class JsonDeserializer {
         if (typeName != null) {
             SerializationBValueProvider provider = this.bValueProvider.find(typeName);
             if (provider != null) {
-                return provider.toObject(jBMap);
+                return provider.toObject(jBMap, (BValueDeserializer) this);
             }
         }
 
@@ -369,8 +371,11 @@ class JsonDeserializer {
             if (value instanceof BMap) {
                 @SuppressWarnings("unchecked")
                 BMap<String, BValue> item = (BMap<String, BValue>) value;
-                String typeName = item.get(JsonSerializerConst.TYPE_TAG).stringValue();
-                fieldType = findClass(typeName);
+                BValue val = item.get(JsonSerializerConst.TYPE_TAG);
+                if (val != null) {
+                    String typeName = val.stringValue();
+                    fieldType = findClass(typeName);
+                }
             } else if (value instanceof BBoolean) {
                 fieldType = BBoolean.class;
             }

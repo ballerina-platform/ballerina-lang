@@ -20,6 +20,8 @@ package org.ballerinalang.persistence.serializable.serializer.bvalueprovider;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.persistence.serializable.serializer.BValueDeserializer;
+import org.ballerinalang.persistence.serializable.serializer.BValueSerializer;
 import org.ballerinalang.persistence.serializable.serializer.SerializationBValueProvider;
 
 import java.math.BigDecimal;
@@ -46,7 +48,7 @@ public class NumericBValueProviders {
         }
 
         @Override
-        public BValue toBValue(Object object) {
+        public BValue toBValue(Object object, BValueSerializer serializer) {
             if (object instanceof BigInteger) {
                 BigInteger bigInteger = (BigInteger) object;
                 return BValueProviderHelper.wrap(BIG_INT, new BString(bigInteger.toString(10)));
@@ -55,7 +57,7 @@ public class NumericBValueProviders {
         }
 
         @Override
-        public Object toObject(BValue bValue) {
+        public Object toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
             if (bValue instanceof BMap) {
                 @SuppressWarnings("unchecked")
                 BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
@@ -85,7 +87,7 @@ public class NumericBValueProviders {
         }
 
         @Override
-        public BValue toBValue(Object object) {
+        public BValue toBValue(Object object, BValueSerializer serializer) {
             if (object instanceof BigDecimal) {
                 BigDecimal bigDecimal = (BigDecimal) object;
                 return BValueProviderHelper.wrap(BIG_DEC, new BString(bigDecimal.toString()));
@@ -94,7 +96,7 @@ public class NumericBValueProviders {
         }
 
         @Override
-        public Object toObject(BValue bValue) {
+        public Object toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
             if (bValue instanceof BMap) {
                 BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
                 if (BValueProviderHelper.isWrapperOfType(wrapper, BIG_DEC)) {

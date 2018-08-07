@@ -127,10 +127,16 @@ public class JsonSerializerTest {
 
         BigDecimal dec = (BigDecimal) state.globalProps.get("dec");
         Assert.assertTrue(dec.equals(bigDecimal));
+
+        // reference sharing test for BString object
+        Object gProp1 = state.globalProps.get("gProp1");
+        BValue bstring = bmap.get("bstring");
+        Assert.assertEquals(gProp1, bstring);
     }
 
     private void mock(SerializableState serializableState) {
-        serializableState.globalProps.put("gProp1", new BString("gProp1:BString"));
+        BString bstring = new BString("gProp1:BString");
+        serializableState.globalProps.put("gProp1", bstring);
         serializableState.globalProps.put("gProp2", Arrays.asList("Item-1", "Item-2", "Item-3"));
         serializableState.globalProps.put("multiLevel", new StringFieldAB("A", "B"));
         bigDecimal = new BigDecimal("123456789999");
@@ -139,6 +145,7 @@ public class JsonSerializerTest {
         BMap<String, BRefType> bMap = new BMap<>();
         bMap.put("bmapKey1", new BString("bmap_str_val"));
         bMap.put("obj1", getInnerBMap());
+        bMap.put("bstring", bstring);
         serializableState.sRefTypes.put("var_r1", new SerializableBMap(bMap, serializableState));
     }
 
@@ -163,6 +170,53 @@ public class JsonSerializerTest {
         boolean matchedKey1 = map.keySet().stream().anyMatch(k -> ((StringFieldA) k).A.equals("Key1"));
         boolean matchedKey2 = map.keySet().stream().anyMatch(k -> ((StringFieldA) k).A.equals("Key2"));
         Assert.assertTrue(matchedKey1 && matchedKey2);
+    }
+
+    @Test(description = "Test deserialization of BNewArray")
+    public void testJsonDeserializeBNewArrayReconstruction() {
+        BRefValueArray array = new BRefValueArray(BTypes.typeString);
+        BString str1 = new BString("String1");
+        BString str2 = new BString("String2");
+        array.append(str1);
+        array.append(str2);
+        array.append(str1);
+
+        String serialize = new JsonSerializer().serialize(array);
+        Object deserialize = new JsonSerializer().deserialize(serialize.getBytes(), BRefValueArray.class);
+
+        Assert.assertTrue(deserialize instanceof BRefValueArray);
+        BRefValueArray deArray = (BRefValueArray) deserialize;
+        BString string1 = (BString) deArray.get(0);
+        Assert.assertEquals(string1.value(), "String1");
+        // reference sharing test
+        Assert.assertTrue(deArray.get(0) == deArray.get(2));
+    }
+
+    @Test(description = "Test deserialization of BNewArray when elements are maps")
+    public void testJsonDeserializeBNewArrayReconstructionWithMapElements() {
+        BRefValueArray array = new BRefValueArray(BTypes.typeMap);
+        BString str1 = new BString("String1");
+        BString str2 = new BString("String2");
+        BMap<String, BString> map1 = new BMap<>();
+        map1.put("A", str1);
+        map1.put("B", str2);
+        BMap<String, BString> map2 = new BMap<>();
+        map1.put("A", str1);
+        BMap<String, BString> map3 = new BMap<>();
+        array.append(map1);
+        array.append(map2);
+        array.append(map3);
+        array.append(map3);
+
+        String serialize = new JsonSerializer().serialize(array);
+        Object deserialize = new JsonSerializer().deserialize(serialize.getBytes(), BRefValueArray.class);
+
+        Assert.assertTrue(deserialize instanceof BRefValueArray);
+        BRefValueArray deArray = (BRefValueArray) deserialize;
+        BMap map = (BMap) deArray.get(0);
+        Assert.assertEquals(((BString) map.get("A")).value(), "String1");
+        // reference sharing test
+        Assert.assertTrue(deArray.get(2) == deArray.get(3));
     }
 
     private Map mockComplexKeyMap() {

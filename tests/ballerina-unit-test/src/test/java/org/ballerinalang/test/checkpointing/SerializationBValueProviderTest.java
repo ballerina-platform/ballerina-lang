@@ -19,6 +19,8 @@ package org.ballerinalang.test.checkpointing;
 
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.persistence.serializable.serializer.BValueDeserializer;
+import org.ballerinalang.persistence.serializable.serializer.JsonSerializer;
 import org.ballerinalang.persistence.serializable.serializer.bvalueprovider.NumericBValueProviders;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -34,7 +36,7 @@ public class SerializationBValueProviderTest {
     public void testBigIntBValueProviderToBValue() {
         NumericBValueProviders.BigIntegerBValueProvider provider = new NumericBValueProviders.BigIntegerBValueProvider();
         String num = "2345232323";
-        BValue value = provider.toBValue(new BigInteger(num));
+        BValue value = provider.toBValue(new BigInteger(num), new JsonSerializer());
 
         Assert.assertTrue(value instanceof BMap);
 
@@ -47,9 +49,9 @@ public class SerializationBValueProviderTest {
     public void testBigIntBValueProviderToBigInt() {
         NumericBValueProviders.BigIntegerBValueProvider provider = new NumericBValueProviders.BigIntegerBValueProvider();
         String num = "2345232323";
-        BValue value = provider.toBValue(new BigInteger(num));
+        BValue value = provider.toBValue(new BigInteger(num), new JsonSerializer());
 
-        Object object = provider.toObject(value);
+        Object object = provider.toObject(value, (BValueDeserializer) this);
         Assert.assertTrue(object instanceof BigInteger);
         Assert.assertTrue(((BigInteger) object).toString(10).equals(num));
     }
@@ -58,9 +60,9 @@ public class SerializationBValueProviderTest {
     public void testBigIntBValueProviderBigDecimal() {
         NumericBValueProviders.BigDecimalBValueProvider provider = new NumericBValueProviders.BigDecimalBValueProvider();
         String num = "2345232323";
-        BValue value = provider.toBValue(new BigDecimal(num));
+        BValue value = provider.toBValue(new BigDecimal(num), new JsonSerializer());
 
-        Object object = provider.toObject(value);
+        Object object = provider.toObject(value, (BValueDeserializer) this);
         Assert.assertTrue(object instanceof BigDecimal);
         Assert.assertTrue(((BigDecimal) object).toString().equals(num));
     }

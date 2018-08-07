@@ -20,15 +20,8 @@ package org.ballerinalang.persistence.serializable.serializer;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * Provide Mapping relationship between Java objects and BValue Objects.
+ * Convert {@link BValue} representation into Java objects.
  */
-public interface SerializationBValueProvider {
-    /**
-     * Return typeName used to find the appropriate {@link SerializationBValueProvider} implementation.
-     * @return
-     */
-    String typeName();
-    Class<?> getType();
-    BValue toBValue(Object object, BValueSerializer serializer);
-    Object toObject(BValue bValue, BValueDeserializer bValueDeserializer);
+public interface BValueDeserializer {
+    Object deserialize(BValue jValue, Class<?> targetType);
 }
