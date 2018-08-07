@@ -20,8 +20,8 @@ package org.ballerinalang.test.service.http;
 
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.testng.annotations.AfterGroups;
-import org.testng.annotations.BeforeGroups;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
 
 import java.io.File;
 
@@ -30,7 +30,7 @@ import java.io.File;
  * and after tests are run.
  */
 public class HttpBaseTest extends BaseTest {
-    @BeforeGroups("http-test")
+    @BeforeTest(groups = "http-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "http").getAbsolutePath();
@@ -38,7 +38,7 @@ public class HttpBaseTest extends BaseTest {
         serverInstance.startBallerinaServer("httpservices", args);
     }
 
-    @AfterGroups("http-test")
+    @AfterTest(groups = "http-test")
     public void cleanup() throws Exception {
         serverInstance.removeAllLeechers();
         serverInstance.stopServer();

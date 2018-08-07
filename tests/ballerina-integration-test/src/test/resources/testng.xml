@@ -36,7 +36,7 @@
         </packages>
     </test>
 
-    <test name="ballerina-resiliency-tests" parallel="false">
+    <test name="ballerina-resiliency-tests" parallel="methods" thread-count="6">
         <packages>
             <package name="org.ballerinalang.test.service.resiliency"/>
         </packages>

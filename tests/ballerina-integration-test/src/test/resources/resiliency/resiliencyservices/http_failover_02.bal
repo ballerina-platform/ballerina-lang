@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (//www.wso2.org) All Rights Reserved.
+// Copyright (c) 2028 WSO2 Inc. (//www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -21,48 +21,48 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/runtime;
 
-// Create an endpoint with port 8080 for the mock backend services.
-endpoint http:Listener backendEP {
-    port: 8080
+// Create an endpoint with port 8082 for the mock backend services.
+endpoint http:Listener backendEP02 {
+    port: 8082
 };
 
 // Define the failover client end point to call the backend services.
-endpoint http:FailoverClient foBackendEP {
+endpoint http:FailoverClient foBackendEP02 {
     timeoutMillis: 5000,
     failoverCodes: [501, 502, 503],
     intervalMillis: 5000,
     // Define set of HTTP Clients that needs to be Failover.
     targets: [
         { url: "http://localhost:3000/inavalidEP" },
-        { url: "http://localhost:8080/echo" },
-        { url: "http://localhost:8080/mock" },
-        { url: "http://localhost:8080/mock" }
+        { url: "http://localhost:8082/echo" },
+        { url: "http://localhost:8082/mock" },
+        { url: "http://localhost:8082/mock" }
     ]
 
 };
 
-endpoint http:FailoverClient foBackendFailureEP {
+endpoint http:FailoverClient foBackendFailureEP02 {
     timeoutMillis: 5000,
     failoverCodes: [501, 502, 503],
     intervalMillis: 5000,
     // Define set of HTTP Clients that needs to be Failover.
     targets: [
         { url: "http://localhost:3000/inavalidEP" },
-        { url: "http://localhost:8080/echo" },
-        { url: "http://localhost:8080/echo" }
+        { url: "http://localhost:8082/echo" },
+        { url: "http://localhost:8082/echo" }
     ]
 
 };
 
-endpoint http:FailoverClient foStatusCodesEP {
+endpoint http:FailoverClient foStatusCodesEP02 {
     timeoutMillis: 5000,
     failoverCodes: [501, 502, 503],
     intervalMillis: 5000,
     // Define set of HTTP Clients that needs to be Failover.
     targets: [
-        { url: "http://localhost:8080/statuscodes" },
-        { url: "http://localhost:8080/statuscodes" },
-        { url: "http://localhost:8080/statuscodes" }
+        { url: "http://localhost:8082/statuscodes" },
+        { url: "http://localhost:8082/statuscodes" },
+        { url: "http://localhost:8082/statuscodes" }
     ]
 
 };
@@ -70,13 +70,13 @@ endpoint http:FailoverClient foStatusCodesEP {
 @http:ServiceConfig {
     basePath: "/fo"
 }
-service<http:Service> failoverDemoService bind { port: 9090 } {
+service<http:Service> failoverDemoService02 bind { port: 9092 } {
     @http:ResourceConfig {
         methods: ["GET", "POST"],
         path: "/typical"
     }
     invokeEndpoint(endpoint caller, http:Request request) {
-        var backendRes = foBackendEP->forward("/", request);
+        var backendRes = foBackendEP02->forward("/", request);
         match backendRes {
             http:Response response => {
                 caller->respond(response) but {
@@ -100,7 +100,7 @@ service<http:Service> failoverDemoService bind { port: 9090 } {
         path: "/failures"
     }
     invokeAllFailureEndpoint(endpoint caller, http:Request request) {
-        var backendRes = foBackendFailureEP->forward("/", request);
+        var backendRes = foBackendFailureEP02->forward("/", request);
         match backendRes {
             http:Response response => {
                 caller->respond(response) but {
@@ -124,7 +124,7 @@ service<http:Service> failoverDemoService bind { port: 9090 } {
         path: "/failurecodes"
     }
     invokeAllFailureStatusCodesEndpoint(endpoint caller, http:Request request) {
-        var backendRes = foStatusCodesEP->forward("/", request);
+        var backendRes = foStatusCodesEP02->forward("/", request);
         match backendRes {
             http:Response response => {
                 caller->respond(response) but {
@@ -148,9 +148,9 @@ service<http:Service> failoverDemoService bind { port: 9090 } {
         path: "/index"
     }
     failoverStartIndex(endpoint caller, http:Request request) {
-        http:FailoverActions foClient = foBackendEP.getCallerActions();
+        http:FailoverActions foClient = foBackendEP02.getCallerActions();
         string startIndex = <string> foClient.succeededEndpointIndex;
-        var backendRes = foBackendEP->forward("/", request);
+        var backendRes = foBackendEP02->forward("/", request);
         match backendRes {
             http:Response response => {
                 string responseMessage = "Failover start index is : " + startIndex;
@@ -176,7 +176,7 @@ service<http:Service> failoverDemoService bind { port: 9090 } {
 @http:ServiceConfig {
     basePath: "/echo"
 }
-service echo bind backendEP {
+service echo02 bind backendEP02 {
     @http:ResourceConfig {
         methods: ["POST", "PUT", "GET"],
         path: "/"
@@ -194,19 +194,19 @@ service echo bind backendEP {
     }
 }
 
-public int counter = 1;
+public int counter02 = 1;
 // Define the sample service to mock a healthy service.
 @http:ServiceConfig {
     basePath: "/mock"
 }
-service mock bind backendEP {
+service mock02 bind backendEP02 {
     @http:ResourceConfig {
         methods: ["POST", "PUT", "GET"],
         path: "/"
     }
     mockResource(endpoint caller, http:Request req) {
-        counter++;
-        if (counter % 5 == 0) {
+        counter02++;
+        if (counter02 % 5 == 0) {
             runtime:sleep(30000);
         }
         http:Response response = new;
@@ -254,7 +254,7 @@ service mock bind backendEP {
 @http:ServiceConfig {
     basePath: "/statuscodes"
 }
-service failureStatusCodeService bind backendEP {
+service failureStatusCodeService02 bind backendEP02 {
     @http:ResourceConfig {
         methods: ["POST", "PUT", "GET"],
         path: "/"
