@@ -102,6 +102,13 @@ public class ServerInstance implements Server {
         startServer();
     }
 
+    /**
+     * Starts the ballerina server instance along with checking the given http port for availability before starting
+     * the server.
+     * @param balFile - path of the ballerina distribution (zip).
+     * @param httpServerPort - the http port to check before starting the server instance.
+     * @throws BallerinaTestException If any exception is thrown when starting the ballerina server
+     */
     public void startBallerinaServer(String balFile, int httpServerPort) throws BallerinaTestException {
         this.httpServerPort = httpServerPort;
         String[] args = {balFile};
@@ -240,6 +247,9 @@ public class ServerInstance implements Server {
         }
     }
 
+    /**
+     * Clean up this server instance by removing the work directory.
+     */
     public void cleanup() {
         deleteWorkDir();
     }
@@ -429,6 +439,13 @@ public class ServerInstance implements Server {
         return "http://localhost:" + httpServerPort + "/" + servicePath;
     }
 
+    /**
+     * A utility method to construct and return the service URL by using the given port.
+     *
+     * @param port - the port to be used to create the service url.
+     * @param servicePath -  http url of the given service.
+     * @return The service URL.
+     */
     public String getServiceURLHttp(int port, String servicePath) {
         return "http://localhost:" + port + "/" + servicePath;
     }
@@ -447,6 +464,9 @@ public class ServerInstance implements Server {
         serverInfoLogReader.addLeecher(leecher);
     }
 
+    /**
+     * Removes all added log leechers from this instance.
+     */
     public void removeAllLeechers() {
         serverInfoLogReader.removeAllLeechers();
         serverErrorLogReader.removeAllLeechers();
