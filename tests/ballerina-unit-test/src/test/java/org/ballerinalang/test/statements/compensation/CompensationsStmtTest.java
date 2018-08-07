@@ -18,7 +18,9 @@ package org.ballerinalang.test.statements.compensation;
 
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
+import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -47,5 +49,7 @@ public class CompensationsStmtTest {
     @Test(description = "Test nested scopes and scopes in loops")
     public void compensationStmtTest() {
         Assert.assertEquals(result.getErrorCount(), 0);
+        BValue[] returns = BRunUtil.invoke(result, "testCompensationLexicalScopes");
+        Assert.assertTrue(returns[0].stringValue().contains("last"));
     }
 }

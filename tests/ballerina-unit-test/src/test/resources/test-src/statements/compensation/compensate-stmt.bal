@@ -1,3 +1,5 @@
+json msg = "initial";
+
 function testNestedScopes() returns (int) {
     int a = 2;
 
@@ -7,6 +9,7 @@ function testNestedScopes() returns (int) {
             a = 5;
         } compensation {
             //compensate
+            msg = "in first scopeA";
         }
     } compensation {
 
@@ -39,3 +42,13 @@ function testLoopScopes() returns (int) {
     return a;
 }
 
+function testCompensationLexicalScopes() returns json {
+        scope scopeA {
+
+        } compensation {
+            msg = "last scopeA";
+        }
+
+    compensate scopeA;
+    return msg;
+}
