@@ -51,7 +51,7 @@ public class SerializationBValueProviderTest {
         String num = "2345232323";
         BValue value = provider.toBValue(new BigInteger(num), new JsonSerializer());
 
-        Object object = provider.toObject(value, (BValueDeserializer) this);
+        Object object = provider.toObject(value, null);
         Assert.assertTrue(object instanceof BigInteger);
         Assert.assertTrue(((BigInteger) object).toString(10).equals(num));
     }
@@ -62,7 +62,7 @@ public class SerializationBValueProviderTest {
         String num = "2345232323";
         BValue value = provider.toBValue(new BigDecimal(num), new JsonSerializer());
 
-        Object object = provider.toObject(value, (BValueDeserializer) this);
+        Object object = provider.toObject(value, null);
         Assert.assertTrue(object instanceof BigDecimal);
         Assert.assertTrue(((BigDecimal) object).toString().equals(num));
     }
