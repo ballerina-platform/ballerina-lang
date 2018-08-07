@@ -20,8 +20,8 @@ function closeSocket () {
 }
 
 function write (byte[] content) returns int|error {
-    io:ByteChannel channel = socket.channel;
-    var result = channel.write(content, 0);
+    io:ByteChannel byteChannel = socket.byteChannel;
+    var result = byteChannel.write(content, 0);
     match result {
         int numberOfBytesWritten => {
             io:println("Number of byte written to server: ", numberOfBytesWritten);
@@ -34,8 +34,8 @@ function write (byte[] content) returns int|error {
 }
 
 function read (int size) returns (byte[], int)|error {
-    io:ByteChannel channel = socket.channel;
-    var result = channel.read(size);
+    io:ByteChannel byteChannel = socket.byteChannel;
+    var result = byteChannel.read(size);
     match result{
         (byte[] , int)  content => {
             var (bytes, numberOfBytes) = content;

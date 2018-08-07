@@ -18,17 +18,17 @@ documentation {
     Represents a channel which could be used to read/write characters through a given ByteChannel.
 }
 public type CharacterChannel object {
-    private ByteChannel channel;
+    private ByteChannel bChannel;
     private string charset;
 
     documentation {
         Constructs a CharacterChannel from a given ByteChannel and Charset.
 
-        P{{channel}} ByteChannel which would be used to read/write characters
+        P{{bChannel}} ByteChannel which would be used to read/write characters
         P{{charset}} Character-Set which would be used to encode/decode given bytes to characters
     }
-    public new(channel, charset) {
-        init(channel, charset);
+    public new(bChannel, charset) {
+        init(bChannel, charset);
     }
 
     documentation {

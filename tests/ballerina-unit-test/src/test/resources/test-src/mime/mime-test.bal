@@ -337,8 +337,8 @@ function testGetJsonDataSource(io:ByteChannel byteChannel) returns json|error {
     return entity.getJson();
 }
 
-function consumeChannel(io:ByteChannel channel) {
-    var result = channel.read(1000000);
+function consumeChannel(io:ByteChannel byteChannel) {
+    var result = byteChannel.read(1000000);
 }
 
 function testGetXmlWithSuffix(xml xmlContent) returns xml|error {

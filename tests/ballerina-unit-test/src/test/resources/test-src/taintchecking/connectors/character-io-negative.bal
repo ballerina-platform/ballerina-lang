@@ -8,9 +8,9 @@ function main (string... args) {
     int intArg = check <int> args[0];
 
     io:ByteChannel byteChannel = io:openFile(filePath, permission);
-    io:CharacterChannel channel = new io:CharacterChannel(byteChannel, "UTF-8");
-    var writeOutput = channel.write(chars, 0);
-    var readOutput = channel.read(intArg);
+    io:CharacterChannel charChannel = new io:CharacterChannel(byteChannel, "UTF-8");
+    var writeOutput = charChannel.write(chars, 0);
+    var readOutput = charChannel.read(intArg);
     match readOutput {
         string text => {
             testFunction(text, text);

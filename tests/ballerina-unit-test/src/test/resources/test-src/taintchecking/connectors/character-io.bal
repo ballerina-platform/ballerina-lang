@@ -6,10 +6,10 @@ function main (string... args) {
     string chars = "data";
 
     io:ByteChannel byteChannel = io:openFile(filePath, permission);
-    io:CharacterChannel channel = new io:CharacterChannel(byteChannel, "UTF-8");
+    io:CharacterChannel charChannel = new io:CharacterChannel(byteChannel, "UTF-8");
 
-    var writeOutput = channel.write(chars, 0);
-    var readOutput = channel.read(1);
+    var writeOutput = charChannel.write(chars, 0);
+    var readOutput = charChannel.read(1);
     match readOutput {
         string text => {
             testFunction(text, text);

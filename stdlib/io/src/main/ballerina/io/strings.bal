@@ -18,7 +18,7 @@ documentation{
      Represents a reader which will wrap string content as a channel.
 }
 public type StringReader object {
-    private CharacterChannel? channel;
+    private CharacterChannel? charChannel;
 
     documentation{
       Constructs a channel to read string.
@@ -29,7 +29,7 @@ public type StringReader object {
     public new(string content, string encoding = "UTF-8") {
         byte[] contentBytes = content.toByteArray(encoding);
         ByteChannel byteChannel = createMemoryChannel(contentBytes);
-        channel = new CharacterChannel(byteChannel, encoding);
+        charChannel = new CharacterChannel(byteChannel, encoding);
     }
 
     documentation{
@@ -38,7 +38,7 @@ public type StringReader object {
         R{{}} json or an error
     }
     public function readJson() returns json|error {
-        return channel.readJson();
+        return charChannel.readJson();
     }
 
     documentation{
@@ -47,7 +47,7 @@ public type StringReader object {
         R{{}}
     }
     public function readXml() returns xml|error? {
-        return channel.readXml();
+        return charChannel.readXml();
     }
 
     documentation{
@@ -57,13 +57,13 @@ public type StringReader object {
         R{{}} string or an error
     }
     public function readChar(int nCharacters) returns string|error? {
-        return channel.read(nCharacters);
+        return charChannel.read(nCharacters);
     }
 
     documentation{
         Closes reader.
     }
     public function close() returns error? {
-        return channel.close();
+        return charChannel.close();
     }
 };

@@ -219,7 +219,7 @@ public class BallerinaParser extends Parser {
 		null, "'import'", "'as'", "'public'", "'private'", "'extern'", "'service'", 
 		"'resource'", "'function'", "'object'", "'record'", "'annotation'", "'parameter'", 
 		"'transformer'", "'worker'", "'endpoint'", "'bind'", "'xmlns'", "'returns'", 
-		"'version'", "'documentation'", "'deprecated'", "'bchannel'", "'from'", 
+		"'version'", "'documentation'", "'deprecated'", "'channel'", "'from'", 
 		"'on'", null, "'group'", "'by'", "'having'", "'order'", "'where'", "'followed'", 
 		null, "'into'", null, null, "'set'", "'for'", "'window'", "'query'", "'expired'", 
 		"'current'", null, "'every'", "'within'", null, null, "'snapshot'", null, 
