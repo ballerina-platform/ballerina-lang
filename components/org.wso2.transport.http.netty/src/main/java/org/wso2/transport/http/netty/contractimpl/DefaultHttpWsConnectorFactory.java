@@ -25,6 +25,7 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
@@ -69,13 +70,14 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
         ServerConnectorBootstrap serverConnectorBootstrap = new ServerConnectorBootstrap(allChannels);
         serverConnectorBootstrap.addSocketConfiguration(serverBootstrapConfiguration);
         serverConnectorBootstrap.addSecurity(listenerConfig.getListenerSSLConfig());
-        if (listenerConfig.getListenerSSLConfig() != null) {
+        SSLConfig sslConfig = listenerConfig.getListenerSSLConfig();
+        if (sslConfig != null) {
             serverConnectorBootstrap
-                    .addcertificateRevocationVerifier(listenerConfig.getListenerSSLConfig().isValidateCertEnabled());
-            serverConnectorBootstrap.addCacheDelay(listenerConfig.getListenerSSLConfig().getCacheValidityPeriod());
-            serverConnectorBootstrap.addCacheSize(listenerConfig.getListenerSSLConfig().getCacheSize());
-            serverConnectorBootstrap.addOcspStapling(listenerConfig.getListenerSSLConfig().isOcspStaplingEnabled());
-            serverConnectorBootstrap.addSslHandlerFactory(new SSLHandlerFactory(listenerConfig.getListenerSSLConfig()));
+                    .addcertificateRevocationVerifier(sslConfig.isValidateCertEnabled());
+            serverConnectorBootstrap.addCacheDelay(sslConfig.getCacheValidityPeriod());
+            serverConnectorBootstrap.addCacheSize(sslConfig.getCacheSize());
+            serverConnectorBootstrap.addOcspStapling(sslConfig.isOcspStaplingEnabled());
+            serverConnectorBootstrap.addSslHandlerFactory(new SSLHandlerFactory(sslConfig));
         }
         serverConnectorBootstrap.addIdleTimeout(listenerConfig.getSocketIdleTimeout());
         if (Constants.HTTP_2_0 == Float.valueOf(listenerConfig.getVersion())) {

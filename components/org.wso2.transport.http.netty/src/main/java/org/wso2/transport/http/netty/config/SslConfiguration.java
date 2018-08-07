@@ -144,24 +144,24 @@ public class SslConfiguration {
         sslConfig.setCertPass(sslConfig.getKeyStorePass());
         for (Parameter parameter : parameters) {
             switch (parameter.getName()) {
-            case SERVER_SUPPORT_CIPHERS:
-                sslConfig.setCipherSuites(parameter.getValue());
-                break;
-            case SERVER_SUPPORT_SSL_PROTOCOLS:
-                sslConfig.setEnableProtocols(parameter.getValue());
-                break;
-            case SERVER_SUPPORTED_SNIMATCHERS:
-                sslConfig.setSniMatchers(parameter.getValue());
-                break;
-            case SERVER_SUPPORTED_SERVER_NAMES:
-                sslConfig.setServerNames(parameter.getValue());
-                break;
-            case SERVER_ENABLE_SESSION_CREATION:
-                sslConfig.setEnableSessionCreation(Boolean.parseBoolean(parameter.getValue()));
-                break;
-            default:
-                //do nothing
-                break;
+                case SERVER_SUPPORT_CIPHERS:
+                    sslConfig.setCipherSuites(parameter.getValue());
+                    break;
+                case SERVER_SUPPORT_SSL_PROTOCOLS:
+                    sslConfig.setEnableProtocols(parameter.getValue());
+                    break;
+                case SERVER_SUPPORTED_SNIMATCHERS:
+                    sslConfig.setSniMatchers(parameter.getValue());
+                    break;
+                case SERVER_SUPPORTED_SERVER_NAMES:
+                    sslConfig.setServerNames(parameter.getValue());
+                    break;
+                case SERVER_ENABLE_SESSION_CREATION:
+                    sslConfig.setEnableSessionCreation(Boolean.parseBoolean(parameter.getValue()));
+                    break;
+                default:
+                    //do nothing
+                    break;
             }
         }
 
@@ -199,13 +199,19 @@ public class SslConfiguration {
         sslConfig.setTLSStoreType(tlsStoreType);
         if (parameters != null) {
             for (Parameter parameter : parameters) {
-                String paramName = parameter.getName();
-                if (CLIENT_SUPPORT_CIPHERS.equals(paramName)) {
-                    sslConfig.setCipherSuites(parameter.getValue());
-                } else if (CLIENT_SUPPORT_SSL_PROTOCOLS.equals(paramName)) {
-                    sslConfig.setEnableProtocols(parameter.getValue());
-                } else if (CLIENT_ENABLE_SESSION_CREATION.equals(paramName)) {
-                    sslConfig.setEnableSessionCreation(Boolean.parseBoolean(parameter.getValue()));
+                switch (parameter.getName()) {
+                    case CLIENT_SUPPORT_CIPHERS:
+                        sslConfig.setCipherSuites(parameter.getValue());
+                        break;
+                    case CLIENT_SUPPORT_SSL_PROTOCOLS:
+                        sslConfig.setEnableProtocols(parameter.getValue());
+                        break;
+                    case CLIENT_ENABLE_SESSION_CREATION:
+                        sslConfig.setEnableSessionCreation(Boolean.parseBoolean(parameter.getValue()));
+                        break;
+                    default:
+                        //do nothing
+                        break;
                 }
             }
         }
