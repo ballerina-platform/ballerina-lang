@@ -25,7 +25,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.crypto.util.BallerinaHashException;
 import org.ballerinalang.stdlib.crypto.util.HashUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -79,7 +78,7 @@ public class Hmac extends BlockingNativeCallableUnit {
                 hmacAlgorithm = "HmacMD5";
                 break;
             default:
-                throw new BallerinaHashException("Unsupported algorithm " + algorithm + " for HMAC calculation");
+                throw new BallerinaException("Unsupported algorithm " + algorithm + " for HMAC calculation");
         }
 
         String result;
@@ -97,8 +96,8 @@ public class Hmac extends BlockingNativeCallableUnit {
                 keyBytes = keyString.getBytes(StandardCharsets.UTF_8);
                 break;
             default:
-                throw new BallerinaHashException(
-                            "Unsupported encoding " + encoding + " for the key of HMAC Calculation");
+                throw new BallerinaException("Unsupported encoding " + encoding + " for the key of HMAC Calculation",
+                        context);
             }
             SecretKey secretKey = new SecretKeySpec(keyBytes, hmacAlgorithm);
             Mac mac = Mac.getInstance(hmacAlgorithm);
