@@ -41,19 +41,28 @@ class TypeInstanceProviderRegistry {
 
     TypeInstanceProvider findTypeProvider(String type) {
         TypeInstanceProvider provider = providerMap.get(type);
-        if (provider == null) {
-            provider = generateProvider(type);
-            if (provider != null) {
-                addTypeProvider(provider);
+        if (provider != null) {
+            return provider;
+        }
+
+        if (type.endsWith("[]")) {
+            ArrayInstanceProvider arrayInstanceProvider = tryCreateArrayInstanceProvider(type);
+            if (arrayInstanceProvider != null) {
+                addTypeProvider(arrayInstanceProvider);
+                return arrayInstanceProvider;
             }
         }
-        if (type.endsWith("[]")) {
-            return new ArrayInstanceProvider(type.substring(0, type.length() - 2));
+
+        provider = generateProvider(type);
+        if (provider != null) {
+            addTypeProvider(provider);
+            return provider;
         }
-        if (provider == null) {
-            throw new BallerinaException(String.format("No TypeInstanceProvider found for: %s", type));
-        }
-        return provider;
+        return null;
+    }
+
+    private ArrayInstanceProvider tryCreateArrayInstanceProvider(String type) {
+        return new ArrayInstanceProvider(type.substring(0, type.length() - 2));
     }
 
     private TypeInstanceProvider generateProvider(String type) {
@@ -83,12 +92,11 @@ class TypeInstanceProviderRegistry {
      */
     static class ArrayInstanceProvider implements TypeInstanceProvider {
         final String type;
-        private TypeInstanceProvider typeProvider;
+        TypeInstanceProvider typeProvider;
 
         ArrayInstanceProvider(String type) {
             this.type = type;
             typeProvider = INSTANCE.findTypeProvider(type);
-
         }
 
         @Override

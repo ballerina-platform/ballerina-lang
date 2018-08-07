@@ -180,7 +180,12 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         for (int i = 0; i < arrayLength; i++) {
             bArray.append(toBValue(Array.get(array, i), null));
         }
-        return wrapObject(JsonSerializerConst.LIST_TAG, bArray);
+
+        BMap bMap = wrapObject(JsonSerializerConst.ARRAY_TAG, bArray);
+        Class<?> componentType = array.getClass().getComponentType();
+        String trimmedName = getTrimmedClassName(componentType);
+        bMap.put(JsonSerializerConst.COMPONENT_TYPE, new BString(trimmedName));
+        return bMap;
     }
 
     private BMap toBValue(Enum obj) {
@@ -272,9 +277,14 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
     }
 
     private String getTrimmedClassName(Object obj) {
-        String className = obj.getClass().getName();
+        Class<?> clazz = obj.getClass();
+        return getTrimmedClassName(clazz);
+    }
+
+    private String getTrimmedClassName(Class<?> clazz) {
+        String className = clazz.getName();
         // if obj is a BValue, trim fully qualified name to class name.
-        if (obj instanceof BValue && className.startsWith(bValuePackagePath)) {
+        if (BValue.class.isAssignableFrom(clazz) && className.startsWith(bValuePackagePath)) {
             className = className.substring(bValuePackagePath.length() + 1);
         }
         return className;

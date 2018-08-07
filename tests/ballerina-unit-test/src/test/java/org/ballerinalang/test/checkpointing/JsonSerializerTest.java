@@ -212,10 +212,29 @@ public class JsonSerializerTest {
         Assert.assertTrue(deArray.get(2) == deArray.get(3));
     }
 
+    @Test(description = "Test deserialization of StringFieldA[]")
+    public void testJsonDeserializeArrayOfStringFieldA() {
+        StringFieldA sf0 = new StringFieldA("A");
+        StringFieldA sf1 = new StringFieldA("B");
+        StringFieldA[] array = {sf0, sf1, sf1};
+
+        String serialize = new JsonSerializer().serialize(array);
+        Object deserialize = new JsonSerializer().deserialize(serialize.getBytes(), StringFieldA[].class);
+
+        StringFieldA[] array1 = (StringFieldA[]) deserialize;
+        Assert.assertEquals(array1.length, array.length);
+        Assert.assertEquals(array1[0].A, array[0].A);
+        Assert.assertEquals(array1[1].A, array[1].A);
+        Assert.assertEquals(array1[2].A, array[2].A);
+
+        // test reference sharing
+        Assert.assertTrue(array1[1] == array1[2]);
+    }
+
     private Map mockComplexKeyMap() {
         Map<StringFieldA, String> map = new HashMap<>();
-        map.put(new StringFieldA("Key1"),"Key1");
-        map.put(new StringFieldA("Key2"),"Key2");
+        map.put(new StringFieldA("Key1"), "Key1");
+        map.put(new StringFieldA("Key2"), "Key2");
 
         return map;
     }
