@@ -74,6 +74,7 @@ public class JsonSerializerTest {
         WorkerExecutionContext weContext = new WorkerExecutionContext(compileResult.getProgFile());
         SerializableState serializableState = new SerializableState(weContext);
         mock(serializableState);
+
         String json = serializableState.serialize();
 
         Assert.assertTrue(json.matches(".*?\"Item-1\", ?\"Item-2\", ?\"Item-3\".*"));
@@ -85,6 +86,7 @@ public class JsonSerializerTest {
     public void testObjectSerializationToJson() {
         JsonSerializer jsonSerializer = new JsonSerializer();
         String json = jsonSerializer.serialize(Arrays.asList("1", "2", "3"));
+
         Assert.assertTrue(json.contains("\"1\", \"2\", \"3\""));
 
         String numJson = jsonSerializer.serialize(Arrays.asList(3, 3, 3, 3, 3));

@@ -22,9 +22,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 /**
- * Use sun.misc.Unsafe.allocateInstance to allocate empty object of {@code} clazz.
+ * Use sun.misc.Unsafe.allocateInstance to allocate empty object of {@code clazz}.
  * Notice that this attempt may fail due to security restrictions or maybe due to
- * module not being available in JAVA9 plus.
+ * {@link sun.misc.UnSafe} module not being available in JAVA9 plus, or due to many
+ * other reasons, failing to create the instance will return {@code null}.
  */
 class UnsafeObjectAllocator {
     static Object allocateFor(Class<?> clazz) {

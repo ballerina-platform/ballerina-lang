@@ -225,6 +225,7 @@ class JsonDeserializer implements BValueDeserializer {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     private Object deserializeObject(BMap<String, BValue> jsonNode, Object object, Class<?> targetType) {
         BValue payload = jsonNode.get("payload");
         if (jsonNode.get("type") != null) {
@@ -241,7 +242,7 @@ class JsonDeserializer implements BValueDeserializer {
         if (payload == null) {
             payload = jsonNode;
         }
-        if (jsonNode instanceof BMap) {
+        if (payload instanceof BMap) {
             BMap<String, BValue> jMap = (BMap<String, BValue>) payload;
             setFields(object, jMap, object.getClass());
         }
@@ -303,7 +304,7 @@ class JsonDeserializer implements BValueDeserializer {
             modifiers.setAccessible(true);
             modifiers.setInt(field, field.getModifiers() & ~Modifier.FINAL);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            new BallerinaException();
+            throw new BallerinaException();
         }
     }
 

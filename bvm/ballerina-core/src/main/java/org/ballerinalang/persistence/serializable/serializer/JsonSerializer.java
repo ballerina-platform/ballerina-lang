@@ -241,8 +241,7 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         }
         identityMap.put(obj, obj);
 
-        String className = obj.getClass().getName();
-        className = getTrimmedClassName(obj);
+        String className = getTrimmedClassName(obj);
         SerializationBValueProvider provider = bValueProvider.find(className);
         if (provider != null) {
             @SuppressWarnings("unchecked")
@@ -333,7 +332,6 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
 
     private List<Field> getAllFields(Class clazz) {
         ArrayList<Field> fields = Lists.newArrayList(clazz.getDeclaredFields());
-
         for (Class parent = clazz.getSuperclass(); parent != Object.class; parent = parent.getSuperclass()) {
             fields.addAll(Lists.newArrayList(parent.getDeclaredFields()));
         }

@@ -28,7 +28,7 @@ import java.util.HashMap;
 public class TypeInstanceProviderRegistry {
     private static final TypeInstanceProviderRegistry INSTANCE = new TypeInstanceProviderRegistry();
     private final HashMap<String, TypeInstanceProvider> providerMap = new HashMap<>();
-    final HashMap<String, String> typeNameMap = new HashMap<>();
+    private final HashMap<String, String> typeNameMap = new HashMap<>();
 
     private TypeInstanceProviderRegistry() {
         if (INSTANCE != null) {
@@ -68,7 +68,7 @@ public class TypeInstanceProviderRegistry {
         if (className == null) {
             return null;
         }
-        return new TypeSerializationProviderFactory().createProvider(className);
+        return new TypeInstanceProviderFactory().createProvider(className);
     }
 
     private boolean isClassLoadable(String type) {

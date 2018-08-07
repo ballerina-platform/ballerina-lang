@@ -25,7 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * Dynamically generate {@link TypeInstanceProvider} for given class.
  */
-public class TypeSerializationProviderFactory {
+public class TypeInstanceProviderFactory {
     /**
      * Given fully qualified class name get {@link TypeInstanceProvider} dynamically implemented.
      * @param fullClassName class name of requested {@link TypeInstanceProvider}

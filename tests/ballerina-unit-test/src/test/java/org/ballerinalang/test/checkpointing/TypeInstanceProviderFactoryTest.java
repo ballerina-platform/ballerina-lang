@@ -18,17 +18,17 @@
 package org.ballerinalang.test.checkpointing;
 
 import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProvider;
-import org.ballerinalang.persistence.serializable.serializer.TypeSerializationProviderFactory;
+import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProviderFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
- * TypeSerializationProviderFactory test cases.
+ * TypeInstanceProviderFactory test cases.
  */
 public class TypeInstanceProviderFactoryTest {
     @Test
     public void testNoParamConstructorObject() {
-        TypeInstanceProvider provider = new TypeSerializationProviderFactory().createProvider(Foo.class.getName());
+        TypeInstanceProvider provider = new TypeInstanceProviderFactory().createProvider(Foo.class.getName());
         Object o = provider.newInstance();
         Assert.assertTrue(o instanceof Foo);
         Assert.assertTrue(((Foo)o).secretNum == 42);
