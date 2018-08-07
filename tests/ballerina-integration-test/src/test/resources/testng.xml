@@ -42,7 +42,7 @@
         </packages>
     </test>
 
-    <test name="ballerina-http2-tests" parallel="methods" thread-count="6">
+    <test name="ballerina-http2-tests" parallel="false">
         <packages>
             <package name="org.ballerinalang.test.service.http2"/>
         </packages>

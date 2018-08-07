@@ -18,7 +18,6 @@
 package org.ballerinalang.test.packaging;
 
 import org.awaitility.Duration;
-import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;

@@ -24,8 +24,8 @@ import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -41,6 +41,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 /**
  * Test cases for observability tracing.
  */
+@Test(groups = "tracing-test")
 public class TracingTestCase extends BaseTest {
 
     private static final String BASEDIR = System.getProperty("basedir");
@@ -51,7 +52,7 @@ public class TracingTestCase extends BaseTest {
     private static final String DEST_FUNCTIONS_JAR = File.separator + "bre" + File.separator + "lib"
             + File.separator + TEST_NATIVES_JAR;
 
-    @BeforeClass
+    @BeforeTest(groups = "tracing-test")
     private void setup() throws Exception {
         copyFile(new File(System.getProperty(TEST_NATIVES_JAR)), new File(serverInstance.getServerHome()
                 + DEST_FUNCTIONS_JAR));
@@ -137,7 +138,7 @@ public class TracingTestCase extends BaseTest {
         Files.copy(source.toPath(), dest.toPath(), REPLACE_EXISTING);
     }
 
-    @AfterClass
+    @AfterTest(groups = "tracing-test")
     private void cleanup() throws Exception {
         serverInstance.removeAllLeechers();
         serverInstance.stopServer();
