@@ -45,13 +45,7 @@ public class MainFunctionsTest {
         args.add(1, "V2");
         BRunUtil.invoke(result, "main", new BValue[] { args });
     }
-    
-    @Test
-    public void publicMainFunctionInvocationTest() {
-        CompileResult negativeResult = BCompileUtil.compile("test-src/vm/main-functions-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 1);
-        Assert.assertTrue(negativeResult.getDiagnostics()[0].getMessage().contains(
-                "the main function cannot be explicitly marked as public"));
-    }
+
+    // TODO: 8/6/18 Add non-public main test 
 
 }

@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.util;
 
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 
 /**
@@ -40,7 +41,7 @@ public class CompilerUtils {
     }
     
     public static boolean isMainFunction(BLangFunction funcNode) {
-        return MAIN_FUNCTION_NAME.equals(funcNode.name.value)
+        return MAIN_FUNCTION_NAME.equals(funcNode.name.value) && Symbols.isPublic(funcNode.symbol)
                 && (funcNode.symbol.retType.tag == TypeTags.NIL || funcNode.symbol.retType.tag == TypeTags.INT);
     }
     

@@ -30,7 +30,7 @@ vel elementum mi. Phasellus non ullamcorper urna.
 	   import IntegrationTest/test;
        import ballerina/io;
 
-	   function main (string... args) {
+	   public function main (string... args) {
          int result = test:add(5, 6);
          io:println(result);
 	   }

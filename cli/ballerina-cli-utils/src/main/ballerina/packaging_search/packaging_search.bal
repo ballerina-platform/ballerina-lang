@@ -232,7 +232,7 @@ function getDateCreated(json jsonObj) returns string {
 documentation {
     This function invokes the method to search for packages.
 }
-function main (string... args) {
+public function main (string... args) {
     http:Client httpEndpoint;
     string host = args[2];
     string port = args[3];

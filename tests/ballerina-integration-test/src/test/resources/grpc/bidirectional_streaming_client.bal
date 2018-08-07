@@ -21,7 +21,7 @@ import ballerina/log;
 import ballerina/runtime;
 
 int total = 0;
-function main(string... args) {
+public function main(string... args) {
 
     endpoint ChatClient chatEp {
         url:"http://localhost:9090"

@@ -7,7 +7,7 @@ Foo gRec = { count: 5, last: "last" };
 Person gObj = new;
 @final int gConst = 5;
 
-function main(string... args) {
+public function main(string... args) {
     gObj.name = "abc";
     gObj.age = 21;
     gInt = gInt + 5;
