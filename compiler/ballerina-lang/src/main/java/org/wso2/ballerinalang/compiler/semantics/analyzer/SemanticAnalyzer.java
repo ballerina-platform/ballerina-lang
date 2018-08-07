@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -198,6 +199,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private boolean isGroupByAvailable;
 
     private Map<BLangBlockStmt, SymbolEnv> blockStmtEnvMap = new HashMap<>();
+    /**
+     * Keep track of unique names of the scopes, which are required for parent scopes
+     * to track the child scopes.
+     */
+    private Map<String, String> scopesMap = new HashMap<>();
 
     public static SemanticAnalyzer getInstance(CompilerContext context) {
         SemanticAnalyzer semAnalyzer = context.get(SYMBOL_ANALYZER_KEY);
@@ -1505,15 +1511,27 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         symbolEnter.defineNode(scopeNode.compensationFunction.function, env);
         typeChecker.checkExpr(scopeNode.compensationFunction, env);
         symbolEnter.defineNode(scopeNode, env);
+        BSymbol symbol = symResolver.lookupSymbol(env, names.fromString(scopeNode.name.getValue()), SymTag.SCOPE);
+        //Add to map to be used by parent scopes
+        String uniqueName = getUniqueScopeName(symbol.pkgID, symbol.owner, scopeNode.name.getValue());
+        scopesMap.put(scopeNode.name.getValue(), uniqueName);
+        scopeNode.childScopes.replaceAll(s -> scopesMap.get(s));
+        scopeNode.compensationFunction.function.name.setValue(Names.GEN_VAR_PREFIX + uniqueName);
+        scopeNode.compensationFunction.function.symbol.name.value = Names.GEN_VAR_PREFIX + uniqueName;
+        scopeNode.name.setValue(uniqueName);
     }
 
     @Override
     public void visit(BLangCompensate node) {
-        if (symTable.notFoundSymbol.equals(symResolver.lookupSymbol(env, names.fromString(node
+        BSymbol scopeSymbol = symResolver.lookupSymbol(env, names.fromString(node
                 .getScopeName()
-                .getValue()), SymTag.SCOPE))) {
+                .getValue()), SymTag.SCOPE);
+        if (symTable.notFoundSymbol.equals(scopeSymbol)) {
             dlog.error(node.pos, DiagnosticCode.UNDEFINED_SYMBOL, node.getScopeName().getValue());
+            return;
         }
+        //change to a unique name
+        node.scopeName.setValue(getUniqueScopeName(scopeSymbol.pkgID, scopeSymbol.owner, node.scopeName.getValue()));
     }
 
     // Private methods
@@ -2055,5 +2073,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
         attribute.type = attributeSymbol.type;
+    }
+
+    private String getUniqueScopeName(PackageID pkgID, BSymbol owner, String name) {
+        return pkgID.name + owner.getName().getValue() + name;
     }
 }
