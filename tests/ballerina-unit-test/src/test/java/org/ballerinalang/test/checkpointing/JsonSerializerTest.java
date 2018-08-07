@@ -32,11 +32,9 @@ import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap;
 import org.ballerinalang.persistence.serializable.serializer.JsonSerializer;
-import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProviderRegistry;
 import org.ballerinalang.persistence.store.PersistenceStore;
 import org.ballerinalang.test.utils.debug.TestDebugger;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -60,13 +58,6 @@ public class JsonSerializerTest {
         TestDebugger debugger = new TestDebugger(compileResult.getProgFile());
         compileResult.getProgFile().setDebugger(debugger);
 
-        TypeInstanceProviderRegistry.getInstance().addTypeNameMapping(
-                StringFieldAB.class.getSimpleName(), StringFieldAB.class.getName());
-    }
-
-    @AfterClass
-    public void teardown() {
-        TypeInstanceProviderRegistry.getInstance().clearTypeNameMappings();
     }
 
     @Test(description = "Test serializing simple mocked SerializableState object")

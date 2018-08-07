@@ -25,10 +25,9 @@ import java.util.HashMap;
 /**
  * Keep track of {@link TypeInstanceProvider} implementations.
  */
-public class TypeInstanceProviderRegistry {
+class TypeInstanceProviderRegistry {
     private static final TypeInstanceProviderRegistry INSTANCE = new TypeInstanceProviderRegistry();
     private final HashMap<String, TypeInstanceProvider> providerMap = new HashMap<>();
-    private final HashMap<String, String> typeNameMap = new HashMap<>();
 
     private TypeInstanceProviderRegistry() {
         if (INSTANCE != null) {
@@ -40,7 +39,7 @@ public class TypeInstanceProviderRegistry {
         return INSTANCE;
     }
 
-    public TypeInstanceProvider findTypeProvider(String type) {
+    TypeInstanceProvider findTypeProvider(String type) {
         TypeInstanceProvider provider = providerMap.get(type);
         if (provider == null) {
             provider = generateProvider(type);
@@ -62,12 +61,6 @@ public class TypeInstanceProviderRegistry {
         if (isClassLoadable(type)) {
             className = type;
         }
-        if (className == null) {
-            className = typeNameMap.get(type);
-        }
-        if (className == null) {
-            return null;
-        }
         return new TypeInstanceProviderFactory().createProvider(className);
     }
 
@@ -85,23 +78,14 @@ public class TypeInstanceProviderRegistry {
         providerMap.put(provider.getTypeName(), provider);
     }
 
-    public void addTypeNameMapping(String typeName, String fullQClassName) {
-        this.typeNameMap.put(typeName, fullQClassName);
-    }
-
-    public void clearTypeNameMappings() {
-        typeNameMap.clear();
-    }
-
-
     /**
      * Provide instance of arrays of given type.
      */
-    public static class ArrayInstanceProvider implements TypeInstanceProvider {
+    static class ArrayInstanceProvider implements TypeInstanceProvider {
         final String type;
         private TypeInstanceProvider typeProvider;
 
-        public ArrayInstanceProvider(String type) {
+        ArrayInstanceProvider(String type) {
             this.type = type;
             typeProvider = INSTANCE.findTypeProvider(type);
 

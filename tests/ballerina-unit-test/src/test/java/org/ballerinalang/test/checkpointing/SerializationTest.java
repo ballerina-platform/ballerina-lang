@@ -92,7 +92,8 @@ public class SerializationTest {
         WorkerExecutionContext weContext = new WorkerExecutionContext(compileResult.getProgFile());
         State state = new State(weContext, INSTANCE_ID);
         PersistenceStore.persistState(state);
-        Assert.assertTrue(serializedString.contains(INSTANCE_ID));
+
+        Assert.assertTrue(storageProvider.state.contains(INSTANCE_ID));
     }
 
     @Test(description = "Test case for JsonSerializer for both serialization and deserialization using mocked WorkerExecutionContext object.")
