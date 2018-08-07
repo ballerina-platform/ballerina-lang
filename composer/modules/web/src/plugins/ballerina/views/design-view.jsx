@@ -35,7 +35,14 @@ class DesignView extends React.Component {
         super(props);
         this.state = {
             isTransformActive: false,
+            dragging: false,
+            zoom: 1,
         };
+        this.zoomInHandle = this.zoomInHandle.bind(this);
+        this.zoomOutHandle = this.zoomOutHandle.bind(this);
+        this.zoomFitHandle = this.zoomFitHandle.bind(this);
+        this.mouseUpHandle = this.mouseUpHandle.bind(this);
+        this.mouseMoveHandle = this.mouseMoveHandle.bind(this);
         this.overlayContainer = undefined;
         this.diagramContainer = undefined;
         this.toolPaletteContainer = undefined;
@@ -67,10 +74,20 @@ class DesignView extends React.Component {
         };
     }
 
+    componentDidMount() {
+        window.addEventListener('mouseup', this.mouseUpHandle);
+        window.addEventListener('mousemove', this.mouseMoveHandle);
+    }
+
     shouldComponentUpdate(nextProps, nextState) {
         // Always re render when transform is active
         // Otherwise don't rerender for panel resizings
         return !nextProps.panelResizeInProgress || nextState.isTransformActive;
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('mouseup', this.mouseUpHandle);
+        window.removeEventListener('mousemove', this.mouseMoveHandle);
     }
 
     onScroll(e) {
@@ -132,7 +149,7 @@ class DesignView extends React.Component {
         return this.diagramContainer;
     }
 
-    getGraphicalEditorContainer () {
+    getGraphicalEditorContainer() {
         return this.graphicalEditorContainer;
     }
 
@@ -154,6 +171,61 @@ class DesignView extends React.Component {
 
     getToolPaletteContainer() {
         return this.toolPaletteContainer;
+    }
+
+    mouseUpHandle(event) {
+        if (this.state.dragging) {
+            this.diagramContainer.classList.remove('grabbing');
+
+            this.state.dragging = false;
+            this.setState(this.state);
+        }
+    }
+
+    mouseDownHandle(event) {
+        if (!this.state.dragging) {
+            this.state.dragging = true;
+            this.setState(this.state);
+            this.lastClientX = event.clientX;
+            this.lastClientY = event.clientY;
+
+            this.diagramContainer.classList.add('grabbing');
+            event.preventDefault();
+        }
+    }
+
+    mouseMoveHandle(event) {
+        if (this.state.dragging) {
+            this.diagramContainer.classList.add('grabbing');
+
+            const valueX = (this.scrollbars.getScrollLeft() - (-this.lastClientX + (this.lastClientX = event.clientX)));
+            const valueY = (this.scrollbars.getScrollTop() - (-this.lastClientY + (this.lastClientY = event.clientY)));
+
+            this.scrollbars.scrollLeft(valueX);
+            this.scrollbars.scrollTop(valueY);
+        }
+    }
+
+    zoomInHandle() {
+        this.setState({
+            zoom: this.state.zoom + 0.1,
+        });
+    }
+
+    zoomFitHandle() {
+        this.setState({
+            zoom: 1,
+        });
+    }
+
+    zoomOutHandle(event) {
+        const scaleRatio = this.state.zoom - 0.1;
+
+        if (scaleRatio >= 1) {
+            this.setState({
+                zoom: scaleRatio,
+            });
+        }
     }
 
     render() {
@@ -178,12 +250,16 @@ class DesignView extends React.Component {
                 <div className='outerCanvasDiv'>
                     <DragLayer />
                     <DiagramMenu
-                            width={this.props.width}
-                            model={this.props.model}
-                            onModeChange={(data) => { this.props.onModeChange(data); }}
-                            onCodeExpandToggle={(data) => { this.props.onCodeExpandToggle(data); }}
-                            editMode={this.props.editMode}
-                            mode={this.props.mode} />
+                        width={this.props.width}
+                        model={this.props.model}
+                        onModeChange={(data) => { this.props.onModeChange(data); }}
+                        onCodeExpandToggle={(data) => { this.props.onCodeExpandToggle(data); }}
+                        zoomInHandle={(e) => { this.zoomInHandle(e); }}
+                        zoomOutHandle={(e) => { this.zoomOutHandle(e); }}
+                        zoomFitHandle={(e) => { this.zoomFitHandle(e); }}
+                        editMode={this.props.editMode}
+                        mode={this.props.mode}
+                    />
                     <Scrollbars
                         style={{
                             width: this.props.width,
@@ -195,12 +271,14 @@ class DesignView extends React.Component {
                         renderTrackHorizontal={props => <div {...props} className='scrollbar scrollbar-track-horizontal' />}
                         ref={(scrollbars) => { this.scrollbars = scrollbars; }}
                         onScrollFrame={this.onScroll}
+                        onMouseUp={(e) => { this.mouseUpHandle(e); }}
+                        onMouseDown={(e) => { this.mouseDownHandle(e); }}
                     >
                         <div className='canvas-container'>
                             <div className='canvas-top-controls-container' />
                             <div className='html-overlay' ref={this.setOverlayContainer} />
                             <div className='graphical-editor' ref={this.setGraphicalEditorContainer} />
-                            <div className='diagram root' ref={this.setDiagramContainer} >
+                            <div className='diagram root grabbable' ref={this.setDiagramContainer} >
                                 {this.props.model &&
                                     <DesignViewErrorBoundary>
                                         <BallerinaDiagram
@@ -210,6 +288,7 @@ class DesignView extends React.Component {
                                             height={this.props.height}
                                             disabled={this.props.disabled}
                                             editMode={this.props.editMode}
+                                            zoom={this.state.zoom}
                                         />
                                         <GraphicalEditor
                                             model={this.props.model}
@@ -250,6 +329,7 @@ DesignView.propTypes = {
     zoomLevel: PropTypes.number,
     setZoom: PropTypes.func.isRequired,
     editMode: PropTypes.bool,
+    mode: PropTypes.string.isRequired,
 };
 
 DesignView.defaultProps = {
