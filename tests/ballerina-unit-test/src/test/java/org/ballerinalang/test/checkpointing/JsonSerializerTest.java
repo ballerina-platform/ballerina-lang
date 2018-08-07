@@ -231,6 +231,25 @@ public class JsonSerializerTest {
         Assert.assertTrue(array1[1] == array1[2]);
     }
 
+    @Test(description = "Test deserialization of StringFieldA[][]")
+    public void testJsonDeserializeArrayOfArrayOfStringFieldA() {
+        StringFieldA sf0 = new StringFieldA("A");
+        StringFieldA sf1 = new StringFieldA("B");
+        StringFieldA[][] array = { new StringFieldA[]{sf0, sf1, sf1}, new StringFieldA[]{sf0, sf1, sf1}};
+
+        String serialize = new JsonSerializer().serialize(array);
+        Object deserialize = new JsonSerializer().deserialize(serialize.getBytes(), StringFieldA[][].class);
+
+        StringFieldA[][] array1 = (StringFieldA[][]) deserialize;
+        Assert.assertEquals(array1.length, array.length);
+        Assert.assertEquals(array1[0][0].A, "A");
+        Assert.assertEquals(array1[0][1].A, "B");
+        Assert.assertEquals(array1[0][2].A, "B");
+        Assert.assertEquals(array1[1][0].A, "A");
+        Assert.assertEquals(array1[1][1].A, "B");
+        Assert.assertEquals(array1[1][2].A, "B");
+    }
+
     private Map mockComplexKeyMap() {
         Map<StringFieldA, String> map = new HashMap<>();
         map.put(new StringFieldA("Key1"), "Key1");
