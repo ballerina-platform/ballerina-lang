@@ -1393,10 +1393,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangHaving having) {
-        ExpressionNode expressionNode = having.getExpression();
-        if (expressionNode != null) {
-            ((BLangExpression) expressionNode).accept(this);
-        }
+        // Note: Some stream attributes might not be resolved at this phase. Therefore, skipping this phase.
     }
 
     @Override
