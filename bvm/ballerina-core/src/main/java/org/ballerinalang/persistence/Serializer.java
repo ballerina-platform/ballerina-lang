@@ -22,7 +22,7 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.persistence.serializable.serializer.JsonSerializer;
-import org.ballerinalang.persistence.serializable.serializer.StateSerializer;
+import org.ballerinalang.persistence.serializable.serializer.ObjectToJsonSerializer;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ public class Serializer {
 
     private static List<String> serializableClasses = new ArrayList<>();
 
-    private static StateSerializer stateSerializer = new JsonSerializer();
+    private static ObjectToJsonSerializer stateSerializer = new JsonSerializer();
 
     static {
         serializableClasses.add(String.class.getName());
@@ -62,7 +62,7 @@ public class Serializer {
         return serializableClasses.contains(o.getClass().getName());
     }
 
-    public static StateSerializer getStateSerializer() {
+    public static ObjectToJsonSerializer getStateSerializer() {
         return stateSerializer;
     }
 }

@@ -54,7 +54,7 @@ import java.util.Map;
 /**
  * Serialize @{@link SerializableState} into JSON and back.
  */
-public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer, BValueSerializer {
+public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer {
 
     private final IdentityHashMap<Object, Object> identityMap = new IdentityHashMap<>();
     private final BValueProvider bValueProvider = BValueProvider.getInstance();
@@ -71,14 +71,6 @@ public class JsonSerializer implements StateSerializer, ObjectToJsonSerializer, 
 
     private String getBValuePackagePath() {
         return BValue.class.getPackage().getName();
-    }
-
-    @Override
-    public byte[] serialize(SerializableState sState) {
-        BRefType<?> jsonState = toBValue(sState, SerializableState.class);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        jsonState.serialize(outputStream);
-        return outputStream.toByteArray();
     }
 
     @Override
