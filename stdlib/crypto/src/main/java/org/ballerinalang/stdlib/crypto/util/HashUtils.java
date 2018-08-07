@@ -47,15 +47,15 @@ public class HashUtils {
      *
      * @param hexString A String containing hexadecimal digits
      * @return A byte array containing binary data decoded from the supplied string.
-     * @throws BallerinaHashException Thrown if an odd number or illegal of characters is supplied
+     * @throws IllegalArgumentException Thrown if an odd number or illegal number of characters is supplied
      */
-    public static byte[] decodeHex(String hexString) throws BallerinaHashException {
+    public static byte[] decodeHex(String hexString) throws IllegalArgumentException {
         char[] data = hexString.toCharArray();
 
         final int len = data.length;
 
         if ((len & 0x01) != 0) {
-            throw new BallerinaHashException("Odd number of characters.");
+            throw new IllegalArgumentException("Odd number of characters.");
         }
 
         final byte[] out = new byte[len >> 1];
@@ -79,12 +79,12 @@ public class HashUtils {
      * @param ch A character to convert to an integer digit
      * @param index The index of the character in the source
      * @return An integer
-     * @throws BallerinaHashException Thrown if ch is an illegal hex character
+     * @throws IllegalArgumentException Thrown if ch is an illegal hex character
      */
-    private static int toDigit(final char ch, final int index) throws BallerinaHashException {
+    private static int toDigit(final char ch, final int index) throws IllegalArgumentException {
         final int digit = Character.digit(ch, 16);
         if (digit == -1) {
-            throw new BallerinaHashException("Illegal hexadecimal character " + ch + " at index " + index);
+            throw new IllegalArgumentException("Illegal hexadecimal character " + ch + " at index " + index);
         }
         return digit;
     }
