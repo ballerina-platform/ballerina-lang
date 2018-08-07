@@ -56,9 +56,9 @@ public class WebSubWithSecretTestCase extends WebSubBaseTest {
     private static String hubUrl = "https://localhost:9292/websub/hub";
     private static final String INTENT_VERIFICATION_SUBSCRIBER_LOG = "\"Intent verified for subscription request\"";
     private static final String INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_LOG =
-            "WebSub Notification Received: {\"action\":\"publish\",\"mode\":\"internal-hub\"}";
+            "WebSub Notification Received: {\"action\":\"publish\", \"mode\":\"internal-hub\"}";
     private static final String REMOTE_HUB_NOTIFICATION_SUBSCRIBER_LOG =
-            "WebSub Notification Received: {\"action\":\"publish\",\"mode\":\"remote-hub\"}";
+            "WebSub Notification Received: {\"action\":\"publish\", \"mode\":\"remote-hub\"}";
 
     private LogLeecher intentVerificationLogLeecher = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_LOG);
     private LogLeecher internalHubNotificationLogLeecher = new LogLeecher(INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_LOG);

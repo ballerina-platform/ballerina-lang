@@ -51,4 +51,8 @@ public class JMSClientHandler {
         ballerinaClient.removeAllLeechers();
         ballerinaClient.stopServer();
     }
+
+    public void clean() {
+        ballerinaClient.cleanup();
+    }
 }

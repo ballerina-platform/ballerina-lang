@@ -49,17 +49,32 @@ class EndpointAggregatorUtil {
         const visibleOuterEndpoints = TreeUtil.getAllEndpoints(node.parent);
         const invocationStmts = [];
 
-        node.body.accept({
-            beginVisit: (statement) => {
-                if (TreeUtil.isInvocation(statement) && statement.actionInvocation) {
-                    if (!TreeUtil.statementIsClientResponder(statement)) {
-                        invocationStmts.push(statement);
+        if (node.workers && node.workers.length > 0) {
+            // aggregate worker invocation statements
+            node.workers.forEach((workerNode) => {
+                workerNode.body.accept({
+                    beginVisit: (statement) => {
+                        if (TreeUtil.isInvocation(statement) && statement.actionInvocation) {
+                            if (!TreeUtil.statementIsClientResponder(statement)) {
+                                invocationStmts.push(statement);
+                            }
+                        }
+                    },
+                    endVisit: (statement) => {},
+                });
+            });
+        } else {
+            node.body.accept({
+                beginVisit: (statement) => {
+                    if (TreeUtil.isInvocation(statement) && statement.actionInvocation) {
+                        if (!TreeUtil.statementIsClientResponder(statement)) {
+                            invocationStmts.push(statement);
+                        }
                     }
-                }
-            },
-            endVisit: (statement) => {},
-        });
-
+                },
+                endVisit: (statement) => {},
+            });
+        }
         node.endpointNodes = _.filter(node.endpointNodes, (endpoint) => {
             return endpoint.id;
         });

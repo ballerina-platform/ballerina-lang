@@ -36,9 +36,9 @@ import java.util.Map;
 @Test(groups = "http-test")
 public class RoutingServiceSampleTestCase extends BaseTest {
     private final String requestNyseMessage = "{\"name\":\"nyse\"}";
-    private final String responseNyseMessage = "{\"exchange\":\"nyse\",\"name\":\"IBM\",\"value\":\"127.50\"}";
+    private final String responseNyseMessage = "{\"exchange\":\"nyse\", \"name\":\"IBM\", \"value\":\"127.50\"}";
     private final String requestNasdaqMessage = "{\"name\":\"nasdaq\"}";
-    private final String responseNasdaqMessage = "{\"exchange\":\"nasdaq\",\"name\":\"IBM\",\"value\":\"127.50\"}";
+    private final String responseNasdaqMessage = "{\"exchange\":\"nasdaq\", \"name\":\"IBM\", \"value\":\"127.50\"}";
 
     private final int servicePort = 9114;
 

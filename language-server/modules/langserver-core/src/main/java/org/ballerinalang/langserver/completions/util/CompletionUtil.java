@@ -22,7 +22,6 @@ import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
-import org.ballerinalang.langserver.completions.resolvers.TopLevelResolver;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -38,27 +37,22 @@ import java.util.concurrent.locks.Lock;
  * Common utility methods for the completion operation.
  */
 public class CompletionUtil {
-    // In case of there are any specific error scenarios, then the fallback BLang package will be used
-    // to get completions
     /**
      * Resolve the visible symbols from the given BLang Package and the current context.
+     * 
      * @param completionContext     Completion Service Context
-     * @param bLangPackage          BLang Package
      */
-    public static void resolveSymbols(LSServiceOperationContext completionContext, BLangPackage bLangPackage) {
+    public static void resolveSymbols(LSServiceOperationContext completionContext) {
         // Visit the package to resolve the symbols
         TreeVisitor treeVisitor = new TreeVisitor(completionContext);
+        BLangPackage bLangPackage = completionContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         bLangPackage.accept(treeVisitor);
         completionContext.put(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY, bLangPackage);
-
-        if (completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY) == null) {
-            treeVisitor.populateSymbols(treeVisitor.resolveAllVisibleSymbols(treeVisitor.getSymbolEnv()),
-                    treeVisitor.getSymbolEnv());
-        }
     }
 
     /**
      * Get the completion Items for the context.
+     * 
      * @param completionContext     Completion context
      * @return {@link List}         List of resolved completion Items
      */
@@ -67,13 +61,7 @@ public class CompletionUtil {
         BLangNode symbolEnvNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
 
         try {
-            if (symbolEnvNode instanceof BLangPackage) {
-                return CompletionItemResolver.getResolverByClass(TopLevelResolver.class)
-                        .resolveItems(completionContext);
-            } else {
-                return CompletionItemResolver.getResolverByClass(symbolEnvNode.getClass())
-                        .resolveItems(completionContext);
-            }
+            return CompletionItemResolver.getResolverByClass(symbolEnvNode.getClass()).resolveItems(completionContext);
         } catch (Exception | AssertionError e) {
             return new ArrayList<>();
         }
@@ -81,6 +69,7 @@ public class CompletionUtil {
 
     /**
      * From the source, extract the line segment for the current cursor position's line.
+     * 
      * @param context           Service Operation context
      * @return {@link String}   Extracted line segment
      */
@@ -97,8 +86,8 @@ public class CompletionUtil {
         String[] splitContent = fileContent.split(CommonUtil.LINE_SEPARATOR_SPLIT);
         if (splitContent.length < line) {
             return "";
-        } else {
-            return splitContent[line];
         }
+
+        return splitContent[line];
     }
 }

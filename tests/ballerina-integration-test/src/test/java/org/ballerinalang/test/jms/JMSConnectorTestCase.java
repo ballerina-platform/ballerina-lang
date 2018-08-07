@@ -156,6 +156,7 @@ public class JMSConnectorTestCase extends BaseTest {
     @AfterClass()
     private void cleanup() throws Exception {
         embeddedBroker.stop();
+        clientHandler.clean();
     }
 
     private void waitForText(LogLeecher logLeecher, TimeUnit timeUnit, int length) throws BallerinaTestException {

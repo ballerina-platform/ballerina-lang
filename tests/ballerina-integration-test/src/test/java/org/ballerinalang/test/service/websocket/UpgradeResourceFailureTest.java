@@ -29,13 +29,11 @@ import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.ballerinalang.test.service.websocket.WebSocketIntegrationTest.TIMEOUT_IN_SECS;
-
 /**
  * Test whether upgrade resource failure after handshake causes a close frame to be sent.
  */
 @Test(groups = "websocket-test")
-public class UpgradeResourceFailureTest {
+public class UpgradeResourceFailureTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
     private static final String URL = "ws://localhost:9097/simple7";

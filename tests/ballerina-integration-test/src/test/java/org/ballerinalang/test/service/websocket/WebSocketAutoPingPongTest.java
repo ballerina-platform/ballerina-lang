@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
  * This Class tests auto ping pong support of WebSocket client server if there's no onPing resource.
  */
 @Test(groups = "websocket-test")
-public class WebSocketAutoPingPongTest extends WebSocketIntegrationTest {
+public class WebSocketAutoPingPongTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
     private static final String URL = "ws://localhost:9100/test/without/ping/resource";

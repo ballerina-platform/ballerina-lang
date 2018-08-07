@@ -23,7 +23,6 @@ import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BIterator;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
@@ -399,22 +398,6 @@ public class BTestRunner {
                             args[j] = bNewArray.getBValue(j);
                         }
                         argsList.add(args);
-                    } else {
-                        // cannot happen due to validations done at annotation processor
-                    }
-                }
-            } else if (value instanceof BJSON) {
-                BJSON jsonArrayOfArrays = (BJSON) value;
-                for (BIterator it = jsonArrayOfArrays.newIterator(); it.hasNext(); ) {
-                    BValue[] vals = it.getNext(0);
-                    if (vals[1] instanceof BJSON) {
-                        List<BValue> args = new ArrayList<>();
-                        BJSON jsonArray = (BJSON) vals[1];
-                        for (BIterator it2 = jsonArray.newIterator(); it2.hasNext(); ) {
-                            BValue[] vals2 = it2.getNext(0);
-                            args.add(vals2[1]);
-                        }
-                        argsList.add(args.toArray(new BValue[0]));
                     } else {
                         // cannot happen due to validations done at annotation processor
                     }

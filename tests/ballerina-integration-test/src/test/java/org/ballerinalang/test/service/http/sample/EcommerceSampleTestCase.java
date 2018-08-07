@@ -57,8 +57,8 @@ public class EcommerceSampleTestCase extends BaseTest {
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString()),
                 TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
-        Assert.assertEquals(response.getData(), "{\"Order\":{\"ID\":\"111999\",\"Name\":\"ABC123\"," +
-                        "\"Description\":\"Sample order.\"}}", "Message content mismatched");
+        Assert.assertEquals(response.getData(), "{\"Order\":{\"ID\":\"111999\", \"Name\":\"ABC123\", " +
+                "\"Description\":\"Sample order.\"}}", "Message content mismatched");
     }
 
     @Test(description = "Test resource GET customers in E-Commerce sample")
@@ -68,7 +68,7 @@ public class EcommerceSampleTestCase extends BaseTest {
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString()),
                 TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
-        Assert.assertEquals(response.getData(), "{\"Customer\":{\"ID\":\"987654\",\"Name\":\"ABC PQR\"," +
+        Assert.assertEquals(response.getData(), "{\"Customer\":{\"ID\":\"987654\", \"Name\":\"ABC PQR\", " +
                         "\"Description\":\"Sample Customer.\"}}", "Message content mismatched");
     }
 

@@ -26,13 +26,11 @@ import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.ballerinalang.test.service.websocket.WebSocketIntegrationTest.TIMEOUT_IN_SECS;
-
 /**
  * Test WebSocket Path and Query Parameters.
  */
 @Test(groups = "websocket-test")
-public class WebSocketQueryAndPathParamSupportTestCase {
+public class WebSocketQueryAndPathParamSupportTestCase extends WebSocketTestCommons {
 
     @Test(description = "Tests path and query parameters support for WebSockets in Ballerina")
     public void testPathAndQueryParams() throws URISyntaxException, InterruptedException {

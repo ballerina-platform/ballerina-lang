@@ -19,7 +19,6 @@
 package org.ballerinalang.test.service.websocket;
 
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
-import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
@@ -32,20 +31,18 @@ import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.ballerinalang.test.service.websocket.WebSocketIntegrationTest.TIMEOUT_IN_SECS;
-
 /**
  * Test whether the errors are received correctly to the onError resource in WebSocket server.
  */
 @Test(groups = "websocket-test")
-public class OnErrorWebSocketTest extends BaseTest {
+public class OnErrorWebSocketTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
     private static final String URL = "ws://localhost:9094/error/ws";
     private LogLeecher logLeecher;
 
     @BeforeClass(description = "Initializes the Ballerina server with the error_log_service.bal file")
-    public void setup() throws InterruptedException, BallerinaTestException, URISyntaxException {
+    public void setup() throws InterruptedException, URISyntaxException {
         String expectingErrorLog = "error occurred: received continuation data frame outside fragmented message";
         logLeecher = new LogLeecher(expectingErrorLog);
         serverInstance.addLogLeecher(logLeecher);
@@ -70,7 +67,7 @@ public class OnErrorWebSocketTest extends BaseTest {
     }
 
     @AfterClass(description = "Stops the Ballerina server")
-    public void cleanup() throws BallerinaTestException, InterruptedException {
+    public void cleanup() throws InterruptedException {
         client.shutDown();
     }
 }

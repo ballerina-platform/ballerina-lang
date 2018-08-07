@@ -60,7 +60,7 @@ public class HTTPClientActionsTestCase extends BaseTest {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
                 "test2/clientPostWithBody"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "Sample TextSample Xml{\"name\":\"apple\",\"color\":\"red\"}",
+        Assert.assertEquals(response.getData(), "Sample TextSample Xml{\"name\":\"apple\", \"color\":\"red\"}",
                 "Message content mismatched");
     }
 

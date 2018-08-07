@@ -104,7 +104,7 @@ public class HTTPVerbsPassthruTestCases extends BaseTest {
 
     @Test(description = "Test HTTP data binding with JSON payload with URL. /getQuote/employee")
     public void testDataBindingJsonPayload() throws IOException {
-        String payload = "{\"name\":\"WSO2\",\"team\":\"ballerina\"}";
+        String payload = "{\"name\":\"WSO2\", \"team\":\"ballerina\"}";
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);
         HttpResponse response = HttpClientRequest.doPost(
@@ -124,7 +124,7 @@ public class HTTPVerbsPassthruTestCases extends BaseTest {
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 400, "Response code mismatched");
         Assert.assertTrue(response.getData()
-                .contains("data binding failed: Error in reading payload : failed to create json: unrecognized " +
+                .contains("data binding failed: Error in reading payload : unrecognized " +
                         "token 'name:WSO2,team:ballerina'"));
     }
 }

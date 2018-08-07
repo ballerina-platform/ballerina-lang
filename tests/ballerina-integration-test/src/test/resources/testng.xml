@@ -36,6 +36,12 @@
         </packages>
     </test>
 
+    <test name="ballerina-resiliency-tests" parallel="false">
+        <packages>
+            <package name="org.ballerinalang.test.service.resiliency"/>
+        </packages>
+    </test>
+
     <test name="ballerina-http2-tests" parallel="false">
         <packages>
             <package name="org.ballerinalang.test.service.http2"/>
@@ -122,5 +128,10 @@
             <class name="org.ballerinalang.test.service.websub.WebSubSubscriptionChangeTestCase"/>
             <class name="org.ballerinalang.test.service.websub.WebSubWithSecretTestCase"/>
         </classes>
+    </test>
+    <test name="ballerina-data-streaming-tests">
+        <packages>
+            <package name="org.ballerinalang.test.data.streaming"/>
+        </packages>
     </test>
 </suite>

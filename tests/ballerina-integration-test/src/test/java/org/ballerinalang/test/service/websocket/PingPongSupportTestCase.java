@@ -32,14 +32,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.ballerinalang.test.service.websocket.WebSocketIntegrationTest.REMOTE_SERVER_PORT;
-import static org.ballerinalang.test.service.websocket.WebSocketIntegrationTest.TIMEOUT_IN_SECS;
-
 /**
  * This Class tests ping pong support of WebSocket client and server.
  */
 @Test(groups = "websocket-test")
-public class PingPongSupportTestCase {
+public class PingPongSupportTestCase extends WebSocketTestCommons {
 
     private WebSocketRemoteServer remoteServer;
     private WebSocketTestClient client;

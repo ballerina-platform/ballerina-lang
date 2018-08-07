@@ -30,14 +30,11 @@ import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.ballerinalang.test.service.websocket.WebSocketIntegrationTest.REMOTE_SERVER_PORT;
-import static org.ballerinalang.test.service.websocket.WebSocketIntegrationTest.TIMEOUT_IN_SECS;
-
 /**
  * This Class tests receiving and sending of custom headers by Ballerina WebSocket client.
  */
 @Test(groups = "websocket-test")
-public class CustomHeaderClientSupportTest {
+public class CustomHeaderClientSupportTest extends WebSocketTestCommons {
 
     private WebSocketRemoteServer remoteServer;
     private WebSocketTestClient client;

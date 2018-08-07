@@ -33,6 +33,7 @@ import java.io.IOException;
  */
 @Test(groups = "http-test")
 public class PassthroughServiceSampleTestCase extends BaseTest {
+    private final String responseMessage = "{\"exchange\":\"nyse\", \"name\":\"IBM\", \"value\":\"127.50\"}";
 
     @Test(description = "Test Passthrough sample test case invoking base path")
     public void testPassthroughServiceByBasePath() throws IOException {
@@ -40,7 +41,6 @@ public class PassthroughServiceSampleTestCase extends BaseTest {
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString()),
                 TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
-        String responseMessage = "{\"exchange\":\"nyse\",\"name\":\"IBM\",\"value\":\"127.50\"}";
         Assert.assertEquals(response.getData(), responseMessage, "Message content mismatched");
     }
 }

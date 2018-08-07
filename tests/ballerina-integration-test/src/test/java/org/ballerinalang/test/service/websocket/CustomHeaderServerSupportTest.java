@@ -30,13 +30,11 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.ballerinalang.test.service.websocket.WebSocketIntegrationTest.TIMEOUT_IN_SECS;
-
 /**
  * This Class tests receiving and sending of custom headers by Ballerina WebSocket server.
  */
 @Test(groups = "websocket-test")
-public class CustomHeaderServerSupportTest {
+public class CustomHeaderServerSupportTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
     private static final String URL = "ws://localhost:9093/simple3/custom/header/server";

@@ -38,13 +38,13 @@ public class HttpHeaderTestCases extends BaseTest {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "product/value"));
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "{\"header1\":\"aaa\",\"header2\":\"bbb\"}");
+        Assert.assertEquals(response.getData(), "{\"header1\":\"aaa\", \"header2\":\"bbb\"}");
     }
 
     @Test(description = "Test inbound response headers availability with URL. /product/id")
     public void testInboundResponseHeaders() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort, "product/id"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "{\"header1\":\"kkk\",\"header2\":\"jjj\"}");
+        Assert.assertEquals(response.getData(), "{\"header1\":\"kkk\", \"header2\":\"jjj\"}");
     }
 }

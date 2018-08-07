@@ -448,10 +448,6 @@ h6,
     display: none;
 }
 
-.SplitPane .vertical {
-    overflow: hidden;
-}
-
 .swagger-container .SplitPane .Pane2 {
     overflow: scroll;
     padding-bottom: 40px;
@@ -477,18 +473,21 @@ h6,
     padding: 4px 35px 0 30px !important;
     margin: 0 !important;
     background-color: #e7eaeb !important;
-    box-shadow: 0px 1px 2px 0 rgba(34, 36, 38, 0.15) !important;
+    box-shadow: 0px 1px 2px 0 rgba(34, 36, 38, .15) !important;
     min-height: 3.4rem !important;
     &.hidden {
         display: none !important;
     }
     .top-bar {
         >.ui.label {
+            &>.icon {
+                margin-right: .4em;
+            }
             &>span {
-                vertical-align: text-top;
+                vertical-align: top;
             }
             &>.detail {
-                margin-left: 0.5em;
+                margin-left: .2em;
             }
         }
         &.mobile-top-bar {
@@ -514,6 +513,21 @@ h6,
     }
     .definitions-menu {
         margin-top: 6px !important;
+    }
+}
+
+.definitions-popup-window .definitions-popup-window-header {
+    >.ui.label {
+        padding: 0;
+        &>.icon {
+            margin-right: .4em;
+        }
+        &>span {
+            vertical-align: top;
+        }
+        &>.detail {
+            margin-left: .2em;
+        }
     }
 }
 

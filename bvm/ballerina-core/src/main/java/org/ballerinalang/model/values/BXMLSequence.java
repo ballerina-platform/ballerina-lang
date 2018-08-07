@@ -352,9 +352,9 @@ public final class BXMLSequence extends BXML<BRefValueArray> {
      * {@inheritDoc}
      */
     @Override
-    public void serializeData(OutputStream outputStream) {
+    public void serialize(OutputStream outputStream) {
         for (int i = 0; i < sequence.size(); i++) {
-            ((BXML<?>) sequence.get(i)).serializeData(outputStream);
+            ((BXML<?>) sequence.get(i)).serialize(outputStream);
         }
     }
 
