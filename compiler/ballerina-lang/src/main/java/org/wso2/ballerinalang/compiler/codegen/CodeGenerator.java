@@ -1622,7 +1622,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add local variable indexes to the parameters and return parameters
         visitInvokableNodeParams(invokableNode.symbol, callableUnitInfo, localVarAttributeInfo);
 
-        if(invokableNode.pos != null) {
+        if (invokableNode.pos != null) {
             localVarAttributeInfo.localVars.forEach(param -> {
                 param.scopeStartLineNumber = invokableNode.pos.sLine;
                 param.scopeEndLineNumber = invokableNode.pos.eLine;
@@ -2894,7 +2894,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         generateFinallyInstructions(abortNode, NodeKind.TRANSACTION);
         this.emit(abortInstructions.peek());
     }
-    
+
     public void visit(BLangDone doneNode) {
         generateFinallyInstructions(doneNode, NodeKind.DONE);
         this.emit(InstructionCodes.HALT);
@@ -3570,11 +3570,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         paramAttrInfo.defaultableParamsCount = invokableNode.defaultableParams.size();
         paramAttrInfo.restParamCount = invokableNode.restParam != null ? 1 : 0;
         callableUnitInfo.addAttributeInfo(AttributeInfo.Kind.PARAMETERS_ATTRIBUTE, paramAttrInfo);
-        
+
         // Add parameter default values
         addParameterDefaultValues(invokableNode, callableUnitInfo);
     }
-    
+
     private void addParameterDefaultValues(BLangInvokableNode invokableNode, CallableUnitInfo callableUnitInfo) {
         int paramDefaultsAttrNameIndex =
                 addUTF8CPEntry(currentPkgInfo, AttributeInfo.Kind.PARAMETER_DEFAULTS_ATTRIBUTE.value());

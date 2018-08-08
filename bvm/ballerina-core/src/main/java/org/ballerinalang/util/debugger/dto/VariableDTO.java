@@ -94,4 +94,27 @@ public class VariableDTO {
     public String toString() {
         return "(" + scope + ") " + name + " = " + value + " {" + type + "}";
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        VariableDTO var = (VariableDTO) o;
+        return scope.equals(var.scope) && name.equals(var.name) && type.equals(var.type) &&
+                (value != null ? value.equals(var.value) : var.value == null);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = scope.hashCode();
+        result = 31 * result + name.hashCode();
+        result = 31 * result + type.hashCode();
+        result = 31 * result + (value != null ? value.hashCode() : 0);
+        return result;
+    }
 }
