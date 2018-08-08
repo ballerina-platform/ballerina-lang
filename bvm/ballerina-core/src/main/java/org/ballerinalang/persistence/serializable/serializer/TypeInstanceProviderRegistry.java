@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.persistence.serializable.serializer;
 
-import org.ballerinalang.util.exceptions.BallerinaException;
-
 import java.lang.reflect.Array;
 import java.util.HashMap;
 

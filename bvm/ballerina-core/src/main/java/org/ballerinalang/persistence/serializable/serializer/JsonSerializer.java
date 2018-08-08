@@ -47,6 +47,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +58,7 @@ import java.util.Map;
 public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer {
 
     private final IdentityHashMap<Object, Object> identityMap = new IdentityHashMap<>();
+    private final HashSet<String> repeatedReferenceSet = new HashSet<>();
     private final BValueProvider bValueProvider = BValueProvider.getInstance();
     private final String bValuePackagePath;
 
@@ -79,12 +81,42 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
             return null;
         }
         BRefType<?> jsonObj = toBValue(object, object.getClass());
+        trimTree(jsonObj);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         jsonObj.serialize(outputStream);
         try {
             return outputStream.toString("UTF-8");
         } catch (UnsupportedEncodingException e) {
             throw new BallerinaException(e);
+        }
+    }
+
+    /**
+     * Walk the object graph and remove the HASH code from nodes that does not repeat.
+     *
+     * @param jsonObj
+     */
+    @SuppressWarnings("unchecked")
+    private void trimTree(BValue jsonObj) {
+        if (jsonObj == null) {
+            return;
+        }
+        if (jsonObj instanceof BMap) {
+            BMap map = (BMap) jsonObj;
+            BString bHashCode = (BString) map.get(JsonSerializerConst.HASH_TAG);
+            if (bHashCode != null) {
+                String hashCode = bHashCode.stringValue();
+                if (!repeatedReferenceSet.contains(hashCode)) {
+                    map.remove(JsonSerializerConst.HASH_TAG);
+                }
+            }
+            trimTree(map.get(JsonSerializerConst.PAYLOAD_TAG));
+        }
+        if (jsonObj instanceof BRefValueArray) {
+            BRefValueArray array = (BRefValueArray) jsonObj;
+            for (int i = 0; i < array.size(); i++) {
+                trimTree(array.get(i));
+            }
         }
     }
 
@@ -242,7 +274,7 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
 
     private BMap convertReferenceSemanticObject(Object obj, Class<?> leftSideType) {
         if (identityMap.containsKey(obj)) {
-            return getExistingReference(obj);
+            return createExistingReferenceNode(obj);
         }
         identityMap.put(obj, obj);
 
@@ -314,9 +346,11 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         map.put(JsonSerializerConst.HASH_TAG, getHashCode(obj));
     }
 
-    private BMap<String, BValue> getExistingReference(Object obj) {
+    private BMap<String, BValue> createExistingReferenceNode(Object obj) {
         BMap<String, BValue> map = new BMap<>();
-        map.put(JsonSerializerConst.EXISTING_TAG, getHashCode(obj));
+        BString hashCode = getHashCode(obj);
+        map.put(JsonSerializerConst.EXISTING_TAG, hashCode);
+        repeatedReferenceSet.add(hashCode.stringValue());
         return map;
     }
 

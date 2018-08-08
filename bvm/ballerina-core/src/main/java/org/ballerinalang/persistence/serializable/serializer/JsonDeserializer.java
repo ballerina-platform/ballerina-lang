@@ -154,6 +154,7 @@ class JsonDeserializer implements BValueDeserializer {
 
     /**
      * Try to find existing object if possible.
+     *
      * @param jBMap
      * @return
      */
@@ -271,7 +272,7 @@ class JsonDeserializer implements BValueDeserializer {
 
     private Object deserializeArray(BRefValueArray bNewArray, Object destinationArray) {
         Class<?> componentType = destinationArray.getClass().getComponentType();
-        for(int i = 0; i < bNewArray.size(); i++) {
+        for (int i = 0; i < bNewArray.size(); i++) {
             Object obj = deserialize(bNewArray.get(i), componentType);
             if (componentType == int.class && obj instanceof Long) {
                 Array.set(destinationArray, i, ((Long) obj).intValue());
