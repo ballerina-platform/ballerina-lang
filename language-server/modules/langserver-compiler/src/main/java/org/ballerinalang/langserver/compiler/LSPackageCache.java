@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Package context to keep the builtin and the current package.
@@ -107,6 +108,7 @@ public class LSPackageCache {
             super(context);
             Cache<String, BLangPackage> cache = CacheBuilder.newBuilder().maximumSize(MAX_CACHE_COUNT).build();
             this.packageMap = cache.asMap();
+            this.packageSymbolMap = new ConcurrentHashMap<>();
         }
 
         public Map<String, BLangPackage> getMap() {
@@ -122,11 +124,18 @@ public class LSPackageCache {
                         this.packageMap.remove(entry.getKey());
                     }
                 });
+                this.packageSymbolMap.entrySet().forEach(entry -> {
+                    String alias = packageID.getName().toString();
+                    if (entry.getKey().contains(alias + ":") || entry.getKey().contains(alias)) {
+                        this.packageSymbolMap.remove(entry.getKey());
+                    }
+                });
             }
         }
         
         public void clearCache() {
             this.packageMap.clear();
+            this.packageSymbolMap.clear();
         }
     }
 }
