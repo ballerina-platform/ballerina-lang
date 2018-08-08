@@ -106,7 +106,7 @@ public class ServerInstance implements Server {
      * Starts the ballerina server instance along with checking the given http port for availability before starting
      * the server.
      * @param balFile - path of the ballerina distribution (zip).
-     * @param httpServerPort - the http port to check before starting the server instance.
+     * @param httpServerPort - the http port to check for availability before starting the server instance.
      * @throws BallerinaTestException If any exception is thrown when starting the ballerina server
      */
     public void startBallerinaServer(String balFile, int httpServerPort) throws BallerinaTestException {
@@ -123,6 +123,15 @@ public class ServerInstance implements Server {
         startServer();
     }
 
+    /**
+     * Starts the ballerina server instance along with checking the given http port for availability before starting
+     * the server.
+     *
+     * @param balFile - path of the ballerina distribution (zip).
+     * @param args - additional arguments to be used with starting the server.
+     * @param httpServerPort - the http port to check for availability before starting the server instance.
+     * @throws BallerinaTestException If any exception is thrown when starting the ballerina server
+     */
     public void startBallerinaServer(String balFile, String[] args, int httpServerPort) throws BallerinaTestException {
         this.httpServerPort = httpServerPort;
         startBallerinaServer(balFile, args);

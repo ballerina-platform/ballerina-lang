@@ -81,6 +81,9 @@ public class ServerLogReader implements Runnable {
         leechers.add(leecher);
     }
 
+    /**
+     * Removes all added log leechers from this instance.
+     */
     public void removeAllLeechers() {
         leechers.forEach(e -> leechers.remove(e));
     }
