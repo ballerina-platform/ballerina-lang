@@ -18,10 +18,13 @@
 package org.ballerinalang.persistence.serializable.serializer;
 
 /**
- * Implementors of this interface provide plugable mechanisms to deserialize some specified type of objects.
+ * Implementors of this interface provide plugable mechanisms to create instance of some specified type of objects.
+ * These instances are then used to populate that object's fields reflectively.
  */
 public interface TypeInstanceProvider {
     String getTypeName();
+
     Object newInstance();
+
     Class getTypeClass();
 }

@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.persistence.serializable.serializer;
 
+import org.ballerinalang.util.exceptions.BallerinaException;
+
 import java.lang.reflect.Array;
 import java.util.HashMap;
 
@@ -37,7 +39,7 @@ class TypeInstanceProviderRegistry {
         return INSTANCE;
     }
 
-    TypeInstanceProvider findTypeProvider(String type) {
+    TypeInstanceProvider findInstanceProvider(String type) {
         TypeInstanceProvider provider = providerMap.get(type);
         if (provider != null) {
             return provider;
@@ -56,7 +58,8 @@ class TypeInstanceProviderRegistry {
             addTypeProvider(provider);
             return provider;
         }
-        return null;
+        throw new BallerinaException(String.format(
+                "Can not find or create type instance provider for: %s", type));
     }
 
     private ArrayInstanceProvider tryCreateArrayInstanceProvider(String type) {
@@ -64,11 +67,10 @@ class TypeInstanceProviderRegistry {
     }
 
     private TypeInstanceProvider generateProvider(String type) {
-        String className = null;
         if (isClassLoadable(type)) {
-            className = type;
+            return new TypeInstanceProviderFactory().createProvider(type);
         }
-        return new TypeInstanceProviderFactory().createProvider(className);
+        return null;
     }
 
     private boolean isClassLoadable(String type) {
@@ -94,7 +96,7 @@ class TypeInstanceProviderRegistry {
 
         ArrayInstanceProvider(String type) {
             this.type = type;
-            typeProvider = INSTANCE.findTypeProvider(type);
+            typeProvider = INSTANCE.findInstanceProvider(type);
         }
 
         @Override

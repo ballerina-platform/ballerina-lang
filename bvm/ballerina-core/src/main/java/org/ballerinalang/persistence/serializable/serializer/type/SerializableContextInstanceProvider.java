@@ -29,7 +29,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 public class SerializableContextInstanceProvider implements TypeInstanceProvider {
     @Override
     public String getTypeName() {
-        return SerializableContext.class.getSimpleName();
+        return SerializableContext.class.getName();
     }
 
     @Override

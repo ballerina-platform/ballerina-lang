@@ -250,6 +250,20 @@ public class JsonSerializerTest {
         Assert.assertEquals(array1[1][2].A, "B");
     }
 
+    @Test(description = "Test deserialization of class with a array field")
+    public void testJsonDeserializeClassWithArrayField() {
+        ArrayField af = new ArrayField(new int[]{1,2,3,4});
+
+        String serialize = new JsonSerializer().serialize(af);
+        Object deserialize = new JsonSerializer().deserialize(serialize.getBytes(), ArrayField.class);
+
+        ArrayField temp = (ArrayField) deserialize;
+        Assert.assertEquals(temp.array[0], 1);
+        Assert.assertEquals(temp.array[1], 2);
+        Assert.assertEquals(temp.array[2], 3);
+        Assert.assertEquals(temp.array[3], 4);
+    }
+
     private Map mockComplexKeyMap() {
         Map<StringFieldA, String> map = new HashMap<>();
         map.put(new StringFieldA("Key1"), "Key1");
@@ -272,6 +286,14 @@ public class JsonSerializerTest {
         public StringFieldAB(String a, String b) {
             super(a);
             this.B = b;
+        }
+    }
+
+    public static class ArrayField {
+        public int[] array;
+
+        public ArrayField(int[] array) {
+            this.array = array;
         }
     }
 }

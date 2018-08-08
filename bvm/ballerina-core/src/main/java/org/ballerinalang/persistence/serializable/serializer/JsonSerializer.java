@@ -60,7 +60,7 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
     private final IdentityHashMap<Object, Object> identityMap = new IdentityHashMap<>();
     private final HashSet<String> repeatedReferenceSet = new HashSet<>();
     private final BValueProvider bValueProvider = BValueProvider.getInstance();
-    private final String bValuePackagePath;
+    private static final String bValuePackagePath = getBValuePackagePath();
 
     public JsonSerializer() {
         bValueProvider.register(new NumericBValueProviders.BigIntegerBValueProvider());
@@ -68,10 +68,9 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         bValueProvider.register(new BStringBValueProvider());
         bValueProvider.register(new BRefValueArrayBValueProvider());
         bValueProvider.register(new BMapBValueProvider());
-        bValuePackagePath = getBValuePackagePath();
     }
 
-    private String getBValuePackagePath() {
+    private static String getBValuePackagePath() {
         return BValue.class.getPackage().getName();
     }
 
@@ -221,7 +220,7 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
     }
 
     private BMap toBValue(Enum obj) {
-        String fullEnumName = obj.getClass().getSimpleName() + "." + obj.toString();
+        String fullEnumName = getTrimmedClassName(obj) + "." + obj.toString();
         BString name = new BString(fullEnumName);
         return wrapObject(JsonSerializerConst.ENUM_TAG, name);
     }
@@ -308,12 +307,12 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         return map;
     }
 
-    private String getTrimmedClassName(Object obj) {
+    static String getTrimmedClassName(Object obj) {
         Class<?> clazz = obj.getClass();
         return getTrimmedClassName(clazz);
     }
 
-    private String getTrimmedClassName(Class<?> clazz) {
+    static String getTrimmedClassName(Class<?> clazz) {
         String className = clazz.getName();
         // if obj is a BValue, trim fully qualified name to class name.
         if (BValue.class.isAssignableFrom(clazz) && className.startsWith(bValuePackagePath)) {

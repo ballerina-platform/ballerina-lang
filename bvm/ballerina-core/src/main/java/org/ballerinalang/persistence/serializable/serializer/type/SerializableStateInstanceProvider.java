@@ -25,7 +25,7 @@ import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProvide
  */
 public class SerializableStateInstanceProvider implements TypeInstanceProvider {
 
-    private static final String name = SerializableState.class.getSimpleName();
+    private static final String name = SerializableState.class.getName();
 
     @Override
     public String getTypeName() {

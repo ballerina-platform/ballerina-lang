@@ -28,7 +28,7 @@ import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProvide
 public class SerializableWorkerDataInstanceProvider implements TypeInstanceProvider {
     @Override
     public String getTypeName() {
-        return SerializableWorkerData.class.getSimpleName();
+        return SerializableWorkerData.class.getName();
     }
 
     @Override

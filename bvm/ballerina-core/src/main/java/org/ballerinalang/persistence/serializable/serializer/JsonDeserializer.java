@@ -21,7 +21,6 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
@@ -50,21 +49,21 @@ import java.util.Map;
  * Reconstruct Java object tree from JSON input.
  */
 class JsonDeserializer implements BValueDeserializer {
-    private final TypeInstanceProviderRegistry typeInstanceProviderRegistry;
-    private final BValueProvider bValueProvider;
     private static final Logger logger = LoggerFactory.getLogger(JsonDeserializer.class);
-    private final HashMap<String, Object> identityMap = new HashMap<>();
+    private final TypeInstanceProviderRegistry instanceProviderRegistry;
+    private final BValueProvider bValueProvider;
+    private final HashMap<String, Object> identityMap;
     private BRefType<?> treeHead;
 
     JsonDeserializer(BRefType<?> objTree) {
         treeHead = objTree;
-        typeInstanceProviderRegistry = TypeInstanceProviderRegistry.getInstance();
+        instanceProviderRegistry = TypeInstanceProviderRegistry.getInstance();
         bValueProvider = BValueProvider.getInstance();
-        registerTypeSerializationProviders(typeInstanceProviderRegistry);
-
+        identityMap = new HashMap<>();
+        registerTypeInstanceProviders(instanceProviderRegistry);
     }
 
-    private void registerTypeSerializationProviders(TypeInstanceProviderRegistry registry) {
+    private void registerTypeInstanceProviders(TypeInstanceProviderRegistry registry) {
         registry.addTypeProvider(new SerializableStateInstanceProvider());
         registry.addTypeProvider(new SerializableWorkerDataInstanceProvider());
         registry.addTypeProvider(new SerializableContextInstanceProvider());
@@ -88,8 +87,8 @@ class JsonDeserializer implements BValueDeserializer {
             addIdentity(jBMap, obj);
             return obj;
         }
-        if (jValue instanceof BNewArray) {
-            return deserializeArray((BNewArray) jValue, targetType);
+        if (jValue instanceof BRefValueArray) {
+            return deserializeBRefValueArray((BRefValueArray) jValue, targetType);
         }
         if (jValue instanceof BString) {
             return jValue.stringValue();
@@ -110,25 +109,61 @@ class JsonDeserializer implements BValueDeserializer {
                 String.format("Unknown BValue type to deserialize: %s", jValue.getClass().getSimpleName()));
     }
 
-    private Object deserialize(BMap<String, BValue> jBMap, Class<?> targetType) {
-        Object object = findExisting(jBMap);
-        if (object != null) {
-            return object;
+    /**
+     * Create and populate array using {@param valueArray} and target type.
+     *
+     * @param valueArray
+     * @param targetType
+     * @return
+     */
+    private Object deserializeBRefValueArray(BRefValueArray valueArray, Class<?> targetType) {
+        BRefValueArray jArray = valueArray;
+        int size = (int) jArray.size();
+        Object target = Array.newInstance(targetType.getComponentType(), size);
+        return deserializeBRefValueArray(jArray, target);
+    }
+
+    /**
+     * Populate array using {@param valueArray} provided instance or array object.
+     *
+     * @param valueArray
+     * @param destinationArray
+     * @return
+     */
+    private Object deserializeBRefValueArray(BRefValueArray valueArray, Object destinationArray) {
+        Class<?> componentType = destinationArray.getClass().getComponentType();
+        for (int i = 0; i < valueArray.size(); i++) {
+            Object obj = deserialize(valueArray.get(i), componentType);
+            if (componentType == int.class && obj instanceof Long) {
+                Array.set(destinationArray, i, ((Long) obj).intValue());
+            } else {
+                Array.set(destinationArray, i, obj);
+            }
         }
+        return destinationArray;
+    }
+
+    private Object deserialize(BMap<String, BValue> jBMap, Class<?> targetType) {
+        Object existingReference = findExistingReference(jBMap);
+        if (existingReference != null) {
+            return existingReference;
+        }
+
         // try BValueProvider
         String typeName = getTargetTypeName(targetType, jBMap);
         if (typeName != null) {
             SerializationBValueProvider provider = this.bValueProvider.find(typeName);
             if (provider != null) {
-                return provider.toObject(jBMap, (BValueDeserializer) this);
+                return provider.toObject(jBMap, this);
             }
         }
 
         Object emptyInstance = createInstance(jBMap, targetType);
         addIdentity(jBMap, emptyInstance);
-        object = deserializeObject(jBMap, emptyInstance, targetType);
-        // check to make sure deserializeObject does not return a new object other than populating 'emptyInstance'
-        // we need it to return the same object so that we know object identity for handling #existing# objects.
+        Object object = deserializeObject(jBMap, emptyInstance, targetType);
+
+        // check to make sure deserializeObject returns the populated 'emptyInstance'.
+        // It's important  that it does not create own objects as it may interfere with handling of existing references.
         if (object != emptyInstance) {
             throw new BallerinaException("Internal error: deserializeObject should not create it's own objects.");
         }
@@ -136,9 +171,9 @@ class JsonDeserializer implements BValueDeserializer {
     }
 
     private String getTargetTypeName(Class<?> targetType, BMap<String, BValue> jBMap) {
-        BValue typeVal = jBMap.get(JsonSerializerConst.TYPE_TAG);
-        if (typeVal != null) {
-            return typeVal.stringValue();
+        BValue jType = jBMap.get(JsonSerializerConst.TYPE_TAG);
+        if (jType != null) {
+            return jType.stringValue();
         } else if (targetType != null) {
             return targetType.getName();
         }
@@ -152,34 +187,12 @@ class JsonDeserializer implements BValueDeserializer {
         }
     }
 
-    /**
-     * Try to find existing object if possible.
-     *
-     * @param jBMap
-     * @return
-     */
-    private Object findExisting(BMap<String, BValue> jBMap) {
+    private Object findExistingReference(BMap<String, BValue> jBMap) {
         BValue existingKey = jBMap.get(JsonSerializerConst.EXISTING_TAG);
         if (existingKey != null) {
             return identityMap.get(existingKey.stringValue());
         }
         return null;
-    }
-
-    private Object deserializeArray(BNewArray jArray, Class<?> targetType) {
-        // if this break point hits some time, it indicate that this method is being used.
-        int arrayLen = (int) jArray.size();
-        Object[] array = new Object[arrayLen];
-        for (int i = 0; i < arrayLen; i++) {
-            BValue bValue = jArray.getBValue(i);
-            Class itemType = Object.class;
-            if (bValue instanceof BMap) {
-                String typeName = ((BMap) bValue).get("type").stringValue();
-                itemType = findClass(typeName);
-            }
-            array[i] = deserialize(jArray.getBValue(i), itemType);
-        }
-        return array;
     }
 
     /**
@@ -196,7 +209,7 @@ class JsonDeserializer implements BValueDeserializer {
         if (typeNode != null) {
             String type = typeNode.stringValue();
             if (type.equals(JsonSerializerConst.ARRAY_TAG)) {
-                return createArrayFrom(type, target, jsonNode);
+                return createArrayInstance(type, target, jsonNode);
             }
             return getObjectOf(type);
         }
@@ -206,7 +219,7 @@ class JsonDeserializer implements BValueDeserializer {
         return null;
     }
 
-    private Object createArrayFrom(String type, Class<?> target, BMap<String, BValue> jsonNode) {
+    private Object createArrayInstance(String type, Class<?> target, BMap<String, BValue> jsonNode) {
         BString ct = (BString) jsonNode.get(JsonSerializerConst.COMPONENT_TYPE);
         String componentType = ct.stringValue();
         BRefValueArray array = (BRefValueArray) jsonNode.get(JsonSerializerConst.PAYLOAD_TAG);
@@ -221,15 +234,17 @@ class JsonDeserializer implements BValueDeserializer {
 
     private Object createEnumInstance(BMap jsonNode) {
         String enumName = jsonNode.get("payload").stringValue();
-        String[] frag = enumName.split("\\.");
-        String type = frag[0];
-        Class enumClass = typeInstanceProviderRegistry.findTypeProvider(type).getTypeClass();
-        String enumConst = frag[1];
+        int separatorPos = enumName.lastIndexOf(".");
+        String type = enumName.substring(0, separatorPos);
+        String enumConst = enumName.substring(separatorPos + 1);
+
+        Class enumClass = instanceProviderRegistry.findInstanceProvider(type).getTypeClass();
         return Enum.valueOf(enumClass, enumConst);
     }
 
     private Object getObjectOf(Class<?> clazz) {
-        TypeInstanceProvider typeProvider = typeInstanceProviderRegistry.findTypeProvider(clazz.getSimpleName());
+        String className = JsonSerializer.getTrimmedClassName(clazz);
+        TypeInstanceProvider typeProvider = instanceProviderRegistry.findInstanceProvider(className);
         if (typeProvider != null) {
             return clazz.cast(typeProvider.newInstance());
         }
@@ -237,7 +252,7 @@ class JsonDeserializer implements BValueDeserializer {
     }
 
     private Object getObjectOf(String type) {
-        TypeInstanceProvider typeProvider = typeInstanceProviderRegistry.findTypeProvider(type);
+        TypeInstanceProvider typeProvider = instanceProviderRegistry.findInstanceProvider(type);
         if (typeProvider != null) {
             return typeProvider.newInstance();
         }
@@ -252,11 +267,11 @@ class JsonDeserializer implements BValueDeserializer {
             if (JsonSerializerConst.MAP_TAG.equals(objType)) {
                 return deserializeMap((BMap<String, BValue>) payload, (Map) object, targetType);
             } else if (JsonSerializerConst.LIST_TAG.equals(objType)) {
-                return deserializeList(payload, object, targetType);
+                return deserializeList(payload, (List) object, targetType);
             } else if (JsonSerializerConst.ENUM_TAG.equals(objType)) {
                 return object;
             } else if (JsonSerializerConst.ARRAY_TAG.equals(objType)) {
-                return deserializeArray((BRefValueArray) payload, object);
+                return deserializeBRefValueArray((BRefValueArray) payload, object);
             }
         }
         // if this is not a wrapped object
@@ -270,19 +285,6 @@ class JsonDeserializer implements BValueDeserializer {
         return object;
     }
 
-    private Object deserializeArray(BRefValueArray bNewArray, Object destinationArray) {
-        Class<?> componentType = destinationArray.getClass().getComponentType();
-        for (int i = 0; i < bNewArray.size(); i++) {
-            Object obj = deserialize(bNewArray.get(i), componentType);
-            if (componentType == int.class && obj instanceof Long) {
-                Array.set(destinationArray, i, ((Long) obj).intValue());
-            } else {
-                Array.set(destinationArray, i, obj);
-            }
-        }
-        return destinationArray;
-    }
-
     private void setFields(Object target, BMap<String, BValue> jMap, Class<?> targetClass) {
         for (Field field : targetClass.getDeclaredFields()) {
             BValue value = jMap.get(field.getName());
@@ -290,17 +292,7 @@ class JsonDeserializer implements BValueDeserializer {
             primeFinalFieldForAssignment(field);
             try {
                 Object newValue = cast(obj, field.getType());
-                if (newValue != null && field.getType().isArray()) {
-                    Object array;
-                    if (newValue instanceof List) {
-                        array = createArray(((List) newValue).toArray(), field.getType().getComponentType());
-                    } else {
-                        array = createArray((Object[]) newValue, field.getType().getComponentType());
-                    }
-                    field.set(target, array);
-                } else {
-                    field.set(target, newValue);
-                }
+                field.set(target, newValue);
             } catch (IllegalAccessException e) {
                 logger.warn(String.format(
                         "Cannot set field: %s, this probably is a final field \n" +
@@ -315,19 +307,6 @@ class JsonDeserializer implements BValueDeserializer {
                 setFields(target, jMap, targetClass.getSuperclass());
             }
         }
-    }
-
-    private Object createArray(Object[] array, Class<?> componentType) {
-        Object newArray = Array.newInstance(componentType, array.length);
-        for (int i = 0; i < array.length; i++) {
-            Object value = array[i];
-            if (componentType == int.class && value instanceof Long) {
-                Array.set(newArray, i, ((Long) value).intValue());
-            } else {
-                Array.set(newArray, i, value);
-            }
-        }
-        return newArray;
     }
 
     private void primeFinalFieldForAssignment(Field field) {
@@ -377,13 +356,13 @@ class JsonDeserializer implements BValueDeserializer {
         return obj;
     }
 
-    private Object deserializeList(BValue payload, Object targetList, Class<?> targetType) {
-        if (targetList instanceof List) {
-            List list = (List) targetList;
-            Object[] array = (Object[]) deserializeArray((BNewArray) payload, targetType);
-            for (int i = 0; i < array.length; i++) {
-                list.add(array[i]);
-            }
+    @SuppressWarnings("unchecked")
+    private Object deserializeList(BValue payload, List targetList, Class<?> targetType) {
+        BRefValueArray jArray = (BRefValueArray) payload;
+        Class<?> componentType = targetType.getComponentType();
+        for (int i = 0; i < jArray.size(); i++) {
+            Object item = deserialize(jArray.get(i), componentType);
+            targetList.add(item);
         }
         return targetList;
     }
@@ -448,7 +427,7 @@ class JsonDeserializer implements BValueDeserializer {
         if (provider != null) {
             return provider.getType();
         }
-        TypeInstanceProvider typeProvider = this.typeInstanceProviderRegistry.findTypeProvider(typeName);
+        TypeInstanceProvider typeProvider = this.instanceProviderRegistry.findInstanceProvider(typeName);
         return typeProvider.getTypeClass();
     }
 }

@@ -26,7 +26,7 @@ import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProvide
 public class SerializedKeyInstanceProvider implements TypeInstanceProvider {
     @Override
     public String getTypeName() {
-        return SerializedKey.class.getSimpleName();
+        return SerializedKey.class.getName();
     }
 
     @Override
