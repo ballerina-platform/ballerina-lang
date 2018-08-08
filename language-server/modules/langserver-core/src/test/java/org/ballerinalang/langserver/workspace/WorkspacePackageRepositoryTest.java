@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.workspace;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.compiler.workspace.repository.WorkspacePackageRepository;
@@ -54,7 +55,7 @@ public class WorkspacePackageRepositoryTest {
     }
 
     //@Test
-    public void testCompilePackageWithDirtyContent() {
+    public void testCompilePackageWithDirtyContent() throws WorkspaceDocumentException {
         Compiler compiler = Compiler.getInstance(prepareCompilerContext());
         BLangPackage packageNode = compiler.compile(pkg);
         Assert.assertEquals(packageNode.getFunctions().size(), 1,

@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.workspace;
 
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.testng.Assert;
@@ -43,7 +44,7 @@ public class WorkspaceDocumentManagerTest {
     }
 
     @Test
-    public void testFileOpenAndClose() {
+    public void testFileOpenAndClose() throws WorkspaceDocumentException {
         documentManager.openFile(FILE_PATH, FILE_CONTENT);
         Assert.assertTrue(documentManager.isFileOpen(FILE_PATH), "File should be opened in doc manager.");
         documentManager.closeFile(FILE_PATH);
@@ -51,7 +52,7 @@ public class WorkspaceDocumentManagerTest {
     }
 
     @Test
-    public void testFileUpdate() {
+    public void testFileUpdate() throws WorkspaceDocumentException {
         documentManager.openFile(FILE_PATH, FILE_CONTENT);
         Assert.assertEquals(documentManager.getFileContent(FILE_PATH), FILE_CONTENT,
                 "File content should not be updated by other means.");
