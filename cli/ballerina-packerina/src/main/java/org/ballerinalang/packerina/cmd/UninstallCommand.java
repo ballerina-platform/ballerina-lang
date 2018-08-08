@@ -25,12 +25,14 @@ import picocli.CommandLine;
 import java.io.PrintStream;
 import java.util.List;
 
+import static org.ballerinalang.packerina.cmd.Constants.UNINSTALL_COMMAND;
+
 /**
  * This class represents the "ballerina uninstall" command.
  *
  * @since 0.90
  */
-@CommandLine.Command(name = "uninstall", description = "uninstall packages from the user repository")
+@CommandLine.Command(name = UNINSTALL_COMMAND, description = "uninstall packages from the user repository")
 public class UninstallCommand implements BLauncherCmd {
 
     private static PrintStream outStream = System.err;
@@ -48,7 +50,7 @@ public class UninstallCommand implements BLauncherCmd {
     @Override
     public void execute() {
         if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "uninstall");
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(UNINSTALL_COMMAND);
             outStream.println(commandUsageInfo);
             return;
         }
@@ -66,7 +68,7 @@ public class UninstallCommand implements BLauncherCmd {
 
     @Override
     public String getName() {
-        return "uninstall";
+        return UNINSTALL_COMMAND;
     }
 
     @Override

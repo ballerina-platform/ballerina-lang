@@ -25,6 +25,7 @@ import picocli.CommandLine;
 import java.io.PrintStream;
 import java.util.List;
 
+import static org.ballerinalang.packerina.cmd.Constants.PUSH_COMMAND;
 import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
@@ -32,8 +33,8 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
  *
  * @since 0.964
  */
-@CommandLine.Command(name = "push", description = "pushes a package source and binaries available" +
-        "locally to ballerina central,")
+@CommandLine.Command(name = PUSH_COMMAND, description = "pushes a package source and binaries available locally to "
+        + "ballerina central,")
 public class PushCommand implements BLauncherCmd {
     private static PrintStream outStream = System.err;
     private CommandLine parentCmdParser;
@@ -60,7 +61,7 @@ public class PushCommand implements BLauncherCmd {
     @Override
     public void execute() {
         if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "push");
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(PUSH_COMMAND);
             outStream.println(commandUsageInfo);
             return;
         }
@@ -83,7 +84,7 @@ public class PushCommand implements BLauncherCmd {
 
     @Override
     public String getName() {
-        return "push";
+        return PUSH_COMMAND;
     }
 
     @Override

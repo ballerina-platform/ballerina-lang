@@ -27,12 +27,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static org.ballerinalang.packerina.cmd.Constants.BUILD_COMMAND;
+
 /**
  * This class represents the "ballerina build" command.
  *
  * @since 0.90
  */
-@CommandLine.Command(name = "build", description = "compile Ballerina program")
+@CommandLine.Command(name = BUILD_COMMAND, description = "build the Ballerina source")
 public class BuildCommand implements BLauncherCmd {
     private static final String USER_DIR = "user.dir";
     private static PrintStream outStream = System.err;
@@ -65,7 +67,7 @@ public class BuildCommand implements BLauncherCmd {
 
     public void execute() {
         if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "build");
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
             outStream.println(commandUsageInfo);
             return;
         }
@@ -100,7 +102,7 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public String getName() {
-        return "build";
+        return BUILD_COMMAND;
     }
 
     @Override

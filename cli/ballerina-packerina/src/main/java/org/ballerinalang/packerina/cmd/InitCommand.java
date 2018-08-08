@@ -40,10 +40,12 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.ballerinalang.packerina.cmd.Constants.INIT_COMMAND;
+
 /**
  * Init command for creating a ballerina project.
  */
-@CommandLine.Command(name = "init", description = "initialize ballerina project")
+@CommandLine.Command(name = INIT_COMMAND, description = "initialize ballerina project")
 public class InitCommand implements BLauncherCmd {
 
     public static final String DEFAULT_VERSION = "0.0.1";
@@ -74,7 +76,7 @@ public class InitCommand implements BLauncherCmd {
             Manifest manifest = null;
 
             if (helpFlag) {
-                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "init");
+                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(INIT_COMMAND);
                 outStream.println(commandUsageInfo);
                 return;
             }
@@ -162,7 +164,7 @@ public class InitCommand implements BLauncherCmd {
      */
     @Override
     public String getName() {
-        return "init";
+        return INIT_COMMAND;
     }
 
     /**

@@ -25,6 +25,7 @@ import picocli.CommandLine;
 import java.io.PrintStream;
 import java.util.List;
 
+import static org.ballerinalang.packerina.cmd.Constants.SEARCH_COMMAND;
 import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
@@ -32,7 +33,7 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
  *
  * @since 0.964
  */
-@CommandLine.Command(name = "search", description = "searches for packages within Ballerina Central")
+@CommandLine.Command(name = SEARCH_COMMAND, description = "searches for packages within Ballerina Central")
 public class SearchCommand implements BLauncherCmd {
     private static PrintStream outStream = System.err;
     private CommandLine parentCmdParser;
@@ -52,7 +53,7 @@ public class SearchCommand implements BLauncherCmd {
     @Override
     public void execute() {
         if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "search");
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(SEARCH_COMMAND);
             outStream.println(commandUsageInfo);
             return;
         }
@@ -76,7 +77,7 @@ public class SearchCommand implements BLauncherCmd {
 
     @Override
     public String getName() {
-        return "search";
+        return SEARCH_COMMAND;
     }
 
     @Override

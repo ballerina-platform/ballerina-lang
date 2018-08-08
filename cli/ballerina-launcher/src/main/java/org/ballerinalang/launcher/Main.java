@@ -188,7 +188,7 @@ public class Main {
     @CommandLine.Command(name = "run", description = "compile and run Ballerina program")
     private static class RunCmd implements BLauncherCmd {
 
-        @CommandLine.Parameters(index = "0..*", description = "arguments")
+        @CommandLine.Parameters(description = "arguments")
         private List<String> argList;
 
         @CommandLine.Option(names = {"--sourceroot"},
@@ -518,7 +518,7 @@ public class Main {
         @CommandLine.Option(names = { "--help", "-h", "?" }, hidden = true, description = "for more information")
         private boolean helpFlag;
 
-        @CommandLine.Option(names = "--debug <port>", description = "start Ballerina in remote debugging mode")
+        @CommandLine.Option(names = "--debug", description = "start Ballerina in remote debugging mode")
         private String debugPort;
 
         @CommandLine.Option(names = "--java.debug", hidden = true)

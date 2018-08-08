@@ -25,12 +25,14 @@ import picocli.CommandLine;
 import java.io.PrintStream;
 import java.util.List;
 
+import static org.ballerinalang.packerina.cmd.Constants.INSTALL_COMMAND;
+
 /**
  * This class represents the "ballerina install" command.
  *
  * @since 0.90
  */
-@CommandLine.Command(name = "install", description = "install packages to the home repository")
+@CommandLine.Command(name = INSTALL_COMMAND, description = "install packages to the home repository")
 public class InstallCommand implements BLauncherCmd {
 
     private static PrintStream outStream = System.err;
@@ -52,7 +54,7 @@ public class InstallCommand implements BLauncherCmd {
     @Override
     public void execute() {
         if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "install");
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(INSTALL_COMMAND);
             outStream.println(commandUsageInfo);
             return;
         }
@@ -69,7 +71,7 @@ public class InstallCommand implements BLauncherCmd {
 
     @Override
     public String getName() {
-        return "install";
+        return INSTALL_COMMAND;
     }
 
     @Override

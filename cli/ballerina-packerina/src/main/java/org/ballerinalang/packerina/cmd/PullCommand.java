@@ -34,6 +34,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.packerina.cmd.Constants.PULL_COMMAND;
 import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
@@ -41,7 +42,8 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
  *
  * @since 0.964
  */
-@CommandLine.Command(name = "pull", description = "downloads the package source and binaries from a remote repository,")
+@CommandLine.Command(name = PULL_COMMAND,
+                description = "downloads the package source and binaries from a remote repository,")
 public class PullCommand implements BLauncherCmd {
     private static PrintStream outStream = System.err;
     private CommandLine parentCmdParser;
@@ -61,7 +63,7 @@ public class PullCommand implements BLauncherCmd {
     @Override
     public void execute() {
         if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "pull");
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(PULL_COMMAND);
             outStream.println(commandUsageInfo);
             return;
         }
@@ -124,7 +126,7 @@ public class PullCommand implements BLauncherCmd {
 
     @Override
     public String getName() {
-        return "pull";
+        return PULL_COMMAND;
     }
 
     @Override

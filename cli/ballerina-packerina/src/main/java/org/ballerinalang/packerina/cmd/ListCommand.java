@@ -30,12 +30,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static org.ballerinalang.packerina.cmd.Constants.LIST_COMMAND;
+
 /**
  * This class represents the "ballerina list" command.
  *
  * @since 0.970
  */
-@CommandLine.Command(name = "list", description = "list dependencies of packages")
+@CommandLine.Command(name = LIST_COMMAND, description = "list dependencies of packages")
 public class ListCommand implements BLauncherCmd {
     private static final String USER_DIR = "user.dir";
     private static PrintStream outStream = System.err;
@@ -53,7 +55,7 @@ public class ListCommand implements BLauncherCmd {
 
     public void execute() {
         if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "list");
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(LIST_COMMAND);
             outStream.println(commandUsageInfo);
             return;
         }
@@ -81,7 +83,7 @@ public class ListCommand implements BLauncherCmd {
 
     @Override
     public String getName() {
-        return "list";
+        return LIST_COMMAND;
     }
 
     @Override
