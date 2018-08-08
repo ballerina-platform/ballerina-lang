@@ -1,0 +1,5 @@
+# Create a file named `secured_client_with_basic_auth.bal`, copy the code
+# into it, and use the `ballerina run` command to start the service.
+$ ballerina run secured_client_with_basic_auth.bal
+ballerina: started HTTPS/WSS endpoint 0.0.0.0:9090
+INFO  [] - Hello, World!!!
