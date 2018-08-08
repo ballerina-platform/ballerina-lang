@@ -101,6 +101,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.FROM;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FULL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUNCTION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUNCTION_INVOCATION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUNCTION_NAME_REFERENCE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUTURE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.GROUP;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.GT;
@@ -175,6 +176,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_LITERAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD_LITERAL_BODY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RESOURCE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RESOURCE_DEFINITION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.REST_PARAMETER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETRIES;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURNS;
@@ -356,6 +358,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .before(RETURN_TYPE).spaceIf(false)
                 .after(RETURN_TYPE).spaceIf(true)
                 .between(UNION_TYPE_NAME, IDENTIFIER).spaceIf(true)
+                .between(FUNCTION_NAME_REFERENCE, LEFT_PARENTHESIS).spaceIf(false)
 
                 .around(UNION_TYPE_NAME).spaceIf(false)
                 .between(TUPLE_TYPE_NAME, IDENTIFIER).spaceIf(true)
@@ -413,6 +416,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(ADD, FLOATING_POINT_LITERAL).spaceIf(false)
                 .between(SUB, FLOATING_POINT_LITERAL).spaceIf(false)
 
+                .between(SERVICE, IDENTIFIER).spaceIf(true)
                 .before(SERVICE_BODY).spaceIf(true)
                 .between(SERVICE, LT).spaceIf(false)
                 .before(SERVICE_ENDPOINT_ATTACHMENTS).spaceIf(true)
@@ -447,12 +451,13 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
 
                 .around(DECIMAL_INTEGER_LITERAL).spaceIf(false)
 
+                //ELLIPSIS operator
                 .between(ELLIPSIS, VARIABLE_REFERENCE_EXPRESSION).spaceIf(false)
                 .between(EXPRESSION, ELLIPSIS).spaceIf(false)
                 .between(ELLIPSIS, EXPRESSION).spaceIf(false)
                 .between(SIMPLE_LITERAL_EXPRESSION, ELLIPSIS).spaceIf(false)
                 .between(ELLIPSIS, SIMPLE_LITERAL_EXPRESSION).spaceIf(false)
-
+                .betweenInside(ELLIPSIS, IDENTIFIER, REST_PARAMETER).spaceIf(true)
 
                 .before(INDEX).spaceIf(false)
 
