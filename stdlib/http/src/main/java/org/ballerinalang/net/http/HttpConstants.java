@@ -80,6 +80,7 @@ public class HttpConstants {
 
     /* Annotations */
     public static final String ANN_NAME_RESOURCE_CONFIG = "ResourceConfig";
+    public static final String ANN_NAME_INTERRUPTIBLE = "Interruptible";
     public static final String ANN_RESOURCE_ATTR_METHODS = "methods";
     public static final String ANN_RESOURCE_ATTR_PATH = "path";
     public static final String ANN_RESOURCE_ATTR_BODY = "body";

@@ -92,7 +92,11 @@
             <class name="org.ballerinalang.test.security.HTTPResponseXMLSecurityTestCase"/>
         </classes>
     </test>
-
+    <test name="ballerina-checkpointing-tests" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.checkpointing.InterruptibleServiceTestCase"/>
+        </classes>
+    </test>
     <test name="ballerina-data-streaming-tests">
         <packages>
             <package name="org.ballerinalang.test.data.streaming"/>

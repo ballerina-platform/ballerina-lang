@@ -29,4 +29,10 @@ documentation {
     P{{name}} Name of the property
     R{{}} Value of the property if the property exists, an empty string otherwise
 }
+
 public extern function getProperty(@sensitive string name) returns (string);
+
+documentation {
+    Check point the current state of the execution.
+}
+public extern function checkpoint ();

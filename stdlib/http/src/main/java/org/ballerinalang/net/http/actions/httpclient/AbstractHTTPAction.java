@@ -22,7 +22,6 @@ import io.netty.handler.codec.EncoderException;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
-
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
@@ -32,7 +31,7 @@ import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
-import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.model.InterruptibleNativeCallableUnit;
 import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
@@ -80,7 +79,7 @@ import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
 /**
  * {@code AbstractHTTPAction} is the base class for all HTTP Connector Actions.
  */
-public abstract class AbstractHTTPAction implements NativeCallableUnit {
+public abstract class AbstractHTTPAction implements InterruptibleNativeCallableUnit {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTTPAction.class);
 
@@ -88,6 +87,16 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
     static {
         CACHE_BALLERINA_VERSION = System.getProperty(BALLERINA_VERSION);
+    }
+
+    @Override
+    public boolean persistBeforeOperation() {
+        return false;
+    }
+
+    @Override
+    public boolean persistAfterOperation() {
+        return false;
     }
 
     protected HttpCarbonMessage createOutboundRequestMsg(Context context) {

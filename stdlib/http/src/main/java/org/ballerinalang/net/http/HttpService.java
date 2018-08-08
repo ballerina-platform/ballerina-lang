@@ -39,9 +39,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_INTERRUPTIBLE;
 import static org.ballerinalang.net.http.HttpConstants.AUTO;
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
+import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
 
 /**
  * {@code HttpService} This is the http wrapper for the {@code Service} implementation.
@@ -69,6 +71,7 @@ public class HttpService implements Cloneable {
     private boolean keepAlive = true; //default behavior
     private String compression = AUTO; //default behavior
     private String hostName;
+    private boolean interruptible;
 
     protected HttpService(Service service) {
         this.balService = service;
@@ -126,6 +129,14 @@ public class HttpService implements Cloneable {
         return hostName;
     }
 
+    public boolean isInterruptible() {
+        return interruptible;
+    }
+
+    public void setInterruptible(boolean interruptible) {
+        this.interruptible = interruptible;
+    }
+
     public String getBasePath() {
         return basePath;
     }
@@ -177,6 +188,7 @@ public class HttpService implements Cloneable {
         List<String> basePathList = new ArrayList<>();
         HttpService httpService = new HttpService(service);
         Annotation serviceConfigAnnotation = getHttpServiceConfigAnnotation(service);
+        httpService.setInterruptible(hasInterruptibleAnnotation(service));
 
         if (serviceConfigAnnotation == null) {
             log.debug("serviceConfig not specified in the Service instance, using default base path");
@@ -302,6 +314,11 @@ public class HttpService implements Cloneable {
         }
 
         return annotationList.get(0);
+    }
+
+    protected static boolean hasInterruptibleAnnotation(Service service) {
+        List<Annotation> annotationList = service.getAnnotationList(PACKAGE_BALLERINA_BUILTIN, ANN_NAME_INTERRUPTIBLE);
+        return annotationList != null && !annotationList.isEmpty();
     }
 
     private String sanitizeBasePath(String basePath) {

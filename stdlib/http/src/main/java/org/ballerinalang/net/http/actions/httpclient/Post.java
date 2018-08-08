@@ -55,6 +55,10 @@ public class Post extends AbstractHTTPAction {
     }
 
     @Override
+    public boolean persistAfterOperation() {
+        return true;
+    }
+
     protected HttpCarbonMessage createOutboundRequestMsg(Context context) {
         HttpCarbonMessage outboundRequestMsg = super.createOutboundRequestMsg(context);
         outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD, HttpConstants.HTTP_METHOD_POST);

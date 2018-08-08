@@ -22,6 +22,10 @@ import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonGenerator;
+import org.ballerinalang.persistence.serializable.SerializableState;
+import org.ballerinalang.persistence.serializable.reftypes.Serializable;
+import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
+import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBRefArray;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
@@ -34,7 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @since 0.87
  */
-public class BRefValueArray extends BNewArray {
+public class BRefValueArray extends BNewArray implements Serializable {
 
     BRefType<?>[] values;
 
@@ -125,6 +129,11 @@ public class BRefValueArray extends BNewArray {
     @Override
     public BValue getBValue(long index) {
         return get(index);
+    }
+
+    @Override
+    public SerializableRefType serialize(SerializableState state) {
+        return new SerializableBRefArray(this, state);
     }
 
     public BRefType<?>[] getValues() {
