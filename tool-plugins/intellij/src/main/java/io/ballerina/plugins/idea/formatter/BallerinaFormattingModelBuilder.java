@@ -122,6 +122,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.INVOCATION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.INVOCATION_ARG;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.INVOCATION_ARG_LIST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.JOIN;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.JOIN_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.JSON;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LARROW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LAST;
@@ -204,6 +205,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.SUB;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TABLE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.THROW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TIMEOUT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TIMEOUT_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION_PROPERTY_INIT_STATEMENT_LIST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRIGGER_WORKER;
@@ -437,6 +439,8 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .before(CATCH_CLAUSE).spaceIf(true)
                 .before(CATCH_CLAUSES).spaceIf(true)
                 .before(FINALLY_CLAUSE).spaceIf(true)
+                .before(JOIN_CLAUSE).spaceIf(true)
+                .before(TIMEOUT_CLAUSE).spaceIf(true)
 
                 .before(ELSE_IF_CLAUSE).spaceIf(true)
                 .before(ELSE_CLAUSE).spaceIf(true)
