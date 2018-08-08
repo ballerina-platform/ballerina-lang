@@ -123,7 +123,11 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         if (source == null) {
             return null;
         }
-
+        // Json dictionaries only allow strings to be keys, hence we have to transform original Map
+        // so that we have some sort of Map<String, Value>.
+        // Transformation:
+        // extract non-string typed key[1] to a auxiliary dictionary
+        // as 'value' and have an auto-generated key[2] to represent the original complex key.
         BMap<String, BValue> target = new BMap<>();
         BMap<String, BValue> complexKeyMap = new BMap<>();
         for (Map.Entry<Object, Object> entry : source.entrySet()) {
@@ -139,7 +143,6 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         if (!complexKeyMap.isEmpty()) {
             target.put(JsonSerializerConst.COMPLEX_KEY_MAP_TAG, complexKeyMap);
         }
-        // due to type erasure any map<K, V> at runtime is just map<Object, Object>
         return wrapObject(JsonSerializerConst.MAP_TAG, target);
     }
 
@@ -205,20 +208,6 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         return wrapObject(JsonSerializerConst.LIST_TAG, array);
     }
 
-    private BMap<String, BValue> arrayToBValue(Object array) {
-        BRefValueArray bArray = new BRefValueArray(BTypes.typeAny);
-        int arrayLength = Array.getLength(array);
-        for (int i = 0; i < arrayLength; i++) {
-            bArray.append(toBValue(Array.get(array, i), null));
-        }
-
-        BMap bMap = wrapObject(JsonSerializerConst.ARRAY_TAG, bArray);
-        Class<?> componentType = array.getClass().getComponentType();
-        String trimmedName = getTrimmedClassName(componentType);
-        bMap.put(JsonSerializerConst.COMPONENT_TYPE, new BString(trimmedName));
-        return bMap;
-    }
-
     private BMap toBValue(Enum obj) {
         String fullEnumName = getTrimmedClassName(obj) + "." + obj.toString();
         BString name = new BString(fullEnumName);
@@ -271,6 +260,7 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         return convertReferenceSemanticObject(obj, leftSideType);
     }
 
+    @SuppressWarnings("unchecked")
     private BMap convertReferenceSemanticObject(Object obj, Class<?> leftSideType) {
         if (identityMap.containsKey(obj)) {
             return createExistingReferenceNode(obj);
@@ -280,13 +270,11 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         String className = getTrimmedClassName(obj);
         SerializationBValueProvider provider = bValueProvider.find(className);
         if (provider != null) {
-            @SuppressWarnings("unchecked")
             BMap<String, BValue> converted = (BMap<String, BValue>) provider.toBValue(obj, this);
             addHashValue(obj, converted);
             return converted;
         }
         if (obj instanceof Map) {
-            @SuppressWarnings("unchecked")
             BMap map = toBValue((Map) obj);
             addHashValue(obj, map);
             return map;
@@ -305,6 +293,20 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         BMap map = convertToBValueViaReflection(obj, leftSideType);
         addHashValue(obj, map);
         return map;
+    }
+
+    private BMap<String, BValue> arrayToBValue(Object array) {
+        BRefValueArray bArray = new BRefValueArray(BTypes.typeAny);
+        int arrayLength = Array.getLength(array);
+        for (int i = 0; i < arrayLength; i++) {
+            bArray.append(toBValue(Array.get(array, i), null));
+        }
+
+        BMap<String, BValue> bMap = wrapObject(JsonSerializerConst.ARRAY_TAG, bArray);
+        Class<?> componentType = array.getClass().getComponentType();
+        String trimmedName = getTrimmedClassName(componentType);
+        bMap.put(JsonSerializerConst.COMPONENT_TYPE, new BString(trimmedName));
+        return bMap;
     }
 
     static String getTrimmedClassName(Object obj) {
@@ -341,7 +343,7 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         return sb.toString();
     }
 
-    private void addHashValue(Object obj, BMap map) {
+    private void addHashValue(Object obj, BMap<String, BValue> map) {
         map.put(JsonSerializerConst.HASH_TAG, getHashCode(obj));
     }
 
@@ -373,6 +375,12 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         }
     }
 
+    /**
+     * Get all declared fields up until Object.
+     *
+     * @param clazz
+     * @return
+     */
     private List<Field> getAllFields(Class clazz) {
         ArrayList<Field> fields = Lists.newArrayList(clazz.getDeclaredFields());
         for (Class parent = clazz.getSuperclass(); parent != Object.class; parent = parent.getSuperclass()) {
@@ -381,7 +389,7 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         return fields;
     }
 
-    private BMap wrapObject(String type, BValue payload) {
+    private BMap<String, BValue> wrapObject(String type, BValue payload) {
         BMap<String, BValue> map = new BMap<>();
         map.put(JsonSerializerConst.TYPE_TAG, new BString(type));
         map.put(JsonSerializerConst.PAYLOAD_TAG, payload);

@@ -46,6 +46,7 @@ public class BRefValueArrayBValueProvider implements SerializationBValueProvider
         return BRefValueArray.class;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public BValue toBValue(Object object, BValueSerializer serializer) {
         if (object instanceof BRefValueArray) {

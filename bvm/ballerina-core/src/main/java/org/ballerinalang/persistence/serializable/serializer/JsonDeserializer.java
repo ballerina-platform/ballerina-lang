@@ -53,7 +53,7 @@ class JsonDeserializer implements BValueDeserializer {
     private final TypeInstanceProviderRegistry instanceProviderRegistry;
     private final BValueProvider bValueProvider;
     private final HashMap<String, Object> identityMap;
-    private BRefType<?> treeHead;
+    private final BRefType<?> treeHead;
 
     JsonDeserializer(BRefType<?> objTree) {
         treeHead = objTree;
@@ -117,10 +117,9 @@ class JsonDeserializer implements BValueDeserializer {
      * @return
      */
     private Object deserializeBRefValueArray(BRefValueArray valueArray, Class<?> targetType) {
-        BRefValueArray jArray = valueArray;
-        int size = (int) jArray.size();
+        int size = (int) valueArray.size();
         Object target = Array.newInstance(targetType.getComponentType(), size);
-        return deserializeBRefValueArray(jArray, target);
+        return deserializeBRefValueArray(valueArray, target);
     }
 
     /**
@@ -209,7 +208,7 @@ class JsonDeserializer implements BValueDeserializer {
         if (typeNode != null) {
             String type = typeNode.stringValue();
             if (type.equals(JsonSerializerConst.ARRAY_TAG)) {
-                return createArrayInstance(type, target, jsonNode);
+                return createArrayInstance(jsonNode);
             }
             return getObjectOf(type);
         }
@@ -219,19 +218,20 @@ class JsonDeserializer implements BValueDeserializer {
         return null;
     }
 
-    private Object createArrayInstance(String type, Class<?> target, BMap<String, BValue> jsonNode) {
+    private Object createArrayInstance(BMap<String, BValue> jsonNode) {
         BString ct = (BString) jsonNode.get(JsonSerializerConst.COMPONENT_TYPE);
         String componentType = ct.stringValue();
         BRefValueArray array = (BRefValueArray) jsonNode.get(JsonSerializerConst.PAYLOAD_TAG);
-        int size = Long.valueOf(array.size()).intValue();
+        int size = (int) array.size();
 
         Class<?> clazz = findClass(componentType);
         if (clazz != null) {
             return Array.newInstance(clazz, size);
         }
-        throw new BallerinaException("Can not create array instance of: " + type);
+        throw new BallerinaException("Can not create array instance of: " + componentType + "[]");
     }
 
+    @SuppressWarnings("unchecked")
     private Object createEnumInstance(BMap jsonNode) {
         String enumName = jsonNode.get("payload").stringValue();
         int separatorPos = enumName.lastIndexOf(".");
@@ -260,18 +260,18 @@ class JsonDeserializer implements BValueDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-    private Object deserializeObject(BMap<String, BValue> jsonNode, Object object, Class<?> targetType) {
+    private Object deserializeObject(BMap<String, BValue> jsonNode, Object instance, Class<?> targetType) {
         BValue payload = jsonNode.get("payload");
         if (jsonNode.get("type") != null) {
             String objType = jsonNode.get("type").stringValue();
             if (JsonSerializerConst.MAP_TAG.equals(objType)) {
-                return deserializeMap((BMap<String, BValue>) payload, (Map) object, targetType);
+                return deserializeMap((BMap<String, BValue>) payload, (Map) instance);
             } else if (JsonSerializerConst.LIST_TAG.equals(objType)) {
-                return deserializeList(payload, (List) object, targetType);
+                return deserializeList(payload, (List) instance, targetType);
             } else if (JsonSerializerConst.ENUM_TAG.equals(objType)) {
-                return object;
+                return instance;
             } else if (JsonSerializerConst.ARRAY_TAG.equals(objType)) {
-                return deserializeBRefValueArray((BRefValueArray) payload, object);
+                return deserializeBRefValueArray((BRefValueArray) payload, instance);
             }
         }
         // if this is not a wrapped object
@@ -280,9 +280,9 @@ class JsonDeserializer implements BValueDeserializer {
         }
         if (payload instanceof BMap) {
             BMap<String, BValue> jMap = (BMap<String, BValue>) payload;
-            setFields(object, jMap, object.getClass());
+            setFields(instance, jMap, instance.getClass());
         }
-        return object;
+        return instance;
     }
 
     private void setFields(Object target, BMap<String, BValue> jMap, Class<?> targetClass) {
@@ -367,10 +367,11 @@ class JsonDeserializer implements BValueDeserializer {
         return targetList;
     }
 
-    private Object deserializeMap(BMap<String, BValue> payload, Map map, Class<?> targetType) {
+    @SuppressWarnings("unchecked")
+    private Object deserializeMap(BMap<String, BValue> payload, Map target) {
         BValue complexKeyMap = payload.get(JsonSerializerConst.COMPLEX_KEY_MAP_TAG);
         if (complexKeyMap instanceof BMap) {
-            return deserializeComplexKeyMap((BMap<String, BValue>) complexKeyMap, payload, map);
+            return deserializeComplexKeyMap((BMap<String, BValue>) complexKeyMap, payload, target);
         }
 
         for (String key : payload.keys()) {
@@ -382,7 +383,6 @@ class JsonDeserializer implements BValueDeserializer {
 
             Class<?> fieldType = Object.class;
             if (value instanceof BMap) {
-                @SuppressWarnings("unchecked")
                 BMap<String, BValue> item = (BMap<String, BValue>) value;
                 BValue val = item.get(JsonSerializerConst.TYPE_TAG);
                 if (val != null) {
@@ -392,11 +392,12 @@ class JsonDeserializer implements BValueDeserializer {
             } else if (value instanceof BBoolean) {
                 fieldType = BBoolean.class;
             }
-            map.put(key, deserialize(value, fieldType));
+            target.put(key, deserialize(value, fieldType));
         }
-        return map;
+        return target;
     }
 
+    @SuppressWarnings("unchecked")
     private Object deserializeComplexKeyMap(BMap<String, BValue> complexKeyMap,
                                             BMap<String, BValue> payload, Map targetMap) {
         for (String key : payload.keys()) {
@@ -410,7 +411,6 @@ class JsonDeserializer implements BValueDeserializer {
 
             Class<?> fieldType = Object.class;
             if (value instanceof BMap) {
-                @SuppressWarnings("unchecked")
                 BMap<String, BValue> item = (BMap<String, BValue>) value;
                 String typeName = item.get(JsonSerializerConst.TYPE_TAG).stringValue();
                 fieldType = findClass(typeName);

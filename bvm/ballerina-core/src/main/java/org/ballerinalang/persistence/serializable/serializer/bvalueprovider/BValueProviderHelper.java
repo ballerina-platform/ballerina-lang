@@ -26,7 +26,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 /**
  * Hold useful helper functions used in mapping between Java objects and BValue objects.
  */
-public class BValueProviderHelper {
+class BValueProviderHelper {
     public static BallerinaException incorrectObjectType(Object target, String converterType) {
         return new BallerinaException(
                 String.format("Cannot convert %s using %s converter.",

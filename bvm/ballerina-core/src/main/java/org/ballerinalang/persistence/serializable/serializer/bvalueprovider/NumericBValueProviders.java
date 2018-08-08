@@ -35,7 +35,7 @@ public class NumericBValueProviders {
      * Convert {@link BigInteger} into {@link BValue} object and back to facilitate serialization.
      */
     public static class BigIntegerBValueProvider implements SerializationBValueProvider {
-        public static final String BIG_INT = BigInteger.class.getName();
+        static final String BIG_INT = BigInteger.class.getName();
 
         @Override
         public String typeName() {
@@ -74,7 +74,7 @@ public class NumericBValueProviders {
      * Provide mapping between {@link BigDecimal} and its {@link BValue} representation.
      */
     public static class BigDecimalBValueProvider implements SerializationBValueProvider {
-        public static final String BIG_DEC = BigDecimal.class.getName();
+        static final String BIG_DEC = BigDecimal.class.getName();
 
         @Override
         public String typeName() {

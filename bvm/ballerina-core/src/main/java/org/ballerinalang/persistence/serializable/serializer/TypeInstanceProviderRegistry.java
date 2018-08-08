@@ -92,7 +92,7 @@ class TypeInstanceProviderRegistry {
      */
     static class ArrayInstanceProvider implements TypeInstanceProvider {
         final String type;
-        TypeInstanceProvider typeProvider;
+        final TypeInstanceProvider typeProvider;
 
         ArrayInstanceProvider(String type) {
             this.type = type;
@@ -107,8 +107,7 @@ class TypeInstanceProviderRegistry {
         @Override
         public Object newInstance() {
             Class typeClass = typeProvider.getTypeClass();
-            Object array = Array.newInstance(typeClass, 0);
-            return array;
+            return Array.newInstance(typeClass, 0);
         }
 
         @Override
