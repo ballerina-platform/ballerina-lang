@@ -40,10 +40,11 @@ documentation {
 
     P{{baseString}} The string to be hashed
     P{{keyString}} The key string
+    P{{keyEncoding}} The encoding of the key
     P{{algorithm}} The hashing algorithm to be used
     R{{}} The hashed string
 }
-public extern function hmac(string baseString, string keyString, Algorithm algorithm) returns (string);
+public extern function hmac(string baseString, string keyString, string keyEncoding = "UTF-8", Algorithm algorithm) returns (string);
 
 documentation {
     Returns the CRC32 hash for the provided element. This accepts `string`, `byte[]`, `json` and `xml` content.
