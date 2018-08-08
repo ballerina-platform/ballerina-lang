@@ -84,8 +84,6 @@ public enum DiagnosticCode {
     INTEGER_TOO_SMALL("integer.too.small"),
     HEXADECIMAL_TOO_LARGE("hexadecimal.too.large"),
     HEXADECIMAL_TOO_SMALL("hexadecimal.too.small"),
-    OCTAL_TOO_LARGE("octal.too.large"),
-    OCTAL_TOO_SMALL("octal.too.small"),
     BINARY_TOO_LARGE("binary.too.large"),
     BINARY_TOO_SMALL("binary.too.small"),
 
