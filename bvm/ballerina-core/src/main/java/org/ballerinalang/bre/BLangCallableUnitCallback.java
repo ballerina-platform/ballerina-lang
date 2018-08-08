@@ -58,6 +58,7 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
 
     @Override
     public void notifyFailure(BMap<String, BValue> error) {
+        BLangScheduler.handleInterruptibleAfterCallback(this.parentCtx);
         BLangScheduler.resume(BLangScheduler.errorThrown(this.parentCtx, error));
     }
 

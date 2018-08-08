@@ -32,9 +32,9 @@ public class State {
 
     private int ip;
 
-    public State(WorkerExecutionContext context, String instanceId) {
+    public State(WorkerExecutionContext context, String stateId) {
         this.context = context;
-        this.id = instanceId;
+        this.id = stateId;
     }
 
     public State(WorkerExecutionContext context, String id, int ip) {

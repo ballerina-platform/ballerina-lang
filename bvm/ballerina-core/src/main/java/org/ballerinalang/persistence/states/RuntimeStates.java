@@ -36,11 +36,11 @@ public class RuntimeStates {
         stateList.add(state);
     }
 
-    public static List<State> get(String instanceId) {
-        return states.get(instanceId);
+    public static List<State> get(String stateId) {
+        return states.get(stateId);
     }
 
-    public static void remove(String instanceId) {
-        states.remove(instanceId);
+    public static void remove(String stateId) {
+        states.remove(stateId);
     }
 }

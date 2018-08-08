@@ -18,43 +18,29 @@ package org.ballerinalang.persistence;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.persistence.adapters.ArrayListAdapter;
 import org.ballerinalang.persistence.adapters.HashMapAdapter;
 import org.ballerinalang.persistence.adapters.RefTypeAdaptor;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
-import org.ballerinalang.persistence.states.RuntimeStates;
-import org.ballerinalang.persistence.states.State;
-import org.ballerinalang.runtime.Constants;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Util class with helper methods for persistence functionality.
+ * Class manages the serialization functionality.
  *
  * @since 0.976.0
  */
 public class PersistenceUtils {
 
     private static List<String> serializableClasses = new ArrayList<>();
-
-    private static Map<String, BRefType> tempRefTypes = new ConcurrentHashMap<>();
-
-    private static Map<String, WorkerExecutionContext> tempContexts = new ConcurrentHashMap<>();
-
-    private static Map<String, CallableWorkerResponseContext> tempRespContexts = new ConcurrentHashMap<>();
 
     private static Gson gson;
 
@@ -79,14 +65,6 @@ public class PersistenceUtils {
         gson = gsonBuilder.create();
     }
 
-    public static void addTempRefType(String key, BRefType refType) {
-        tempRefTypes.put(key, refType);
-    }
-
-    public static BRefType getTempRefType(String key) {
-        return tempRefTypes.get(key);
-    }
-
     public static Gson getGson() {
         return gson;
     }
@@ -96,25 +74,5 @@ public class PersistenceUtils {
             return true;
         }
         return serializableClasses.contains(o.getClass().getName());
-    }
-
-    public static void handleErrorState(WorkerExecutionContext parentCtx) {
-        String instanceId = (String) parentCtx.globalProps.get(Constants.STATE_ID);
-        List<State> stateList = RuntimeStates.get(instanceId);
-        if (stateList == null || stateList.isEmpty()) {
-            return;
-        }
-    }
-
-    public static Map<String, BRefType> getTempRefTypes() {
-        return tempRefTypes;
-    }
-
-    public static Map<String, WorkerExecutionContext> getTempContexts() {
-        return tempContexts;
-    }
-
-    public static Map<String, CallableWorkerResponseContext> getTempRespContexts() {
-        return tempRespContexts;
     }
 }

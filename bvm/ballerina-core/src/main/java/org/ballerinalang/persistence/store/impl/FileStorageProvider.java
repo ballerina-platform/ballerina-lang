@@ -55,7 +55,7 @@ public class FileStorageProvider implements StorageProvider {
     }
 
     @Override
-    public void persistState(String instanceId, String stateString) {
+    public void persistState(String stateId, String stateString) {
         File baseDir = new File(stateStoreDirPath);
         if (!baseDir.exists()) {
             baseDir.mkdir();
@@ -65,25 +65,25 @@ public class FileStorageProvider implements StorageProvider {
             save the context to a temp file and rename to json. This is to make the serializable state
             is completely written to file before saving it as a json.
              */
-            String fileName = baseDir.getPath() + File.separator + instanceId;
+            String fileName = baseDir.getPath() + File.separator + stateId;
             Path path = Paths.get(fileName + ".tmp");
             Files.write(path, stateString.getBytes());
             path.toFile().renameTo(new File(fileName + ".json"));
         } catch (IOException e) {
-            log.error("Error while persisting the state for instance id: {}", instanceId, e);
+            log.error("Error while persisting the state for state id: {}", stateId, e);
         }
     }
 
     @Override
-    public void removeActiveState(String instanceId) {
+    public void removeActiveState(String stateId) {
         File baseDir = new File(stateStoreDirPath);
         if (!baseDir.exists()) {
             return;
         }
         try {
-            Files.delete(Paths.get(baseDir.getPath() + File.separator + instanceId + ".json"));
+            Files.delete(Paths.get(baseDir.getPath() + File.separator + stateId + ".json"));
         } catch (IOException e) {
-            log.error("Error while removing the state for instance id: {}", instanceId, e);
+            log.error("Error while removing the state for state id: {}", stateId, e);
         }
     }
 

@@ -28,9 +28,9 @@ import java.util.List;
  */
 public interface StorageProvider {
 
-    void persistState(String instanceId, String stateString);
+    void persistState(String stateId, String stateString);
 
-    void removeActiveState(String instanceId);
+    void removeActiveState(String stateId);
 
     List<String> getAllSerializedStates();
 }

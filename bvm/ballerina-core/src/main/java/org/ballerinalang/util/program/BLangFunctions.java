@@ -623,9 +623,9 @@ public class BLangFunctions {
         if (parentCtx.interruptible && nativeCallable instanceof InterruptibleNativeCallableUnit) {
             InterruptibleNativeCallableUnit interruptibleNativeCallableUnit
                     = (InterruptibleNativeCallableUnit) nativeCallable;
-            String instanceId = (String) parentCtx.globalProps.get(Constants.STATE_ID);
+            String stateId = (String) parentCtx.globalProps.get(Constants.STATE_ID);
             if (interruptibleNativeCallableUnit.persistBeforeOperation()) {
-                PersistenceStore.persistState(new State(parentCtx, instanceId));
+                PersistenceStore.persistState(new State(parentCtx, stateId));
             }
             if (interruptibleNativeCallableUnit.persistAfterOperation()) {
                 parentCtx.markAsCheckPointed = true;

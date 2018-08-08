@@ -106,11 +106,11 @@ public class BLangScheduler {
         if (ctx.interruptible && ctx.parent != null && ctx.parent.isRootContext()) {
             /* If the context is interruptible and its parent is the root context, means given context is the last
             worker which is completed. So persisted state will be cleared in memory and storage. */
-            String instanceId = (String) ctx.globalProps.get(Constants.STATE_ID);
-            List<State> stateList = RuntimeStates.get(instanceId);
+            String stateId = (String) ctx.globalProps.get(Constants.STATE_ID);
+            List<State> stateList = RuntimeStates.get(stateId);
             if (stateList != null && !stateList.isEmpty()) {
-                RuntimeStates.remove(instanceId);
-                PersistenceStore.removeStates(instanceId);
+                RuntimeStates.remove(stateId);
+                PersistenceStore.removeStates(stateId);
             }
         }
     }
