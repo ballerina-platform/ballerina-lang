@@ -27,10 +27,12 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_PARAMETER_INDEX;
@@ -58,12 +60,13 @@ public class GetJson extends BlockingNativeCallableUnit {
             if (MimeUtil.isJSONContentType(entityStruct)) {
                 BValue dataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
                 if (dataSource != null) {
-                    // If the value is a JSON compatible type, then return it as is.
-                    if (MimeUtil.isJSONCompatible(dataSource.getType())) {
+                    // If the value is a already JSON, then return it as is.
+                    if (isJSON(dataSource)) {
                         result = (BRefType<?>) dataSource;
                     } else {
                         // Else, build the JSON from the string representation of the payload.
-                        result = JsonParser.parse(dataSource.stringValue());
+                        BString payload = MimeUtil.getMessageAsString(dataSource);
+                        result = JsonParser.parse(payload.stringValue());
                     }
                 } else {
                     result = EntityBodyHandler.constructJsonDataSource(entityStruct);
@@ -80,5 +83,15 @@ public class GetJson extends BlockingNativeCallableUnit {
             context.setReturnValues(MimeUtil.createError(context,
                     "Error occurred while extracting json data from entity: " + e.getMessage()));
         }
+    }
+
+    private boolean isJSON(BValue value) {
+        // If the value is string, it could represent any type of payload.
+        // Therefore it needs to be parsed as JSON.
+        if (value.getType().getTag() == TypeTags.STRING) {
+            return false;
+        }
+
+        return MimeUtil.isJSONCompatible(value.getType());
     }
 }
