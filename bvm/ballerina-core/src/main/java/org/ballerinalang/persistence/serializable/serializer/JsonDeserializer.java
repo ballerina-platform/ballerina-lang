@@ -287,6 +287,9 @@ class JsonDeserializer implements BValueDeserializer {
 
     private void setFields(Object target, BMap<String, BValue> jMap, Class<?> targetClass) {
         for (Field field : targetClass.getDeclaredFields()) {
+            if (Modifier.isTransient(field.getModifiers())) {
+                continue;
+            }
             BValue value = jMap.get(field.getName());
             Object obj = deserialize(value, field.getType());
             primeFinalFieldForAssignment(field);
@@ -301,11 +304,10 @@ class JsonDeserializer implements BValueDeserializer {
                 logger.error(e.getMessage());
                 throw new BallerinaException(e);
             }
-
-            // recursively set fields in super types.
-            if (targetClass != Object.class) {
-                setFields(target, jMap, targetClass.getSuperclass());
-            }
+        }
+        // recursively set fields in super types.
+        if (targetClass != Object.class) {
+            setFields(target, jMap, targetClass.getSuperclass());
         }
     }
 

@@ -45,6 +45,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -384,7 +385,12 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
     private List<Field> getAllFields(Class clazz) {
         ArrayList<Field> fields = Lists.newArrayList(clazz.getDeclaredFields());
         for (Class parent = clazz.getSuperclass(); parent != Object.class; parent = parent.getSuperclass()) {
-            fields.addAll(Lists.newArrayList(parent.getDeclaredFields()));
+            Field[] declaredFields = parent.getDeclaredFields();
+            for (Field declaredField : declaredFields) {
+                if (!Modifier.isTransient(declaredField.getModifiers())) {
+                    fields.add(declaredField);
+                }
+            }
         }
         return fields;
     }
