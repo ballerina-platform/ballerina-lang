@@ -41,12 +41,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.regex.Pattern;
 
 import static org.ballerinalang.protobuf.BalGenerationConstants.BUILD_COMMAND_NAME;
 import static org.ballerinalang.protobuf.BalGenerationConstants.COMPONENT_IDENTIFIER;
 import static org.ballerinalang.protobuf.BalGenerationConstants.EMPTY_STRING;
-import static org.ballerinalang.protobuf.BalGenerationConstants.FILE_SEPARATOR;
 import static org.ballerinalang.protobuf.BalGenerationConstants.META_LOCATION;
 import static org.ballerinalang.protobuf.BalGenerationConstants.NEW_LINE_CHARACTER;
 import static org.ballerinalang.protobuf.BalGenerationConstants.PROTOC_PLUGIN_EXE_PREFIX;
@@ -291,12 +289,8 @@ public class GrpcCmd implements BLauncherCmd {
     }
     
     private String getProtoFileName() {
-        String[] arr = protoPath.split(Pattern.quote(FILE_SEPARATOR));
-        if (arr.length > 1) {
-            return arr[arr.length - 1].replace(PROTO_SUFFIX, EMPTY_STRING);
-        } else {
-            return protoPath.replace(PROTO_SUFFIX, EMPTY_STRING);
-        }
+        File file = new File(protoPath);
+        return file.getName().replace(PROTO_SUFFIX, EMPTY_STRING);
     }
     
     @Override

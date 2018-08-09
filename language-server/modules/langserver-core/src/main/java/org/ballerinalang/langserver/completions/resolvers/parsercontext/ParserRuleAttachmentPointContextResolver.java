@@ -32,8 +32,8 @@ public class ParserRuleAttachmentPointContextResolver extends AbstractItemResolv
     @Override
     public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        completionItems.add(populateCompletionItem(ItemResolverConstants.ANNOTATION,
-                ItemResolverConstants.KEYWORD_TYPE, ItemResolverConstants.ANNOTATION));
+        completionItems.add(populateCompletionItem(ItemResolverConstants.ANNOTATION, ItemResolverConstants.KEYWORD_TYPE,
+                ItemResolverConstants.ANNOTATION));
         completionItems.add(populateCompletionItem(ItemResolverConstants.FUNCTION, ItemResolverConstants.KEYWORD_TYPE, 
                 ItemResolverConstants.FUNCTION));
         completionItems.add(populateCompletionItem(ItemResolverConstants.RESOURCE, ItemResolverConstants.KEYWORD_TYPE,
@@ -42,5 +42,21 @@ public class ParserRuleAttachmentPointContextResolver extends AbstractItemResolv
                 ItemResolverConstants.SERVICE));
 
         return completionItems;
+    }
+
+    /**
+     * Populate a completion item with the given data and return it.
+     *
+     * @param insertText                insert text
+     * @param type                      type of the completion item
+     * @param label                     completion item label
+     * @return {@link CompletionItem}   Populated Completion Item
+     */
+    private CompletionItem populateCompletionItem(String insertText, String type, String label) {
+        CompletionItem completionItem = new CompletionItem();
+        completionItem.setInsertText(insertText);
+        completionItem.setDetail(type);
+        completionItem.setLabel(label);
+        return completionItem;
     }
 }

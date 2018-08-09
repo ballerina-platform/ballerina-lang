@@ -19,16 +19,15 @@ package org.ballerinalang.langserver.completions.resolvers;
 
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
+import org.ballerinalang.model.tree.NodeKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
-import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -38,7 +37,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -55,23 +53,16 @@ public class BLangMatchExpressionContextResolver extends AbstractItemResolver {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         BLangNode symbolEnvNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
         BType bType = null;
-        if (symbolEnvNode instanceof BLangMatchExpression) {
-            BLangMatchExpression matchExpression = (BLangMatchExpression) symbolEnvNode;
-            Position position = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-            for (BLangMatchExpression.BLangMatchExprPatternClause patternClause : matchExpression.getPatternClauses()) {
-                DiagnosticPos nodePos = CommonUtil.toZeroBasedPosition(patternClause.expr.getPosition());
-                if (nodePos.getStartLine() == position.getLine()) {
-                    completionItems.addAll(this.getVariableDefinitionCompletionItems(completionContext));
-                    return completionItems;
-                }
-            }
-            BLangExpression bLangExpression = ((BLangMatchExpression) symbolEnvNode).expr;
-            if (bLangExpression instanceof BLangInvocation
-                    && ((BLangInvocation) bLangExpression).symbol instanceof BInvokableSymbol) {
-                bType = ((BInvokableSymbol) (((BLangInvocation) bLangExpression).symbol)).retType;
-            } else if (bLangExpression instanceof BLangSimpleVarRef) {
-                bType = ((BLangSimpleVarRef) bLangExpression).type;
-            }
+        
+        if (!symbolEnvNode.getKind().equals(NodeKind.MATCH_EXPRESSION)) {
+            return completionItems;
+        }
+        
+        BLangExpression bLangExpression = ((BLangMatchExpression) symbolEnvNode).expr;
+        if (bLangExpression instanceof BLangInvocation) {
+            bType = ((BInvokableType) ((BLangInvocation) bLangExpression).symbol.type).retType;
+        } else if (bLangExpression instanceof BLangSimpleVarRef) {
+            bType = ((BLangSimpleVarRef) bLangExpression).type;
         }
         
         if (bType instanceof BUnionType) {
@@ -79,8 +70,7 @@ public class BLangMatchExpressionContextResolver extends AbstractItemResolver {
             CompletionItem allFillerItem = new CompletionItem();
             CompletionItem anyFillerItem = new CompletionItem();
             String defaultType = CommonUtil.getDefaultValueForType(getExpectedReturnType(symbolEnvNode.parent));
-            Map<String, String> memberTypesSnippets = getMatchExpressionMemberTypesSnippets((BUnionType) bType,
-                    defaultType);
+            Map<String, String> memberTypesSnippets = this.getMemberTypesSnippets((BUnionType) bType, defaultType);
             String allFieldFiller = String.join("," + CommonUtil.LINE_SEPARATOR, memberTypesSnippets.values());
             String anyFieldFiller = UtilSymbolKeys.ANY_KEYWORD_KEY + " => ${1:" + defaultType + "}";
             
@@ -118,7 +108,7 @@ public class BLangMatchExpressionContextResolver extends AbstractItemResolver {
         return completionItems;
     }
 
-    private Map<String, String> getMatchExpressionMemberTypesSnippets(BUnionType bUnionType, String defaultType) {
+    private Map<String, String> getMemberTypesSnippets(BUnionType bUnionType, String defaultType) {
         Set<BType> memberTypes = bUnionType.getMemberTypes();
         Map<String, String> memberSnippets = new LinkedHashMap<>();
         int placeholderCounter = 1;

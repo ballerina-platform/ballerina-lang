@@ -21,7 +21,6 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
@@ -87,9 +86,8 @@ public class MapInitializerExprTest {
         Assert.assertEquals(outerMap.get("name"), new BString("Supun"));
 
         BValue info = outerMap.get("info");
-        Assert.assertTrue(info instanceof BJSON);
-        BJSON infoJson = (BJSON) info;
-        Assert.assertEquals(infoJson.stringValue(), "{\"city\":\"Colombo\",\"country\":\"SriLanka\"}");
+        Assert.assertTrue(info instanceof BMap);
+        Assert.assertEquals(info.stringValue(), "{\"city\":\"Colombo\", \"country\":\"SriLanka\"}");
     }
     
     @Test

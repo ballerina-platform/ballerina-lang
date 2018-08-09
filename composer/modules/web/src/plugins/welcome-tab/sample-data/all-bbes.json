@@ -542,7 +542,7 @@
     "column": 2,
     "samples": [
       {
-        "name": "Header Based Routing",
+        "name": "Header-Based Routing",
         "url": "header-based-routing"
       },
       {
@@ -550,7 +550,7 @@
         "url": "passthrough"
       },
       {
-        "name": "Content Based Routing",
+        "name": "Content-Based Routing",
         "url": "content-based-routing"
       }
     ]
@@ -824,6 +824,24 @@
       {
         "name": "Directory Listener",
         "url": "directory-listener"
+      }
+    ]
+  },
+  {
+    "title": "Observability",
+    "column": 3,
+    "samples": [
+      {
+        "name": "Distributed Tracing",
+        "url": "tracing"
+      },
+      {
+        "name": "Counter-Based Metrics",
+        "url": "counter-metrics"
+      },
+      {
+        "name": "Gauge-Based Metrics",
+        "url": "gauge-metrics"
       }
     ]
   }

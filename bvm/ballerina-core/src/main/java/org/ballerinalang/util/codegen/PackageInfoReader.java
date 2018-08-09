@@ -682,8 +682,9 @@ public class PackageInfoReader {
 
         int globalMemIndex = dataInStream.readInt();
 
+        BType type = getBTypeFromDescriptor(packageInfo, sigUTF8CPEntry.getValue());
         PackageVarInfo packageVarInfo = new PackageVarInfo(nameCPIndex, nameUTF8CPEntry.getValue(),
-                sigCPIndex, sigUTF8CPEntry.getValue(), globalMemIndex);
+                sigCPIndex, globalMemIndex, type);
 
         // Read attributes
         readAttributeInfoEntries(packageInfo, constantPool, packageVarInfo);
@@ -1190,7 +1191,6 @@ public class PackageInfoReader {
                 case InstructionCodes.TYPELOAD:
                 case InstructionCodes.SEQ_NULL:
                 case InstructionCodes.SNE_NULL:
-                case InstructionCodes.NEWJSON:
                 case InstructionCodes.NEWMAP:
                 case InstructionCodes.I2ANY:
                 case InstructionCodes.BI2ANY:
@@ -1207,25 +1207,20 @@ public class PackageInfoReader {
                 case InstructionCodes.ANY2MAP:
                 case InstructionCodes.ANY2TYPE:
                 case InstructionCodes.ANY2DT:
-                case InstructionCodes.NULL2JSON:
                 case InstructionCodes.I2F:
                 case InstructionCodes.I2S:
                 case InstructionCodes.I2B:
                 case InstructionCodes.I2BI:
-                case InstructionCodes.I2JSON:
                 case InstructionCodes.BI2I:
                 case InstructionCodes.F2I:
                 case InstructionCodes.F2S:
                 case InstructionCodes.F2B:
-                case InstructionCodes.F2JSON:
                 case InstructionCodes.S2I:
                 case InstructionCodes.S2F:
                 case InstructionCodes.S2B:
-                case InstructionCodes.S2JSON:
                 case InstructionCodes.B2I:
                 case InstructionCodes.B2F:
                 case InstructionCodes.B2S:
-                case InstructionCodes.B2JSON:
                 case InstructionCodes.JSON2I:
                 case InstructionCodes.JSON2F:
                 case InstructionCodes.JSON2S:
@@ -1237,10 +1232,7 @@ public class PackageInfoReader {
                 case InstructionCodes.ANY2SCONV:
                 case InstructionCodes.S2XML:
                 case InstructionCodes.XML2S:
-                case InstructionCodes.S2JSONX:
-                case InstructionCodes.NULL2S:
                 case InstructionCodes.AWAIT:
-                case InstructionCodes.CHECK_CONVERSION:
                 case InstructionCodes.XMLLOADALL:
                 case InstructionCodes.ARRAY2JSON:
                     i = codeStream.readInt();
@@ -1305,6 +1297,7 @@ public class PackageInfoReader {
                 case InstructionCodes.BIRSHIFT:
                 case InstructionCodes.IRSHIFT:
                 case InstructionCodes.ILSHIFT:
+                case InstructionCodes.IURSHIFT:
                 case InstructionCodes.XMLATTRLOAD:
                 case InstructionCodes.XMLATTRSTORE:
                 case InstructionCodes.S2QNAME:
@@ -1335,7 +1328,7 @@ public class PackageInfoReader {
                 case InstructionCodes.SNEWARRAY:
                 case InstructionCodes.BNEWARRAY:
                 case InstructionCodes.RNEWARRAY:
-                case InstructionCodes.JSONNEWARRAY:
+                case InstructionCodes.O2JSON:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

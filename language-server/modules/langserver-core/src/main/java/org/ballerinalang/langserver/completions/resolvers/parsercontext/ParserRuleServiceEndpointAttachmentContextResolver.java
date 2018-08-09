@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,13 +32,10 @@ import java.util.stream.Collectors;
 public class ParserRuleServiceEndpointAttachmentContextResolver extends AbstractItemResolver {
     @Override
     public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<SymbolInfo> endpointSymbols = (completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)).stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BEndpointVarSymbol)
                 .collect(Collectors.toList());
         
-        this.populateCompletionItemList(endpointSymbols, completionItems);
-        
-        return completionItems;
+        return this.getCompletionItemList(endpointSymbols);
     }
 }

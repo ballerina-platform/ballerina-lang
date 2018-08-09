@@ -23,10 +23,10 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BByteArray;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -232,21 +232,21 @@ public class MimeUtilityFunctionTest {
 
     @Test(description = "Set json data to entity and get the content back from entity as json")
     public void testGetAndSetJson() {
-        BJSON jsonContent = new BJSON("{'code':'123'}");
+        BValue jsonContent = JsonParser.parse("{'code':'123'}");
         BValue[] args = {jsonContent};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetAndGetJson", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BJSON) returns[0]).value().get("code").asText(), "123");
+        Assert.assertEquals(((BMap) returns[0]).get("code").stringValue(), "123");
     }
 
     @Test(description = "Test whether the json content can be retrieved properly when it is called multiple times")
     public void testGetJsonMoreThanOnce() {
-        BJSON jsonContent = new BJSON("{'code':'123'}");
+        BValue jsonContent = JsonParser.parse("{'code':'123'}");
         BValue[] args = {jsonContent};
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetJsonMultipleTimes", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BJSON) returns[0]).getMessageAsString(),
-                "{\"concatContent\":[{\"code\":\"123\"},{\"code\":\"123\"},{\"code\":\"123\"}]}");
+        Assert.assertEquals(returns[0].stringValue(),
+                "{\"concatContent\":[{\"code\":\"123\"}, {\"code\":\"123\"}, {\"code\":\"123\"}]}");
     }
 
     @Test(description = "Set xml data to entity and get the content back from entity as xml")
@@ -264,7 +264,7 @@ public class MimeUtilityFunctionTest {
         BValue[] args = {xmlContent};
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetXmlMultipleTimes", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BXML<Object>) returns[0]).getMessageAsString(),
+        Assert.assertEquals(((BXML<Object>) returns[0]).stringValue(),
                 "<name>ballerina</name><name>ballerina</name><name>ballerina</name>");
     }
 
@@ -428,7 +428,7 @@ public class MimeUtilityFunctionTest {
     @Test(description = "An EntityError should be returned from 'getByteChannel()', in case the payload " +
             "is in data source form")
     public void testByteChannelWhenPayloadInDataSource() {
-        BJSON jsonContent = new BJSON("{'code':'123'}");
+        BValue jsonContent = JsonParser.parse("{'code':'123'}");
         BValue[] args = {jsonContent};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetJsonAndGetByteChannel", args);
         Assert.assertEquals(returns.length, 1);
@@ -476,7 +476,7 @@ public class MimeUtilityFunctionTest {
             Assert.assertEquals(returns.length, 1);
             Assert.assertNotNull(returns[0]);
             Assert.assertTrue(returns[0].stringValue().contains("Error occurred while extracting json " +
-                    "data from entity: failed to create json: empty JSON document"));
+                    "data from entity: empty JSON document"));
         } catch (IOException e) {
             log.error("Error occurred in testTempFileDeletion", e.getMessage());
         }
@@ -535,17 +535,16 @@ public class MimeUtilityFunctionTest {
 
     @Test
     public void testGetJsonWithSuffix() {
-        BJSON jsonContent = new BJSON("{'code':'123'}");
+        BValue jsonContent = JsonParser.parse("{'code':'123'}");
         BValue[] args = {jsonContent};
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetJsonWithSuffix", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BJSON) returns[0]).getMessageAsString(),
-                "{\"code\":\"123\"}");
+        Assert.assertEquals(returns[0].stringValue(), "{\"code\":\"123\"}");
     }
 
     @Test
     public void testGetJsonWithNonCompatibleMediaType() {
-        BJSON jsonContent = new BJSON("{'code':'123'}");
+        BValue jsonContent = JsonParser.parse("{'code':'123'}");
         BValue[] args = {jsonContent};
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetJsonWithNonCompatibleMediaType", args);
         Assert.assertEquals(returns.length, 1);
@@ -585,11 +584,11 @@ public class MimeUtilityFunctionTest {
 
     @Test
     public void testSetBodyAndGetJson() {
-        BJSON jsonContent = new BJSON("{'code':'123'}");
+        BValue jsonContent = JsonParser.parse("{'code':'123'}");
         BValue[] args = {jsonContent};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetBodyAndGetJson", args);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BJSON) returns[0]).value().get("code").asText(), "123");
+        Assert.assertEquals(((BMap) returns[0]).get("code").stringValue(), "123");
     }
 
     @Test

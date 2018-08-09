@@ -34,6 +34,7 @@
         <packages>
             <package name="org.ballerinalang.test.service.http.sample"/>
             <package name="org.ballerinalang.test.service.http2"/>
+            <package name="org.ballerinalang.test.service.resiliency"/>
             <package name="org.ballerinalang.test.transaction"/>
             <package name="org.ballerinalang.test.filter"/>
             <package name="org.ballerinalang.test.auth"/>
@@ -67,6 +68,7 @@
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingArrayValueTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ServiceUnavailableTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.InvalidServiceMethodTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.InvalidMessageTypeTestCase" />
             <class name="org.ballerinalang.test.service.grpc.tool.ClientStubGeneratorTestCase" />
             <class name="org.ballerinalang.test.service.grpc.tool.InvalidServiceContractTestCase" />
         </classes>
@@ -89,5 +91,11 @@
         <classes>
             <class name="org.ballerinalang.test.security.HTTPResponseXMLSecurityTestCase"/>
         </classes>
+    </test>
+
+    <test name="ballerina-data-streaming-tests">
+        <packages>
+            <package name="org.ballerinalang.test.data.streaming"/>
+        </packages>
     </test>
 </suite>

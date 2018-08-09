@@ -16,6 +16,8 @@
 package org.ballerinalang.langserver.signature;
 
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.model.elements.DocAttachment;
@@ -93,21 +95,36 @@ public class SignatureHelpUtil {
     /**
      * Get the functionSignatureHelp instance.
      *
-     * @param context                   Signature help context
+     * @param ctx                       Signature help context
      * @return {@link SignatureHelp}    Signature help for the completion
      */
-    public static SignatureHelp getFunctionSignatureHelp(LSServiceOperationContext context) {
-        // Get the functions List
-        List<SymbolInfo> functions = context.get(SignatureKeys.FILTERED_FUNCTIONS);
+    public static SignatureHelp getFunctionSignatureHelp(LSServiceOperationContext ctx) {
+        String delimiter = ctx.get(SignatureKeys.ITEM_DELIMITER);
+        String idAgainst = ctx.get(SignatureKeys.IDENTIFIER_AGAINST);
+        String funcName = ctx.get(SignatureKeys.CALLABLE_ITEM_NAME);
+        List<SymbolInfo> visibleSymbols = ctx.get(SignatureKeys.VISIBLE_SYMBOLS_KEY);
+        List<SymbolInfo> functions;
+
+        visibleSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
+        
+        if (!idAgainst.isEmpty() && (delimiter.equals(UtilSymbolKeys.DOT_SYMBOL_KEY)
+                || delimiter.equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD))) {
+            functions = FilterUtils.getInvocationAndFieldSymbolsOnVar(ctx, idAgainst, delimiter, visibleSymbols);
+        } else {
+            functions = visibleSymbols;
+        }
+
+        functions.removeIf(symbolInfo -> !CommonUtil.isValidInvokableSymbol(symbolInfo.getScopeEntry().symbol));
         List<SignatureInformation> signatureInformationList = functions
                 .stream()
-                .map(symbolInfo -> getSignatureInformation((BInvokableSymbol) symbolInfo.getScopeEntry().symbol))
+                .map(symbolInfo
+                        -> getSignatureInformation((BInvokableSymbol) symbolInfo.getScopeEntry().symbol, funcName))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         SignatureHelp signatureHelp = new SignatureHelp();
         signatureHelp.setSignatures(signatureInformationList);
-        signatureHelp.setActiveParameter(context.get(SignatureKeys.PARAMETER_COUNT));
+        signatureHelp.setActiveParameter(ctx.get(SignatureKeys.PARAMETER_COUNT));
         signatureHelp.setActiveSignature(0);
 
         return signatureHelp;
@@ -119,12 +136,16 @@ public class SignatureHelpUtil {
      * @param bInvokableSymbol BLang Invokable symbol
      * @return {@link SignatureInformation}     Signature information for the function
      */
-    private static SignatureInformation getSignatureInformation(BInvokableSymbol bInvokableSymbol) {
+    private static SignatureInformation getSignatureInformation(BInvokableSymbol bInvokableSymbol, String funcName) {
         List<ParameterInformation> parameterInformationList = new ArrayList<>();
         SignatureInformation signatureInformation = new SignatureInformation();
-        SignatureInfoModel signatureInfoModel = getSignatureInfoModel(bInvokableSymbol);
-        String functionName = bInvokableSymbol.getName().getValue();
+        List<String> nameComps = Arrays.asList(bInvokableSymbol.getName().getValue().split("\\."));
+        
+        if (!funcName.equals(CommonUtil.getLastItem(nameComps))) {
+            return null;
+        }
 
+        SignatureInfoModel signatureInfoModel = getSignatureInfoModel(bInvokableSymbol);
         // Join the function parameters to generate the function's signature
         String paramsJoined = signatureInfoModel.getParameterInfoModels().stream().map(parameterInfoModel -> {
             // For each of the parameters, create a parameter info instance
@@ -134,7 +155,7 @@ public class SignatureHelpUtil {
 
             return parameterInfoModel.toString();
         }).collect(Collectors.joining(", "));
-        signatureInformation.setLabel(functionName + "(" + paramsJoined + ")");
+        signatureInformation.setLabel(CommonUtil.getLastItem(nameComps) + "(" + paramsJoined + ")");
         signatureInformation.setParameters(parameterInformationList);
         signatureInformation.setDocumentation(signatureInfoModel.signatureDescription);
 

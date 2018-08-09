@@ -84,13 +84,13 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
             if (this.resource == null) {
                 return false;
             }
-            HttpResource resource = validateHTTPMethod(this.resource, carbonMessage);
-            if (resource == null) {
+            HttpResource httpResource = validateHTTPMethod(this.resource, carbonMessage);
+            if (httpResource == null) {
                 return isOptionsRequest(carbonMessage);
             }
-            validateConsumes(resource, carbonMessage);
-            validateProduces(resource, carbonMessage);
-            dataReturnAgent.setData(resource);
+            validateConsumes(httpResource, carbonMessage);
+            validateProduces(httpResource, carbonMessage);
+            dataReturnAgent.setData(httpResource);
             return true;
         } catch (BallerinaException e) {
             dataReturnAgent.setError(e);
@@ -101,30 +101,27 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
     private boolean isOptionsRequest(HttpCarbonMessage inboundMessage) {
         //Return true to break the resource searching loop, only if the ALLOW header is set in message for
         //OPTIONS request.
-        if (inboundMessage.getHeader(HttpHeaderNames.ALLOW.toString()) != null) {
-            return true;
-        }
-        return false;
+        return inboundMessage.getHeader(HttpHeaderNames.ALLOW.toString()) != null;
     }
 
     private HttpResource validateHTTPMethod(List<HttpResource> resources, HttpCarbonMessage carbonMessage) {
-        HttpResource resource = null;
+        HttpResource httpResource = null;
         boolean isOptionsRequest = false;
         String httpMethod = (String) carbonMessage.getProperty(HttpConstants.HTTP_METHOD);
         for (HttpResource resourceInfo : resources) {
             if (DispatcherUtil.isMatchingMethodExist(resourceInfo, httpMethod)) {
-                resource = resourceInfo;
+                httpResource = resourceInfo;
                 break;
             }
         }
-        if (resource == null) {
-            resource = tryMatchingToDefaultVerb(resources);
+        if (httpResource == null) {
+            httpResource = tryMatchingToDefaultVerb(resources);
         }
-        if (resource == null) {
+        if (httpResource == null) {
             isOptionsRequest = setAllowHeadersIfOPTIONS(httpMethod, carbonMessage);
         }
-        if (resource != null) {
-            return resource;
+        if (httpResource != null) {
+            return httpResource;
         }
         if (!isOptionsRequest) {
             carbonMessage.setProperty(HttpConstants.HTTP_STATUS_CODE, 405);
@@ -188,7 +185,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
             return null;
         }
         if (header.contains(";")) {
-            header = header.substring(0, header.indexOf(";")).trim();
+            header = header.substring(0, header.indexOf(';')).trim();
         }
         return header;
     }
@@ -207,7 +204,7 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
         if (acceptMediaTypes.stream().anyMatch(mediaType -> mediaType.contains("/*"))) {
             List<String> subTypeWildCardMediaTypes = acceptMediaTypes.stream()
                     .filter(mediaType -> mediaType.contains("/*"))
-                    .map(mediaType -> mediaType.substring(0, mediaType.indexOf("/")))
+                    .map(mediaType -> mediaType.substring(0, mediaType.indexOf('/')))
                     .collect(Collectors.toList());
             for (String token : resource.getProducesSubTypes()) {
                 if (subTypeWildCardMediaTypes.contains(token)) {
@@ -235,11 +232,11 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
             //process headers like this: text/*;q=0.3, text/html;Level=1;q=0.7, */*
             acceptMediaTypes = Arrays.stream(header.split(","))
                     .map(mediaRange -> mediaRange.contains(";") ? mediaRange
-                            .substring(0, mediaRange.indexOf(";")) : mediaRange)
+                            .substring(0, mediaRange.indexOf(';')) : mediaRange)
                     .map(String::trim).distinct().collect(Collectors.toList());
         } else if (header.contains(";")) {
             //process headers like this: text/*;q=0.3
-            acceptMediaTypes.add(header.substring(0, header.indexOf(";")).trim());
+            acceptMediaTypes.add(header.substring(0, header.indexOf(';')).trim());
         } else {
             acceptMediaTypes.add(header.trim());
         }

@@ -30,7 +30,7 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
  *
  * @since 0.965.0
  */
-class WebSubDispatcher extends HttpDispatcher {
+class WebSubDispatcher {
 
     /**
      * This method finds the matching resource for the incoming request.
@@ -51,8 +51,11 @@ class WebSubDispatcher extends HttpDispatcher {
                 // Finer details of the errors are thrown from the dispatcher itself, ideally we shouldn't get here.
             }
             return WebSubResourceDispatcher.findResource(service, inboundMessage, servicesRegistry);
-        } catch (Throwable throwable) {
-            throw new BallerinaConnectorException(throwable.getMessage());
+        } catch (Exception e) {
+            throw new BallerinaConnectorException(e.getMessage());
         }
+    }
+
+    private WebSubDispatcher() {
     }
 }

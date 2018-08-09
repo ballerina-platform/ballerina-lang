@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * This Class tests ping pong support of WebSocket client and server.
  */
-public class PingPongSupportTestCase extends WebSocketIntegrationTest {
+public class PingPongSupportTestCase extends WebSocketTestCommons {
 
     private WebSocketRemoteServer remoteServer;
     private WebSocketTestClient client;

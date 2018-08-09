@@ -77,6 +77,20 @@ service HelloWorld bind ep {
     testNoResponse(endpoint caller, string msg) {
         io:println("Request: " + msg);
     }
+
+    testResponseInsideMatch(endpoint caller, string msg) {
+        io:println("Request: " + msg);
+        Response? res = {resp:"Acknowledge " + msg};
+        match res {
+            Response value => {
+                _ = caller->send(value);
+            }
+            () => {
+                _ = caller->sendError(grpc:NOT_FOUND, "No updates from that drone");
+            }
+        }
+        _ = caller->complete();
+    }
 }
 
 type Request record {

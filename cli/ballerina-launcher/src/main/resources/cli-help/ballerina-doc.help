@@ -55,6 +55,7 @@ OPTIONS
      -v
      --verbose
          Prints debug level logs while generating documentation.
+
      -e <key=value>
          Sets Ballerina environment parameters as key/value pairs.
          If multiple parameters need to be provided, each parameter

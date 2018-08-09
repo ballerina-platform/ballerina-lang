@@ -23,6 +23,9 @@ import org.ballerinalang.test.utils.debug.Util;
 import org.ballerinalang.test.utils.debug.VMDebuggerUtil;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
+import org.ballerinalang.util.debugger.dto.MessageDTO;
+import org.ballerinalang.util.debugger.dto.VariableDTO;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -329,5 +332,43 @@ public class VMDebuggerTest {
         ExpectedResults expRes = new ExpectedResults(debugPoints, 37);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test_object_and_match.bal", breakPoints, expRes);
+    }
+
+    @Test(description = "Testing global variables availability in debug hit message")
+    public void testGlobalVarAvailability() {
+        String file = "test_variables.bal";
+        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".", file, 12);
+
+        List<DebugPoint> debugPoints = new ArrayList<>();
+        debugPoints.add(Util.createDebugPoint(".", file, 12, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 13, RESUME, 1));
+
+        VMDebuggerUtil.getDebugHits().clear();
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 2);
+
+        VMDebuggerUtil.startDebug("test-src/debugger/test_variables.bal", breakPoints, expRes);
+
+        ArrayList<MessageDTO> debugHitMsgs = VMDebuggerUtil.getDebugHits();
+
+        List<VariableDTO> variables = debugHitMsgs.get(0).getFrames().get(0).getVariables();
+        List<VariableDTO> globalVariables = new ArrayList<>();
+
+        for (VariableDTO var : variables) {
+            if (var.getScope().equals("Global")) {
+                globalVariables.add(var);
+            }
+        }
+        Assert.assertEquals(globalVariables.size(), 8);
+
+        Assert.assertEquals(globalVariables.get(0).getName(), "gInt");
+        Assert.assertEquals(globalVariables.get(0).getType(), "int");
+        Assert.assertEquals(globalVariables.get(0).getValue(), "5");
+
+        Assert.assertEquals(globalVariables.get(5).getName(), "gRec");
+        Assert.assertEquals(globalVariables.get(5).getType(), "Foo");
+        Assert.assertEquals(globalVariables.get(5).getValue(), "struct Foo {count:5, last:\"last\"}");
+
+        Assert.assertEquals(globalVariables.get(6).getName(), "gObj");
+        Assert.assertEquals(globalVariables.get(6).getType(), "Person");
     }
 }
