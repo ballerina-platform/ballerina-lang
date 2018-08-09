@@ -128,7 +128,9 @@ public class LSAnnotationCache {
 
     /**
      * Get the annotation map for the given type.
+     *
      * @param attachmentPoint   Attachment point
+     * @param ctx               LSContext
      * @return {@link HashMap}  Map of annotation lists
      */
     public HashMap<PackageID, List<BAnnotationSymbol>> getAnnotationMapForType(String attachmentPoint, LSContext ctx) {

@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test whether the errors are received correctly to the onError resource in WebSocket server.
  */
-public class OnErrorWebSocketTest extends WebSocketIntegrationTest {
+public class OnErrorWebSocketTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
     private static final String URL = "ws://localhost:9090/error/ws";
