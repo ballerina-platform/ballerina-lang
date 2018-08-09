@@ -74,10 +74,9 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends IntegrationT
     @BeforeClass
     public void setup() throws BallerinaTestException, InterruptedException {
         ballerinaWebSubPublisher = ServerInstance.initBallerinaServer();
-        String[] publisherArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
-                          + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath(),
-                          "-e b7a.websub.hub.port=9494", "-e b7a.websub.hub.remotepublish=true",
-                          "-e test.hub.url=" + hubUrl};
+        String[] publisherArgs = {"-e b7a.websub.hub.port=9494", "-e b7a.websub.hub.remotepublish=true",
+                "-e test.hub.url=" + hubUrl, new File("src" + File.separator + "test" + File.separator + "resources"
+                + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath()};
 
         ballerinaWebSubPublisherService = ServerInstance.initBallerinaServer(9290);
         String publisherServiceBal = new File("src" + File.separator + "test" + File.separator + "resources"

@@ -74,9 +74,9 @@ public class WebSubSubscriptionChangeTestCase extends IntegrationTestCase {
 
     @BeforeClass
     public void setup() throws BallerinaTestException, InterruptedException {
-        String[] publisherArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
-                + File.separator + "websub" + File.separator + "websub_test_periodic_publisher.bal").getAbsolutePath(),
-                "-e b7a.websub.hub.remotepublish=true"};
+        String[] publisherArgs = {"-e b7a.websub.hub.remotepublish=true", new File("src" + File.separator + "test"
+                + File.separator + "resources" + File.separator + "websub" + File.separator
+                + "websub_test_periodic_publisher.bal").getAbsolutePath()};
         ballerinaWebSubPublisher = ServerInstance.initBallerinaServer();
         ballerinaWebSubSubscriptionChangeClient = ServerInstance.initBallerinaServer();
 
