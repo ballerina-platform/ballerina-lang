@@ -91,6 +91,7 @@ checkstyle {
     }
 }
 
+runIde.dependsOn check
 buildPlugin.dependsOn check
 
 // Todo - Uncomment after implementing mixin classes
