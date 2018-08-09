@@ -48,7 +48,7 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
  * @since 0.8.0
  */
 public class Main {
-    private static final String UNMATCHED_ARGUMENT_PREFIX = "Unmatched argument [";
+    private static final String UNMATCHED_ARGUMENT_PREFIX = "Unmatched argument";
     private static final String MISSING_REQUIRED_PARAMETER_PREFIX = "Missing required parameter";
 
     private static PrintStream outStream = System.err;
@@ -124,14 +124,13 @@ public class Main {
 
             return Optional.of(parsedCommands.get(parsedCommands.size() - 1).getCommand());
         } catch (CommandLine.UnmatchedArgumentException e) {
-            if (e.getMessage() != null) {
-                if (e.getMessage().contains(UNMATCHED_ARGUMENT_PREFIX) && args.length > 0
-                        && (e.getMessage().substring((UNMATCHED_ARGUMENT_PREFIX.length() + 1),
-                                                     e.getMessage().length() - 1).equals(args[0].trim()))) {
-                    String errorMsg = "unknown command '" + args[0] + "'";
-                    throw LauncherUtils.createUsageException(errorMsg);
+            String errorMessage = e.getMessage();
+            if (errorMessage != null) {
+                if (errorMessage.contains(UNMATCHED_ARGUMENT_PREFIX)) {
+                    throw LauncherUtils.createUsageException("unknown command '" + getFirstUnknownArg(errorMessage)
+                                                                     + "'");
                 }
-                throw LauncherUtils.createUsageException(LauncherUtils.makeFirstLetterLowerCase(e.getMessage()));
+                throw LauncherUtils.createUsageException(LauncherUtils.makeFirstLetterLowerCase(errorMessage));
             }
             throw LauncherUtils.createUsageException("internal error occurred");
         } catch (CommandLine.ParameterException e) {
@@ -139,12 +138,10 @@ public class Main {
             if (msg == null) {
                 throw LauncherUtils.createUsageException("internal error occurred");
             } else if (msg.startsWith(MISSING_REQUIRED_PARAMETER_PREFIX)) {
-                String flag = msg.substring(MISSING_REQUIRED_PARAMETER_PREFIX.length() + 2);
-                throw LauncherUtils.createUsageException("flag '" + flag.trim() + "' needs an argument");
-            } else {
-                // Make the first character of the error message lower case
-                throw LauncherUtils.createUsageException(LauncherUtils.makeFirstLetterLowerCase(msg));
+                    throw LauncherUtils.createUsageException("flag " + msg.substring(msg.indexOf("'"))
+                                                                     + " needs an argument");
             }
+            throw LauncherUtils.createUsageException(LauncherUtils.makeFirstLetterLowerCase(msg));
         }
     }
 
@@ -178,6 +175,11 @@ public class Main {
 
     private static String prepareCompilerErrorMessage(String message) {
         return "ballerina: " + LauncherUtils.makeFirstLetterLowerCase(message);
+    }
+
+    private static String getFirstUnknownArg(String errorMessage) {
+        String optionsString = errorMessage.split(":")[1];
+        return (optionsString.split(","))[0].trim();
     }
 
     /**
