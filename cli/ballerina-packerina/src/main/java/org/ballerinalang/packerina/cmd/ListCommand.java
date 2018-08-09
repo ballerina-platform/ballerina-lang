@@ -42,8 +42,6 @@ public class ListCommand implements BLauncherCmd {
     private static final String USER_DIR = "user.dir";
     private static PrintStream outStream = System.err;
 
-    private CommandLine parentCmdParser;
-
     @CommandLine.Parameters
     private List<String> argList;
 
@@ -98,7 +96,6 @@ public class ListCommand implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
-        this.parentCmdParser = parentCmdParser;
     }
 
     @Override

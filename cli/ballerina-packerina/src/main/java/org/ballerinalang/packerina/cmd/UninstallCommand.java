@@ -36,7 +36,6 @@ import static org.ballerinalang.packerina.cmd.Constants.UNINSTALL_COMMAND;
 public class UninstallCommand implements BLauncherCmd {
 
     private static PrintStream outStream = System.err;
-    private CommandLine parentCmdParser;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -83,7 +82,6 @@ public class UninstallCommand implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
-        this.parentCmdParser = parentCmdParser;
     }
 
     @Override

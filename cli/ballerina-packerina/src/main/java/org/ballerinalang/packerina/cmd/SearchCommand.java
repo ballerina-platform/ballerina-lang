@@ -36,8 +36,7 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 @CommandLine.Command(name = SEARCH_COMMAND, description = "searches for packages within Ballerina Central")
 public class SearchCommand implements BLauncherCmd {
     private static PrintStream outStream = System.err;
-    private CommandLine parentCmdParser;
-    
+
     @CommandLine.Parameters
     private List<String> argList;
 
@@ -92,7 +91,6 @@ public class SearchCommand implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
-        this.parentCmdParser = parentCmdParser;
     }
 
     @Override

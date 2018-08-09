@@ -50,7 +50,6 @@ public class InitCommand implements BLauncherCmd {
     public static final String DEFAULT_VERSION = "0.0.1";
     private static final String USER_DIR = "user.dir";
     private static final PrintStream outStream = System.err;
-    private CommandLine parentCmdParser;
 
     @CommandLine.Option(names = {"--interactive", "-i"})
     private boolean interactiveFlag;
@@ -199,7 +198,6 @@ public class InitCommand implements BLauncherCmd {
      */
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
-        this.parentCmdParser = parentCmdParser;
     }
 
     /**

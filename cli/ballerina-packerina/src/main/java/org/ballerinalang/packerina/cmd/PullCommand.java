@@ -46,7 +46,6 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
                 description = "downloads the package source and binaries from a remote repository,")
 public class PullCommand implements BLauncherCmd {
     private static PrintStream outStream = System.err;
-    private CommandLine parentCmdParser;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -141,7 +140,6 @@ public class PullCommand implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
-        this.parentCmdParser = parentCmdParser;
     }
 
     @Override
