@@ -209,14 +209,15 @@ public class BallerinaStatementProcessor extends BallerinaScopeProcessorBase {
                 }
 
                 // Process timeout clause variables.
-                BallerinaTimeoutClause ballerinaTimeoutClause = PsiTreeUtil.getParentOfType(statement,
-                        BallerinaTimeoutClause.class);
+                BallerinaTimeoutClause ballerinaTimeoutClause = PsiTreeUtil.
+                        getParentOfType(statement, BallerinaTimeoutClause.class);
                 while (ballerinaTimeoutClause != null) {
                     PsiElement identifier = ballerinaTimeoutClause.getIdentifier();
                     if (identifier != null) {
                         if (myResult != null) {
                             myResult.addElement(BallerinaCompletionUtils.createVariableLookupElement(identifier,
-                                    BallerinaPsiImplUtil.formatBallerinaTypeName(ballerinaTimeoutClause.getTypeName())));
+                                    BallerinaPsiImplUtil.
+                                            formatBallerinaTypeName(ballerinaTimeoutClause.getTypeName())));
                         } else if (myElement.getText().equals(identifier.getText())) {
                             add(identifier);
                         }
