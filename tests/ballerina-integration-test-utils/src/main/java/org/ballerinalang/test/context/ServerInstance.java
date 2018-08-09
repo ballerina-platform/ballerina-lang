@@ -131,7 +131,7 @@ public class ServerInstance implements Server {
      */
     public void startBallerinaServerWithConfigPath(String balFile, String ballerinaConfPath) throws
             BallerinaTestException {
-        String balConfigPathArg = "--config ";
+        String balConfigPathArg = "--config";
         String balConfigPathVal = ballerinaConfPath;
         String[] args = {balConfigPathArg, balConfigPathVal, balFile};
         setArguments(args);
