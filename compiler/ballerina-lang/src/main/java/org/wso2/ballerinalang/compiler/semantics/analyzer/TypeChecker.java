@@ -575,12 +575,20 @@ public class TypeChecker extends BLangNodeVisitor {
 
         varRefType = getSafeType(varRefType, fieldAccessExpr);
         Name fieldName = names.fromIdNode(fieldAccessExpr.field);
+        BType actualType = checkFieldAccessExpr(fieldAccessExpr, varRefType, fieldName);
+
+        // If this is on lhs, no need to do type checking further. And null/error
+        // will not propagate from parent expressions
+        if (fieldAccessExpr.lhsVar) {
+            fieldAccessExpr.originalType = actualType;
+            fieldAccessExpr.type = actualType;
+            resultType = actualType;
+            return;
+        }
 
         // Get the effective types of the expression. If there are errors/nill propagating from parent
         // expressions, then the effective type will include those as well.
-        BType actualType = checkFieldAccessExpr(fieldAccessExpr, varRefType, fieldName);
         actualType = getAccessExprFinalType(fieldAccessExpr, actualType);
-
         resultType = types.checkType(fieldAccessExpr, actualType, this.expType);
     }
 
@@ -591,14 +599,20 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BType varRefType = indexBasedAccessExpr.expr.type;
         varRefType = getSafeType(varRefType, indexBasedAccessExpr);
-
         BType actualType = checkIndexAccessExpr(indexBasedAccessExpr, varRefType);
-        indexBasedAccessExpr.childType = actualType;
+
+        // If this is on lhs, no need to do type checking further. And null/error
+        // will not propagate from parent expressions
+        if (indexBasedAccessExpr.lhsVar) { 
+            indexBasedAccessExpr.originalType = actualType;
+            indexBasedAccessExpr.type = actualType;
+            resultType = actualType;
+            return;
+        }
 
         // Get the effective types of the expression. If there are errors/nil propagating from parent
         // expressions, then the effective type will include those as well.
         actualType = getAccessExprFinalType(indexBasedAccessExpr, actualType);
-
         this.resultType = this.types.checkType(indexBasedAccessExpr, actualType, this.expType);
     }
 
@@ -680,9 +694,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (iExpr.symbol != null) {
-            iExpr.childType = ((BInvokableSymbol) iExpr.symbol).type.getReturnType();
+            iExpr.originalType = ((BInvokableSymbol) iExpr.symbol).type.getReturnType();
         } else {
-            iExpr.childType = iExpr.type;
+            iExpr.originalType = iExpr.type;
         }
     }
 
@@ -1183,8 +1197,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangHaving having) {
-        BLangExpression expr = (BLangExpression) having.getExpression();
-        expr.accept(this);
+        // Note: Some stream attributes might not be resolved at this phase. Therefore, skipping this phase.
     }
 
     @Override
@@ -1878,7 +1891,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType getAccessExprFinalType(BLangAccessExpression accessExpr, BType actualType) {
         // Cache the actual type of the field. This will be used in desuagr phase to create safe navigation.
-        accessExpr.childType = actualType;
+        accessExpr.originalType = actualType;
 
         BUnionType unionType = new BUnionType(null, new LinkedHashSet<>(), false);
         if (actualType.tag == TypeTags.UNION) {
@@ -2118,16 +2131,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 return symTable.errType;
             }
         } else {
-            // If this is a field access in lhs, and the varRef is not a defaultable type,
-            // then do not remove nil.
-            if (accessExpr.lhsVar && !isDefaultable(type)) {
-                lhsTypes = new ArrayList<>(varRefMemberTypes);
-                nullable = true;
-            } else {
-                lhsTypes = varRefMemberTypes.stream().filter(memberType -> {
-                    return memberType != symTable.nilType;
-                }).collect(Collectors.toList());
-            }
+            lhsTypes = varRefMemberTypes.stream().filter(memberType -> {
+                return memberType != symTable.nilType;
+            }).collect(Collectors.toList());
         }
 
         if (lhsTypes.size() == 1) {
@@ -2135,14 +2141,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return new BUnionType(null, new LinkedHashSet<>(lhsTypes), nullable);
-    }
-
-    private boolean isDefaultable(BType type) {
-        if (type.tag == TypeTags.JSON || type.tag == TypeTags.MAP) {
-            return true;
-        }
-
-        return false;
     }
 
     private List<BType> getTypesList(BType type) {

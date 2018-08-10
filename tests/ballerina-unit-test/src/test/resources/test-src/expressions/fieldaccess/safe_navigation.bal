@@ -221,6 +221,42 @@ function testMapNilLiftingOnLHS_2() returns map {
     return m;
 }
 
+function testMapNilLiftingOnLHS_3() returns map<map?> {
+    map<map?> m;
+    m["name"].fname = "John";
+    return m;
+}
+
+function testMapNilLiftingOnLHS_4() returns map<A?> {
+    map<A?> m;
+    m["name"].fname = "John";
+    return m;
+}
+
+function testMapNilLiftingOnLHS_5() returns map<string>? {
+    map<string>? m;
+    m["name"] = "John";
+    return m;
+}
+
+type A record {
+    map? foo;
+};
+
+function testMapInRecordNilLiftingOnLHS_1() returns A {
+    A a = {};
+    a.foo = {"name" : "John"};
+    a.foo.name = "Doe";
+    return a;
+}
+
+function testMapInRecordNilLiftingOnLHS_2() returns A? {
+    A? a;
+    a.foo = {"name" : "John"};
+    a.foo.name = "Doe";
+    return a;
+}
+
 function testFunctionInvocOnJsonNonExistingField (json inputJson) returns (json, string, string[]) {
     json j = {name:"John"};
     string s = j.foo.bar.toString();
@@ -253,4 +289,64 @@ function testFunctionInvocOnNullabeType() returns int {
     Student|() s2 = s1;
     s2.increaseMarks();
     return s2.marks ?: -1;
+}
+
+function testUpdatingNullableRecordField_1() returns any {
+    Address adrs = {street:"Palm Grove"};
+    Info inf = {address2 : adrs};
+    Person prsn = {info2 : inf};
+    Person|() p = prsn;
+    p.info2.address2.city = "Kandy";
+    return p;
+}
+
+function testUpdatingNullableRecordField_2() returns any {
+    Person prsn = {};
+    Person|() p = prsn;
+    p.info2.address2.city = "Kandy";
+    return p;
+}
+
+type PersonObject object {
+    public int a;
+    public string fname = "John";
+    public string lname;
+    public InfoObject|error info1;
+    public InfoObject|() info2;
+
+    new(info2) {
+    
+    }
+};
+
+type InfoObject object {
+    public AddressObject|error address1;
+    public AddressObject|() address2;
+
+    new(address2) {
+    }
+};
+
+type AddressObject object {
+    public string street;
+    public string city;
+    public string country = "Sri Lanka";
+
+    new(street) {
+    }
+};
+
+function testUpdatingNullableObjectField_1() returns any {
+    AddressObject adrs = new("Palm Grove");
+    InfoObject inf = new(adrs);
+    PersonObject prsn = new(inf);
+    PersonObject|() p = prsn;
+    p.info2.address2.city = "Kandy";
+    return p;
+}
+
+function testUpdatingNullableObjectField_2() returns any {
+    PersonObject|() p = new PersonObject(());
+    p.info2.address2.city = "Kandy";
+    return p;
 }

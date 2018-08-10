@@ -45,6 +45,8 @@ public class UtilSymbolKeys {
 
     public static final String ACTION_INVOCATION_SYMBOL_KEY = "->";
 
+    public static final String BANG_SYMBOL_KEY = "!";
+
     public static final String EQUAL_SYMBOL_KEY = "=";
 
     public static final String GT_SYMBOL_KEY = ">";

@@ -340,7 +340,7 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
                                             + " made with followRedirects disabled or after maxCount exceeded: Hub ["
                                             + hub + "], Topic [" + subscriptionChangeRequest.topic + "]" };
                 return subscriptionError;
-            } else if (responseStatusCode != http:ACCEPTED_202) {
+            } else if (!isSuccessStatusCode(responseStatusCode)) {
                 var responsePayload = httpResponse.getTextPayload();
                 string errorMessage = "Error in request: Mode[" + mode + "] at Hub[" + hub + "]";
                 match (responsePayload) {
@@ -352,6 +352,10 @@ function processHubResponse(@sensitive string hub, @sensitive string mode,
                 error webSubError = {message:errorMessage};
                 return webSubError;
             } else {
+                if (responseStatusCode != http:ACCEPTED_202) {
+                    log:printDebug("Subscription request considered successful for non 202 status code: "
+                                    + responseStatusCode);
+                }
                 SubscriptionChangeResponse subscriptionChangeResponse = {hub:hub, topic:topic, response:httpResponse};
                 return subscriptionChangeResponse;
             }

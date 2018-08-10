@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test whether upgrade resource failure after handshake causes a close frame to be sent.
  */
-public class UpgradeResourceFailureTest extends WebSocketIntegrationTest {
+public class UpgradeResourceFailureTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
     private static final String URL = "ws://localhost:9090/simple";
