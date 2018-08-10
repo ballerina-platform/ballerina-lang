@@ -1899,6 +1899,22 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    public void validateStreamingEventType(DiagnosticPos pos, BType actualType, String attributeName, BType expType,
+                                           DiagnosticCode diagCode) {
+        if (expType.tag == TypeTags.ERROR) {
+            return;
+        } else if (expType.tag == TypeTags.NONE) {
+            return;
+        } else if (actualType.tag == TypeTags.ERROR) {
+            return;
+        } else if (this.types.isAssignable(actualType, expType)) {
+            return;
+        }
+
+        // e.g. incompatible types: expected 'int' for attribute 'name', found 'string'
+        dlog.error(pos, diagCode, expType, attributeName, actualType);
+    }
+
     private void validateOutputAttributeTypes(BLangStatement streamingQueryStatement) {
         StreamingInput streamingInput = ((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput();
         JoinStreamingInput joinStreamingInput = ((BLangStreamingQueryStatement) streamingQueryStatement).
@@ -1963,10 +1979,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         for (int i = 0; i < inputStreamFields.size(); i++) {
                             BField inputStructField = inputStreamFields.get(i);
                             BField outputStructField = outputStreamFieldList.get(i);
-                            this.types.checkType(((BLangStreamAction) ((BLangStreamingQueryStatement)
+                            validateStreamingEventType(((BLangStreamAction) ((BLangStreamingQueryStatement)
                                             streamingQueryStatement).getStreamingAction()).pos,
-                                    outputStructField.getType(), inputStructField.getType(),
-                                    DiagnosticCode.INCOMPATIBLE_TYPES);
+                                    outputStructField.getType(), outputStructField.getName().getValue(),
+                                    inputStructField.getType(), DiagnosticCode.STREAMING_INCOMPATIBLE_TYPES);
                         }
                     }
                 }
@@ -2005,10 +2021,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                                    BField outputStructField) {
 
         if (structField != null) {
-            this.types.checkType(((BLangStreamAction) ((BLangStreamingQueryStatement)
+            validateStreamingEventType(((BLangStreamAction) ((BLangStreamingQueryStatement)
                             streamingQueryStatement).getStreamingAction()).pos,
-                    outputStructField.getType(), structField.getType(),
-                    DiagnosticCode.INCOMPATIBLE_TYPES);
+                    outputStructField.getType(), attributeName, structField.getType(),
+                    DiagnosticCode.STREAMING_INCOMPATIBLE_TYPES);
         }
     }
 

@@ -25,7 +25,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This contains methods to test the behavior when there are incompatible record types.
+ * This contains methods to test the behavior when there are incompatible record attribute types.
  *
  * @since 0.982.0
  */
