@@ -447,7 +447,7 @@ public class BallerinaDebugProcess extends XDebugProcess {
 
                         stringBuilder.append("{\"packagePath\":\"");
                         String orgName = BallerinaDebuggerUtils.getOrgName(project);
-                        if (orgName != null) {
+                        if (orgName != null && !".".equals(packagePath)) {
                             stringBuilder.append(orgName).append("/");
                         }
                         stringBuilder.append(packagePath);
