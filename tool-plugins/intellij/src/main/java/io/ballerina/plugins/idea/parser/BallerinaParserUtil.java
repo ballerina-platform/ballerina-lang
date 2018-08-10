@@ -115,6 +115,7 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                 && !(rawLookup == BallerinaTypes.LINE_COMMENT && rawLookup2 == BallerinaTypes.COMMA)
                                 && !(rawLookup == BallerinaTypes.LEFT_BRACE
                                 && rawLookup2 == BallerinaTypes.RIGHT_BRACKET)
+                                && !(rawLookup == BallerinaTypes.LEFT_BRACE && rawLookup2 == BallerinaTypes.RETURN)
                                 ) {
                             return true;
                         } else {

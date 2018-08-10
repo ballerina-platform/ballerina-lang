@@ -85,11 +85,19 @@ public class BuilderUtils {
         List<BLangPackage> packages = compiler.build();
 
         if (skiptests) {
-            outStream.println();
-            compiler.write(packages);
+            if (packages.size() > 0) {
+                outStream.println();
+                compiler.write(packages);
+            } else {
+                outStream.println("No ballerina source files found to compile");
+            }
         } else {
-            Utils.testWithBuild(sourceRootPath, null);
-            compiler.write(packages);
+            if (packages.size() > 0) {
+                Utils.testWithBuild(sourceRootPath, null);
+                compiler.write(packages);
+            } else {
+                outStream.println("No ballerina source files found to compile");
+            }
         }
     }
 }

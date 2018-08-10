@@ -292,6 +292,13 @@ public class BallerinaBlock extends AbstractBlock {
                 (parentElementType == BallerinaTypes.ASSIGNMENT_STATEMENT ||
                         parentElementType == BallerinaTypes.VARIABLE_DEFINITION_STATEMENT)) {
             return Indent.getNormalIndent();
+        } else if ((childElementType == BallerinaTypes.TABLE_COLUMN_DEFINITION
+                || childElementType == BallerinaTypes.TABLE_DATA_ARRAY)
+                && parentElementType == BallerinaTypes.TABLE_LITERAL) {
+            return Indent.getNormalIndent();
+        } else if (childElementType == BallerinaTypes.TABLE_DATA_LIST
+                && (parentElementType == BallerinaTypes.TABLE_DATA_ARRAY)) {
+            return Indent.getNormalIndent();
         }
         return Indent.getNoneIndent();
     }

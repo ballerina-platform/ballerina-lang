@@ -31,6 +31,7 @@ public class WebSocketOpenConnectionInfo {
     private final WebSocketService webSocketService;
     private final BMap<String, BValue> webSocketEndpoint;
     private final WebSocketConnection webSocketConnection;
+    private String aggregateString = "";
 
     public WebSocketOpenConnectionInfo(WebSocketService webSocketService, WebSocketConnection webSocketConnection,
                                        BMap<String, BValue> webSocketEndpoint) {
@@ -49,5 +50,17 @@ public class WebSocketOpenConnectionInfo {
 
     public WebSocketConnection getWebSocketConnection() {
         return webSocketConnection;
+    }
+
+    String getAggregateString() {
+        return aggregateString;
+    }
+
+    void appendAggregateString(String aggreageString) {
+        this.aggregateString += aggreageString;
+    }
+
+    void resetAggregateString() {
+        this.aggregateString = "";
     }
 }
