@@ -1827,7 +1827,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void checkOutputAttributesWithOutputConstraint(BLangStatement streamingQueryStatement) {
-
         List<? extends SelectExpressionNode> selectExpressions =
                 ((BLangStreamingQueryStatement) streamingQueryStatement).getSelectClause().getSelectExpressions();
 
@@ -1889,14 +1888,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void validateStreamEventType(DiagnosticPos pos, BField field) {
-
         if (!(field.type.tag == TypeTags.INT || field.type.tag == TypeTags.BOOLEAN || field.type.tag == TypeTags.STRING
                 || field.type.tag == TypeTags.FLOAT)) {
             dlog.error(pos, DiagnosticCode.INVALID_STREAM_ATTRIBUTE_TYPE);
         }
     }
 
-    public void validateStreamingEventType(DiagnosticPos pos, BType actualType, String attributeName, BType expType,
+    private void validateStreamingEventType(DiagnosticPos pos, BType actualType, String attributeName, BType expType,
                                            DiagnosticCode diagCode) {
         if (expType.tag == TypeTags.ERROR) {
             return;
@@ -1988,7 +1986,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private List<BField> getFieldListFromStreamInput(StreamingInput streamingInput) {
-
         return ((BStructureType) ((BStreamType) ((BLangSimpleVarRef)
                 streamingInput.getStreamReference()).type).constraint).fields;
     }
