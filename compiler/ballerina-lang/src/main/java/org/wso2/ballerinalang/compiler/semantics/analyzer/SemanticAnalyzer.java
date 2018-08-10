@@ -1854,15 +1854,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         // Validate whether input stream constraint type only contains attribute type that can be processed by Siddhi
-        List<BField> fields = ((BStructureType) ((BStreamType) ((BLangExpression)
-                (((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput()).
-                        getStreamReference()).type).constraint).fields;
+        if (((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput() != null) {
+            List<BField> fields = ((BStructureType) ((BStreamType) ((BLangExpression)
+                    (((BLangStreamingQueryStatement) streamingQueryStatement).getStreamingInput()).
+                            getStreamReference()).type).constraint).fields;
 
-        for (BField structField : fields) {
-            validateStreamEventType(((BLangStreamingQueryStatement) streamingQueryStatement).pos, structField);
-            if (isSelectAll) {
-                //create the variable list to validate when select * clause is used in query
-                variableList.add(structField.name.value);
+            for (BField structField : fields) {
+                validateStreamEventType(((BLangStreamingQueryStatement) streamingQueryStatement).pos, structField);
+                if (isSelectAll) {
+                    //create the variable list to validate when select * clause is used in query
+                    variableList.add(structField.name.value);
+                }
             }
         }
 
