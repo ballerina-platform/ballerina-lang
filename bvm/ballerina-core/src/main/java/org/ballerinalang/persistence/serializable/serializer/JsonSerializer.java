@@ -423,7 +423,6 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         return map;
     }
 
-
     private BString createBString(String s) {
         StringWriter writer = new StringWriter();
         try {

@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.persistence.serializable.serializer;
 
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -122,8 +123,24 @@ class JsonDeserializer implements BValueDeserializer {
      */
     private Object deserializeBRefValueArray(BRefValueArray valueArray, Class<?> targetType) {
         int size = (int) valueArray.size();
-        Object target = Array.newInstance(targetType.getComponentType(), size);
+        Class<?> componentType = findComponentType(valueArray, targetType);
+        Object target = Array.newInstance(componentType, size);
         return deserializeBRefValueArray(valueArray, target);
+    }
+
+    private Class<?> findComponentType(BRefValueArray valueArray, Class<?> targetType) {
+        // if target type is a array then find its component type.
+        // else (i.e. target type is Object) infer component type from JSON representation.
+        if (valueArray.size() > 0 && !targetType.isArray()) {
+            if (valueArray.get(0).getType().equals(BTypes.typeString)) {
+                return String.class;
+            } else if (valueArray.get(0).getType().equals(BTypes.typeInt)) {
+                return Long.class;
+            } else if (valueArray.get(0).getType().equals(BTypes.typeFloat)) {
+                return Double.class;
+            }
+        }
+        return targetType.getComponentType();
     }
 
     /**

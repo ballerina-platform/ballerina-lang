@@ -264,6 +264,29 @@ public class JsonSerializerTest {
         Assert.assertEquals(temp.array[3], 4);
     }
 
+
+    @Test(description = "Test serialize/deserialize Object array assignment")
+    public void testJsonDeserializeObjectArrayAssignment() {
+        TestClass[] items = {
+                new TestClass("Item1"),
+                new TestClass("Item2")};
+        TestClass testClassInst = new TestClass(items);
+        String serialize = new JsonSerializer().serialize(testClassInst);
+        TestClass targetClass = (TestClass) new JsonSerializer().deserialize(serialize.getBytes(), TestClass.class);
+        TestClass[] arr = (TestClass[]) targetClass.obj;
+
+        Assert.assertTrue(arr[0].obj.equals("Item1"));
+        Assert.assertTrue(arr[1].obj.equals("Item2"));
+    }
+
+    public static class TestClass {
+        Object obj;
+
+        public TestClass(Object obj) {
+            this.obj = obj;
+        }
+    }
+
     private Map mockComplexKeyMap() {
         Map<StringFieldA, String> map = new HashMap<>();
         map.put(new StringFieldA("Key1"), "Key1");
