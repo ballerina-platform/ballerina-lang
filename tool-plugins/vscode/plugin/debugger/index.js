@@ -40,7 +40,6 @@ class BallerinaDebugSession extends LoggingDebugSession {
         this.debugManager.on('debug-hit', debugArgs => {
             const threadId = debugArgs.threadId || debugArgs.workerId;
             this.debugArgs[threadId] = debugArgs;
-            this.currentThreadId = threadId;
             if (!this.threadIndexes[threadId]) {
                 const index = this.threads.length + 1;
                 this.threads.push({
@@ -188,8 +187,10 @@ class BallerinaDebugSession extends LoggingDebugSession {
                 root = this.packagePaths[packagePath];
             }
 
+            // We need to embed the thread id also into the frame id
+            // Trailing three digits are frame id and leading digits are thread id
             return {
-                id: i,
+                id: (args.threadId-1)*1000 + i,
                 name: frame.frameName,
                 line: frame.lineID,
                 source: {
@@ -216,7 +217,7 @@ class BallerinaDebugSession extends LoggingDebugSession {
                 },
                 {
                     name: 'Global',
-                    variablesReference: args.frameId + 1001, // variableRefs larger than 1000 refer to globals
+                    variablesReference: args.frameId + 1000001, // variableRefs larger than 1000000 refer to globals
                     expensive: false,
                 },
             ]
@@ -226,12 +227,16 @@ class BallerinaDebugSession extends LoggingDebugSession {
 
     variablesRequest(response, args) {
         let scope = "Local";
-        let frameId = args.variablesReference - 1;
-        if (frameId > 999) {
+        let ref = args.variablesReference - 1;
+        if (ref > 999999) {
             scope = "Global";
-            frameId = frameId - 1000;
+            ref = ref - 1000000;
         }
-        const frame = this.debugArgs[this.currentThreadId].frames[frameId];
+
+        const frameId = ref % 1000;
+        const threadId = this.threads[(ref - frameId) / 1000].threadId;
+
+        const frame = this.debugArgs[threadId].frames[frameId];
         const varsInScope = frame.variables.filter(v => v.scope === scope);
         response.body = {
             variables: varsInScope.map(variable => ({
