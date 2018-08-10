@@ -225,6 +225,7 @@ public class BallerinaBlock extends AbstractBlock {
                 || parentElementType == BallerinaTypes.NAMED_PATTERN
                 || parentElementType == BallerinaTypes.UNNAMED_PATTERN
                 || parentElementType == BallerinaTypes.RECORD_LITERAL
+                || parentElementType == BallerinaTypes.RECORD_FIELD_DEFINITION_LIST
                 || parentElementType == BallerinaTypes.FOREACH_STATEMENT
                 || parentElementType == BallerinaTypes.LOCK_STATEMENT
                 || parentElementType == BallerinaTypes.OBJECT_TYPE_NAME
