@@ -235,6 +235,7 @@ public class BallerinaBlock extends AbstractBlock {
                 || parentElementType == BallerinaTypes.FINALLY_CLAUSE
                 || parentElementType == BallerinaTypes.SERVICE_BODY
                 || parentElementType == BallerinaTypes.ARRAY_LITERAL
+                || parentElementType == BallerinaTypes.TRANSACTION_CLAUSE
         )) {
             return Indent.getNormalIndent();
         } else if (parentElementType == BallerinaTypes.CALLABLE_UNIT_SIGNATURE ||
