@@ -276,6 +276,7 @@ public enum DiagnosticCode {
     INCOMPATIBLE_STREAM_ACTION_ARGUMENT("incompatible.stream.action.argument"),
     INVALID_STREAM_ACTION_ARGUMENT_COUNT("invalid.stream.action.argument.count"),
     INVALID_STREAM_ACTION_ARGUMENT_TYPE("invalid.stream.action.argument.type"),
+    INVALID_STREAM_ATTRIBUTE_TYPE("invalid.stream.attribute.type"),
 
     // Taint checking related codes
     ENTRY_POINT_PARAMETERS_CANNOT_BE_SENSITIVE("entry.point.parameters.cannot.be.sensitive"),
