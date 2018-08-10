@@ -76,7 +76,11 @@ class JsonDeserializer implements BValueDeserializer {
     }
 
     Object deserialize(Class<?> destinationType) {
-        return deserialize(treeHead, destinationType);
+        if (UnsafeObjectAllocator.isInstantiable(destinationType)) {
+            return deserialize(treeHead, destinationType);
+        } else {
+            throw new BallerinaException(String.format("%s is not instantiable", destinationType.getName()));
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -84,7 +88,7 @@ class JsonDeserializer implements BValueDeserializer {
         if (jValue instanceof BMap) {
             BMap<String, BValue> jBMap = (BMap<String, BValue>) jValue;
             Object obj = deserialize(jBMap, targetType);
-            addIdentity(jBMap, obj);
+            addObjReference(jBMap, obj);
             return obj;
         }
         if (jValue instanceof BRefValueArray) {
@@ -135,6 +139,10 @@ class JsonDeserializer implements BValueDeserializer {
             Object obj = deserialize(valueArray.get(i), componentType);
             if (componentType == int.class && obj instanceof Long) {
                 Array.set(destinationArray, i, ((Long) obj).intValue());
+            } else if (componentType == byte.class && obj instanceof Long) {
+                Array.set(destinationArray, i, (byte) ((Long) obj).intValue());
+            } else if (componentType == char.class && obj instanceof Long) {
+                Array.set(destinationArray, i, (char) ((Long) obj).intValue());
             } else {
                 Array.set(destinationArray, i, obj);
             }
@@ -158,7 +166,7 @@ class JsonDeserializer implements BValueDeserializer {
         }
 
         Object emptyInstance = createInstance(jBMap, targetType);
-        addIdentity(jBMap, emptyInstance);
+        addObjReference(jBMap, emptyInstance);
         Object object = deserializeObject(jBMap, emptyInstance, targetType);
 
         // check to make sure deserializeObject returns the populated 'emptyInstance'.
@@ -179,7 +187,7 @@ class JsonDeserializer implements BValueDeserializer {
         return null;
     }
 
-    private void addIdentity(BMap<String, BValue> jBMap, Object object) {
+    public void addObjReference(BMap<String, BValue> jBMap, Object object) {
         BValue hash = jBMap.get(JsonSerializerConst.HASH_TAG);
         if (hash != null) {
             identityMap.put(hash.stringValue(), object);
@@ -189,10 +197,16 @@ class JsonDeserializer implements BValueDeserializer {
     private Object findExistingReference(BMap<String, BValue> jBMap) {
         BValue existingKey = jBMap.get(JsonSerializerConst.EXISTING_TAG);
         if (existingKey != null) {
-            return identityMap.get(existingKey.stringValue());
+            String key = existingKey.stringValue();
+            return getExistingObjRef(key);
         }
         return null;
     }
+
+    public Object getExistingObjRef(String key) {
+        return identityMap.get(key);
+    }
+
 
     /**
      * Create a empty java object instance for target type.
@@ -338,24 +352,49 @@ class JsonDeserializer implements BValueDeserializer {
                     || targetType == short.class
                     || targetType == byte.class) {
                 return 0;
-            } else if (targetType == float.class
-                    || targetType == double.class) {
+            } else if (targetType == float.class) {
+                return 0.0f;
+            } else if (targetType == double.class) {
                 return 0.0;
             }
         }
         // JsonParser always treat integer numbers as longs, if target field is int then cast to int.
         if ((targetType == Integer.class && obj.getClass() == Long.class)
-                || (targetType.getName().equals("int") && obj.getClass() == Long.class)) {
+                || (targetType == int.class && obj.getClass() == Long.class)) {
             return ((Long) obj).intValue();
         }
 
         // JsonParser always treat float numbers as doubles, if target field is float then cast to float.
         if ((targetType == Float.class && obj.getClass() == Double.class)
-                || (targetType.getName().equals("float") && obj.getClass() == Double.class)) {
+                || (targetType == float.class && obj.getClass() == Double.class)) {
             return ((Double) obj).floatValue();
         }
 
+        if (targetType == byte.class) {
+            return getByte((Long) obj);
+        }
+
+        if (targetType == Byte.class) {
+            return new Byte(getByte((Long) obj));
+        }
+
+        if (targetType == char.class) {
+            return getChar((Long) obj);
+        }
+
+        if (targetType == Character.class) {
+            return new Character(getChar((Long) obj));
+        }
+
         return obj;
+    }
+
+    private byte getByte(Long obj) {
+        return obj.byteValue();
+    }
+
+    private char getChar(Long obj) {
+        return (char) obj.byteValue();
     }
 
     @SuppressWarnings("unchecked")
@@ -425,6 +464,13 @@ class JsonDeserializer implements BValueDeserializer {
     }
 
     private Class<?> findClass(String typeName) {
+        switch (typeName) {
+            case "byte":
+                return byte.class;
+            case "char":
+                return char.class;
+        }
+
         SerializationBValueProvider provider = this.bValueProvider.find(typeName);
         if (provider != null) {
             return provider.getType();
