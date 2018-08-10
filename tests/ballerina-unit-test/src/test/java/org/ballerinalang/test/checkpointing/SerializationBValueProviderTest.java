@@ -19,9 +19,8 @@ package org.ballerinalang.test.checkpointing;
 
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.serializable.serializer.BValueDeserializer;
 import org.ballerinalang.persistence.serializable.serializer.JsonSerializer;
-import org.ballerinalang.persistence.serializable.serializer.bvalueprovider.NumericBValueProviders;
+import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.NumericBValueProviders;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

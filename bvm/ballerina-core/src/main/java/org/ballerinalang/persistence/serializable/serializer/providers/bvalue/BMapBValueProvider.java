@@ -15,46 +15,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.persistence.serializable.serializer.bvalueprovider;
+package org.ballerinalang.persistence.serializable.serializer.providers.bvalue;
 
-import org.ballerinalang.broker.BallerinaBrokerByteBuf;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.serializable.serializer.BValueDeserializer;
 import org.ballerinalang.persistence.serializable.serializer.BValueSerializer;
 import org.ballerinalang.persistence.serializable.serializer.SerializationBValueProvider;
-import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
- * Provide mapping between {@link BallerinaBrokerByteBuf} and {@link BValue} representation of it.
+ * Provide mapping between {@link BMap} and {@link BValue} representation of it.
  */
-public class BallerinaBrokerByteBufBValueProvider implements SerializationBValueProvider {
+public class BMapBValueProvider implements SerializationBValueProvider {
     @Override
     public String typeName() {
-        return getType().getName();
+        return BMap.class.getSimpleName();
     }
 
     @Override
     public Class<?> getType() {
-        return BallerinaBrokerByteBuf.class;
+        return BMap.class;
     }
 
     @Override
     public BValue toBValue(Object object, BValueSerializer serializer) {
-        if (object instanceof BallerinaBrokerByteBuf) {
-            BallerinaBrokerByteBuf byteBuf = (BallerinaBrokerByteBuf) object;
-            try {
-                Field field = BallerinaBrokerByteBuf.class.getDeclaredField("value");
-                field.setAccessible(true);
-                Object value = field.get(byteBuf);
-                BValue serialized = serializer.toBValue(value, null);
-                BValue wrap = BValueProviderHelper.wrap(typeName(), serialized);
-                return BValueProviderHelper.wrap(typeName(), wrap);
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                throw new BallerinaException("Can not serialize: " + typeName());
-            }
+        if (object instanceof BMap) {
+            BMap map = (BMap) object;
+            LinkedHashMap implMap = map.getMap();
+            BValue serialized = serializer.toBValue(implMap, implMap.getClass());
+            return BValueProviderHelper.wrap(typeName(), serialized);
         }
         throw BValueProviderHelper.incorrectObjectType(object, typeName());
     }
@@ -63,12 +55,14 @@ public class BallerinaBrokerByteBufBValueProvider implements SerializationBValue
     @SuppressWarnings("unchecked")
     public Object toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
         if (bValue instanceof BMap) {
-            @SuppressWarnings("unchecked")
             BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
-            BValue payload = BValueProviderHelper.getPayload(wrapper);
-            BValue innerPayload = BValueProviderHelper.getPayload((BMap<String, BValue>) payload);
-            BValue obj = (BValue) bValueDeserializer.deserialize(innerPayload, BValue.class);
-            return new BallerinaBrokerByteBuf(obj);
+            if (BValueProviderHelper.isWrapperOfType(wrapper, typeName())) {
+                BMap payload = (BMap) BValueProviderHelper.getPayload(wrapper);
+                HashMap deserializedMap = (HashMap) bValueDeserializer.deserialize(payload, HashMap.class);
+                BMap bMap = new BMap();
+                bMap.getMap().putAll(deserializedMap);
+                return bMap;
+            }
         }
         throw BValueProviderHelper.deserializationIncorrectType(bValue, typeName());
     }

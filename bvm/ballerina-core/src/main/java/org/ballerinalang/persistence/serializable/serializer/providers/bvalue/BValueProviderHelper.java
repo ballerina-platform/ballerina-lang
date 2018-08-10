@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.persistence.serializable.serializer.bvalueprovider;
+package org.ballerinalang.persistence.serializable.serializer.providers.bvalue;
 
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;

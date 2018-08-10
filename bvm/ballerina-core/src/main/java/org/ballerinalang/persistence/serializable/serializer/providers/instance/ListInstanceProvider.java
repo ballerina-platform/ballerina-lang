@@ -15,31 +15,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.persistence.serializable.serializer.type;
+package org.ballerinalang.persistence.serializable.serializer.providers.instance;
 
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.persistence.serializable.SerializableContext;
-import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProvider;
-import org.ballerinalang.util.codegen.ProgramFile;
+
+import java.util.ArrayList;
 
 /**
- * Provide object instance for serializing {@lin SerializableContext}.
+ * Provide object instance to represent list.
  */
-public class SerializableContextInstanceProvider implements TypeInstanceProvider {
+public class ListInstanceProvider implements TypeInstanceProvider {
     @Override
     public String getTypeName() {
-        return SerializableContext.class.getName();
+        return "list";
     }
 
     @Override
     public Object newInstance() {
-        WorkerExecutionContext ctx = new WorkerExecutionContext(new ProgramFile());
-        return new SerializableContext(null, ctx, new SerializableState(ctx));
+        return new ArrayList<>();
     }
 
     @Override
     public Class getTypeClass() {
-        return SerializableContext.class;
+        return ArrayList.class;
     }
 }

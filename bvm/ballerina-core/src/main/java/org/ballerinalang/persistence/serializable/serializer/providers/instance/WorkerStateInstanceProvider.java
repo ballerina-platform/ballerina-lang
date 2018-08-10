@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.persistence.serializable.serializer.type;
+package org.ballerinalang.persistence.serializable.serializer.providers.instance;
 
 import org.ballerinalang.bre.bvm.WorkerState;
 import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProvider;

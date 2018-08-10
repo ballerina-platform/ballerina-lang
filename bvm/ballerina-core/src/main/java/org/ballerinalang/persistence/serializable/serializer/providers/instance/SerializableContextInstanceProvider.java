@@ -15,29 +15,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.persistence.serializable.serializer.type;
+package org.ballerinalang.persistence.serializable.serializer.providers.instance;
 
-import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.persistence.serializable.SerializableContext;
 import org.ballerinalang.persistence.serializable.SerializableState;
-import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBRefArray;
 import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProvider;
+import org.ballerinalang.util.codegen.ProgramFile;
 
 /**
- * Provide object instance to represent {@link SerializableBRefArray}.
+ * Provide object instance for serializing {@lin SerializableContext}.
  */
-public class SerializableBRefArrayInstanceProvider implements TypeInstanceProvider {
+public class SerializableContextInstanceProvider implements TypeInstanceProvider {
     @Override
     public String getTypeName() {
-        return SerializableBRefArray.class.getSimpleName();
+        return SerializableContext.class.getName();
     }
 
     @Override
     public Object newInstance() {
-        return new SerializableBRefArray(new BRefValueArray(), new SerializableState(null));
+        WorkerExecutionContext ctx = new WorkerExecutionContext(new ProgramFile());
+        return new SerializableContext(null, ctx, new SerializableState(ctx));
     }
 
     @Override
     public Class getTypeClass() {
-        return SerializableBRefArray.class;
+        return SerializableContext.class;
     }
 }

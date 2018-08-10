@@ -15,30 +15,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.persistence.serializable.serializer.type;
+package org.ballerinalang.persistence.serializable.serializer.providers.instance;
 
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.persistence.serializable.SerializableState;
+import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBMap;
 import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProvider;
 
 /**
- * Provide object instance to serialize {@link SerializableState}.
+ * Provide object instance to represent {@link SerializableBMap}.
  */
-public class SerializableStateInstanceProvider implements TypeInstanceProvider {
-
-    private static final String name = SerializableState.class.getName();
-
+public class SerializableBMapInstanceProvider implements TypeInstanceProvider {
     @Override
     public String getTypeName() {
-        return name;
+        return SerializableBMap.class.getSimpleName();
     }
 
     @Override
     public Object newInstance() {
-        return new SerializableState(null);
+        return new SerializableBMap<>(new BMap<>(), new SerializableState(null));
     }
 
     @Override
     public Class getTypeClass() {
-        return SerializableState.class;
+        return SerializableBMap.class;
     }
 }

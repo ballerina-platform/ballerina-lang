@@ -15,49 +15,52 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.persistence.serializable.serializer.bvalueprovider;
+package org.ballerinalang.persistence.serializable.serializer.providers.bvalue;
 
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.serializable.serializer.BValueDeserializer;
 import org.ballerinalang.persistence.serializable.serializer.BValueSerializer;
 import org.ballerinalang.persistence.serializable.serializer.SerializationBValueProvider;
 
-/**
- * Provide mapping between {@link BString} and {@link BValue} representation of it.
- */
-public class BStringBValueProvider implements SerializationBValueProvider {
-    private static final String B_STRING = BString.class.getSimpleName();
+import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
+/**
+ * Provide mapping between {@link ConcurrentHashMap} and {@link BValue} representation of it.
+ */
+public class ConcurrentHashMapBValueProvider implements SerializationBValueProvider {
     @Override
     public String typeName() {
-        return BString.class.getSimpleName();
+        return getType().getName();
     }
 
     @Override
     public Class<?> getType() {
-        return BString.class;
+        return ConcurrentHashMap.class;
     }
 
     @Override
     public BValue toBValue(Object object, BValueSerializer serializer) {
-        if (object instanceof BString) {
-            BString bString = (BString) object;
-            return BValueProviderHelper.wrap(B_STRING, bString);
+        if (object instanceof ConcurrentMap) {
+            ConcurrentMap map = (ConcurrentMap) object;
+            HashMap<Object, Object> hashMap = new HashMap<Object, Object>(map);
+            return BValueProviderHelper.wrap(typeName(), serializer.toBValue(hashMap, null));
         }
-        throw BValueProviderHelper.incorrectObjectType(object, B_STRING);
+        throw BValueProviderHelper.incorrectObjectType(object, typeName());
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Object toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
         if (bValue instanceof BMap) {
-            @SuppressWarnings("unchecked")
             BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
-            if (BValueProviderHelper.isWrapperOfType(wrapper, B_STRING)) {
-                return BValueProviderHelper.getPayload(wrapper);
-            }
+            BMap<String, BValue> payload = (BMap<String, BValue>) BValueProviderHelper.getPayload(wrapper);
+            HashMap<Object, Object> hashMap =
+                    (HashMap<Object, Object>) bValueDeserializer.deserialize(payload, HashMap.class);
+            return new ConcurrentHashMap<>(hashMap);
         }
-        throw BValueProviderHelper.deserializationIncorrectType(bValue, B_STRING);
+        throw BValueProviderHelper.deserializationIncorrectType(bValue, typeName());
     }
 }

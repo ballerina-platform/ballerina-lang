@@ -15,28 +15,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.persistence.serializable.serializer.type;
+package org.ballerinalang.persistence.serializable.serializer.providers.instance;
 
 import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProvider;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
- * Provide object instance to represent list.
+ * Provide object instance to serialize map.
  */
-public class ListInstanceProvider implements TypeInstanceProvider {
+public class MapInstanceProvider implements TypeInstanceProvider {
     @Override
     public String getTypeName() {
-        return "list";
+        return "map";
     }
 
     @Override
     public Object newInstance() {
-        return new ArrayList<>();
+        return new HashMap<>();
     }
 
     @Override
     public Class getTypeClass() {
-        return ArrayList.class;
+        return HashMap.class;
     }
 }

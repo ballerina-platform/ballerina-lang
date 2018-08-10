@@ -15,29 +15,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.persistence.serializable.serializer.type;
+package org.ballerinalang.persistence.serializable.serializer.providers.instance;
 
-import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.persistence.serializable.SerializableState;
-import org.ballerinalang.persistence.serializable.SerializableWorkerData;
 import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProvider;
 
 /**
- * Provide object instance to serialize {@link SerializableWorkerData}.
+ * Provide object instance to serialize {@link SerializableState}.
  */
-public class SerializableWorkerDataInstanceProvider implements TypeInstanceProvider {
+public class SerializableStateInstanceProvider implements TypeInstanceProvider {
+
+    private static final String name = SerializableState.class.getName();
+
     @Override
     public String getTypeName() {
-        return SerializableWorkerData.class.getName();
+        return name;
     }
 
     @Override
     public Object newInstance() {
-        return new SerializableWorkerData(new WorkerData(), new SerializableState(null));
+        return new SerializableState(null);
     }
 
     @Override
     public Class getTypeClass() {
-        return SerializableWorkerData.class;
+        return SerializableState.class;
     }
 }
