@@ -18,6 +18,8 @@
 package org.ballerinalang.bre.bvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.ballerinalang.channels.ChannelManager;
+import org.ballerinalang.channels.ChannelRegistry;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BAttachedFunction;
 import org.ballerinalang.model.types.BField;
@@ -789,7 +791,7 @@ public class CPU {
             keyVal = extractValue(ctx.workerLocal, keyType, keyReg);
         }
         BRefType dataVal = extractValue(ctx.workerLocal, dataType, dataReg);
-        ChannelRegistry.PendingContext pendingCtx = ChannelManager.channelSenderAction(channelName, keyVal);
+        ChannelRegistry.PendingContext pendingCtx = ChannelManager.channelSenderAction(channelName, keyVal, dataVal);
         if (pendingCtx != null) {
             //inject the value to the ctx
             copyArgValueForWorkerReceive(pendingCtx.context.workerLocal, pendingCtx.regIndex, dataType, dataVal);
@@ -817,7 +819,7 @@ public class CPU {
         }
         BValue value = ChannelManager.channelReceiverAction(channelName, keyVal, ctx, receiverReg);
         if (value != null) {
-            //todo:assign value to the receiver index
+            copyArgValueForWorkerReceive(ctx.workerLocal, receiverReg, receiverType, (BRefType) value);
             return true;
         }
 

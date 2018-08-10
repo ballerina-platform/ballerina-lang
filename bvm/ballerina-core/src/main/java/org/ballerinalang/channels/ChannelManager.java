@@ -14,8 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.bre.bvm;
+package org.ballerinalang.channels;
 
+import org.ballerinalang.bre.bvm.BLangScheduler;
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.values.BValue;
 
 /**
@@ -23,25 +25,25 @@ import org.ballerinalang.model.values.BValue;
  */
 public class ChannelManager {
 
-    public static void addNewChannel(String channelName) {
-        //TODO:create a table in DB as well
-        ChannelRegistry.getInstance().addChannel(channelName);
-    }
-
     public static synchronized BValue channelReceiverAction(String channelName, BValue key, WorkerExecutionContext
             ctx, int regIndex) {
-        //todo:check it in DB, following is when the value is not in DB
-        ChannelRegistry.getInstance().addWaitingContext(channelName, key, ctx, regIndex);
-        BLangScheduler.workerWaitForResponse(ctx);
+        BValue msg = DatabaseUtils.getMessage(channelName, key);
+        if (msg != null) {
+            return msg;
+        } else {
+            ChannelRegistry.getInstance().addWaitingContext(channelName, key, ctx, regIndex);
+            BLangScheduler.workerWaitForResponse(ctx);
+        }
         return null; //need to return data retrieved from DB
     }
 
-    public static synchronized ChannelRegistry.PendingContext channelSenderAction(String channelName, BValue key) {
+    public static synchronized ChannelRegistry.PendingContext channelSenderAction(String channelName, BValue key,
+                                                                                  BValue value) {
         ChannelRegistry.PendingContext ctx = ChannelRegistry.getInstance().pollOnChannel(channelName, key);
         if (ctx != null) {
             return ctx;
         }
-        //todo:save in DB
+        DatabaseUtils.addEntry(channelName, key, value);
         return null;
     }
 }

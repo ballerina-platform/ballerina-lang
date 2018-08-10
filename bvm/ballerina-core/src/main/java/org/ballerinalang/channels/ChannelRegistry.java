@@ -14,8 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.bre.bvm;
+package org.ballerinalang.channels;
 
+import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.values.BValue;
 
 import java.util.HashMap;
@@ -75,7 +76,7 @@ public class ChannelRegistry {
     }
 
     /**
-     * return a {@code PendingContext} that is waiting on a message from the given channel.
+     * Return a {@code PendingContext} that is waiting on a message from the given channel.
      * @param channel Channel to check the waiting context
      * @param key message key
      * @return Worker context or null
@@ -94,7 +95,7 @@ public class ChannelRegistry {
      * Represents a worker waiting for a data from a Channel.
      */
     public static class PendingContext {
-        int regIndex;
-        WorkerExecutionContext context;
+        public int regIndex;
+        public WorkerExecutionContext context;
     }
 }
