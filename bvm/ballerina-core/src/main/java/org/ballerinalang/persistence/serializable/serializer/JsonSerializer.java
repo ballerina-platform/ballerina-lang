@@ -37,6 +37,10 @@ import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.persistence.serializable.serializer.bvalueprovider.BMapBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.bvalueprovider.BRefValueArrayBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.bvalueprovider.BStringBValueProvider;
+import org.ballerinalang.persistence.serializable.serializer.bvalueprovider.BallerinaBrokerByteBufBValueProvider;
+import org.ballerinalang.persistence.serializable.serializer.bvalueprovider.ClassBValueProvider;
+import org.ballerinalang.persistence.serializable.serializer.bvalueprovider.ConcurrentHashMapBValueProvider;
+import org.ballerinalang.persistence.serializable.serializer.bvalueprovider.Log4jLoggerBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.bvalueprovider.NumericBValueProviders;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -72,6 +76,10 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         bValueProvider.register(new BStringBValueProvider());
         bValueProvider.register(new BRefValueArrayBValueProvider());
         bValueProvider.register(new BMapBValueProvider());
+        bValueProvider.register(new Log4jLoggerBValueProvider());
+        bValueProvider.register(new ClassBValueProvider());
+        bValueProvider.register(new BallerinaBrokerByteBufBValueProvider());
+        bValueProvider.register(new ConcurrentHashMapBValueProvider());
     }
 
     private static String getBValuePackagePath() {
@@ -393,7 +401,7 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
      */
     private List<Field> getAllFields(Class clazz) {
         ArrayList<Field> fields = Lists.newArrayList(clazz.getDeclaredFields());
-        for (Class parent = clazz.getSuperclass(); parent != Object.class; parent = parent.getSuperclass()) {
+        for (Class parent = clazz.getSuperclass(); hasSuperClass(parent); parent = parent.getSuperclass()) {
             Field[] declaredFields = parent.getDeclaredFields();
             for (Field declaredField : declaredFields) {
                 if (!Modifier.isTransient(declaredField.getModifiers())) {
@@ -402,6 +410,10 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
             }
         }
         return fields;
+    }
+
+    private boolean hasSuperClass(Class parent) {
+        return parent != null && parent != Object.class;
     }
 
     private BMap<String, BValue> wrapObject(String type, BValue payload) {
@@ -418,7 +430,7 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
             JsonGenerator jsonGenerator = new JsonGenerator(writer);
             jsonGenerator.writeStringEsc(s.toCharArray());
         } catch (IOException e) {
-            e.printStackTrace();
+            // StringWriter does not throw IOExceptions
         }
         return new BString(writer.toString());
     }

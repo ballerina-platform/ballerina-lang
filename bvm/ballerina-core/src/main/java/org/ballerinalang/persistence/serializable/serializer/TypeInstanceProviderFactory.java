@@ -34,6 +34,7 @@ public class TypeInstanceProviderFactory {
     public TypeInstanceProvider createProvider(String fullClassName) {
         try {
             Class<?> clazz = Class.forName(fullClassName);
+            assertClassClass(clazz);
             try {
                 Constructor<?> declaredConstructor = clazz.getDeclaredConstructor();
                 if (declaredConstructor == null) {
@@ -49,6 +50,13 @@ public class TypeInstanceProviderFactory {
             return null;
         } catch (ClassNotFoundException e) {
             return null;
+        }
+    }
+
+    private void assertClassClass(Class<?> clazz) {
+        if (clazz == Class.class) {
+            throw new BallerinaException("Can not instantiate object of Class class, " +
+                    "provide a SerializationBValueProvider for containing type");
         }
     }
 
