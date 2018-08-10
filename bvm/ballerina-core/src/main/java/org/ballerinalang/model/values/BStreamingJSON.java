@@ -21,11 +21,8 @@ import org.ballerinalang.model.JSONDataSource;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.JsonGenerator;
-import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -36,25 +33,40 @@ import java.io.OutputStream;
  */
 public class BStreamingJSON extends BRefValueArray {
 
-    private JSONDataSource datasource;
+    JSONDataSource datasource;
 
     public BStreamingJSON(JSONDataSource datasource) {
         this.datasource = datasource;
-        this.values = null;
+        this.values = (BRefType[]) newArrayInstance(BRefType.class);
         this.arrayType = new BArrayType(BTypes.typeJSON);
     }
 
+    @Override
     public void add(long index, BRefType<?> value) {
-        if (values == null) {
-            buildDatasource();
+        // If the the index is larger than the size, and data-source has more content,
+        // then read data from data-source until the index, or until the end of the data-source.
+        while (index >= size && datasource.hasNext()) {
+            appendToCache(datasource.next());
         }
 
         super.add(index, value);
     }
 
-    public BRefType<?> get(long index) {
-        if (values == null) {
+    @Override
+    public void append(BRefType<?> value) {
+        if (datasource.hasNext()) {
             buildDatasource();
+        }
+
+        super.append(value);
+    }
+
+    @Override
+    public BRefType<?> get(long index) {
+        // If the the index is larger than the size, and datasource has more content,
+        // then read data from data-source until the index, or until the end of the data-source.
+        while (index >= size && datasource.hasNext()) {
+            appendToCache(datasource.next());
         }
 
         return super.get(index);
@@ -68,11 +80,18 @@ public class BStreamingJSON extends BRefValueArray {
          */
         try {
             JsonGenerator gen = new JsonGenerator(outputStream);
-            if (this.values != null) {
-                gen.serialize(this);
-            } else {
-                this.datasource.serialize(gen);
+            gen.writeStartArray();
+
+            // First serialize the values loaded to memory
+            for (int i = 0; i < size; i++) {
+                gen.serialize(values[i]);
             }
+
+            // Then serialize remaining data in the data-source
+            while (datasource.hasNext()) {
+                gen.serialize(datasource.next());
+            }
+            gen.writeEndArray();
             gen.flush();
         } catch (IOException e) {
             throw new BallerinaException("error occurred while serializing data", e);
@@ -81,31 +100,77 @@ public class BStreamingJSON extends BRefValueArray {
 
     @Override
     public BRefType<?>[] getValues() {
-        if (values == null) {
+        if (datasource.hasNext()) {
             buildDatasource();
         }
         return values;
     }
 
+    @Override
+    public String stringValue() {
+        if (datasource.hasNext()) {
+            buildDatasource();
+        }
+
+        return super.stringValue();
+    }
+
+    @Override
+    public BIterator newIterator() {
+        return new BStreamingJSONIterator(this);
+    }
+
+    void appendToCache(BRefType<?> value) {
+        super.add(size, value);
+    }
+
     private void buildDatasource() {
-        try (ByteArrayOutputStream byteOut = new ByteArrayOutputStream();) {
-            JsonGenerator gen = new JsonGenerator(byteOut);
-            this.datasource.serialize(gen);
-            gen.flush();
-            BRefValueArray json = (BRefValueArray) JsonParser.parse(new ByteArrayInputStream(byteOut.toByteArray()));
-            this.values = json.getValues();
-            this.size = json.size;
+        try {
+            while (datasource.hasNext()) {
+                appendToCache(datasource.next());
+            }
         } catch (Throwable t) {
             throw new BallerinaException("error occurred while building JSON: ", t);
         }
     }
 
-    @Override
-    public String stringValue() {
-        if (values == null) {
-            buildDatasource();
+    /**
+     * {@code {@link BStreamingJSONIterator}} provides iterator implementation for Ballerina array values.
+     *
+     * @since 0.982.0
+     */
+    static class BStreamingJSONIterator implements BIterator {
+        BStreamingJSON array;
+        long cursor = 0;
+
+        BStreamingJSONIterator(BStreamingJSON value) {
+            this.array = value;
         }
 
-        return super.stringValue();
+        @Override
+        public BValue[] getNext(int arity) {
+            // If the current index is loaded in to memory, then read from it
+            if (cursor < array.size) {
+                long cursor = this.cursor++;
+                if (arity == 1) {
+                    return new BValue[] { array.getBValue(cursor) };
+                }
+                return new BValue[] { new BInteger(cursor), array.getBValue(cursor) };
+            } else {
+                // Otherwise read the next value from data-source and cache it in memory
+                BRefType<?> nextVal = array.datasource.next();
+                array.appendToCache(nextVal);
+                return new BValue[] { nextVal };
+            }
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (cursor < array.size) {
+                return true;
+            }
+
+            return array.datasource.hasNext();
+        }
     }
 }

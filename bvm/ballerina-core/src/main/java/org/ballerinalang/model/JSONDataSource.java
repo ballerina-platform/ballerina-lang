@@ -18,6 +18,7 @@
 package org.ballerinalang.model;
 
 import org.ballerinalang.model.util.JsonGenerator;
+import org.ballerinalang.model.values.BRefType;
 
 import java.io.IOException;
 
@@ -37,4 +38,9 @@ public interface JSONDataSource {
      */
     void serialize(JsonGenerator gen) throws IOException;
 
+    boolean hasNext();
+
+    BRefType<?> next();
+
+    BRefType<?> build();
 }
