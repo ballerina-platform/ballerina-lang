@@ -62,48 +62,52 @@ type OperatorKind "ADD"|"SUB"|"MUL"|"DIV"|"MOD"|"AND"|"OR"|"EQUAL"|"NOT_EQUAL"|
 "BITWISE_OR"|"BITWISE_XOR"|"BITWISE_COMPLEMENT"|"BITWISE_LEFT_SHIFT"|"BITWISE_RIGHT_SHIFT"|
 "BITWISE_UNSIGNED_RIGHT_SHIFT"|"CLOSED_RANGE"|"HALF_OPEN_RANGE"|"opValue";
 
+OperatorKind LESS_THAN = "LESS_THAN";
+OperatorKind ADD = "ADD";
+
+
 type Move object {
-    BIRVarRef lhsOp;
-    BIROperand rhsOp;
+    public BIRVarRef lhsOp;
+    public BIROperand rhsOp;
     new(lhsOp, rhsOp) {}
 };
 
 
 type BIRVarRef object {
-    Kind kind;
-    BType typeValue;
-    BIRVariableDcl variableDcl;
+    public Kind kind;
+    public BType typeValue;
+    public BIRVariableDcl variableDcl;
     new(kind, typeValue, variableDcl) {}
 };
 
 type BIROperand BIRVarRef|BIRConstant;
 
 type BIRConstant object {
-    any value;
-    Kind kind;
-    BType typeValue;
+    public int value;
+    public Kind kind;
+    public BType typeValue;
     new(kind, typeValue, value) {}
 };
 
 type GOTO object {
-    BIRBasicBlock targetBB;
+    public BIRBasicBlock targetBB;
     new(targetBB) {}
 };
 
 type BinaryOp object {
-    OperatorKind binaryOpKind;
-    InstructionKind instructionKind;
-    BIRVarRef lhsOp;
-    BIROperand rhsOp1;
-    BIROperand rhsOp2;
-    BType typeValue;
+    public OperatorKind binaryOpKind;
+    public InstructionKind instructionKind;
+    public BIRVarRef lhsOp;
+    public BIROperand rhsOp1;
+    public BIROperand rhsOp2;
+    public BType typeValue;
     new(binaryOpKind, instructionKind, lhsOp, rhsOp1, rhsOp2, typeValue) {}
 };
 
 type Branch object {
-    BIRBasicBlock falseBB;
-    BIROperand op;
-    BIRBasicBlock trueBB;
+    public BIRBasicBlock falseBB;
+    public BIROperand op;
+    public BIRBasicBlock trueBB;
     new(falseBB, op, trueBB) {}
 };
 
