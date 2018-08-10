@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.persistence.serializable.serializer;
 
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 
 /**
@@ -24,4 +25,6 @@ import org.ballerinalang.model.values.BValue;
  */
 public interface BValueDeserializer {
     Object deserialize(BValue jValue, Class<?> targetType);
+    void addObjReference(BMap<String, BValue> jBMap, Object object);
+    Object getExistingObjRef(String key);
 }
