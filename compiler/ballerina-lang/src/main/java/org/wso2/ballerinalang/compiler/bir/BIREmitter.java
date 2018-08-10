@@ -90,7 +90,7 @@ public class BIREmitter extends BIRVisitor {
     public void visit(BIRNonTerminator.BinaryOp birBinaryOp) {
         sb.append("\t\t");
         birBinaryOp.lhsOp.accept(this);
-        sb.append(" = ").append(birBinaryOp.binaryOpKind.name().toLowerCase()).append(" ");
+        sb.append(" = ").append(birBinaryOp.kind.name().toLowerCase()).append(" ");
         birBinaryOp.rhsOp1.accept(this);
         sb.append(" ");
         birBinaryOp.rhsOp2.accept(this);
@@ -102,7 +102,10 @@ public class BIREmitter extends BIRVisitor {
     }
 
     public void visit(BIRNonTerminator.ConstantLoad birConstantLoad) {
-        throw new AssertionError();
+        sb.append("\t\t");
+        birConstantLoad.lhsOp.accept(this);
+        sb.append(" = ").append(birConstantLoad.kind.name().toLowerCase()).append(" ");
+        sb.append(birConstantLoad.value).append(";\n");
     }
 
 

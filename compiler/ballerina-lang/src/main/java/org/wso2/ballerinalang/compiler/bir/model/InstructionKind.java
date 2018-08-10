@@ -23,6 +23,36 @@ package org.wso2.ballerinalang.compiler.bir.model;
  * @since 0.980.0
  */
 public enum InstructionKind {
-    MOVE,
-    GOTO
+    // Terminating instructions
+    GOTO((byte) 1),
+    CALL((byte) 2),
+    BRANCH((byte) 3),
+    RETURN((byte) 4),
+
+    // Non-terminating instructions
+    MOVE((byte) 5),
+    CONST_LOAD((byte) 6),
+
+    // Binary expression related instructions.
+    ADD((byte) 7),
+    SUB((byte) 8),
+    MUL((byte) 9),
+    DIV((byte) 10),
+    MOD((byte) 11),
+    EQUAL((byte) 12),
+    NOT_EQUAL((byte) 13),
+    GREATER_THAN((byte) 14),
+    GREATER_EQUAL((byte) 15),
+    LESS_THAN((byte) 16),
+    LESS_EQUAL((byte) 17);
+
+    byte value;
+
+    InstructionKind(byte value) {
+        this.value = value;
+    }
+
+    public byte getValue() {
+        return this.value;
+    }
 }

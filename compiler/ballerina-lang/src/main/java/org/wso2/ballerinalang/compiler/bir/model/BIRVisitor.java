@@ -56,6 +56,7 @@ public abstract class BIRVisitor {
 
 
     // Terminating instructions
+
     public void visit(GOTO birGoto) {
         throw new AssertionError();
     }
@@ -72,7 +73,9 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+
     // Non-terminating instructions
+
     public void visit(Move birMove) {
         throw new AssertionError();
     }

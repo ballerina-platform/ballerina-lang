@@ -26,25 +26,25 @@ public enum Visibility {
     /**
      * Symbols with this visibility are visible only within the package.
      */
-    PACKAGE_PRIVATE(0),
+    PACKAGE_PRIVATE((byte) 0),
 
     /**
      * This visibility is valid only for objects.
      */
-    PRIVATE(1),
+    PRIVATE((byte) 1),
 
     /**
      * Visible across packages.
      */
-    PUBLIC(2);
+    PUBLIC((byte) 2);
 
-    private int value;
+    private byte value;
 
-    Visibility(int value) {
+    Visibility(byte value) {
         this.value = value;
     }
 
-    public int value() {
+    public byte value() {
         return value;
     }
 }

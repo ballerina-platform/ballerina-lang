@@ -17,17 +17,19 @@
  */
 package org.wso2.ballerinalang.compiler.bir;
 
+import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.BinaryOp;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.Move;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
-import org.wso2.ballerinalang.compiler.bir.model.BIROperand.BIRConstant;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand.BIRVarRef;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
+import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.Visibility;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -87,7 +89,8 @@ public class BIRGen extends BLangNodeVisitor {
     // Nodes
 
     public void visit(BLangPackage astPkg) {
-        BIRPackage birPkg = new BIRPackage(astPkg.packageID.name, astPkg.packageID.version);
+        BIRPackage birPkg = new BIRPackage(astPkg.packageID.orgName,
+                astPkg.packageID.name, astPkg.packageID.version);
 
         this.env = new BIRGenEnv(birPkg);
         // Lower function nodes in AST to bir function nodes.
@@ -282,7 +285,12 @@ public class BIRGen extends BLangNodeVisitor {
     // Expressions
 
     public void visit(BLangLiteral astLiteralExpr) {
-        this.env.targetOperand = new BIRConstant(astLiteralExpr.type, astLiteralExpr.value);
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(astLiteralExpr.type,
+                this.env.nextLocalVarId(names), VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIRVarRef toVarRef = new BIRVarRef(tempVarDcl);
+        emit(new BIRNonTerminator.ConstantLoad(astLiteralExpr.value, astLiteralExpr.type, toVarRef));
+        this.env.targetOperand = toVarRef;
     }
 
     public void visit(BLangLocalVarRef astVarRefExpr) {
@@ -310,7 +318,8 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.targetOperand = lhsOp;
 
         // Create binary instruction
-        BinaryOp binaryIns = new BinaryOp(astBinaryExpr.opKind, astBinaryExpr.type, lhsOp, rhsOp1, rhsOp2);
+        BinaryOp binaryIns = new BinaryOp(getBinaryInstructionKind(astBinaryExpr.opKind),
+                astBinaryExpr.type, lhsOp, rhsOp1, rhsOp2);
         emit(binaryIns);
     }
 
@@ -329,5 +338,34 @@ public class BIRGen extends BLangNodeVisitor {
 
     private void emit(BIRInstruction instruction) {
         this.env.enclBB.instructions.add(instruction);
+    }
+
+    private InstructionKind getBinaryInstructionKind(OperatorKind opKind) {
+        switch (opKind) {
+            case ADD:
+                return InstructionKind.ADD;
+            case SUB:
+                return InstructionKind.SUB;
+            case MUL:
+                return InstructionKind.MUL;
+            case DIV:
+                return InstructionKind.DIV;
+            case MOD:
+                return InstructionKind.MOD;
+            case EQUAL:
+                return InstructionKind.EQUAL;
+            case NOT_EQUAL:
+                return InstructionKind.NOT_EQUAL;
+            case GREATER_THAN:
+                return InstructionKind.GREATER_THAN;
+            case GREATER_EQUAL:
+                return InstructionKind.GREATER_EQUAL;
+            case LESS_THAN:
+                return InstructionKind.LESS_THAN;
+            case LESS_EQUAL:
+                return InstructionKind.LESS_EQUAL;
+            default:
+                throw new IllegalStateException("Unsupported binary operation: " + opKind.value());
+        }
     }
 }

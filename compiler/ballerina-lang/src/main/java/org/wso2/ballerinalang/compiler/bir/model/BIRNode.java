@@ -39,12 +39,14 @@ public abstract class BIRNode {
      * @since 0.980.0
      */
     public static class BIRPackage extends BIRNode {
+        public Name org;
         public Name name;
         public Name version;
         public List<BIRFunction> functions;
         public List<BType> types;
 
-        public BIRPackage(Name name, Name version) {
+        public BIRPackage(Name org, Name name, Name version) {
+            this.org = org;
             this.name = name;
             this.version = version;
             this.functions = new ArrayList<>();

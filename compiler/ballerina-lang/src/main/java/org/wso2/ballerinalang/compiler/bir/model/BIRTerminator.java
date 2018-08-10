@@ -26,6 +26,12 @@ package org.wso2.ballerinalang.compiler.bir.model;
  */
 public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
 
+    public InstructionKind kind;
+
+    public BIRTerminator(InstructionKind kind) {
+        this.kind = kind;
+    }
+
     /**
      * A goto instruction.
      * <p>
@@ -38,6 +44,7 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
         public BIRBasicBlock targetBB;
 
         public GOTO(BIRBasicBlock targetBB) {
+            super(InstructionKind.GOTO);
             this.targetBB = targetBB;
         }
 
@@ -59,6 +66,10 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
         public InstructionKind kind;
         public BIROperand[] args;
 
+        public Call() {
+            super(InstructionKind.CALL);
+        }
+
         @Override
         public BIROperand.BIRVarRef getLhsOperand() {
             return lhsOp;
@@ -78,6 +89,11 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
      * @since 0.980.0
      */
     public static class Return extends BIRTerminator {
+
+        public Return() {
+            super(InstructionKind.RETURN);
+        }
+
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
@@ -97,6 +113,7 @@ public abstract class BIRTerminator extends BIRNode implements BIRInstruction {
         public BIRBasicBlock falseBB;
 
         public Branch(BIROperand op, BIRBasicBlock trueBB, BIRBasicBlock falseBB) {
+            super(InstructionKind.BRANCH);
             this.op = op;
             this.trueBB = trueBB;
             this.falseBB = falseBB;
