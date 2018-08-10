@@ -19,6 +19,7 @@ package org.ballerinalang.persistence.serializable.serializer;
 import com.google.common.collect.Lists;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByteArray;
@@ -41,7 +42,9 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -211,7 +214,7 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
 
     private BMap toBValue(Enum obj) {
         String fullEnumName = getTrimmedClassName(obj) + "." + obj.toString();
-        BString name = new BString(fullEnumName);
+        BString name = createBString(fullEnumName);
         return wrapObject(JsonSerializerConst.ENUM_TAG, name);
     }
 
@@ -253,7 +256,7 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
             return new BBoolean((Boolean) obj);
         }
         if (obj instanceof String) {
-            return new BString((String) obj);
+            return createBString((String) obj);
         }
         if (obj instanceof Enum) {
             return toBValue((Enum) obj);
@@ -306,7 +309,7 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         BMap<String, BValue> bMap = wrapObject(JsonSerializerConst.ARRAY_TAG, bArray);
         Class<?> componentType = array.getClass().getComponentType();
         String trimmedName = getTrimmedClassName(componentType);
-        bMap.put(JsonSerializerConst.COMPONENT_TYPE, new BString(trimmedName));
+        bMap.put(JsonSerializerConst.COMPONENT_TYPE, createBString(trimmedName));
         return bMap;
     }
 
@@ -325,7 +328,7 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
     }
 
     private BString getHashCode(Object obj) {
-        return new BString(getHashCode(obj, null, null));
+        return createBString(getHashCode(obj, null, null));
     }
 
     private String getHashCode(Object obj, String prefix, String sufix) {
@@ -397,9 +400,21 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
 
     private BMap<String, BValue> wrapObject(String type, BValue payload) {
         BMap<String, BValue> map = new BMap<>();
-        map.put(JsonSerializerConst.TYPE_TAG, new BString(type));
+        map.put(JsonSerializerConst.TYPE_TAG, createBString(type));
         map.put(JsonSerializerConst.PAYLOAD_TAG, payload);
         return map;
+    }
+
+
+    private BString createBString(String s) {
+        StringWriter writer = new StringWriter();
+        try {
+            JsonGenerator jsonGenerator = new JsonGenerator(writer);
+            jsonGenerator.writeStringEsc(s.toCharArray());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new BString(writer.toString());
     }
 
     @Override
