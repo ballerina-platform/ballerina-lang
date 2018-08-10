@@ -26,20 +26,30 @@ public enum VarKind {
     /**
      * User-defined local variable.
      */
-    LOCAL,
+    LOCAL((byte) 1),
 
     /**
      * Function argument.
      */
-    ARG,
+    ARG((byte) 2),
 
     /**
      * Temporary variable used to store sub-expression results.
      */
-    TEMP,
+    TEMP((byte) 3),
 
     /**
      * Special variable which holds the return value of a function.
      */
-    RETURN
+    RETURN((byte) 4);
+
+    byte value;
+
+    VarKind(byte value) {
+        this.value = value;
+    }
+
+    public byte getValue() {
+        return this.value;
+    }
 }
