@@ -32,6 +32,7 @@ public class JsonSerializerConst {
     public static final String COMPLEX_KEY_MAP_TAG = "#complex_key_map#";
     public static final String ARRAY_TAG = "array";
     public static final String COMPONENT_TYPE = "componentType";
+    public static final String BYTE_TAG = "byte";
 
     private JsonSerializerConst() {}
 }

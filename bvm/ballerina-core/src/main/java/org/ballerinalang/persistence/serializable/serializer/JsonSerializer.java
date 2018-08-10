@@ -240,6 +240,12 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         if (obj instanceof Byte[]) {
             return toBValue((Byte[]) obj);
         }
+        if (obj instanceof Byte) {
+            return new BInteger(((Byte) obj).longValue());
+        }
+        if (obj instanceof Character) {
+            return new BInteger((long) ((Character) obj).charValue());
+        }
         if (obj instanceof Integer) {
             return new BInteger(((Integer) obj).longValue());
         }
