@@ -189,6 +189,15 @@ public class BallerinaBlock extends AbstractBlock {
             if (myAlignmentMap.containsKey(myNode)) {
                 alignment = myAlignmentMap.get(myNode);
             }
+        } else if (childElementType == BallerinaTypes.TRANSACTION_PROPERTY_INIT_STATEMENT
+                && parentElementType == BallerinaTypes.TRANSACTION_PROPERTY_INIT_STATEMENT_LIST) {
+            ASTNode treeParent = myNode.getTreeParent().getTreeParent();
+            if (myAlignmentMap.containsKey(treeParent)) {
+                alignment = myAlignmentMap.get(treeParent);
+            } else {
+                alignment = Alignment.createAlignment(true, Alignment.Anchor.LEFT);
+                myAlignmentMap.put(treeParent, alignment);
+            }
         }
         return alignment;
     }
@@ -224,6 +233,7 @@ public class BallerinaBlock extends AbstractBlock {
                 || parentElementType == BallerinaTypes.CATCH_CLAUSE
                 || parentElementType == BallerinaTypes.FINALLY_CLAUSE
                 || parentElementType == BallerinaTypes.SERVICE_BODY
+                || parentElementType == BallerinaTypes.ARRAY_LITERAL
         )) {
             return Indent.getNormalIndent();
         } else if (parentElementType == BallerinaTypes.CALLABLE_UNIT_SIGNATURE ||
