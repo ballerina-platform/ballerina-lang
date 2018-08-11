@@ -220,6 +220,9 @@ public class Main {
         @Parameter(names = "--observe", description = "enable observability with default configs")
         private boolean observeFlag;
 
+        @Parameter(names = "--printreturn", description = "print return value to the out stream")
+        private boolean printReturn;
+
         @DynamicParameter(names = "-e", description = "Ballerina environment parameters")
         private Map<String, String> runtimeParams = new HashMap<>();
 
@@ -266,7 +269,7 @@ public class Main {
             }
 
             LauncherUtils.runProgram(sourceRootPath, sourcePath, false, functionName, runtimeParams,
-                                     configFilePath, programArgs, offline, observeFlag);
+                                     configFilePath, programArgs, offline, observeFlag, printReturn);
         }
 
         @Override

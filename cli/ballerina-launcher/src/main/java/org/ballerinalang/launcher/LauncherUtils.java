@@ -81,7 +81,7 @@ public class LauncherUtils {
 
     public static void runProgram(Path sourceRootPath, Path sourcePath, boolean runServices, String functionName,
                                   Map<String, String> runtimeParams, String configFilePath, String[] args,
-                                  boolean offline, boolean observeFlag) {
+                                  boolean offline, boolean observeFlag, boolean printReturn) {
         ProgramFile programFile;
         String srcPathStr = sourcePath.toString();
         Path fullPath = sourceRootPath.resolve(sourcePath);
@@ -126,13 +126,13 @@ public class LauncherUtils {
             }
             runServices(programFile);
         } else {
-            runMain(programFile, functionName, args);
+            runMain(programFile, functionName, args, printReturn);
         }
 
         listeners.forEach(listener -> listener.afterRunProgram(runServicesOrNoFunctionEP));
     }
 
-    public static void runMain(ProgramFile programFile, String functionName, String[] args) {
+    public static void runMain(ProgramFile programFile, String functionName, String[] args, boolean printReturn) {
         int exitStatus = 0;
         try {
             BValue[] entryFuncResult = BLangProgramRunner.runEntryFunc(programFile, functionName, args);
@@ -140,7 +140,10 @@ public class LauncherUtils {
                 // TODO: 8/5/18 depends on return -  change return to single BValue instead of array and change here?
                 if (MAIN_FUNCTION_NAME.equals(functionName)) {
                     exitStatus = (int) (((BInteger) entryFuncResult[0]).intValue());
-                } else {
+                    // TODO: 8/11/18 remove/fix
+                }
+
+                if (printReturn) {
                     outStream.println(entryFuncResult[0] == null ? "()" : entryFuncResult[0].stringValue());
                 }
             }

@@ -42,6 +42,7 @@ import java.io.IOException;
  */
 public class RunFunctionPositiveTestCase extends IntegrationTestCase {
 
+    private static final String PRINT_RETURN = "--printreturn";
     private String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
     private ServerInstance serverInstance;
 
@@ -60,7 +61,7 @@ public class RunFunctionPositiveTestCase extends IntegrationTestCase {
         sourceArg = filePath + ":" + functionName;
         LogLeecher outLogLeecher = new LogLeecher("1");
         serverInstance.addLogLeecher(outLogLeecher);
-        serverInstance.runMain(new String[]{sourceArg});
+        serverInstance.runMain(new String[]{PRINT_RETURN, sourceArg});
         outLogLeecher.waitForText(2000);
     }
 
@@ -70,7 +71,7 @@ public class RunFunctionPositiveTestCase extends IntegrationTestCase {
         sourceArg = filePath + ":" + functionName;
         LogLeecher outLogLeecher = new LogLeecher(arg);
         serverInstance.addLogLeecher(outLogLeecher);
-        serverInstance.runMain(new String[]{sourceArg, arg});
+        serverInstance.runMain(new String[]{PRINT_RETURN, sourceArg, arg});
         outLogLeecher.waitForText(2000);
     }
 
@@ -81,7 +82,7 @@ public class RunFunctionPositiveTestCase extends IntegrationTestCase {
         sourceArg = filePath + ":" + functionName;
         LogLeecher outLogLeecher = new LogLeecher(arg);
         serverInstance.addLogLeecher(outLogLeecher);
-        serverInstance.runMain(new String[]{sourceArg, arg});
+        serverInstance.runMain(new String[]{PRINT_RETURN, sourceArg, arg});
         outLogLeecher.waitForText(2000);
     }
 
@@ -91,7 +92,7 @@ public class RunFunctionPositiveTestCase extends IntegrationTestCase {
         sourceArg = filePath + ":" + functionName;
         LogLeecher outLogLeecher = new LogLeecher(arg);
         serverInstance.addLogLeecher(outLogLeecher);
-        serverInstance.runMain(new String[]{sourceArg, arg});
+        serverInstance.runMain(new String[]{PRINT_RETURN, sourceArg, arg});
         outLogLeecher.waitForText(2000);
     }
 
@@ -101,7 +102,7 @@ public class RunFunctionPositiveTestCase extends IntegrationTestCase {
         sourceArg = filePath + ":" + functionName;
         LogLeecher outLogLeecher = new LogLeecher("2 hi world: is false");
         serverInstance.addLogLeecher(outLogLeecher);
-        serverInstance.runMain(new String[]{sourceArg, "--", "-i=2", "-s=hi", "false", "is"});
+        serverInstance.runMain(new String[]{PRINT_RETURN, sourceArg, "--", "-i=2", "-s=hi", "false", "is"});
         outLogLeecher.waitForText(2000);
     }
 
@@ -111,7 +112,7 @@ public class RunFunctionPositiveTestCase extends IntegrationTestCase {
         sourceArg = filePath + ":" + functionName;
         LogLeecher outLogLeecher = new LogLeecher("1 hi world: is false");
         serverInstance.addLogLeecher(outLogLeecher);
-        serverInstance.runMain(new String[]{sourceArg, "--", "-s=hi", "false", "is"});
+        serverInstance.runMain(new String[]{PRINT_RETURN, sourceArg, "--", "-s=hi", "false", "is"});
         outLogLeecher.waitForText(2000);
     }
 
@@ -121,7 +122,7 @@ public class RunFunctionPositiveTestCase extends IntegrationTestCase {
         sourceArg = filePath + ":" + functionName;
         LogLeecher outLogLeecher = new LogLeecher("1 default hello world: is true");
         serverInstance.addLogLeecher(outLogLeecher);
-        serverInstance.runMain(new String[]{sourceArg, "--", "true", "is"});
+        serverInstance.runMain(new String[]{PRINT_RETURN, sourceArg, "--", "true", "is"});
         outLogLeecher.waitForText(2000);
     }
 
@@ -134,7 +135,7 @@ public class RunFunctionPositiveTestCase extends IntegrationTestCase {
                                                           + "book, Employee Name Field: Em, string rest args: just the"
                                                           + " rest ");
         serverInstance.addLogLeecher(outLogLeecher);
-        serverInstance.runMain(new String[]{sourceArg, "1000", "1.0", "Hello Ballerina", "255", "true",
+        serverInstance.runMain(new String[]{PRINT_RETURN, sourceArg, "1000", "1.0", "Hello Ballerina", "255", "true",
                                         "{ \"name\": \"Maryam\" }", "<book>Harry Potter</book>", "{ \"name\": \"Em\" }",
                                         "just", "the", "rest"});
         outLogLeecher.waitForText(2000);
