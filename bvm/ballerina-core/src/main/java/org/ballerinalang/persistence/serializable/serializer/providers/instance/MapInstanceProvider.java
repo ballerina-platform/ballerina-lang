@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.persistence.serializable.serializer.providers.instance;
 
+import org.ballerinalang.persistence.serializable.serializer.JsonSerializerConst;
 import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProvider;
 
 import java.util.HashMap;
@@ -27,7 +28,7 @@ import java.util.HashMap;
 public class MapInstanceProvider implements TypeInstanceProvider {
     @Override
     public String getTypeName() {
-        return "map";
+        return JsonSerializerConst.MAP_TAG;
     }
 
     @Override

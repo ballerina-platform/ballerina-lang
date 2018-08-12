@@ -27,7 +27,9 @@ public interface SerializationBValueProvider {
      * Return typeName used to find the appropriate {@link SerializationBValueProvider} implementation.
      * @return
      */
-    String typeName();
+    default String typeName() {
+        return getType().getName();
+    }
     Class<?> getType();
     BValue toBValue(Object object, BValueSerializer serializer);
     Object toObject(BValue bValue, BValueDeserializer bValueDeserializer);

@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.persistence.serializable.serializer.providers.instance;
 
+import org.ballerinalang.persistence.serializable.serializer.JsonSerializerConst;
 import org.ballerinalang.persistence.serializable.serializer.TypeInstanceProvider;
 
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ import java.util.ArrayList;
 public class ListInstanceProvider implements TypeInstanceProvider {
     @Override
     public String getTypeName() {
-        return "list";
+        return JsonSerializerConst.LIST_TAG;
     }
 
     @Override

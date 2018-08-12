@@ -23,16 +23,16 @@ package org.ballerinalang.persistence.serializable.serializer;
 public class JsonSerializerConst {
     public static final String EXISTING_TAG = "#existing#";
     public static final String HASH_TAG = "#hash#";
-    public static final String PAYLOAD_TAG = "payload";
-    public static final String ENUM_TAG = "enum";
-    public static final String LIST_TAG = "list";
-    public static final String MAP_TAG = "map";
-    public static final String TYPE_TAG = "type";
-    public static final String COMPLEX_KEY_TAG = "complex_key";
+    public static final String PAYLOAD_TAG = "value#";
+    public static final String ENUM_TAG = "enum#";
+    public static final String LIST_TAG = "list#";
+    public static final String MAP_TAG = "map#";
+    public static final String TYPE_TAG = "type#";
+    public static final String COMPLEX_KEY_TAG = "complex_key#";
     public static final String COMPLEX_KEY_MAP_TAG = "#complex_key_map#";
-    public static final String ARRAY_TAG = "array";
-    public static final String COMPONENT_TYPE = "componentType";
-    public static final String BYTE_TAG = "byte";
+    public static final String ARRAY_TAG = "array#";
+    public static final String COMPONENT_TYPE = "componentType#";
+    public static final String BYTE_TAG = "byte#";
 
     private JsonSerializerConst() {}
 }
