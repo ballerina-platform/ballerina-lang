@@ -55,10 +55,26 @@ public class ClassBValueProvider implements SerializationBValueProvider {
             BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
             BValue payload = BValueProviderHelper.getPayload(wrapper);
             String className = payload.stringValue();
-            try {
-                return Class.forName(className);
-            } catch (ClassNotFoundException e) {
-                throw new BallerinaException("Cannot find serialized class: " + className);
+
+            switch (className) {
+                case "int":
+                    return int.class;
+                case "float":
+                    return float.class;
+                case "double":
+                    return double.class;
+                case "long":
+                    return long.class;
+                case "byte":
+                    return byte.class;
+                case "char":
+                    return char.class;
+                default:
+                    try {
+                        return Class.forName(className);
+                    } catch (ClassNotFoundException e) {
+                        throw new BallerinaException("Cannot find serialized class: " + className);
+                    }
             }
         }
         throw BValueProviderHelper.deserializationIncorrectType(bValue, typeName());

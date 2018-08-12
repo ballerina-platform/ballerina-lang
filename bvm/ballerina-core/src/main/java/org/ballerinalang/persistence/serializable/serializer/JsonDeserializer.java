@@ -215,7 +215,11 @@ class JsonDeserializer implements BValueDeserializer {
         BValue existingKey = jBMap.get(JsonSerializerConst.EXISTING_TAG);
         if (existingKey != null) {
             String key = existingKey.stringValue();
-            return getExistingObjRef(key);
+            Object existingObjRef = getExistingObjRef(key);
+            if (existingObjRef == null) {
+                throw new BallerinaException("Can not find existing reference: " + existingKey);
+            }
+            return existingObjRef;
         }
         return null;
     }
@@ -232,10 +236,10 @@ class JsonDeserializer implements BValueDeserializer {
      * @return
      */
     private Object createInstance(BMap<String, BValue> jsonNode, Class<?> target) {
-        if (Enum.class.isAssignableFrom(target)) {
+        if (target != null && Enum.class.isAssignableFrom(target)) {
             return createEnumInstance(jsonNode);
         }
-        BValue typeNode = jsonNode.get("type");
+        BValue typeNode = jsonNode.get(JsonSerializerConst.TYPE_TAG);
         if (typeNode != null) {
             String type = typeNode.stringValue();
             if (type.equals(JsonSerializerConst.ARRAY_TAG)) {
@@ -264,7 +268,7 @@ class JsonDeserializer implements BValueDeserializer {
 
     @SuppressWarnings("unchecked")
     private Object createEnumInstance(BMap jsonNode) {
-        String enumName = jsonNode.get("payload").stringValue();
+        String enumName = jsonNode.get(JsonSerializerConst.PAYLOAD_TAG).stringValue();
         int separatorPos = enumName.lastIndexOf(".");
         String type = enumName.substring(0, separatorPos);
         String enumConst = enumName.substring(separatorPos + 1);
@@ -292,9 +296,9 @@ class JsonDeserializer implements BValueDeserializer {
 
     @SuppressWarnings("unchecked")
     private Object deserializeObject(BMap<String, BValue> jsonNode, Object instance, Class<?> targetType) {
-        BValue payload = jsonNode.get("payload");
-        if (jsonNode.get("type") != null) {
-            String objType = jsonNode.get("type").stringValue();
+        BValue payload = jsonNode.get(JsonSerializerConst.PAYLOAD_TAG);
+        if (jsonNode.get(JsonSerializerConst.TYPE_TAG) != null) {
+            String objType = jsonNode.get(JsonSerializerConst.TYPE_TAG).stringValue();
             if (JsonSerializerConst.MAP_TAG.equals(objType)) {
                 return deserializeMap((BMap<String, BValue>) payload, (Map) instance);
             } else if (JsonSerializerConst.LIST_TAG.equals(objType)) {
@@ -316,29 +320,41 @@ class JsonDeserializer implements BValueDeserializer {
         return instance;
     }
 
-    private void setFields(Object target, BMap<String, BValue> jMap, Class<?> targetClass) {
-        for (Field field : targetClass.getDeclaredFields()) {
-            if (Modifier.isTransient(field.getModifiers())) {
+    private void setFields(Object target, BMap<String, BValue> jMap,
+                           Class<?> targetClass) {
+        HashMap<String, Field> allFields = ReflectionHelper.getAllFields(target.getClass(), 0);
+
+        for (String fieldName : jMap.keys()) {
+            if (fieldName.contains("#hash#")) {
+                // it's a metadata entry.
                 continue;
             }
-            BValue value = jMap.get(field.getName());
-            Object obj = deserialize(value, field.getType());
-            primeFinalFieldForAssignment(field);
-            try {
-                Object newValue = cast(obj, field.getType());
-                field.set(target, newValue);
-            } catch (IllegalAccessException e) {
-                logger.warn(String.format(
-                        "Cannot set field: %s, this probably is a final field \n" +
-                                "initialized to a compile-time constant", field.getName()));
-            } catch (IllegalArgumentException e) {
-                logger.error(e.getMessage());
-                throw new BallerinaException(e);
+            Field field = allFields.get(fieldName);
+            if (field == null) {
+                throw new BallerinaException(String.format("Can not find field %s from JSON in %s class",
+                        fieldName, targetClass.getName()));
             }
+            BValue value = jMap.get(fieldName);
+            setField(target, fieldName, field, value);
         }
-        // recursively set fields in super types.
-        if (targetClass != Object.class) {
-            setFields(target, jMap, targetClass.getSuperclass());
+    }
+
+    private void setField(Object target, String fieldName, Field field, BValue value) {
+        if (Modifier.isTransient(field.getModifiers())) {
+            return;
+        }
+        Object obj = deserialize(value, field.getType());
+        primeFinalFieldForAssignment(field);
+        try {
+            Object newValue = cast(obj, field.getType());
+            field.set(target, newValue);
+        } catch (IllegalAccessException e) {
+            logger.warn(String.format(
+                    "Cannot set field: %s, this probably is a final field \n" +
+                            "initialized to a compile-time constant", fieldName));
+        } catch (IllegalArgumentException e) {
+            logger.error(e.getMessage());
+            throw new BallerinaException(e);
         }
     }
 

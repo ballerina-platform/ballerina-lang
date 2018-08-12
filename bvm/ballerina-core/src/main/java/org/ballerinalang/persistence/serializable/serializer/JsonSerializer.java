@@ -16,10 +16,8 @@
  */
 package org.ballerinalang.persistence.serializable.serializer;
 
-import com.google.common.collect.Lists;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByteArray;
@@ -34,31 +32,34 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.serializable.SerializableState;
+import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.BBooleanBValueProvider;
+import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.BIntegerBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.BMapBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.BRefValueArrayBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.BStringBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.BallerinaBrokerByteBufBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.ClassBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.ConcurrentHashMapBValueProvider;
-import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.Log4jLoggerBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.NumericBValueProviders;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.ballerinalang.persistence.serializable.serializer.BValueHelper.addHashValue;
+import static org.ballerinalang.persistence.serializable.serializer.BValueHelper.createBString;
+import static org.ballerinalang.persistence.serializable.serializer.BValueHelper.getHashCode;
+import static org.ballerinalang.persistence.serializable.serializer.BValueHelper.wrapObject;
 
 /**
  * Serialize @{@link SerializableState} into JSON and back.
@@ -76,10 +77,11 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         bValueProvider.register(new BStringBValueProvider());
         bValueProvider.register(new BRefValueArrayBValueProvider());
         bValueProvider.register(new BMapBValueProvider());
-        bValueProvider.register(new Log4jLoggerBValueProvider());
         bValueProvider.register(new ClassBValueProvider());
         bValueProvider.register(new BallerinaBrokerByteBufBValueProvider());
         bValueProvider.register(new ConcurrentHashMapBValueProvider());
+        bValueProvider.register(new BIntegerBValueProvider());
+        bValueProvider.register(new BBooleanBValueProvider());
     }
 
     private static String getBValuePackagePath() {
@@ -88,17 +90,20 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
 
     @Override
     public String serialize(Object object) {
-        if (object == null) {
-            return null;
-        }
-        BRefType<?> jsonObj = toBValue(object, object.getClass());
-        trimTree(jsonObj);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        jsonObj.serialize(outputStream);
         try {
+            if (object == null) {
+                return null;
+            }
+            BRefType<?> jsonObj = toBValue(object, object.getClass());
+            trimTree(jsonObj);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            jsonObj.serialize(outputStream);
             return outputStream.toString("UTF-8");
         } catch (UnsupportedEncodingException e) {
             throw new BallerinaException(e);
+        } finally {
+            identityMap.clear();
+            repeatedReferenceSet.clear();
         }
     }
 
@@ -341,30 +346,6 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         return className;
     }
 
-    private BString getHashCode(Object obj) {
-        return createBString(getHashCode(obj, null, null));
-    }
-
-    private String getHashCode(Object obj, String prefix, String sufix) {
-        StringBuilder sb = new StringBuilder();
-        if (prefix != null) {
-            sb.append(prefix);
-            sb.append("#");
-        }
-        sb.append(obj.getClass().getSimpleName());
-        sb.append("#");
-        sb.append(obj.hashCode());
-        if (sufix != null) {
-            sb.append("#");
-            sb.append(sufix);
-        }
-        return sb.toString();
-    }
-
-    private void addHashValue(Object obj, BMap<String, BValue> map) {
-        map.put(JsonSerializerConst.HASH_TAG, getHashCode(obj));
-    }
-
     private BMap<String, BValue> createExistingReferenceNode(Object obj) {
         BMap<String, BValue> map = new BMap<>();
         BString hashCode = getHashCode(obj);
@@ -376,10 +357,13 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
     private BMap convertToBValueViaReflection(Object obj, Class<?> leftSideType) {
         Class<?> objClass = obj.getClass();
         BMap<String, BValue> map = new BMap<>();
-        for (Field field : getAllFields(objClass)) {
+        HashMap<String, Field> allFields = ReflectionHelper.getAllFields(objClass, 0);
+        for (Map.Entry<String, Field> fieldEntry : allFields.entrySet()) {
+            String fieldName = fieldEntry.getKey();
+            Field field = fieldEntry.getValue();
             field.setAccessible(true);
             try {
-                map.put(field.getName(), toBValue(field.get(obj), field.getType()));
+                map.put(fieldName, toBValue(field.get(obj), field.getType()));
             } catch (IllegalAccessException e) {
                 // field is set to be accessible
             }
@@ -391,47 +375,6 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         } else {
             return map;
         }
-    }
-
-    /**
-     * Get all declared fields up until Object.
-     *
-     * @param clazz
-     * @return
-     */
-    private List<Field> getAllFields(Class clazz) {
-        ArrayList<Field> fields = Lists.newArrayList(clazz.getDeclaredFields());
-        for (Class parent = clazz.getSuperclass(); hasSuperClass(parent); parent = parent.getSuperclass()) {
-            Field[] declaredFields = parent.getDeclaredFields();
-            for (Field declaredField : declaredFields) {
-                if (!Modifier.isTransient(declaredField.getModifiers())) {
-                    fields.add(declaredField);
-                }
-            }
-        }
-        return fields;
-    }
-
-    private boolean hasSuperClass(Class parent) {
-        return parent != null && parent != Object.class;
-    }
-
-    private BMap<String, BValue> wrapObject(String type, BValue payload) {
-        BMap<String, BValue> map = new BMap<>();
-        map.put(JsonSerializerConst.TYPE_TAG, createBString(type));
-        map.put(JsonSerializerConst.PAYLOAD_TAG, payload);
-        return map;
-    }
-
-    private BString createBString(String s) {
-        StringWriter writer = new StringWriter();
-        try {
-            JsonGenerator jsonGenerator = new JsonGenerator(writer);
-            jsonGenerator.writeStringEsc(s.toCharArray());
-        } catch (IOException e) {
-            // StringWriter does not throw IOExceptions
-        }
-        return new BString(writer.toString());
     }
 
     @Override

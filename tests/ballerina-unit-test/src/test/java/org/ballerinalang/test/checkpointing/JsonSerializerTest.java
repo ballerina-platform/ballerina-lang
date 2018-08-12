@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -170,9 +171,11 @@ public class JsonSerializerTest {
         BRefValueArray array = new BRefValueArray(BTypes.typeString);
         BString str1 = new BString("String1");
         BString str2 = new BString("String2");
+        BInteger bint = new BInteger(4343);
         array.append(str1);
         array.append(str2);
         array.append(str1);
+        array.append(bint);
 
         String serialize = new JsonSerializer().serialize(array);
         Object deserialize = new JsonSerializer().deserialize(serialize.getBytes(), BRefValueArray.class);
@@ -183,6 +186,8 @@ public class JsonSerializerTest {
         Assert.assertEquals(string1.value(), "String1");
         // reference sharing test
         Assert.assertTrue(deArray.get(0) == deArray.get(2));
+
+        Assert.assertTrue(((BInteger) deArray.get(3)).intValue() == 4343);
     }
 
     @Test(description = "Test deserialization of BNewArray when elements are maps")
