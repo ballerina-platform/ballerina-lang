@@ -1212,8 +1212,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         isSiddhiRuntimeEnabled = foreverStatement.isSiddhiRuntimeEnabled();
         foreverStatement.setEnv(env);
         for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
-            SymbolEnv stmtEnv = SymbolEnv.createStatementEnv((BLangStatement) streamingQueryStatement, env);
-            resolveStreamingScopeEntries(stmtEnv, streamingQueryStatement);
+            SymbolEnv stmtEnv = SymbolEnv.createStreamingQueryEnv(
+                    (BLangStreamingQueryStatement) streamingQueryStatement, env);
             analyzeStmt((BLangStatement) streamingQueryStatement, stmtEnv);
         }
 
@@ -1227,6 +1227,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
+        defineSelectorAttributes(this.env, streamingQueryStatement);
+
         StreamingInput streamingInput = streamingQueryStatement.getStreamingInput();
         if (streamingInput != null) {
             ((BLangStreamingInput) streamingInput).accept(this);
@@ -2028,20 +2030,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void resolveStreamingScopeEntries(SymbolEnv stmtEnv, StreamingQueryStatementNode node) {
-        if (node.getStreamingAction() != null) {
-            Map<String, BField> fields = new HashMap<>(0);
-            BType streamActionArgumentType = ((BLangLambdaFunction) node.getStreamingAction()
-                    .getInvokableBody()).function.requiredParams.get(0).type;
-            if (streamActionArgumentType.tag == TypeTags.ARRAY) {
-                BType structType = (((BArrayType) streamActionArgumentType).eType);
-                if (structType.tag == TypeTags.OBJECT || structType.tag == TypeTags.RECORD) {
-                    List<BField> outputStreamFieldList = ((BStructureType) structType).fields;
-                    fields = outputStreamFieldList.stream().collect(Collectors.toMap(
-                            field -> field.name.getValue(), field -> field, (a, b) -> b));
-                }
-            }
-            for (BField field : fields.values()) {
+    private void defineSelectorAttributes(SymbolEnv stmtEnv, StreamingQueryStatementNode node) {
+        if (node.getStreamingAction() == null) {
+            return;
+        }
+        BType streamActionArgumentType = ((BLangLambdaFunction) node.getStreamingAction()
+                .getInvokableBody()).function.requiredParams.get(0).type;
+        if (streamActionArgumentType.tag != TypeTags.ARRAY) {
+            return;
+        }
+        BType structType = (((BArrayType) streamActionArgumentType).eType);
+        if (structType.tag == TypeTags.OBJECT || structType.tag == TypeTags.RECORD) {
+            List<BField> outputStreamFieldList = ((BStructureType) structType).fields;
+            for (BField field : outputStreamFieldList) {
                 stmtEnv.scope.define(field.name, field.symbol);
             }
         }
