@@ -18,6 +18,7 @@
 package org.ballerinalang.persistence.serializable.serializer;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 
 /**
@@ -34,6 +35,10 @@ public class ReflectionHelper {
     public static HashMap<String, Field> getAllFields(Class<?> targetClass, int depth) {
         HashMap<String, Field> fieldMap = new HashMap<>();
         for (Field declaredField : targetClass.getDeclaredFields()) {
+            if (Modifier.isTransient(declaredField.getModifiers())) {
+                // transient fields should not be serialized
+                continue;
+            }
             String name = declaredField.getName();
             if (depth > 0) {
                 name = name + "#" + depth;

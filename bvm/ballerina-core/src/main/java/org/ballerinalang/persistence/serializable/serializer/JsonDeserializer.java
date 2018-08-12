@@ -325,7 +325,7 @@ class JsonDeserializer implements BValueDeserializer {
         HashMap<String, Field> allFields = ReflectionHelper.getAllFields(target.getClass(), 0);
 
         for (String fieldName : jMap.keys()) {
-            if (fieldName.contains("#hash#")) {
+            if (fieldName.equals(JsonSerializerConst.HASH_TAG)) {
                 // it's a metadata entry.
                 continue;
             }
