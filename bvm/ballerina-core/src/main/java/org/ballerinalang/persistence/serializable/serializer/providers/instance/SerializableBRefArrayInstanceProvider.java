@@ -33,7 +33,7 @@ public class SerializableBRefArrayInstanceProvider implements TypeInstanceProvid
 
     @Override
     public Object newInstance() {
-        return new SerializableBRefArray(new BRefValueArray(), new SerializableState(null));
+        return new SerializableBRefArray(new BRefValueArray(), new SerializableState(null, 0));
     }
 
     @Override

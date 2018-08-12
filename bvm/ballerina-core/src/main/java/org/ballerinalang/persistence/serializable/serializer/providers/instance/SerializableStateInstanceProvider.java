@@ -34,7 +34,7 @@ public class SerializableStateInstanceProvider implements TypeInstanceProvider {
 
     @Override
     public Object newInstance() {
-        return new SerializableState(null);
+        return new SerializableState(null, 0);
     }
 
     @Override

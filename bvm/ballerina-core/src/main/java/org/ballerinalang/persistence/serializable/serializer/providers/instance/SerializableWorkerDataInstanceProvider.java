@@ -33,7 +33,7 @@ public class SerializableWorkerDataInstanceProvider implements TypeInstanceProvi
 
     @Override
     public Object newInstance() {
-        return new SerializableWorkerData(new WorkerData(), new SerializableState(null));
+        return new SerializableWorkerData(new WorkerData(), new SerializableState(null, 0));
     }
 
     @Override

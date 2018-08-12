@@ -33,7 +33,7 @@ public class SerializableBMapInstanceProvider implements TypeInstanceProvider {
 
     @Override
     public Object newInstance() {
-        return new SerializableBMap<>(new BMap<>(), new SerializableState(null));
+        return new SerializableBMap<>(new BMap<>(), new SerializableState(null, 0));
     }
 
     @Override
