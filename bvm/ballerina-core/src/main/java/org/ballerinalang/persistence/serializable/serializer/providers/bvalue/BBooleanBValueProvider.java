@@ -27,7 +27,7 @@ import org.ballerinalang.persistence.serializable.serializer.SerializationBValue
 /**
  * Provide mapping between {@link Class} and {@link BValue} representation of it.
  */
-public class BBooleanBValueProvider implements SerializationBValueProvider {
+public class BBooleanBValueProvider implements SerializationBValueProvider<BBoolean> {
     @Override
     public String typeName() {
         return getType().getSimpleName();
@@ -39,20 +39,16 @@ public class BBooleanBValueProvider implements SerializationBValueProvider {
     }
 
     @Override
-    public BValue toBValue(Object object, BValueSerializer serializer) {
-        if (object instanceof BBoolean) {
-            BBoolean bInteger = (BBoolean) object;
-            return BValueProviderHelper.wrap(typeName(), bInteger);
-        }
-        throw BValueProviderHelper.incorrectObjectType(object, typeName());
+    public BValue toBValue(BBoolean bBoolean, BValueSerializer serializer) {
+        return BValueProviderHelper.wrap(typeName(), bBoolean);
     }
 
     @Override
-    public Object toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
+    public BBoolean toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
         if (bValue instanceof BMap) {
             @SuppressWarnings("unchecked")
             BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
-            return BValueProviderHelper.getPayload(wrapper);
+            return (BBoolean) BValueProviderHelper.getPayload(wrapper);
         }
         throw BValueProviderHelper.deserializationIncorrectType(bValue, typeName());
     }

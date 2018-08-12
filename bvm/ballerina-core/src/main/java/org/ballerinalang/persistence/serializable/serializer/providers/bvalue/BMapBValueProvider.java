@@ -29,7 +29,7 @@ import java.util.LinkedHashMap;
 /**
  * Provide mapping between {@link BMap} and {@link BValue} representation of it.
  */
-public class BMapBValueProvider implements SerializationBValueProvider {
+public class BMapBValueProvider implements SerializationBValueProvider<BMap> {
     @Override
     public String typeName() {
         return BMap.class.getSimpleName();
@@ -41,19 +41,15 @@ public class BMapBValueProvider implements SerializationBValueProvider {
     }
 
     @Override
-    public BValue toBValue(Object object, BValueSerializer serializer) {
-        if (object instanceof BMap) {
-            BMap map = (BMap) object;
-            LinkedHashMap implMap = map.getMap();
+    public BValue toBValue(BMap bMap, BValueSerializer serializer) {
+            LinkedHashMap implMap = bMap.getMap();
             BValue serialized = serializer.toBValue(implMap, implMap.getClass());
             return BValueProviderHelper.wrap(typeName(), serialized);
-        }
-        throw BValueProviderHelper.incorrectObjectType(object, typeName());
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Object toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
+    public BMap toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
         if (bValue instanceof BMap) {
             BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
             if (BValueProviderHelper.isWrapperOfType(wrapper, typeName())) {

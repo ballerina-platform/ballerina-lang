@@ -32,7 +32,7 @@ import org.ballerinalang.persistence.serializable.serializer.SerializationBValue
 /**
  * Provide mapping between {@link BRefValueArray} and {@link BValue} representation of it.
  */
-public class BRefValueArrayBValueProvider implements SerializationBValueProvider {
+public class BRefValueArrayBValueProvider implements SerializationBValueProvider<BRefValueArray> {
 
     private static final String ARRAY_TYPE = "arrayType";
 
@@ -48,23 +48,18 @@ public class BRefValueArrayBValueProvider implements SerializationBValueProvider
 
     @SuppressWarnings("unchecked")
     @Override
-    public BValue toBValue(Object object, BValueSerializer serializer) {
-        if (object instanceof BRefValueArray) {
-            BRefValueArray array = (BRefValueArray) object;
-
-            BRefType[] newArray = new BRefType[Long.valueOf(array.size()).intValue()];
-            for (int i = 0; i < array.size(); i++) {
-                newArray[i] = (BRefType) serializer.toBValue(array.get(i), Object.class);
-            }
-            BValue wrapped = BValueProviderHelper.wrap(typeName(), new BRefValueArray(newArray, array.getType()));
-            ((BMap) wrapped).put(ARRAY_TYPE, new BString(array.getType().toString()));
-            return wrapped;
+    public BValue toBValue(BRefValueArray array, BValueSerializer serializer) {
+        BRefType[] newArray = new BRefType[Long.valueOf(array.size()).intValue()];
+        for (int i = 0; i < array.size(); i++) {
+            newArray[i] = (BRefType) serializer.toBValue(array.get(i), Object.class);
         }
-        throw BValueProviderHelper.incorrectObjectType(object, typeName());
+        BValue wrapped = BValueProviderHelper.wrap(typeName(), new BRefValueArray(newArray, array.getType()));
+        ((BMap) wrapped).put(ARRAY_TYPE, new BString(array.getType().toString()));
+        return wrapped;
     }
 
     @Override
-    public Object toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
+    public BRefValueArray toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
         if (bValue instanceof BMap) {
             @SuppressWarnings("unchecked")
             BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;

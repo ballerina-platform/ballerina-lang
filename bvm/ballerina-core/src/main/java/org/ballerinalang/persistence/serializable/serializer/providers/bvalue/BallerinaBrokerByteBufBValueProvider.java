@@ -30,7 +30,7 @@ import java.lang.reflect.Field;
 /**
  * Provide mapping between {@link BallerinaBrokerByteBuf} and {@link BValue} representation of it.
  */
-public class BallerinaBrokerByteBufBValueProvider implements SerializationBValueProvider {
+public class BallerinaBrokerByteBufBValueProvider implements SerializationBValueProvider<BallerinaBrokerByteBuf> {
     @Override
     public String typeName() {
         return getType().getName();
@@ -42,26 +42,22 @@ public class BallerinaBrokerByteBufBValueProvider implements SerializationBValue
     }
 
     @Override
-    public BValue toBValue(Object object, BValueSerializer serializer) {
-        if (object instanceof BallerinaBrokerByteBuf) {
-            BallerinaBrokerByteBuf byteBuf = (BallerinaBrokerByteBuf) object;
-            try {
-                Field field = BallerinaBrokerByteBuf.class.getDeclaredField("value");
-                field.setAccessible(true);
-                Object value = field.get(byteBuf);
-                BValue serialized = serializer.toBValue(value, null);
-                BValue wrap = BValueProviderHelper.wrap(typeName(), serialized);
-                return BValueProviderHelper.wrap(typeName(), wrap);
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                throw new BallerinaException("Can not serialize: " + typeName());
-            }
+    public BValue toBValue(BallerinaBrokerByteBuf object, BValueSerializer serializer) {
+        try {
+            Field field = BallerinaBrokerByteBuf.class.getDeclaredField("value");
+            field.setAccessible(true);
+            Object value = field.get(object);
+            BValue serialized = serializer.toBValue(value, null);
+            BValue wrap = BValueProviderHelper.wrap(typeName(), serialized);
+            return BValueProviderHelper.wrap(typeName(), wrap);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new BallerinaException("Can not serialize: " + typeName());
         }
-        throw BValueProviderHelper.incorrectObjectType(object, typeName());
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Object toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
+    public BallerinaBrokerByteBuf toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
         if (bValue instanceof BMap) {
             @SuppressWarnings("unchecked")
             BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;

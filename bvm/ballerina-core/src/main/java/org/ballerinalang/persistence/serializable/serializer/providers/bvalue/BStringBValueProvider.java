@@ -27,7 +27,7 @@ import org.ballerinalang.persistence.serializable.serializer.SerializationBValue
 /**
  * Provide mapping between {@link BString} and {@link BValue} representation of it.
  */
-public class BStringBValueProvider implements SerializationBValueProvider {
+public class BStringBValueProvider implements SerializationBValueProvider<BString> {
     private static final String B_STRING = BString.class.getSimpleName();
 
     @Override
@@ -41,21 +41,17 @@ public class BStringBValueProvider implements SerializationBValueProvider {
     }
 
     @Override
-    public BValue toBValue(Object object, BValueSerializer serializer) {
-        if (object instanceof BString) {
-            BString bString = (BString) object;
-            return BValueProviderHelper.wrap(B_STRING, bString);
-        }
-        throw BValueProviderHelper.incorrectObjectType(object, B_STRING);
+    public BValue toBValue(BString bString, BValueSerializer serializer) {
+        return BValueProviderHelper.wrap(B_STRING, bString);
     }
 
     @Override
-    public Object toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
+    public BString toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
         if (bValue instanceof BMap) {
             @SuppressWarnings("unchecked")
             BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
             if (BValueProviderHelper.isWrapperOfType(wrapper, B_STRING)) {
-                return BValueProviderHelper.getPayload(wrapper);
+                return (BString) BValueProviderHelper.getPayload(wrapper);
             }
         }
         throw BValueProviderHelper.deserializationIncorrectType(bValue, B_STRING);

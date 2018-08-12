@@ -25,12 +25,11 @@ import org.ballerinalang.persistence.serializable.serializer.SerializationBValue
 
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Provide mapping between {@link ConcurrentHashMap} and {@link BValue} representation of it.
  */
-public class ConcurrentHashMapBValueProvider implements SerializationBValueProvider {
+public class ConcurrentHashMapBValueProvider implements SerializationBValueProvider<ConcurrentHashMap> {
     @Override
     public String typeName() {
         return getType().getName();
@@ -42,18 +41,14 @@ public class ConcurrentHashMapBValueProvider implements SerializationBValueProvi
     }
 
     @Override
-    public BValue toBValue(Object object, BValueSerializer serializer) {
-        if (object instanceof ConcurrentMap) {
-            ConcurrentMap map = (ConcurrentMap) object;
-            HashMap<Object, Object> hashMap = new HashMap<Object, Object>(map);
-            return BValueProviderHelper.wrap(typeName(), serializer.toBValue(hashMap, null));
-        }
-        throw BValueProviderHelper.incorrectObjectType(object, typeName());
+    public BValue toBValue(ConcurrentHashMap map, BValueSerializer serializer) {
+        HashMap<Object, Object> hashMap = new HashMap<>(map);
+        return BValueProviderHelper.wrap(typeName(), serializer.toBValue(hashMap, null));
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Object toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
+    public ConcurrentHashMap toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
         if (bValue instanceof BMap) {
             BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
             BMap<String, BValue> payload = (BMap<String, BValue>) BValueProviderHelper.getPayload(wrapper);

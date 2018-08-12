@@ -34,7 +34,7 @@ public class NumericBValueProviders {
     /**
      * Convert {@link BigInteger} into {@link BValue} object and back to facilitate serialization.
      */
-    public static class BigIntegerBValueProvider implements SerializationBValueProvider {
+    public static class BigIntegerBValueProvider implements SerializationBValueProvider<BigInteger> {
         static final String BIG_INT = BigInteger.class.getName();
 
         @Override
@@ -48,16 +48,12 @@ public class NumericBValueProviders {
         }
 
         @Override
-        public BValue toBValue(Object object, BValueSerializer serializer) {
-            if (object instanceof BigInteger) {
-                BigInteger bigInteger = (BigInteger) object;
-                return BValueProviderHelper.wrap(BIG_INT, new BString(bigInteger.toString(10)));
-            }
-            throw BValueProviderHelper.incorrectObjectType(object, BIG_INT);
+        public BValue toBValue(BigInteger bigInteger, BValueSerializer serializer) {
+            return BValueProviderHelper.wrap(BIG_INT, new BString(bigInteger.toString(10)));
         }
 
         @Override
-        public Object toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
+        public BigInteger toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
             if (bValue instanceof BMap) {
                 @SuppressWarnings("unchecked")
                 BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
@@ -73,7 +69,7 @@ public class NumericBValueProviders {
     /**
      * Provide mapping between {@link BigDecimal} and its {@link BValue} representation.
      */
-    public static class BigDecimalBValueProvider implements SerializationBValueProvider {
+    public static class BigDecimalBValueProvider implements SerializationBValueProvider<BigDecimal> {
         static final String BIG_DEC = BigDecimal.class.getName();
 
         @Override
@@ -87,16 +83,12 @@ public class NumericBValueProviders {
         }
 
         @Override
-        public BValue toBValue(Object object, BValueSerializer serializer) {
-            if (object instanceof BigDecimal) {
-                BigDecimal bigDecimal = (BigDecimal) object;
-                return BValueProviderHelper.wrap(BIG_DEC, new BString(bigDecimal.toString()));
-            }
-            throw BValueProviderHelper.incorrectObjectType(object, BIG_DEC);
+        public BValue toBValue(BigDecimal bigDecimal, BValueSerializer serializer) {
+            return BValueProviderHelper.wrap(BIG_DEC, new BString(bigDecimal.toString()));
         }
 
         @Override
-        public Object toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
+        public BigDecimal toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
             if (bValue instanceof BMap) {
                 BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
                 if (BValueProviderHelper.isWrapperOfType(wrapper, BIG_DEC)) {

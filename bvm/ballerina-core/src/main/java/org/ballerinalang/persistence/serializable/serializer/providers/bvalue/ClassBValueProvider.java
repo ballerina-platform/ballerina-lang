@@ -28,7 +28,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 /**
  * Provide mapping between {@link Class} and {@link BValue} representation of it.
  */
-public class ClassBValueProvider implements SerializationBValueProvider {
+public class ClassBValueProvider implements SerializationBValueProvider<Class> {
     @Override
     public String typeName() {
         return getType().getName();
@@ -40,16 +40,12 @@ public class ClassBValueProvider implements SerializationBValueProvider {
     }
 
     @Override
-    public BValue toBValue(Object object, BValueSerializer serializer) {
-        if (object instanceof Class) {
-            Class clazz = (Class) object;
-            return BValueProviderHelper.wrap(typeName(), new BString(clazz.getName()));
-        }
-        throw BValueProviderHelper.incorrectObjectType(object, typeName());
+    public BValue toBValue(Class clazz, BValueSerializer serializer) {
+        return BValueProviderHelper.wrap(typeName(), new BString(clazz.getName()));
     }
 
     @Override
-    public Object toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
+    public Class toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
         if (bValue instanceof BMap) {
             @SuppressWarnings("unchecked")
             BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
