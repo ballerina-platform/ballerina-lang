@@ -52,24 +52,24 @@ public class ComplexObjectGraphSerializationTest {
         Shadower sh = new Shadower(55.55, 2);
         String serialize = new JsonSerializer().serialize(sh);
         Shadower newSh = (Shadower) new JsonSerializer().deserialize(serialize.getBytes(), Shadower.class);
-        Assert.assertEquals(newSh.I, sh.I);
-        Assert.assertEquals(((Shadowee) newSh).I, ((Shadowee) sh).I);
+        Assert.assertEquals(newSh.i, sh.i);
+        Assert.assertEquals(((Shadowee) newSh).i, ((Shadowee) sh).i);
     }
 
     private static class Shadowee {
-        private int I;
+        private int i;
 
         public Shadowee(int i) {
-            I = i;
+            this.i = i;
         }
     }
 
     private static class Shadower extends Shadowee {
-        private double I;
+        private double i;
 
         public Shadower(double i, int j) {
             super(j);
-            I = i;
+            this.i = i;
         }
     }
 }

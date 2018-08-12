@@ -96,7 +96,8 @@ public class SerializationTest {
         Assert.assertTrue(storageProvider.state.contains(INSTANCE_ID));
     }
 
-    @Test(description = "Test case for JsonSerializer for both serialization and deserialization using mocked WorkerExecutionContext object.")
+    @Test(description = "Test case for JsonSerializer for both serialization and deserialization using mocked" +
+            " WorkerExecutionContext object.")
     public void testJsonSerializationAndDeserialization() {
         // setup
         WorkerExecutionContext weContext = new WorkerExecutionContext(compileResult.getProgFile());

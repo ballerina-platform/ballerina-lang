@@ -64,7 +64,7 @@ public class JsonSerializerTest {
     @Test(description = "Test serializing simple mocked SerializableState object")
     public void testJsonSerializerWithMockedSerializableState() {
         WorkerExecutionContext weContext = new WorkerExecutionContext(compileResult.getProgFile());
-        SerializableState serializableState = new SerializableState(weContext);
+        SerializableState serializableState = new SerializableState(weContext, 0);
         mock(serializableState);
 
         String json = serializableState.serialize();
@@ -88,7 +88,7 @@ public class JsonSerializerTest {
     @Test(description = "Test deserialization of JSON into SerializableState object")
     public void testJsonDeserializeSerializableState() {
         WorkerExecutionContext weContext = new WorkerExecutionContext(compileResult.getProgFile());
-        SerializableState serializableState = new SerializableState(weContext);
+        SerializableState serializableState = new SerializableState(weContext, 0);
         serializableState.setId(INSTANCE_ID);
         mock(serializableState);
         String json = serializableState.serialize();
@@ -105,7 +105,7 @@ public class JsonSerializerTest {
     @Test(description = "Test deserialization of Deeply nested BMap")
     public void testJsonDeserializeSerializableStateDeepBMapReconstruction() {
         WorkerExecutionContext weContext = new WorkerExecutionContext(compileResult.getProgFile());
-        SerializableState serializableState = new SerializableState(weContext);
+        SerializableState serializableState = new SerializableState(weContext, 0);
         serializableState.setId(INSTANCE_ID);
         mock(serializableState);
         String json = serializableState.serialize();
@@ -116,8 +116,8 @@ public class JsonSerializerTest {
         BString value = (BString) bmap.get("bmapKey1");
         Assert.assertEquals(value.value(), "bmap_str_val");
         StringFieldAB multiLevel = (StringFieldAB) state.globalProps.get("multiLevel");
-        Assert.assertEquals(multiLevel.B, "B");
-        Assert.assertEquals(multiLevel.A, "A");
+        Assert.assertEquals(multiLevel.b, "B");
+        Assert.assertEquals(multiLevel.a, "A");
 
         BigDecimal dec = (BigDecimal) state.globalProps.get("dec");
         Assert.assertTrue(dec.equals(bigDecimal));
@@ -161,8 +161,8 @@ public class JsonSerializerTest {
         Object destinationMap = jsonSerializer.deserialize(serialize.getBytes(), HashMap.class);
 
         Map map = (Map) destinationMap;
-        boolean matchedKey1 = map.keySet().stream().anyMatch(k -> ((StringFieldA) k).A.equals("Key1"));
-        boolean matchedKey2 = map.keySet().stream().anyMatch(k -> ((StringFieldA) k).A.equals("Key2"));
+        boolean matchedKey1 = map.keySet().stream().anyMatch(k -> ((StringFieldA) k).a.equals("Key1"));
+        boolean matchedKey2 = map.keySet().stream().anyMatch(k -> ((StringFieldA) k).a.equals("Key2"));
         Assert.assertTrue(matchedKey1 && matchedKey2);
     }
 
@@ -228,9 +228,9 @@ public class JsonSerializerTest {
 
         StringFieldA[] array1 = (StringFieldA[]) deserialize;
         Assert.assertEquals(array1.length, array.length);
-        Assert.assertEquals(array1[0].A, array[0].A);
-        Assert.assertEquals(array1[1].A, array[1].A);
-        Assert.assertEquals(array1[2].A, array[2].A);
+        Assert.assertEquals(array1[0].a, array[0].a);
+        Assert.assertEquals(array1[1].a, array[1].a);
+        Assert.assertEquals(array1[2].a, array[2].a);
 
         // test reference sharing
         Assert.assertTrue(array1[1] == array1[2]);
@@ -240,24 +240,24 @@ public class JsonSerializerTest {
     public void testJsonDeserializeArrayOfArrayOfStringFieldA() {
         StringFieldA sf0 = new StringFieldA("A");
         StringFieldA sf1 = new StringFieldA("B");
-        StringFieldA[][] array = { new StringFieldA[]{sf0, sf1, sf1}, new StringFieldA[]{sf0, sf1, sf1}};
+        StringFieldA[][] array = {new StringFieldA[]{sf0, sf1, sf1}, new StringFieldA[]{sf0, sf1, sf1}};
 
         String serialize = new JsonSerializer().serialize(array);
         Object deserialize = new JsonSerializer().deserialize(serialize.getBytes(), StringFieldA[][].class);
 
         StringFieldA[][] array1 = (StringFieldA[][]) deserialize;
         Assert.assertEquals(array1.length, array.length);
-        Assert.assertEquals(array1[0][0].A, "A");
-        Assert.assertEquals(array1[0][1].A, "B");
-        Assert.assertEquals(array1[0][2].A, "B");
-        Assert.assertEquals(array1[1][0].A, "A");
-        Assert.assertEquals(array1[1][1].A, "B");
-        Assert.assertEquals(array1[1][2].A, "B");
+        Assert.assertEquals(array1[0][0].a, "A");
+        Assert.assertEquals(array1[0][1].a, "B");
+        Assert.assertEquals(array1[0][2].a, "B");
+        Assert.assertEquals(array1[1][0].a, "A");
+        Assert.assertEquals(array1[1][1].a, "B");
+        Assert.assertEquals(array1[1][2].a, "B");
     }
 
     @Test(description = "Test deserialization of class with a array field")
     public void testJsonDeserializeClassWithArrayField() {
-        ArrayField af = new ArrayField(new int[]{1,2,3,4});
+        ArrayField af = new ArrayField(new int[]{1, 2, 3, 4});
 
         String serialize = new JsonSerializer().serialize(af);
         Object deserialize = new JsonSerializer().deserialize(serialize.getBytes(), ArrayField.class);
@@ -301,19 +301,19 @@ public class JsonSerializerTest {
     }
 
     public static class StringFieldA {
-        public final String A;
+        public final String a;
 
         public StringFieldA(String a) {
-            A = a;
+            this.a = a;
         }
     }
 
     public static class StringFieldAB extends StringFieldA {
-        public final String B;
+        public final String b;
 
         public StringFieldAB(String a, String b) {
             super(a);
-            this.B = b;
+            this.b = b;
         }
     }
 

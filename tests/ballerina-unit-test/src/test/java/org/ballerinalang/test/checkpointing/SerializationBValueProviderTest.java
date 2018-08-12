@@ -33,7 +33,8 @@ public class SerializationBValueProviderTest {
 
     @Test(description = "test BigInt to BValue conversion")
     public void testBigIntBValueProviderToBValue() {
-        NumericBValueProviders.BigIntegerBValueProvider provider = new NumericBValueProviders.BigIntegerBValueProvider();
+        NumericBValueProviders.BigIntegerBValueProvider provider =
+                new NumericBValueProviders.BigIntegerBValueProvider();
         String num = "2345232323";
         BValue value = provider.toBValue(new BigInteger(num), new JsonSerializer());
 
@@ -46,7 +47,8 @@ public class SerializationBValueProviderTest {
 
     @Test(description = "test BValue to BigInt conversion")
     public void testBigIntBValueProviderToBigInt() {
-        NumericBValueProviders.BigIntegerBValueProvider provider = new NumericBValueProviders.BigIntegerBValueProvider();
+        NumericBValueProviders.BigIntegerBValueProvider provider =
+                new NumericBValueProviders.BigIntegerBValueProvider();
         String num = "2345232323";
         BValue value = provider.toBValue(new BigInteger(num), new JsonSerializer());
 
@@ -57,7 +59,8 @@ public class SerializationBValueProviderTest {
 
     @Test(description = "test BValue to/from BigDecimal conversion")
     public void testBigIntBValueProviderBigDecimal() {
-        NumericBValueProviders.BigDecimalBValueProvider provider = new NumericBValueProviders.BigDecimalBValueProvider();
+        NumericBValueProviders.BigDecimalBValueProvider provider =
+                new NumericBValueProviders.BigDecimalBValueProvider();
         String num = "2345232323";
         BValue value = provider.toBValue(new BigDecimal(num), new JsonSerializer());
 
