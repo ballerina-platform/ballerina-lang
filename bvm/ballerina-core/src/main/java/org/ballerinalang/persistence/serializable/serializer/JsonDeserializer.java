@@ -46,6 +46,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.persistence.serializable.serializer.ReflectionHelper.cast;
+
 /**
  * Reconstruct Java object tree from JSON input.
  */
@@ -349,9 +351,10 @@ class JsonDeserializer implements BValueDeserializer {
             Object newValue = cast(obj, field.getType());
             field.set(target, newValue);
         } catch (IllegalAccessException e) {
-            logger.warn(String.format(
-                    "Cannot set field: %s, this probably is a final field \n" +
-                            "initialized to a compile-time constant", fieldName));
+            // Ignore it, this is fine.
+            // Reason: Either security manager stopping us from setting this field
+            // or this is a static final field initialized using compile time constant,
+            // we can't assign to them at runtime, nor can we identify them at runtime.
         } catch (IllegalArgumentException e) {
             logger.error(e.getMessage());
             throw new BallerinaException(e);
@@ -367,67 +370,6 @@ class JsonDeserializer implements BValueDeserializer {
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new BallerinaException();
         }
-    }
-
-    /**
-     * Convert to desired type if special conditions are matched.
-     *
-     * @param obj
-     * @param targetType
-     * @return
-     */
-    private Object cast(Object obj, Class targetType) {
-        if (obj == null) {
-            // get default value for primitive type
-            if (targetType == int.class
-                    || targetType == long.class
-                    || targetType == char.class
-                    || targetType == short.class
-                    || targetType == byte.class) {
-                return 0;
-            } else if (targetType == float.class) {
-                return 0.0f;
-            } else if (targetType == double.class) {
-                return 0.0;
-            }
-        }
-        // JsonParser always treat integer numbers as longs, if target field is int then cast to int.
-        if ((targetType == Integer.class && obj.getClass() == Long.class)
-                || (targetType == int.class && obj.getClass() == Long.class)) {
-            return ((Long) obj).intValue();
-        }
-
-        // JsonParser always treat float numbers as doubles, if target field is float then cast to float.
-        if ((targetType == Float.class && obj.getClass() == Double.class)
-                || (targetType == float.class && obj.getClass() == Double.class)) {
-            return ((Double) obj).floatValue();
-        }
-
-        if (targetType == byte.class) {
-            return getByte((Long) obj);
-        }
-
-        if (targetType == Byte.class) {
-            return new Byte(getByte((Long) obj));
-        }
-
-        if (targetType == char.class) {
-            return getChar((Long) obj);
-        }
-
-        if (targetType == Character.class) {
-            return new Character(getChar((Long) obj));
-        }
-
-        return obj;
-    }
-
-    private byte getByte(Long obj) {
-        return obj.byteValue();
-    }
-
-    private char getChar(Long obj) {
-        return (char) obj.byteValue();
     }
 
     @SuppressWarnings("unchecked")

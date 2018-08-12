@@ -46,4 +46,30 @@ public class ComplexObjectGraphSerializationTest {
 
         Assert.assertTrue(deserializedResponse.status().equals(HttpResponseStatus.OK));
     }
+
+    @Test(description = "Test serialize/deserialize field shadowing")
+    public void testJsonDeserializeFieldShadowing() {
+        Shadower sh = new Shadower(55.55, 2);
+        String serialize = new JsonSerializer().serialize(sh);
+        Shadower newSh = (Shadower) new JsonSerializer().deserialize(serialize.getBytes(), Shadower.class);
+        Assert.assertEquals(newSh.I, sh.I);
+        Assert.assertEquals(((Shadowee) newSh).I, ((Shadowee) sh).I);
+    }
+
+    private static class Shadowee {
+        private int I;
+
+        public Shadowee(int i) {
+            I = i;
+        }
+    }
+
+    private static class Shadower extends Shadowee {
+        private double I;
+
+        public Shadower(double i, int j) {
+            super(j);
+            I = i;
+        }
+    }
 }

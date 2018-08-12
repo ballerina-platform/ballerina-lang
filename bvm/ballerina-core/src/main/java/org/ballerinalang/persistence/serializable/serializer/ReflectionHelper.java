@@ -50,4 +50,66 @@ public class ReflectionHelper {
         }
         return fieldMap;
     }
+
+    /**
+     * Convert to desired type if special conditions are matched.
+     *
+     * @param obj
+     * @param targetType
+     * @return
+     */
+    static Object cast(Object obj, Class targetType) {
+        if (obj == null) {
+            // get default value for primitive type
+            if (targetType == int.class
+                    || targetType == long.class
+                    || targetType == char.class
+                    || targetType == short.class
+                    || targetType == byte.class) {
+                return 0;
+            } else if (targetType == float.class) {
+                return 0.0f;
+            } else if (targetType == double.class) {
+                return 0.0;
+            }
+        }
+        // JsonParser always treat integer numbers as longs, if target field is int then cast to int.
+        if ((targetType == Integer.class && obj.getClass() == Long.class)
+                || (targetType == int.class && obj.getClass() == Long.class)) {
+            return ((Long) obj).intValue();
+        }
+
+        // JsonParser always treat float numbers as doubles, if target field is float then cast to float.
+        if ((targetType == Float.class && obj.getClass() == Double.class)
+                || (targetType == float.class && obj.getClass() == Double.class)) {
+            return ((Double) obj).floatValue();
+        }
+
+        if (targetType == byte.class) {
+            return getByte((Long) obj);
+        }
+
+        if (targetType == Byte.class) {
+            return new Byte(getByte((Long) obj));
+        }
+
+        if (targetType == char.class) {
+            return getChar((Long) obj);
+        }
+
+        if (targetType == Character.class) {
+            return new Character(getChar((Long) obj));
+        }
+
+        return obj;
+    }
+
+    private static byte getByte(Long obj) {
+        return obj.byteValue();
+    }
+
+    private static char getChar(Long obj) {
+        return (char) obj.byteValue();
+    }
+
 }
