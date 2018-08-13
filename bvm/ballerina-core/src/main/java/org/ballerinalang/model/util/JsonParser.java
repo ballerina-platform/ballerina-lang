@@ -102,8 +102,13 @@ public class JsonParser {
      */
     public static BRefType<?> parse(Reader reader) throws BallerinaException {
         StateMachine sm = tlStateMachine.get();
-        sm.reset();
-        return sm.execute(reader);
+        try {
+            return sm.execute(reader);
+        } finally {
+            // Need to reset the state machine before leaving. Otherwise references to the created 
+            // JSON values will be maintained and the java GC will not happen properly.
+            sm.reset();
+        }
     }
     
     /**
@@ -182,7 +187,11 @@ public class JsonParser {
         private int line;
         private int column;
         private char currentQuoteChar;
-        
+
+        StateMachine() {
+            reset();
+        }
+
         public void reset() {
             this.index = 0;
             this.currentJsonNode = null;
