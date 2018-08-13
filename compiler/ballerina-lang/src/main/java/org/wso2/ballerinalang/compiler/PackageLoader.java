@@ -415,6 +415,9 @@ public class PackageLoader {
     private BLangPackage parse(PackageID pkgId, PackageSource pkgSource) {
         BLangPackage packageNode = this.parser.parse(pkgSource);
         packageNode.packageID = pkgId;
+        if (packageNode.testableBLangPackage != null) {
+            packageNode.testableBLangPackage.packageID = pkgId;
+        }
         this.packageCache.put(pkgId, packageNode);
         return packageNode;
     }
@@ -439,8 +442,10 @@ public class PackageLoader {
         Patten packageIDPattern = projectSourceRepo.calculate(packageID);
         if (packageIDPattern != Patten.NULL) {
             Stream<Path> srcPathStream = packageIDPattern.convert(projectSourceRepo.getConverterInstance(), packageID);
+            // Filter the tests files
             compiledPackage.srcEntries = srcPathStream
                     .filter(path -> Files.exists(path, LinkOption.NOFOLLOW_LINKS))
+                    .filter(path -> !"tests".equals(path.getParent().getFileName().toString()))
                     .map(projectPath::relativize)
                     .map(path -> new PathBasedCompiledPackageEntry(projectPath, path, CompilerOutputEntry.Kind.SRC))
                     .collect(Collectors.toList());

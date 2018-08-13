@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
@@ -50,6 +51,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.TestableBLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAwaitExpr;
@@ -221,6 +223,24 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         parent = pkgNode;
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
+        analyze(pkgNode, pkgEnv);
+
+        if (pkgNode.testableBLangPackage != null) {
+            visit(pkgNode.testableBLangPackage);
+        }
+    }
+
+    public void visit(TestableBLangPackage pkgNode) {
+        if (pkgNode.completedPhases.contains(CompilerPhase.CODE_ANALYZE)) {
+            return;
+        }
+        parent = pkgNode;
+        SymbolEnv enclosingPkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
+        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgNode.symbol.scope, enclosingPkgEnv);
+        analyze(pkgNode, pkgEnv);
+    }
+
+    private void analyze(BLangPackage pkgNode, SymbolEnv pkgEnv) {
         pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, pkgEnv));
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
         parent = null;
@@ -687,7 +707,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         /* ignore */
     }
 
+    public void visit(BLangAnnotAttribute annotationAttribute) {
+        /* ignore */
+    }
+
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
+        /* ignore */
+    }
+
+    public void visit(BLangAnnotAttachmentAttributeValue annotAttributeValue) {
+        /* ignore */
+    }
+
+    public void visit(BLangAnnotAttachmentAttribute annotAttachmentAttribute) {
         /* ignore */
     }
 

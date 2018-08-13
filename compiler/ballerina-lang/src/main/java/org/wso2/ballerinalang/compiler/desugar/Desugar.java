@@ -68,6 +68,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
+import org.wso2.ballerinalang.compiler.tree.TestableBLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral.BLangJSONArrayLiteral;
@@ -269,18 +270,22 @@ public class Desugar extends BLangNodeVisitor {
         }
         SymbolEnv env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
-
-        pkgNode.globalVars.forEach(v -> {
-            BLangAssignment assignment = (BLangAssignment) createAssignmentStmt(v);
-            if (assignment.expr == null) {
-                assignment.expr = getInitExpr(v);
-            }
-            if (assignment.expr != null) {
-                pkgNode.initFunction.body.stmts.add(assignment);
-            }
-        });
+        desugarGlobalVars(pkgNode);
         annotationDesugar.rewritePackageAnnotations(pkgNode);
+        desugarNodes(pkgNode, env);
 
+        pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
+        pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
+        pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
+        pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
+        result = pkgNode;
+
+        if (pkgNode.testableBLangPackage != null) {
+            visit(pkgNode.testableBLangPackage);
+        }
+    }
+
+    private void desugarNodes(BLangPackage pkgNode, SymbolEnv env) {
         //Sort type definitions with precedence
         pkgNode.typeDefinitions.sort(Comparator.comparing(t -> t.precedence));
 
@@ -298,11 +303,32 @@ public class Desugar extends BLangNodeVisitor {
         endpointDesugar.rewriteServiceBoundToEndpointInPkg(pkgNode, env);
         pkgNode.services = rewrite(pkgNode.services, env);
         pkgNode.functions = rewrite(pkgNode.functions, env);
-        pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
-        pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
-        pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
+    }
+
+    public void visit(TestableBLangPackage pkgNode) {
+        if (pkgNode.completedPhases.contains(CompilerPhase.DESUGAR)) {
+            result = pkgNode;
+            return;
+        }
+        SymbolEnv enclosingPkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
+        SymbolEnv env = SymbolEnv.createPkgEnv(pkgNode, pkgNode.symbol.scope, enclosingPkgEnv);
+
+        desugarGlobalVars(pkgNode);
+        desugarNodes(pkgNode, env);
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         result = pkgNode;
+    }
+
+    private void desugarGlobalVars(BLangPackage pkgNode) {
+        pkgNode.globalVars.forEach(v -> {
+            BLangAssignment assignment = (BLangAssignment) createAssignmentStmt(v);
+            if (assignment.expr == null) {
+                assignment.expr = getInitExpr(v);
+            }
+            if (assignment.expr != null) {
+                pkgNode.initFunction.body.stmts.add(assignment);
+            }
+        });
     }
 
     private void addAttachedFunctionsToPackageLevel(BLangPackage pkgNode) {

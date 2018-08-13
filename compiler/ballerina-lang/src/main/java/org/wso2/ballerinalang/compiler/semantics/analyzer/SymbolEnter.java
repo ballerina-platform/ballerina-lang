@@ -77,6 +77,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.TestableBLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -186,6 +187,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.symTable.pkgEnvMap.put(pkgSymbol, pkgEnv);
 
         createPackageInitFunctions(pkgNode);
+        defineNodes(pkgNode, pkgEnv);
+        definePackageInitFunctions(pkgNode, pkgEnv);
+        pkgNode.completedPhases.add(CompilerPhase.DEFINE);
+
+        if (pkgNode.testableBLangPackage != null) {
+            visit(pkgNode.testableBLangPackage);
+        }
+    }
+
+    private void defineNodes(BLangPackage pkgNode, SymbolEnv pkgEnv) {
         // visit the package node recursively and define all package level symbols.
         // And maintain a list of created package symbols.
         pkgNode.imports.forEach(importNode -> defineNode(importNode, pkgEnv));
@@ -219,8 +230,20 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.annotations.forEach(annot -> defineNode(annot, pkgEnv));
 
         pkgNode.globalEndpoints.forEach(ep -> defineNode(ep, pkgEnv));
+    }
 
-        definePackageInitFunctions(pkgNode, pkgEnv);
+    public void visit(TestableBLangPackage pkgNode) {
+        if (pkgNode.completedPhases.contains(CompilerPhase.DEFINE)) {
+            return;
+        }
+        BPackageSymbol pkgSymbol = Symbols.createPackageSymbol(pkgNode.packageID, this.symTable);
+        pkgNode.symbol = pkgSymbol;
+        SymbolEnv enclosingPkgEnv = this.symTable.pkgEnvMap.get(Symbols.createPackageSymbol(pkgNode.packageID,
+                                                                                            this.symTable));
+        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, enclosingPkgEnv);
+
+        defineNodes(pkgNode, pkgEnv);
+
         pkgNode.completedPhases.add(CompilerPhase.DEFINE);
     }
 
@@ -758,6 +781,25 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void populatePackageNode(BLangPackage pkgNode) {
         List<BLangCompilationUnit> compUnits = pkgNode.getCompilationUnits();
         compUnits.forEach(compUnit -> populateCompilationUnit(pkgNode, compUnit));
+        if (pkgNode.testableBLangPackage != null) {
+            compUnits = pkgNode.testableBLangPackage.getCompilationUnits();
+            compUnits.forEach(compUnit -> {
+                // Remove imports if it already exists in the enclosed pkg node
+                List<TopLevelNode> importList = compUnit.getTopLevelNodes()
+                                                        .stream()
+                                                        .filter(topLevelNode -> topLevelNode instanceof
+                                                                BLangImportPackage)
+                                                        .collect(Collectors.toList());
+
+                importList.forEach(importPkg -> {
+                    if (pkgNode.getImports().contains(importPkg)) {
+                        compUnit.removeTopLevelNode(importPkg);
+                    }
+                });
+
+            });
+            compUnits.forEach(compUnit -> populateCompilationUnit(pkgNode.testableBLangPackage, compUnit));
+        }
     }
 
     /**

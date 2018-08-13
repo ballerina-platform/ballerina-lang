@@ -52,6 +52,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.TestableBLangPackage;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFunctionClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
@@ -241,13 +242,17 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
+        init(pkgNode);
+        pkgNode.accept(this);
+        return pkgNode;
+    }
+
+    private void init(BLangPackage pkgNode) {
         blockedNode = null;
         taintErrorSet = new LinkedHashSet<>();
         blockedNodeList = new ArrayList<>();
         blockedEntryPointNodeList = new ArrayList<>();
         this.mainPkgId = pkgNode.packageID;
-        pkgNode.accept(this);
-        return pkgNode;
     }
 
     @Override
@@ -257,6 +262,14 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             return;
         }
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
+        analyze(pkgNode, pkgEnv);
+
+        if (pkgNode.testableBLangPackage != null) {
+            visit(pkgNode.testableBLangPackage);
+        }
+    }
+
+    private void analyze(BLangPackage pkgNode, SymbolEnv pkgEnv) {
         SymbolEnv prevPkgEnv = this.currPkgEnv;
         this.currPkgEnv = pkgEnv;
         this.env = pkgEnv;
@@ -272,6 +285,17 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
         this.currPkgEnv = prevPkgEnv;
         pkgNode.completedPhases.add(CompilerPhase.TAINT_ANALYZE);
+    }
+
+    public void visit(TestableBLangPackage pkgNode) {
+        init(pkgNode);
+        analyzerPhase = AnalyzerPhase.INITIAL_ANALYSIS;
+        if (pkgNode.completedPhases.contains(CompilerPhase.TAINT_ANALYZE)) {
+            return;
+        }
+        SymbolEnv enclosingPkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
+        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgNode.symbol.scope, enclosingPkgEnv);
+        analyze(pkgNode, pkgEnv);
     }
 
     @Override

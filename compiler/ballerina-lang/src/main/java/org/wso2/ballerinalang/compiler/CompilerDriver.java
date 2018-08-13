@@ -232,11 +232,17 @@ public class CompilerDriver {
         if (compilerPhase.compareTo(nextPhase) < 0) {
             return true;
         }
+        if (pkgNode.getCompilationUnits().isEmpty() && pkgNode.testableBLangPackage != null) {
+            return checkNextPhase(nextPhase) && (dlog.errorCount > 0 ||
+                    pkgNode.testableBLangPackage.getCompilationUnits().isEmpty());
+        }
+        return (checkNextPhase(nextPhase)) && (dlog.errorCount > 0 || pkgNode.getCompilationUnits().isEmpty());
+    }
 
-        return (nextPhase == CompilerPhase.TAINT_ANALYZE ||
+    private boolean checkNextPhase(CompilerPhase nextPhase) {
+        return nextPhase == CompilerPhase.TAINT_ANALYZE ||
                 nextPhase == CompilerPhase.COMPILER_PLUGIN ||
-                nextPhase == CompilerPhase.DESUGAR)
-                && (dlog.errorCount > 0 || pkgNode.getCompilationUnits().isEmpty());
+                nextPhase == CompilerPhase.DESUGAR;
     }
 
     private BLangPackage getBuiltInPackage() {

@@ -23,11 +23,15 @@ import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.ballerinalang.compiler.CompilerOptionName.BUILD_COMPILED_PACKAGE;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -35,6 +39,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
+import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 /**
  * This class provides util methods for building Ballerina programs and packages.
  *
@@ -58,6 +63,7 @@ public class BuilderUtils {
         options.put(OFFLINE, Boolean.toString(offline));
         options.put(LOCK_ENABLED, Boolean.toString(lockEnabled));
         options.put(SKIP_TESTS, Boolean.toString(skiptests));
+        options.put(TEST_ENABLED, "true");
 
         Compiler compiler = Compiler.getInstance(context);
         BLangPackage bLangPackage = compiler.build(packagePath);
@@ -66,7 +72,7 @@ public class BuilderUtils {
             outStream.println();
             compiler.write(bLangPackage, targetPath);
         } else {
-            Utils.testWithBuild(sourceRootPath, Collections.singletonList(packagePath));
+            runTests(compiler, sourceRootPath, Collections.singletonList(bLangPackage));
             compiler.write(bLangPackage, targetPath);
         }
     }
@@ -80,24 +86,35 @@ public class BuilderUtils {
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(LOCK_ENABLED, Boolean.toString(lockEnabled));
         options.put(SKIP_TESTS, Boolean.toString(skiptests));
+        options.put(TEST_ENABLED, "true");
 
         Compiler compiler = Compiler.getInstance(context);
         List<BLangPackage> packages = compiler.build();
 
         if (skiptests) {
-            if (packages.size() > 0) {
-                outStream.println();
-                compiler.write(packages);
-            } else {
-                outStream.println("No ballerina source files found to compile");
-            }
+            outStream.println();
+            compiler.write(packages);
         } else {
-            if (packages.size() > 0) {
-                Utils.testWithBuild(sourceRootPath, null);
-                compiler.write(packages);
-            } else {
-                outStream.println("No ballerina source files found to compile");
+            runTests(compiler, sourceRootPath, packages);
+            compiler.write(packages);
+        }
+    }
+
+    private static void runTests(Compiler compiler, Path sourceRootPath, List<BLangPackage> packageList) {
+        Map<BLangPackage, CompiledBinaryFile.ProgramFile> packageProgramFileMap = new HashMap<>();
+        packageList.forEach(bLangPackage -> {
+            if (!bLangPackage.packageID.getName().equals(Names.DOT)) {
+                CompiledBinaryFile.ProgramFile programFile;
+                if (bLangPackage.testableBLangPackage != null) {
+                    programFile = compiler.getExecutableProgram(bLangPackage.testableBLangPackage);
+                } else {
+                    programFile = compiler.getExecutableProgram(bLangPackage);
+                }
+                packageProgramFileMap.put(bLangPackage, programFile);
             }
+        });
+        if (packageProgramFileMap.size() > 0) {
+            Utils.testWithBuild(sourceRootPath, packageProgramFileMap);
         }
     }
 }

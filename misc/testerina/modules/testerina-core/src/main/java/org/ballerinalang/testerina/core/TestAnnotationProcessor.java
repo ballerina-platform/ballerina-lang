@@ -98,9 +98,11 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         if (!enabled) {
             return;
         }
-        suite = registry.getTestSuites().get(getPackageName((BLangPackage) ((BLangFunction) functionNode).parent));
+        String packageName = getPackageName((BLangPackage) ((BLangFunction) functionNode).parent);
+        suite = registry.getTestSuites().get(packageName);
         if (suite == null) {
-            return;
+            registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite(packageName));
+            suite = registry.getTestSuites().get(packageName);
         }
         // traverse through the annotations of this function
         for (AnnotationAttachmentNode attachmentNode : annotations) {

@@ -3,6 +3,9 @@ package org.wso2.ballerinalang.compiler;
 import java.io.PrintStream;
 import java.util.List;
 
+/**
+ * Console Listener to write to the standard output.
+ */
 public class ConsoleListener implements Listener {
     private PrintStream outStream = System.out;
 

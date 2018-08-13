@@ -39,6 +39,17 @@ public class FileSystemSourceInput implements CompilerInput {
         }
     }
 
+    public boolean fromTests() {
+        Path parentPath = path.getParent();
+        if (parentPath != null) {
+            Path parentFileName = parentPath.getFileName();
+            if (parentFileName != null && parentFileName.toString().equals("tests")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Path getPath() {
         return this.path;
     }

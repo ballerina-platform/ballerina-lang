@@ -20,10 +20,13 @@ package org.wso2.ballerinalang.compiler;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Listener Registry which has all listeners registered.
+ */
 public class ListenerRegistry {
     private static HashMap<String, Listener> listeners = new HashMap<>();
 
-    static void registerListener(String listenerName, Listener listener) {
+    public static void registerListener(String listenerName, Listener listener) {
         listeners.put(listenerName, listener);
     }
 

@@ -83,6 +83,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.TestableBLangPackage;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangHaving;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinStreamingInput;
@@ -227,17 +228,37 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
+        analyzePackage(pkgNode, pkgEnv);
+
+        analyzeDef(pkgNode.initFunction, pkgEnv);
+        analyzeDef(pkgNode.startFunction, pkgEnv);
+        analyzeDef(pkgNode.stopFunction, pkgEnv);
+
+        pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
+
+        if (pkgNode.testableBLangPackage != null) {
+            visit(pkgNode.testableBLangPackage);
+        }
+
+    }
+
+    private void analyzePackage(BLangPackage pkgNode, SymbolEnv pkgEnv) {
         pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> pkgLevelNode.getKind() != NodeKind.FUNCTION)
                 .forEach(topLevelNode -> analyzeDef((BLangNode) topLevelNode, pkgEnv));
 
         analyzeFunctions(pkgNode.functions, pkgEnv);
 
         pkgNode.typeDefinitions.forEach(this::validateConstructorAndCheckDefaultable);
+    }
 
-        analyzeDef(pkgNode.initFunction, pkgEnv);
-        analyzeDef(pkgNode.startFunction, pkgEnv);
-        analyzeDef(pkgNode.stopFunction, pkgEnv);
+    public void visit(TestableBLangPackage pkgNode) {
+        if (pkgNode.completedPhases.contains(CompilerPhase.TYPE_CHECK)) {
+            return;
+        }
+        SymbolEnv enclosingPkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
+        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgNode.symbol.scope, enclosingPkgEnv);
 
+        analyzePackage(pkgNode, pkgEnv);
         pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
     }
 

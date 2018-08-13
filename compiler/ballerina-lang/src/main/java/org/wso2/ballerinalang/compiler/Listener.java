@@ -2,6 +2,9 @@ package org.wso2.ballerinalang.compiler;
 
 import java.util.List;
 
+/**
+ * Listener interface.
+ */
 public interface Listener {
     void compileStarted();
 

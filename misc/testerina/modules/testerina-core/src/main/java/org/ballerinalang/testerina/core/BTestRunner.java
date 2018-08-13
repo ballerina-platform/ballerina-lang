@@ -21,6 +21,7 @@ package org.ballerinalang.testerina.core;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
+import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BIterator;
@@ -35,8 +36,11 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.ballerinalang.compiler.ConsoleListener;
 import org.wso2.ballerinalang.compiler.ListenerRegistry;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -57,7 +61,6 @@ import java.util.stream.Collectors;
 public class BTestRunner {
 
     private static PrintStream errStream = System.err;
-    private static PrintStream outStream = System.out;
     private TesterinaReport tReport = new TesterinaReport();
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
 
@@ -95,11 +98,19 @@ public class BTestRunner {
      */
     public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups, boolean shouldIncludeGroups,
                         boolean buildWithTests) {
+        ListenerRegistry.registerListener("ConsoleListener", new ConsoleListener());
         registry.setGroups(groups);
         registry.setShouldIncludeGroups(shouldIncludeGroups);
-        compileAndBuildSuites(sourceRoot, sourceFilePaths, buildWithTests);
+        compileAndBuildSuites(sourceRoot, sourceFilePaths);
         // execute the test programs
         execute(buildWithTests);
+    }
+
+    public void runTest(Map<BLangPackage, CompiledBinaryFile.ProgramFile> packageList) {
+        registry.setGroups(Collections.emptyList());
+        registry.setShouldIncludeGroups(true);
+        compileAndBuildSuites(packageList);
+        execute(true);
     }
 
     /**
@@ -110,7 +121,7 @@ public class BTestRunner {
      */
     public void listGroups(String sourceRoot, Path[] sourceFilePaths) {
         //Build the test suites
-        compileAndBuildSuites(sourceRoot, sourceFilePaths, false);
+        compileAndBuildSuites(sourceRoot, sourceFilePaths);
         List<String> groupList = getGroupList();
         if (groupList.size() == 0) {
             ListenerRegistry.triggerNoTestGroupsAvailable();
@@ -146,12 +157,7 @@ public class BTestRunner {
      * @param sourceRoot source root
      * @param sourceFilePaths List of @{@link Path} of ballerina files
      */
-    private void compileAndBuildSuites(String sourceRoot, Path[] sourceFilePaths, boolean buildWithTests)  {
-        // We need a new line to show a clear separation between the outputs of 'Compiling Sources' and
-        // 'Compiling tests'
-        if (buildWithTests) {
-            ListenerRegistry.triggerLineBreak();
-        }
+    private void compileAndBuildSuites(String sourceRoot, Path[] sourceFilePaths) {
         ListenerRegistry.triggerTestsCompiled();
         if (sourceFilePaths.length == 0) {
             ListenerRegistry.triggerTestsNotFound();
@@ -159,15 +165,7 @@ public class BTestRunner {
         }
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
 
-            String packageName = Utils.getFullPackageName(sourcePackage.toString());
-
-            registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite
-                (packageName));
-
-            if (packageName.equals(Names.DEFAULT_PACKAGE.value)) {
-                registry.getTestSuites().get(packageName).setSourceFileName(sourcePackage.toString());
-            }
-
+            addTestSuiteForPkg(sourcePackage.toString());
             // compile
             CompileResult compileResult = BCompileUtil.compileWithTests(sourceRoot, sourcePackage.toString(),
                 CompilerPhase.CODE_GEN);
@@ -181,24 +179,62 @@ public class BTestRunner {
             }
             // set the debugger
             ProgramFile programFile = compileResult.getProgFile();
-            Debugger debugger = new Debugger(programFile);
-            Utils.initDebugger(programFile, debugger);
-            registry.addProgramFile(programFile);
-
-            // process the compiled files
-            ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
-            processorServiceLoader.forEach(plugin -> {
-                if (plugin instanceof TestAnnotationProcessor) {
-                    try {
-                        ((TestAnnotationProcessor) plugin).packageProcessed(programFile);
-                    } catch (Exception e) {
-                        errStream.println("error: validation failed. Cause: " + e.getMessage());
-                        throw new BallerinaException(e);
-                    }
-                }
-            });
+            processCompiledFiles(programFile);
         });
         registry.setTestSuitesCompiled(true);
+    }
+
+    private void addTestSuiteForPkg(String sourcePackage) {
+        String packageName = Utils.getFullPackageName(sourcePackage);
+
+        registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite
+                (packageName));
+
+        if (packageName.equals(Names.DEFAULT_PACKAGE.value)) {
+            registry.getTestSuites().get(packageName).setSourceFileName(sourcePackage);
+        }
+    }
+
+    private void compileAndBuildSuites(Map<BLangPackage, CompiledBinaryFile.ProgramFile> packageList) {
+        if (packageList.size() == 0) {
+            ListenerRegistry.triggerTestsNotFound();
+            return;
+        }
+        packageList.forEach((sourcePackage, compiledBinaryFile) -> {
+
+            String packageName = Utils.getFullPackageName(sourcePackage.packageID.getName().getValue());
+
+            registry.getTestSuites().computeIfAbsent(packageName, func -> new TestSuite
+                    (packageName));
+
+            if (packageName.equals(Names.DEFAULT_PACKAGE.value)) {
+                registry.getTestSuites().get(packageName).setSourceFileName
+                        (sourcePackage.packageID.sourceFileName.toString());
+            }
+            ProgramFile pFile = LauncherUtils.getExecutableProgram(compiledBinaryFile);
+            processCompiledFiles(pFile);
+        });
+        registry.setTestSuitesCompiled(true);
+    }
+
+    private void processCompiledFiles(ProgramFile programFile) {
+        // set the debugger
+        Debugger debugger = new Debugger(programFile);
+        Utils.initDebugger(programFile, debugger);
+        registry.addProgramFile(programFile);
+
+        // process the compiled files
+        ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
+        processorServiceLoader.forEach(plugin -> {
+            if (plugin instanceof TestAnnotationProcessor) {
+                try {
+                    ((TestAnnotationProcessor) plugin).packageProcessed(programFile);
+                } catch (Exception e) {
+                    errStream.println("error: validation failed. Cause: " + e.getMessage());
+                    throw new BallerinaException(e);
+                }
+            }
+        });
     }
 
     /**
@@ -226,6 +262,9 @@ public class BTestRunner {
         keys.forEach(packageName -> {
             TestSuite suite = testSuites.get(packageName);
             if (packageName.equals(Names.DOT.value)) {
+                if (suite.getSourceFileName() == null) {
+                    return;
+                }
                 ListenerRegistry.triggerPackageCompiled(suite.getSourceFileName());
             } else {
                 ListenerRegistry.triggerPackageCompiled(packageName);

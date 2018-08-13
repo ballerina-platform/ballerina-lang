@@ -129,6 +129,11 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         pkgNode.topLevelNodes.forEach(topLevelNode -> ((BLangNode) topLevelNode).accept(this));
 
         pkgNode.completedPhases.add(CompilerPhase.COMPILER_PLUGIN);
+
+        if (pkgNode.testableBLangPackage != null) {
+            this.defaultPos = pkgNode.testableBLangPackage.pos;
+            visit((BLangPackage) pkgNode.testableBLangPackage);
+        }
     }
 
     public void visit(BLangAnnotation annotationNode) {

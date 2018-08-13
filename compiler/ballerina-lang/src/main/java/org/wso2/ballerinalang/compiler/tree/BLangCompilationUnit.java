@@ -74,4 +74,10 @@ public class BLangCompilationUnit extends BLangNode implements CompilationUnitNo
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    public void removeTopLevelNode(TopLevelNode node) {
+        if (this.topLevelNodes.size() > 0) {
+            this.topLevelNodes.remove(node);
+        }
+    }
 }
