@@ -210,6 +210,7 @@ script:
 - ballerina test websocket-chat-application
 - ballerina test websocket-proxy-server
 - ballerina test websub-internal-hub-sample
+- ballerina test websub-service-integration-sample
 - ballerina test while
 - ballerina test worker-interaction
 - ballerina test workers
