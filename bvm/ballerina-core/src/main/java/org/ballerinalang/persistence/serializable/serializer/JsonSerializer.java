@@ -99,6 +99,7 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
 
     /**
      * Generate JSON serialized output from the given Java object instance.
+     *
      * @param object instance to be serialized
      * @return
      */
@@ -109,7 +110,7 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
                 return null;
             }
             BRefType<?> jsonObj = toBValue(object, object.getClass());
-            trimTree(jsonObj);
+            BValueHelper.trimTree(jsonObj, repeatedReferenceSet);
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             jsonObj.serialize(outputStream);
             return outputStream.toString("UTF-8");
@@ -118,35 +119,6 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         } finally {
             identityMap.clear();
             repeatedReferenceSet.clear();
-        }
-    }
-
-    /**
-     * Walk the object graph and remove the HASH code from nodes that does not repeat.
-     *
-     * @param jsonObj
-     */
-    @SuppressWarnings("unchecked")
-    private void trimTree(BValue jsonObj) {
-        if (jsonObj == null) {
-            return;
-        }
-        if (jsonObj instanceof BMap) {
-            BMap map = (BMap) jsonObj;
-            BString bHashCode = (BString) map.get(JsonSerializerConst.HASH_TAG);
-            if (bHashCode != null) {
-                String hashCode = bHashCode.stringValue();
-                if (!repeatedReferenceSet.contains(hashCode)) {
-                    map.remove(JsonSerializerConst.HASH_TAG);
-                }
-            }
-            trimTree(map.get(JsonSerializerConst.PAYLOAD_TAG));
-        }
-        if (jsonObj instanceof BRefValueArray) {
-            BRefValueArray array = (BRefValueArray) jsonObj;
-            for (int i = 0; i < array.size(); i++) {
-                trimTree(array.get(i));
-            }
         }
     }
 
@@ -393,7 +365,7 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
     }
 
     @Override
-    public Object deserialize(byte[] bytes, Class<?> destinationType) {
+    public <T> T deserialize(byte[] bytes, Class<T> destinationType) {
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
         InputStreamReader inputStreamReader = new InputStreamReader(byteArrayInputStream, StandardCharsets.UTF_8);
         BRefType<?> objTree = JsonParser.parse(inputStreamReader);

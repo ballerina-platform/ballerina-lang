@@ -158,9 +158,8 @@ public class JsonSerializerTest {
     public void testComplexKeysInAMap() {
         JsonSerializer jsonSerializer = new JsonSerializer();
         String serialize = jsonSerializer.serialize(mockComplexKeyMap());
-        Object destinationMap = jsonSerializer.deserialize(serialize.getBytes(), HashMap.class);
 
-        Map map = (Map) destinationMap;
+        Map map = jsonSerializer.deserialize(serialize.getBytes(), HashMap.class);
         boolean matchedKey1 = map.keySet().stream().anyMatch(k -> ((StringFieldA) k).a.equals("Key1"));
         boolean matchedKey2 = map.keySet().stream().anyMatch(k -> ((StringFieldA) k).a.equals("Key2"));
         Assert.assertTrue(matchedKey1 && matchedKey2);
@@ -277,7 +276,7 @@ public class JsonSerializerTest {
                 new TestClass("Item2")};
         TestClass testClassInst = new TestClass(items);
         String serialize = new JsonSerializer().serialize(testClassInst);
-        TestClass targetClass = (TestClass) new JsonSerializer().deserialize(serialize.getBytes(), TestClass.class);
+        TestClass targetClass = new JsonSerializer().deserialize(serialize.getBytes(), TestClass.class);
         TestClass[] arr = (TestClass[]) targetClass.obj;
 
         Assert.assertTrue(arr[0].obj.equals("Item1"));

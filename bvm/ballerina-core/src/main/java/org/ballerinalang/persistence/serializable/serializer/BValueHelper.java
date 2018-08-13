@@ -19,11 +19,13 @@ package org.ballerinalang.persistence.serializable.serializer;
 
 import org.ballerinalang.model.util.JsonGenerator;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.HashSet;
 
 /**
  * Helper methods to convert Java objects to BValue objects.
@@ -69,5 +71,36 @@ class BValueHelper {
 
     static void addHashValue(Object obj, BMap<String, BValue> map) {
         map.put(JsonSerializerConst.HASH_TAG, getHashCode(obj));
+    }
+
+
+    /**
+     * Walk the object graph and remove the HASH code from nodes that does not repeat.
+     *
+     * @param jsonObj
+     * @param repeatedReferenceSet
+     */
+    @SuppressWarnings("unchecked")
+    static void trimTree(BValue jsonObj, HashSet<String> repeatedReferenceSet) {
+        if (jsonObj == null) {
+            return;
+        }
+        if (jsonObj instanceof BMap) {
+            BMap map = (BMap) jsonObj;
+            BString bHashCode = (BString) map.get(JsonSerializerConst.HASH_TAG);
+            if (bHashCode != null) {
+                String hashCode = bHashCode.stringValue();
+                if (!repeatedReferenceSet.contains(hashCode)) {
+                    map.remove(JsonSerializerConst.HASH_TAG);
+                }
+            }
+            trimTree(map.get(JsonSerializerConst.PAYLOAD_TAG), repeatedReferenceSet);
+        }
+        if (jsonObj instanceof BRefValueArray) {
+            BRefValueArray array = (BRefValueArray) jsonObj;
+            for (int i = 0; i < array.size(); i++) {
+                trimTree(array.get(i), repeatedReferenceSet);
+            }
+        }
     }
 }
