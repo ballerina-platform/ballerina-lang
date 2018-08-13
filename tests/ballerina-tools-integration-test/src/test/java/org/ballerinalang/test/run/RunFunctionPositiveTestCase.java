@@ -57,7 +57,7 @@ public class RunFunctionPositiveTestCase extends IntegrationTestCase {
 
     @Test
     public void testNoArg() throws BallerinaTestException {
-        String functionName = "noargentry";
+        String functionName = "noParamEntry";
         sourceArg = filePath + ":" + functionName;
         LogLeecher outLogLeecher = new LogLeecher("1");
         serverInstance.addLogLeecher(outLogLeecher);
@@ -67,28 +67,17 @@ public class RunFunctionPositiveTestCase extends IntegrationTestCase {
 
     @Test (dataProvider = "jsonValues")
     public void testValidJsonArg(String arg) throws BallerinaTestException {
-        String functionName = "jsonentry";
+        String functionName = "jsonEntry";
         sourceArg = filePath + ":" + functionName;
         LogLeecher outLogLeecher = new LogLeecher(arg);
         serverInstance.addLogLeecher(outLogLeecher);
         serverInstance.runMain(new String[]{PRINT_RETURN, sourceArg, arg});
         outLogLeecher.waitForText(2000);
     }
-
-    @Test
-    public void testValidStringArrayArg() throws BallerinaTestException {
-        String arg = "[\"hello\", \"world\"]";
-        String functionName = "stringarrayentry";
-        sourceArg = filePath + ":" + functionName;
-        LogLeecher outLogLeecher = new LogLeecher(arg);
-        serverInstance.addLogLeecher(outLogLeecher);
-        serverInstance.runMain(new String[]{PRINT_RETURN, sourceArg, arg});
-        outLogLeecher.waitForText(2000);
-    }
-
+    
     @Test (dataProvider = "arrayValues")
     public void testValidArrayArg(String arg) throws BallerinaTestException {
-        String functionName = "unionarrayentry";
+        String functionName = "arrayUnionEntry";
         sourceArg = filePath + ":" + functionName;
         LogLeecher outLogLeecher = new LogLeecher(arg);
         serverInstance.addLogLeecher(outLogLeecher);
@@ -98,7 +87,7 @@ public class RunFunctionPositiveTestCase extends IntegrationTestCase {
 
     @Test
     public void testAllNamedArgs() throws BallerinaTestException {
-        String functionName = "defaultparamentry";
+        String functionName = "defaultableParamEntry";
         sourceArg = filePath + ":" + functionName;
         LogLeecher outLogLeecher = new LogLeecher("2 hi world: is false");
         serverInstance.addLogLeecher(outLogLeecher);
@@ -108,7 +97,7 @@ public class RunFunctionPositiveTestCase extends IntegrationTestCase {
 
     @Test
     public void testSingleNamedArg() throws BallerinaTestException {
-        String functionName = "defaultparamentry";
+        String functionName = "defaultableParamEntry";
         sourceArg = filePath + ":" + functionName;
         LogLeecher outLogLeecher = new LogLeecher("1 hi world: is false");
         serverInstance.addLogLeecher(outLogLeecher);
@@ -118,7 +107,7 @@ public class RunFunctionPositiveTestCase extends IntegrationTestCase {
 
     @Test
     public void testNoNamedArg() throws BallerinaTestException {
-        String functionName = "defaultparamentry";
+        String functionName = "defaultableParamEntry";
         sourceArg = filePath + ":" + functionName;
         LogLeecher outLogLeecher = new LogLeecher("1 default hello world: is true");
         serverInstance.addLogLeecher(outLogLeecher);
@@ -128,7 +117,7 @@ public class RunFunctionPositiveTestCase extends IntegrationTestCase {
 
     @Test
     public void testMultipleParam() throws BallerinaTestException {
-        String functionName = "combinedmain";
+        String functionName = "combinedTypeEntry";
         sourceArg = filePath + ":" + functionName;
         LogLeecher outLogLeecher = new LogLeecher("integer: 1000, float: 1.0, string: Hello Ballerina, byte: 255, "
                                                           + "boolean: true, JSON Name Field: Maryam, XML Element Name: "
@@ -138,6 +127,33 @@ public class RunFunctionPositiveTestCase extends IntegrationTestCase {
         serverInstance.runMain(new String[]{PRINT_RETURN, sourceArg, "1000", "1.0", "Hello Ballerina", "255", "true",
                                         "{ \"name\": \"Maryam\" }", "<book>Harry Potter</book>", "{ \"name\": \"Em\" }",
                                         "just", "the", "rest"});
+        outLogLeecher.waitForText(2000);
+    }
+
+    @Test
+    public void testOneDimArrParam() throws BallerinaTestException {
+        String functionName = "oneDimensionalArrayEntry";
+        sourceArg = filePath + ":" + functionName;
+        LogLeecher outLogLeecher = new LogLeecher("integer: 200, string: ballerina, float: 20.4, boolean: true, "
+                                                          + "json: Maryam, Employee Name Field: Em");
+        serverInstance.addLogLeecher(outLogLeecher);
+        serverInstance.runMain(new String[]{PRINT_RETURN, sourceArg, "[1, 200, 3]", "[\"hello\", \"ballerina\"]",
+                "[1.0, 20.4, 30.3]", "[true, true, false]", "[5, \"Maryam\", { \"name\": \"Maryam\" }]",
+                "[{ \"name\": \"Maryam\" }, { \"name\": \"Em\" }, { \"name\": \"Ziyad\" }]"});
+        outLogLeecher.waitForText(2000);
+    }
+
+    @Test
+    public void testMapParam() throws BallerinaTestException {
+        String functionName = "mapEntry";
+        sourceArg = filePath + ":" + functionName;
+        LogLeecher outLogLeecher = new LogLeecher("integer: 120, string: Ballerina, float: 12.0, boolean: true, "
+                                                          + "json: 5, Test Employee Name Field: Maryam");
+        serverInstance.addLogLeecher(outLogLeecher);
+        serverInstance.runMain(new String[]{PRINT_RETURN, sourceArg, "{\"int\":10, \"test\":120}",
+                "{\"test\":\"Ballerina\", \"string\":\"str\"}", "{\"test\":12.0, \"float\":11.1}",
+                "{\"boolean\":false, \"test\":true}", "{\"test\":5, \"json\":{ \"name\": \"Maryam\" }}",
+                "{\"test\": { \"name\": \"Maryam\" }, \"record\": { \"name\": \"Em\" }}"});
         outLogLeecher.waitForText(2000);
     }
 

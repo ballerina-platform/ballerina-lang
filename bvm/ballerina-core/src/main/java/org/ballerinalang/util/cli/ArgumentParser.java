@@ -70,7 +70,6 @@ public class ArgumentParser {
 
     private static final String DEFAULT_PARAM_PREFIX = "-";
     private static final String DEFAULT_PARAM_DELIMETER = "=";
-    private static final String INCOMPATIBLE_TYPES = "incompatible types: ";
     private static final String INVALID_ARG = "invalid argument: ";
     private static final String INVALID_ARG_AS_REST_ARG = "invalid argument as rest argument: ";
     private static final String JSON_PARSER_ERROR = "at line: ";
@@ -212,29 +211,28 @@ public class ArgumentParser {
                 try {
                     return JSONUtils.convertJSONToStruct(JsonParser.parse(value), (BStructureType) type);
                 } catch (BallerinaException e) {
-                    throw new BLangUsageException("error constructing record of type: " + type + ": "
-                                                          + e.getLocalizedMessage().split(JSON_PARSER_ERROR)[0]);
+                    throw new BLangUsageException("invalid argument '" + value + "', error constructing record of"
+                                      + " type: " + type + ": " + e.getLocalizedMessage().split(JSON_PARSER_ERROR)[0]);
                 }
             case TypeTags.TUPLE_TAG:
                 if (!value.startsWith("(") || !value.endsWith(")")) {
-                    throw new BLangUsageException("expected tuple notation (\"()\") with tuple arg");
+                    throw new BLangUsageException("invalid argument '" + value + "', expected tuple notation (\"()\") "
+                                                          + "with tuple arg");
                 }
                 return parseTupleArg((BTupleType) type, value.substring(1, value.length() - 1));
             case TypeTags.ARRAY_TAG:
                 try {
                     return JSONUtils.convertJSONToBArray(JsonParser.parse(value), (BArrayType) type);
                 } catch (BallerinaException e) {
-                    if (e.getLocalizedMessage().startsWith(INCOMPATIBLE_TYPES)) {
-                        throw new BLangUsageException("incompatible types: expected array elements of type: "
-                                                             + ((BArrayType) type).getElementType());
-                    }
-                    throw new BLangUsageException("expected array notation (\"[]\") with array arg");
+                    throw new BLangUsageException("invalid argument '" + value + "', expected array elements of "
+                                                          + "type: " + ((BArrayType) type).getElementType());
                 }
             case TypeTags.MAP_TAG:
                 try {
                     return JSONUtils.jsonToBMap(JsonParser.parse(value), (BMapType) type);
                 } catch (BallerinaException e) {
-                    throw new BLangUsageException("expected map notation (\"{\\\"a\\\":\\\"b\\\"}\") with map arg");
+                    throw new BLangUsageException("invalid argument '" + value + "', expected map argument of element"
+                                                          + " type: " + ((BMapType) type).getConstrainedType());
                 }
             case TypeTags.UNION_TAG:
                 return parseUnionArg((BUnionType) type, value);
@@ -242,10 +240,11 @@ public class ArgumentParser {
                 try {
                     return new BTypeDescValue(getTypeFromName(value));
                 } catch (IllegalStateException e) {
-                    throw new BLangUsageException("unsupported/unknown typedesc expected with main function: " + value);
+                    throw new BLangUsageException("unsupported/unknown typedesc expected with main function '" + value
+                                                    + "'");
                 }
             default:
-                throw new BLangUsageException("unsupported type expected with main function: " + type);
+                throw new BLangUsageException("unsupported type expected with main function '" + type + "'");
         }
     }
 
@@ -253,7 +252,7 @@ public class ArgumentParser {
         try {
             return Long.parseLong(argument);
         } catch (NumberFormatException e) {
-            throw new BLangUsageException("invalid argument: " + argument + ", expected integer value");
+            throw new BLangUsageException("invalid argument '" + argument + "', expected integer value");
         }
     }
 
@@ -261,13 +260,13 @@ public class ArgumentParser {
         try {
             return Double.parseDouble(argument);
         } catch (NumberFormatException e) {
-            throw new BLangUsageException("invalid argument: " + argument + ", expected float value");
+            throw new BLangUsageException("invalid argument '" + argument + "', expected float value");
         }
     }
 
     private static boolean getBooleanValue(String argument) {
         if (!TRUE.equalsIgnoreCase(argument) && !FALSE.equalsIgnoreCase(argument)) {
-            throw new BLangUsageException("invalid argument: " + argument + ", expected boolean value");
+            throw new BLangUsageException("invalid argument '" + argument + "', expected boolean value");
         }
         return Boolean.parseBoolean(argument);
     }
@@ -280,7 +279,7 @@ public class ArgumentParser {
                 throw new Exception();
             }
         } catch (Exception e) {
-            throw new BLangUsageException("invalid argument: " + argument + ", expected byte value");
+            throw new BLangUsageException("invalid argument '" + argument + "', expected byte value");
         }
         return (byte) longValue;
     }
@@ -401,7 +400,7 @@ public class ArgumentParser {
                 memberTypeIndex++;
             }
         }
-        throw new BLangUsageException("incompatible argument specified for union type: "
+        throw new BLangUsageException("incompatible argument '" + unionArg + "' specified for union type: "
                                           + (type.isNullable() ? type.toString().replace("|null", "|()") : type));
     }
 

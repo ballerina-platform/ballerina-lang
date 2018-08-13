@@ -56,7 +56,7 @@ public class RunFunctionNegativeTestCase extends IntegrationTestCase {
 
     @Test
     public void testTooManyArgs() throws BallerinaTestException {
-        String functionName = "nomoremain";
+        String functionName = "publicNonMainEntry";
         sourceArg = filePath + ":" + functionName;
         LogLeecher errLogLeecher = new LogLeecher("usage error: too many arguments to call entry function '"
                                                    + functionName + "'");
@@ -68,7 +68,7 @@ public class RunFunctionNegativeTestCase extends IntegrationTestCase {
 
     @Test
     public void testInsufficientArgs() throws BallerinaTestException {
-        String functionName = "combinedmain";
+        String functionName = "combinedTypeEntry";
         sourceArg = filePath + ":" + functionName;
         LogLeecher errLogLeecher = new LogLeecher("usage error: insufficient arguments to call entry function '"
                                                           + functionName + "'");
@@ -79,7 +79,7 @@ public class RunFunctionNegativeTestCase extends IntegrationTestCase {
 
     @Test
     public void testNonPublicFunctionAsEntryFunction() throws BallerinaTestException {
-        String functionName = "nonpublicnonmain";
+        String functionName = "nonPublicEntry";
         sourceArg = filePath + ":" + functionName;
         LogLeecher errLogLeecher = new LogLeecher("non public function '" + functionName
                                                           + "' not allowed as entry function");
@@ -90,11 +90,11 @@ public class RunFunctionNegativeTestCase extends IntegrationTestCase {
 
     @Test
     public void testInvalidIntArg() throws BallerinaTestException {
-        String functionName = "combinedmain";
+        String functionName = "combinedTypeEntry";
         String argument = "5ss";
         sourceArg = filePath + ":" + functionName;
-        LogLeecher errLogLeecher = new LogLeecher("usage error: invalid argument: " + argument
-                                                          + ", expected integer value");
+        LogLeecher errLogLeecher = new LogLeecher("usage error: invalid argument '" + argument
+                                                          + "', expected integer value");
         serverInstance.addErrorLogLeecher(errLogLeecher);
         serverInstance.runMain(new String[]{sourceArg, argument, "a", "b", "c", "d", "e", "f", "g"});
         errLogLeecher.waitForText(2000);
@@ -102,11 +102,11 @@ public class RunFunctionNegativeTestCase extends IntegrationTestCase {
 
     @Test
     public void testInvalidFloatArg() throws BallerinaTestException {
-        String functionName = "combinedmain";
+        String functionName = "combinedTypeEntry";
         String argument = "5.5s";
         sourceArg = filePath + ":" + functionName;
-        LogLeecher errLogLeecher = new LogLeecher("usage error: invalid argument: " + argument
-                                                          + ", expected float value");
+        LogLeecher errLogLeecher = new LogLeecher("usage error: invalid argument '" + argument
+                                                          + "', expected float value");
         serverInstance.addErrorLogLeecher(errLogLeecher);
         serverInstance.runMain(new String[]{sourceArg, "10", argument, "b", "c", "d", "e", "f", "g"});
         errLogLeecher.waitForText(2000);
@@ -114,7 +114,7 @@ public class RunFunctionNegativeTestCase extends IntegrationTestCase {
 
     @Test
     public void testInvalidJsonObjectArg() throws BallerinaTestException {
-        String functionName = "jsonentry";
+        String functionName = "jsonEntry";
         String argument = "{name: \"maryam\"}";
         sourceArg = filePath + ":" + functionName;
         LogLeecher errLogLeecher = new LogLeecher("usage error: invalid JSON value: " + argument);
@@ -125,7 +125,7 @@ public class RunFunctionNegativeTestCase extends IntegrationTestCase {
 
     @Test
     public void testInvalidXmlArg() throws BallerinaTestException {
-        String functionName = "combinedmain";
+        String functionName = "combinedTypeEntry";
         String argument = "<book>Harry Potter";
         sourceArg = filePath + ":" + functionName;
         LogLeecher errLogLeecher = new LogLeecher("usage error: invalid XML value: " + argument);
@@ -136,10 +136,10 @@ public class RunFunctionNegativeTestCase extends IntegrationTestCase {
 
     @Test (dataProvider = "byteValues")
     public void testInvalidByteArg(String arg) throws BallerinaTestException {
-        String functionName = "combinedmain";
+        String functionName = "combinedTypeEntry";
         sourceArg = filePath + ":" + functionName;
-        LogLeecher errLogLeecher = new LogLeecher("usage error: invalid argument: " + arg
-                                                          + ", expected byte value");
+        LogLeecher errLogLeecher = new LogLeecher("usage error: invalid argument '" + arg
+                                                          + "', expected byte value");
         serverInstance.addErrorLogLeecher(errLogLeecher);
         serverInstance.runMain(new String[]{sourceArg, "--", "10", "1.0", "string!", arg, "a", "b", "c", "d"});
         errLogLeecher.waitForText(2000);
@@ -148,34 +148,23 @@ public class RunFunctionNegativeTestCase extends IntegrationTestCase {
 
     @Test
     public void testInvalidBooleanArg() throws BallerinaTestException {
-        String functionName = "combinedmain";
+        String functionName = "combinedTypeEntry";
         String argument = "truer";
         sourceArg = filePath + ":" + functionName;
-        LogLeecher errLogLeecher = new LogLeecher("usage error: invalid argument: " + argument
-                                                          + ", expected boolean value");
+        LogLeecher errLogLeecher = new LogLeecher("usage error: invalid argument '" + argument
+                                                          + "', expected boolean value");
         serverInstance.addErrorLogLeecher(errLogLeecher);
         serverInstance.runMain(new String[]{sourceArg, "10", "1.0", "string!", "255", argument, "a", "b", "c"});
         errLogLeecher.waitForText(2000);
     }
 
     @Test
-    public void testInvalidArrayArg() throws BallerinaTestException {
-        String functionName = "stringarrayentry";
-        String argument = "true false true";
-        sourceArg = filePath + ":" + functionName;
-        LogLeecher errLogLeecher = new LogLeecher("usage error: expected array notation (\"[]\") with array arg");
-        serverInstance.addErrorLogLeecher(errLogLeecher);
-        serverInstance.runMain(new String[]{sourceArg, argument});
-        errLogLeecher.waitForText(2000);
-    }
-
-    @Test
     public void testInvalidUnionArg() throws BallerinaTestException {
-        String functionName = "unionarrayentry";
+        String functionName = "arrayUnionEntry";
         String argument = "true false true";
         sourceArg = filePath + ":" + functionName;
-        LogLeecher errLogLeecher = new LogLeecher("usage error: incompatible argument specified for union type: "
-                                                          + "int[]|float[]|boolean[]|json[]|string[]");
+        LogLeecher errLogLeecher = new LogLeecher("usage error: incompatible argument '" + argument + "' specified"
+                                                        + " for union type: int[]|float[]|boolean[]|json[]|string[]");
         serverInstance.addErrorLogLeecher(errLogLeecher);
         serverInstance.runMain(new String[]{sourceArg, argument});
         errLogLeecher.waitForText(2000);
@@ -183,12 +172,126 @@ public class RunFunctionNegativeTestCase extends IntegrationTestCase {
 
     @Test
     public void testInvalidArgsWithDefaultableParams() throws BallerinaTestException {
-        String functionName = "defaultparamentry";
+        String functionName = "defaultableParamEntry";
         sourceArg = filePath + ":" + functionName;
         LogLeecher errLogLeecher = new LogLeecher("usage error: too many arguments to call entry function '"
                                                           + functionName + "'");
         serverInstance.addErrorLogLeecher(errLogLeecher);
         serverInstance.runMain(new String[]{sourceArg, "1", "true", "hi", "not"});
+        errLogLeecher.waitForText(2000);
+    }
+
+    @Test
+    public void testInvalidIntArrayArg() throws BallerinaTestException {
+        String functionName = "oneDimensionalArrayEntry";
+        String argument = "[true, \"hi\", 5]";
+        sourceArg = filePath + ":" + functionName;
+        LogLeecher errLogLeecher = new LogLeecher("usage error: invalid argument '" + argument
+                                                          + "', expected array elements of type: int");
+        serverInstance.addErrorLogLeecher(errLogLeecher);
+        serverInstance.runMain(new String[]{sourceArg, argument, "a", "b", "c", "d", "e"});
+        errLogLeecher.waitForText(2000);
+    }
+
+    @Test
+    public void testInvalidStringArrayArg() throws BallerinaTestException {
+        String functionName = "oneDimensionalArrayEntry";
+        String argument = "[true, hi, 5]";
+        sourceArg = filePath + ":" + functionName;
+        LogLeecher errLogLeecher = new LogLeecher("usage error: invalid argument '" + argument
+                                                          + "', expected array elements of type: string");
+        serverInstance.addErrorLogLeecher(errLogLeecher);
+        serverInstance.runMain(new String[]{sourceArg, "[1, 2]", argument, "b", "c", "d", "e"});
+        errLogLeecher.waitForText(2000);
+    }
+
+    @Test
+    public void testInvalidFloatArrayArg() throws BallerinaTestException {
+        String functionName = "oneDimensionalArrayEntry";
+        String argument = "[5, 1, hi.there]";
+        sourceArg = filePath + ":" + functionName;
+        LogLeecher errLogLeecher = new LogLeecher("usage error: invalid argument '" + argument
+                                                          + "', expected array elements of type: float");
+        serverInstance.addErrorLogLeecher(errLogLeecher);
+        serverInstance.runMain(new String[]{sourceArg, "[1, 2]", "[\"hello\", \"world\"]", argument, "c", "d", "e"});
+        errLogLeecher.waitForText(2000);
+    }
+
+    @Test
+    public void testInvalidBooleanArrayArg() throws BallerinaTestException {
+        String functionName = "oneDimensionalArrayEntry";
+        String argument = "[0, 1, tru]";
+        sourceArg = filePath + ":" + functionName;
+        LogLeecher errLogLeecher = new LogLeecher("usage error: invalid argument '" + argument
+                                                          + "', expected array elements of type: boolean");
+        serverInstance.addErrorLogLeecher(errLogLeecher);
+        serverInstance.runMain(new String[]{sourceArg, "[1, 2]", "[\"hello\", \"world\"]", "[1.0, 5.2]", argument, "d",
+                "e"});
+        errLogLeecher.waitForText(2000);
+    }
+
+    @Test
+    public void testInvalidRecordArrayArg() throws BallerinaTestException {
+        String functionName = "oneDimensionalArrayEntry";
+        String argument = "[{name: \"maryam\"}, {names: \"maryam ziyad\"}]";
+        sourceArg = filePath + ":" + functionName;
+        LogLeecher errLogLeecher = new LogLeecher("usage error: invalid argument '" + argument
+                                                          + "', expected array elements of type: Employee");
+        serverInstance.addErrorLogLeecher(errLogLeecher);
+        serverInstance.runMain(new String[]{sourceArg, "[1, 2]", "[\"hello\", \"world\"]", "[1.0, 5.2]",
+                "[true, false]", "[\"hi\", 5, 2.0]", argument});
+        errLogLeecher.waitForText(2000);
+    }
+
+    @Test
+    public void testInvalidIntMapArg() throws BallerinaTestException {
+        String functionName = "mapEntry";
+        String argument = "{\"test\":\"Ballerina\", \"string\":\"str\"}";
+        sourceArg = filePath + ":" + functionName;
+        LogLeecher errLogLeecher = new LogLeecher("usage error: invalid argument '" + argument
+                                                          + "', expected map argument of element type: int");
+        serverInstance.addErrorLogLeecher(errLogLeecher);
+        serverInstance.runMain(new String[]{sourceArg, argument, "a", "b", "c", "d", "e"});
+        errLogLeecher.waitForText(2000);
+    }
+
+    @Test
+    public void testInvalidFloatMapArg() throws BallerinaTestException {
+        String functionName = "mapEntry";
+        String argument = "{\"int\":\"hi\", \"test\":\"there\"}";
+        sourceArg = filePath + ":" + functionName;
+        LogLeecher errLogLeecher = new LogLeecher("usage error: invalid argument '" + argument
+                                                          + "', expected map argument of element type: float");
+        serverInstance.addErrorLogLeecher(errLogLeecher);
+        serverInstance.runMain(new String[]{sourceArg, "{\"int\":10, \"test\":120}",
+                                                "{\"int\":\"10\", \"test\":\"120\"}", argument, "c", "d", "e"});
+        errLogLeecher.waitForText(2000);
+    }
+
+    @Test
+    public void testInvalidBooleanMapArg() throws BallerinaTestException {
+        String functionName = "mapEntry";
+        String argument = "{\"int\":\"true\", \"test\":\"false\"}";
+        sourceArg = filePath + ":" + functionName;
+        LogLeecher errLogLeecher = new LogLeecher("usage error: invalid argument '" + argument
+                                                          + "', expected map argument of element type: boolean");
+        serverInstance.addErrorLogLeecher(errLogLeecher);
+        serverInstance.runMain(new String[]{sourceArg, "{\"int\":10, \"test\":120}",
+                "{\"int\":\"10\", \"test\":\"120\"}", "{\"float\":1.0, \"test\":12.0}", argument, "d", "e"});
+        errLogLeecher.waitForText(2000);
+    }
+
+    @Test
+    public void testInvalidRecordMapArg() throws BallerinaTestException {
+        String functionName = "mapEntry";
+        String argument = "[{name: \"maryam\"}, {names: \"maryam ziyad\"}]";
+        sourceArg = filePath + ":" + functionName;
+        LogLeecher errLogLeecher = new LogLeecher("usage error: invalid argument '" + argument
+                                                          + "', expected map argument of element type: Employee");
+        serverInstance.addErrorLogLeecher(errLogLeecher);
+        serverInstance.runMain(new String[]{sourceArg, "{\"int\":10, \"test\":120}",
+                "{\"int\":\"10\", \"test\":\"120\"}", "{\"float\":1.0, \"test\":12.0}",
+                "{\"boolean\":true, \"test\":true}", "{\"json\":1, \"test\":\"12.0\"}", argument});
         errLogLeecher.waitForText(2000);
     }
 
