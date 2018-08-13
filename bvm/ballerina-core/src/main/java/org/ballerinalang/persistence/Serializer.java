@@ -16,16 +16,23 @@
  */
 package org.ballerinalang.persistence;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.persistence.adapters.ArrayListAdapter;
+import org.ballerinalang.persistence.adapters.HashMapAdapter;
+import org.ballerinalang.persistence.adapters.RefTypeAdaptor;
+import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.persistence.serializable.serializer.JsonSerializer;
 import org.ballerinalang.persistence.serializable.serializer.ObjectToJsonSerializer;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -38,7 +45,7 @@ public class Serializer {
     private static List<String> serializableClasses = new ArrayList<>();
 
     private static ObjectToJsonSerializer stateSerializer = new JsonSerializer();
-
+    private static Gson gson;
     static {
         serializableClasses.add(String.class.getName());
         serializableClasses.add(Integer.class.getName());
@@ -53,6 +60,15 @@ public class Serializer {
         serializableClasses.add(BBoolean.class.getName());
         serializableClasses.add(BFloat.class.getName());
         serializableClasses.add(BByte.class.getName());
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(SerializableRefType.class, new RefTypeAdaptor());
+        gsonBuilder.registerTypeAdapter(HashMap.class, new HashMapAdapter());
+        gsonBuilder.registerTypeAdapter(ArrayList.class, new ArrayListAdapter());
+        gson = gsonBuilder.create();
+    }
+
+    public static Gson getGson() {
+        return gson;
     }
 
     public static boolean isSerializable(Object o) {

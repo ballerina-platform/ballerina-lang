@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.persistence.serializable;
 
+import com.google.gson.Gson;
 import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.values.BRefType;
@@ -41,7 +42,8 @@ import java.util.Map;
  */
 public class SerializableState {
 
-    public String instanceId;
+    private static final boolean JSON_SERIALIZER = true;
+    private String id;
 
     public String currentContextKey;
 
@@ -62,9 +64,14 @@ public class SerializableState {
     }
 
     public static SerializableState deserialize(String json) {
-        ObjectToJsonSerializer stateSerializer = Serializer.getStateSerializer();
-        return (SerializableState) stateSerializer.deserialize(
-                json.getBytes(StandardCharsets.UTF_8), SerializableState.class);
+        if (JSON_SERIALIZER) {
+            ObjectToJsonSerializer stateSerializer = Serializer.getStateSerializer();
+            return stateSerializer.deserialize(
+                    json.getBytes(StandardCharsets.UTF_8), SerializableState.class);
+        } else {
+            Gson gson = Serializer.getGson();
+            return gson.fromJson(json, SerializableState.class);
+        }
     }
 
     public SerializableState(WorkerExecutionContext executionContext, int ip) {
@@ -78,8 +85,12 @@ public class SerializableState {
     }
 
     public String serialize() {
-        ObjectToJsonSerializer stateSerializer = Serializer.getStateSerializer();
-        return stateSerializer.serialize(this);
+        if (JSON_SERIALIZER) {
+            ObjectToJsonSerializer stateSerializer = Serializer.getStateSerializer();
+            return stateSerializer.serialize(this);
+        } else {
+            return Serializer.getGson().toJson(this);
+        }
     }
 
     public WorkerExecutionContext getExecutionContext(ProgramFile programFile, Deserializer deserializer) {
