@@ -46,7 +46,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.persistence.serializable.serializer.ReflectionHelper.cast;
+import static org.ballerinalang.persistence.serializable.serializer.ObjectHelper.cast;
 
 /**
  * Reconstruct Java object tree from JSON input.
@@ -324,7 +324,7 @@ class JsonDeserializer implements BValueDeserializer {
 
     private void setFields(Object target, BMap<String, BValue> jMap,
                            Class<?> targetClass) {
-        HashMap<String, Field> allFields = ReflectionHelper.getAllFields(target.getClass(), 0);
+        HashMap<String, Field> allFields = ObjectHelper.getAllFields(target.getClass(), 0);
 
         for (String fieldName : jMap.keys()) {
             if (fieldName.equals(JsonSerializerConst.HASH_TAG)) {

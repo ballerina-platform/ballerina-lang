@@ -22,5 +22,6 @@ package org.ballerinalang.persistence.serializable.serializer;
  */
 public interface ObjectToJsonSerializer {
     String serialize(Object obj);
+
     Object deserialize(byte[] bytes, Class<?> targetClass);
 }

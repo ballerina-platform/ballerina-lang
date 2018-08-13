@@ -22,13 +22,15 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 
 /**
- * Helper methods for java reflection.
+ * Helper methods to operate on Objects.
  */
-public class ReflectionHelper {
+public class ObjectHelper {
+    private ObjectHelper() {}
+
     /**
      * Get all fields in the class hierarchy until Object class.
      *
-     * @param targetClass
+     * @param targetClass from which the fields are inspected.
      * @param depth       depth in the hierarchy; starting class should be 0
      * @return
      */
@@ -72,16 +74,17 @@ public class ReflectionHelper {
             } else if (targetType == double.class) {
                 return 0.0;
             }
+            return null;
         }
+
+        Class<?> objClass = obj.getClass();
         // JsonParser always treat integer numbers as longs, if target field is int then cast to int.
-        if ((targetType == Integer.class && obj.getClass() == Long.class)
-                || (targetType == int.class && obj.getClass() == Long.class)) {
+        if ((targetType == Integer.class || targetType == int.class) && objClass == Long.class) {
             return ((Long) obj).intValue();
         }
 
         // JsonParser always treat float numbers as doubles, if target field is float then cast to float.
-        if ((targetType == Float.class && obj.getClass() == Double.class)
-                || (targetType == float.class && obj.getClass() == Double.class)) {
+        if ((targetType == Float.class || targetType == float.class) && objClass == Double.class) {
             return ((Double) obj).floatValue();
         }
 

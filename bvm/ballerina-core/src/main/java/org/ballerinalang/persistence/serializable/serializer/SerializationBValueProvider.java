@@ -21,17 +21,22 @@ import org.ballerinalang.model.values.BValue;
 
 /**
  * Provide Mapping relationship between Java objects and BValue Objects.
+ *
  * @param <T> Type to be serialized
  */
 public interface SerializationBValueProvider<T> {
     /**
      * Return typeName used to find the appropriate {@link SerializationBValueProvider} implementation.
+     *
      * @return
      */
     default String typeName() {
         return getType().getName();
     }
+
     Class<?> getType();
+
     BValue toBValue(T object, BValueSerializer serializer);
+
     T toObject(BValue bValue, BValueDeserializer bValueDeserializer);
 }

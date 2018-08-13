@@ -28,6 +28,7 @@ import java.lang.reflect.InvocationTargetException;
 public class TypeInstanceProviderFactory {
     /**
      * Given fully qualified class name get {@link TypeInstanceProvider} dynamically implemented.
+     *
      * @param fullClassName class name of requested {@link TypeInstanceProvider}
      * @return
      */

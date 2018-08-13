@@ -65,11 +65,10 @@ import static org.ballerinalang.persistence.serializable.serializer.BValueHelper
  * Serialize @{@link SerializableState} into JSON and back.
  */
 public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer {
-
     private final IdentityHashMap<Object, Object> identityMap = new IdentityHashMap<>();
     private final HashSet<String> repeatedReferenceSet = new HashSet<>();
     private final BValueProvider bValueProvider = BValueProvider.getInstance();
-    private static final String bValuePackagePath = getBValuePackagePath();
+    private static final String BVALUE_PACKAGE_PATH = getBValuePackagePath();
 
     public JsonSerializer() {
         bValueProvider.register(new NumericBValueProviders.BigIntegerBValueProvider());
@@ -88,6 +87,21 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         return BValue.class.getPackage().getName();
     }
 
+    /**
+     * Get the BValueProvider associated with this JsonSerializer instance.
+     * Use this instance to add SerializationBValueProvider implementations for this {@link JsonSerializer} instance.
+     *
+     * @return
+     */
+    public BValueProvider getBValueProviderRegistry() {
+        return this.bValueProvider;
+    }
+
+    /**
+     * Generate JSON serialized output from the given Java object instance.
+     * @param object instance to be serialized
+     * @return
+     */
     @Override
     public String serialize(Object object) {
         try {
@@ -144,7 +158,8 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         // so that we have some sort of Map<String, Value>.
         // Transformation:
         // extract non-string typed key[1] to a auxiliary dictionary
-        // as 'value' and have an auto-generated key[2] to represent the original complex key.
+        // as 'value' and have an auto-generated key[2] to represent the original complex key[1].
+        // Finally add the auxiliary dictionary to target dictionary, using a special key.
         BMap<String, BValue> target = new BMap<>();
         BMap<String, BValue> complexKeyMap = new BMap<>();
         for (Map.Entry<Object, Object> entry : source.entrySet()) {
@@ -340,8 +355,8 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
     static String getTrimmedClassName(Class<?> clazz) {
         String className = clazz.getName();
         // if obj is a BValue, trim fully qualified name to class name.
-        if (BValue.class.isAssignableFrom(clazz) && className.startsWith(bValuePackagePath)) {
-            className = className.substring(bValuePackagePath.length() + 1);
+        if (BValue.class.isAssignableFrom(clazz) && className.startsWith(BVALUE_PACKAGE_PATH)) {
+            className = className.substring(BVALUE_PACKAGE_PATH.length() + 1);
         }
         return className;
     }
@@ -357,7 +372,7 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
     private BMap convertToBValueViaReflection(Object obj, Class<?> leftSideType) {
         Class<?> objClass = obj.getClass();
         BMap<String, BValue> map = new BMap<>();
-        HashMap<String, Field> allFields = ReflectionHelper.getAllFields(objClass, 0);
+        HashMap<String, Field> allFields = ObjectHelper.getAllFields(objClass, 0);
         for (Map.Entry<String, Field> fieldEntry : allFields.entrySet()) {
             String fieldName = fieldEntry.getKey();
             Field field = fieldEntry.getValue();
