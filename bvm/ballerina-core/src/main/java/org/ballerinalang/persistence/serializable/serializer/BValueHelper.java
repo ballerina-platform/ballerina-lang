@@ -61,7 +61,15 @@ class BValueHelper {
         }
         sb.append(obj.getClass().getSimpleName());
         sb.append("#");
-        sb.append(obj.hashCode());
+
+        // TODO: This is a work around to prevent BArrayTypes .hashCode's NullPointerException preventing progress.
+        int hash;
+        try {
+            hash = obj.hashCode();
+        } catch (NullPointerException e) {
+            hash = -1;
+        }
+        sb.append(hash);
         if (sufix != null) {
             sb.append("#");
             sb.append(sufix);

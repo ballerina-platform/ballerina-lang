@@ -40,6 +40,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -233,6 +234,30 @@ public class JsonSerializerTest {
 
         // test reference sharing
         Assert.assertTrue(array1[1] == array1[2]);
+    }
+
+    @Test(description = "Test source array length == destination array len")
+    public void testJsonDeserializeArraySize() {
+        int[] array = new int[5];
+        array[0] = 44;
+        array[1] = 44;
+
+        String serialize = new JsonSerializer().serialize(array);
+        int[] array1 = new JsonSerializer().deserialize(serialize.getBytes(), int[].class);
+
+        Assert.assertEquals(array1.length, array.length);
+        Assert.assertEquals(array1[0], array[0]);
+        Assert.assertEquals(array[1], array[1]);
+    }
+
+    @Test(description = "Test source array length == destination array len")
+    public void testJsonDeserializeArrayListSize() {
+        ArrayList<Integer> integers = new ArrayList<>(5);
+
+        String serialize = new JsonSerializer().serialize(integers);
+        ArrayList array1 = new JsonSerializer().deserialize(serialize.getBytes(), ArrayList.class);
+
+        Assert.assertEquals(array1.size(), integers.size());
     }
 
     @Test(description = "Test deserialization of StringFieldA[][]")

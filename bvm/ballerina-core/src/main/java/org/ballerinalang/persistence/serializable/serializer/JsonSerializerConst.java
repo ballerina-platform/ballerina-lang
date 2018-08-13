@@ -33,6 +33,8 @@ public class JsonSerializerConst {
     public static final String ARRAY_TAG = "array#";
     public static final String COMPONENT_TYPE = "componentType#";
     public static final String BYTE_TAG = "byte#";
+    public static final String LENGTH_TAG = "len#";
+    public static final String MAP_TYPE_TAG = "map_type#";
 
     private JsonSerializerConst() {}
 }

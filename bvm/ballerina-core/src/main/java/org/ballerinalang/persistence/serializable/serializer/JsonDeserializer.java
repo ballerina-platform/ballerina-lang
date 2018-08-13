@@ -259,7 +259,9 @@ class JsonDeserializer implements BValueDeserializer {
         BString ct = (BString) jsonNode.get(JsonSerializerConst.COMPONENT_TYPE);
         String componentType = ct.stringValue();
         BRefValueArray array = (BRefValueArray) jsonNode.get(JsonSerializerConst.PAYLOAD_TAG);
-        int size = (int) array.size();
+
+        BInteger bSize = (BInteger) jsonNode.get(JsonSerializerConst.LENGTH_TAG);
+        int size = (int) bSize.intValue();
 
         Class<?> clazz = findClass(componentType);
         if (clazz != null) {
@@ -304,7 +306,8 @@ class JsonDeserializer implements BValueDeserializer {
             if (JsonSerializerConst.MAP_TAG.equals(objType)) {
                 return deserializeMap((BMap<String, BValue>) payload, (Map) instance);
             } else if (JsonSerializerConst.LIST_TAG.equals(objType)) {
-                return deserializeList(payload, (List) instance, targetType);
+                BInteger size = (BInteger) jsonNode.get(JsonSerializerConst.LENGTH_TAG);
+                return deserializeList(payload, (List) instance, targetType, size);
             } else if (JsonSerializerConst.ENUM_TAG.equals(objType)) {
                 return instance;
             } else if (JsonSerializerConst.ARRAY_TAG.equals(objType)) {
@@ -373,7 +376,7 @@ class JsonDeserializer implements BValueDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-    private Object deserializeList(BValue payload, List targetList, Class<?> targetType) {
+    private Object deserializeList(BValue payload, List targetList, Class<?> targetType, BInteger size) {
         BRefValueArray jArray = (BRefValueArray) payload;
         Class<?> componentType = targetType.getComponentType();
         for (int i = 0; i < jArray.size(); i++) {

@@ -17,57 +17,57 @@
  */
 package org.ballerinalang.persistence.serializable.serializer.providers.bvalue;
 
-import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.serializable.serializer.BValueDeserializer;
 import org.ballerinalang.persistence.serializable.serializer.BValueSerializer;
 import org.ballerinalang.persistence.serializable.serializer.JsonSerializerConst;
 import org.ballerinalang.persistence.serializable.serializer.SerializationBValueProvider;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
 
 /**
- * Provide mapping between {@link BMap} and {@link BValue} representation of it.
+ * Provide mapping between {@link Class} and {@link BValue} representation of it.
  */
-public class BMapBValueProvider implements SerializationBValueProvider<BMap> {
+public class ArrayListBValueProvider implements SerializationBValueProvider<ArrayList> {
     @Override
     public String typeName() {
-        return BMap.class.getSimpleName();
+        return getType().getName();
     }
 
     @Override
     public Class<?> getType() {
-        return BMap.class;
+        return ArrayList.class;
     }
 
     @Override
-    public BValue toBValue(BMap bMap, BValueSerializer serializer) {
-        LinkedHashMap implMap = bMap.getMap();
-        BType type = bMap.getType();
-        BValue serialized = serializer.toBValue(implMap, implMap.getClass());
-        BMap<String, BValue> wrap = BValueProviderHelper.wrap(typeName(), serialized);
-
-        BValue serializedType = serializer.toBValue(type, null);
-        wrap.put(JsonSerializerConst.MAP_TYPE_TAG, serializedType);
-        return wrap;
+    public BValue toBValue(ArrayList list, BValueSerializer serializer) {
+        BRefValueArray array = new BRefValueArray(BTypes.typeAny);
+        for (Object item : list) {
+            array.append((BRefType) serializer.toBValue(item, null));
+        }
+        BMap<String, BValue> bMap = BValueProviderHelper.wrap(typeName(), array);
+        bMap.put(JsonSerializerConst.LENGTH_TAG, new BInteger(list.size()));
+        return bMap;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public BMap toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
+    public ArrayList toObject(BValue bValue, BValueDeserializer bValueDeserializer) {
         if (bValue instanceof BMap) {
+            @SuppressWarnings("unchecked")
             BMap<String, BValue> wrapper = (BMap<String, BValue>) bValue;
-            if (BValueProviderHelper.isWrapperOfType(wrapper, typeName())) {
-                BMap payload = (BMap) BValueProviderHelper.getPayload(wrapper);
-                HashMap deserializedMap = (HashMap) bValueDeserializer.deserialize(payload, HashMap.class);
-                BValue mapTypeTag = wrapper.get(JsonSerializerConst.MAP_TYPE_TAG);
-                bValueDeserializer.deserialize(mapTypeTag, BType.class);
-                BMap bMap = new BMap();
-                bMap.getMap().putAll(deserializedMap);
-                return bMap;
+            BRefValueArray array = (BRefValueArray) BValueProviderHelper.getPayload(wrapper);
+            BInteger length = (BInteger) wrapper.get(JsonSerializerConst.LENGTH_TAG);
+            ArrayList arrayList = new ArrayList((int) length.intValue());
+
+            for (int i = 0; i < array.size(); i++) {
+                arrayList.add(array.get(i));
             }
+            return arrayList;
         }
         throw BValueProviderHelper.deserializationIncorrectType(bValue, typeName());
     }

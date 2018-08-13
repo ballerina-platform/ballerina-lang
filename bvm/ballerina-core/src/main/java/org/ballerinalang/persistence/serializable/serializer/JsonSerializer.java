@@ -32,6 +32,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.persistence.serializable.SerializableState;
+import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.ArrayListBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.BBooleanBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.BIntegerBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.BMapBValueProvider;
@@ -81,6 +82,7 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         bValueProvider.register(new ConcurrentHashMapBValueProvider());
         bValueProvider.register(new BIntegerBValueProvider());
         bValueProvider.register(new BBooleanBValueProvider());
+        bValueProvider.register(new ArrayListBValueProvider());
     }
 
     private static String getBValuePackagePath() {
@@ -209,7 +211,9 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         for (Object item : list) {
             array.append(toBValue(item, Object.class));
         }
-        return wrapObject(JsonSerializerConst.LIST_TAG, array);
+        BMap<String, BValue> bMap = wrapObject(JsonSerializerConst.LIST_TAG, array);
+        bMap.put(JsonSerializerConst.LENGTH_TAG, new BInteger(list.size()));
+        return bMap;
     }
 
     private BMap toBValue(Enum obj) {
@@ -313,6 +317,7 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         }
 
         BMap<String, BValue> bMap = wrapObject(JsonSerializerConst.ARRAY_TAG, bArray);
+        bMap.put(JsonSerializerConst.LENGTH_TAG, new BInteger(arrayLength));
         Class<?> componentType = array.getClass().getComponentType();
         String trimmedName = getTrimmedClassName(componentType);
         bMap.put(JsonSerializerConst.COMPONENT_TYPE, createBString(trimmedName));

@@ -39,7 +39,7 @@ class BValueProviderHelper {
     }
 
 
-    public static BValue wrap(String typeName, BValue payload) {
+    public static BMap<String, BValue> wrap(String typeName, BValue payload) {
         BMap<String, BValue> wrapper = new BMap<>();
         wrapper.put(JsonSerializerConst.TYPE_TAG, new BString(typeName));
         wrapper.put(JsonSerializerConst.PAYLOAD_TAG, payload);
