@@ -51,7 +51,7 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     public void visit(BIRBasicBlock birBasicBlock) {
         //Name of the basic block
-        buf.writeInt(addStringCPEntry(birBasicBlock.id.value));
+        addCpAndWriteString(birBasicBlock.id.value);
         // Number of instructions
         // Adding the terminator instruction as well.
         buf.writeInt(birBasicBlock.instructions.size() + 1);
@@ -64,7 +64,7 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     public void visit(BIRTerminator.GOTO birGoto) {
         buf.writeByte(birGoto.kind.getValue());
-        buf.writeInt(addStringCPEntry(birGoto.targetBB.id.value));
+        addCpAndWriteString(birGoto.targetBB.id.value);
     }
 
     public void visit(BIRTerminator.Call birCall) {
@@ -79,9 +79,9 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeByte(birBranch.kind.getValue());
         birBranch.op.accept(this);
         // true:BB
-        buf.writeInt(addStringCPEntry(birBranch.trueBB.id.value));
+        addCpAndWriteString(birBranch.trueBB.id.value);
         // false:BB
-        buf.writeInt(addStringCPEntry(birBranch.falseBB.id.value));
+        addCpAndWriteString(birBranch.falseBB.id.value);
     }
 
 
@@ -106,7 +106,8 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     public void visit(BIRNonTerminator.ConstantLoad birConstantLoad) {
         buf.writeByte(birConstantLoad.kind.getValue());
-        buf.writeInt(addStringCPEntry(birConstantLoad.type.getDesc()));
+        addCpAndWriteString(birConstantLoad.type.getDesc());
+        birConstantLoad.lhsOp.accept(this);
 
         BType type = birConstantLoad.type;
         switch (type.tag) {
@@ -126,15 +127,20 @@ public class BIRInstructionWriter extends BIRVisitor {
     // Operands
     public void visit(BIROperand.BIRVarRef birVarRef) {
         // TODO use the integer index of the variable.
-        buf.writeInt(addStringCPEntry(birVarRef.variableDcl.name.value));
+        addCpAndWriteString(birVarRef.variableDcl.name.value);
     }
 
 
     // private methods
 
     // TODO Duplicate.
+    private void addCpAndWriteString(String string) {
+        buf.writeInt(addStringCPEntry(string));
+    }
+
     private int addStringCPEntry(String value) {
         return cp.addCPEntry(new CPEntry.StringCPEntry(value));
     }
+
 
 }

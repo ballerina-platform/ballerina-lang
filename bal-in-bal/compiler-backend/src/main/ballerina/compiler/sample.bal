@@ -1,7 +1,8 @@
 import ballerina/io;
 
-function main(string... args) {
-    BIRPackage whileSample = {
+function writeSample(string path) {
+
+    BIRPackage ifSample = {
         functions: [
             {
                 argsCount: 0,
@@ -11,7 +12,24 @@ function main(string... args) {
                             value: "bb0"
                         },
                         instructions: [
+                            new ConstantLoad (
+                                "CONST_LOAD",
+                                new BIRVarRef (
+                                    "VAR_REF",
+                                    "int",
+                                    {
+                                        kind: "TEMP",
+                                        name: {
+                                            value: "%2"
+                                        },
+                                        typeValue: "int"
+                                    }
+                                ),
+                                "int",
+                                1
+                            ),
                             new Move (
+                                "MOVE",
                                 new BIRVarRef (
                                     "VAR_REF",
                                     "int",
@@ -23,32 +41,156 @@ function main(string... args) {
                                         typeValue: "int"
                                     }
                                 ),
-                                new BIRConstant (
-                                    "CONST",
+                                new BIRVarRef (
+                                    "VAR_REF",
                                     "int",
-                                    1
+                                    {
+                                        kind: "TEMP",
+                                        name: {
+                                            value: "%2"
+                                        },
+                                        typeValue: "int"
+                                    }
                                 )
                             ),
+                            new ConstantLoad (
+                                "CONST_LOAD",
+                                new BIRVarRef (
+                                    "VAR_REF",
+                                    "int",
+                                    {
+                                        kind: "TEMP",
+                                        name: {
+                                            value: "%4"
+                                        },
+                                        typeValue: "int"
+                                    }
+                                ),
+                                "int",
+                                0
+                            ),
                             new Move (
+                                "MOVE",
                                 new BIRVarRef (
                                     "VAR_REF",
                                     "int",
                                     {
                                         kind: "LOCAL",
                                         name: {
-                                            value: "%2"
+                                            value: "%3"
                                         },
                                         typeValue: "int"
                                     }
                                 ),
-                                new BIRConstant (
-                                    "CONST",
+                                new BIRVarRef (
+                                    "VAR_REF",
                                     "int",
-                                    0
+                                    {
+                                        kind: "TEMP",
+                                        name: {
+                                            value: "%4"
+                                        },
+                                        typeValue: "int"
+                                    }
                                 )
+                            ),
+                            new Move (
+                                "MOVE",
+                                new BIRVarRef (
+                                    "VAR_REF",
+                                    "int",
+                                    {
+                                        kind: "TEMP",
+                                        name: {
+                                            value: "%5"
+                                        },
+                                        typeValue: "int"
+                                    }
+                                ),
+                                new BIRVarRef (
+                                    "VAR_REF",
+                                    "int",
+                                    {
+                                        kind: "LOCAL",
+                                        name: {
+                                            value: "%1"
+                                        },
+                                        typeValue: "int"
+                                    }
+                                )
+                            ),
+                            new ConstantLoad (
+                                "CONST_LOAD",
+                                new BIRVarRef (
+                                    "VAR_REF",
+                                    "int",
+                                    {
+                                        kind: "TEMP",
+                                        name: {
+                                            value: "%6"
+                                        },
+                                        typeValue: "int"
+                                    }
+                                ),
+                                "int",
+                                10
+                            ),
+                            new BinaryOp (
+                                LESS_THAN,
+                                new BIRVarRef (
+                                    "VAR_REF",
+                                    "boolean",
+                                    {
+                                        kind: "TEMP",
+                                        name: {
+                                            value: "%7"
+                                        },
+                                        typeValue: "boolean"
+                                    }
+                                ),
+                                new BIRVarRef (
+                                    "VAR_REF",
+                                    "int",
+                                    {
+                                        kind: "TEMP",
+                                        name: {
+                                            value: "%5"
+                                        },
+                                        typeValue: "int"
+                                    }
+                                ),
+                                new BIRVarRef (
+                                    "VAR_REF",
+                                    "int",
+                                    {
+                                        kind: "TEMP",
+                                        name: {
+                                            value: "%6"
+                                        },
+                                        typeValue: "int"
+                                    }
+                                ),
+                                "boolean"
                             )
                         ],
-                        terminator: new GOTO (
+                        terminator: new Branch (
+                                        {
+                                            id: {
+                                                value: "bb2"
+                                            }
+                                        },
+                                        "BRANCH",
+                                        new BIRVarRef (
+                                            "VAR_REF",
+                                            "boolean",
+                                            {
+                                                kind: "TEMP",
+                                                name: {
+                                                    value: "%7"
+                                                },
+                                                typeValue: "boolean"
+                                            }
+                                        ),
                                         {
                                             id: {
                                                 value: "bb1"
@@ -62,13 +204,14 @@ function main(string... args) {
                         },
                         instructions: [
                             new Move (
+                                "MOVE",
                                 new BIRVarRef (
                                     "VAR_REF",
                                     "int",
                                     {
                                         kind: "TEMP",
                                         name: {
-                                            value: "%3"
+                                            value: "%8"
                                         },
                                         typeValue: "int"
                                     }
@@ -79,106 +222,21 @@ function main(string... args) {
                                     {
                                         kind: "LOCAL",
                                         name: {
-                                            value: "%1"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                )
-                            ),
-                            new BinaryOp (
-                                LESS_THAN,
-                                (),
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "boolean",
-                                    {
-                                        kind: "TEMP",
-                                        name: {
-                                            value: "%4"
-                                        },
-                                        typeValue: "boolean"
-                                    }
-                                ),
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "TEMP",
-                                        name: {
                                             value: "%3"
                                         },
                                         typeValue: "int"
                                     }
-                                ),
-                                new BIRConstant (
-                                    "CONST",
-                                    "int",
-                                    10
-                                ),
-                                "boolean"
-                            )
-                        ],
-                        terminator: new Branch (
-                                        {
-                                            id: {
-                                                value: "bb3"
-                                            }
-                                        },
-                                        new BIRVarRef (
-                                            "VAR_REF",
-                                            "boolean",
-                                            {
-                                                kind: "TEMP",
-                                                name: {
-                                                    value: "%4"
-                                                },
-                                                typeValue: "boolean"
-                                            }
-                                        ),
-                                        {
-                                            id: {
-                                                value: "bb2"
-                                            }
-                                        }
-                        )
-                    },
-                    {
-                        id: {
-                            value: "bb2"
-                        },
-                        instructions: [
-                            new Move (
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "TEMP",
-                                        name: {
-                                            value: "%5"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                ),
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "LOCAL",
-                                        name: {
-                                            value: "%2"
-                                        },
-                                        typeValue: "int"
-                                    }
                                 )
                             ),
                             new Move (
+                                "MOVE",
                                 new BIRVarRef (
                                     "VAR_REF",
                                     "int",
                                     {
                                         kind: "TEMP",
                                         name: {
-                                            value: "%6"
+                                            value: "%9"
                                         },
                                         typeValue: "int"
                                     }
@@ -197,161 +255,6 @@ function main(string... args) {
                             ),
                             new BinaryOp (
                                 ADD,
-                                (),
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "TEMP",
-                                        name: {
-                                            value: "%7"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                ),
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "TEMP",
-                                        name: {
-                                            value: "%5"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                ),
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "TEMP",
-                                        name: {
-                                            value: "%6"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                ),
-                                "int"
-                            ),
-                            new Move (
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "LOCAL",
-                                        name: {
-                                            value: "%2"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                ),
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "TEMP",
-                                        name: {
-                                            value: "%7"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                )
-                            ),
-                            new Move (
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "TEMP",
-                                        name: {
-                                            value: "%8"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                ),
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "LOCAL",
-                                        name: {
-                                            value: "%1"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                )
-                            ),
-                            new BinaryOp (
-                                ADD,
-                                (),
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "TEMP",
-                                        name: {
-                                            value: "%9"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                ),
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "TEMP",
-                                        name: {
-                                            value: "%8"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                ),
-                                new BIRConstant (
-                                    "CONST",
-                                    "int",
-                                    1
-                                ),
-                                "int"
-                            ),
-                            new Move (
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "LOCAL",
-                                        name: {
-                                            value: "%1"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                ),
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "TEMP",
-                                        name: {
-                                            value: "%9"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                )
-                            )
-                        ],
-                        terminator: new GOTO (
-                                        {
-                                            id: {
-                                                value: "bb1"
-                                            }
-                                        }
-                        )
-                    },
-                    {
-                        id: {
-                            value: "bb3"
-                        },
-                        instructions: [
-                            new Move (
                                 new BIRVarRef (
                                     "VAR_REF",
                                     "int",
@@ -367,15 +270,93 @@ function main(string... args) {
                                     "VAR_REF",
                                     "int",
                                     {
+                                        kind: "TEMP",
+                                        name: {
+                                            value: "%8"
+                                        },
+                                        typeValue: "int"
+                                    }
+                                ),
+                                new BIRVarRef (
+                                    "VAR_REF",
+                                    "int",
+                                    {
+                                        kind: "TEMP",
+                                        name: {
+                                            value: "%9"
+                                        },
+                                        typeValue: "int"
+                                    }
+                                ),
+                                "int"
+                            ),
+                            new Move (
+                                "MOVE",
+                                new BIRVarRef (
+                                    "VAR_REF",
+                                    "int",
+                                    {
                                         kind: "LOCAL",
                                         name: {
-                                            value: "%1"
+                                            value: "%3"
+                                        },
+                                        typeValue: "int"
+                                    }
+                                ),
+                                new BIRVarRef (
+                                    "VAR_REF",
+                                    "int",
+                                    {
+                                        kind: "TEMP",
+                                        name: {
+                                            value: "%10"
+                                        },
+                                        typeValue: "int"
+                                    }
+                                )
+                            )
+                        ],
+                        terminator: new GOTO (
+                                        "GOTO",
+                                        {
+                                            id: {
+                                                value: "bb2"
+                                            }
+                                        }
+                        )
+                    },
+                    {
+                        id: {
+                            value: "bb2"
+                        },
+                        instructions: [
+                            new Move (
+                                "MOVE",
+                                new BIRVarRef (
+                                    "VAR_REF",
+                                    "int",
+                                    {
+                                        kind: "TEMP",
+                                        name: {
+                                            value: "%11"
+                                        },
+                                        typeValue: "int"
+                                    }
+                                ),
+                                new BIRVarRef (
+                                    "VAR_REF",
+                                    "int",
+                                    {
+                                        kind: "LOCAL",
+                                        name: {
+                                            value: "%3"
                                         },
                                         typeValue: "int"
                                     }
                                 )
                             ),
                             new Move (
+                                "MOVE",
                                 new BIRVarRef (
                                     "VAR_REF",
                                     "int",
@@ -393,7 +374,7 @@ function main(string... args) {
                                     {
                                         kind: "TEMP",
                                         name: {
-                                            value: "%10"
+                                            value: "%11"
                                         },
                                         typeValue: "int"
                                     }
@@ -401,20 +382,23 @@ function main(string... args) {
                             )
                         ],
                         terminator: new GOTO (
+                                        "GOTO",
                                         {
                                             id: {
-                                                value: "bb4"
+                                                value: "bb3"
                                             }
                                         }
                         )
                     },
                     {
                         id: {
-                            value: "bb4"
+                            value: "bb3"
                         },
                         instructions: [
                         ],
-                        terminator: new Return ()
+                        terminator: new Return (
+                                        "RETURN"
+                        )
                     }
                 ],
                 isDeclaration: false,
@@ -434,14 +418,14 @@ function main(string... args) {
                         typeValue: "int"
                     },
                     {
-                        kind: "LOCAL",
+                        kind: "TEMP",
                         name: {
                             value: "%2"
                         },
                         typeValue: "int"
                     },
                     {
-                        kind: "TEMP",
+                        kind: "LOCAL",
                         name: {
                             value: "%3"
                         },
@@ -452,7 +436,7 @@ function main(string... args) {
                         name: {
                             value: "%4"
                         },
-                        typeValue: "boolean"
+                        typeValue: "int"
                     },
                     {
                         kind: "TEMP",
@@ -473,7 +457,7 @@ function main(string... args) {
                         name: {
                             value: "%7"
                         },
-                        typeValue: "int"
+                        typeValue: "boolean"
                     },
                     {
                         kind: "TEMP",
@@ -495,415 +479,11 @@ function main(string... args) {
                             value: "%10"
                         },
                         typeValue: "int"
-                    }
-                ],
-                name: {
-                    value: "main"
-                },
-                typeValue: {
-                    paramTypes: [
-                    ],
-                    retType: "int",
-                    tag: 12
-                },
-                visibility: "PRIVATE"
-            }
-        ],
-        name: {
-            value: "."
-        },
-        types: [
-        ],
-        versionValue: {
-            value: "0.0.0"
-        }
-    };
-
-    BIRPackage ifSample = {
-        functions: [
-            {
-                argsCount: 0,
-                basicBlocks: [
-                    {
-                        id: {
-                            value: "bb0"
-                        },
-                        instructions: [
-                            new Move (
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "LOCAL",
-                                        name: {
-                                            value: "%1"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                ),
-                                new BIRConstant (
-                                    "CONST",
-                                    "int",
-                                    1
-                                )
-                            ),
-                            new Move (
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "LOCAL",
-                                        name: {
-                                            value: "%2"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                ),
-                                new BIRConstant (
-                                    "CONST",
-                                    "int",
-                                    0
-                                )
-                            ),
-                            new Move (
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "TEMP",
-                                        name: {
-                                            value: "%3"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                ),
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "LOCAL",
-                                        name: {
-                                            value: "%1"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                )
-                            ),
-                            new BinaryOp (
-                                LESS_THAN,
-                                (),
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "boolean",
-                                    {
-                                        kind: "TEMP",
-                                        name: {
-                                            value: "%4"
-                                        },
-                                        typeValue: "boolean"
-                                    }
-                                ),
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "TEMP",
-                                        name: {
-                                            value: "%3"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                ),
-                                new BIRConstant (
-                                    "CONST",
-                                    "int",
-                                    10
-                                ),
-                                "boolean"
-                            )
-                        ],
-                        terminator: new Branch (
-                                        {
-                                            id: {
-                                                value: "bb2"
-                                            }
-                                        },
-                                        new BIRVarRef (
-                                            "VAR_REF",
-                                            "boolean",
-                                            {
-                                                kind: "TEMP",
-                                                name: {
-                                                    value: "%4"
-                                                },
-                                                typeValue: "boolean"
-                                            }
-                                        ),
-                                        {
-                                            id: {
-                                                value: "bb1"
-                                            }
-                                        }
-                        )
-                    },
-                    {
-                        id: {
-                            value: "bb1"
-                        },
-                        instructions: [
-                            new Move (
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "TEMP",
-                                        name: {
-                                            value: "%5"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                ),
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "LOCAL",
-                                        name: {
-                                            value: "%2"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                )
-                            ),
-                            new Move (
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "TEMP",
-                                        name: {
-                                            value: "%6"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                ),
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "LOCAL",
-                                        name: {
-                                            value: "%1"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                )
-                            ),
-                            new BinaryOp (
-                                ADD,
-                                (),
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "TEMP",
-                                        name: {
-                                            value: "%7"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                ),
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "TEMP",
-                                        name: {
-                                            value: "%5"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                ),
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "TEMP",
-                                        name: {
-                                            value: "%6"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                ),
-                                "int"
-                            ),
-                            new Move (
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "LOCAL",
-                                        name: {
-                                            value: "%2"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                ),
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "TEMP",
-                                        name: {
-                                            value: "%7"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                )
-                            )
-                        ],
-                        terminator: new GOTO (
-                                        {
-                                            id: {
-                                                value: "bb2"
-                                            }
-                                        }
-                        )
-                    },
-                    {
-                        id: {
-                            value: "bb2"
-                        },
-                        instructions: [
-                            new Move (
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "TEMP",
-                                        name: {
-                                            value: "%8"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                ),
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "LOCAL",
-                                        name: {
-                                            value: "%2"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                )
-                            ),
-                            new Move (
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "RETURN",
-                                        name: {
-                                            value: "%0"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                ),
-                                new BIRVarRef (
-                                    "VAR_REF",
-                                    "int",
-                                    {
-                                        kind: "TEMP",
-                                        name: {
-                                            value: "%8"
-                                        },
-                                        typeValue: "int"
-                                    }
-                                )
-                            )
-                        ],
-                        terminator: new GOTO (
-                                        {
-                                            id: {
-                                                value: "bb3"
-                                            }
-                                        }
-                        )
-                    },
-                    {
-                        id: {
-                            value: "bb3"
-                        },
-                        instructions: [
-                        ],
-                        terminator: new Return (
-                        )
-                    }
-                ],
-                isDeclaration: false,
-                localVars: [
-                    {
-                        kind: "RETURN",
-                        name: {
-                            value: "%0"
-                        },
-                        typeValue: "int"
-                    },
-                    {
-                        kind: "LOCAL",
-                        name: {
-                            value: "%1"
-                        },
-                        typeValue: "int"
-                    },
-                    {
-                        kind: "LOCAL",
-                        name: {
-                            value: "%2"
-                        },
-                        typeValue: "int"
                     },
                     {
                         kind: "TEMP",
                         name: {
-                            value: "%3"
-                        },
-                        typeValue: "int"
-                    },
-                    {
-                        kind: "TEMP",
-                        name: {
-                            value: "%4"
-                        },
-                        typeValue: "boolean"
-                    },
-                    {
-                        kind: "TEMP",
-                        name: {
-                            value: "%5"
-                        },
-                        typeValue: "int"
-                    },
-                    {
-                        kind: "TEMP",
-                        name: {
-                            value: "%6"
-                        },
-                        typeValue: "int"
-                    },
-                    {
-                        kind: "TEMP",
-                        name: {
-                            value: "%7"
-                        },
-                        typeValue: "int"
-                    },
-                    {
-                        kind: "TEMP",
-                        name: {
-                            value: "%8"
+                            value: "%11"
                         },
                         typeValue: "int"
                     }
@@ -923,11 +503,14 @@ function main(string... args) {
         name: {
             value: "."
         },
+        org: {
+            value: "$anon"
+        },
         types: [
         ],
         versionValue: {
             value: "0.0.0"
         }
     };
-    genPackage(ifSample, args[0]);
+    genPackage(ifSample, path);
 }
