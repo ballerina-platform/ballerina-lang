@@ -603,11 +603,122 @@
             }
         ],
         {
+            "include": "xmlTag"
+        },
+        {
+            "include": "xmlComment"
+        },
+        {
             "include": "templateVariable"
         },
         [
             ".",
+            "text.xml.ballerina"
+        ]
+    ],
+    "xmlTag": [
+        [
+            "(<\\/?\\??)\\s*([-_a-zA-Z0-9]+)",
+            [
+                {
+                    "next": "xmlTag__b__0",
+                    "token": "tag"
+                },
+                "tag"
+            ]
+        ]
+    ],
+    "xmlTag__b__0": [
+        [
+            "\\??\\/?>",
+            {
+                "next": "@pop",
+                "token": "tag"
+            }
+        ],
+        {
+            "include": "xmlSingleQuotedString"
+        },
+        {
+            "include": "xmlDoubleQuotedString"
+        },
+        [
+            "([a-zA-Z-]+)",
+            "variable.parameter"
+        ]
+    ],
+    "xmlSingleQuotedString": [
+        [
+            "\\'",
+            {
+                "next": "xmlSingleQuotedString__b__0",
+                "token": "string.begin.ballerina"
+            }
+        ]
+    ],
+    "xmlSingleQuotedString__b__0": [
+        [
+            "\\'",
+            {
+                "next": "@pop",
+                "token": "string.end.ballerina"
+            }
+        ],
+        [
+            "\\\\.",
+            "constant.character.escape.ballerina"
+        ],
+        [
+            ".",
             "string"
+        ]
+    ],
+    "xmlDoubleQuotedString": [
+        [
+            "\\\"",
+            {
+                "next": "xmlDoubleQuotedString__b__0",
+                "token": "string.begin.ballerina"
+            }
+        ]
+    ],
+    "xmlDoubleQuotedString__b__0": [
+        [
+            "\\\"",
+            {
+                "next": "@pop",
+                "token": "string.end.ballerina"
+            }
+        ],
+        [
+            "\\\\.",
+            "constant.character.escape.ballerina"
+        ],
+        [
+            ".",
+            "string"
+        ]
+    ],
+    "xmlComment": [
+        [
+            "<!--",
+            {
+                "next": "xmlComment__b__0",
+                "token": "comment.block.xml.ballerina"
+            }
+        ]
+    ],
+    "xmlComment__b__0": [
+        [
+            "-->",
+            {
+                "next": "@pop",
+                "token": "comment.block.xml.ballerina"
+            }
+        ],
+        [
+            ".",
+            "comment.block.xml.ballerina"
         ]
     ],
     "templateVariable": [
