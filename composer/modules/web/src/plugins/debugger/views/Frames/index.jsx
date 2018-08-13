@@ -22,7 +22,7 @@ import TreeView from 'react-treeview';
 import ReactJson from 'react-json-view';
 import JSON5 from 'json5';
 import 'react-treeview/react-treeview.css';
-import HtmlTree from '@pahans/react-htmltree';
+import ErrorBoundary from './errorboundary';
 import './frames.scss';
 /**
  *
@@ -79,14 +79,16 @@ class Frames extends React.Component {
                             return (
                                 <TreeView key={name} nodeLabel={label} defaultCollapsed>
                                     <div className='node'>Value:</div>
-                                    <ReactJson
-                                        src={this.getObject(variable.value)}
-                                        theme='eighties'
-                                        name={name}
-                                        displayDataTypes={false}
-                                        collapsed={1}
-                                        displayObjectSize={false}
-                                    />
+                                    <ErrorBoundary>
+                                        <ReactJson
+                                            src={this.getObject(variable.value)}
+                                            theme='eighties'
+                                            name={name}
+                                            displayDataTypes={false}
+                                            collapsed={1}
+                                            displayObjectSize={false}
+                                        />
+                                    </ErrorBoundary>
                                 </TreeView>);
                         } catch (error) {
                             return defaultComponent;
@@ -98,14 +100,16 @@ class Frames extends React.Component {
                             return (
                                 <TreeView key={name} nodeLabel={label} defaultCollapsed>
                                     <div className='node'>Value:</div>
-                                    <ReactJson
-                                        src={this.getJsonObject(variable.value)}
-                                        theme='eighties'
-                                        name={name}
-                                        displayDataTypes={false}
-                                        collapsed={1}
-                                        displayObjectSize={false}
-                                    />
+                                    <ErrorBoundary>
+                                        <ReactJson
+                                            src={this.getJsonObject(variable.value)}
+                                            theme='eighties'
+                                            name={name}
+                                            displayDataTypes={false}
+                                            collapsed={1}
+                                            displayObjectSize={false}
+                                        />
+                                    </ErrorBoundary>
                                 </TreeView>);
                         } catch (error) {
                             return defaultComponent;
@@ -115,14 +119,16 @@ class Frames extends React.Component {
                             return (
                                 <TreeView key={name} nodeLabel={label} defaultCollapsed>
                                     <div className='node'>Value:</div>
-                                    <ReactJson
-                                        src={this.getArray(variable.value)}
-                                        theme='eighties'
-                                        name={name}
-                                        displayDataTypes={false}
-                                        collapsed={1}
-                                        displayObjectSize={false}
-                                    />
+                                    <ErrorBoundary>
+                                        <ReactJson
+                                            src={this.getArray(variable.value)}
+                                            theme='eighties'
+                                            name={name}
+                                            displayDataTypes={false}
+                                            collapsed={1}
+                                            displayObjectSize={false}
+                                        />
+                                    </ErrorBoundary>
                                 </TreeView>
                             );
                         } catch (error) {
@@ -133,7 +139,7 @@ class Frames extends React.Component {
                             return (
                                 <TreeView key={name} nodeLabel={label} defaultCollapsed>
                                     <div className='node'>Value:</div>
-                                    <HtmlTree source={variable.value.substr(1)} theme='firefox-devtools.dark' />
+                                    {variable.value}
                                 </TreeView>
                             );
                         } catch (error) {
