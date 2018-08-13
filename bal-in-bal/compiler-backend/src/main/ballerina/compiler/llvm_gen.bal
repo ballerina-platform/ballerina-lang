@@ -1,11 +1,11 @@
 import ballerina/llvm;
 import ballerina/io;
 
-map m;
-map bbs;
+map localVarRefs;
+map<llvm:LLVMBasicBlockRef> bbs;
 
 function genPackage(BIRPackage pkg, string path) {
-    var c = pkg.name.value;
+    var c = pkg.org.value + pkg.name.value + pkg.versionValue.value;
     var mod = llvm:LLVMModuleCreateWithName(c);
     var builder = llvm:LLVMCreateBuilder();
     foreach func in pkg.functions {
@@ -39,7 +39,7 @@ function genFunction(BIRFunction func, llvm:LLVMBuilderRef builder, llvm:LLVMMod
     llvm:LLVMPositionBuilderAtEnd(builder, varAllocBB);
     foreach localVar in func.localVars{
         llvm:LLVMValueRef llvmValueRef = llvm:LLVMBuildAlloca(builder, llvm:LLVMInt32Type(), localVarName(localVar));
-        m[localVar.name.value] = llvmValueRef;
+        localVarRefs[localVar.name.value] = llvmValueRef;
     }
 
     var isFistBlock = true;
@@ -47,14 +47,13 @@ function genFunction(BIRFunction func, llvm:LLVMBuilderRef builder, llvm:LLVMMod
     while (i >= 0) {
         genBasicBlock(func.basicBlocks[i], isFistBlock, main_func, builder);
         if (i == lengthof func.basicBlocks - 1){
-            var retValueRef = llvm:LLVMBuildLoad(builder, getLocalVarById("%0"), "retrun_temp");
-            var ret = llvm:LLVMBuildRet(builder, retValueRef);
+            // TODO: move to genBasicBlock terminator match
         }
         i--;
     }
     llvm:LLVMPositionBuilderAtEnd(builder, varAllocBB);
 
-    var brInsRef = llvm:LLVMBuildBr(builder, check <llvm:LLVMBasicBlockRef>bbs["bb0"]);
+    var brInsRef = llvm:LLVMBuildBr(builder, getBBById("bb0"));
 }
 
 
@@ -66,40 +65,36 @@ function genBasicBlock(BIRBasicBlock bb, boolean continueLastBB, llvm:LLVMValueR
     // }
     llvm:LLVMPositionBuilderAtEnd(builder, entry);
     foreach i in bb.instructions {
-
         match i {
             Move moveIns => {
                 llvm:LLVMValueRef lhsRef = getLocalVarById(moveIns.lhsOp.variableDcl.name.value);
-                match moveIns.rhsOp {
-                    BIRVarRef rhsVarOp => {
-                        llvm:LLVMValueRef rhsVarOpRef = loadOprand(rhsVarOp, builder);
-                        var loaded = llvm:LLVMBuildStore(builder, rhsVarOpRef, lhsRef);
-                    }
-                    BIRConstant constOp => {
-                        var constRef = loadOprand(constOp, builder);
-                        var loaded = llvm:LLVMBuildStore(builder, constRef, lhsRef);
-                    }
-                }
+                var rhsVarOp = moveIns.rhsOp;
+                llvm:LLVMValueRef rhsVarOpRef = loadOprand(rhsVarOp, builder);
+                var loaded = llvm:LLVMBuildStore(builder, rhsVarOpRef, lhsRef);
             }
             BinaryOp binaryIns => {
-                var lhsTmpName = localVarName(binaryIns.lhsOp.variableDcl) +  "_temp";
+                var lhsTmpName = localVarName(binaryIns.lhsOp.variableDcl) + "_temp";
                 var lhsRef = getLocalVarById(binaryIns.lhsOp.variableDcl.name.value);
                 var rhsOp1 = loadOprand(binaryIns.rhsOp1, builder);
                 var rhsOp2 = loadOprand(binaryIns.rhsOp2, builder);
-                var binaryOpKind = binaryIns.binaryOpKind;
-                if (binaryOpKind == "LESS_THAN"){
+                var kind = binaryIns.kind;
+                if (kind == "LESS_THAN"){
                     // LLVMIntSLT = 40
                     var ifReturn = llvm:LLVMBuildICmp(builder, 40, rhsOp1, rhsOp2, lhsTmpName);
                     var loaded = llvm:LLVMBuildStore(builder, ifReturn, lhsRef);
-                } else if (binaryOpKind == "ADD"){
+                } else if (kind == "ADD"){
                     var addReturn = llvm:LLVMBuildAdd(builder, rhsOp1, rhsOp2, lhsTmpName);
                     var loaded = llvm:LLVMBuildStore(builder, addReturn, lhsRef);
 
                 }
                 //var rhs ;
-
-
             }
+            ConstantLoad constOp => {
+                llvm:LLVMValueRef lhsRef = getLocalVarById(constOp.lhsOp.variableDcl.name.value);
+                var constRef = llvm:LLVMConstInt(llvm:LLVMInt32Type(), constOp.value, 0);
+                var loaded = llvm:LLVMBuildStore(builder, constRef, lhsRef);
+            }
+
         }
     }
     match bb.terminator {
@@ -112,13 +107,20 @@ function genBasicBlock(BIRBasicBlock bb, boolean continueLastBB, llvm:LLVMValueR
             var vrInsRef = llvm:LLVMBuildCondBr(builder, loadOprand(brIns.op, builder), ifTrue, ifFalse);
         }
         Return => {
+            var retValueRef = llvm:LLVMBuildLoad(builder, getLocalVarById("%0"), "retrun_temp");
+            var ret = llvm:LLVMBuildRet(builder, retValueRef);
         }
     }
 }
 
 function getBBById(string id) returns llvm:LLVMBasicBlockRef {
-    llvm:LLVMBasicBlockRef targetBBRef = check <llvm:LLVMBasicBlockRef>bbs[id];
-    return targetBBRef;
+    match bbs[id] {
+        llvm:LLVMBasicBlockRef bb => return bb;
+        () => {
+            error err = { message: "bb '" + id + "' dosn't exist or not parsed yet" };
+            throw err;
+        }
+    }
 }
 
 
@@ -128,14 +130,11 @@ function loadOprand(BIROperand oprand, llvm:LLVMBuilderRef builder) returns llvm
             string tempName = localVarName(refOprand.variableDcl) + "_temp";
             return llvm:LLVMBuildLoad(builder, getLocalVarById(refOprand.variableDcl.name.value), tempName);
         }
-        BIRConstant constOprand => {
-            return llvm:LLVMConstInt(llvm:LLVMInt32Type(), constOprand.value, 0);
-        }
     }
 }
 
 function getLocalVarById(string id) returns llvm:LLVMValueRef {
-    return check <llvm:LLVMValueRef>m[id];
+    return check <llvm:LLVMValueRef>localVarRefs[id];
 }
 
 function localVarName(BIRVariableDcl localVar) returns string {
