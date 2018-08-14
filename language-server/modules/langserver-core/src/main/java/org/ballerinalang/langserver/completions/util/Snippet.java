@@ -86,8 +86,22 @@ public enum Snippet {
 
     RETURN("return;"),
 
-    SERVICE("service<${1:http:Service}> ${2:serviceName} {" + CommonUtil.LINE_SEPARATOR
+    SERVICE("service<${1:http:Service}> ${2:serviceName} bind { port: 9090 } {" + CommonUtil.LINE_SEPARATOR
             + "\t${3:newResource} (endpoint ${4:caller}, " + "${5:http:Request request}) {"
+            + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR + "}"),
+
+    SERVICE_WEBSOCKET("service<http:WebSocketService> ${1:serviceName} bind { port: 9090 } {"
+            + CommonUtil.LINE_SEPARATOR + "\tonOpen(endpoint caller) {"
+            + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR
+            + "\tonText(endpoint caller, string text, boolean final) {" + CommonUtil.LINE_SEPARATOR + "\t\t"
+            + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR
+            + "\tonClose(endpoint caller, int statusCode, string reason) {"
+            + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR + "}"),
+
+    SERVICE_WEBSUB("service<websub:Service> ${1:websubSubscriber} bind {port: 9090} {" + CommonUtil.LINE_SEPARATOR
+            + "\tonIntentVerification(endpoint caller, websub:IntentVerificationRequest request) {"
+            + CommonUtil.LINE_SEPARATOR + "\t\t" + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR
+            + "\tonNotification(websub:Notification notification) {" + CommonUtil.LINE_SEPARATOR + "\t\t"
             + CommonUtil.LINE_SEPARATOR + "\t}" + CommonUtil.LINE_SEPARATOR + "}"),
 
     THROW("throw "),

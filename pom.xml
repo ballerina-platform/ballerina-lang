@@ -2109,7 +2109,7 @@
 
     <properties>
         <ballerina.version>0.981.1-SNAPSHOT</ballerina.version>
-        <ballerina.examples.version>0.981.0</ballerina.examples.version>
+        <ballerina.examples.version>0.981.1-SNAPSHOT</ballerina.examples.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <commons-net.version>3.6</commons-net.version>

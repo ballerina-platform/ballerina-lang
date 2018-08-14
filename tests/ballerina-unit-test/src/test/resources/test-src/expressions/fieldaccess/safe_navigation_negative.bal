@@ -55,15 +55,6 @@ function testSafeNavigateOnErrorOrNull_3() returns string {
     return e!message;
 }
 
-function testUpdatingNullableStructField () returns any {
-    Address adrs = {city:"Colombo"};
-    Info inf = {address2 : adrs};
-    Person prsn = {info2 : inf};
-    Person|() p = prsn;
-    p.info2.address2.city = "Kandy";
-    return p;
-}
-
 type Student record {
     json info;
 };

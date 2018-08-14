@@ -549,7 +549,7 @@ public class ASTBuilderUtil {
         return node;
     }
 
-    public static BLangStatementExpression creatStatementExpression(BLangStatement stmt, BLangExpression expr) {
+    public static BLangStatementExpression createStatementExpression(BLangStatement stmt, BLangExpression expr) {
         BLangStatementExpression stmtExpr = (BLangStatementExpression) TreeBuilder.creatStatementExpression();
         stmtExpr.stmt = stmt;
         stmtExpr.expr = expr;
