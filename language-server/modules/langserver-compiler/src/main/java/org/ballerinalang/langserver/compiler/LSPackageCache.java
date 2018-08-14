@@ -130,6 +130,12 @@ public class LSPackageCache {
                         this.packageSymbolMap.remove(key);
                     }
                 });
+                this.packageSymbolMap.entrySet().forEach(entry -> {
+                    String alias = packageID.getName().toString();
+                    if (entry.getKey().contains(alias + ":") || entry.getKey().contains(alias)) {
+                        this.packageSymbolMap.remove(entry.getKey());
+                    }
+                });
             }
         }
         

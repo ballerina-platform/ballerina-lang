@@ -137,15 +137,17 @@ public class CommandExecutor {
             context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                         bLangPackage.symbol.getName().getValue());
             String pkgName = context.get(ExecuteCommandKeys.PKG_NAME_KEY);
+            String currentFileName = context.get(DocumentServiceKeys.FILE_NAME_KEY);
             DiagnosticPos pos;
 
             // Filter the imports except the runtime import
             List<BLangImportPackage> imports = bLangPackage.getImports().stream()
-                    .filter(bLangImportPackage -> !bLangImportPackage.getAlias().toString().equals(RUNTIME_PKG_ALIAS))
+                    .filter(bLangImportPackage -> !bLangImportPackage.getAlias().toString().equals(RUNTIME_PKG_ALIAS)
+                            && bLangImportPackage.getPosition().src.cUnitName.equals(currentFileName))
                     .collect(Collectors.toList());
 
             if (!imports.isEmpty()) {
-                BLangImportPackage lastImport = CommonUtil.getLastItem(bLangPackage.getImports());
+                BLangImportPackage lastImport = CommonUtil.getLastItem(imports);
                 pos = lastImport.getPosition();
             } else {
                 pos = null;
