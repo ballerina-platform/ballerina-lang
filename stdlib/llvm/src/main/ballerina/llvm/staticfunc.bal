@@ -1041,8 +1041,8 @@ public extern function LLVMGetTargetDescription(LLVMTargetRef t) returns BytePoi
 public extern function LLVMTargetHasJIT(LLVMTargetRef t) returns int;
 public extern function LLVMTargetHasTargetMachine(LLVMTargetRef t) returns int;
 public extern function LLVMTargetHasAsmBackend(LLVMTargetRef t) returns int;
-public extern function LLVMCreateTargetMachine(LLVMTargetRef t, string triple, string cpu, string features, int level, int reloc, int codeModel) returns LLVMTargetMachineRef;
-//public extern function LLVMCreateTargetMachine(LLVMTargetRef t, BytePointer triple, BytePointer cpu, BytePointer features, int level, int reloc, int codeModel) returns LLVMTargetMachineRef;
+//public extern function LLVMCreateTargetMachine(LLVMTargetRef t, string triple, string cpu, string features, int level, int reloc, int codeModel) returns LLVMTargetMachineRef;
+public extern function LLVMCreateTargetMachine(LLVMTargetRef t, BytePointer triple, BytePointer cpu, BytePointer features, int level, int reloc, int codeModel) returns LLVMTargetMachineRef;
 public extern function LLVMDisposeTargetMachine(LLVMTargetMachineRef t);
 public extern function LLVMGetTargetMachineTarget(LLVMTargetMachineRef t) returns LLVMTargetRef;
 public extern function LLVMGetTargetMachineTriple(LLVMTargetMachineRef t) returns BytePointer;
@@ -1051,7 +1051,7 @@ public extern function LLVMGetTargetMachineFeatureString(LLVMTargetMachineRef t)
 public extern function LLVMCreateTargetDataLayout(LLVMTargetMachineRef t) returns LLVMTargetDataRef;
 public extern function LLVMSetTargetMachineAsmVerbosity(LLVMTargetMachineRef t, int verboseAsm);
 //public extern function LLVMTargetMachineEmitToFile(LLVMTargetMachineRef t, LLVMModuleRef m, BytePointer filename, int codegen, BytePointer errorMessage) returns int;
-//public extern function LLVMTargetMachineEmitToFile(LLVMTargetMachineRef t, LLVMModuleRef m, byte[] filename, int codegen, byte[] errorMessage) returns int;
+public extern function LLVMTargetMachineEmitToFile(LLVMTargetMachineRef t, LLVMModuleRef m, byte[] filename, int codegen, byte[] errorMessage) returns int;
 //public extern function LLVMTargetMachineEmitToFile(LLVMTargetMachineRef t, LLVMModuleRef m, ByteBuffer filename, int codegen, ByteBuffer errorMessage) returns int;
 //public extern function LLVMTargetMachineEmitToFile(LLVMTargetMachineRef t, LLVMModuleRef m, BytePointer filename, int codegen, PointerPointer errorMessage) returns int;
 //public extern function LLVMTargetMachineEmitToMemoryBuffer0(LLVMTargetMachineRef t, LLVMModuleRef m, int codegen, byte[] errorMessage, LLVMMemoryBufferRef outMemBuf) returns int;
