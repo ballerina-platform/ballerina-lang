@@ -12,18 +12,9 @@ function genPackage(BIRPackage pkg, string path) {
         genFunction(func, builder, mod);
     }
 
+    optimize(mod);
 
-    llvm:LLVMPassManagerRef pass = llvm:LLVMCreatePassManager();
-    // llvm:LLVMAddConstantPropagationPass(pass);
-    // llvm:LLVMAddInstructionCombiningPass(pass);
-    llvm:LLVMAddPromoteMemoryToRegisterPass(pass);
-    // llvm:LLVMAddDemoteMemoryToRegisterPass(pass); // Demotes every possible value to memory
-    // llvm:LLVMAddGVNPass(pass);
-    // llvm:LLVMAddCFGSimplificationPass(pass);
-    var optResult = llvm:LLVMRunPassManager(pass, mod);
-    llvm:LLVMDisposePassManager(pass);
-
-    llvm:LLVMDumpModule(mod);
+    //llvm:LLVMDumpModule(mod);
     //var out = llvm:LLVMWriteBitcodeToFile(mod, path);
 
     // Initialize all the targets for emitting object code
@@ -48,6 +39,20 @@ function genPackage(BIRPackage pkg, string path) {
     llvm:LLVMDisposeTargetMachine(targetMachine);
 }
 
+
+function optimize(llvm:LLVMModuleRef mod) {
+    llvm:LLVMPassManagerRef pass = llvm:LLVMCreatePassManager();
+    llvm:LLVMAddConstantPropagationPass(pass);
+    llvm:LLVMAddInstructionCombiningPass(pass);
+    llvm:LLVMAddPromoteMemoryToRegisterPass(pass);
+    llvm:LLVMAddGVNPass(pass);
+    llvm:LLVMAddCFGSimplificationPass(pass);
+    llvm:LLVMAddLoopUnrollPass(pass);
+    var optResult = llvm:LLVMRunPassManager(pass, mod);
+    // TODO error reporting
+    llvm:LLVMDisposePassManager(pass);
+}
+
 function genFunction(BIRFunction func, llvm:LLVMBuilderRef builder, llvm:LLVMModuleRef mod) {
     var name = func.name.value;
     var main_arg_type = llvm:LLVMVoidType();
@@ -62,28 +67,43 @@ function genFunction(BIRFunction func, llvm:LLVMBuilderRef builder, llvm:LLVMMod
         localVarRefs[localVar.name.value] = llvmValueRef;
     }
 
-    var isFistBlock = true;
-    int i = lengthof func.basicBlocks - 1;
-    while (i >= 0) {
-        genBasicBlock(func.basicBlocks[i], isFistBlock, main_func, builder);
-        if (i == lengthof func.basicBlocks - 1){
-            // TODO: move to genBasicBlock terminator match
-        }
-        i--;
+    foreach bb in func.basicBlocks {
+        genBasicBlockBody(bb, main_func, builder);
     }
+
+    foreach bb in func.basicBlocks {
+        genBasicBlockTerminator(bb, builder);
+    }
+
     llvm:LLVMPositionBuilderAtEnd(builder, varAllocBB);
 
     var brInsRef = llvm:LLVMBuildBr(builder, getBBById("bb0"));
 }
 
+function genBasicBlockTerminator(BIRBasicBlock bb, llvm:LLVMBuilderRef builder) {
+    var bbRef = getBBById(bb.id.value);
+    llvm:LLVMPositionBuilderAtEnd(builder, bbRef);
 
-function genBasicBlock(BIRBasicBlock bb, boolean continueLastBB, llvm:LLVMValueRef func, llvm:LLVMBuilderRef builder) {
-    var entry = llvm:LLVMAppendBasicBlock(func, bb.id.value);
-    bbs[bb.id.value] = entry;
-    // if (continueLastBB){
-    //     var brInsRef = llvm:LLVMBuildBr(builder, entry);
-    // }
-    llvm:LLVMPositionBuilderAtEnd(builder, entry);
+    match bb.terminator {
+        GOTO gotoIns => {
+            var brInsRef = llvm:LLVMBuildBr(builder, getBBById(gotoIns.targetBB.id.value));
+        }
+        Branch brIns => {
+            var ifTrue = getBBById(brIns.trueBB.id.value);
+            var ifFalse = getBBById(brIns.falseBB.id.value);
+            var vrInsRef = llvm:LLVMBuildCondBr(builder, loadOprand(brIns.op, builder), ifTrue, ifFalse);
+        }
+        Return => {
+            var retValueRef = llvm:LLVMBuildLoad(builder, getLocalVarById("%0"), "retrun_temp");
+            var ret = llvm:LLVMBuildRet(builder, retValueRef);
+        }
+    }
+}
+
+function genBasicBlockBody(BIRBasicBlock bb, llvm:LLVMValueRef func, llvm:LLVMBuilderRef builder) {
+    var bbRef = llvm:LLVMAppendBasicBlock(func, bb.id.value);
+    bbs[bb.id.value] = bbRef;
+    llvm:LLVMPositionBuilderAtEnd(builder, bbRef);
     foreach i in bb.instructions {
         match i {
             Move moveIns => {
@@ -107,7 +127,6 @@ function genBasicBlock(BIRBasicBlock bb, boolean continueLastBB, llvm:LLVMValueR
                     var loaded = llvm:LLVMBuildStore(builder, addReturn, lhsRef);
 
                 }
-                //var rhs ;
             }
             ConstantLoad constOp => {
                 llvm:LLVMValueRef lhsRef = getLocalVarById(constOp.lhsOp.variableDcl.name.value);
@@ -117,27 +136,13 @@ function genBasicBlock(BIRBasicBlock bb, boolean continueLastBB, llvm:LLVMValueR
 
         }
     }
-    match bb.terminator {
-        GOTO gotoIns => {
-            var brInsRef = llvm:LLVMBuildBr(builder, getBBById(gotoIns.targetBB.id.value));
-        }
-        Branch brIns => {
-            var ifTrue = getBBById(brIns.trueBB.id.value);
-            var ifFalse = getBBById(brIns.falseBB.id.value);
-            var vrInsRef = llvm:LLVMBuildCondBr(builder, loadOprand(brIns.op, builder), ifTrue, ifFalse);
-        }
-        Return => {
-            var retValueRef = llvm:LLVMBuildLoad(builder, getLocalVarById("%0"), "retrun_temp");
-            var ret = llvm:LLVMBuildRet(builder, retValueRef);
-        }
-    }
 }
 
 function getBBById(string id) returns llvm:LLVMBasicBlockRef {
     match bbs[id] {
         llvm:LLVMBasicBlockRef bb => return bb;
         () => {
-            error err = { message: "bb '" + id + "' dosn't exist or not parsed yet" };
+            error err = { message: "bb '" + id + "' dosn't exist" };
             throw err;
         }
     }

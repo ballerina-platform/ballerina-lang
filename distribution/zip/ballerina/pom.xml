@@ -670,6 +670,12 @@
             <type>zip</type>
             <classifier>ballerina-sources</classifier>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-llvm</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-sources</classifier>
+        </dependency>
         <!-- end of ballerina source dependencies -->
 
         <dependency>
