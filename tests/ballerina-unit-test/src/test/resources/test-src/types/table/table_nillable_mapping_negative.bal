@@ -218,7 +218,18 @@ function testAssignNilToNonNillableField(string jdbcUrl, string userName, string
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table dt = check testDB->select("SELECT " + field + " from DataTypeTableNillable where row_id=2", recordType);
+    string dbTable;
+    int rowId;
+
+    if (field == "blob_type") {
+        dbTable = "DataTypeTableNillableBlob";
+        rowId = 4;
+    } else {
+        dbTable = "DataTypeTableNillable";
+        rowId = 2;
+    }
+
+    table dt = check testDB->select("SELECT " + field + " from " + dbTable + " where row_id=?", recordType, rowId);
 
     try {
         while (dt.hasNext()) {
@@ -339,7 +350,18 @@ function testAssignToInvalidUnionField(string jdbcUrl, string userName, string p
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table dt = check testDB->select("SELECT " + field + " from DataTypeTableNillable where row_id=1", InvalidUnion);
+    string dbTable;
+    int rowId;
+
+    if (field == "blob_type") {
+        dbTable = "DataTypeTableNillableBlob";
+        rowId = 3;
+    } else {
+        dbTable = "DataTypeTableNillable";
+        rowId = 1;
+    }
+
+    table dt = check testDB->select("SELECT " + field + " from " + dbTable + " where row_id=?", InvalidUnion, rowId);
 
     try {
         while (dt.hasNext()) {
