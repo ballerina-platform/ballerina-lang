@@ -71,6 +71,6 @@ function testFunc() {
         }
     };
 
-    test:assertEquals(js1.toString(), <string>outputs[0]);
-    test:assertEquals(js2.toString(), <string>outputs[1]);
+    test:assertEquals(<string>outputs[0], js1.toString());
+    test:assertEquals(<string>outputs[1], js2.toString());
 }

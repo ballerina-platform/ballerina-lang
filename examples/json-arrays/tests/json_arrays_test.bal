@@ -61,13 +61,13 @@ function testFunc() {
 
     string o1 = "length of array: 4";
 
-    // test:assertEquals(jt1, outputs[0]);
-    test:assertEquals(jt2, outputs[1]);
-    // test:assertEquals(jt3, outputs[2]);
-    test:assertEquals(jt4, outputs[3]);
-    test:assertEquals(o1, outputs[4]);
-    test:assertEquals(jt5, outputs[5]);
-    test:assertEquals(jt6, outputs[6]);
-    test:assertEquals(jt7, outputs[7]);
-    test:assertEquals(jt8, outputs[8]);
+    // test:assertEquals(outputs[0], jt1);
+    test:assertEquals(outputs[1], jt2);
+    // test:assertEquals(outputs[2], jt3);
+    test:assertEquals(outputs[3], jt4);
+    test:assertEquals(outputs[4], o1);
+    test:assertEquals(outputs[5], jt5);
+    test:assertEquals(outputs[6], jt6);
+    test:assertEquals(outputs[7], jt7);
+    test:assertEquals(outputs[8], jt8);
 }

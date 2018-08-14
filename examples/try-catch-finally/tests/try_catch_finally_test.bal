@@ -26,7 +26,7 @@ function testFunc() {
     string out1 = "Start dividing numbers";
     string out2 = "Error occurred: Division by 0 is not defined";
     string out3 = "Finally block executed";
-    test:assertEquals(out1, outputs[0]);
-    test:assertEquals(out2, outputs[1]);
-    test:assertEquals(out3, outputs[2]);
+    test:assertEquals(outputs[0], out1);
+    test:assertEquals(outputs[1], out2);
+    test:assertEquals(outputs[2], out3);
 }

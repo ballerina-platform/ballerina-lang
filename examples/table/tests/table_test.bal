@@ -39,22 +39,22 @@ function testFunc() {
     xml xml1 = xml `<results><result><id>1</id><name>Jane</name><salary>300.5</salary></result><
     result><id>3</id><name>John</name><salary>400.5</salary></result></results>`;
 
-    //test:assertEquals(op2, <string>outputs[0]);
-    test:assertEquals(op2, <string>outputs[1]);
-    test:assertEquals(op3, <string>outputs[2]);
-    test:assertEquals(op5, <string>outputs[4]);
-    test:assertEquals(op6, <string>outputs[5]);
-    test:assertEquals(op7, <string>outputs[6]);
-    test:assertEquals(op8, <string>outputs[7]);
-    test:assertEquals(op9, <string>outputs[8]);
-    test:assertEquals(op10, <string>outputs[9]);
-    test:assertEquals(op6, <string>outputs[10]);
-    test:assertEquals(op7, <string>outputs[11]);
-    test:assertEquals(op8, <string>outputs[12]);
-    test:assertEquals(op9, <string>outputs[13]);
-    test:assertEquals(op11, <string>outputs[14]);
-    test:assertEquals(op12, <string>outputs[15]);
-    test:assertEquals(op13, <string>outputs[17]);
-    test:assertEquals(js1, <string>outputs[19]);
-    test:assertEquals(xml1, outputs[20]);
+    //test:assertEquals(<string>outputs[0], op2);
+    test:assertEquals(<string>outputs[1], op2);
+    test:assertEquals(<string>outputs[2], op3);
+    test:assertEquals(<string>outputs[4], op5);
+    test:assertEquals(<string>outputs[5], op6);
+    test:assertEquals(<string>outputs[6], op7);
+    test:assertEquals(<string>outputs[7], op8);
+    test:assertEquals(<string>outputs[8], op9);
+    test:assertEquals(<string>outputs[9], op10);
+    test:assertEquals(<string>outputs[10], op6);
+    test:assertEquals(<string>outputs[11], op7);
+    test:assertEquals(<string>outputs[12], op8);
+    test:assertEquals(<string>outputs[13], op9);
+    test:assertEquals(<string>outputs[14], op11);
+    test:assertEquals(<string>outputs[15], op12);
+    test:assertEquals(<string>outputs[17], op13);
+    test:assertEquals(<string>outputs[19], js1);
+    test:assertEquals(outputs[20], xml1);
 }

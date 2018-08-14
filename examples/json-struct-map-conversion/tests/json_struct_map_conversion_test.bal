@@ -42,8 +42,8 @@ function testFunc() {
         }
     };
 
-    test:assertEquals(jt1, outputs[0]);
-    test:assertEquals(jt2, outputs[1]);
-    test:assertEquals(jt3, outputs[2]);
-    test:assertEquals(jt4, outputs[3]);
+    test:assertEquals(outputs[0], jt1);
+    test:assertEquals(outputs[1], jt2);
+    test:assertEquals(outputs[2], jt3);
+    test:assertEquals(outputs[3], jt4);
 }

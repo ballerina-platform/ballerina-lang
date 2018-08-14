@@ -19,5 +19,5 @@ function testFunc() {
     // Invoking the main function
     main();
     string out1 = "Event received; status: single, total occurrences: 2";
-    test:assertEquals(out1, outputs[0]);
+    test:assertEquals(outputs[0], out1);
 }

@@ -21,16 +21,16 @@ function testFunc() {
     // Invoking the main function
     main();
 
-    test:assertEquals("Length of the array created by the closed integer range 25 ... 28: ", outputs[0]);
-    test:assertEquals(4, outputs[1]);
-    test:assertEquals("First element: ", outputs[2]);
-    test:assertEquals(25, outputs[3]);
-    test:assertEquals("Last element: ", outputs[4]);
-    test:assertEquals(28, outputs[5]);
-    test:assertEquals("\nLength of the array created by the half open integer range 25 ..< 28: ", outputs[6]);
-    test:assertEquals(3, outputs[7]);
-    test:assertEquals("First element: ", outputs[8]);
-    test:assertEquals(25, outputs[9]);
-    test:assertEquals("Last element: ", outputs[10]);
-    test:assertEquals(27, outputs[11]);
+    test:assertEquals(outputs[0], "Length of the array created by the closed integer range 25 ... 28: ");
+    test:assertEquals(outputs[1], 4);
+    test:assertEquals(outputs[2], "First element: ");
+    test:assertEquals(outputs[3], 25);
+    test:assertEquals(outputs[4], "Last element: ");
+    test:assertEquals(outputs[5], 28);
+    test:assertEquals(outputs[6], "\nLength of the array created by the half open integer range 25 ..< 28: ");
+    test:assertEquals(outputs[7], 3);
+    test:assertEquals(outputs[8], "First element: ");
+    test:assertEquals(outputs[9], 25);
+    test:assertEquals(outputs[10], "Last element: ");
+    test:assertEquals(outputs[11], 27);
 }
