@@ -24,8 +24,28 @@ function genPackage(BIRPackage pkg, string path) {
     llvm:LLVMDisposePassManager(pass);
 
     llvm:LLVMDumpModule(mod);
-    var out = llvm:LLVMWriteBitcodeToFile(mod, path);
+    //var out = llvm:LLVMWriteBitcodeToFile(mod, path);
+
+    // Initialize all the targets for emitting object code
+    llvm:LLVMInitializeAllTargetInfos();
+    llvm:LLVMInitializeAllTargetMCs();
+    llvm:LLVMInitializeAllTargets();
+    llvm:LLVMInitializeAllAsmParsers();
+    llvm:LLVMInitializeAllAsmPrinters();
+
+    llvm:BytePointer targetTripleBP = llvm:LLVMGetDefaultTargetTriple();
+    llvm:LLVMTargetRef targetRef = llvm:LLVMGetFirstTarget();
+    llvm:BytePointer cpu;
+    llvm:BytePointer features;
+    var targetMachine = llvm:LLVMCreateTargetMachine(targetRef, targetTripleBP, cpu, features, 0, 0, 0);
+
+    byte[] filenameBytes = path.toByteArray("UTF-8");
+    byte[] errorMsg;
+    int i = llvm:LLVMTargetMachineEmitToFile(targetMachine, mod, filenameBytes, 1, errorMsg);
+    // TODO error reporting
+
     llvm:LLVMDisposeBuilder(builder);
+    llvm:LLVMDisposeTargetMachine(targetMachine);
 }
 
 function genFunction(BIRFunction func, llvm:LLVMBuilderRef builder, llvm:LLVMModuleRef mod) {
