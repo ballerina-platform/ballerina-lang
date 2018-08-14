@@ -83,7 +83,7 @@ public class VariableDTO {
             bValueString = bValueString + bValue.stringValue();
         } else if (bValue.getType().getTag() == TypeTags.OBJECT) {
             bValueString = "Object " + bValue.getType().getName() + " ";
-            bValueString = bValueString + ((BMap) bValue).stringValueIgnoreAccessRestriction();
+            bValueString = bValueString + ((BMap) bValue).absoluteStringValue();
         } else {
             bValueString = "<Complex_Value>";
         }

@@ -28,6 +28,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -67,7 +68,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection {
     /**
      * Retrieve the value for the given key from map.
      * A null will be returned if the key does not exists.
-     * 
+     *
      * @param key key used to get the value
      * @return value
      */
@@ -83,7 +84,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection {
     /**
      * Retrieve the value for the given key from map.
      * A {@code BallerinaException} will be thrown if the key does not exists.
-     * 
+     *
      * @param key key used to get the value
      * @return value
      */
@@ -101,7 +102,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection {
 
     /**
      * Retrieve the value for the given key from map.
-     * 
+     *
      * @param key key used to get the value
      * @param except flag indicating whether to throw an exception if the key does not exists
      * @return value
@@ -201,7 +202,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection {
 
     /**
      * Retrieve the keys related to this map as an array.
-     * 
+     *
      * @return keys as an array
      */
     public K[] keys() {
@@ -216,7 +217,7 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection {
 
     /**
      * Retrieve the value in the map as an array.
-     * 
+     *
      * @return values as an array
      */
     public V[] values() {
@@ -229,7 +230,8 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection {
         }
     }
 
-    /**Return true if this map is empty.
+    /**
+     * Return true if this map is empty.
      *
      * @return Flag indicating whether the map is empty or not
      */
@@ -283,34 +285,31 @@ public class BMap<K, V extends BValue> implements BRefType, BCollection {
     }
 
     /**
-     * String value ignoring the access restrictions.
+     * String value with all the fields irrespective of the access modifiers.
      * Non-public fields of an object will also be stringified.
      *
      * @return string value
      */
-    public String stringValueIgnoreAccessRestriction () {
+    public String absoluteStringValue() {
         readLock.lock();
         StringJoiner sj = new StringJoiner(", ", "{", "}");
         try {
             switch (type.getTag()) {
                 case TypeTags.OBJECT_TYPE_TAG:
-                    for (BField field : ((BStructureType) this.type).getFields()) {
-                        String fieldName = field.getFieldName();
-                        V fieldVal = get((K) fieldName);
-                        sj.add(fieldName + ":" + getStringValue(fieldVal));
-                    }
+                    Arrays.stream(((BStructureType) this.type).getFields()).map(BField::getFieldName).
+                            forEach(fieldName -> {
+                                V fieldVal = get((K) fieldName);
+                                sj.add(fieldName + ":" + getStringValue(fieldVal));
+                            });
                     break;
                 case TypeTags.JSON_TAG:
                     return getJSONString();
                 default:
                     String keySeparator = type.getTag() == TypeTags.MAP_TAG ? "\"" : "";
-                    for (Iterator<Map.Entry<K, V>> i = map.entrySet().iterator(); i.hasNext();) {
-                        String key;
-                        Map.Entry<K, V> e = i.next();
-                        key = keySeparator + (String) e.getKey() + keySeparator;
-                        V value = e.getValue();
+                    map.forEach((mapKey, value) -> {
+                        String key = keySeparator + mapKey + keySeparator;
                         sj.add(key + ":" + getStringValue(value));
-                    }
+                    });
                     break;
             }
             return sj.toString();
