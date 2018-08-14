@@ -26,7 +26,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
@@ -35,10 +34,10 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test case to test simple WebSocket pass through scenarios.
  */
-public class WebSocketSimpleProxyTestCase extends WebSocketIntegrationTest {
+public class WebSocketSimpleProxyTestCase extends WebSocketTestCommons {
 
     private WebSocketRemoteServer remoteServer;
-    private static final String URL = "ws://localhost:9090/proxy/ws";
+    private static final String URL = "ws://localhost:9090";
 
     @BeforeClass(description = "Initializes Ballerina")
     public void setup() throws InterruptedException, BallerinaTestException {
@@ -61,7 +60,7 @@ public class WebSocketSimpleProxyTestCase extends WebSocketIntegrationTest {
     }
 
     @Test(priority = 2, description = "Tests sending and receiving of binary frames in WebSockets")
-    public void testSendBinary() throws URISyntaxException, InterruptedException, IOException {
+    public void testSendBinary() throws URISyntaxException, InterruptedException {
         WebSocketTestClient client = new WebSocketTestClient(URL);
         client.handshake();
         CountDownLatch countDownLatch = new CountDownLatch(1);

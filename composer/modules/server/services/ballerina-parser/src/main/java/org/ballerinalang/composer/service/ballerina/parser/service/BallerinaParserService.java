@@ -492,6 +492,7 @@ public class BallerinaParserService implements ComposerService {
         final String content = bFileRequest.getContent();
 
         String programDir = "";
+        String debugPackagePath = "";
         java.nio.file.Path filePath;
         if (UNTITLED_BAL.equals(fileName)) {
             filePath = LSCompiler.createAndGetTempFile(UNTITLED_BAL);
@@ -510,6 +511,8 @@ public class BallerinaParserService implements ComposerService {
             lock.ifPresent(Lock::unlock);
         }
         programDir = (bFile.isBallerinaProject()) ? LSCompiler.getSourceRoot(filePath) : "";
+
+        debugPackagePath = (bFile.isBallerinaProject()) ? bFile.getBLangPackage().packageID.toString() : ".";
 
         final BLangPackage model = bFile.getBLangPackage();
         final List<Diagnostic> diagnostics = bFile.getDiagnostics();
@@ -566,6 +569,7 @@ public class BallerinaParserService implements ComposerService {
             result.add("packageInfo", packageInfo);
         }
         result.addProperty("programDirPath", programDir);
+        result.addProperty("debugPackagePath", debugPackagePath);
         return result;
     }
 

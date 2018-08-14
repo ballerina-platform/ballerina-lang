@@ -809,6 +809,7 @@ public class CommonUtil {
          * Generate function code.
          *
          * @param name                  function name
+         * @param args                  Function arguments                             
          * @param returnType            return type
          * @param returnDefaultValue    default return value
          * @return {@link String}       generated function signature

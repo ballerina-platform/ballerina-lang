@@ -137,7 +137,8 @@ public abstract class AbstractItemResolver {
                 .collect(Collectors.toList());
         return poppedTokens.contains(UtilSymbolKeys.DOT_SYMBOL_KEY)
                 || poppedTokens.contains(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)
-                || poppedTokens.contains(UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY);
+                || poppedTokens.contains(UtilSymbolKeys.ACTION_INVOCATION_SYMBOL_KEY)
+                || poppedTokens.contains(UtilSymbolKeys.BANG_SYMBOL_KEY);
     }
 
     /**

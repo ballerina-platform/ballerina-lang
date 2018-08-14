@@ -94,7 +94,6 @@
     "yargs": "^1.3.3"
   },
   "dependencies": {
-    "@pahans/react-htmltree": "^0.8.1",
     "ace-builds": "^1.2.6",
     "axios": "^0.16.2",
     "brace": "^0.10.0",

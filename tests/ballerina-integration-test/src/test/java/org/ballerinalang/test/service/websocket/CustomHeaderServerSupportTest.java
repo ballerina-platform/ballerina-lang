@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * This Class tests receiving and sending of custom headers by Ballerina WebSocket server.
  */
-public class CustomHeaderServerSupportTest extends WebSocketIntegrationTest {
+public class CustomHeaderServerSupportTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
     private static final String URL = "ws://localhost:9090/simple/custom/header/server";

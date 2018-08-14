@@ -126,8 +126,7 @@ function breakpointHoc(WrappedComponent) {
          * @returns string - Package name
          */
         getPackageName() {
-            const { astRoot } = this.context;
-            return TreeUtil.getPackageNameString(astRoot);
+            return this.props.file.debugPackagePath;
         }
 
         end() {
