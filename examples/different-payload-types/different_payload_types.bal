@@ -38,7 +38,7 @@ service<http:Service> actionService bind { port: 9090 } {
         response = clientEP->post("/echo", { name: "apple", color: "red" });
         handleResponse(response);
 
-        //POST action with blob as payload.
+        //POST action with byte array as payload.
         string textVal = "Sample Text";
         byte[] binaryValue = textVal.toByteArray("UTF-8");
         response = clientEP->post("/echo", binaryValue);
