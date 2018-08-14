@@ -213,13 +213,16 @@ class TreeBuilder {
                 node.isAnonType = true;
             }
 
-            if (node.initialExpression && node.initialExpression.async) {
-                if (node.ws) {
-                    for (let i = 0; i < node.ws.length; i++) {
-                        if (node.ws[i].text === 'start') {
-                            if (node.initialExpression.ws) {
-                                node.initialExpression.ws.splice(0, 0, node.ws[i]);
-                                node.ws.splice(i, 1);
+            if (node.initialExpression) {
+                node.initialExpression.isExpression = true;
+                if (node.initialExpression.async) {
+                    if (node.ws) {
+                        for (let i = 0; i < node.ws.length; i++) {
+                            if (node.ws[i].text === 'start') {
+                                if (node.initialExpression.ws) {
+                                    node.initialExpression.ws.splice(0, 0, node.ws[i]);
+                                    node.ws.splice(i, 1);
+                                }
                             }
                         }
                     }
@@ -404,7 +407,7 @@ class TreeBuilder {
 
         if (node.kind === 'RecordType') {
             if (node.restFieldType) {
-               node.isRestFieldAvailable = true;
+                node.isRestFieldAvailable = true;
             }
         }
 
@@ -665,6 +668,16 @@ class TreeBuilder {
                 literalWSAssignForTemplates(2, 3, node.textFragments, node.ws, 4);
             } else {
                 literalWSAssignForTemplates(1, 2, node.textFragments, node.ws, 2);
+            }
+        }
+
+        if (kind === 'Assignment') {
+            if (node.expression) {
+                node.expression.isExpression = true;
+            }
+
+            if (node.variable) {
+                node.variable.isVariable = true;
             }
         }
     }

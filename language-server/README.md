@@ -24,6 +24,10 @@ In the current implementation we support following language features.
   
   ![alt text](./docs/images/addImport.gif?raw=true "Diagnostics")
  
+  * *Document Formatting*
+  
+  ![alt text](./docs/images/documentFormatting.gif?raw=true "Formatting")
+  
 ## Installation
 You can find the Language server integrated VSCode plugin for Ballerina at [marketplace](https://marketplace.visualstudio.com/items?itemName=ballerina.ballerina). Also Language server support for [Ballerina Composer](https://github.com/ballerina-platform/ballerina-lang/tree/master/composer) has been integrated to composer itself.
 
