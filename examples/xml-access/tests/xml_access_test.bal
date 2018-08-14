@@ -4,7 +4,7 @@ import ballerina/test;
 any[] outputs = [];
 int counter = 0;
 
-// This is the mock function, which replaces the real function
+// This is the mock function that replaces the real function
 @test:Mock {
     packageName: "ballerina/io",
     functionName: "println"
