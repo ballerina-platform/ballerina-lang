@@ -398,6 +398,18 @@
       {
         "name": "Secured Service With Basic Auth",
         "url": "secured-service-with-basic-auth"
+      },
+      {
+        "name":"Secured Client With Basic Auth",
+        "url": "secured-client-with-basic-auth" 
+      },
+      {
+        "name":"Secured Client With JWT Auth",
+        "url": "secured-client-with-jwt-auth"
+      },
+      {
+        "name":"Secured Client With OAuth2",
+        "url": "secured-client-with-oauth2"
       }
     ]
   },
@@ -626,6 +638,10 @@
       {
         "name": "WebSub Hub Client Sample",
         "url": "websub-hub-client-sample"
+      },
+      {
+        "name": "WebSub Service Integration Sample",
+        "url": "websub-service-integration-sample"
       }
     ]
   },

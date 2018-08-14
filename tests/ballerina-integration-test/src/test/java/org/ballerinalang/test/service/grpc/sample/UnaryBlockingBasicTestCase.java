@@ -151,6 +151,20 @@ public class UnaryBlockingBasicTestCase extends IntegrationTestCase {
         Assert.assertEquals(response.get("resp").stringValue(), "Acknowledge Sam");
     }
 
+    @Test(description = "Test deriving gRPC service response type when send expression inside match statement")
+    public void testResponseInsideMatch() {
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary1_blocking_client.bal");
+        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
+        BString request = new BString("WSO2");
+        final String serverMsg = "Acknowledge WSO2";
+
+        BValue[] responses = BRunUtil.invoke(result, "testResponseInsideMatch", new BValue[]{request});
+        Assert.assertEquals(responses.length, 1);
+        Assert.assertTrue(responses[0] instanceof BMap);
+        final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];
+        Assert.assertEquals(response.get("resp").stringValue(), serverMsg);
+    }
+
     @Test
     public void testNonBlockingBallerinaClient() {
 
