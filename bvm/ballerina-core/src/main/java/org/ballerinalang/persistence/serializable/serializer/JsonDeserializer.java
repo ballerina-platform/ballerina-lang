@@ -258,7 +258,6 @@ class JsonDeserializer implements BValueDeserializer {
     private Object createArrayInstance(BMap<String, BValue> jsonNode) {
         BString ct = (BString) jsonNode.get(JsonSerializerConst.COMPONENT_TYPE);
         String componentType = ct.stringValue();
-        BRefValueArray array = (BRefValueArray) jsonNode.get(JsonSerializerConst.PAYLOAD_TAG);
 
         BInteger bSize = (BInteger) jsonNode.get(JsonSerializerConst.LENGTH_TAG);
         int size = (int) bSize.intValue();
@@ -273,7 +272,7 @@ class JsonDeserializer implements BValueDeserializer {
     @SuppressWarnings("unchecked")
     private Object createEnumInstance(BMap jsonNode) {
         String enumName = jsonNode.get(JsonSerializerConst.PAYLOAD_TAG).stringValue();
-        int separatorPos = enumName.lastIndexOf(".");
+        int separatorPos = enumName.lastIndexOf('.');
         String type = enumName.substring(0, separatorPos);
         String enumConst = enumName.substring(separatorPos + 1);
 
@@ -340,11 +339,11 @@ class JsonDeserializer implements BValueDeserializer {
                         fieldName, targetClass.getName()));
             }
             BValue value = jMap.get(fieldName);
-            setField(target, fieldName, field, value);
+            setField(target, field, value);
         }
     }
 
-    private void setField(Object target, String fieldName, Field field, BValue value) {
+    private void setField(Object target, Field field, BValue value) {
         if (Modifier.isTransient(field.getModifiers())) {
             return;
         }

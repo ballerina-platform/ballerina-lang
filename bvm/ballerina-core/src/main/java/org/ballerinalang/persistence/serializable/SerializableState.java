@@ -42,6 +42,7 @@ import java.util.Map;
  */
 public class SerializableState {
 
+    // TODO: Switch-ability between Gson and JsonSerializer is only for convenience when testing, remove when done.
     private static final boolean JSON_SERIALIZER = true;
     private String id;
 

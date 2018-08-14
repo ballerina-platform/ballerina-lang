@@ -25,7 +25,8 @@ import java.util.HashMap;
  * Helper methods to operate on Objects.
  */
 public class ObjectHelper {
-    private ObjectHelper() {}
+    private ObjectHelper() {
+    }
 
     /**
      * Get all fields in the class hierarchy until Object class.
@@ -37,13 +38,17 @@ public class ObjectHelper {
     public static HashMap<String, Field> getAllFields(Class<?> targetClass, int depth) {
         HashMap<String, Field> fieldMap = new HashMap<>();
         for (Field declaredField : targetClass.getDeclaredFields()) {
-            if (Modifier.isTransient(declaredField.getModifiers())) {
+            int modifiers = declaredField.getModifiers();
+            if (Modifier.isTransient(modifiers)
+                    || (Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers))) {
                 // transient fields should not be serialized
                 continue;
             }
-            String name = declaredField.getName();
-            if (depth > 0) {
-                name = name + "#" + depth;
+            String name;
+            if (depth < 0) {
+                name = declaredField.getName();
+            } else {
+                name = declaredField.getName() + "#" + depth;
             }
             fieldMap.put(name, declaredField);
         }
