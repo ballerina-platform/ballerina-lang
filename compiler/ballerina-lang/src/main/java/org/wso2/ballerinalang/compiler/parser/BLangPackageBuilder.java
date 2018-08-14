@@ -2350,7 +2350,9 @@ public class BLangPackageBuilder {
         endEndpointDeclarationScope();
         resourceNode.pos = pos;
         resourceNode.addWS(ws);
-        resourceNode.setName(createIdentifier(resourceName));
+        BLangIdentifier name = (BLangIdentifier) createIdentifier(resourceName);
+        name.pos = pos;
+        resourceNode.setName(name);
         if (docExists) {
             attachDocumentations(resourceNode);
         }
