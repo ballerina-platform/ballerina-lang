@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaObjectInitializerImpl extends BallerinaCompositeElementImpl implements BallerinaObjectInitializer {
+public class BallerinaParameterDocumentationImpl extends BallerinaCompositeElementImpl implements BallerinaParameterDocumentation {
 
-  public BallerinaObjectInitializerImpl(ASTNode node) {
+  public BallerinaParameterDocumentationImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitObjectInitializer(this);
+    visitor.visitParameterDocumentation(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -42,45 +42,21 @@ public class BallerinaObjectInitializerImpl extends BallerinaCompositeElementImp
   }
 
   @Override
-  @NotNull
-  public List<BallerinaAnnotationAttachment> getAnnotationAttachmentList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaAnnotationAttachment.class);
-  }
-
-  @Override
   @Nullable
-  public BallerinaCallableUnitBody getCallableUnitBody() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaCallableUnitBody.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaObjectInitializerParameterList getObjectInitializerParameterList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaObjectInitializerParameterList.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaDocumentationAttachment getDocumentationAttachment() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaDocumentationAttachment.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaDocumentationString getDocumentationString() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaDocumentationString.class);
+  public BallerinaDocumentationText getDocumentationText() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaDocumentationText.class);
   }
 
   @Override
   @NotNull
-  public PsiElement getNew() {
-    return notNullChild(findChildByType(NEW));
+  public PsiElement getDescriptionSeparator() {
+    return notNullChild(findChildByType(DESCRIPTION_SEPARATOR));
   }
 
   @Override
-  @Nullable
-  public PsiElement getPublic() {
-    return findChildByType(PUBLIC);
+  @NotNull
+  public PsiElement getParameterName() {
+    return notNullChild(findChildByType(PARAMETER_NAME));
   }
 
 }
