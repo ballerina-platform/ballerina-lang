@@ -68,6 +68,67 @@ function testTransactonRollback() returns (int, int) {
     return (returnVal, count);
 }
 
+function testLocalTransactionUpdateWithGeneratedKeys() returns (int, int) {
+    endpoint jdbc:Client  testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    int returnVal = 0;
+    int count;
+    transaction {
+        _ = testDB->updateWithGeneratedKeys("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                values ('James', 'Clerk', 615, 5000.75, 'USA')", ());
+        _ = testDB->updateWithGeneratedKeys("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+                                values ('James', 'Clerk', 615, 5000.75, 'USA')", ());
+    } onretry {
+        returnVal = -1;
+    }
+    //check whether update action is performed
+    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 615", ResultCount
+    );
+    while (dt.hasNext()) {
+        ResultCount rs = check <ResultCount>dt.getNext();
+        count = rs.COUNTVAL;
+    }
+    testDB.stop();
+    return (returnVal, count);
+}
+
+function testTransactionRollbackUpdateWithGeneratedKeys() returns (int, int) {
+    endpoint jdbc:Client  testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    int returnVal = 0;
+    int count;
+
+    transaction {
+        _ = testDB->updateWithGeneratedKeys("Insert into Customers (firstName,lastName,registrationID,
+                creditLimit,country) values ('James', 'Clerk', 618, 5000.75, 'USA')", ());
+        _ = testDB->updateWithGeneratedKeys("Insert into Customers2 (firstName,lastName,registrationID,
+                creditLimit,country) values ('James', 'Clerk', 618, 5000.75, 'USA')", ());
+
+    } onretry {
+        returnVal = -1;
+    }
+
+
+    //check whether update action is performed
+    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 618", ResultCount
+    );
+
+    while (dt.hasNext()) {
+        ResultCount rs = check <ResultCount>dt.getNext();
+        count = rs.COUNTVAL;
+    }
+    testDB.stop();
+    return (returnVal, count);
+}
+
 function testLocalTransactionBatchUpdate() returns (int, int) {
     endpoint jdbc:Client testDB {
         url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
