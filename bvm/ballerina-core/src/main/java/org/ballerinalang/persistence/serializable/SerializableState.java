@@ -120,9 +120,8 @@ public class SerializableState {
         CallableWorkerResponseContext responseContext = deserializer.getTempRespContexts().get(respCtxKey);
         if (responseContext == null) {
             SerializableRespContext serializableRespContext = sRespContexts.get(respCtxKey);
-            responseContext =
-                    serializableRespContext.getResponseContext(programFile, callableUnitInfo,
-                                                               this, deserializer);
+            responseContext = serializableRespContext.getResponseContext(programFile, callableUnitInfo,
+                                                                         this, deserializer);
             deserializer.getTempRespContexts().put(respCtxKey, responseContext);
         }
         return responseContext;
@@ -182,7 +181,7 @@ public class SerializableState {
         }
     }
 
-    public SerializedKey addRefType(Serializable serializable) {
+    private SerializedKey addRefType(Serializable serializable) {
         String refKey = String.valueOf(serializable.hashCode());
         if (sRefTypes.containsKey(refKey)) {
             return new SerializedKey(refKey);

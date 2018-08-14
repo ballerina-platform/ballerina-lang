@@ -44,6 +44,7 @@ import static org.ballerinalang.net.http.HttpConstants.AUTO;
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
+import static org.ballerinalang.net.http.HttpUtil.sanitizeBasePath;
 
 /**
  * {@code HttpService} This is the http wrapper for the {@code Service} implementation.
@@ -316,27 +317,9 @@ public class HttpService implements Cloneable {
         return annotationList.get(0);
     }
 
-    protected static boolean hasInterruptibleAnnotation(Service service) {
+    private static boolean hasInterruptibleAnnotation(Service service) {
         List<Annotation> annotationList = service.getAnnotationList(PACKAGE_BALLERINA_BUILTIN, ANN_NAME_INTERRUPTIBLE);
         return annotationList != null && !annotationList.isEmpty();
-    }
-
-    private String sanitizeBasePath(String basePath) {
-        basePath = basePath.trim();
-
-        if (!basePath.startsWith(HttpConstants.DEFAULT_BASE_PATH)) {
-            basePath = HttpConstants.DEFAULT_BASE_PATH.concat(basePath);
-        }
-
-        if (basePath.endsWith(HttpConstants.DEFAULT_BASE_PATH) && basePath.length() != 1) {
-            basePath = basePath.substring(0, basePath.length() - 1);
-        }
-        //TODO Add proper basePath validation()
-        if (basePath.endsWith("*")) {
-            basePath = basePath.substring(0, basePath.length() - 1);
-        }
-
-        return basePath;
     }
 
     private String urlDecode(String basePath) {

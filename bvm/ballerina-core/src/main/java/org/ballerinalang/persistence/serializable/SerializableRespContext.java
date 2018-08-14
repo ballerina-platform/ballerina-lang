@@ -46,8 +46,8 @@ public class SerializableRespContext {
 
     public CallableWorkerResponseContext getResponseContext(ProgramFile programFile, CallableUnitInfo callableUnitInfo,
                                                             SerializableState state, Deserializer deserializer) {
-        CallableWorkerResponseContext respCtx =
-                new CallableWorkerResponseContext(callableUnitInfo.getRetParamTypes(), workerCount);
+        CallableWorkerResponseContext respCtx = new CallableWorkerResponseContext(callableUnitInfo.getRetParamTypes(),
+                                                                                  workerCount);
         respCtx.joinTargetContextInfo(state.getContext(targetContextKey, programFile, deserializer), retRegIndexes);
         return respCtx;
     }

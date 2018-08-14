@@ -53,7 +53,7 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
     protected void setAsFulfilled() {
         this.fulfilled = true;
     }
-
+    
     protected void setCurrentSignal(WorkerSignal signal) {
         this.currentSignal = signal;
     }

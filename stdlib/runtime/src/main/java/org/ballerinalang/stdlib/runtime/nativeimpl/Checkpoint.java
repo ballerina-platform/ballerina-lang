@@ -33,6 +33,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         isPublic = true
 )
 public class Checkpoint implements InterruptibleNativeCallableUnit {
+
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         callback.notifySuccess();

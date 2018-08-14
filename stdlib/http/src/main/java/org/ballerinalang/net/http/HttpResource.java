@@ -222,7 +222,7 @@ public class HttpResource {
         return annotationList.isEmpty() ? null : annotationList.get(0);
     }
 
-    protected static boolean hasInterruptibleAnnotation(Resource resource) {
+    private static boolean hasInterruptibleAnnotation(Resource resource) {
         List<Annotation> annotationList = resource.getAnnotationList(PACKAGE_BALLERINA_BUILTIN, ANN_NAME_INTERRUPTIBLE);
         return annotationList != null && !annotationList.isEmpty();
     }

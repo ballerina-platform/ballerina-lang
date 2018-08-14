@@ -37,8 +37,6 @@ public class SerializableWorkerData {
 
     private int[] intRegs;
 
-    private byte[][] byteRegs;
-
     private ArrayList<Object> refFields;
 
     public SerializableWorkerData(WorkerData workerData, SerializableState state) {

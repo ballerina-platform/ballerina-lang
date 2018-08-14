@@ -68,7 +68,6 @@ public class InterruptibleServiceTestCase extends IntegrationTestCase {
 
     @Test(description = "Checkpoint will be saved and server interrupt before complete the request.")
     public void testCheckpointSuccess() throws IOException, BallerinaTestException {
-
         try {
             startServer();
             HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("s1/r1"));

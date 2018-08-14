@@ -135,7 +135,6 @@ public class HttpConstants {
     public static final String SESSION = "Session";
     public static final String HTTP_ONLY = "HttpOnly";
     public static final String SECURE = "Secure";
-    public static final String HTTP_MESSAGE_ID = "b7a.message.id";
 
     public static final String ALLOW_ORIGIN = "allowOrigins";
     public static final String ALLOW_CREDENTIALS = "allowCredentials";

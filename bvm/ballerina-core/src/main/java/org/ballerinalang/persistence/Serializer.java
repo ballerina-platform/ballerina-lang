@@ -38,7 +38,7 @@ import java.util.List;
  *
  * @since 0.976.0
  */
-public class PersistenceUtils {
+public class Serializer {
 
     private static List<String> serializableClasses = new ArrayList<>();
 

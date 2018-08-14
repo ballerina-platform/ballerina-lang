@@ -23,6 +23,7 @@ package org.ballerinalang.persistence.serializable;
  * @since 0.976.0
  */
 public class SerializedKey {
+
     public String key;
 
     public SerializedKey(String key) {

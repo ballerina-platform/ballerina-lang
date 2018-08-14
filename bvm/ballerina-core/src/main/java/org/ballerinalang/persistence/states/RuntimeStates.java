@@ -18,9 +18,9 @@
 package org.ballerinalang.persistence.states;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This is used to manage the active @{@link State}s of the system.
@@ -29,7 +29,7 @@ import java.util.Map;
  */
 public class RuntimeStates {
 
-    private static Map<String, List<State>> states = new HashMap<>();
+    private static Map<String, List<State>> states = new ConcurrentHashMap<>();
 
     public static void add(State state) {
         List<State> stateList = states.computeIfAbsent(state.getId(), k -> new ArrayList<>());

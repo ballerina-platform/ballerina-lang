@@ -253,10 +253,6 @@ public class BLangFunctions {
     public static WorkerExecutionContext invokeCallable(CallableUnitInfo callableUnitInfo,
             WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, boolean waitForResponse,
             int flags) {
-        if (FunctionFlags.isObserved(flags)) {
-            ObservabilityUtils.startClientObservation(callableUnitInfo.attachedToType.toString(),
-                    callableUnitInfo.getName(), parentCtx);
-        }
         BLangScheduler.workerWaitForResponse(parentCtx);
         WorkerExecutionContext resultCtx;
         if (callableUnitInfo.isNative()) {
@@ -430,7 +426,6 @@ public class BLangFunctions {
             respCtx = BLangScheduler.executeBlockingNativeAsync(nativeCallable, nativeCtx, flags);
         } else {
             respCtx = BLangScheduler.executeNonBlockingNativeAsync(nativeCallable, nativeCtx, flags);
-
         }
         BLangVMUtils.populateWorkerDataWithValues(parentCtx.workerLocal, retRegs,
                 new BValue[] { new BCallableFuture(callableUnitInfo.getName(), respCtx) },

@@ -100,8 +100,7 @@ public class SerializableContext {
         }
         if (ctx.respCtx != null) {
             if (ctx.respCtx instanceof CallableWorkerResponseContext) {
-                CallableWorkerResponseContext callableRespCtx =
-                        (CallableWorkerResponseContext) ctx.respCtx;
+                CallableWorkerResponseContext callableRespCtx = (CallableWorkerResponseContext) ctx.respCtx;
                 respContextKey = state.addRespContext(callableRespCtx);
             }
         }
@@ -118,7 +117,6 @@ public class SerializableContext {
 
     public WorkerExecutionContext getWorkerExecutionContext(ProgramFile programFile, SerializableState state,
                                                             Deserializer deserializer) {
-
         if (deserializer.getTempContexts().containsKey(contextKey)) {
             return deserializer.getTempContexts().get(contextKey);
         }
@@ -158,7 +156,6 @@ public class SerializableContext {
                 }
             }
         }
-
         WorkerExecutionContext workerExecutionContext;
         if (parent == null) {
             // this is the root context
@@ -167,11 +164,11 @@ public class SerializableContext {
             workerExecutionContext.workerResult = workerResultData;
         } else {
             WorkerExecutionContext parentCtx = state.getContext(parent, programFile, deserializer);
-            CallableWorkerResponseContext respCtx =
-                    state.getResponseContext(respContextKey, programFile, callableUnitInfo, deserializer);
-            workerExecutionContext = new WorkerExecutionContext(
-                    parentCtx, respCtx, callableUnitInfo, workerInfo, workerLocalData, workerResultData, retRegIndexes,
-                    runInCaller);
+            CallableWorkerResponseContext respCtx = state.getResponseContext(respContextKey, programFile,
+                                                                             callableUnitInfo, deserializer);
+            workerExecutionContext = new WorkerExecutionContext(parentCtx, respCtx, callableUnitInfo,
+                                                                workerInfo, workerLocalData, workerResultData,
+                                                                retRegIndexes, runInCaller);
         }
         workerExecutionContext.globalProps = tempGlobalProps;
         workerExecutionContext.localProps = prepareProps(localProps, state, programFile, deserializer);

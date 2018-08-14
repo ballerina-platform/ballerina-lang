@@ -180,7 +180,7 @@ public class CPU {
                 if (debugEnabled && debug(ctx)) {
                     return;
                 }
-
+    
                 Instruction instruction = ctx.code[ctx.ip];
                 int opcode = instruction.getOpcode();
                 int[] operands = instruction.getOperands();
