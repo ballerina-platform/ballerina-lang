@@ -61,7 +61,7 @@ public class PatternTest {
         Assert.assertEquals(tempDifference.get("userAction").stringValue(), "stop");
     }
 
-    @Test(description = "Test pattern streaming query with 'And'")
+    @Test(enabled = false, description = "Test pattern streaming query with 'And'")
     public void testPatternQuery3() {
         BValue[] roomActions = BRunUtil.invoke(result, "runPatternQuery3");
 

@@ -66,6 +66,12 @@ public class BallerinaObjectInitializerImpl extends BallerinaCompositeElementImp
   }
 
   @Override
+  @Nullable
+  public BallerinaDocumentationString getDocumentationString() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaDocumentationString.class);
+  }
+
+  @Override
   @NotNull
   public PsiElement getNew() {
     return notNullChild(findChildByType(NEW));

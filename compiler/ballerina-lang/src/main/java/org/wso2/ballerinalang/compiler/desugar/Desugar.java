@@ -1721,7 +1721,7 @@ public class Desugar extends BLangNodeVisitor {
                 patternClauses));
         BLangVariableReference tempResultVarRef =
                 ASTBuilderUtil.createVariableRef(bLangMatchExpression.pos, tempResultVar.symbol);
-        BLangStatementExpression statementExpr = ASTBuilderUtil.creatStatementExpression(stmts, tempResultVarRef);
+        BLangStatementExpression statementExpr = ASTBuilderUtil.createStatementExpression(stmts, tempResultVarRef);
         statementExpr.type = bLangMatchExpression.type;
         result = rewriteExpr(statementExpr);
     }
@@ -1774,7 +1774,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVarRef tempCheckedExprVarRef = ASTBuilderUtil.createVariableRef(
                 checkedExpr.pos, checkedExprVar.symbol);
 
-        BLangStatementExpression statementExpr = ASTBuilderUtil.creatStatementExpression(
+        BLangStatementExpression statementExpr = ASTBuilderUtil.createStatementExpression(
                 generatedStmtBlock, tempCheckedExprVarRef);
         statementExpr.type = checkedExpr.type;
         result = rewriteExpr(statementExpr);
@@ -2598,7 +2598,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangMatch matcEXpr = this.matchStmtStack.firstElement();
         BLangBlockStmt blockStmt =
                 ASTBuilderUtil.createBlockStmt(accessExpr.pos, Lists.of(tempResultVarDef, matcEXpr));
-        BLangStatementExpression stmtExpression = ASTBuilderUtil.creatStatementExpression(blockStmt, tempResultVarRef);
+        BLangStatementExpression stmtExpression = ASTBuilderUtil.createStatementExpression(blockStmt, tempResultVarRef);
         stmtExpression.type = originalExprType;
 
         // Reset the variables
