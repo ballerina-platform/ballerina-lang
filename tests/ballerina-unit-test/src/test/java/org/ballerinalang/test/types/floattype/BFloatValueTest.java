@@ -133,6 +133,16 @@ public class BFloatValueTest {
         Assert.assertEquals(((BFloat) returns[3]).floatValue(), 1.234e2d, "Invalid float value returned.");
     }
 
+    @Test(description = "Test hexadecimal literal")
+    public void testHexFloatingPointLiterals() {
+        BValue[] returns = BRunUtil.invoke(result, "testHexFloatingPointLiterals");
+        Assert.assertEquals(returns.length, 4);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 4779.0, "Invalid float value returned.");
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 8.0, "Invalid float value returned.");
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 5.0, "Invalid float value returned.");
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 12.0, "Invalid float value returned.");
+    }
+
     @Test
     public void testIntegerValue() {
         Assert.assertEquals(negativeResult.getErrorCount(), 1);

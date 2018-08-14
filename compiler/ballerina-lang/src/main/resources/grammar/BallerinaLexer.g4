@@ -295,12 +295,10 @@ BinaryDigit
 
 // §3.10.2 Floating-Point Literals
 
-FloatingPointLiteral
-    :   DecimalFloatingPointNumber
-    |   HexadecimalFloatingPointLiteral
+HexadecimalFloatingPointLiteral
+    :   HexIndicator HexFloatingPointNumber
     ;
 
-fragment
 DecimalFloatingPointNumber
     :   DecimalNumeral ExponentPart
     |   DottedDecimalNumber ExponentPart?
@@ -324,11 +322,6 @@ SignedInteger
 fragment
 Sign
     :   [+-]
-    ;
-
-fragment
-HexadecimalFloatingPointLiteral
-    :   HexIndicator HexFloatingPointNumber
     ;
 
 fragment

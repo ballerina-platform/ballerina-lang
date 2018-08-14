@@ -54,10 +54,18 @@ function testFloatParameter(float a) returns (float) {
     return b;
 }
 
-function testFloatValues() returns (float, float, float, float){
+function testFloatValues() returns (float, float, float, float) {
     float a = 123.4;
     float b = 1.234e2;
     float c = 123.4;
     float d = 1.234e2;
+    return (a, b, c, d);
+}
+
+function testHexFloatingPointLiterals() returns (float, float, float, float) {
+    float a = 0X12Ab;
+    float b = 0x8.0;
+    float c = 0xaP-1;
+    float d = 0x3p2;
     return (a, b, c, d);
 }

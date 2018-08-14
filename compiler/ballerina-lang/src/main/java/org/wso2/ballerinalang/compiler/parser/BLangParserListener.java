@@ -2159,8 +2159,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         BallerinaParser.IntegerLiteralContext integerLiteralContext = ctx.integerLiteral();
         if (integerLiteralContext != null && (value = getIntegerLiteral(ctx, ctx.integerLiteral())) != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, value);
-        } else if ((node = ctx.FloatingPointLiteral()) != null) {
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getNodeValue(ctx, node)));
+        } else if (ctx.floatingPointLiteral() != null) {
+            if ((node = ctx.floatingPointLiteral().DecimalFloatingPointNumber()) != null) {
+                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getNodeValue(ctx, node)));
+            } else if ((node = ctx.floatingPointLiteral().HexadecimalFloatingPointLiteral()) != null) {
+                this.pkgBuilder
+                        .addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getHexNodeValue(ctx, node)));
+            }
         } else if ((node = ctx.BooleanLiteral()) != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BOOLEAN, Boolean.parseBoolean(node.getText()));
         } else if ((node = ctx.QuotedStringLiteral()) != null) {
@@ -3264,6 +3269,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         String value = node.getText();
         if (op != null && "-".equals(op)) {
             value = "-" + value;
+        }
+        return value;
+    }
+
+    private String getHexNodeValue(ParserRuleContext ctx, TerminalNode node) {
+        String value = getNodeValue(ctx, node);
+        if (!(value.contains("p") || value.contains("P"))) {
+            value = value + "p0";
         }
         return value;
     }
