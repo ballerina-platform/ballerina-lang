@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test WebSocket Path and Query Parameters.
  */
-public class WebSocketQueryAndPathParamSupportTestCase extends WebSocketIntegrationTest {
+public class WebSocketQueryAndPathParamSupportTestCase extends WebSocketTestCommons {
 
     @BeforeClass(description = "Initializes Ballerina")
     public void setup() throws BallerinaTestException {

@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -344,6 +345,12 @@ public class ServiceProtoUtils {
                     requestType = tempType;
                     break;
                 }
+                // union type and tuple type doesn't have type symbol. If those values pass as response, compiler
+                // failed to derive response message type. Validate and send proper error message.
+                if (tempType.tsymbol == null) {
+                    throw new GrpcServerException("Invalid message type. Message type doesn't have type symbol");
+                }
+
                 if ("ballerina/grpc:Listener".equals(tempType.tsymbol.toString()) || "ballerina/grpc:Headers"
                         .equals(tempType.tsymbol.toString())) {
                     continue;
@@ -492,6 +499,16 @@ public class ServiceProtoUtils {
                 invocExp = getInvocationExpression((BLangBlockStmt) langIf.getElseStatement());
                 if (invocExp != null) {
                     return invocExp;
+                }
+            }
+            //send inside match block.
+            if (statementNode instanceof BLangMatch) {
+                BLangMatch langMatch = (BLangMatch) statementNode;
+                for (BLangMatch.BLangMatchStmtPatternClause patternClause : langMatch.patternClauses) {
+                    BLangInvocation invocExp = getInvocationExpression(patternClause.body);
+                    if (invocExp != null) {
+                        return invocExp;
+                    }
                 }
             }
             // ignore return value of send method.
