@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 public class WebSocketSimpleProxyTestCase extends WebSocketTestCommons {
 
     private WebSocketRemoteServer remoteServer;
-    private static final String URL = "ws://localhost:9099/proxy/ws";
+    private static final String URL = "ws://localhost:9099";
 
     @BeforeClass(description = "Initializes Ballerina")
     public void setup() throws InterruptedException {

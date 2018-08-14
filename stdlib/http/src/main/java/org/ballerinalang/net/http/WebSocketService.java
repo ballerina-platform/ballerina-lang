@@ -180,7 +180,7 @@ public class WebSocketService implements Service {
         if (annStruct != null) {
             String basePathVal = annStruct.getStringField(WebSocketConstants.ANNOTATION_ATTR_PATH);
             if (basePathVal != null && !basePathVal.trim().isEmpty()) {
-                path = WebSocketUtil.refactorUri(basePathVal);
+                path = HttpUtil.sanitizeBasePath(basePathVal);
             }
         }
         if (path == null) {

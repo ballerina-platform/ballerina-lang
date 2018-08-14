@@ -21,7 +21,7 @@ import ballerina/log;
 @final string ASSOCIATED_CONNECTION5 = "ASSOCIATED_CONNECTION";
 
 @http:WebSocketServiceConfig {
-    path: "/proxy/ws"
+    path: "/"
 }
 service<http:WebSocketService> simpleProxy9 bind { port: 9099 } {
 
