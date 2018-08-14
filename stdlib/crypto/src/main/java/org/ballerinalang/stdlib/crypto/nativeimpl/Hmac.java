@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -61,7 +62,8 @@ public class Hmac extends BlockingNativeCallableUnit {
         String keyString = context.getStringArgument(1);
         BString algorithm = context.getNullableRefArgument(0) != null ?
                 (BString) context.getNullableRefArgument(0) : new BString("");
-        String encoding = context.getStringArgument(2);
+        BValue encodingBVal = context.getNullableRefArgument(1);
+        String encoding = encodingBVal != null ? encodingBVal.stringValue() : "UTF-8";
 
         String hmacAlgorithm;
 
