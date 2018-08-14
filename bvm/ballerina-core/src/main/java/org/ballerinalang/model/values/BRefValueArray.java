@@ -102,7 +102,7 @@ public class BRefValueArray extends BNewArray {
 
     @Override
     public String stringValue() {
-        if (getElementType(arrayType).getTag() == TypeTags.JSON_TAG) {
+        if (arrayType != null && getElementType(arrayType).getTag() == TypeTags.JSON_TAG) {
             return getJSONString();
         }
 
