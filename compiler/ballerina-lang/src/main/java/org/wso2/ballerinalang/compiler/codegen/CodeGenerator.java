@@ -3712,15 +3712,15 @@ public class CodeGenerator extends BLangNodeVisitor {
     private void setVariableScopeEnd(LocalVariableInfo localVarInfo, BLangVariable varNode) {
         if ((varNode.parent == null) && (varNode.pos != null)) {
             localVarInfo.scopeEndLineNumber = varNode.pos.eLine;
-        } else {
-            BLangNode parentNode = varNode;
-            while ((parentNode.parent != null)) {
-                parentNode = parentNode.parent;
-                if ((parentNode.getKind().equals(NodeKind.BLOCK)) && (parentNode.parent != null) &&
-                        (parentNode.parent.pos != null)) {
-                    localVarInfo.scopeEndLineNumber = parentNode.parent.pos.eLine;
-                    break;
-                }
+            return;
+        }
+        BLangNode parentNode = varNode;
+        while ((parentNode.parent != null)) {
+            parentNode = parentNode.parent;
+            if ((parentNode.getKind().equals(NodeKind.BLOCK)) && (parentNode.parent != null) &&
+                    (parentNode.parent.pos != null)) {
+                localVarInfo.scopeEndLineNumber = parentNode.parent.pos.eLine;
+                break;
             }
         }
     }
