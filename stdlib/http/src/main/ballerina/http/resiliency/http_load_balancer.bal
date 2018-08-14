@@ -34,7 +34,9 @@ public type LoadBalancerActions object {
    public string serviceUri;
    public ClientEndpointConfig config;
    public CallerActions[] loadBalanceClientsArray;
-   public string algorithm;
+   //public (function (LoadBalancerActions, CallerActions[]) returns CallerActions) algorithm;
+   public LoadBalancerRule lbRule;
+   //public string algorithm;
    public int nextIndex;
    public boolean failover;
 
@@ -48,7 +50,7 @@ public type LoadBalancerActions object {
         P{{nextIndex}} Index of the next load balancing client
         P{{failover}} Whether to fail over in case of a failure
    }
-   public new (serviceUri, config, loadBalanceClientsArray, algorithm, nextIndex, failover) {}
+   public new (serviceUri, config, loadBalanceClientsArray, lbRule, nextIndex, failover) {}
 
     documentation {
         The POST action implementation of the LoadBalancer Connector.
@@ -333,7 +335,7 @@ function performLoadBalanceAction(LoadBalancerActions lb, string path, Request r
     }
 
     while (loadBalanceTermination < lengthof lb.loadBalanceClientsArray) {
-        CallerActions loadBalanceClient = roundRobin(lb, lb.loadBalanceClientsArray);
+        CallerActions loadBalanceClient = lb.lbRule.resolve();
 
         match invokeEndpoint(path, request, requestAction, loadBalanceClient) {
             Response inResponse => return inResponse;
@@ -352,29 +354,48 @@ function performLoadBalanceAction(LoadBalancerActions lb, string path, Request r
     return populateGenericLoadBalanceActionError(loadBalanceActionError);
 }
 
-// Round Robin Algorithm implementation with respect to load balancing endpoints.
-documentation {
-    Round Robin Algorithm implementation with respect to load balancing endpoints.
+//// Round Robin Algorithm implementation with respect to load balancing endpoints.
+//documentation {
+//    Round Robin Algorithm implementation with respect to load balancing endpoints.
+//
+//    P{{lb}} `LoadBalancer` object
+//    P{{loadBalanceConfigArray}} Array of HTTP Clients that needs to be load balanced
+//    R{{}} HttpClient elected from the algorithm
+//}
+//public function roundRobin(LoadBalancerActions lb, CallerActions[] loadBalanceConfigArray) returns CallerActions {
+//    CallerActions httpClient = new;
+//
+//    lock {
+//        if (lb.nextIndex == ((lengthof (loadBalanceConfigArray)) - 1)) {
+//            httpClient = loadBalanceConfigArray[lb.nextIndex];
+//            lb.nextIndex = 0;
+//        } else {
+//            httpClient = loadBalanceConfigArray[lb.nextIndex];
+//            lb.nextIndex = lb.nextIndex + 1;
+//        }
+//    }
+//
+//    return httpClient;
+//}
 
-    P{{lb}} `LoadBalancer` object
-    P{{loadBalanceConfigArray}} Array of HTTP Clients that needs to be load balanced
-    R{{}} HttpClient elected from the algorithm
-}
-public function roundRobin(LoadBalancerActions lb, CallerActions[] loadBalanceConfigArray) returns CallerActions {
-    CallerActions httpClient = new;
+// Round Robin Algorithm implementation with respect to load balancing endpoints.
+public function (LoadBalancerActions, CallerActions[]) returns CallerActions roundRobin = (LoadBalancerActions lb, CallerActions[] loadBalaceConfigArray) => (CallerActions) {
+
+    CallerActions httpClient;
 
     lock {
-        if (lb.nextIndex == ((lengthof (loadBalanceConfigArray)) - 1)) {
-            httpClient = loadBalanceConfigArray[lb.nextIndex];
+        if (lb.nextIndex == ((lengthof (loadBalaceConfigArray)) - 1)) {
+            httpClient = loadBalaceConfigArray[lb.nextIndex];
             lb.nextIndex = 0;
         } else {
-            httpClient = loadBalanceConfigArray[lb.nextIndex];
+            httpClient = loadBalaceConfigArray[lb.nextIndex];
             lb.nextIndex = lb.nextIndex + 1;
         }
     }
 
     return httpClient;
-}
+};
+
 
 // Populates generic error specific to Load Balance connector by including all the errors returned from endpoints.
 function populateGenericLoadBalanceActionError(LoadBalanceActionError loadBalanceActionError)
