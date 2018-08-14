@@ -34,7 +34,7 @@ service<http:Service> testService bind { port: 9090 } {
         byte[] binaryPayload = check res.getBinaryPayload();
         xml payload = check res.getXmlPayload();
         xml descendants = payload.selectDescendants("title");
-        _ = caller->respond(descendants.getTextValue());
+        _ = caller->respond(untaint descendants.getTextValue());
     }
 }
 
