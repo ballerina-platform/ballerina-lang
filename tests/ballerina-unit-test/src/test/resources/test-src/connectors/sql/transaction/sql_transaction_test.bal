@@ -54,8 +54,6 @@ function testTransactonRollback() returns (int, int) {
     } onretry {
         returnVal = -1;
     }
-
-
     //check whether update action is performed
     table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 210", ResultCount
     );
@@ -69,7 +67,7 @@ function testTransactonRollback() returns (int, int) {
 }
 
 function testLocalTransactionUpdateWithGeneratedKeys() returns (int, int) {
-    endpoint jdbc:Client  testDB {
+    endpoint jdbc:Client testDB {
         url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         poolOptions: { maximumPoolSize: 1 }
@@ -97,7 +95,7 @@ function testLocalTransactionUpdateWithGeneratedKeys() returns (int, int) {
 }
 
 function testTransactionRollbackUpdateWithGeneratedKeys() returns (int, int) {
-    endpoint jdbc:Client  testDB {
+    endpoint jdbc:Client testDB {
         url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
         username: "SA",
         poolOptions: { maximumPoolSize: 1 }
@@ -111,12 +109,9 @@ function testTransactionRollbackUpdateWithGeneratedKeys() returns (int, int) {
                 creditLimit,country) values ('James', 'Clerk', 618, 5000.75, 'USA')", ());
         _ = testDB->updateWithGeneratedKeys("Insert into Customers2 (firstName,lastName,registrationID,
                 creditLimit,country) values ('James', 'Clerk', 618, 5000.75, 'USA')", ());
-
     } onretry {
         returnVal = -1;
     }
-
-
     //check whether update action is performed
     table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 618", ResultCount
     );
@@ -127,6 +122,81 @@ function testTransactionRollbackUpdateWithGeneratedKeys() returns (int, int) {
     }
     testDB.stop();
     return (returnVal, count);
+}
+
+function testLocalTransactionStoredProcedure() returns (int, int) {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    int returnVal = 0;
+    int count;
+
+    sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 628, direction: sql:DIRECTION_IN };
+
+    transaction {
+        _ = testDB->call("{call InsertPersonDataSuccessful(?, ?)}", (), para1, para1);
+        _ = testDB->call("{call InsertPersonDataSuccessful(?, ?)}", (), para1, para1);
+    } onretry {
+        returnVal = -1;
+    }
+    //check whether update action is performed
+    table dt = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 628", ResultCount
+    );
+    while (dt.hasNext()) {
+        ResultCount rs = check <ResultCount>dt.getNext();
+        count = rs.COUNTVAL;
+    }
+    testDB.stop();
+    return (returnVal, count);
+}
+
+function testLocalTransactionRollbackStoredProcedure() returns (int, int, int, int) {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR_TR",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 3 }
+    };
+
+    int returnVal = 0;
+    int count1;
+    int count2;
+    int count3;
+
+    sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 629, direction: sql:DIRECTION_IN };
+    sql:Parameter para2 = { sqlType: sql:TYPE_INTEGER, value: 631, direction: sql:DIRECTION_IN };
+    sql:Parameter para3 = { sqlType: sql:TYPE_INTEGER, value: 632, direction: sql:DIRECTION_IN };
+
+    transaction {
+        _ = testDB->call("{call InsertPersonDataSuccessful(?, ?)}", (), para1, para1);
+        _ = testDB->call("{call InsertPersonDataFailure(?, ?)}", (), para2, para3);
+    } onretry {
+        returnVal = -1;
+    }
+    //check whether update action is performed
+    table dt1 = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 629",
+        ResultCount);
+    table dt2 = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 631",
+        ResultCount);
+    table dt3 = check testDB->select("Select COUNT(*) as countval from Customers where registrationID = 632",
+        ResultCount);
+
+    while (dt1.hasNext()) {
+        ResultCount rs = check <ResultCount>dt1.getNext();
+        count1 = rs.COUNTVAL;
+    }
+    while (dt2.hasNext()) {
+        ResultCount rs = check <ResultCount>dt2.getNext();
+        count2 = rs.COUNTVAL;
+    }
+    while (dt3.hasNext()) {
+        ResultCount rs = check <ResultCount>dt3.getNext();
+        count3 = rs.COUNTVAL;
+    }
+    testDB.stop();
+    return (returnVal, count1, count2, count3);
 }
 
 function testLocalTransactionBatchUpdate() returns (int, int) {
