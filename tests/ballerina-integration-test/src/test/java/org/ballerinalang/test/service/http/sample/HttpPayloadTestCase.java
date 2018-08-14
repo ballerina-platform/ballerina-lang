@@ -48,7 +48,7 @@ public class HttpPayloadTestCase extends IntegrationTestCase {
 
     @Test
     public void testXmlPayload() throws IOException {
-        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("testService/"));
+        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("test/"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
                 , TestConstant.CONTENT_TYPE_TEXT_PLAIN, "Content-Type mismatched");
