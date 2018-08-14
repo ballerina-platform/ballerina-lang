@@ -369,24 +369,7 @@ public class JSONUtils {
         }
 
         try {
-            switch (((BArrayType) jsonArray.getType()).getElementType().getTag()) {
-                case TypeTags.BOOLEAN_TAG:
-                    BBooleanArray bBooleanArray = (BBooleanArray) jsonArray;
-                    int i = bBooleanArray.get(index);
-                    return i == 0 ? new BBoolean(false) : new BBoolean(true);
-                case TypeTags.FLOAT_TAG:
-                    BFloatArray bFloatArray = (BFloatArray) jsonArray;
-                    return new BFloat(bFloatArray.get(index));
-                case TypeTags.INT_TAG:
-                    BIntArray bIntArray = (BIntArray) jsonArray;
-                    return new BInteger(bIntArray.get(index));
-                case TypeTags.STRING_TAG:
-                    BStringArray bStringArray = (BStringArray) jsonArray;
-                    return new BString(bStringArray.get(index));
-                default:
-                    BRefValueArray bRefValueArray = (BRefValueArray) jsonArray;
-                    return bRefValueArray.get(index);
-            }
+            return ListUtils.execListGetOperation((BNewArray) jsonArray, index);
         } catch (Throwable t) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, t.getMessage());
         }
@@ -413,28 +396,7 @@ public class JSONUtils {
         }
 
         try {
-            switch (jsonArray.getElementType().getTag()) {
-                case TypeTags.BOOLEAN_TAG:
-                    BBooleanArray bBooleanArray = (BBooleanArray) json;
-                    bBooleanArray.add(index, ((BBoolean) element).value() ? 1 : 0);
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    BFloatArray bFloatArray = (BFloatArray) json;
-                    bFloatArray.add(index, (double) element.value());
-                    break;
-                case TypeTags.INT_TAG:
-                    BIntArray bIntArray = (BIntArray) json;
-                    bIntArray.add(index, (long) element.value());
-                    break;
-                case TypeTags.STRING_TAG:
-                    BStringArray bStringArray = (BStringArray) json;
-                    bStringArray.add(index, (String) element.value());
-                    break;
-                default:
-                    BRefValueArray bRefValueArray = (BRefValueArray) json;
-                    bRefValueArray.add(index, element);
-                    break;
-            }
+            ListUtils.execListAddOperation((BNewArray) json, index, element);
         } catch (Throwable t) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_SET_ERROR, t.getMessage());
         }

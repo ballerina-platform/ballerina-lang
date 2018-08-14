@@ -35,6 +35,7 @@ import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
 import org.ballerinalang.model.util.JSONUtils;
+import org.ballerinalang.model.util.ListUtils;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBoolean;
@@ -1244,7 +1245,7 @@ public class CPU {
                     break;
                 }
                 try {
-                    sf.refRegs[k] = execListGetOperation(bNewArray, sf.longRegs[j]);
+                    sf.refRegs[k] = ListUtils.execListGetOperation(bNewArray, sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1441,7 +1442,7 @@ public class CPU {
                         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                                 elementType, (refReg != null) ? refReg.getType() : BTypes.typeNull);
                     }
-                    execListAddOperation(list, index, refReg);
+                    ListUtils.execListAddOperation(list, index, refReg);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -2515,69 +2516,6 @@ public class CPU {
                     ctx.programFile.globalMemArea.unlockRefField(pkgIndex, regIndex);
             }
         }
-    }
-
-    private static BRefType<?> execListGetOperation(BNewArray array, long index) {
-        if (array.getType().getTag() == TypeTags.ARRAY_TAG) {
-            switch (((BArrayType) array.getType()).getElementType().getTag()) {
-                case TypeTags.BOOLEAN_TAG:
-                    BBooleanArray bBooleanArray = (BBooleanArray) array;
-                    int i = bBooleanArray.get(index);
-                    return i == 0 ? new BBoolean(false) : new BBoolean(true);
-                case TypeTags.BYTE_TAG:
-                    BByteArray bByteArray = (BByteArray) array;
-                    return new BInteger(bByteArray.get(index));
-                case TypeTags.FLOAT_TAG:
-                    BFloatArray bFloatArray = (BFloatArray) array;
-                    return new BFloat(bFloatArray.get(index));
-                case TypeTags.INT_TAG:
-                    BIntArray bIntArray = (BIntArray) array;
-                    return new BInteger(bIntArray.get(index));
-                case TypeTags.STRING_TAG:
-                    BStringArray bStringArray = (BStringArray) array;
-                    return new BString(bStringArray.get(index));
-                default:
-                    BRefValueArray bRefValueArray = (BRefValueArray) array;
-                    return bRefValueArray.get(index);
-            }
-        }
-        // Else this is a tuple
-        BRefValueArray bRefValueArray = (BRefValueArray) array;
-        return bRefValueArray.get(index);
-    }
-
-    private static void execListAddOperation(BNewArray array, long index, BRefType refType) {
-        if (array.getType().getTag() == TypeTags.ARRAY_TAG) {
-            switch (((BArrayType) array.getType()).getElementType().getTag()) {
-                case TypeTags.BOOLEAN_TAG:
-                    BBooleanArray bBooleanArray = (BBooleanArray) array;
-                    bBooleanArray.add(index, ((BBoolean) refType).value() ? 1 : 0);
-                    return;
-                case TypeTags.BYTE_TAG:
-                    BByteArray bByteArray = (BByteArray) array;
-                    bByteArray.add(index, (byte) refType.value());
-                    return;
-                case TypeTags.FLOAT_TAG:
-                    BFloatArray bFloatArray = (BFloatArray) array;
-                    bFloatArray.add(index, (double) refType.value());
-                    return;
-                case TypeTags.INT_TAG:
-                    BIntArray bIntArray = (BIntArray) array;
-                    bIntArray.add(index, (long) refType.value());
-                    return;
-                case TypeTags.STRING_TAG:
-                    BStringArray bStringArray = (BStringArray) array;
-                    bStringArray.add(index, (String) refType.value());
-                    return;
-                default:
-                    BRefValueArray bRefValueArray = (BRefValueArray) array;
-                    bRefValueArray.add(index, refType);
-                    return;
-            }
-        }
-        // Else this is a tuple
-        BRefValueArray bRefValueArray = (BRefValueArray) array;
-        bRefValueArray.add(index, refType);
     }
 
     /**
