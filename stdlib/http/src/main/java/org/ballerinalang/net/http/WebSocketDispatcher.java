@@ -88,7 +88,7 @@ public class WebSocketDispatcher {
         try {
             Map<String, String> pathParams = new HashMap<>();
             String serviceUri = webSocketHandshaker.getTarget();
-            serviceUri = WebSocketUtil.refactorUri(serviceUri);
+            serviceUri = HttpUtil.sanitizeBasePath(serviceUri);
             URI requestUri = URI.create(serviceUri);
             WebSocketService service = servicesRegistry.getUriTemplate().matches(requestUri.getPath(), pathParams,
                                                                                  webSocketHandshaker);
