@@ -135,7 +135,7 @@ public type APIListenerActions object {
 
         P{{headers}} A `map` of custom headers for handshake
     }
-    public function acceptWebSocketUpgrade(map headers) returns WebSocketListener {
+    public function acceptWebSocketUpgrade(map<string> headers) returns WebSocketListener {
         return httpCallerActions.acceptWebSocketUpgrade(headers);
     }
 
