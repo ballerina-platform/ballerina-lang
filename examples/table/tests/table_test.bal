@@ -35,7 +35,7 @@ function testFunc() {
     string op11 = "Average of Low salary: 125.25";
     string op12 = "Selected row count: 4";
     string op13 = "Deleted row count: 2";
-    string js1 = "[{\"id\":1,\"name\":\"Jane\",\"salary\":300.5},{\"id\":3,\"name\":\"John\",\"salary\":400.5}]";
+    string js1 = "[{\"id\":1, \"name\":\"Jane\", \"salary\":300.5}, {\"id\":3, \"name\":\"John\", \"salary\":400.5}]";
     xml xml1 = xml `<results><result><id>1</id><name>Jane</name><salary>300.5</salary></result><
     result><id>3</id><name>John</name><salary>400.5</salary></result></results>`;
 

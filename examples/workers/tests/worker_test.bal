@@ -14,8 +14,10 @@ public function mockPrint(any... s) {
     foreach str in s{
         outStr = outStr + <string>str;
     }
-    outputs[counter] = outStr;
-    counter++;
+    lock {
+        outputs[counter] = outStr;
+        counter++;
+    }
 }
 
 @test:Config

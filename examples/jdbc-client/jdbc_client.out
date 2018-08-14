@@ -48,7 +48,7 @@ Remove data from a proxied table
 Removed count: 2
 
 The select operation - Select data from a table
-JSON: [{"id":1,"age":23,"name":"Jones"},{"id":3,"age":25,"name":"James"},{"id":4,"age":31,"name":"Kate"},{"id":5,"age":27,"name":"Alex"},{"id":6,"age":28,"name":"Peter"}]
+JSON: [{"id":1, "age":23, "name":"Jones"}, {"id":3, "age":25, "name":"James"}, {"id":4, "age":31, "name":"Kate"}, {"id":5, "age":27, "name":"Alex"}, {"id":6, "age":28, "name":"Peter"}]
 
 The select operation - By loading table to memory
 Iterating data first time:

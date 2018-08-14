@@ -139,6 +139,7 @@ Taint Checking
 WebSub Internal Hub Sample
 WebSub Remote Hub Sample
 WebSub Hub Client Sample
+WebSub Service Integration Sample
 Testerina Assertions
 Testerina Before and After Test
 Testerina Before Each Test
