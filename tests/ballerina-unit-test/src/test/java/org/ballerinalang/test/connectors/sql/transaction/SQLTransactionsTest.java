@@ -61,6 +61,20 @@ public class SQLTransactionsTest {
     }
 
     @Test(groups = "TransactionTest")
+    public void testLocalTransactionBatchUpdate() {
+        BValue[] returns = BRunUtil.invoke(result, "testLocalTransactionBatchUpdate");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 4);
+    }
+
+    @Test(groups = "TransactionTest")
+    public void testTransactionRollbackBatchUpdate() {
+        BValue[] returns = BRunUtil.invoke(result, "testLocalTransactionRollbackBatchUpdate");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
+    }
+
+    @Test(groups = "TransactionTest")
     public void testTransactonAbort() {
         BValue[] returns = BRunUtil.invoke(result, "testTransactonAbort");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), -1);
