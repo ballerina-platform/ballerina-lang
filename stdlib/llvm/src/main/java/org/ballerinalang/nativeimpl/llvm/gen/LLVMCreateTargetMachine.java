@@ -24,12 +24,12 @@ import org.ballerinalang.nativeimpl.llvm.FFIUtil;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.LLVM;
 import org.bytedeco.javacpp.LLVM.LLVMTargetMachineRef;
 
 import static org.ballerinalang.model.types.TypeKind.INT;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.ballerinalang.model.types.TypeKind.STRING;
 import static org.bytedeco.javacpp.LLVM.LLVMCreateTargetMachine;
 
 /**
@@ -40,9 +40,9 @@ import static org.bytedeco.javacpp.LLVM.LLVMCreateTargetMachine;
         functionName = "LLVMCreateTargetMachine",
         args = {
                 @Argument(name = "t", type = RECORD, structType = "LLVMTargetRef"),
-                @Argument(name = "triple", type = STRING),
-                @Argument(name = "cpu", type = STRING),
-                @Argument(name = "features", type = STRING),
+                @Argument(name = "triple", type = RECORD, structType = "BytePointer"),
+                @Argument(name = "cpu", type = RECORD, structType = "BytePointer"),
+                @Argument(name = "features", type = RECORD, structType = "BytePointer"),
                 @Argument(name = "level", type = INT),
                 @Argument(name = "reloc", type = INT),
                 @Argument(name = "codeModel", type = INT),
@@ -56,9 +56,9 @@ public class LLVMCreateTargetMachine extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         LLVM.LLVMTargetRef t = FFIUtil.getRecodeArgumentNative(context, 0);
-        String triple = context.getStringArgument(0);
-        String cpu = context.getStringArgument(1);
-        String features = context.getStringArgument(2);
+        BytePointer triple = FFIUtil.getRecodeArgumentNative(context, 1);
+        BytePointer cpu = FFIUtil.getRecodeArgumentNative(context, 2);
+        BytePointer features = FFIUtil.getRecodeArgumentNative(context, 3);
         int level = (int) context.getIntArgument(0);
         int reloc = (int) context.getIntArgument(1);
         int codeModel = (int) context.getIntArgument(2);

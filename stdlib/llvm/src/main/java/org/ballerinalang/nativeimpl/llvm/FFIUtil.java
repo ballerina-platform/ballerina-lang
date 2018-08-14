@@ -1,6 +1,5 @@
 package org.ballerinalang.nativeimpl.llvm;
 
-
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.model.types.BStructureType;
