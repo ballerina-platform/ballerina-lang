@@ -84,16 +84,16 @@ public class WebSocketUtil {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
                 BMap<String, BValue> webSocketEndpoint = BLangConnectorSPIUtil.createObject(
-                        wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo()
-                                .getProgramFile(), PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_ENDPOINT);
+                        wsService.getServiceInfo().getPackageInfo().getProgramFile(), PROTOCOL_PACKAGE_HTTP,
+                        WebSocketConstants.WEBSOCKET_ENDPOINT);
                 BMap<String, BValue> webSocketConnector = BLangConnectorSPIUtil.createObject(
-                        wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo()
-                                .getProgramFile(), PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
+                        wsService.getServiceInfo().getPackageInfo().getProgramFile(), PROTOCOL_PACKAGE_HTTP,
+                        WebSocketConstants.WEBSOCKET_CONNECTOR);
 
                 webSocketEndpoint.put(WebSocketConstants.LISTENER_CONNECTOR_FIELD, webSocketConnector);
                 populateEndpoint(webSocketConnection, webSocketEndpoint);
                 WebSocketOpenConnectionInfo connectionInfo =
-                        new WebSocketOpenConnectionInfo(wsService, webSocketConnection, webSocketEndpoint);
+                        new WebSocketOpenConnectionInfo(wsService, webSocketConnection, webSocketEndpoint, context);
                 connectionManager.addConnection(webSocketConnection.getChannelId(), connectionInfo);
                 webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO,
                                                  connectionInfo);

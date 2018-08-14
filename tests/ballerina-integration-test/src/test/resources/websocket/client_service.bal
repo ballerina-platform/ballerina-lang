@@ -15,17 +15,38 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/log;
 
-@final string REMOTE_BACKEND_URL1 = "ws://localhost:15500/websocket";
+@final string REMOTE_BACKEND_URL = "ws://localhost:15500/websocket";
 
 @http:WebSocketServiceConfig {
-    path: "/client/failure"
+    path: "/client/service"
 }
-service<http:WebSocketService> clientFailure bind { port: 9091 } {
+service<http:WebSocketService> clientFailure bind { port: 9090 } {
 
     onOpen(endpoint wsEp) {
         endpoint http:WebSocketClient wsClientEp {
-            url: REMOTE_BACKEND_URL1
+            url: REMOTE_BACKEND_URL
+        };
+        _ = wsEp->pushText("Client worked");
+    }
+
+    onText(endpoint caller, string text) {
+        endpoint http:WebSocketClient wsClientEp {
+            url: REMOTE_BACKEND_URL,
+            callbackService: ClientService
+        };
+        _ = caller->pushText("Client worked");
+    }
+
+    onBinary(endpoint caller, byte[] data) {
+        endpoint http:WebSocketClient wsClientEp {
+            url: REMOTE_BACKEND_URL,
+            callbackService: callback
         };
     }
+}
+service<http:WebSocketService> callback {
+}
+service<http:WebSocketClientService> ClientService {
 }
