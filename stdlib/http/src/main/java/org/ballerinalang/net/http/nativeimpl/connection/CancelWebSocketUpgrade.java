@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketConstants;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 
 /**
  * {@code CancelWebSocketUpgrade} is the action to cancel a WebSocket upgrade.
@@ -56,12 +56,12 @@ public class CancelWebSocketUpgrade implements NativeCallableUnit {
             BMap<String, BValue> httpConnection = (BMap<String, BValue>) context.getRefArgument(0);
             int statusCode = (int) context.getIntArgument(0);
             String reason = context.getStringArgument(0);
-            WebSocketInitMessage initMessage =
-                    (WebSocketInitMessage) httpConnection.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
-            if (initMessage == null) {
+            WebSocketHandshaker webSocketHandshaker =
+                    (WebSocketHandshaker) httpConnection.getNativeData(WebSocketConstants.WEBSOCKET_MESSAGE);
+            if (webSocketHandshaker == null) {
                 throw new BallerinaConnectorException("Not a WebSocket upgrade request. Cannot cancel the request");
             }
-            ChannelFuture future = initMessage.cancelHandshake(statusCode, reason);
+            ChannelFuture future = webSocketHandshaker.cancelHandshake(statusCode, reason);
             future.addListener((ChannelFutureListener) channelFuture -> {
                 Throwable cause = future.cause();
                 if (!future.isSuccess() && cause != null) {
@@ -74,9 +74,9 @@ public class CancelWebSocketUpgrade implements NativeCallableUnit {
                 }
                 callback.notifySuccess();
             });
-        } catch (Throwable throwable) {
+        } catch (Exception e) {
             //Return this error.
-            context.setReturnValues(HttpUtil.getError(context, throwable));
+            context.setReturnValues(HttpUtil.getError(context, e));
             callback.notifySuccess();
         }
     }

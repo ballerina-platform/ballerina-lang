@@ -21,17 +21,25 @@ package org.ballerinalang.packerina.init.models;
  * Enum which holds the file type: service or main.
  */
 public enum FileType {
-    SERVICE("hello_service.bal"),
-    MAIN("main.bal");
+    SERVICE("hello_service.bal", FileContentConstants.SERVICE_CONTENT),
+    MAIN("main.bal", FileContentConstants.MAIN_FUNCTION_CONTENT),
+    MAIN_TEST("main_test.bal", FileContentConstants.MAIN_FUNCTION_TEST_CONTENT),
+    SERVICE_TEST("hello_service_test.bal", FileContentConstants.SERVICE_TEST_CONTENT);
 
     private final String fileName;
+    private final String content;
 
-    FileType(String fileName) {
+    FileType(String fileName, String content) {
         this.fileName = fileName;
+        this.content = content;
     }
 
     public String getFileName() {
         return fileName;
+    }
+
+    public String getContent() {
+        return content;
     }
 }
 

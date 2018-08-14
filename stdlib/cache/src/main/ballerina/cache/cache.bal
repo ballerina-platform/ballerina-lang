@@ -50,17 +50,17 @@ public type Cache object {
     public new(expiryTimeMillis = 900000, capacity = 100, evictionFactor = 0.25) {
         // Cache expiry time must be a positive value.
         if (expiryTimeMillis <= 0) {
-            error e = {message:"Expiry time must be greater than 0."};
+            error e = { message: "Expiry time must be greater than 0." };
             throw e;
         }
         // Cache capacity must be a positive value.
         if (capacity <= 0) {
-            error e = {message:"Capacity must be greater than 0."};
+            error e = { message: "Capacity must be greater than 0." };
             throw e;
         }
         // Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive).
         if (evictionFactor <= 0 || evictionFactor > 1) {
-            error e = {message:"Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive)."};
+            error e = { message: "Cache eviction factor must be between 0.0 (exclusive) and 1.0 (inclusive)." };
             throw e;
         }
         cacheMap[system:uuid()] = self;
@@ -70,14 +70,14 @@ public type Cache object {
     #
     # + return - True if the given key has an associated value, false otherwise.
     public function hasKey(string key) returns (boolean) {
-        return self.entries.hasKey(key);
+        return entries.hasKey(key);
     }
 
     # Returns the size of the cache.
     #
     # + return - The size of the cache
     public function size() returns (int) {
-        return lengthof self.entries;
+        return lengthof entries;
     }
 
     # Adds the given key, value pair to the provided cache.
@@ -87,31 +87,31 @@ public type Cache object {
     public function put(string key, any value) {
         // We need to synchronize this process otherwise concurrecy might cause issues.
         lock {
-            int cacheCapacity = self.capacity;
-            int cacheSize = lengthof self.entries;
+            int cacheCapacity = capacity;
+            int cacheSize = lengthof entries;
 
             // If the current cache is full, evict cache.
             if (cacheCapacity <= cacheSize) {
-                self.evict();
+                evict();
             }
             // Add the new cache entry.
             int time = time:currentTime().time;
-            CacheEntry entry = {value:value, lastAccessedTime:time};
-            self.entries[key] = entry;
+            CacheEntry entry = { value: value, lastAccessedTime: time };
+            entries[key] = entry;
         }
     }
 
     # Evicts the cache when cache is full.
     function evict() {
-        int maxCapacity = self.capacity;
-        float ef = self.evictionFactor;
+        int maxCapacity = capacity;
+        float ef = evictionFactor;
         int numberOfKeysToEvict = <int>(maxCapacity * ef);
         // Get the above number of least recently used cache entry keys from the cache
-        string[] cacheKeys = self.getLRUCacheKeys(numberOfKeysToEvict);
+        string[] cacheKeys = getLRUCacheKeys(numberOfKeysToEvict);
         // Iterate through the map and remove entries.
         foreach c in cacheKeys {
             // These cache values are ignred. So it is not needed to check the return value for the remove function.
-            _ = self.entries.remove(c);
+            _ = entries.remove(c);
         }
     }
 
@@ -122,24 +122,31 @@ public type Cache object {
     # + return - The cached value associated with the given key
     public function get(string key) returns any? {
         // Check whether the requested cache is available.
-        if (!self.hasKey(key)){
+        if (!hasKey(key)){
             return ();
         }
         // Get the requested cache entry from the map.
-        CacheEntry entry = self.entries[key] but { () => {} };
+        CacheEntry? cacheEntry = entries[key];
 
-        // Check whether the cache entry is already expired. Since the cache cleaning task runs in predefined intervals,
-        // sometimes the cache entry might not have been removed at this point even though it is expired. So this check
-        // gurentees that the expired cache entries will not be returened.
-        int currentSystemTime = time:currentTime().time;
-        if (currentSystemTime >= entry.lastAccessedTime + expiryTimeMillis) {
-            // If it is expired, remove the cache and return nil.
-            self.remove(key);
-            return ();
+        match cacheEntry {
+            CacheEntry entry => {
+                // Check whether the cache entry is already expired. Since the cache cleaning task runs in predefined intervals,
+                // sometimes the cache entry might not have been removed at this point even though it is expired. So this check
+                // gurentees that the expired cache entries will not be returened.
+                int currentSystemTime = time:currentTime().time;
+                if (currentSystemTime >= entry.lastAccessedTime + expiryTimeMillis) {
+                    // If it is expired, remove the cache and return nil.
+                    remove(key);
+                    return ();
+                }
+                // Modify the last accessed time and return the cache if it is not expired.
+                entry.lastAccessedTime = time:currentTime().time;
+                return entry.value;
+            }
+            () => {
+                return ();
+            }
         }
-        // Modify the last accessed time and return the cache if it is not expired.
-        entry.lastAccessedTime = time:currentTime().time;
-        return entry.value;
     }
 
     # Removes a cached value from a cache.
@@ -147,7 +154,7 @@ public type Cache object {
     # + return - key of the cache entry which needs to be removed
     public function remove(string key) {
         // Cache might already be removed by the cache clearing task. So no need to check the return value.
-        _ = self.entries.remove(key);
+        _ = entries.remove(key);
     }
 
     # Returns all keys from current cache.
@@ -166,10 +173,19 @@ public type Cache object {
         string[] cacheKeysToBeRemoved = [];
         int[] timestamps = [];
         string[] keys = self.entries.keys();
-        // Iterate through each key.
-        foreach key, entry in self.entries {
-            // Check and add the key to the cacheKeysToBeRemoved if it matches the conditions.
-            checkAndAdd(numberOfKeysToEvict, cacheKeysToBeRemoved, timestamps, key, entry.lastAccessedTime);
+        // Iterate through the keys.
+        foreach key in keys {
+            CacheEntry? cacheEntry = entries[key];
+            match cacheEntry {
+                CacheEntry entry => {
+                    // Check and add the key to the cacheKeysToBeRemoved if it matches the conditions.
+                    checkAndAdd(numberOfKeysToEvict, cacheKeysToBeRemoved, timestamps, key, entry.lastAccessedTime);
+                }
+                () => {
+                    // If the key is not found in the map, that means that the corresponding cache is already removed
+                    // (possibly by a another worker).
+                }
+            }
         }
         // Return the array.
         return cacheKeysToBeRemoved;
@@ -204,7 +220,7 @@ function runCacheExpiry() returns error? {
         }
 
         // Iterate through the key list which needs to be removed.
-        foreach currentKeyIndex in 0 ..< cachesToBeRemovedIndex {
+        foreach currentKeyIndex in 0..<cachesToBeRemovedIndex {
             string key = cachesToBeRemoved[currentKeyIndex];
             // Remove the cache entry.
             _ = currentCache.entries.remove(key);
@@ -220,7 +236,7 @@ function checkAndAdd(int numberOfKeysToEvict, string[] cacheKeys, int[] timestam
 
     // Iterate while we count all values from 0 to numberOfKeysToEvict exclusive of numberOfKeysToEvict since the
     // array size should be numberOfKeysToEvict.
-    foreach index in 0 ..< numberOfKeysToEvict {
+    foreach index in 0..<numberOfKeysToEvict {
         // If we have encountered the end of the array, that means we can add the new values to the end of the
         // array since we haven’t reached the numberOfKeysToEvict limit.
         if (lengthof cacheKeys == index) {

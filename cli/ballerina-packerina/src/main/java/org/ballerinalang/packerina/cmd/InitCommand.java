@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -116,19 +115,29 @@ public class InitCommand implements BLauncherCmd {
                     srcInput = scanner.nextLine().trim();
 
                     if (srcInput.equalsIgnoreCase("service") || srcInput.equalsIgnoreCase("s") || srcInput.isEmpty()) {
-                        out.print("Package for the service : (no package) ");
-                        String packageName = scanner.nextLine().trim();
+                        String packageName;
+                        do {
+                            out.print("Package for the service: (no package) ");
+                            packageName = scanner.nextLine().trim();
+                        } while (!validatePkgName(out, packageName));
                         SrcFile srcFile = new SrcFile(packageName, FileType.SERVICE);
                         sourceFiles.add(srcFile);
+                        SrcFile srcTestFile = new SrcFile(packageName, FileType.SERVICE_TEST);
+                        sourceFiles.add(srcTestFile);
                         if (!packageName.isEmpty()) {
                             PackageMdFile packageMdFile = new PackageMdFile(packageName, FileType.SERVICE);
                             packageMdFiles.add(packageMdFile);
                         }
                     } else if (srcInput.equalsIgnoreCase("main") || srcInput.equalsIgnoreCase("m")) {
-                        out.print("Package for the main : (no package) ");
-                        String packageName = scanner.nextLine().trim();
+                        String packageName;
+                        do {
+                            out.print("Package for the main: (no package) ");
+                            packageName = scanner.nextLine().trim();
+                        } while (!validatePkgName(out, packageName));
                         SrcFile srcFile = new SrcFile(packageName, FileType.MAIN);
                         sourceFiles.add(srcFile);
+                        SrcFile srcTestFile = new SrcFile(packageName, FileType.MAIN_TEST);
+                        sourceFiles.add(srcTestFile);
                         if (!packageName.isEmpty()) {
                             PackageMdFile packageMdFile = new PackageMdFile(packageName, FileType.MAIN);
                             packageMdFiles.add(packageMdFile);
@@ -209,16 +218,11 @@ public class InitCommand implements BLauncherCmd {
      */
     private boolean validateVersion(PrintStream out, String versionAsString) {
         String semverRegex = "((?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*))";
-        Pattern pattern = Pattern.compile(semverRegex);
-        Matcher matcher = pattern.matcher(versionAsString);
-        int count = 0;
-        while (matcher.find()) {
-            count++;
-        }
-        if (count != 1) {
+        boolean matches = Pattern.matches(semverRegex, versionAsString);
+        if (!matches) {
             out.println("--Invalid version: \"" + versionAsString + "\"");
         }
-        return count == 1;
+        return matches;
     }
 
     private String guessOrgName() {
@@ -231,4 +235,22 @@ public class InitCommand implements BLauncherCmd {
         return guessOrgName;
     }
 
+    /**
+     * Validates the package name.
+     *
+     * @param pkgName The package name.
+     * @return True if valid package name, else false.
+     */
+    private boolean validatePkgName(PrintStream out, String pkgName) {
+        if (pkgName.isEmpty()) {
+           return true;
+        }
+        String validRegex = "^[a-zA-Z0-9_.]*$";
+        boolean matches = Pattern.matches(validRegex, pkgName);
+        if (!matches) {
+            out.println("--Invalid package name: \"" + pkgName + "\"." + " Package name can only contain " +
+                                "alphanumeric, underscore and DOT");
+        }
+        return matches;
+    }
 }

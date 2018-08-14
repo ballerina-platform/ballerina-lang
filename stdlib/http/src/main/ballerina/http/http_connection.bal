@@ -61,7 +61,7 @@ public type Connection object {
     # Sends an upgrade request with custom headers.
     #
     # + headers - A `map` of custom headers for handshake
-    public extern function acceptWebSocketUpgrade(map headers) returns WebSocketListener;
+    public extern function acceptWebSocketUpgrade(map<string> headers) returns WebSocketListener;
 
     # Cancels the handshake.
     #

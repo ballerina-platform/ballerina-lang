@@ -29,6 +29,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -70,6 +71,8 @@ import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 public class LSCompiler {
 
     private static final Logger logger = LoggerFactory.getLogger(LSCompiler.class);
+    
+    private static final String BAL_EXTENSION = ".bal";
 
     public static final String UNTITLED_BAL = "untitled.bal";
 
@@ -203,12 +206,13 @@ public class LSCompiler {
         context.put(PackageRepository.class, packageRepository);
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot.getSourceRoot());
-
         if (null == compilerPhase) {
             throw new AssertionError("Compiler Phase can not be null.");
         }
+        String phase = compilerPhase.toString().equals(CompilerPhase.COMPILER_PLUGIN.toString()) ? "annotationProcess"
+                : compilerPhase.toString();
 
-        options.put(COMPILER_PHASE, compilerPhase.toString());
+        options.put(COMPILER_PHASE, phase);
         options.put(PRESERVE_WHITESPACE, Boolean.valueOf(preserveWhitespace).toString());
         options.put(TEST_ENABLED, String.valueOf(true));
 
@@ -284,17 +288,18 @@ public class LSCompiler {
     /**
      * Get the BLangPackage for a given program.
      *
-     * @param context             Language Server Context
-     * @param docManager          Document manager
-     * @param preserveWhitespace  Enable preserve whitespace
-     * @param customErrorStrategy custom error strategy class
-     * @param compileFullProject  compile full project from the source root
-     * @return {@link BLangPackage} BLang Package
+     * @param context                   Language Server Context
+     * @param docManager                Document manager
+     * @param preserveWhitespace        Enable preserve whitespace
+     * @param customErrorStrategy       custom error strategy class
+     * @param compileFullProject        compile full project from the source root
+     * @return {@link Either}           Either single BLang Package or a list of packages when compile full project
      */
-    public static List<BLangPackage> getBLangPackage(LSContext context,
-                                                                  WorkspaceDocumentManager docManager,
-                                                                  boolean preserveWhitespace, Class customErrorStrategy,
-                                                                  boolean compileFullProject) {
+    public static Either<List<BLangPackage>, BLangPackage> getBLangPackage(LSContext context,
+                                                             WorkspaceDocumentManager docManager,
+                                                             boolean preserveWhitespace,
+                                                             Class customErrorStrategy,
+                                                             boolean compileFullProject) {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         String unsavedFileId = LSCompiler.getUnsavedFileIdOrNull(uri);
         if (unsavedFileId != null) {
@@ -312,20 +317,18 @@ public class LSCompiler {
 
         String sourceRoot = LSCompiler.getSourceRoot(filePath);
         String pkgName = LSCompiler.getPackageNameForGivenFile(sourceRoot, filePath.toString());
-        LSDocument sourceDocument = new LSDocument();
-        sourceDocument.setUri(uri);
-        sourceDocument.setSourceRoot(sourceRoot);
+        LSDocument sourceDocument = new LSDocument(uri, sourceRoot);
 
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, docManager);
-        List<BLangPackage> packages = new ArrayList<>();
         if (compileFullProject) {
+            List<BLangPackage> packages = new ArrayList<>();
             if (!sourceRoot.isEmpty()) {
                 File projectDir = new File(sourceRoot);
                 File[] files = projectDir.listFiles();
                 if (files != null) {
                     for (File file : files) {
                         if ((file.isDirectory() && !file.getName().startsWith(".")) ||
-                                (!file.isDirectory() && file.getName().endsWith(".bal"))) {
+                                (!file.isDirectory() && file.getName().endsWith(BAL_EXTENSION))) {
                             PackageID packageID = new PackageID(fileName);
                             CompilerContext compilerContext =
                                     LSCompiler.prepareCompilerContext(packageID, packageRepository, sourceDocument,
@@ -338,9 +341,11 @@ public class LSCompiler {
                     }
                 }
             }
+
+            return Either.forLeft(packages);
         } else {
             PackageID packageID;
-            if ("".equals(pkgName)) {
+            if (pkgName.isEmpty()) {
                 packageID = new PackageID(fileName);
                 pkgName = fileName;
             } else {
@@ -351,10 +356,10 @@ public class LSCompiler {
                                                       preserveWhitespace, docManager);
             Compiler compiler = getCompiler(context, fileName, compilerContext, customErrorStrategy);
             BLangPackage bLangPackage = compiler.compile(pkgName);
-            packages.add(bLangPackage);
             LSPackageCache.getInstance(compilerContext).invalidate(bLangPackage.packageID);
+            
+            return Either.forRight(bLangPackage);
         }
-        return packages;
     }
 
 
@@ -364,12 +369,12 @@ public class LSCompiler {
      * @param parentDir current parent directory
      * @return {@link String} project root | null
      */
-    public static String findProjectRoot(String parentDir) {
+    private static String findProjectRoot(String parentDir) {
         return findProjectRoot(parentDir, RepoUtils.createAndGetHomeReposPath());
     }
 
     @CheckForNull
-    public static String findProjectRoot(String parentDir, Path balHomePath) {
+    private static String findProjectRoot(String parentDir, Path balHomePath) {
         if (parentDir == null) {
             return null;
         }

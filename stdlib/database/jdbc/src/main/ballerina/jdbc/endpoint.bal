@@ -42,7 +42,7 @@ public type Client object {
     # Gets called when the endpoint is being initialized during the package initialization.
     #
     # + c - The ClientEndpointConfiguration of the endpoint
-    function init(ClientEndpointConfiguration c) {
+    public function init(ClientEndpointConfiguration c) {
         self.callerActions = createClient(c);
     }
 

@@ -22,7 +22,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
@@ -235,7 +235,7 @@ public class EntityBodyWithCharsetTest {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "POST", headers, "{\"test\":\"菜鸟驿站\"}");
         HttpCarbonMessage response = Services.invokeNew(serviceResult, "mockEP", cMsg);
         Assert.assertNotNull(response, "Response message not found");
-        Assert.assertEquals(new BJSON(new HttpMessageDataStreamer(response).getInputStream()).stringValue(),
+        Assert.assertEquals(JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream()).stringValue(),
                 "{\"test\":\"菜鸟驿站\"}");
     }
 }

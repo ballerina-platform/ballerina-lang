@@ -136,7 +136,10 @@ public class SQLActionsTest {
     public void testGeneratedKeyOnInsertEmptyResults() {
         BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyOnInsertEmptyResults", connectionArgs);
         BInteger retValue = (BInteger) returns[0];
-        Assert.assertEquals(retValue.intValue(), 0);
+
+        // Postgres returns all columns when there is no returning clause
+        int columnCount = (dbType == POSTGRES) ? 5 : 0;
+        Assert.assertEquals(retValue.intValue(), columnCount);
     }
 
     @Test(groups = CONNECTOR_TEST)
@@ -615,8 +618,8 @@ public class SQLActionsTest {
     public void testDateTimeNullInValues() {
         BValue[] returns = BRunUtil.invoke(result, "testDateTimeNullInValues", connectionArgs);
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals((returns[0]).stringValue(), "[{\"DATE_TYPE\":null,\"TIME_TYPE\":null,"
-                + "\"TIMESTAMP_TYPE\":null,\"DATETIME_TYPE\":null}]");
+        Assert.assertEquals((returns[0]).stringValue(), "[{\"DATE_TYPE\":null, \"TIME_TYPE\":null, "
+                + "\"TIMESTAMP_TYPE\":null, \"DATETIME_TYPE\":null}]");
     }
 
     @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED}, description = "Check date time null out values")
@@ -636,7 +639,7 @@ public class SQLActionsTest {
         Assert.assertNull(returns[3].stringValue());
     }
 
-    @Test(groups = {CONNECTOR_TEST, MYSQL_NOT_SUPPORTED, H2_NOT_SUPPORTED})
+    @Test(groups = {CONNECTOR_TEST, MYSQL_NOT_SUPPORTED, H2_NOT_SUPPORTED, POSTGRES_NOT_SUPPORTED})
     public void testStructOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testStructOutParameters", connectionArgs);
         BString retValue = (BString) returns[0];
@@ -675,18 +678,18 @@ public class SQLActionsTest {
                     + "<date_type>2017-02-03</date_type><time_type>11:35:45</time_type>"
                     + "<datetime_type>2017-02-03 11:53:00.0</datetime_type>"
                     + "<timestamp_type>2017-02-03 11:53:00.0</timestamp_type></result></results>";
-            expected2 = "[{\"row_id\":1,\"blob_type\":\"d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==\"}]";
-            expected3 = "[{\"row_id\":1,\"date_type\":\"2017-02-03\",\"time_type\":\"11:35:45\","
-                    + "\"datetime_type\":\"2017-02-03 11:53:00.0\",\"timestamp_type\":\"2017-02-03 11:53:00.0\"}]";
+            expected2 = "[{\"row_id\":1, \"blob_type\":\"d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==\"}]";
+            expected3 = "[{\"row_id\":1, \"date_type\":\"2017-02-03\", \"time_type\":\"11:35:45\", "
+                    + "\"datetime_type\":\"2017-02-03 11:53:00.0\", \"timestamp_type\":\"2017-02-03 11:53:00.0\"}]";
         } else if (dbType == H2) {
             expected0 = "<results><result><ROW_ID>1</ROW_ID><BLOB_TYPE>d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==</BLOB_TYPE>"
                     + "</result></results>";
             expected1 = "<results><result><ROW_ID>1</ROW_ID><DATE_TYPE>2017-02-03</DATE_TYPE>"
                     + "<TIME_TYPE>11:35:45</TIME_TYPE><DATETIME_TYPE>2017-02-03 11:53:00</DATETIME_TYPE>"
                     + "<TIMESTAMP_TYPE>2017-02-03 11:53:00</TIMESTAMP_TYPE></result></results>";
-            expected2 = "[{\"ROW_ID\":1,\"BLOB_TYPE\":\"d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==\"}]";
-            expected3 = "[{\"ROW_ID\":1,\"DATE_TYPE\":\"2017-02-03\",\"TIME_TYPE\":\"11:35:45\","
-                    + "\"DATETIME_TYPE\":\"2017-02-03 11:53:00\",\"TIMESTAMP_TYPE\":\"2017-02-03 11:53:00\"}]";
+            expected2 = "[{\"ROW_ID\":1, \"BLOB_TYPE\":\"d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==\"}]";
+            expected3 = "[{\"ROW_ID\":1, \"DATE_TYPE\":\"2017-02-03\",\"TIME_TYPE\":\"11:35:45\", "
+                    + "\"DATETIME_TYPE\":\"2017-02-03 11:53:00\", \"TIMESTAMP_TYPE\":\"2017-02-03 11:53:00\"}]";
         } else {
             expected0 = "<results><result><ROW_ID>1</ROW_ID><BLOB_TYPE>d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==</BLOB_TYPE>"
                     + "</result></results>";
@@ -694,9 +697,9 @@ public class SQLActionsTest {
                     + "<DATE_TYPE>2017-02-03</DATE_TYPE><TIME_TYPE>11:35:45</TIME_TYPE>"
                     + "<DATETIME_TYPE>2017-02-03 11:53:00.000000</DATETIME_TYPE>"
                     + "<TIMESTAMP_TYPE>2017-02-03 11:53:00.000000</TIMESTAMP_TYPE></result></results>";
-            expected2 = "[{\"ROW_ID\":1,\"BLOB_TYPE\":\"d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==\"}]";
-            expected3 = "[{\"ROW_ID\":1,\"DATE_TYPE\":\"2017-02-03\","
-                    + "\"TIME_TYPE\":\"11:35:45\",\"DATETIME_TYPE\":\"2017-02-03 11:53:00.000000\","
+            expected2 = "[{\"ROW_ID\":1, \"BLOB_TYPE\":\"d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==\"}]";
+            expected3 = "[{\"ROW_ID\":1, \"DATE_TYPE\":\"2017-02-03\", "
+                    + "\"TIME_TYPE\":\"11:35:45\", \"DATETIME_TYPE\":\"2017-02-03 11:53:00.000000\", "
                     + "\"TIMESTAMP_TYPE\":\"2017-02-03 11:53:00.000000\"}]";
         }
 
@@ -748,9 +751,7 @@ public class SQLActionsTest {
         if (dbType == MYSQL) {
             errorMessage = "execute update failed: Duplicate entry '1' for key 'PRIMARY'";
         } else if (dbType == POSTGRES) {
-            errorMessage = "{message:\"execute update failed: ERROR: duplicate key value violates unique constraint "
-                    + "\"employeeaddnegative_pkey\"\n"
-                    + "  Detail: Key (id)=(1) already exists.\", cause:null}";
+            errorMessage = "execute update failed: ERROR: duplicate key value violates unique constraint";
         } else if (dbType == H2) {
             errorMessage = "execute update failed: Unique index or primary key violation: \"PRIMARY KEY ON"
                     + " PUBLIC.EMPLOYEEADDNEGATIVE(ID)";

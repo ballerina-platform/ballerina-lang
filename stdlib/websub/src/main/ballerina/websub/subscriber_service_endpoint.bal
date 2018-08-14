@@ -174,18 +174,55 @@ function Listener::sendSubscriptionRequests() {
 # + host - The host name/IP of the endpoint
 # + port - The port to which the endpoint should bind to
 # + httpServiceSecureSocket - The SSL configurations for the service endpoint
-# + topicIdentifier - The identifier based on which dispatching should happen for custom subscriber services
-# + topicHeader - The header to consider if required with dispatching for custom services
-# + topicPayloadKeys - The payload keys to consider if required with dispatching for custom services
-# + topicResourceMap - The mapping between topics and resources if required for custom services
+# + extensionConfig - The extension configuration to introduce custom subscriber services (webhooks)
 public type SubscriberServiceEndpointConfiguration record {
     string host;
     int port;
     http:ServiceSecureSocket? httpServiceSecureSocket;
-    TopicIdentifier? topicIdentifier;
+    ExtensionConfig? extensionConfig;
+};
+
+# The extension configuration to introduce custom subscriber services.
+#
+# topicIdentifier - The identifier based on which dispatching should happen for custom subscriber
+# topicHeader - The header to consider if required with dispatching for custom services
+# headerResourceMap - The mapping between header value and resource details
+# payloadKeyResourceMap - The mapping between value for a particular JSON payload key and resource details
+# headerAndPayloadKeyResourceMap - The mapping between values for the header and a particular JSON payload key and resource details
+public type ExtensionConfig record {
+    TopicIdentifier topicIdentifier = TOPIC_ID_HEADER;
+
+    // TODO: make `Link` the default header and special case `Link` to extract the topic (rel="self").
+    // <link href="<HUB_URL>"; rel="hub", href="<TOPIC_URL>"; rel="self"/>
     string? topicHeader;
-    string[]? topicPayloadKeys;
-    map<map<string>>? topicResourceMap;
+
+    // e.g.,
+    //  headerResourceMap = {
+    //    "watch" : ("onWatch", WatchEvent),
+    //    "create" : ("onCreate", CreateEvent)
+    //  };
+    map<(string, typedesc)>? headerResourceMap;
+
+    // e.g.,
+    //  payloadKeyResourceMap = {
+    //    "eventType" : {
+    //        "branch.created":  ("onBranchCreate", BranchCreatedEvent),
+    //        "branch.deleted":  ("onBranchDelete", BranchDeletedEvent)
+    //    }
+    //  };
+    map<map<(string, typedesc)>>? payloadKeyResourceMap;
+
+    // e.g.,
+    //  headerAndPayloadKeyResourceMap = {
+    //    "issue_comment" : { <--- value for header
+    //        "action" : { <--- payload key
+    //            "created" : ("onIssueCommentCreated", IssueCommentEvent), <--- "created" - value for key "action"
+    //            "edited" : ("onIssueCommentEdited", IssueCommentEvent),
+    //            "deleted" : ("onIssueCommentDeleted", IssueCommentEvent)
+    //        }
+    //    }
+    //  };
+    map<map<map<(string, typedesc)>>>? headerAndPayloadKeyResourceMap;
 };
 
 # The function called to discover hub and topic URLs defined by a resource URL.

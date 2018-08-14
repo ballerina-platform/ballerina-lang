@@ -14,16 +14,46 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/internal;
+
 # Represents a WebSocket connector in ballerina. This include all connector oriented operations.
 public type WebSocketConnector object {
     private boolean isReady = false;
 
     # Push text to the connection.
     #
-    # + text - Text to be sent
+    # + data - Data to be sent, if byte[] it is converted to a UTF-8 string for sending
     # + final - True if this is a final frame of a (long) message
-    # + return - `error` if an error occurs when sending
-    public extern function pushText(string text, boolean final = true) returns error?;
+    # + return  - `error` if an error occurs when sending
+    public function pushText(string|json|xml|boolean|int|float|byte|byte[] data, boolean final = true) returns error? {
+        string text;
+        match data {
+            byte byteContent => {
+                text = <string>(<int>byteContent);
+            }
+            int integerContent => {
+                text = <string>integerContent;
+            }
+            float floatContent => {
+                text = <string>floatContent;
+            }
+            byte[] byteArrayContent => {
+                text = internal:byteArrayToString(byteArrayContent, "UTF-8");
+            }
+            string textContent => {
+                text = textContent;
+            }
+            xml xmlContent => {
+                text = <string>xmlContent;
+            }
+            json jsonContent => {
+                text = jsonContent.toString();
+            }
+        }
+        return externPushText(text, final);
+    }
+
+    extern function externPushText(string text, boolean final) returns error?;
 
     # Push binary data to the connection.
     #

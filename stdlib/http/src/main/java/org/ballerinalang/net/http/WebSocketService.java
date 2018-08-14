@@ -138,20 +138,20 @@ public class WebSocketService implements Service {
 
     private String[] findNegotiableSubProtocols(Struct annAttrSubProtocols) {
         if (annAttrSubProtocols == null) {
-            return null;
+            return new String[0];
         }
         Value[] subProtocolsInAnnotation = annAttrSubProtocols.getArrayField(
                 WebSocketConstants.ANNOTATION_ATTR_SUB_PROTOCOLS);
 
         if (subProtocolsInAnnotation == null) {
-            return null;
+            return new String[0];
         }
 
-        String[] negotiableSubProtocols = new String[subProtocolsInAnnotation.length];
+        String[] subProtoCols = new String[subProtocolsInAnnotation.length];
         for (int i = 0; i < subProtocolsInAnnotation.length; i++) {
-            negotiableSubProtocols[i] = subProtocolsInAnnotation[i].getStringValue();
+            subProtoCols[i] = subProtocolsInAnnotation[i].getStringValue();
         }
-        return negotiableSubProtocols;
+        return subProtoCols;
     }
 
     private int findIdleTimeoutInSeconds(Struct annAttrIdleTimeout) {
@@ -176,16 +176,16 @@ public class WebSocketService implements Service {
      * @return the full path of the WebSocket upgrade.
      */
     private String findFullWebSocketUpgradePath(Struct annStruct) {
-        String basePath = null;
+        String path = null;
         if (annStruct != null) {
             String basePathVal = annStruct.getStringField(WebSocketConstants.ANNOTATION_ATTR_PATH);
             if (basePathVal != null && !basePathVal.trim().isEmpty()) {
-                basePath = WebSocketUtil.refactorUri(basePathVal);
+                path = HttpUtil.sanitizeBasePath(basePathVal);
             }
         }
-        if (basePath == null) {
-            basePath = "/".concat(getName());
+        if (path == null) {
+            path = "/".concat(getName());
         }
-        return basePath;
+        return path;
     }
 }

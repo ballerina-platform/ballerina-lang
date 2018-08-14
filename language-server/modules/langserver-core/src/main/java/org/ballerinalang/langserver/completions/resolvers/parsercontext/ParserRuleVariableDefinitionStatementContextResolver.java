@@ -21,7 +21,7 @@ import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
-import org.ballerinalang.langserver.completions.util.filters.PackageActionFunctionAndTypesFilter;
+import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.ballerinalang.langserver.completions.util.sorters.ActionAndFieldAccessContextItemSorter;
 import org.ballerinalang.langserver.completions.util.sorters.CompletionItemSorter;
@@ -41,21 +41,18 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
     public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
-        // Here we specifically need to check whether the statement is function invocation,
-        // action invocation or worker invocation
         Class sorterKey;
         if (isInvocationOrFieldAccess(completionContext)) {
             sorterKey = ActionAndFieldAccessContextItemSorter.class;
             Either<List<CompletionItem>, List<SymbolInfo>> filteredList =
-                    SymbolFilters.getFilterByClass(PackageActionFunctionAndTypesFilter.class)
-                            .filterItems(completionContext);
-            this.populateCompletionItemList(filteredList, completionItems);
+                    SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(completionContext);
+            completionItems.addAll(this.getCompletionItemList(filteredList));
         } else {
             sorterKey = completionContext.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY).getClass();
-            completionItems.addAll(this.getVariableDefinitionCompletionItems(completionContext));
+            completionItems.addAll(this.getVarDefCompletionItems(completionContext));
         }
 
-        CompletionItemSorter itemSorter = ItemSorters.getSorterByClass(sorterKey);
+        CompletionItemSorter itemSorter = ItemSorters.get(sorterKey);
         itemSorter.sortItems(completionContext, completionItems);
         
         return completionItems;

@@ -22,10 +22,9 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.util.JsonParser;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -54,16 +53,15 @@ public class ReadJson implements NativeCallableUnit {
         BMap<String, BValue> channel = (BMap<String, BValue>) context.getRefArgument(0);
         CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(IOConstants.CHARACTER_CHANNEL_NAME);
         CharacterChannelReader reader = new CharacterChannelReader(charChannel, new EventContext());
-        final JsonNode jsonNode;
+        final BRefType<?> json;
         try {
-            jsonNode = JsonParser.parse(reader);
+            json = JsonParser.parse(reader);
         } catch (BallerinaException e) {
             BMap<String, BValue> errorStruct = IOUtils.createError(context, e.getMessage());
             context.setReturnValues(errorStruct);
             callback.notifySuccess();
             return;
         }
-        BJSON json = new BJSON(jsonNode);
         context.setReturnValues(json);
         callback.notifySuccess();
     }

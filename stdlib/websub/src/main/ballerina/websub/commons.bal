@@ -76,19 +76,31 @@ import ballerina/reflect;
 @final string ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
 @final string WEBSUB_PACKAGE_NAME = "ballerina/websub";
 
+
+# The identifier to be used to identify the mode in which update content should be identified.
+public type RemotePublishMode "PUBLISH_MODE_DIRECT"|"PUBLISH_MODE_FETCH";
+
+# `RemotePublishMode` indicating direct update content notification (fat-ping). The payload of the update
+# notification request from the publisher to the hub would include be the update content.
+@final public RemotePublishMode PUBLISH_MODE_DIRECT = "PUBLISH_MODE_DIRECT";
+
+# `RemotePublishMode` indicating that once the publisher notifies the hub that an update is available, the hub
+# needs to fetch the topic URL to identify the update content.
+@final public RemotePublishMode PUBLISH_MODE_FETCH = "PUBLISH_MODE_FETCH";
+
 //TODO: Make public once extension story is finalized.
 # The identifier to be used to identify the topic for dispatching with custom subscriber services.
-type TopicIdentifier "TOPIC_ID_HEADER"|"TOPIC_ID_PAYLOAD_KEY"|"TOPIC_ID_HEADER_AND_PAYLOAD";
+public type TopicIdentifier "TOPIC_ID_HEADER"|"TOPIC_ID_PAYLOAD_KEY"|"TOPIC_ID_HEADER_AND_PAYLOAD";
 
 # `TopicIdentifier` indicating dispatching based solely on a header of the request.
-@final TopicIdentifier TOPIC_ID_HEADER = "TOPIC_ID_HEADER";
+@final public TopicIdentifier TOPIC_ID_HEADER = "TOPIC_ID_HEADER";
 
 # `TopicIdentifier` indicating dispatching based solely on a value for a key in the JSON payload of the request.
-@final TopicIdentifier TOPIC_ID_PAYLOAD_KEY = "TOPIC_ID_PAYLOAD_KEY";
+@final public TopicIdentifier TOPIC_ID_PAYLOAD_KEY = "TOPIC_ID_PAYLOAD_KEY";
 
 # `TopicIdentifier` indicating dispatching based on a combination of header and values specified for a key/key(s) in
 # the JSON payload of the request.
-@final TopicIdentifier TOPIC_ID_HEADER_AND_PAYLOAD = "TOPIC_ID_HEADER_AND_PAYLOAD";
+@final public TopicIdentifier TOPIC_ID_HEADER_AND_PAYLOAD = "TOPIC_ID_HEADER_AND_PAYLOAD";
 
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Subscriber Commons ////////////////////
@@ -406,22 +418,32 @@ public type SubscriptionChangeResponse record {
 # + return - `WebSubHub` The WebSubHub object representing the newly started up hub, or `HubStartedUpError` indicating
 #            that the hub is already started, and including the WebSubHub object representing the
 #            already started up hub
-public function startUpBallerinaHub(int? port = (), int? leaseSeconds = (), string? signatureMethod = (),
-                                    boolean? remotePublishingEnabled = (), string? remotePublishingMode = (),
-                                    boolean? topicRegistrationRequired = (), string? publicUrl = (),
-                                    boolean? sslEnabled = (), http:ServiceSecureSocket? serviceSecureSocket = (),
-                                    http:SecureSocket? clientSecureSocket = ())
+public function startHub(int port, int? leaseSeconds = (), string? signatureMethod = (),
+boolean? remotePublishingEnabled = (), RemotePublishMode? remotePublishMode = (),
+boolean? topicRegistrationRequired = (), string? publicUrl = (),
+boolean? sslEnabled = (), http:ServiceSecureSocket? serviceSecureSocket = (),
+http:SecureSocket? clientSecureSocket = ())
     returns WebSubHub|HubStartedUpError {
 
-    hubPort = config:getAsInt("b7a.websub.hub.port", default = port but { () => DEFAULT_PORT });
+    hubPort = config:getAsInt("b7a.websub.hub.port", default = port);
     hubLeaseSeconds = config:getAsInt("b7a.websub.hub.leasetime",
                                       default = leaseSeconds but { () => DEFAULT_LEASE_SECONDS_VALUE });
     hubSignatureMethod = config:getAsString("b7a.websub.hub.signaturemethod",
                                             default = signatureMethod but { () => DEFAULT_SIGNATURE_METHOD });
     hubRemotePublishingEnabled = config:getAsBoolean("b7a.websub.hub.remotepublish",
                                                      default = remotePublishingEnabled but { () => false });
-    hubRemotePublishingMode = config:getAsString("b7a.websub.hub.remotepublish.mode",
-                                            default = remotePublishingMode but { () => REMOTE_PUBLISHING_MODE_DIRECT });
+
+    string remotePublishModeAsConfig =  config:getAsString("b7a.websub.hub.remotepublish.mode");
+    if (remotePublishModeAsConfig == "") {
+        hubRemotePublishMode = remotePublishMode but { () => PUBLISH_MODE_DIRECT };
+    } else {
+        if (REMOTE_PUBLISHING_MODE_FETCH.equalsIgnoreCase(remotePublishModeAsConfig)) {
+            hubRemotePublishMode = PUBLISH_MODE_FETCH;
+        } else if (!REMOTE_PUBLISHING_MODE_DIRECT.equalsIgnoreCase(remotePublishModeAsConfig)) {
+            log:printWarn("unknown publish mode: [" + remotePublishModeAsConfig + "], defaulting to direct mode");
+        }
+    }
+
     hubTopicRegistrationRequired = config:getAsBoolean("b7a.websub.hub.topicregistration",
                                                        default = topicRegistrationRequired but { () => true });
     hubSslEnabled = config:getAsBoolean("b7a.websub.hub.enablessl", default = sslEnabled but { () => true });
@@ -525,14 +547,12 @@ function WebSubHub::unregisterTopic(string topic) returns error? {
 # + response - The response being sent
 # + hubs - The hubs the publisher advertises as the hubs that it publishes updates to
 # + topic - The topic to which subscribers need to subscribe to, to receive updates for the resource
-# + return - `http:Response` Response with the link header added
-public function addWebSubLinkHeader(http:Response response, string[] hubs, string topic) returns http:Response {
+public function addWebSubLinkHeader(http:Response response, string[] hubs, string topic) {
     string hubLinkHeader = "";
     foreach hub in hubs {
         hubLinkHeader = hubLinkHeader + "<" + hub + ">; rel=\"hub\", ";
     }
     response.setHeader("Link", hubLinkHeader + "<" + topic + ">; rel=\"self\"");
-    return response;
 }
 
 # Struct to represent Subscription Details retrieved from the database.

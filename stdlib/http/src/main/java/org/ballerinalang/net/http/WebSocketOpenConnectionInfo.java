@@ -31,7 +31,7 @@ public class WebSocketOpenConnectionInfo {
     private final WebSocketService webSocketService;
     private final BMap<String, BValue> webSocketEndpoint;
     private final WebSocketConnection webSocketConnection;
-    private int closeStatusCode = -1;
+    private String aggregateString = "";
 
     public WebSocketOpenConnectionInfo(WebSocketService webSocketService, WebSocketConnection webSocketConnection,
                                        BMap<String, BValue> webSocketEndpoint) {
@@ -52,11 +52,15 @@ public class WebSocketOpenConnectionInfo {
         return webSocketConnection;
     }
 
-    public int getCloseStatusCode() {
-        return closeStatusCode;
+    String getAggregateString() {
+        return aggregateString;
     }
 
-    public void setCloseStatusCode(int closeStatusCode) {
-        this.closeStatusCode = closeStatusCode;
+    void appendAggregateString(String aggreageString) {
+        this.aggregateString += aggreageString;
+    }
+
+    void resetAggregateString() {
+        this.aggregateString = "";
     }
 }

@@ -105,6 +105,7 @@ This example demonstrates selecting data. First, a type is created to represent 
 type Student record {
     int id,
     string name,
+    int age,
 };
 
 // Select the data from the table.

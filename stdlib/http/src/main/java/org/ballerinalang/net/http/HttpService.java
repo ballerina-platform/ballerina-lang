@@ -42,6 +42,7 @@ import java.util.stream.Stream;
 import static org.ballerinalang.net.http.HttpConstants.AUTO;
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
+import static org.ballerinalang.net.http.HttpUtil.sanitizeBasePath;
 
 /**
  * {@code HttpService} This is the http wrapper for the {@code Service} implementation.
@@ -69,10 +70,6 @@ public class HttpService implements Cloneable {
     private boolean keepAlive = true; //default behavior
     private String compression = AUTO; //default behavior
     private String hostName;
-
-    public Service getBallerinaService() {
-        return balService;
-    }
 
     protected HttpService(Service service) {
         this.balService = service;
@@ -199,7 +196,7 @@ public class HttpService implements Cloneable {
             if (basePath.contains(HttpConstants.VERSION)) {
                 prepareBasePathList(serviceConfig.getStructField(VERSIONING_FIELD),
                                     serviceConfig.getStringField(BASE_PATH_FIELD), basePathList,
-                                    httpService.getBallerinaService().getPackageVersion());
+                                    httpService.getBalService().getPackageVersion());
             } else {
                 basePathList.add(basePath);
             }
@@ -207,7 +204,7 @@ public class HttpService implements Cloneable {
 
         List<HttpResource> httpResources = new ArrayList<>();
         List<HttpResource> upgradeToWebSocketResources = new ArrayList<>();
-        for (Resource resource : httpService.getBallerinaService().getResources()) {
+        for (Resource resource : httpService.getBalService().getResources()) {
             Annotation resourceConfigAnnotation =
                     HttpUtil.getResourceConfigAnnotation(resource, HttpConstants.HTTP_PACKAGE_PATH);
             if (resourceConfigAnnotation != null
@@ -306,24 +303,6 @@ public class HttpService implements Cloneable {
         }
 
         return annotationList.get(0);
-    }
-
-    private String sanitizeBasePath(String basePath) {
-        basePath = basePath.trim();
-
-        if (!basePath.startsWith(HttpConstants.DEFAULT_BASE_PATH)) {
-            basePath = HttpConstants.DEFAULT_BASE_PATH.concat(basePath);
-        }
-
-        if (basePath.endsWith(HttpConstants.DEFAULT_BASE_PATH) && basePath.length() != 1) {
-            basePath = basePath.substring(0, basePath.length() - 1);
-        }
-        //TODO Add proper basePath validation()
-        if (basePath.endsWith("*")) {
-            basePath = basePath.substring(0, basePath.length() - 1);
-        }
-
-        return basePath;
     }
 
     private String urlDecode(String basePath) {

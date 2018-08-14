@@ -297,7 +297,7 @@ public type SecureListenerActions object {
     # Sends an upgrade request with custom headers.
     #
     # + headers - A `map` of custom headers for handshake
-    public function acceptWebSocketUpgrade(map headers) returns WebSocketListener {
+    public function acceptWebSocketUpgrade(map<string> headers) returns WebSocketListener {
         return httpCallerActions.acceptWebSocketUpgrade(headers);
     }
 
