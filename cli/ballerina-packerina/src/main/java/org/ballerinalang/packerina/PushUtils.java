@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -66,7 +67,7 @@ public class PushUtils {
     private static final Path BALLERINA_HOME_PATH = RepoUtils.createAndGetHomeReposPath();
     private static final Path SETTINGS_TOML_FILE_PATH = BALLERINA_HOME_PATH.resolve(
             ProjectDirConstants.SETTINGS_FILE_NAME);
-    private static PrintStream outStream = System.err;
+    private static PrintStream outStream = System.out;
     private static EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
 
     /**
@@ -75,8 +76,9 @@ public class PushUtils {
      * @param packageName   path of the package folder to be pushed
      * @param sourceRoot    path to the directory containing source files and packages
      * @param installToRepo if it should be pushed to central or home
+     * @param build         true if build is required before push, else false
      */
-    public static void pushPackages(String packageName, String sourceRoot, String installToRepo) {
+    public static void pushPackages(String packageName, String sourceRoot, String installToRepo, boolean build) {
         Path prjDirPath = LauncherUtils.getSourceRootPath(sourceRoot);
         Manifest manifest = readManifestConfigurations(prjDirPath);
         if (manifest.getName().isEmpty()) {
@@ -98,8 +100,25 @@ public class PushUtils {
         Path pkgPathFromPrjtDir = Paths.get(prjDirPath.toString(), ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
                                             ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName,
                                             packageName, version, packageName + ".zip");
-        // Build the package
-        BuilderUtils.compileWithTestsAndWrite(prjDirPath, packageName, packageName, false, false, false, false);
+        if (build) {
+            // Build the package
+            BuilderUtils.compileWithTestsAndWrite(prjDirPath, packageName, packageName, false, false, false, false);
+        } else {
+            if (Files.notExists(pkgPathFromPrjtDir)) {
+                outStream.println("The artifact to be pushed does not exist. Run `ballerina build` to build the" +
+                                          "artifact before pushing or run `ballerina push --build` to build and push " +
+                                          "the artifact at once");
+                return;
+            } else {
+                outStream.print("The artifact to be pushed already exists. Push this artifact [yes/y, no/n]: (y) ");
+                Scanner scanner = new Scanner(System.in, Charset.defaultCharset().name());
+                String buildOnPush = scanner.nextLine().trim();
+
+                if (buildOnPush.equalsIgnoreCase("no") || buildOnPush.equalsIgnoreCase("n")) {
+                    return;
+                }
+            }
+        }
 
         if (installToRepo == null) {
             // Get access token
@@ -345,8 +364,9 @@ public class PushUtils {
      *
      * @param sourceRoot source root or project root
      * @param home       if it should be pushed to central or home
+     * @param build      true if build is required before push, else false
      */
-    public static void pushAllPackages(String sourceRoot, String home) {
+    public static void pushAllPackages(String sourceRoot, String home, boolean build) {
         Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
         try {
             List<String> fileList = Files.list(sourceRootPath)
@@ -357,7 +377,7 @@ public class PushUtils {
             if (fileList.size() == 0) {
                 throw new BLangCompilerException("no packages found to push in " + sourceRootPath.toString());
             }
-            fileList.forEach(path -> pushPackages(path, sourceRoot, home));
+            fileList.forEach(path -> pushPackages(path, sourceRoot, home, build));
         } catch (IOException ex) {
             throw new BLangCompilerException("error occurred when pushing packages from " + sourceRootPath.toString(),
                                              ex);
