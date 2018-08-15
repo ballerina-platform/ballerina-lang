@@ -67,7 +67,7 @@ public class FilterUtils {
             Map<Name, Scope.ScopeEntry> entries = new HashMap<>();
             PackageID pkgId = getPackageIDForBType(bType);
             String packageIDString = pkgId == null ? "" : pkgId.getName().getValue();
-            String bTypeValue = bType instanceof BUnionType ? getBTypeForUnionType(bType) : bType.toString();
+            BType modifiedBType = bType instanceof BUnionType ? getBTypeForUnionType((BUnionType) bType) : bType;
 
             // Extract the package symbol. This is used to extract the entries of the particular package
             SymbolInfo packageSymbolInfo = symbolInfos.stream().filter(item -> {
@@ -90,7 +90,7 @@ public class FilterUtils {
                 if (scopeEntry.symbol instanceof BInvokableSymbol && scopeEntry.symbol.owner != null) {
                     String symbolBoundedName = scopeEntry.symbol.owner.toString();
 
-                    if (symbolBoundedName.equals(bTypeValue)) {
+                    if (modifiedBType != null && symbolBoundedName.equals(modifiedBType.toString())) {
                         // TODO: Need to handle the name in a proper manner
                         String[] nameComponents = name.toString().split("\\.");
                         SymbolInfo actionFunctionSymbol =
@@ -100,7 +100,8 @@ public class FilterUtils {
                 } else if ((scopeEntry.symbol instanceof BTypeSymbol)
                         && (SymbolKind.OBJECT.equals(scopeEntry.symbol.kind)
                         || SymbolKind.RECORD.equals(scopeEntry.symbol.kind))
-                        && bTypeValue.equals(scopeEntry.symbol.type.toString())) {
+                        && modifiedBType != null
+                        && scopeEntry.symbol.type.toString().equals(modifiedBType.toString())) {
                     // Get the struct fields
                     Map<Name, Scope.ScopeEntry> fields = scopeEntry.symbol.scope.entries;
                     fields.forEach((fieldName, fieldScopeEntry) -> {
@@ -158,10 +159,14 @@ public class FilterUtils {
      */
     private static Map<Name, Scope.ScopeEntry> getScopeEntries(BType bType, List<SymbolInfo> symbolInfos) {
         HashMap<Name, Scope.ScopeEntry> returnMap = new HashMap<>();
+        BType modifiedBType = bType instanceof BUnionType ? getBTypeForUnionType((BUnionType) bType) : bType;
+        if (modifiedBType == null) {
+            return returnMap;
+        }
         symbolInfos.forEach(symbolInfo -> {
             if ((symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol 
                     && symbolInfo.getScopeEntry().symbol.getType() != null 
-                    && symbolInfo.getScopeEntry().symbol.getType().toString().equals(bType.toString())) 
+                    && symbolInfo.getScopeEntry().symbol.getType().toString().equals(modifiedBType.toString())) 
                     || symbolInfo.getScopeEntry().symbol instanceof BInvokableSymbol) {
                 returnMap.put(symbolInfo.getScopeEntry().symbol.getName(), symbolInfo.getScopeEntry());
             }
@@ -201,20 +206,17 @@ public class FilterUtils {
         return bType.tsymbol.pkgID;
     }
     
-    private static String getBTypeForUnionType(BType bType) {
-        if (!(bType instanceof BUnionType)) {
-            return "";
-        }
-        List<BType> memberTypeList = new ArrayList<>(((BUnionType) bType).getMemberTypes());
+    private static BType getBTypeForUnionType(BUnionType bType) {
+        List<BType> memberTypeList = new ArrayList<>(bType.getMemberTypes());
         memberTypeList.removeIf(type -> (type instanceof BRecordType
                 && ((BRecordType) type).tsymbol.getName().getValue().equals("error"))
                 || type instanceof BNilType);
 
         if (memberTypeList.size() == 1) {
-            return memberTypeList.get(0).toString();
+            return memberTypeList.get(0);
         }
         
-        return "";
+        return null;
     }
 
     private static List<SymbolInfo> loadActionsFunctionsAndTypesFromScope(Map<Name, Scope.ScopeEntry> entryMap) {

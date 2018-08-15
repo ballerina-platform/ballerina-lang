@@ -40,6 +40,7 @@ class BallerinaDebugSession extends LoggingDebugSession {
         this.debugManager.on('debug-hit', debugArgs => {
             const threadId = debugArgs.threadId || debugArgs.workerId;
             this.debugArgs[threadId] = debugArgs;
+            this.currentThreadId = threadId;
             if (!this.threadIndexes[threadId]) {
                 const index = this.threads.length + 1;
                 this.threads.push({
@@ -230,7 +231,7 @@ class BallerinaDebugSession extends LoggingDebugSession {
             scope = "Global";
             frameId = frameId - 1000;
         }
-        const frame = this.debugArgs.frames[frameId];
+        const frame = this.debugArgs[this.currentThreadId].frames[frameId];
         const varsInScope = frame.variables.filter(v => v.scope === scope);
         response.body = {
             variables: varsInScope.map(variable => ({

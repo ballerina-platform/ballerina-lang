@@ -145,6 +145,7 @@ class DebugManager extends EventChannel {
             this.debugHits = _.uniqBy(this.debugHits, (hit) => {
                 return hit.threadId;
             });
+            this.changeActiveDebugHit(message);
             this.trigger('debug-hit', message, this.debugHits);
         }
         if (message.code === 'COMPLETE' || message.code === 'EXIT') {

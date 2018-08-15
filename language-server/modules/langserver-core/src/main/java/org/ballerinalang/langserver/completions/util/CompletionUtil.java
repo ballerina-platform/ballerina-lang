@@ -19,6 +19,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.TreeVisitor;
@@ -30,8 +31,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.locks.Lock;
+
+import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
 /**
  * Common utility methods for the completion operation.
@@ -39,7 +40,7 @@ import java.util.concurrent.locks.Lock;
 public class CompletionUtil {
     /**
      * Resolve the visible symbols from the given BLang Package and the current context.
-     * 
+     *
      * @param completionContext     Completion Service Context
      */
     public static void resolveSymbols(LSServiceOperationContext completionContext) {
@@ -52,15 +53,14 @@ public class CompletionUtil {
 
     /**
      * Get the completion Items for the context.
-     * 
+     *
      * @param completionContext     Completion context
      * @return {@link List}         List of resolved completion Items
      */
     public static List<CompletionItem> getCompletionItems(LSServiceOperationContext completionContext) {
-        completionContext.put(CompletionKeys.CURRENT_LINE_SEGMENT_KEY, getSourceSegmentOfLine(completionContext));
-        BLangNode symbolEnvNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
-
         try {
+            completionContext.put(CompletionKeys.CURRENT_LINE_SEGMENT_KEY, getSourceSegmentOfLine(completionContext));
+            BLangNode symbolEnvNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
             return CompletionItemResolver.getResolverByClass(symbolEnvNode.getClass()).resolveItems(completionContext);
         } catch (Exception | AssertionError e) {
             return new ArrayList<>();
@@ -69,19 +69,18 @@ public class CompletionUtil {
 
     /**
      * From the source, extract the line segment for the current cursor position's line.
-     * 
+     *
      * @param context           Service Operation context
      * @return {@link String}   Extracted line segment
      */
-    private static String getSourceSegmentOfLine(LSServiceOperationContext context) {
+    private static String getSourceSegmentOfLine(LSServiceOperationContext context) throws WorkspaceDocumentException {
         TextDocumentPositionParams positionParams = context.get(DocumentServiceKeys.POSITION_KEY);
         WorkspaceDocumentManager documentManager = context.get(CompletionKeys.DOC_MANAGER_KEY);
         int line = positionParams.getPosition().getLine();
         String fileUri = positionParams.getTextDocument().getUri();
-        Path completionPath = CommonUtil.getPath(new LSDocument(fileUri));
-        Optional<Lock> lock = documentManager.lockFile(completionPath);
-        String fileContent = documentManager.getFileContent(completionPath);
-        lock.ifPresent(Lock::unlock);
+        Path completionPath = new LSDocument(fileUri).getPath();
+        Path compilationPath = getUntitledFilePath(completionPath.toString()).orElse(completionPath);
+        String fileContent = documentManager.getFileContent(compilationPath);
 
         String[] splitContent = fileContent.split(CommonUtil.LINE_SEPARATOR_SPLIT);
         if (splitContent.length < line) {
