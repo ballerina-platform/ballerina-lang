@@ -9,7 +9,7 @@ endpoint websub:Client websubHubClientEP {
 
 function main(string... args) {
     io:println("Starting up the Ballerina Hub Service");
-    websub:WebSubHub webSubHub = check websub:startUpBallerinaHub(port = 9696);
+    websub:WebSubHub webSubHub = check websub:startHub(9696);
     //Register a topic at the hub
     _ = webSubHub.registerTopic("http://www.websubpubtopic.com");
 

@@ -399,12 +399,12 @@ class BallerinaTextDocumentService implements TextDocumentService {
         return CompletableFuture.supplyAsync(() -> {
             String textEditContent = null;
             TextEdit textEdit = new TextEdit();
-            try {
-                LSServiceOperationContext formatContext = new LSServiceOperationContext();
-                formatContext.put(DocumentServiceKeys.FILE_URI_KEY, params.getTextDocument().getUri());
+            LSServiceOperationContext formatContext = new LSServiceOperationContext();
+            formatContext.put(DocumentServiceKeys.FILE_URI_KEY, params.getTextDocument().getUri());
 
-                LSDocument document = new LSDocument(params.getTextDocument().getUri());
-                Optional<Lock> lock = documentManager.lockFile(CommonUtil.getPath(document));
+            LSDocument document = new LSDocument(params.getTextDocument().getUri());
+            Optional<Lock> lock = documentManager.lockFile(CommonUtil.getPath(document));
+            try {
                 String fileContent = documentManager.getFileContent(CommonUtil.getPath(document));
                 String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
                 int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
@@ -421,7 +421,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 formattingUtil.accept(ast.getAsJsonObject("model"));
                 textEditContent = sourceGen.getSourceOf(ast.getAsJsonObject("model"), false, false);
                 textEdit = new TextEdit(range, textEditContent);
-                lock.ifPresent(Lock::unlock);
                 return Collections.singletonList(textEdit);
             } catch (Exception e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
@@ -429,6 +428,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     logger.error("Error while formatting" + ((msg != null) ? ": " + msg : ""), e);
                 }
                 return Collections.singletonList(textEdit);
+            } finally {
+                lock.ifPresent(Lock::unlock);
             }
         });
     }
@@ -547,7 +548,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
         if (tempFileId != null) {
             compilationPath = LSCompiler.createAndGetTempFile(tempFileId);
         }
-        balFile = LSCompiler.compileContent(content, compilationPath, CompilerPhase.TAINT_ANALYZE, documentManager,
+        balFile = LSCompiler.compileContent(content, compilationPath, CompilerPhase.COMPILER_PLUGIN, documentManager,
                 true);
         if (balFile.getDiagnostics() != null) {
             balDiagnostics = balFile.getDiagnostics();

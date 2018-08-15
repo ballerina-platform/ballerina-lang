@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 
 package org.ballerinalang.util.debugger;
 
@@ -29,6 +29,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.codegen.LineNumberInfo;
+import org.ballerinalang.util.codegen.PackageVarInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.LocalVariableAttributeInfo;
@@ -59,6 +60,10 @@ public class Debugger {
     private DebugInfoHolder debugInfoHolder;
 
     private volatile Semaphore executionSem;
+
+    private static final String META_DATA_VAR_PATTERN = "$";
+    private static final String GLOBAL = "Global";
+    private static final String LOCAL = "Local";
 
     public Debugger(ProgramFile programFile) {
         this.programFile = programFile;
@@ -110,9 +115,10 @@ public class Debugger {
 
     /**
      * Helper method to get line number for given ip.
-     * @param packagePath   Executing package.
-     * @param ip            Instruction pointer.
-     * @return  line number.
+     *
+     * @param packagePath Executing package.
+     * @param ip          Instruction pointer.
+     * @return line number.
      */
     public LineNumberInfo getLineNumber(String packagePath, int ip) {
         return this.debugInfoHolder.getLineNumber(packagePath, ip);
@@ -287,9 +293,9 @@ public class Debugger {
     /**
      * Send a message to the debug client when a breakpoint is hit.
      *
-     * @param ctx               Current context.
-     * @param currentExecLine   Current execution line.
-     * @param workerId          Current thread id.
+     * @param ctx             Current context.
+     * @param currentExecLine Current execution line.
+     * @param workerId        Current thread id.
      */
     public void notifyDebugHit(WorkerExecutionContext ctx, LineNumberInfo currentExecLine, String workerId) {
         MessageDTO message = generateDebugHitMessage(ctx, currentExecLine, workerId);
@@ -319,13 +325,13 @@ public class Debugger {
     /**
      * Generate debug hit message.
      *
-     * @param ctx               Current context.
-     * @param currentExecLine   Current execution line.
-     * @param workerId          Current thread id.
-     * @return  message         To be sent.
+     * @param ctx             Current context.
+     * @param currentExecLine Current execution line.
+     * @param workerId        Current thread id.
+     * @return message         To be sent.
      */
-    private MessageDTO generateDebugHitMessage(WorkerExecutionContext ctx, LineNumberInfo currentExecLine, 
-            String workerId) {
+    private MessageDTO generateDebugHitMessage(WorkerExecutionContext ctx, LineNumberInfo currentExecLine,
+                                               String workerId) {
         MessageDTO message = new MessageDTO(DebugConstants.CODE_HIT, DebugConstants.MSG_HIT);
         message.setThreadId(workerId);
 
@@ -342,11 +348,49 @@ public class Debugger {
         FrameDTO frameDTO = new FrameDTO(pck, functionName, callingLine.getFileName(),
                 callingLine.getLineNumber());
         message.addFrame(frameDTO);
-        LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) ctx.workerInfo
-                .getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
+
+        int pkgIndex = ctx.callableUnitInfo.getPackageInfo().pkgIndex;
+
+        PackageVarInfo[] packageVarInfoEntries = ctx.programFile.getPackageInfo(ctx.programFile.getEntryPkgName()).
+                getPackageInfoEntries();
+        for (PackageVarInfo packVarInfo : packageVarInfoEntries) {
+            if (!packVarInfo.getName().startsWith(META_DATA_VAR_PATTERN)) {
+                VariableDTO variableDTO = new VariableDTO(packVarInfo.getName(), GLOBAL);
+                switch (packVarInfo.getType().getTag()) {
+                    case TypeTags.INT_TAG:
+                        variableDTO.setBValue(new BInteger(programFile.globalMemArea.getIntField(pkgIndex,
+                                packVarInfo.getGlobalMemIndex())));
+                        break;
+                    case TypeTags.BYTE_TAG:
+                        variableDTO.setBValue(new BByte((byte) (programFile.globalMemArea.getBooleanField(pkgIndex,
+                                packVarInfo.getGlobalMemIndex()))));
+                        break;
+                    case TypeTags.FLOAT_TAG:
+                        variableDTO.setBValue(new BFloat(programFile.globalMemArea.getFloatField(pkgIndex,
+                                packVarInfo.getGlobalMemIndex())));
+                        break;
+                    case TypeTags.STRING_TAG:
+                        variableDTO.setBValue(new BString(programFile.globalMemArea.getStringField(pkgIndex,
+                                packVarInfo.getGlobalMemIndex())));
+                        break;
+                    case TypeTags.BOOLEAN_TAG:
+                        variableDTO.setBValue(new BBoolean(programFile.globalMemArea.getBooleanField(pkgIndex,
+                                packVarInfo.getGlobalMemIndex()) == 1));
+                        break;
+                    default:
+                        variableDTO.setBValue(programFile.globalMemArea.getRefField(pkgIndex,
+                                packVarInfo.getGlobalMemIndex()));
+                        break;
+                }
+                frameDTO.addVariable(variableDTO);
+            }
+        }
+
+        LocalVariableAttributeInfo localVarAttrInfo = (LocalVariableAttributeInfo) ctx.workerInfo.
+                getAttributeInfo(AttributeInfo.Kind.LOCAL_VARIABLES_ATTRIBUTE);
 
         localVarAttrInfo.getLocalVariables().forEach(l -> {
-            VariableDTO variableDTO = new VariableDTO(l.getVariableName(), "Local");
+            VariableDTO variableDTO = new VariableDTO(l.getVariableName(), LOCAL);
             switch (l.getVariableType().getTag()) {
                 case TypeTags.INT_TAG:
                     variableDTO.setBValue(new BInteger(ctx.workerLocal.longRegs[l.getVariableIndex()]));

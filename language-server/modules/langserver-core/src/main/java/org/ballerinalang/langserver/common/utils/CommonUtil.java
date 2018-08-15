@@ -41,6 +41,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -85,6 +87,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.function.Predicate;
 
 /**
  * Common utils to be reuse in language server implementation.
@@ -641,6 +644,34 @@ public class CommonUtil {
         }
     }
 
+    /**
+     * Check whether the symbol is a valid invokable symbol.
+     *
+     * @param symbol            Symbol to be evaluated
+     * @return {@link Boolean}  valid status
+     */
+    public static boolean isValidInvokableSymbol(BSymbol symbol) {
+        if (!(symbol instanceof BInvokableSymbol)) {
+            return false;
+        }
+
+        BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) symbol;
+        return ((bInvokableSymbol.kind == null
+                && (SymbolKind.RECORD.equals(bInvokableSymbol.owner.kind)
+                || SymbolKind.FUNCTION.equals(bInvokableSymbol.owner.kind)))
+                || SymbolKind.FUNCTION.equals(bInvokableSymbol.kind));
+    }
+    
+    public static boolean isInvalidSymbol(BSymbol symbol) {
+        return ("_".equals(symbol.name.getValue())
+                || "runtime".equals(symbol.getName().getValue())
+                || "transactions".equals(symbol.getName().getValue())
+                || symbol instanceof BAnnotationSymbol
+                || symbol instanceof BServiceSymbol
+                || symbol instanceof BOperatorSymbol
+                || symbolContainsInvalidChars(symbol));
+    }
+
     // Private Methods
 
     private static void fillForeachIterableOperation(BType bType, List<SymbolInfo> symbolInfoList) {
@@ -747,6 +778,28 @@ public class CommonUtil {
         return params;
     }
 
+    private static boolean symbolContainsInvalidChars(BSymbol bSymbol) {
+        return bSymbol.getName().getValue().contains(UtilSymbolKeys.LT_SYMBOL_KEY)
+                || bSymbol.getName().getValue().contains(UtilSymbolKeys.GT_SYMBOL_KEY)
+                || bSymbol.getName().getValue().contains(UtilSymbolKeys.DOLLAR_SYMBOL_KEY)
+                || bSymbol.getName().getValue().equals("main");
+    }
+
+    ///////////////////////////////
+    /////      Predicates     /////
+    ///////////////////////////////
+
+    /**
+     * Predicate to check for the invalid symbols.
+     *
+     * @return {@link Predicate}    Predicate for the check
+     */
+    public static Predicate<SymbolInfo> invalidSymbolsPredicate() {
+        return symbolInfo -> !symbolInfo.isIterableOperation()
+                && symbolInfo.getScopeEntry() != null
+                && isInvalidSymbol(symbolInfo.getScopeEntry().symbol);
+    }
+
     /**
      * Inner class for generating function code.
      */
@@ -756,6 +809,7 @@ public class CommonUtil {
          * Generate function code.
          *
          * @param name                  function name
+         * @param args                  Function arguments                             
          * @param returnType            return type
          * @param returnDefaultValue    default return value
          * @return {@link String}       generated function signature

@@ -53,6 +53,8 @@ public class ItemResolverConstants {
     public static final String FUNCTION_SIGNATURE = "function signature";
     public static final String MAIN_FUNCTION = "main function";
     public static final String SERVICE = "service";
+    public static final String SERVICE_WEBSOCKET = "service/webSocket";
+    public static final String SERVICE_WEBSUB = "service/webSub";
     public static final String ANNOTATION = "annotation";
     public static final String XMLNS = "xmlns";
     public static final String RESOURCE = "resource";

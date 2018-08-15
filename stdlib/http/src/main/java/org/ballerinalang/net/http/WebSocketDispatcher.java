@@ -25,17 +25,28 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.mime.util.MimeConstants;
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.util.JSONUtils;
+import org.ballerinalang.model.util.JsonParser;
+import org.ballerinalang.model.util.XMLNodeType;
+import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
@@ -43,11 +54,12 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketHandshaker;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,25 +74,28 @@ public class WebSocketDispatcher {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketDispatcher.class);
 
+    private WebSocketDispatcher() {
+    }
+
     /**
      * This will find the best matching service for given web socket request.
      *
-     * @param webSocketMessage incoming message.
+     * @param webSocketHandshaker incoming message.
      * @return matching service.
      */
     static WebSocketService findService(WebSocketServicesRegistry servicesRegistry,
-                                        WebSocketInitMessage webSocketMessage) {
+                                        WebSocketHandshaker webSocketHandshaker) {
         try {
             Map<String, String> pathParams = new HashMap<>();
-            String serviceUri = webSocketMessage.getTarget();
+            String serviceUri = webSocketHandshaker.getTarget();
             serviceUri = WebSocketUtil.refactorUri(serviceUri);
             URI requestUri = URI.create(serviceUri);
             WebSocketService service = servicesRegistry.getUriTemplate().matches(requestUri.getPath(), pathParams,
-                                                                                 webSocketMessage);
+                                                                                 webSocketHandshaker);
             if (service == null) {
                 throw new BallerinaConnectorException("no Service found to handle the service request: " + serviceUri);
             }
-            HttpCarbonMessage msg = webSocketMessage.getHttpCarbonRequest();
+            HttpCarbonMessage msg = webSocketHandshaker.getHttpCarbonRequest();
             msg.setProperty(HttpConstants.QUERY_STR, requestUri.getRawQuery());
             msg.setProperty(HttpConstants.RESOURCE_ARGS, pathParams);
             return service;
@@ -88,7 +103,7 @@ public class WebSocketDispatcher {
             throw new BallerinaConnectorException(e.getMessage());
         } catch (Exception e) {
             String message = "No Service found to handle the service request";
-            webSocketMessage.cancelHandshake(404, message);
+            webSocketHandshaker.cancelHandshake(404, message);
             throw new BallerinaConnectorException(message, e);
         }
     }
@@ -105,12 +120,78 @@ public class WebSocketDispatcher {
         List<ParamDetail> paramDetails = onTextMessageResource.getParamDetails();
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
-        bValues[1] = new BString(textMessage.getText());
-        if (paramDetails.size() == 3) {
-            bValues[2] = new BBoolean(textMessage.isFinalFragment());
+        boolean finalFragment = textMessage.isFinalFragment();
+        BType dataType = paramDetails.get(1).getVarType();
+        int dataTypeTag = dataType.getTag();
+        if (dataTypeTag == TypeTags.STRING_TAG) {
+            bValues[1] = new BString(textMessage.getText());
+            if (paramDetails.size() == 3) {
+                bValues[2] = new BBoolean(textMessage.isFinalFragment());
+            }
+            Executor.submit(onTextMessageResource, new WebSocketResourceCallableUnitCallback(webSocketConnection),
+                            null, null, bValues);
+        } else if (dataTypeTag == TypeTags.JSON_TAG || dataTypeTag == TypeTags.RECORD_TYPE_TAG ||
+                dataTypeTag == TypeTags.XML_TAG || dataTypeTag == TypeTags.ARRAY_TAG) {
+            if (finalFragment) {
+                connectionInfo.appendAggregateString(textMessage.getText());
+                dispatchReourceWithAggregatedData(webSocketConnection, onTextMessageResource, bValues, dataType,
+                                                  connectionInfo.getAggregateString());
+                connectionInfo.resetAggregateString();
+            } else {
+                connectionInfo.appendAggregateString(textMessage.getText());
+                webSocketConnection.readNextFrame();
+            }
+
+        } else {
+            //Throw an exception because a different type is invalid.
+            //Cannot reach here because of compiler plugin validation.
+            throw new BallerinaConnectorException("Invalid resource signature.");
         }
-        Executor.submit(onTextMessageResource, new WebSocketResourceCallableUnitCallback(webSocketConnection), null,
-                        null, bValues);
+    }
+
+    private static void dispatchReourceWithAggregatedData(WebSocketConnection webSocketConnection,
+                                                          Resource onTextMessageResource, BValue[] bValues,
+                                                          BType dataType, String aggregateString) {
+        try {
+            switch (dataType.getTag()) {
+                case TypeTags.JSON_TAG:
+                    bValues[1] = JsonParser.parse(aggregateString);
+                    break;
+                case TypeTags.XML_TAG:
+                    BXML bxml = XMLUtils.parse(aggregateString);
+                    if (bxml.getNodeType() != XMLNodeType.ELEMENT) {
+                        throw new BallerinaException("Invalid XML data");
+                    }
+                    bValues[1] = bxml;
+                    break;
+                case TypeTags.RECORD_TYPE_TAG:
+                    bValues[1] = JSONUtils.convertJSONToStruct(JsonParser.parse(aggregateString),
+                                                               (BStructureType) dataType);
+                    break;
+                case TypeTags.ARRAY_TAG:
+                    if (((BArrayType) dataType).getElementType().getTag() == TypeTags.BYTE_TAG) {
+                        bValues[1] = new BByteArray(
+                                aggregateString.getBytes(Charset.forName(MimeConstants.UTF_8)));
+                    } else {
+                        //Cannot reach here because of compiler validation
+                        throw new BallerinaException("Incompatible Element type found inside an array " +
+                                                             ((BArrayType) dataType).getElementType()
+                                                                     .getName());
+                    }
+                    break;
+                default:
+                    //Throw an exception because a different type is invalid.
+                    //Cannot reach here because of compiler plugin validation.
+                    throw new BallerinaConnectorException("Invalid resource signature.");
+
+            }
+            Executor.submit(onTextMessageResource,
+                            new WebSocketResourceCallableUnitCallback(webSocketConnection),
+                            null, null, bValues);
+        } catch (BallerinaException ex) {
+            webSocketConnection.terminateConnection(1003, ex.getMessage());
+            throw ex;
+        }
     }
 
     static void dispatchBinaryMessage(WebSocketOpenConnectionInfo connectionInfo,
@@ -297,8 +378,5 @@ public class WebSocketDispatcher {
             }
             webSocketConnection.readNextFrame();
         });
-    }
-
-    private WebSocketDispatcher() {
     }
 }

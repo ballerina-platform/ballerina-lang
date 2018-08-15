@@ -136,7 +136,10 @@ public class SQLActionsTest {
     public void testGeneratedKeyOnInsertEmptyResults() {
         BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyOnInsertEmptyResults", connectionArgs);
         BInteger retValue = (BInteger) returns[0];
-        Assert.assertEquals(retValue.intValue(), 0);
+
+        // Postgres returns all columns when there is no returning clause
+        int columnCount = (dbType == POSTGRES) ? 5 : 0;
+        Assert.assertEquals(retValue.intValue(), columnCount);
     }
 
     @Test(groups = CONNECTOR_TEST)
@@ -636,7 +639,7 @@ public class SQLActionsTest {
         Assert.assertNull(returns[3].stringValue());
     }
 
-    @Test(groups = {CONNECTOR_TEST, MYSQL_NOT_SUPPORTED, H2_NOT_SUPPORTED})
+    @Test(groups = {CONNECTOR_TEST, MYSQL_NOT_SUPPORTED, H2_NOT_SUPPORTED, POSTGRES_NOT_SUPPORTED})
     public void testStructOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testStructOutParameters", connectionArgs);
         BString retValue = (BString) returns[0];
@@ -748,9 +751,7 @@ public class SQLActionsTest {
         if (dbType == MYSQL) {
             errorMessage = "execute update failed: Duplicate entry '1' for key 'PRIMARY'";
         } else if (dbType == POSTGRES) {
-            errorMessage = "{message:\"execute update failed: ERROR: duplicate key value violates unique constraint "
-                    + "\"employeeaddnegative_pkey\"\n"
-                    + "  Detail: Key (id)=(1) already exists.\", cause:null}";
+            errorMessage = "execute update failed: ERROR: duplicate key value violates unique constraint";
         } else if (dbType == H2) {
             errorMessage = "execute update failed: Unique index or primary key violation: \"PRIMARY KEY ON"
                     + " PUBLIC.EMPLOYEEADDNEGATIVE(ID)";

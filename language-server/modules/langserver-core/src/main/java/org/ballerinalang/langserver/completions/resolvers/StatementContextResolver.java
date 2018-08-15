@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.completions.resolvers;
 
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -70,7 +71,7 @@ public class StatementContextResolver extends AbstractItemResolver {
             // Statement Template filter always populates the left of Either
             completionItems.addAll(itemList.getLeft());
             List<SymbolInfo> filteredList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
-            filteredList.removeIf(this.invalidSymbolsPredicate());
+            filteredList.removeIf(CommonUtil.invalidSymbolsPredicate());
             filteredList.removeIf(symbolInfo -> {
                 BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
                 return bSymbol instanceof BInvokableSymbol && ((bSymbol.flags & Flags.ATTACHED) == Flags.ATTACHED);

@@ -66,12 +66,14 @@ documentation {
     F{{serviceUri}} The URL of the remote HTTP endpoint
     F{{config}} The configurations of the client endpoint associated with this `Failover` instance
     F{{failoverInferredConfig}} Configurations derived from `FailoverConfig`
+    F{{succeededEndpointIndex}} Index of the `CallerActions[]` array which given a successful response
 }
 public type FailoverActions object {
 
     public string serviceUri;
     public ClientEndpointConfig config;
     public FailoverInferredConfig failoverInferredConfig;
+    public int succeededEndpointIndex;
 
     documentation {
         Failover caller actions which provides failover capabilities to an HTTP client endpoint.
@@ -238,53 +240,53 @@ public type FailoverActions object {
 function FailoverActions::post(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                     message) returns Response|error {
     Request req = buildRequest(message);
-    return performFailoverAction(path, req, HTTP_POST, self.failoverInferredConfig);
+    return performFailoverAction(path, req, HTTP_POST, self);
 }
 
 function FailoverActions::head(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                     message = ()) returns Response|error {
     Request req = buildRequest(message);
-    return performFailoverAction(path, req, HTTP_HEAD, self.failoverInferredConfig);
+    return performFailoverAction(path, req, HTTP_HEAD, self);
 }
 
 function FailoverActions::patch(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
     Request req = buildRequest(message);
-    return performFailoverAction(path, req, HTTP_PATCH, self.failoverInferredConfig);
+    return performFailoverAction(path, req, HTTP_PATCH, self);
 }
 
 function FailoverActions::put(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                     message) returns Response|error {
     Request req = buildRequest(message);
-    return performFailoverAction(path, req, HTTP_PUT, self.failoverInferredConfig);
+    return performFailoverAction(path, req, HTTP_PUT, self);
 }
 
 function FailoverActions::options(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                         message = ()) returns Response|error {
     Request req = buildRequest(message);
-    return performFailoverAction(path, req, HTTP_OPTIONS, self.failoverInferredConfig);
+    return performFailoverAction(path, req, HTTP_OPTIONS, self);
 }
 
 function FailoverActions::forward(string path, Request request) returns Response|error {
-    return performFailoverAction(path, request, HTTP_FORWARD, self.failoverInferredConfig);
+    return performFailoverAction(path, request, HTTP_FORWARD, self);
 }
 
 function FailoverActions::execute(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel
                                                                 |mime:Entity[]|() message) returns Response|error {
     Request req = buildRequest(message);
-    return performExecuteAction(path, req, httpVerb, self.failoverInferredConfig);
+    return performExecuteAction(path, req, httpVerb, self);
 }
 
 function FailoverActions::delete(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
     Request req = buildRequest(message);
-    return performFailoverAction(path, req, HTTP_DELETE, self.failoverInferredConfig);
+    return performFailoverAction(path, req, HTTP_DELETE, self);
 }
 
 function FailoverActions::get(string path, Request|string|xml|json|byte[]|io:ByteChannel|mime:Entity[]|()
                                                     message = ()) returns Response|error {
     Request req = buildRequest(message);
-    return performFailoverAction(path, req, HTTP_GET, self.failoverInferredConfig);
+    return performFailoverAction(path, req, HTTP_GET, self);
 }
 
 function FailoverActions::submit(string httpVerb, string path, Request|string|xml|json|byte[]|io:ByteChannel
@@ -318,25 +320,27 @@ function FailoverActions::rejectPromise(PushPromise promise) {
 // Performs execute action of the Failover connector. extract the corresponding http integer value representation
 // of the http verb and invokes the perform action method.
 function performExecuteAction (string path, Request request, string httpVerb,
-                               FailoverInferredConfig failoverInferredConfig) returns Response|error {
+                                    FailoverActions failoverActions) returns Response|error {
     HttpOperation connectorAction = extractHttpOperation(httpVerb);
-    return performFailoverAction(path, request, connectorAction, failoverInferredConfig);
+    return performFailoverAction(path, request, connectorAction, failoverActions);
 }
 
 // Handles all the actions exposed through the Failover connector.
 function performFailoverAction (string path, Request request, HttpOperation requestAction,
-                                FailoverInferredConfig failoverInferredConfig) returns Response|error {
+                                                FailoverActions failoverActions) returns Response|error {
+    FailoverInferredConfig failoverInferredConfig = failoverActions.failoverInferredConfig;
     boolean[] failoverCodeIndex = failoverInferredConfig.failoverCodesIndex;
     int noOfEndpoints = lengthof (failoverInferredConfig.failoverClientsArray);
-    int currentIndex = 0;
-    int initialIndex = 0;
+    // currentIndex and initialIndex are need to set to last succeeded endpoint index to start failover with
+    // the endpoint which gave the expected results.
+    int currentIndex = failoverActions.succeededEndpointIndex;
+    int initialIndex = failoverActions.succeededEndpointIndex;
     int startIndex = -1;
     int failoverInterval = failoverInferredConfig.failoverInterval;
 
-    //TODO: workaround to initialize a type inside a function. Change this once fix is aailable.
-    FailoverActionError failoverActionErr = {};
+    FailoverActionError failoverActionErr;
     CallerActions[] failoverClients = failoverInferredConfig.failoverClientsArray;
-    CallerActions failoverClient = failoverClients[currentIndex];
+    CallerActions failoverClient = failoverClients[failoverActions.succeededEndpointIndex];
     Response inResponse = new;
     Request failoverRequest = request;
     failoverActionErr.httpActionErr = [];
@@ -358,32 +362,89 @@ function performFailoverAction (string path, Request request, HttpOperation requ
             Response response => {
                 inResponse = response;
                 int httpStatusCode = response.statusCode;
+                // Check whether HTTP status code of the response falls into configued `failoverCodes`
                 if (failoverCodeIndex[httpStatusCode] == true) {
-                    if (noOfEndpoints > currentIndex) {
-                        failoverRequest = createFailoverRequest(failoverRequest, requestEntity);
-                        runtime:sleep(failoverInterval);
-                        failoverClient = failoverClients[currentIndex];
-                        populateFailoverErrorHttpStatusCodes(inResponse, failoverActionErr, currentIndex - 1);
+                    // If the initialIndex == DEFAULT_FAILOVER_EP_STARTING_INDEX check successful, that means the first
+                    // endpoint configured in the failover endpoints gave the response where its HTTP status code
+                    // falls into configued `failoverCodes`
+                    if (initialIndex == DEFAULT_FAILOVER_EP_STARTING_INDEX) {
+                        if (noOfEndpoints > currentIndex) {
+                            // If the execution lands here, that means there are endpoints that haven't tried out by
+                            // failover endpoint. Hence response will be collected to generate final response.
+                            populateFailoverErrorHttpStatusCodes(inResponse, failoverActionErr, currentIndex - 1);
+                        } else {
+                            // If the execution lands here, that means all the endpoints has been tried out and final
+                            // endpoint gave the response where its HTTP status code falls into configued
+                            // `failoverCodes`. Therefore appropriate error message needs to be generated and should
+                            // return it to the client.
+                            return populateErrorsFromLastResponse(inResponse, failoverActionErr, currentIndex - 1);
+                        }
                     } else {
-                        return populateErrorsFromLastResponse(inResponse, failoverActionErr, currentIndex - 1);
+                        // If execution reaches here, that means failover has not started with the default starting index.
+                        // Failover resumed from the last succeeded endpoint.
+                        if (initialIndex == currentIndex) {
+                            // If the execution lands here, that means all the endpoints has been tried out and final
+                            // endpoint gives the response where its HTTP status code falls into configued
+                            // `failoverCodes`. Therefore appropriate error message needs to be generated and should
+                            // return it to the client.
+                            return populateErrorsFromLastResponse(inResponse, failoverActionErr, currentIndex - 1);
+                        } else if (noOfEndpoints == currentIndex) {
+                            // If the execution lands here, that means the last endpoint has been tried out and
+                            // endpoint gave a response where its HTTP status code falls into configued
+                            // `failoverCodes`. Since failover resumed from the last succeeded endpoint we nned try out
+                            // remaining endpoints. Therefore currentIndex need to be reset.
+                            populateFailoverErrorHttpStatusCodes(inResponse, failoverActionErr, currentIndex - 1);
+                            currentIndex = DEFAULT_FAILOVER_EP_STARTING_INDEX;
+                        } else if (noOfEndpoints > currentIndex) {
+                            // Collect the response to generate final response.
+                            populateFailoverErrorHttpStatusCodes(inResponse, failoverActionErr, currentIndex - 1);
+                        }
                     }
                 } else {
-                    currentIndex = noOfEndpoints;
+                    // If the execution reaches here, that means the first endpoint configured in the failover endpoints
+                    // gives the expected response.
+                    failoverActions.succeededEndpointIndex = currentIndex - 1;
                     break;
                 }
             }
             error httpConnectorErr => {
-                failoverRequest = createFailoverRequest(failoverRequest, requestEntity);
-                if (noOfEndpoints > currentIndex) {
-                    runtime:sleep(failoverInterval);
-                    failoverActionErr.httpActionErr[currentIndex - 1] = httpConnectorErr;
-                    failoverClient = failoverClients[currentIndex];
+                // If the initialIndex == DEFAULT_FAILOVER_EP_STARTING_INDEX check successful, that means the first
+                // endpoint configured in the failover endpoints gave the errornous response.
+                if (initialIndex == DEFAULT_FAILOVER_EP_STARTING_INDEX) {
+                    if (noOfEndpoints > currentIndex) {
+                        // If the execution lands here, that means there are endpoints that haven't tried out by
+                        // failover endpoint. Hence error will be collected to generate final response.
+                        failoverActionErr.httpActionErr[currentIndex - 1] = httpConnectorErr;
+                    } else {
+                        // If the execution lands here, that means all the endpoints has been tried out and final
+                        // endpoint gave an errornous response. Therefore appropriate error message needs to be
+                        //  generated and should return it to the client.
+                        return populateGenericFailoverActionError(failoverActionErr, httpConnectorErr, currentIndex - 1);
+                    }
                 } else {
-                    return populateGenericFailoverActionError(failoverActionErr, httpConnectorErr, currentIndex - 1);
+                    // If execution reaches here, that means failover has not started with the default starting index.
+                    // Failover resumed from the last succeeded endpoint.
+                    if (initialIndex == currentIndex) {
+                        // If the execution lands here, that means all the endpoints has been tried out and final
+                        // endpoint gave an errornous response. Therefore appropriate error message needs to be
+                        //  generated and should return it to the client.
+                        return populateGenericFailoverActionError(failoverActionErr, httpConnectorErr, currentIndex - 1);
+                    } else if (noOfEndpoints == currentIndex) {
+                        // If the execution lands here, that means the last endpoint has been tried out and endpoint gave
+                        // a errornous response. Since failover resumed from the last succeeded endpoint we need try out
+                        // remaining endpoints. Therefore currentIndex need to be reset.
+                        failoverActionErr.httpActionErr[currentIndex - 1] = httpConnectorErr;
+                        currentIndex = DEFAULT_FAILOVER_EP_STARTING_INDEX;
+                    } else if (noOfEndpoints > currentIndex) {
+                        // Collect the error to generate final response.
+                        failoverActionErr.httpActionErr[currentIndex - 1] = httpConnectorErr;
+                    }
                 }
             }
-
         }
+        failoverRequest = createFailoverRequest(failoverRequest, requestEntity);
+        runtime:sleep(failoverInterval);
+        failoverClient = failoverClients[currentIndex];
     }
     return inResponse;
 }
