@@ -34,7 +34,7 @@ import java.util.ArrayList;
 /**
  * This implements @{@link JsonSerializer} to serialize and deserialize @{@link ArrayList} objects.
  *
- * @since 0.976.0
+ * @since 0.981.1
  */
 public class ArrayListAdapter implements JsonSerializer<ArrayList<Object>>, JsonDeserializer<ArrayList<Object>> {
 

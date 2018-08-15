@@ -37,7 +37,7 @@ import java.util.HashMap;
  *
  * @param <K> Key
  * @param <V> Value
- * @since 0.976.0
+ * @since 0.981.1
  */
 public class SerializableBMap<K, V extends BValue> implements SerializableRefType {
 

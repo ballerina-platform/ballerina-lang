@@ -25,7 +25,7 @@ import java.util.ArrayList;
 /**
  * This class represents a serializable Ballerina worker data.
  *
- * @since 0.976.0
+ * @since 0.981.1
  */
 public class SerializableWorkerData {
 

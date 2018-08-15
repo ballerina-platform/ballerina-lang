@@ -34,7 +34,7 @@ import java.lang.reflect.Type;
 /**
  * This implements @{@link JsonSerializer} to serialize and deserialize @{@link BRefType} objects.
  *
- * @since 0.976.0
+ * @since 0.981.1
  */
 public class RefTypeAdaptor implements JsonSerializer<SerializableRefType>, JsonDeserializer<SerializableRefType> {
     @Override

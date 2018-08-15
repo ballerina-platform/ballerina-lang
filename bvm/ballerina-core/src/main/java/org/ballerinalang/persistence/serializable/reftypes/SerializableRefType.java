@@ -25,7 +25,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 /**
  * Interface which is used to represent the serializable @{@link BRefType}.
  *
- * @since 0.976.0
+ * @since 0.981.1
  */
 public interface SerializableRefType {
     BRefType getBRefType(ProgramFile programFile, SerializableState state, Deserializer deserializer);

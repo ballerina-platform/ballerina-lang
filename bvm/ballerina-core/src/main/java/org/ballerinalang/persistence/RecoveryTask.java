@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * This is used to recover persisted states during startup.
  *
- * @since 0.976.0
+ * @since 0.981.1
  */
 public class RecoveryTask implements Runnable {
 

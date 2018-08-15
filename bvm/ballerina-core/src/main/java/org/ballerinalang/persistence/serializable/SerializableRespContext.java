@@ -25,7 +25,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 /**
  * This class represents a serializable Ballerina response context.
  *
- * @since 0.976.0
+ * @since 0.981.1
  */
 public class SerializableRespContext {
 

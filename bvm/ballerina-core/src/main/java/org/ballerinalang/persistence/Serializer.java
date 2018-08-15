@@ -36,7 +36,7 @@ import java.util.List;
 /**
  * Class manages the serialization functionality.
  *
- * @since 0.976.0
+ * @since 0.981.1
  */
 public class Serializer {
 

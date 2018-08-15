@@ -36,7 +36,7 @@ import java.util.stream.Stream;
 /**
  * This class implements @{@link StorageProvider} for persist @{@link State}s as files.
  *
- * @since 0.976.0
+ * @since 0.981.1
  */
 public class FileStorageProvider implements StorageProvider {
 

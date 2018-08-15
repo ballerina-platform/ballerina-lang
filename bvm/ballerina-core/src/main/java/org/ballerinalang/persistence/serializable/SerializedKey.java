@@ -20,7 +20,7 @@ package org.ballerinalang.persistence.serializable;
 /**
  * This class is a representation of serialized data key.
  *
- * @since 0.976.0
+ * @since 0.981.1
  */
 public class SerializedKey {
 

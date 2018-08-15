@@ -22,7 +22,7 @@ import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 /**
  * Represents execution state for given @{@link WorkerExecutionContext}.
  *
- * @since 0.976.0
+ * @since 0.981.1
  */
 public class State {
 

@@ -36,7 +36,7 @@ import java.util.Map;
 /**
  * This class represents a serializable state. This holds the required functionality to persist the context.
  *
- * @since 0.976.0
+ * @since 0.981.1
  */
 public class SerializableState {
 

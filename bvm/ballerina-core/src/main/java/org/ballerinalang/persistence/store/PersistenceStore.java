@@ -35,7 +35,7 @@ import java.util.List;
 /**
  * This class is used to persist @{@link State}s in given storage.
  *
- * @since 0.976.0
+ * @since 0.981.1
  */
 public class PersistenceStore {
 

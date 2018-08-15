@@ -39,7 +39,7 @@ import static org.ballerinalang.util.program.BLangVMUtils.SERVICE_INFO_KEY;
 /**
  * This class represents a serializable Ballerina execution context.
  *
- * @since 0.976.0
+ * @since 0.981.1
  */
 public class SerializableContext {
 

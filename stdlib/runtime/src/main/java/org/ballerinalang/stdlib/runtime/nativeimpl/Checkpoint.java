@@ -25,7 +25,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 /**
  * Native implementation for check point the execution context.
  *
- * @since 0.976.0
+ * @since 0.981.1
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "runtime",

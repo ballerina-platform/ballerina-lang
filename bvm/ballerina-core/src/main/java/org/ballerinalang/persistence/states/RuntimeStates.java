@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * This is used to manage the active @{@link State}s of the system.
  *
- * @since 0.976.0
+ * @since 0.981.1
  */
 public class RuntimeStates {
 

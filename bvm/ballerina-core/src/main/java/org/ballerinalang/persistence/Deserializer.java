@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Class manages the deserialization functionality.
  *
- * @since 0.976.0
+ * @since 0.981.1
  */
 public class Deserializer {
 

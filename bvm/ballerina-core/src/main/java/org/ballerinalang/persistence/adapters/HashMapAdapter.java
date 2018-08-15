@@ -33,7 +33,7 @@ import java.util.HashMap;
 /**
  * This implements @{@link JsonSerializer} to serialize and deserialize @{@link HashMap} objects.
  *
- * @since 0.976.0
+ * @since 0.981.1
  */
 public class HashMapAdapter implements JsonSerializer<HashMap<String, Object>>,
         JsonDeserializer<HashMap<String, Object>> {

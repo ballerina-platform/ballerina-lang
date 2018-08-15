@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Representation of storage provider which will be used to persist @{@link State}s.
  *
- * @since 0.976.0
+ * @since 0.981.1
  */
 public interface StorageProvider {
 

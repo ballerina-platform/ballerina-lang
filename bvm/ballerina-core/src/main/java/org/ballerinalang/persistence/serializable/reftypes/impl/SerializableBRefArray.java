@@ -34,7 +34,7 @@ import java.util.ArrayList;
 /**
  * Implementation of @{@link SerializableRefType} to serialize and deserialize {@link BRefValueArray} objects.
  *
- * @since 0.976.0
+ * @since 0.981.1
  */
 public class SerializableBRefArray implements SerializableRefType {
 

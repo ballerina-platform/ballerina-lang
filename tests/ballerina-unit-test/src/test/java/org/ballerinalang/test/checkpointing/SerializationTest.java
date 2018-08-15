@@ -45,6 +45,8 @@ import java.util.List;
 
 /**
  * Serialization and Deserialization test case.
+ *
+ * @since 0.981.1
  */
 public class SerializationTest {
 

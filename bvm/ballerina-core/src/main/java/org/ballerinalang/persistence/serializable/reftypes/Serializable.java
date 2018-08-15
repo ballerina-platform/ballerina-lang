@@ -22,7 +22,7 @@ import org.ballerinalang.persistence.serializable.SerializableState;
 /**
  * Interface used to serialize the given object.
  *
- * @since 0.976.0
+ * @since 0.981.1
  */
 public interface Serializable {
     SerializableRefType serialize(SerializableState state);
