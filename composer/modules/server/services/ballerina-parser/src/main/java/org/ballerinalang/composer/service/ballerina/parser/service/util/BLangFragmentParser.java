@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -138,7 +139,7 @@ public class BLangFragmentParser {
 
     protected static JsonElement getJsonModel(WorkspaceDocumentManager documentManager, String source)
             throws LSCompilerException, JSONGenerationException {
-        java.nio.file.Path filePath = LSCompilerUtil.createTempFile(LSCompilerUtil.UNTITLED_BAL);
+        Path filePath = LSCompilerUtil.createTempFile(LSCompilerUtil.UNTITLED_BAL);
         LSCompiler lsCompiler = new LSCompiler(documentManager);
         BallerinaFile model = lsCompiler.updateAndCompileFile(filePath, source, CompilerPhase.DEFINE,
                                                               documentManager);
