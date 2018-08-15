@@ -189,6 +189,15 @@ public class BallerinaBlock extends AbstractBlock {
             if (myAlignmentMap.containsKey(myNode)) {
                 alignment = myAlignmentMap.get(myNode);
             }
+        } else if (childElementType == BallerinaTypes.TRANSACTION_PROPERTY_INIT_STATEMENT
+                && parentElementType == BallerinaTypes.TRANSACTION_PROPERTY_INIT_STATEMENT_LIST) {
+            ASTNode treeParent = myNode.getTreeParent().getTreeParent();
+            if (myAlignmentMap.containsKey(treeParent)) {
+                alignment = myAlignmentMap.get(treeParent);
+            } else {
+                alignment = Alignment.createAlignment(true, Alignment.Anchor.LEFT);
+                myAlignmentMap.put(treeParent, alignment);
+            }
         }
         return alignment;
     }
@@ -216,6 +225,7 @@ public class BallerinaBlock extends AbstractBlock {
                 || parentElementType == BallerinaTypes.NAMED_PATTERN
                 || parentElementType == BallerinaTypes.UNNAMED_PATTERN
                 || parentElementType == BallerinaTypes.RECORD_LITERAL
+                || parentElementType == BallerinaTypes.RECORD_FIELD_DEFINITION_LIST
                 || parentElementType == BallerinaTypes.FOREACH_STATEMENT
                 || parentElementType == BallerinaTypes.LOCK_STATEMENT
                 || parentElementType == BallerinaTypes.OBJECT_TYPE_NAME
@@ -224,6 +234,8 @@ public class BallerinaBlock extends AbstractBlock {
                 || parentElementType == BallerinaTypes.CATCH_CLAUSE
                 || parentElementType == BallerinaTypes.FINALLY_CLAUSE
                 || parentElementType == BallerinaTypes.SERVICE_BODY
+                || parentElementType == BallerinaTypes.ARRAY_LITERAL
+                || parentElementType == BallerinaTypes.TRANSACTION_CLAUSE
         )) {
             return Indent.getNormalIndent();
         } else if (parentElementType == BallerinaTypes.CALLABLE_UNIT_SIGNATURE ||
@@ -291,6 +303,13 @@ public class BallerinaBlock extends AbstractBlock {
         } else if (childElementType == BallerinaTypes.VARIABLE_REFERENCE_EXPRESSION &&
                 (parentElementType == BallerinaTypes.ASSIGNMENT_STATEMENT ||
                         parentElementType == BallerinaTypes.VARIABLE_DEFINITION_STATEMENT)) {
+            return Indent.getNormalIndent();
+        } else if ((childElementType == BallerinaTypes.TABLE_COLUMN_DEFINITION
+                || childElementType == BallerinaTypes.TABLE_DATA_ARRAY)
+                && parentElementType == BallerinaTypes.TABLE_LITERAL) {
+            return Indent.getNormalIndent();
+        } else if (childElementType == BallerinaTypes.TABLE_DATA_LIST
+                && (parentElementType == BallerinaTypes.TABLE_DATA_ARRAY)) {
             return Indent.getNormalIndent();
         }
         return Indent.getNoneIndent();

@@ -1359,7 +1359,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             }
         }
         expression.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
-                expression.opKind, symTable.intType, symTable.intType);
+                expression.opKind, expression.lhsExpr.type, expression.rhsExpr.type);
     }
 
     private static BLangFieldBasedAccess createFieldBasedAccessExpr(DiagnosticPos pos, BField field) {

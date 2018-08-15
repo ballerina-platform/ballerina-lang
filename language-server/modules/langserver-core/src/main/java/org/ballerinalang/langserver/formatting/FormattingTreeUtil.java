@@ -33,6 +33,7 @@ public class FormattingTreeUtil {
     private static final String SINGLE_SPACE = " ";
     private static final String NEW_LINE = System.lineSeparator();
     private static final String EMPTY_SPACE = "";
+    private static final String SKIP_FORMATTING = "skipFormatting";
 
     private String getWhiteSpaces(int column) {
         StringBuilder whiteSpaces = new StringBuilder();
@@ -135,7 +136,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatAbortNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -144,7 +145,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatAnnotationNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -153,7 +154,15 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatAnnotationAttachmentNode(JsonObject node) {
-        if (node.has("ws")) {
+        // skip to make formatting fault tolerance till fully implemented.
+        boolean skip = ((node.has(SKIP_FORMATTING) && node.get(SKIP_FORMATTING).getAsBoolean()) ||
+                (node.has("parent") && node.getAsJsonObject("parent").has(SKIP_FORMATTING) &&
+                        node.getAsJsonObject("parent").get(SKIP_FORMATTING).getAsBoolean()));
+
+        if (skip) {
+            node.addProperty(SKIP_FORMATTING, true);
+        }
+        if (node.has("ws") && !skip) {
             this.preserveHeight(node.getAsJsonArray("ws"),
                     this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt()));
 
@@ -184,7 +193,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatAnnotationAttributeNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -193,7 +202,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatAnnotationAttachmentAttributeNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -202,7 +211,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatAnnotationAttachmentAttributeValueNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -211,7 +220,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatArrayLiteralExprNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -220,7 +229,12 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatArrayTypeNode(JsonObject node) {
-        // Not implemented.
+        boolean skip = ((node.has(SKIP_FORMATTING) && node.get(SKIP_FORMATTING).getAsBoolean()) ||
+                (node.has("parent") && node.getAsJsonObject("parent").has(SKIP_FORMATTING) &&
+                        node.getAsJsonObject("parent").get(SKIP_FORMATTING).getAsBoolean()));
+        if (skip) {
+            node.addProperty(SKIP_FORMATTING, true);
+        }
     }
 
     /**
@@ -229,7 +243,16 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatAssignmentNode(JsonObject node) {
-        if (node.has("ws")) {
+        // skip to make formatting fault tolerance till fully implemented.
+        boolean skip = ((node.has(SKIP_FORMATTING) && node.get(SKIP_FORMATTING).getAsBoolean()) ||
+                (node.has("parent") && node.getAsJsonObject("parent").has(SKIP_FORMATTING) &&
+                        node.getAsJsonObject("parent").get(SKIP_FORMATTING).getAsBoolean()));
+
+        if (skip) {
+            node.addProperty(SKIP_FORMATTING, true);
+        }
+
+        if (node.has("ws") && !skip) {
             JsonArray ws = node.getAsJsonArray("ws");
             this.preserveHeight(ws,
                     this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt()));
@@ -240,20 +263,27 @@ public class FormattingTreeUtil {
             }
 
             if (node.has("expression") && node.getAsJsonObject("expression").has("ws")) {
-                JsonArray expressionWs = node.getAsJsonObject("expression").getAsJsonArray("ws");
-                this.preserveHeight(expressionWs,
-                        this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt()));
-                if (!this.isHeightAvailable(expressionWs.get(0).getAsJsonObject().get("ws").getAsString())) {
-                    expressionWs.get(0).getAsJsonObject().addProperty("ws", SINGLE_SPACE);
-                }
+                node.getAsJsonObject("expression").addProperty(SKIP_FORMATTING, true);
             }
 
             if (!this.isHeightAvailable(ws.get(0).getAsJsonObject().get("ws").getAsString())) {
-                ws.get(0).getAsJsonObject().addProperty("ws", SINGLE_SPACE);
+                if (node.has("declaredWithVar") && node.get("declaredWithVar").getAsBoolean()) {
+                    ws.get(0).getAsJsonObject().addProperty("ws", NEW_LINE +
+                            this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt()));
+                } else {
+                    ws.get(0).getAsJsonObject().addProperty("ws", SINGLE_SPACE);
+                }
             }
 
             if (!this.isHeightAvailable(ws.get(1).getAsJsonObject().get("ws").getAsString())) {
-                ws.get(1).getAsJsonObject().addProperty("ws", EMPTY_SPACE);
+                if (node.has("declaredWithVar") && node.get("declaredWithVar").getAsBoolean()) {
+                    ws.get(1).getAsJsonObject().addProperty("ws", SINGLE_SPACE);
+                    if (!this.isHeightAvailable(ws.get(2).getAsJsonObject().get("ws").getAsString())) {
+                        ws.get(2).getAsJsonObject().addProperty("ws", EMPTY_SPACE);
+                    }
+                } else {
+                    ws.get(1).getAsJsonObject().addProperty("ws", EMPTY_SPACE);
+                }
             }
         }
     }
@@ -264,7 +294,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatAwaitExprNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -273,7 +303,15 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatBinaryExprNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
+
+        if (node.has("leftExpression")) {
+            node.getAsJsonObject("leftExpression").addProperty(SKIP_FORMATTING, true);
+        }
+
+        if (node.has("rightExpression")) {
+            node.getAsJsonObject("rightExpression").addProperty(SKIP_FORMATTING, true);
+        }
     }
 
     /**
@@ -282,7 +320,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatBindNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -291,46 +329,56 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatBlockNode(JsonObject node) {
-        JsonObject position = new JsonObject();
-        position.addProperty("startColumn", node.get("parent").getAsJsonObject().get("position")
-                .getAsJsonObject().get("startColumn").getAsInt());
-        node.add("position", position);
+        // skip to make formatting fault tolerance till fully implemented.
+        boolean skip = ((node.has(SKIP_FORMATTING) && node.get(SKIP_FORMATTING).getAsBoolean()) ||
+                (node.has("parent") && node.getAsJsonObject("parent").has(SKIP_FORMATTING) &&
+                        node.getAsJsonObject("parent").get(SKIP_FORMATTING).getAsBoolean()));
 
-        for (int i = 0; i < node.getAsJsonArray("statements").size(); i++) {
-            JsonElement child = node.getAsJsonArray("statements").get(i);
-            child.getAsJsonObject().get("position").getAsJsonObject().addProperty("startColumn",
-                    node.get("position").getAsJsonObject().get("startColumn").getAsInt()
-                            + this.getWhiteSpaceCount(SPACE_TAB));
+        if (skip) {
+            node.addProperty(SKIP_FORMATTING, true);
         }
+        if (!skip) {
+            JsonObject position = new JsonObject();
+            position.addProperty("startColumn", node.get("parent").getAsJsonObject().get("position")
+                    .getAsJsonObject().get("startColumn").getAsInt());
+            node.add("position", position);
 
-        if (node.has("ws") && node.getAsJsonArray("ws").get(0).getAsJsonObject()
-                .get("text").getAsString().equals("else")) {
-            JsonArray ws = node.getAsJsonArray("ws");
-            this.preserveHeight(ws, this.getWhiteSpaces(node.getAsJsonObject("position")
-                    .get("startColumn").getAsInt()));
-
-            if (!this.isHeightAvailable(ws.get(0).getAsJsonObject().get("ws").getAsString())) {
-                ws.get(0).getAsJsonObject().addProperty("ws", SINGLE_SPACE);
+            for (int i = 0; i < node.getAsJsonArray("statements").size(); i++) {
+                JsonElement child = node.getAsJsonArray("statements").get(i);
+                child.getAsJsonObject().get("position").getAsJsonObject().addProperty("startColumn",
+                        node.get("position").getAsJsonObject().get("startColumn").getAsInt()
+                                + this.getWhiteSpaceCount(SPACE_TAB));
             }
 
-            if (!this.isHeightAvailable(ws.get(ws.size() - 2).getAsJsonObject().get("ws").getAsString())) {
-                ws.get(ws.size() - 2).getAsJsonObject().addProperty("ws", SINGLE_SPACE);
-            }
+            if (node.has("ws") && node.getAsJsonArray("ws").get(0).getAsJsonObject()
+                    .get("text").getAsString().equals("else")) {
+                JsonArray ws = node.getAsJsonArray("ws");
+                this.preserveHeight(ws, this.getWhiteSpaces(node.getAsJsonObject("position")
+                        .get("startColumn").getAsInt()));
 
-            if (node.getAsJsonArray("statements").size() <= 0) {
-                if (!this.isHeightAvailable(ws.get(ws.size() - 1).getAsJsonObject().get("ws").getAsString())) {
-                    ws.get(ws.size() - 1).getAsJsonObject()
-                            .addProperty("ws", NEW_LINE +
-                                    this.getWhiteSpaces(node.getAsJsonObject("position")
-                                            .get("startColumn").getAsInt())
-                                    + NEW_LINE +
-                                    this.getWhiteSpaces(node.getAsJsonObject("position")
-                                            .get("startColumn").getAsInt()));
+                if (!this.isHeightAvailable(ws.get(0).getAsJsonObject().get("ws").getAsString())) {
+                    ws.get(0).getAsJsonObject().addProperty("ws", SINGLE_SPACE);
                 }
-            } else if (!this.isHeightAvailable(ws.get(ws.size() - 1).getAsJsonObject().get("ws").getAsString())) {
-                ws.get(ws.size() - 1).getAsJsonObject().addProperty("ws",
-                        NEW_LINE + this.getWhiteSpaces(node.getAsJsonObject("position")
-                                .get("startColumn").getAsInt()));
+
+                if (!this.isHeightAvailable(ws.get(ws.size() - 2).getAsJsonObject().get("ws").getAsString())) {
+                    ws.get(ws.size() - 2).getAsJsonObject().addProperty("ws", SINGLE_SPACE);
+                }
+
+                if (node.getAsJsonArray("statements").size() <= 0) {
+                    if (!this.isHeightAvailable(ws.get(ws.size() - 1).getAsJsonObject().get("ws").getAsString())) {
+                        ws.get(ws.size() - 1).getAsJsonObject()
+                                .addProperty("ws", NEW_LINE +
+                                        this.getWhiteSpaces(node.getAsJsonObject("position")
+                                                .get("startColumn").getAsInt())
+                                        + NEW_LINE +
+                                        this.getWhiteSpaces(node.getAsJsonObject("position")
+                                                .get("startColumn").getAsInt()));
+                    }
+                } else if (!this.isHeightAvailable(ws.get(ws.size() - 1).getAsJsonObject().get("ws").getAsString())) {
+                    ws.get(ws.size() - 1).getAsJsonObject().addProperty("ws",
+                            NEW_LINE + this.getWhiteSpaces(node.getAsJsonObject("position")
+                                    .get("startColumn").getAsInt()));
+                }
             }
         }
     }
@@ -341,7 +389,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatBracedTupleExprNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -350,7 +398,16 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatBreakNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
+    }
+
+    /**
+     * format built in ref type.
+     *
+     * @param node {JsonObject} node as json object
+     */
+    public void formatBuiltInRefTypeNode(JsonObject node) {
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -368,7 +425,11 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatCheckExprNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
+
+        if (node.has("expression")) {
+            node.getAsJsonObject("expression").addProperty(SKIP_FORMATTING, true);
+        }
     }
 
     /**
@@ -459,7 +520,15 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatConstrainedTypeNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
+
+        if (node.has("constraint")) {
+            node.addProperty(SKIP_FORMATTING, true);
+        }
+
+        if (node.has("type")) {
+            node.addProperty(SKIP_FORMATTING, true);
+        }
     }
 
     /**
@@ -558,7 +627,16 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatExpressionStatementNode(JsonObject node) {
-        if (node.has("ws")) {
+        // skip to make formatting fault tolerance till fully implemented.
+        boolean skip = ((node.has(SKIP_FORMATTING) && node.get(SKIP_FORMATTING).getAsBoolean()) ||
+                (node.has("parent") && node.getAsJsonObject("parent").has(SKIP_FORMATTING) &&
+                        node.getAsJsonObject("parent").get(SKIP_FORMATTING).getAsBoolean()));
+
+        if (skip) {
+            node.addProperty(SKIP_FORMATTING, true);
+        }
+
+        if (node.has("ws") && !skip) {
             JsonArray ws = node.getAsJsonArray("ws");
             this.preserveHeight(ws,
                     this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt()));
@@ -578,9 +656,21 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatFieldBasedAccessExprNode(JsonObject node) {
-        if (node.has("ws")) {
+        // skip to make formatting fault tolerance till fully implemented.
+        boolean skip = ((node.has(SKIP_FORMATTING) && node.get(SKIP_FORMATTING).getAsBoolean()) ||
+                (node.has("parent") && node.getAsJsonObject("parent").has(SKIP_FORMATTING) &&
+                        node.getAsJsonObject("parent").get(SKIP_FORMATTING).getAsBoolean()));
+
+        if (skip) {
+            node.addProperty(SKIP_FORMATTING, true);
+        }
+
+        if (node.has("ws") && !skip) {
             JsonArray ws = node.getAsJsonArray("ws");
             if (node.has("expression")) {
+                if (node.has("isExpression") && node.get("isExpression").getAsBoolean()) {
+                    node.getAsJsonObject("expression").addProperty("isExpression", true);
+                }
                 node.getAsJsonObject("expression").getAsJsonObject("position").addProperty("startColumn",
                         node.getAsJsonObject("position").get("startColumn").getAsInt());
             }
@@ -601,7 +691,17 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatForeachNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
+
+        if (node.has("collection")) {
+            node.getAsJsonObject("collection").addProperty(SKIP_FORMATTING, true);
+        }
+
+        if (node.has("variables")) {
+            for (JsonElement jsonElement : node.getAsJsonArray("variables")) {
+                jsonElement.getAsJsonObject().addProperty(SKIP_FORMATTING, true);
+            }
+        }
     }
 
     /**
@@ -628,7 +728,16 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatFunctionNode(JsonObject node) {
-        if (node.has("ws")) {
+        // skip to make formatting fault tolerance till fully implemented.
+        boolean skip = ((node.has(SKIP_FORMATTING) && node.get(SKIP_FORMATTING).getAsBoolean()) ||
+                (node.has("parent") && node.getAsJsonObject("parent").has(SKIP_FORMATTING) &&
+                        node.getAsJsonObject("parent").get(SKIP_FORMATTING).getAsBoolean()));
+
+        if (skip) {
+            node.addProperty(SKIP_FORMATTING, true);
+        }
+
+        if (node.has("ws") && !skip) {
             JsonArray ws = node.getAsJsonArray("ws");
             this.preserveHeight(ws, this.getWhiteSpaces(node.getAsJsonObject("position")
                     .get("startColumn").getAsInt()));
@@ -636,12 +745,17 @@ public class FormattingTreeUtil {
 
             if (!this.isHeightAvailable(ws.get(0)
                     .getAsJsonObject().get("ws").getAsString())) {
-                String whiteSpace = (functionIndex > 0 || node.getAsJsonObject("parent")
-                        .get("kind").getAsString().equals("ObjectType"))
-                        ? (BETWEEN_BLOCK_SPACE + this.getWhiteSpaces(node.getAsJsonObject("position")
-                        .get("startColumn").getAsInt()))
-                        : EMPTY_SPACE;
-                ws.get(0).getAsJsonObject().addProperty("ws", whiteSpace);
+                if (node.getAsJsonObject("parent")
+                        .get("kind").getAsString().equals("Lambda")) {
+                    ws.get(0).getAsJsonObject().addProperty("ws", SINGLE_SPACE);
+                } else {
+                    String whiteSpace = (functionIndex > 0 || node.getAsJsonObject("parent")
+                            .get("kind").getAsString().equals("ObjectType"))
+                            ? (BETWEEN_BLOCK_SPACE + this.getWhiteSpaces(node.getAsJsonObject("position")
+                            .get("startColumn").getAsInt()))
+                            : EMPTY_SPACE;
+                    ws.get(0).getAsJsonObject().addProperty("ws", whiteSpace);
+                }
             } else if (!this.isNewLine(ws.get(0).getAsJsonObject()
                     .get("ws").getAsString().charAt(0) + "") && functionIndex != 0) {
                 ws.get(0).getAsJsonObject()
@@ -674,27 +788,15 @@ public class FormattingTreeUtil {
 
             if (node.has("parameters")) {
                 JsonArray parameters = node.getAsJsonArray("parameters");
-
                 for (int i = 0; i < parameters.size(); i++) {
-                    if (parameters.get(i).getAsJsonObject().has("typeNode")) {
-                        if (i == 0) {
-                            parameters.get(i).getAsJsonObject()
-                                    .getAsJsonObject("position").addProperty("startColumn",
-                                    node.getAsJsonObject("position").get("startColumn").getAsInt());
-                            parameters.get(i).getAsJsonObject().get("typeNode")
-                                    .getAsJsonObject().getAsJsonObject("position").addProperty("startColumn",
-                                    node.getAsJsonObject("position").get("startColumn").getAsInt());
-                        } else {
-                            parameters.get(i).getAsJsonObject()
-                                    .getAsJsonObject("position").addProperty("startColumn",
-                                    node.getAsJsonObject("position").get("startColumn").getAsInt() +
-                                            this.getWhiteSpaceCount(SINGLE_SPACE));
-                            parameters.get(i).getAsJsonObject().get("typeNode")
-                                    .getAsJsonObject().getAsJsonObject("position").addProperty("startColumn",
-                                    node.getAsJsonObject("position").get("startColumn").getAsInt() +
-                                            this.getWhiteSpaceCount(SINGLE_SPACE));
-                        }
-                    }
+                    parameters.get(i).getAsJsonObject().addProperty(SKIP_FORMATTING, true);
+                }
+            }
+
+            if (node.has("defaultableParameters")) {
+                JsonArray defaulableParameters = node.getAsJsonArray("defaultableParameters");
+                for (int i = 0; i < defaulableParameters.size(); i++) {
+                    defaulableParameters.get(i).getAsJsonObject().addProperty(SKIP_FORMATTING, true);
                 }
             }
 
@@ -726,33 +828,19 @@ public class FormattingTreeUtil {
             }
 
             if (node.has("restParameters")) {
-                node.getAsJsonObject("restParameters").getAsJsonObject("position").addProperty("startColumn",
-                        node.getAsJsonObject("position").get("startColumn").getAsInt());
-
-                if (node.getAsJsonObject("restParameters").has("typeNode") && node
-                        .getAsJsonObject("restParameters").getAsJsonObject().get("typeNode")
-                        .getAsJsonObject().has("elementType")) {
-                    if (node.has("parameters") &&
-                            (node.getAsJsonArray("parameters").size() > 0)) {
-                        node.getAsJsonObject("restParameters").getAsJsonObject().get("typeNode")
-                                .getAsJsonObject().get("elementType").getAsJsonObject().getAsJsonObject("position")
-                                .addProperty("startColumn", node.getAsJsonObject("position")
-                                        .get("startColumn").getAsInt() + this.getWhiteSpaceCount(SINGLE_SPACE));
-                    } else {
-                        node.getAsJsonObject("restParameters").getAsJsonObject().get("typeNode")
-                                .getAsJsonObject().get("elementType").getAsJsonObject().getAsJsonObject("position")
-                                .addProperty("startColumn", node.getAsJsonObject("position")
-                                        .get("startColumn").getAsInt() + this.getWhiteSpaceCount(EMPTY_SPACE));
-                    }
-                }
+                node.getAsJsonObject("restParameters").addProperty(SKIP_FORMATTING, true);
             }
 
             if (node.has("returnTypeNode") &&
                     node.has("hasReturns") &&
                     node.get("hasReturns").getAsBoolean()) {
-                node.getAsJsonObject("returnTypeNode").getAsJsonObject("position").addProperty("startColumn",
-                        node.getAsJsonObject("position").get("startColumn").getAsInt() +
-                                this.getWhiteSpaceCount(SINGLE_SPACE));
+                node.getAsJsonObject("returnTypeNode").addProperty(SKIP_FORMATTING, true);
+            }
+
+            if (node.has("returnTypeAnnotationAttachments")) {
+                for (JsonElement annotation : node.getAsJsonArray("returnTypeAnnotationAttachments")) {
+                    annotation.getAsJsonObject().addProperty(SKIP_FORMATTING, true);
+                }
             }
         }
     }
@@ -772,7 +860,42 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatFunctionTypeNode(JsonObject node) {
-        // Not implemented.
+        // skip to make formatting fault tolerance till fully implemented.
+        boolean skip = ((node.has(SKIP_FORMATTING) && node.get(SKIP_FORMATTING).getAsBoolean()) ||
+                (node.has("parent") && node.getAsJsonObject("parent").has(SKIP_FORMATTING) &&
+                        node.getAsJsonObject("parent").get(SKIP_FORMATTING).getAsBoolean()));
+
+        if (skip) {
+            node.addProperty(SKIP_FORMATTING, true);
+        }
+
+        if (node.has("ws") && !skip) {
+            JsonArray ws = node.getAsJsonArray("ws");
+            this.preserveHeight(ws,
+                    this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt()));
+
+            if (!this.isHeightAvailable(ws.get(0).getAsJsonObject().get("ws").getAsString())) {
+                ws.get(0).getAsJsonObject().addProperty("ws", NEW_LINE +
+                        this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt()));
+            }
+
+            if (node.has("paramTypeNode")) {
+                JsonArray parameters = node.getAsJsonArray("paramTypeNode");
+                for (int i = 0; i < parameters.size(); i++) {
+                    parameters.get(i).getAsJsonObject().addProperty(SKIP_FORMATTING, true);
+                }
+            }
+
+            if (node.has("returnKeywordExists") && node.get("returnKeywordExists").getAsBoolean()) {
+                node.getAsJsonObject("returnTypeNode").addProperty(SKIP_FORMATTING, true);
+            }
+
+            if (node.has("returnTypeAnnotationAttachments")) {
+                for (JsonElement annotation : node.getAsJsonArray("returnTypeAnnotationAttachments")) {
+                    annotation.getAsJsonObject().addProperty(SKIP_FORMATTING, true);
+                }
+            }
+        }
     }
 
     /**
@@ -901,7 +1024,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatIndexBasedAccessExprNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -910,7 +1033,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatIntRangeExprNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -919,35 +1042,60 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatInvocationNode(JsonObject node) {
-        if (node.has("ws")) {
-            JsonArray ws = node.getAsJsonArray("ws");
-            this.preserveHeight(ws,
-                    this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt()));
+        // skip to make formatting fault tolerance till fully implemented.
+        boolean skip = ((node.has(SKIP_FORMATTING) && node.get(SKIP_FORMATTING).getAsBoolean()) ||
+                (node.has("parent") && node.getAsJsonObject("parent").has(SKIP_FORMATTING) &&
+                        node.getAsJsonObject("parent").get(SKIP_FORMATTING).getAsBoolean()));
 
-            if (node.getAsJsonObject("parent").get("kind").getAsString().equals("ExpressionStatement")) {
-                if (node.has("expression") && node.getAsJsonObject("expression").has("ws")) {
-                    JsonArray expressionWs = node.getAsJsonObject("expression").get("ws").getAsJsonArray();
-                    this.preserveHeight(expressionWs,
-                            this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt()));
-                    if (!this.isHeightAvailable(ws.get(0).getAsJsonObject().get("ws").getAsString())) {
-                        expressionWs.get(0).getAsJsonObject().addProperty("ws", NEW_LINE +
+        if (skip) {
+            node.addProperty(SKIP_FORMATTING, true);
+        }
+
+        if (node.has("ws")) {
+            if (!skip) {
+                JsonArray ws = node.getAsJsonArray("ws");
+
+                this.preserveHeight(ws,
+                        this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt()));
+
+                if (node.getAsJsonObject("parent").get("kind").getAsString().equals("ExpressionStatement")) {
+                    if (node.has("expression") && node.getAsJsonObject("expression")
+                            .has("ws")) {
+                        JsonArray expressionWs = node.getAsJsonObject("expression").get("ws").getAsJsonArray();
+                        this.preserveHeight(expressionWs,
                                 this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt()));
+                        if (!this.isHeightAvailable(expressionWs.get(0).getAsJsonObject().get("ws").getAsString())) {
+                            if (expressionWs.get(0).getAsJsonObject().get("text").getAsString().equals(".") ||
+                                    expressionWs.get(0).getAsJsonObject().get("text").getAsString().equals("=>")) {
+                                expressionWs.get(0).getAsJsonObject().addProperty("ws", EMPTY_SPACE);
+                            } else {
+                                expressionWs.get(0).getAsJsonObject().addProperty("ws", NEW_LINE +
+                                        this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn")
+                                                .getAsInt()));
+                            }
+                        }
+                    } else if (!this.isHeightAvailable(ws.get(0).getAsJsonObject().get("ws").getAsString())) {
+                        ws.get(0).getAsJsonObject().addProperty("ws", NEW_LINE +
+                                this.getWhiteSpaces(node.getAsJsonObject("parent")
+                                        .getAsJsonObject("position").get("startColumn").getAsInt()));
                     }
-                } else if (!this.isHeightAvailable(ws.get(0).getAsJsonObject().get("ws").getAsString())) {
-                    ws.get(0).getAsJsonObject().addProperty("ws", NEW_LINE +
-                            this.getWhiteSpaces(node.getAsJsonObject("parent")
-                                    .getAsJsonObject("position").get("startColumn").getAsInt()));
-                }
-            } else {
-                if (node.has("expression") && node.getAsJsonObject("expression").has("ws")) {
-                    JsonArray expressionWs = node.getAsJsonObject("expression").get("ws").getAsJsonArray();
-                    this.preserveHeight(expressionWs,
-                            this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt()));
-                    if (!this.isHeightAvailable(ws.get(0).getAsJsonObject().get("ws").getAsString())) {
+                } else {
+                    if (node.has("expression") && node.getAsJsonObject("expression")
+                            .has("ws")) {
+                        JsonArray expressionWs = node.getAsJsonObject("expression").get("ws").getAsJsonArray();
+                        this.preserveHeight(expressionWs,
+                                this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt()));
+                        if (!this.isHeightAvailable(expressionWs.get(0).getAsJsonObject().get("ws").getAsString())) {
+                            if (expressionWs.get(0).getAsJsonObject().get("text").getAsString().equals(".") ||
+                                    expressionWs.get(0).getAsJsonObject().get("text").getAsString().equals("=>")) {
+                                expressionWs.get(0).getAsJsonObject().addProperty("ws", EMPTY_SPACE);
+                            } else {
+                                expressionWs.get(0).getAsJsonObject().addProperty("ws", SINGLE_SPACE);
+                            }
+                        }
+                    } else if (!this.isHeightAvailable(ws.get(0).getAsJsonObject().get("ws").getAsString())) {
                         ws.get(0).getAsJsonObject().addProperty("ws", SINGLE_SPACE);
                     }
-                } else if (!this.isHeightAvailable(ws.get(0).getAsJsonObject().get("ws").getAsString())) {
-                    ws.get(0).getAsJsonObject().addProperty("ws", SINGLE_SPACE);
                 }
             }
 
@@ -955,13 +1103,7 @@ public class FormattingTreeUtil {
                 JsonArray argumentExpressions = node.getAsJsonArray("argumentExpressions");
                 for (int i = 0; i < argumentExpressions.size(); i++) {
                     if (argumentExpressions.get(i) != null) {
-                        if (i == 0) {
-                            argumentExpressions.get(i).getAsJsonObject().getAsJsonArray("ws")
-                                    .get(0).getAsJsonObject().addProperty("ws", EMPTY_SPACE);
-                        } else {
-                            argumentExpressions.get(i).getAsJsonObject().getAsJsonArray("ws")
-                                    .get(0).getAsJsonObject().addProperty("ws", SINGLE_SPACE);
-                        }
+                        argumentExpressions.get(i).getAsJsonObject().addProperty(SKIP_FORMATTING, true);
                     }
                 }
             }
@@ -1010,7 +1152,16 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatMatchNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
+        if (node.has("expression")) {
+            node.getAsJsonObject("expression").addProperty(SKIP_FORMATTING, true);
+        }
+
+        if (node.has("patternClauses")) {
+            for (JsonElement patternClause : node.getAsJsonArray("patternClauses")) {
+                patternClause.getAsJsonObject().addProperty(SKIP_FORMATTING, true);
+            }
+        }
     }
 
     /**
@@ -1019,7 +1170,16 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatMatchExpressionNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
+        if (node.has("expression")) {
+            node.getAsJsonObject("expression").addProperty(SKIP_FORMATTING, true);
+        }
+
+        if (node.has("patternClauses")) {
+            for (JsonElement patternClause : node.getAsJsonArray("patternClauses")) {
+                patternClause.getAsJsonObject().addProperty(SKIP_FORMATTING, true);
+            }
+        }
     }
 
     /**
@@ -1046,7 +1206,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatNamedArgsExprNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1055,7 +1215,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatObjectTypeNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1073,7 +1233,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatOrderByVariableNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1082,7 +1242,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatOutputRateLimitNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1091,7 +1251,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatPatternClauseNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1100,7 +1260,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatPatternStreamingEdgeInputNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1109,7 +1269,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatPatternStreamingInputNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1118,7 +1278,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatPostIncrementNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1127,7 +1287,16 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatRecordLiteralExprNode(JsonObject node) {
-        if (node.has("ws")) {
+        // skip to make formatting fault tolerance till fully implemented.
+        boolean skip = ((node.has(SKIP_FORMATTING) && node.get(SKIP_FORMATTING).getAsBoolean()) ||
+                (node.has("parent") && node.getAsJsonObject("parent").has(SKIP_FORMATTING) &&
+                        node.getAsJsonObject("parent").get(SKIP_FORMATTING).getAsBoolean()));
+
+        if (skip) {
+            node.addProperty(SKIP_FORMATTING, true);
+        }
+
+        if (node.has("ws") && !skip) {
             JsonArray ws = node.getAsJsonArray("ws");
             String parentKind = node.getAsJsonObject("parent").get("kind").getAsString();
             if (parentKind.equals("Endpoint") || parentKind.equals("AnnotationAttachment") ||
@@ -1204,33 +1373,44 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatRecordTypeNode(JsonObject node) {
-        // Add the start column and sorted index
-        JsonArray fields = node.getAsJsonArray("fields");
-        for (int i = 0; i < fields.size(); i++) {
-            JsonObject child = fields.get(i).getAsJsonObject();
-            child.getAsJsonObject("position").addProperty("startColumn",
-                    node.getAsJsonObject("position").get("startColumn").getAsInt()
-                            + this.getWhiteSpaceCount(SPACE_TAB));
+        // skip to make formatting fault tolerance till fully implemented.
+        boolean skip = ((node.has(SKIP_FORMATTING) && node.get(SKIP_FORMATTING).getAsBoolean()) ||
+                (node.has("parent") && node.getAsJsonObject("parent").has(SKIP_FORMATTING) &&
+                        node.getAsJsonObject("parent").get(SKIP_FORMATTING).getAsBoolean()));
+
+        if (skip) {
+            node.addProperty(SKIP_FORMATTING, true);
         }
 
-        if (node.has("restFieldType") &&
-                node.get("restFieldType").getAsJsonObject().has("ws")) {
-            node.get("restFieldType").getAsJsonObject().getAsJsonObject("position").addProperty("startColumn",
-                    node.getAsJsonObject("position").get("startColumn").getAsInt()
-                            + this.getWhiteSpaceCount(SPACE_TAB));
-        }
+        if (!skip) {
+            // Add the start column and sorted index
+            JsonArray fields = node.getAsJsonArray("fields");
+            for (int i = 0; i < fields.size(); i++) {
+                JsonObject child = fields.get(i).getAsJsonObject();
+                child.getAsJsonObject("position").addProperty("startColumn",
+                        node.getAsJsonObject("position").get("startColumn").getAsInt()
+                                + this.getWhiteSpaceCount(SPACE_TAB));
+            }
 
-        if (node.has("sealed") &&
-                node.get("sealed").getAsBoolean() &&
-                node.has("ws")) {
-            JsonArray ws = node.getAsJsonArray("ws");
-            this.preserveHeight(ws, this.getWhiteSpaces(node.getAsJsonObject("position")
-                    .get("startColumn").getAsInt()) + SPACE_TAB);
+            if (node.has("restFieldType") &&
+                    node.get("restFieldType").getAsJsonObject().has("ws")) {
+                node.get("restFieldType").getAsJsonObject().getAsJsonObject("position").addProperty("startColumn",
+                        node.getAsJsonObject("position").get("startColumn").getAsInt()
+                                + this.getWhiteSpaceCount(SPACE_TAB));
+            }
 
-            if (!this.isHeightAvailable(ws.get(0).getAsJsonObject().get("ws").getAsString())) {
-                ws.get(0).getAsJsonObject().addProperty("ws", NEW_LINE
-                        + this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt())
-                        + SPACE_TAB);
+            if (node.has("sealed") &&
+                    node.get("sealed").getAsBoolean() &&
+                    node.has("ws")) {
+                JsonArray ws = node.getAsJsonArray("ws");
+                this.preserveHeight(ws, this.getWhiteSpaces(node.getAsJsonObject("position")
+                        .get("startColumn").getAsInt()) + SPACE_TAB);
+
+                if (!this.isHeightAvailable(ws.get(0).getAsJsonObject().get("ws").getAsString())) {
+                    ws.get(0).getAsJsonObject().addProperty("ws", NEW_LINE
+                            + this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt())
+                            + SPACE_TAB);
+                }
             }
         }
     }
@@ -1241,7 +1421,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatReplyNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1283,29 +1463,7 @@ public class FormattingTreeUtil {
             if (node.has("parameters")) {
                 JsonArray parameters = node.getAsJsonArray("parameters");
                 for (int i = 0; i < parameters.size(); i++) {
-                    if (parameters.get(i).getAsJsonObject().has("typeNode")) {
-                        parameters.get(i).getAsJsonObject().get("typeNode")
-                                .getAsJsonObject().getAsJsonObject("position").addProperty("startColumn",
-                                node.getAsJsonObject("position").get("startColumn").getAsInt());
-
-                        if (i == 0) {
-                            parameters.get(i).getAsJsonObject().getAsJsonObject("position")
-                                    .addProperty("startColumn", node.getAsJsonObject("position")
-                                            .get("startColumn").getAsInt());
-                            parameters.get(i).getAsJsonObject().get("typeNode")
-                                    .getAsJsonObject().getAsJsonObject("position").addProperty("startColumn",
-                                    node.getAsJsonObject("position").get("startColumn").getAsInt());
-                        } else {
-                            parameters.get(i).getAsJsonObject().getAsJsonObject("position")
-                                    .addProperty("startColumn", node.getAsJsonObject("position")
-                                            .get("startColumn").getAsInt() +
-                                            this.getWhiteSpaceCount(SINGLE_SPACE));
-                            parameters.get(i).getAsJsonObject().get("typeNode")
-                                    .getAsJsonObject().getAsJsonObject("position").addProperty("startColumn",
-                                    node.getAsJsonObject("position").get("startColumn").getAsInt() +
-                                            this.getWhiteSpaceCount(SINGLE_SPACE));
-                        }
-                    }
+                    parameters.get(i).getAsJsonObject().addProperty(SKIP_FORMATTING, true);
                 }
             }
 
@@ -1345,7 +1503,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatRestArgsExprNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1354,7 +1512,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatRetryNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1363,7 +1521,24 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatReturnNode(JsonObject node) {
-        // Not implemented.
+        // skip to make formatting fault tolerance till fully implemented.
+        boolean skip = ((node.has(SKIP_FORMATTING) && node.get(SKIP_FORMATTING).getAsBoolean()) ||
+                (node.has("parent") && node.getAsJsonObject("parent").has(SKIP_FORMATTING) &&
+                        node.getAsJsonObject("parent").get(SKIP_FORMATTING).getAsBoolean()));
+
+        if (skip) {
+            node.addProperty(SKIP_FORMATTING, true);
+        }
+
+        if (node.has("ws") && !skip) {
+            JsonArray ws = node.getAsJsonArray("ws");
+            this.preserveHeight(ws,
+                    this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt()));
+            if (!this.isHeightAvailable(ws.get(0).getAsJsonObject().get("ws").getAsString())) {
+                ws.get(0).getAsJsonObject().addProperty("ws", NEW_LINE +
+                        this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt()));
+            }
+        }
     }
 
     /**
@@ -1372,7 +1547,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatSelectClauseNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1381,7 +1556,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatSelectExpressionNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1455,21 +1630,13 @@ public class FormattingTreeUtil {
             }
 
             if (node.has("anonymousEndpointBind")) {
-                node.getAsJsonObject("anonymousEndpointBind").getAsJsonObject("position")
-                        .addProperty("startColumn", position.get("startColumn").getAsInt());
+                node.getAsJsonObject("anonymousEndpointBind").addProperty(SKIP_FORMATTING, true);
             }
 
             if (node.has("boundEndpoints")) {
                 JsonArray boundEndpoints = node.getAsJsonArray("boundEndpoints");
                 for (JsonElement boundEndpoint : boundEndpoints) {
-                    if (boundEndpoint.getAsJsonObject().has("ws")) {
-                        JsonArray boundEndpointWs = boundEndpoint.getAsJsonObject().getAsJsonArray("ws");
-                        this.preserveHeight(boundEndpointWs, null);
-                        if (!this.isHeightAvailable(boundEndpointWs.get(0).getAsJsonObject()
-                                .get("ws").getAsString())) {
-                            boundEndpointWs.get(0).getAsJsonObject().addProperty("ws", SINGLE_SPACE);
-                        }
-                    }
+                    boundEndpoint.getAsJsonObject().addProperty(SKIP_FORMATTING, true);
                 }
             }
 
@@ -1489,16 +1656,32 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatSimpleVariableRefNode(JsonObject node) {
-        if (node.has("ws")) {
+        // skip to make formatting fault tolerance till fully implemented.
+        boolean skip = ((node.has(SKIP_FORMATTING) && node.get(SKIP_FORMATTING).getAsBoolean()) ||
+                (node.has("parent") && node.getAsJsonObject("parent").has(SKIP_FORMATTING) &&
+                        node.getAsJsonObject("parent").get(SKIP_FORMATTING).getAsBoolean()));
+
+        if (skip) {
+            node.addProperty(SKIP_FORMATTING, true);
+        }
+
+        if (node.has("ws") && !skip) {
             JsonArray ws = node.getAsJsonArray("ws");
             String parentKind = node.getAsJsonObject("parent").get("kind").getAsString();
             if (parentKind.equals("Assignment") || parentKind.equals("FieldBasedAccessExpr")) {
                 this.preserveHeight(ws,
                         this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt()));
 
-                if (!this.isHeightAvailable(ws.get(0).getAsJsonObject().get("ws").getAsString())) {
-                    ws.get(0).getAsJsonObject().addProperty("ws", NEW_LINE
-                            + this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt()));
+                if (!this.isHeightAvailable(ws.get(0).getAsJsonObject().get("ws").getAsString()) &&
+                        !(node.has("isExpression") && node.get("isExpression").getAsBoolean())) {
+                    if (node.has("parent") &&
+                            node.getAsJsonObject("parent").has("declaredWithVar") &&
+                            node.getAsJsonObject("parent").get("declaredWithVar").getAsBoolean()) {
+                        ws.get(0).getAsJsonObject().addProperty("ws", SINGLE_SPACE);
+                    } else {
+                        ws.get(0).getAsJsonObject().addProperty("ws", NEW_LINE
+                                + this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt()));
+                    }
                 }
             }
         }
@@ -1510,7 +1693,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatStatementExpressionNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1519,7 +1702,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatStreamActionNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1528,7 +1711,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatStreamingQueryNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1537,7 +1720,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatStringTemplateLiteralNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1546,7 +1729,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatTernaryExprNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1555,7 +1738,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatThrowNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1564,7 +1747,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatTransactionNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1573,7 +1756,23 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatTryNode(JsonObject node) {
-        // Not implemented.
+        // skip to make formatting fault tolerance till fully implemented.
+        boolean skip = ((node.has(SKIP_FORMATTING) && node.get(SKIP_FORMATTING).getAsBoolean()) ||
+                (node.has("parent") && node.getAsJsonObject("parent").has(SKIP_FORMATTING) &&
+                        node.getAsJsonObject("parent").get(SKIP_FORMATTING).getAsBoolean()));
+
+        if (skip) {
+            node.addProperty(SKIP_FORMATTING, true);
+        }
+
+        if (node.has("ws") && !skip) {
+            if (node.has("catchBlocks")) {
+                for (JsonElement catchBlock : node.getAsJsonArray("catchBlocks")) {
+                    catchBlock.getAsJsonObject().getAsJsonObject("position").addProperty("startColumn",
+                            node.getAsJsonObject("position").get("startColumn").getAsInt());
+                }
+            }
+        }
     }
 
     /**
@@ -1582,7 +1781,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatTupleDestructureNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1591,7 +1790,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatTupleTypeNodeNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1600,7 +1799,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatTypeCastExprNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1609,7 +1808,14 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatTypeConversionExprNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
+        if (node.has("expression")) {
+            node.getAsJsonObject("expression").addProperty(SKIP_FORMATTING, true);
+        }
+
+        if (node.has("typeNode")) {
+            node.getAsJsonObject("typeNode").addProperty(SKIP_FORMATTING, true);
+        }
     }
 
     /**
@@ -1618,7 +1824,16 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatTypeDefinitionNode(JsonObject node) {
-        if (node.has("ws")) {
+        // skip to make formatting fault tolerance till fully implemented.
+        boolean skip = ((node.has(SKIP_FORMATTING) && node.get(SKIP_FORMATTING).getAsBoolean()) ||
+                (node.has("parent") && node.getAsJsonObject("parent").has(SKIP_FORMATTING) &&
+                        node.getAsJsonObject("parent").get(SKIP_FORMATTING).getAsBoolean()));
+
+        if (skip) {
+            node.addProperty(SKIP_FORMATTING, true);
+        }
+
+        if (node.has("ws") && !skip) {
             JsonArray ws = node.getAsJsonArray("ws");
             this.preserveHeight(ws,
                     this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt()));
@@ -1660,7 +1875,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatTypedescExpressionNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1669,7 +1884,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatTypeInitExprNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1678,7 +1893,7 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatUnaryExprNode(JsonObject node) {
-        // Not implemented.
+        node.addProperty(SKIP_FORMATTING, true);
     }
 
     /**
@@ -1687,7 +1902,34 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatUnionTypeNodeNode(JsonObject node) {
-        // Not implemented.
+        // skip to make formatting fault tolerance till fully implemented.
+        boolean skip = ((node.has(SKIP_FORMATTING) && node.get(SKIP_FORMATTING).getAsBoolean()) ||
+                (node.has("parent") && node.getAsJsonObject("parent").has(SKIP_FORMATTING) &&
+                        node.getAsJsonObject("parent").get(SKIP_FORMATTING).getAsBoolean()));
+
+        if (skip) {
+            node.addProperty(SKIP_FORMATTING, true);
+        }
+
+        if (node.has("memberTypeNodes")) {
+            for (JsonElement jsonElement : node.getAsJsonArray("memberTypeNodes")) {
+                jsonElement.getAsJsonObject().addProperty(SKIP_FORMATTING, true);
+            }
+        }
+
+        if (node.has("ws") && !skip) {
+            JsonArray ws = node.getAsJsonArray("ws");
+            if (node.has("grouped") && node.get("grouped").getAsBoolean()) {
+                this.preserveHeight(ws, this.getWhiteSpaces(node.getAsJsonObject("position")
+                        .get("startColumn").getAsInt()));
+                if (!this.isHeightAvailable(ws.get(0).getAsJsonObject().get("ws").getAsString())) {
+                    node.getAsJsonArray("ws").get(0).getAsJsonObject()
+                            .addProperty("ws", EMPTY_SPACE);
+                }
+            } else {
+                node.getAsJsonArray("ws").get(0).getAsJsonObject().addProperty("ws", EMPTY_SPACE);
+            }
+        }
     }
 
     /**
@@ -1710,7 +1952,16 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatValueTypeNode(JsonObject node) {
-        if (node.has("ws")) {
+        // skip to make formatting fault tolerance till fully implemented.
+        boolean skip = ((node.has(SKIP_FORMATTING) && node.get(SKIP_FORMATTING).getAsBoolean()) ||
+                (node.has("parent") && node.getAsJsonObject("parent").has(SKIP_FORMATTING) &&
+                        node.getAsJsonObject("parent").get(SKIP_FORMATTING).getAsBoolean()));
+
+        if (skip) {
+            node.addProperty(SKIP_FORMATTING, true);
+        }
+
+        if (node.has("ws") && !skip) {
             JsonArray ws = node.getAsJsonArray("ws");
 
             this.preserveHeight(ws,
@@ -1729,7 +1980,16 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatVariableDefNode(JsonObject node) {
-        if (node.has("ws")) {
+        // skip to make formatting fault tolerance till fully implemented.
+        boolean skip = ((node.has(SKIP_FORMATTING) && node.get(SKIP_FORMATTING).getAsBoolean()) ||
+                (node.has("parent") && node.getAsJsonObject("parent").has(SKIP_FORMATTING) &&
+                        node.getAsJsonObject("parent").get(SKIP_FORMATTING).getAsBoolean()));
+
+        if (skip) {
+            node.addProperty(SKIP_FORMATTING, true);
+        }
+
+        if (node.has("ws") && !skip) {
             this.preserveHeight(node.getAsJsonArray("ws"),
                     this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt()));
 
@@ -1750,9 +2010,17 @@ public class FormattingTreeUtil {
      * @param node {JsonObject} node as json object
      */
     public void formatVariableNode(JsonObject node) {
-        if (node.has("ws")) {
-            String parentKind = node.getAsJsonObject("parent").get("kind").getAsString();
+        // skip to make formatting fault tolerance till fully implemented.
+        boolean skip = ((node.has(SKIP_FORMATTING) && node.get(SKIP_FORMATTING).getAsBoolean()) ||
+                (node.has("parent") && node.getAsJsonObject("parent").has(SKIP_FORMATTING) &&
+                        node.getAsJsonObject("parent").get(SKIP_FORMATTING).getAsBoolean()));
 
+        if (skip) {
+            node.addProperty(SKIP_FORMATTING, true);
+        }
+
+        if (node.has("ws") && !skip) {
+            String parentKind = node.getAsJsonObject("parent").get("kind").getAsString();
 
             this.preserveHeight(node.getAsJsonArray("ws"),
                     this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt()));
@@ -1773,23 +2041,49 @@ public class FormattingTreeUtil {
 
                         if (variableIndex > 0 || variableIndex < 0) {
                             if (!this.isHeightAvailable(typeNode.getAsJsonArray("ws").get(0)
-                                    .getAsJsonObject().get("ws").getAsString())) {
-                                typeNode.getAsJsonArray("ws").get(0).getAsJsonObject()
-                                        .addProperty("ws", NEW_LINE
-                                                + this.getWhiteSpaces(node.getAsJsonObject("position")
-                                                .get("startColumn").getAsInt()));
+                                    .getAsJsonObject().get("ws").getAsString()) &&
+                                    !typeNode.has("type")) {
+
+                                if ((node.has("final") && node.get("final").getAsBoolean()) ||
+                                        (node.has("public") && node.get("public").getAsBoolean())) {
+                                    typeNode.addProperty(SKIP_FORMATTING, true);
+                                    typeNode.getAsJsonArray("ws").get(0).getAsJsonObject()
+                                            .addProperty("ws", SINGLE_SPACE);
+                                } else {
+                                    typeNode.getAsJsonArray("ws").get(0).getAsJsonObject()
+                                            .addProperty("ws", NEW_LINE
+                                                    + this.getWhiteSpaces(node.getAsJsonObject("position")
+                                                    .get("startColumn").getAsInt()));
+                                }
                             }
                         } else {
                             if (!this.isHeightAvailable(typeNode.getAsJsonArray("ws").get(0)
                                     .getAsJsonObject().get("ws").getAsString())) {
+
                                 if (parentKind.equals("RecordType")) {
-                                    typeNode.getAsJsonArray("ws").get(0).getAsJsonObject()
-                                            .addProperty("ws", NEW_LINE +
-                                                    this.getWhiteSpaces(node.getAsJsonObject("position")
-                                                            .get("startColumn").getAsInt()));
+                                    if (node.has("final") &&
+                                            node.get("final").getAsBoolean() ||
+                                            (node.has("public") && node.get("public").getAsBoolean())) {
+                                        typeNode.addProperty(SKIP_FORMATTING, true);
+                                        typeNode.getAsJsonArray("ws").get(0).getAsJsonObject()
+                                                .addProperty("ws", SINGLE_SPACE);
+                                    } else {
+                                        typeNode.getAsJsonArray("ws").get(0).getAsJsonObject()
+                                                .addProperty("ws", NEW_LINE +
+                                                        this.getWhiteSpaces(node.getAsJsonObject("position")
+                                                                .get("startColumn").getAsInt()));
+                                    }
                                 } else {
-                                    typeNode.getAsJsonArray("ws").get(0).getAsJsonObject()
-                                            .addProperty("ws", EMPTY_SPACE);
+                                    if (node.has("final") &&
+                                            node.get("final").getAsBoolean() ||
+                                            (node.has("public") && node.get("public").getAsBoolean())) {
+                                        typeNode.addProperty(SKIP_FORMATTING, true);
+                                        typeNode.getAsJsonArray("ws").get(0).getAsJsonObject()
+                                                .addProperty("ws", SINGLE_SPACE);
+                                    } else {
+                                        typeNode.getAsJsonArray("ws").get(0).getAsJsonObject()
+                                                .addProperty("ws", EMPTY_SPACE);
+                                    }
                                 }
                             }
                         }
@@ -1798,9 +2092,14 @@ public class FormattingTreeUtil {
                             && node.getAsJsonArray("ws").size() > 3) {
                         if (!this.isHeightAvailable(node.getAsJsonArray("ws").get(0)
                                 .getAsJsonObject().get("ws").getAsString())) {
-                            node.getAsJsonArray("ws").get(0).getAsJsonObject().addProperty("ws",
-                                    NEW_LINE + this.getWhiteSpaces(node.getAsJsonObject("position")
-                                            .get("startColumn").getAsInt()));
+                            if (node.has("final") && node.get("final").getAsBoolean()) {
+                                node.getAsJsonArray("ws").get(0).getAsJsonObject().addProperty("ws",
+                                        SINGLE_SPACE);
+                            } else {
+                                node.getAsJsonArray("ws").get(0).getAsJsonObject().addProperty("ws",
+                                        NEW_LINE + this.getWhiteSpaces(node.getAsJsonObject("position")
+                                                .get("startColumn").getAsInt()));
+                            }
                         }
 
                         if (!this.isHeightAvailable(node.getAsJsonArray("ws").get(1)
@@ -1845,6 +2144,15 @@ public class FormattingTreeUtil {
                     node.getAsJsonObject("initialExpression").getAsJsonObject("position")
                             .addProperty("startColumn",
                                     node.getAsJsonObject("position").get("startColumn").getAsInt());
+                }
+
+                if (node.has("annotationAttachments")) {
+                    JsonArray annotationAttachments = node.getAsJsonArray("annotationAttachments");
+                    for (int i = 0; i < annotationAttachments.size(); i++) {
+                        annotationAttachments.get(i).getAsJsonObject().getAsJsonObject("position")
+                                .addProperty("startColumn", node.getAsJsonObject("position").get("startColumn")
+                                        .getAsInt());
+                    }
                 }
             }
         }
@@ -1945,7 +2253,7 @@ public class FormattingTreeUtil {
 
             if (!this.isHeightAvailable(ws.get(0).getAsJsonObject().get("ws").getAsString())) {
                 ws.get(0).getAsJsonObject().addProperty("ws", NEW_LINE +
-                        node.getAsJsonObject("position").get("startColumn").getAsInt());
+                        this.getWhiteSpaces(node.getAsJsonObject("position").get("startColumn").getAsInt()));
             }
 
             if (!this.isHeightAvailable(ws.get(ws.size() - 3).getAsJsonObject().get("ws").getAsString())) {

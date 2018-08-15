@@ -1,31 +1,34 @@
 /*
-*   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.ballerinalang.test.debugger;
 
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.test.utils.debug.DebugPoint;
 import org.ballerinalang.test.utils.debug.ExpectedResults;
 import org.ballerinalang.test.utils.debug.Util;
 import org.ballerinalang.test.utils.debug.VMDebuggerUtil;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
-import org.ballerinalang.util.debugger.dto.MessageDTO;
 import org.ballerinalang.util.debugger.dto.VariableDTO;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -74,7 +77,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", FILE, 43, RESUME, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 9, RESUME, 1));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 7);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 7, 0, new ArrayList<>(), false);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test-debug.bal", breakPoints, expRes);
     }
@@ -85,7 +88,7 @@ public class VMDebuggerTest {
 
         List<DebugPoint> debugPoints = new ArrayList<>();
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 0);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 0, 0, new ArrayList<>(), false);
         VMDebuggerUtil.startDebug("test-src/debugger/test-debug.bal", breakPoints, expRes);
     }
 
@@ -94,29 +97,29 @@ public class VMDebuggerTest {
         BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".", FILE, 5, 8, 41);
 
         List<DebugPoint> debugPoints = new ArrayList<>();
-        debugPoints.add(Util.createDebugPoint(".", FILE, 5, STEP_IN,  1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 12, STEP_IN,  1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 13, STEP_IN,  1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 14, STEP_IN,  1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 15, STEP_IN,  1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 16, STEP_IN,  1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 20, STEP_IN,  1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 14, RESUME,  1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 5, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 12, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 13, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 14, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 15, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 16, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 20, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 14, RESUME, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 8, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 41, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 25, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 26, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 27, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 28, STEP_IN, 1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 30, STEP_IN,  1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 31, STEP_IN,  1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 37, STEP_IN,  1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 38, STEP_IN,  1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 42, STEP_IN,  1));
-        debugPoints.add(Util.createDebugPoint(".", FILE, 43, STEP_IN,  1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 30, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 31, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 37, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 38, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 42, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 43, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 9, RESUME, 1));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 21);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 21, 0, new ArrayList<>(), false);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test-debug.bal", breakPoints, expRes);
     }
@@ -130,7 +133,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", FILE, 41, STEP_OUT, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 9, RESUME, 1));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 3);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 3, 0, new ArrayList<>(), false);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test-debug.bal", breakPoints, expRes);
     }
@@ -147,7 +150,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", FILE, 9, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 10, RESUME, 1));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 6);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 6, 0, new ArrayList<>(), false);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test-debug.bal", breakPoints, expRes);
     }
@@ -166,7 +169,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", FILE, 38, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 41, RESUME, 1));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 8);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 8, 0, new ArrayList<>(), false);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test-debug.bal", breakPoints, expRes);
     }
@@ -181,7 +184,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", FILE, 20, RESUME, 4));
         debugPoints.add(Util.createDebugPoint(".", FILE, 22, RESUME, 1));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 11);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 11, 0, new ArrayList<>(), false);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test-debug.bal", breakPoints, expRes);
     }
@@ -194,7 +197,11 @@ public class VMDebuggerTest {
         List<DebugPoint> debugPoints = new ArrayList<>();
         debugPoints.add(Util.createDebugPoint(".", "while-statement.bal", 5, RESUME, 5));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 5);
+        List<VariableDTO> variables = new ArrayList<>();
+        variables.add(Util.createVariable("i", "Local", new BInteger(4)));
+        variables.add(Util.createVariable("args", "Local", new BStringArray(new String[]{"Hello", "World"})));
+
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 5, 0, variables, true);
 
         VMDebuggerUtil.startDebug("test-src/debugger/while-statement.bal", breakPoints, expRes);
     }
@@ -204,7 +211,7 @@ public class VMDebuggerTest {
         BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".",
                 "try-catch-finally.bal", 19);
 
-        String file  = "try-catch-finally.bal";
+        String file = "try-catch-finally.bal";
 
         List<DebugPoint> debugPoints = new ArrayList<>();
         debugPoints.add(Util.createDebugPoint(".", file, 19, STEP_IN, 1));
@@ -224,7 +231,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", file, 58, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 60, RESUME, 1));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 16);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 16, 0, new ArrayList<>(), false);
 
         VMDebuggerUtil.startDebug("test-src/debugger/try-catch-finally.bal", breakPoints, expRes);
     }
@@ -234,7 +241,7 @@ public class VMDebuggerTest {
         BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".",
                 "test-worker.bal", 3, 9, 10, 18, 19, 23, 48);
 
-        String file  = "test-worker.bal";
+        String file = "test-worker.bal";
 
         List<DebugPoint> debugPoints = new ArrayList<>();
         debugPoints.add(Util.createDebugPoint(".", file, 3, RESUME, 1));
@@ -249,7 +256,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", file, 48, RESUME, 5));
         debugPoints.add(Util.createDebugPoint(".", file, 23, RESUME, 1));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 15);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 15, 0, new ArrayList<>(), false);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test-worker.bal", breakPoints, expRes);
     }
@@ -259,7 +266,7 @@ public class VMDebuggerTest {
         BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".",
                 "test-package-init.bal", 3, 9);
 
-        String file  = "test-package-init.bal";
+        String file = "test-package-init.bal";
 
         List<DebugPoint> debugPoints = new ArrayList<>();
         debugPoints.add(Util.createDebugPoint(".", file, 3, STEP_OVER, 1));
@@ -278,7 +285,13 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", file, 23, RESUME, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 9, RESUME, 1));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 15);
+        List<VariableDTO> variables = new ArrayList<>();
+        variables.add(Util.createVariable("val1", "Global", new BInteger(60)));
+        variables.add(Util.createVariable("val2", "Global", new BInteger(20)));
+        variables.add(Util.createVariable("cal", "Local", new BInteger(80)));
+        variables.add(Util.createVariable("args", "Local", new BStringArray(new String[]{"Hello", "World"})));
+
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 15, 2, variables, true);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test-package-init.bal", breakPoints, expRes);
     }
@@ -288,7 +301,7 @@ public class VMDebuggerTest {
         BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".",
                 "test_object_and_match.bal", 3, 48, 66, 54);
 
-        String file  = "test_object_and_match.bal";
+        String file = "test_object_and_match.bal";
 
         List<DebugPoint> debugPoints = new ArrayList<>();
         debugPoints.add(Util.createDebugPoint(".", file, 3, STEP_IN, 1));
@@ -329,7 +342,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", file, 67, STEP_OUT, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 4, RESUME, 1));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 37);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 37, 0, new ArrayList<>(), false);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test_object_and_match.bal", breakPoints, expRes);
     }
@@ -337,38 +350,42 @@ public class VMDebuggerTest {
     @Test(description = "Testing global variables availability in debug hit message")
     public void testGlobalVarAvailability() {
         String file = "test_variables.bal";
-        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".", file, 12);
+        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".", file, 10);
 
         List<DebugPoint> debugPoints = new ArrayList<>();
-        debugPoints.add(Util.createDebugPoint(".", file, 12, STEP_OVER, 1));
-        debugPoints.add(Util.createDebugPoint(".", file, 13, RESUME, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 10, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 11, RESUME, 1));
 
-        VMDebuggerUtil.getDebugHits().clear();
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 2);
+        List<VariableDTO> variables = new ArrayList<>();
+        variables.add(Util.createVariable("gInt", "Global", new BInteger(5)));
+        variables.add(Util.createVariable("gStr", "Global", new BString("str")));
+        variables.add(Util.createVariable("gBool", "Global", new BBoolean(true)));
+        variables.add(Util.createVariable("gByte", "Global", new BByte((byte) 255)));
+
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 2, 4, variables, false);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test_variables.bal", breakPoints, expRes);
+    }
 
-        ArrayList<MessageDTO> debugHitMsgs = VMDebuggerUtil.getDebugHits();
+    @Test(description = "Testing local variables scopes")
+    public void testLocalVarScope() {
+        String file = "test_variables.bal";
+        BreakPointDTO[] breakPoints = Util.createBreakNodeLocations(".", file, 9);
 
-        List<VariableDTO> variables = debugHitMsgs.get(0).getFrames().get(0).getVariables();
-        List<VariableDTO> globalVariables = new ArrayList<>();
+        List<DebugPoint> debugPoints = new ArrayList<>();
+        debugPoints.add(Util.createDebugPoint(".", file, 9, RESUME, 1));
 
-        for (VariableDTO var : variables) {
-            if (var.getScope().equals("Global")) {
-                globalVariables.add(var);
-            }
-        }
-        Assert.assertEquals(globalVariables.size(), 8);
+        List<VariableDTO> variables = new ArrayList<>();
+        variables.add(Util.createVariable("gInt", "Global", new BInteger(5)));
+        variables.add(Util.createVariable("gStr", "Global", new BString("str")));
+        variables.add(Util.createVariable("gBool", "Global", new BBoolean(true)));
+        variables.add(Util.createVariable("gByte", "Global", new BByte((byte) 255)));
+        variables.add(Util.createVariable("args", "Local", new BStringArray(new String[]{"Hello", "World"})));
+        variables.add(Util.createVariable("x", "Local", new BInteger(10)));
+        variables.add(Util.createVariable("z", "Local", new BInteger(15)));
 
-        Assert.assertEquals(globalVariables.get(0).getName(), "gInt");
-        Assert.assertEquals(globalVariables.get(0).getType(), "int");
-        Assert.assertEquals(globalVariables.get(0).getValue(), "5");
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 1, 4, variables, true);
 
-        Assert.assertEquals(globalVariables.get(5).getName(), "gRec");
-        Assert.assertEquals(globalVariables.get(5).getType(), "Foo");
-        Assert.assertEquals(globalVariables.get(5).getValue(), "struct Foo {count:5, last:\"last\"}");
-
-        Assert.assertEquals(globalVariables.get(6).getName(), "gObj");
-        Assert.assertEquals(globalVariables.get(6).getType(), "Person");
+        VMDebuggerUtil.startDebug("test-src/debugger/test_variables.bal", breakPoints, expRes);
     }
 }
