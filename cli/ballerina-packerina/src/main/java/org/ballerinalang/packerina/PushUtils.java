@@ -98,9 +98,8 @@ public class PushUtils {
         Path pkgPathFromPrjtDir = Paths.get(prjDirPath.toString(), ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
                                             ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName,
                                             packageName, version, packageName + ".zip");
-        if (Files.notExists(pkgPathFromPrjtDir)) {
-            BuilderUtils.compileWithTestsAndWrite(prjDirPath, packageName, packageName, false, false, false, true);
-        }
+        // Build the package
+        BuilderUtils.compileWithTestsAndWrite(prjDirPath, packageName, packageName, false, false, false, false);
 
         if (installToRepo == null) {
             // Get access token
