@@ -14,7 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type EventType "CURRENT"|"EXPIRED"|"ALL"|"RESET";
+import ballerina/io;
+import ballerina/time;
+import ballerina/task;
+
+public type EventType "CURRENT"|"EXPIRED"|"ALL"|"RESET"|"TIMER";
 
 public type StreamEvent record {
     EventType eventType;
@@ -23,11 +27,12 @@ public type StreamEvent record {
 };
 
 public type LengthWindow object {
-    public int size;
-    private LinkedList linkedList;
-    private function (StreamEvent[]) nextProcessorPointer;
 
-    new(nextProcessorPointer, size) {
+    public int size;
+    public LinkedList linkedList;
+    public function (StreamEvent[]) nextProcessorPointer;
+
+    public new(nextProcessorPointer, size) {
         linkedList = new;
     }
 
@@ -39,14 +44,17 @@ public type LengthWindow object {
                     StreamEvent streamEvent => {
                         outputEvents[lengthof outputEvents] = streamEvent;
                     }
+
                     () => {
                         // do nothing
                     }
-                    any anyValue => {
 
+                    any anyValue => {
+                        // do nothing
                     }
                 }
             }
+
             outputEvents[lengthof outputEvents] = event;
             StreamEvent expiredVeresionOfEvent = {eventType : "EXPIRED", eventObject: event.eventObject,
                 timestamp: event.timestamp};
@@ -62,170 +70,221 @@ public function lengthWindow(function (StreamEvent[]) nextProcessorPointer, int 
     return lengthWindow1;
 }
 
-type QNode object {
-    public any data;
-    public QNode? nextNode;
-
-    new(data) {
-
-    }
-};
-
-type Queue object {
-    private QNode? front;
-    private QNode? rear;
-
-    public function isEmpty() returns boolean {
-        match front {
-            QNode value => {
-                return false;
-            }
-            () => {
-                return true;
-            }
-        }
-    }
-
-    public function peekRear() returns any {
-        match rear {
-            QNode value => {
-                return value.data;
-            }
-            () => {
-                return ();
-            }
-        }
-    }
-
-    public function peekFront() returns any {
-        match front {
-            QNode value => {
-                return value.data;
-            }
-            () => {
-                return ();
-            }
-        }
-    }
-
-    public function enqueue(any data) {
-        QNode temp = new(data);
-        match rear {
-            QNode value => {
-                value.nextNode = temp;
-                rear = temp;
-            }
-            () => {
-                rear = temp;
-                front = rear;
-            }
-        }
-    }
-
-    public function dequeue() returns any? {
-        match front {
-            QNode value => {
-                front = value.nextNode;
-                match front {
-                    QNode nextValue => {
-                        // do nothing
-                    }
-                    () => {
-                        rear = ();
-                    }
-                }
-                return value.data;
-            }
-            () => {
-                return ();
-            }
-        }
-    }
-
-    public function asArray() returns any[] {
-        any[] anyArray = [];
-        QNode? temp;
-        int i;
-        if (!isEmpty()) {
-            match front {
-                QNode value => {
-                    temp = value;
-                    while (temp != ()) {
-                        anyArray[i] = temp.data;
-                        i = i + 1;
-                        temp = temp.nextNode;
-                    }
-                }
-                () => {
-
-                }
-            }
-        }
-        return anyArray;
-    }
-};
-
 public type TimeWindow object {
+
     public int counter;
     public int timeLength;
-    public EventType eventType = "ALL";
 
-    private Queue eventQueue;
+    private LinkedList linkedList;
     private function (StreamEvent[]) nextProcessorPointer;
 
-    new(timeLength, eventType, nextProcessorPointer) {
-        eventQueue = new;
+    public new (nextProcessorPointer, timeLength) {
+        linkedList = new;
     }
 
-    public function startEventRemovalWorker() {
+    function startEventRemovalWorker() {
 
-        StreamEvent frontEvent = check <StreamEvent>eventQueue.peekFront();
-        StreamEvent rearEvent = check <StreamEvent>eventQueue.peekRear();
+        StreamEvent frontEvent = check <StreamEvent>linkedList.getFirst();
+        StreamEvent rearEvent = check <StreamEvent>linkedList.getLast();
         StreamEvent[] expiredEvents = [];
         int index = 0;
-        while (!eventQueue.isEmpty() && rearEvent.timestamp > frontEvent.timestamp + timeLength) {
-            if (!eventQueue.isEmpty()) {
-                StreamEvent streamEvent = check <StreamEvent>eventQueue.dequeue();
+
+        while (!linkedList.isEmpty() && rearEvent.timestamp > frontEvent.timestamp + timeLength) {
+            if (!linkedList.isEmpty()) {
+                StreamEvent streamEvent = check <StreamEvent>linkedList.removeFirst();
                 EventType evType = "EXPIRED";
-                StreamEvent event = { eventType: evType, eventObject: streamEvent.eventObject,
-                    timestamp: streamEvent.timestamp };
+                StreamEvent event = {eventType : evType, eventObject : streamEvent.eventObject,
+                    timestamp : streamEvent.timestamp};
                 expiredEvents[index] = event;
                 index += 1;
-                frontEvent = check <StreamEvent>eventQueue.peekFront();
-                rearEvent = check <StreamEvent>eventQueue.peekRear();
+                frontEvent = check <StreamEvent>linkedList.getFirst();
+                rearEvent = check <StreamEvent>linkedList.getLast();
             }
         }
+
         if (lengthof expiredEvents > 0) {
             nextProcessorPointer(expiredEvents);
         }
     }
 
     public function add(StreamEvent event) {
-        if (!eventQueue.isEmpty()) {
-            StreamEvent rearEvent = check <StreamEvent>eventQueue.peekRear();
+        if (!linkedList.isEmpty()) {
+            StreamEvent rearEvent = check <StreamEvent>linkedList.getLast();
             if (rearEvent.timestamp <= event.timestamp) {
-                eventQueue.enqueue(event);
+                linkedList.addLast(event);
             }
         } else {
-            eventQueue.enqueue(event);
+            linkedList.addLast(event);
         }
         startEventRemovalWorker();
     }
+};
 
-    public function returnContent() returns StreamEvent[] {
-        StreamEvent[] events = [];
-        int i = 0;
-        foreach item in eventQueue.asArray() {
-            StreamEvent event = check <StreamEvent>item;
-            events[i] = event;
-            i += 1;
+public function timeWindow(function(StreamEvent[]) nextProcessPointer, int timeLength)
+                    returns TimeWindow {
+    TimeWindow timeWindow1 = new(nextProcessPointer, timeLength);
+    return timeWindow1;
+}
+
+public type LengthBatchWindow object {
+    private int length;
+    private int count;
+    private StreamEvent? resetEvent;
+    private LinkedList currentEventQueue;
+    private LinkedList? expiredEventQueue;
+    private function (StreamEvent[]) nextProcessorPointer;
+
+    public new (nextProcessorPointer, length) {
+        currentEventQueue = new();
+        expiredEventQueue = ();
+    }
+
+    public function process(StreamEvent[] streamEvents) {
+        LinkedList streamEventChunks = new();
+        LinkedList outputStreamEventChunk = new();
+        int currentTime = time:currentTime().time;
+
+        foreach event in streamEvents {
+            StreamEvent clonedStreamEvent = cloneStreamEvent(event);
+            currentEventQueue.addLast(clonedStreamEvent);
+            count++;
+            if (count == length) {
+                //if (expiredEventQueue.getFirst() != ()) {
+                //    expiredEventQueue.clear();
+                //}
+                if (currentEventQueue.getFirst() != ()) {
+                    if (resetEvent != ()) {
+                        outputStreamEventChunk.addLast(resetEvent);
+                        resetEvent = ();
+                    }
+                    //if (expiredEventQueue != ()) {
+                    //    currentEventQueue.resetToFront();
+                    //    while (currentEventQueue.hasNext()) {
+                    //        StreamEvent currentEvent = check <StreamEvent> currentEventQueue.next();
+                    //        StreamEvent toBeExpired = {eventType: "EXPIRED", eventObject: currentEvent.eventObject,
+                    //            timestamp: currentEvent.timestamp};
+                    //        expiredEventQueue.addLast(toBeExpired);
+                    //    }
+                    //}
+                    StreamEvent firstInCurrentEventQueue = check <StreamEvent> currentEventQueue.getFirst();
+                    resetEvent = createResetStreamEvent(firstInCurrentEventQueue);
+                    foreach currentEvent in currentEventQueue.asArray() {
+                        outputStreamEventChunk.addLast(currentEvent);
+                    }
+                }
+                currentEventQueue.clear();
+                count = 0;
+                if (outputStreamEventChunk.getFirst() != ()) {
+                    streamEventChunks.addLast(outputStreamEventChunk);
+                }
+            }
         }
-        return events;
+
+        streamEventChunks.resetToFront();
+        while streamEventChunks.hasNext() {
+            StreamEvent[] events = [];
+            LinkedList streamEventChunk = check <LinkedList> streamEventChunks.next();
+            streamEventChunk.resetToFront();
+            while (streamEventChunk.hasNext()) {
+                StreamEvent streamEvent = check <StreamEvent> streamEventChunk.next();
+                events[lengthof events] = streamEvent;
+            }
+            nextProcessorPointer(events);
+        }
     }
 };
 
-public function timeWindow(int timeLength, EventType eventType, function(StreamEvent[]) nextProcessPointer)
-                    returns TimeWindow {
-    TimeWindow timeWindow1 = new(timeLength, eventType, nextProcessPointer);
-    return timeWindow1;
+public function lengthBatchWindow(function(StreamEvent[]) nextProcessPointer, int length)
+                    returns LengthBatchWindow {
+    LengthBatchWindow lengthBatch = new(nextProcessPointer, length);
+    return lengthBatch;
+}
+
+
+public type TimeBatchWindow object {
+    private int timeInMilliSeconds;
+    private int nextEmitTime = -1;
+    private LinkedList currentEventQueue;
+    private LinkedList? expiredEventQueue;
+    private StreamEvent? resetEvent;
+    private task:Timer? timer;
+    private function (StreamEvent[]) nextProcessorPointer;
+
+    public new(nextProcessorPointer, timeInMilliSeconds) {
+        currentEventQueue = new();
+        expiredEventQueue = ();
+    }
+
+    function invokeProcess() returns error? {
+        StreamEvent timerEvent = {eventType : "TIMER", eventObject: (), timestamp: time:currentTime().time};
+        StreamEvent[] timerEventWrapper = [];
+        timerEventWrapper[0] = timerEvent;
+        process(timerEventWrapper);
+        return ();
+    }
+    public function process(StreamEvent[] streamEvents) {
+        LinkedList outputStreamEvents = new();
+        if (nextEmitTime == -1) {
+            nextEmitTime = time:currentTime().time + timeInMilliSeconds;
+            timer = new task:Timer(self.invokeProcess, self.handleError, timeInMilliSeconds, delay =
+                timeInMilliSeconds);
+            _ = timer.start();
+        }
+
+        int currentTime = time:currentTime().time;
+        boolean sendEvents = false;
+
+        if (currentTime >= nextEmitTime) {
+            nextEmitTime += timeInMilliSeconds;
+            timer.stop();
+            timer = new task:Timer(self.invokeProcess, self.handleError, timeInMilliSeconds, delay =
+                timeInMilliSeconds);
+            _ = timer.start();
+            sendEvents = true;
+        } else {
+            sendEvents = false;
+        }
+
+        foreach event in streamEvents {
+            if (event.eventType != "CURRENT") {
+                continue;
+            }
+            StreamEvent clonedEvent = cloneStreamEvent(event);
+            currentEventQueue.addLast(clonedEvent);
+        }
+        if (sendEvents) {
+            if (currentEventQueue.getFirst() != ()) {
+                if (resetEvent != ()) {
+                    outputStreamEvents.addLast(resetEvent);
+                    resetEvent = ();
+                }
+                resetEvent = createResetStreamEvent(check <StreamEvent> currentEventQueue.getFirst());
+                currentEventQueue.resetToFront();
+                while (currentEventQueue.hasNext()) {
+                    StreamEvent streamEvent = check <StreamEvent> currentEventQueue.next();
+                    outputStreamEvents.addLast(streamEvent);
+                }
+            }
+            currentEventQueue.clear();
+        }
+        if (outputStreamEvents.getSize() != 0) {
+            StreamEvent[] events = [];
+            outputStreamEvents.resetToFront();
+            while (outputStreamEvents.hasNext()) {
+                StreamEvent streamEvent = check <StreamEvent> outputStreamEvents.next();
+                events[lengthof events] = streamEvent;
+            }
+            nextProcessorPointer(events);
+        }
+    }
+
+    function handleError(error e) {
+        io:println("Error occured", e);
+    }
+};
+
+public function timeBatchWindow(function(StreamEvent[]) nextProcessPointer, int time)
+                    returns TimeBatchWindow {
+    TimeBatchWindow timeBatch = new(nextProcessPointer, time);
+    return timeBatch;
 }
