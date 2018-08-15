@@ -24,8 +24,8 @@ import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.stdlib.task.TaskExecutor;
 import org.ballerinalang.stdlib.task.TaskIdGenerator;
 import org.ballerinalang.stdlib.task.TaskRegistry;
+import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -50,8 +50,8 @@ public class Timer {
      * @throws SchedulingException if cannot create the scheduler
      */
     public Timer(NativeCallableUnit fn, Context ctx, long delay, long interval,
-                 FunctionRefCPEntry onTriggerFunction,
-                 FunctionRefCPEntry onErrorFunction) throws SchedulingException {
+                 FunctionInfo onTriggerFunction,
+                 FunctionInfo onErrorFunction) throws SchedulingException {
 
         if (delay < 0 || interval < 0) {
             throw new SchedulingException("Timer scheduling delay and interval should be non-negative values");
@@ -74,8 +74,8 @@ public class Timer {
      * @param onErrorFunction   The function which will be triggered in the error situation.
      */
     private static void callTriggerFunction(NativeCallableUnit fn, Context parentCtx,
-                                            FunctionRefCPEntry onTriggerFunction,
-                                            FunctionRefCPEntry onErrorFunction) {
+                                            FunctionInfo onTriggerFunction,
+                                            FunctionInfo onErrorFunction) {
         ProgramFile programFile = parentCtx.getProgramFile();
         TaskExecutor.execute(fn, parentCtx, onTriggerFunction, onErrorFunction, programFile);
     }

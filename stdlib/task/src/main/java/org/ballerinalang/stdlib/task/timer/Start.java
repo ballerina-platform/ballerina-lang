@@ -29,7 +29,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.stdlib.task.SchedulingException;
-import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
+import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
@@ -58,9 +58,9 @@ public class Start extends BlockingNativeCallableUnit {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.TASK_ALREADY_RUNNING);
         }
 
-        FunctionRefCPEntry onTriggerFunctionRefCPEntry = ((BFunctionPointer) task.get(TIMER_ON_TRIGGER_FIELD)).value();
+        FunctionInfo onTriggerFunctionRef = ((BFunctionPointer) task.get(TIMER_ON_TRIGGER_FIELD)).value();
         BValue onErrorFunc = task.get(TIMER_ON_ERROR_FIELD);
-        FunctionRefCPEntry onErrorFunctionRefCPEntry =
+        FunctionInfo onErrorFunctionRef =
                 onErrorFunc != null ? ((BFunctionPointer) onErrorFunc).value() : null;
 
         long delay = ((BInteger) task.get(TIMER_DELAY)).intValue();
@@ -71,7 +71,7 @@ public class Start extends BlockingNativeCallableUnit {
 
         try {
             Timer timer =
-                    new Timer(this, ctx, delay, interval, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
+                    new Timer(this, ctx, delay, interval, onTriggerFunctionRef, onErrorFunctionRef);
             task.put(TIMER_TASK_ID_FIELD, new BString(timer.getId()));
             task.put(TIMER_IS_RUNNING_FIELD, new BBoolean(true));
         } catch (SchedulingException e) {

@@ -21,8 +21,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.program.BLangFunctions;
 
@@ -32,23 +32,23 @@ import org.ballerinalang.util.program.BLangFunctions;
  */
 public class TaskExecutor {
 
-    public static void execute(NativeCallableUnit fn, Context parentCtx, FunctionRefCPEntry onTriggerFunction,
-                               FunctionRefCPEntry onErrorFunction, ProgramFile programFile) {
+    public static void execute(NativeCallableUnit fn, Context parentCtx, FunctionInfo onTriggerFunction,
+                               FunctionInfo onErrorFunction, ProgramFile programFile) {
         boolean isErrorFnCalled = false;
         try {
             // Invoke the onTrigger function.
-            BValue[] results = BLangFunctions.invokeCallable(onTriggerFunction.getFunctionInfo(),
+            BValue[] results = BLangFunctions.invokeCallable(onTriggerFunction,
                     new BValue[0]);
             // If there are results, that mean an error has been returned
             if (onErrorFunction != null && results.length > 0 && results[0] != null) {
                 isErrorFnCalled = true;
-                BLangFunctions.invokeCallable(onErrorFunction.getFunctionInfo(), results);
+                BLangFunctions.invokeCallable(onErrorFunction, results);
             }
         } catch (BLangRuntimeException e) {
 
             //Call the onError function in case of error.
             if (onErrorFunction != null && !isErrorFnCalled) {
-                BLangFunctions.invokeCallable(onErrorFunction.getFunctionInfo(),
+                BLangFunctions.invokeCallable(onErrorFunction,
                         new BValue[] { BLangVMErrors.createError(parentCtx, e.getMessage()) });
             }
         }

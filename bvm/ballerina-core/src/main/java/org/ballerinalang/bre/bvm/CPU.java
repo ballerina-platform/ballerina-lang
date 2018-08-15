@@ -81,6 +81,7 @@ import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
+import org.ballerinalang.util.codegen.ObjectTypeInfo;
 import org.ballerinalang.util.codegen.StructFieldInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.codegen.TypeDefInfo;
@@ -476,8 +477,7 @@ public class CPU {
                         }
                         cpIndex = operands[1];
                         funcCallCPEntry = (FunctionCallCPEntry) ctx.constPool[cpIndex];
-                        funcRefCPEntry = ((BFunctionPointer) sf.refRegs[i]).value();
-                        functionInfo = funcRefCPEntry.getFunctionInfo();
+                        functionInfo = ((BFunctionPointer) sf.refRegs[i]).value();
                         ctx = invokeCallable(ctx, (BFunctionPointer) sf.refRegs[i], funcCallCPEntry, functionInfo, sf);
                         if (ctx == null) {
                             return;
@@ -489,9 +489,34 @@ public class CPU {
                         k = operands[2];
                         funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[i];
                         typeEntry = (TypeRefCPEntry) ctx.constPool[k];
-                        BFunctionPointer functionPointer = new BFunctionPointer(funcRefCPEntry, typeEntry.getType());
+                        BFunctionPointer functionPointer = new BFunctionPointer(funcRefCPEntry.getFunctionInfo(),
+                                typeEntry.getType());
                         sf.refRegs[j] = functionPointer;
                         findAndAddAdditionalVarRegIndexes(ctx, operands, functionPointer);
+                        break;
+                    case InstructionCodes.VFPLOAD:
+                        i = operands[0];
+                        j = operands[1];
+                        k = operands[2];
+                        int m = operands[5];
+                        funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[i];
+                        typeEntry = (TypeRefCPEntry) ctx.constPool[k];
+
+                        BMap<String, BValue> structVal = (BMap<String, BValue>) ctx.workerLocal.refRegs[m];
+                        if (structVal == null) {
+                            handleNullRefError(ctx);
+                            break;
+                        }
+
+                        StructureTypeInfo structInfo = (ObjectTypeInfo) ((BStructureType)
+                                structVal.getType()).getTypeInfo();
+                        AttachedFunctionInfo attachedFuncInfo = structInfo.funcInfoEntries
+                                .get(funcRefCPEntry.getFunctionInfo().getName());
+                        FunctionInfo concreteFuncInfo = attachedFuncInfo.functionInfo;
+
+                        BFunctionPointer fPointer = new BFunctionPointer(concreteFuncInfo, typeEntry.getType());
+                        sf.refRegs[j] = fPointer;
+                        findAndAddAdditionalVarRegIndexes(ctx, operands, fPointer);
                         break;
     
                     case InstructionCodes.I2ANY:
@@ -719,7 +744,8 @@ public class CPU {
                         k = operands[2];
                         funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[i];
                         typeEntry = (TypeRefCPEntry) ctx.constPool[k];
-                        BFunctionPointer fp = new BFunctionPointer(funcRefCPEntry, typeEntry.getType());
+                        BFunctionPointer fp = new BFunctionPointer(funcRefCPEntry.getFunctionInfo(),
+                                typeEntry.getType());
                         findAndAddAdditionalVarRegIndexes(ctx, operands, fp);
                         addToCompensationTable(scopeEnd, ctx, fp);
                         break;
@@ -2669,14 +2695,14 @@ public class CPU {
         //Register committed function handler if exists.
         if (committedFuncIndex != -1) {
             FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[committedFuncIndex];
-            BFunctionPointer fpCommitted = new BFunctionPointer(funcRefCPEntry);
+            BFunctionPointer fpCommitted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
             TransactionResourceManager.getInstance().registerCommittedFunction(transactionBlockId, fpCommitted);
         }
 
         //Register aborted function handler if exists.
         if (abortedFuncIndex != -1) {
             FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[abortedFuncIndex];
-            BFunctionPointer fpAborted = new BFunctionPointer(funcRefCPEntry);
+            BFunctionPointer fpAborted = new BFunctionPointer(funcRefCPEntry.getFunctionInfo());
             TransactionResourceManager.getInstance().registerAbortedFunction(transactionBlockId, fpAborted);
         }
 

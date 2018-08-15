@@ -225,7 +225,7 @@ public class BTable implements BRefType<Object>, BCollection {
      */
     public void performRemoveOperation(Context context, BFunctionPointer lambdaFunction) {
         try {
-            BType functionInputType = lambdaFunction.funcRefCPEntry.getFunctionInfo().getParamTypes()[0];
+            BType functionInputType = lambdaFunction.value().getParamTypes()[0];
             if (functionInputType != this.constraintType) {
                 throw new BallerinaException("incompatible types: function with record type:"
                         + functionInputType.getName() + " cannot be used to remove records from a table with type:"
@@ -235,7 +235,7 @@ public class BTable implements BRefType<Object>, BCollection {
             while (this.hasNext(false)) {
                 BMap<String, BValue> data = this.getNext();
                 BValue[] args = { data };
-                BValue[] returns = BLangFunctions.invokeCallable(lambdaFunction.value().getFunctionInfo(), args);
+                BValue[] returns = BLangFunctions.invokeCallable(lambdaFunction.value(), args);
                 if (((BBoolean) returns[0]).booleanValue()) {
                     ++deletedCount;
                     tableProvider.deleteData(tableName, data);

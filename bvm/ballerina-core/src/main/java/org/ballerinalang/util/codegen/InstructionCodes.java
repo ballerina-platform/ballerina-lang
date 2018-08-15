@@ -150,6 +150,7 @@ public interface InstructionCodes {
     int ERRSTORE = 124;
     int FPCALL = 125;
     int FPLOAD = 126;
+    int VFPLOAD = 127;
 
     int SEQ_NULL = 128;
     int SNE_NULL = 129;

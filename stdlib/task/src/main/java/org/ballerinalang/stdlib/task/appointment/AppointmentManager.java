@@ -20,7 +20,7 @@ package org.ballerinalang.stdlib.task.appointment;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.NativeCallableUnit;
-import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
+import org.ballerinalang.util.codegen.FunctionInfo;
 import org.quartz.CronTrigger;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
@@ -62,8 +62,8 @@ public class AppointmentManager {
     }
 
     void schedule(String taskId, NativeCallableUnit fn, Class<? extends Job> jobClass,
-                  Context balParentContext, FunctionRefCPEntry onTriggerFunction,
-                  FunctionRefCPEntry onErrorFunction, String cronExpression) throws SchedulerException {
+                  Context balParentContext, FunctionInfo onTriggerFunction,
+                  FunctionInfo onErrorFunction, String cronExpression) throws SchedulerException {
         JobDataMap jobData = new JobDataMap();
         jobData.put(AppointmentConstants.BALLERINA_FUNCTION, fn);
         jobData.put(AppointmentConstants.BALLERINA_PARENT_CONTEXT, balParentContext);
