@@ -76,6 +76,6 @@ function test9(){
     io:println("done");
 }
 
-function main () {
+public function main () {
     io:println("done");
 }
