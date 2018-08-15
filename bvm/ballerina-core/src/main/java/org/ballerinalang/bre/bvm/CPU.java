@@ -1441,6 +1441,7 @@ public class CPU {
                             BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE,
                                     elementType, (refReg != null) ? refReg.getType() : BTypes.typeNull)));
                     handleError(ctx);
+                    break;
                 }
                 ListUtils.execListAddOperation(list, index, refReg);
                 break;

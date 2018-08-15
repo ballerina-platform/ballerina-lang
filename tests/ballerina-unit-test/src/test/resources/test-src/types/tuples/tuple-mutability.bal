@@ -121,3 +121,18 @@ function testComplexTupleTypes() returns (float, json, boolean, json, float) {
 
     return (x1 but {boolean => 0.0}, x3 but {int => ""}, x5 but {int => false}, x6 but {float => ""}, x7 but {boolean => 0.0});
 }
+
+function testWithTryCatch() returns int {
+    (int, int, ()) x = (1, 2, ());
+    (int, int?, ()) y = x;
+
+    try {
+        y[0] = 5;
+        y[1] = 5;
+        y[1] = (); // Runtime Exception
+    } catch (error e) {
+        // Catch Runtime Exception
+    } finally {
+        return y[1] but {() => 1};
+    }
+}
