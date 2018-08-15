@@ -1555,3 +1555,34 @@ function testCloseConnectionPool(string jdbcUrl, string userName, string passwor
     testDB.stop();
     return count;
 }
+
+function testReInitEndpoint(string jdbcUrl, string userName, string password) returns int {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    jdbc:ClientEndpointConfiguration config = {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    testDB.stop();
+
+    testDB.init(config);
+
+    table dt = check testDB->select("select 1 from Customers", ResultCount);
+
+    int count;
+    while (dt.hasNext()) {
+        ResultCount rs = check <ResultCount>dt.getNext();
+        count = rs.COUNTVAL;
+    }
+    testDB.stop();
+
+    return count;
+}

@@ -160,6 +160,12 @@ public class H2ClientActionsTest {
         Assert.assertEquals(returns[1].stringValue(), "[{\"ID\":15, \"NAME\":\"Anne\"}]");
     }
 
+    @Test(description = "Test re-init endpoint")
+    public void testReInitEndpoint() {
+        BValue[] returns = BRunUtil.invoke(result, "testReInitEndpoint");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
     @AfterSuite
     public void cleanup() {
         SQLDBUtils.deleteDirectory(new File(DB_DIRECTORY_H2));

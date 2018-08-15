@@ -822,6 +822,12 @@ public class SQLActionsTest {
                 + "closed table\", cause:null})");
     }
 
+    @Test(groups = CONNECTOR_TEST, description = "Test re-init endpoint")
+    public void testReInitEndpoint() {
+        BValue[] returns = BRunUtil.invoke(result, "testReInitEndpoint", connectionArgs);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
     @AfterSuite
     public void cleanup() {
         if (testDatabase != null) {
