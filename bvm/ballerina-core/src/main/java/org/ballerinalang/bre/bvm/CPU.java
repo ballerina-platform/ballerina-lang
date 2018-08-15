@@ -1122,7 +1122,6 @@ public class CPU {
         BFloatArray bFloatArray;
         BStringArray bStringArray;
         BBooleanArray bBooleanArray;
-        BRefValueArray bArray;
         BMap<String, BRefType> bMap;
         switch (opcode) {
             case InstructionCodes.IMOVE:
@@ -1432,21 +1431,18 @@ public class CPU {
                     break;
                 }
 
-                try {
-                    long index = sf.longRegs[j];
-                    BRefType refReg = sf.refRegs[k];
-                    BType elementType = (list.getType().getTag() == TypeTags.ARRAY_TAG)
-                            ? ((BArrayType) list.getType()).getElementType()
-                            : ((BTupleType) list.getType()).getTupleTypes().get((int) index);
-                    if (!checkCast(refReg, elementType)) {
-                        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
-                                elementType, (refReg != null) ? refReg.getType() : BTypes.typeNull);
-                    }
-                    ListUtils.execListAddOperation(list, index, refReg);
-                } catch (Exception e) {
-                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                long index = sf.longRegs[j];
+                BRefType refReg = sf.refRegs[k];
+                BType elementType = (list.getType().getTag() == TypeTags.ARRAY_TAG)
+                        ? ((BArrayType) list.getType()).getElementType()
+                        : ((BTupleType) list.getType()).getTupleTypes().get((int) index);
+                if (!checkCast(refReg, elementType)) {
+                    ctx.setError(BLangVMErrors.createError(ctx,
+                            BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE,
+                                    elementType, (refReg != null) ? refReg.getType() : BTypes.typeNull)));
                     handleError(ctx);
                 }
+                ListUtils.execListAddOperation(list, index, refReg);
                 break;
             case InstructionCodes.JSONASTORE:
                 i = operands[0];
