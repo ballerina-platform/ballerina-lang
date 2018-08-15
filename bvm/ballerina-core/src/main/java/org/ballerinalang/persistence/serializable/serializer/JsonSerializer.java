@@ -43,6 +43,7 @@ import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.Ba
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.ClassBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.ConcurrentHashMapBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.NumericBValueProviders;
+import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.SerializedKeyBValueProvider;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;
@@ -88,6 +89,7 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         bValueProvider.register(new BTypeBValueProviders.BRecordTypeBValueProvider());
         bValueProvider.register(new BTypeBValueProviders.BAnyTypeBValueProvider());
         bValueProvider.register(new BTypeBValueProviders.BArrayTypeBValueProvider());
+        bValueProvider.register(new SerializedKeyBValueProvider());
     }
 
     private static String getBValuePackagePath() {

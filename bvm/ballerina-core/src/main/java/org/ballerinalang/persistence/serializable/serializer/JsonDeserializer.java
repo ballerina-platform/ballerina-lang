@@ -36,8 +36,6 @@ import org.ballerinalang.persistence.serializable.serializer.providers.instance.
 import org.ballerinalang.persistence.serializable.serializer.providers.instance.SerializedKeyInstanceProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.instance.WorkerStateInstanceProvider;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -52,7 +50,6 @@ import static org.ballerinalang.persistence.serializable.serializer.ObjectHelper
  * Reconstruct Java object tree from JSON input.
  */
 class JsonDeserializer implements BValueDeserializer {
-    private static final Logger logger = LoggerFactory.getLogger(JsonDeserializer.class);
     private final TypeInstanceProviderRegistry instanceProviderRegistry;
     private final BValueProvider bValueProvider;
     private final HashMap<String, Object> identityMap;
@@ -367,7 +364,6 @@ class JsonDeserializer implements BValueDeserializer {
             // or this is a static final field initialized using compile time constant,
             // we can't assign to them at runtime, nor can we identify them at runtime.
         } catch (IllegalArgumentException e) {
-            logger.error(e.getMessage());
             throw new BallerinaException(e);
         }
     }
