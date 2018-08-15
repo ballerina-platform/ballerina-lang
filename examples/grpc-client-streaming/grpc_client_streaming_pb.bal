@@ -19,10 +19,10 @@ public type HelloWorldStub object {
         var res = self.stub.streamingExecute("HelloWorld/lotsOfGreetings",
                                                 listener, headers = headers);
         match res {
-            error err =&gt; {
+            error err => {
                 return err;
             }
-            grpc:Client con =&gt; {
+            grpc:Client con => {
                 return con;
             }
         }
