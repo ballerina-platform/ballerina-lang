@@ -988,7 +988,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         BLangSimpleVarRef nextProcessSimpleVarRef = ASTBuilderUtil.createVariableRef(pos,
                 nextProcessInvokableTypeVarSymbol);
-        BLangFieldBasedAccess nextProcessMethodAccess = createFieldBasedAccessForProcessFunc(where.pos,
+        BLangFieldBasedAccess nextProcessMethodAccess = createFieldBasedAccessForProcessFunc(pos,
                 nextProcessInvokableSymbol, nextProcessSimpleVarRef);
 
         // Having will also use the same filter invokable
