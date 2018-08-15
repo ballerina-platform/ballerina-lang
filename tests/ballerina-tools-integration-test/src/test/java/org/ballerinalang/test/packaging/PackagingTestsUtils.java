@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.test.packaging;
 
+import org.ballerinalang.test.context.BallerinaTestException;
+import org.ballerinalang.test.context.Constant;
+import org.ballerinalang.test.context.ServerInstance;
 import org.testng.Assert;
 
 import java.io.IOException;
@@ -95,5 +98,16 @@ public class PackagingTestsUtils {
             builder.append(alpha.charAt(character));
         }
         return builder.toString();
+    }
+
+    /**
+     * Get new instance of the ballerina server.
+     *
+     * @return new ballerina server instance
+     * @throws BallerinaTestException
+     */
+    static ServerInstance createNewBallerinaServer() throws BallerinaTestException {
+        String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
+        return new ServerInstance(serverZipPath);
     }
 }
