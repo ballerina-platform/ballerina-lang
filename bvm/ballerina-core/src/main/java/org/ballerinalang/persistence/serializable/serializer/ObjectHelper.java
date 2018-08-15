@@ -45,7 +45,7 @@ public class ObjectHelper {
                 continue;
             }
             String name;
-            if (depth < 0) {
+            if (depth == 0) {
                 name = declaredField.getName();
             } else {
                 name = declaredField.getName() + "#" + depth;
@@ -93,11 +93,11 @@ public class ObjectHelper {
             return ((Double) obj).floatValue();
         }
 
-        if (targetType == byte.class) {
+        if (targetType == byte.class && obj instanceof Long) {
             return getByte((Long) obj);
         }
 
-        if (targetType == Byte.class) {
+        if (targetType == Byte.class && obj instanceof Long) {
             return new Byte(getByte((Long) obj));
         }
 

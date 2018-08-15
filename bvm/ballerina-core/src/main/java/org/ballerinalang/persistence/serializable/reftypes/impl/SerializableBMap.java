@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.persistence.serializable.reftypes.impl;
 
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BValue;
@@ -44,12 +45,14 @@ public class SerializableBMap<K, V extends BValue> implements SerializableRefTyp
 
     private HashMap<K, Object> map = new HashMap<>();
     private HashMap<String, Object> nativeData = new HashMap<>();
+    private BType bType;
 
     public SerializableBMap(BMap<K, V> bMap, SerializableState state) {
         structName = bMap.getType().getName();
         pkgPath = bMap.getType().getPackagePath();
         bMap.getNativeData().forEach((k, o) -> nativeData.put(k, state.serialize(o)));
         bMap.getMap().forEach((k, v) -> map.put(k, state.serialize(v)));
+        bType = bMap.getType();
     }
 
     @Override
@@ -64,7 +67,7 @@ public class SerializableBMap<K, V extends BValue> implements SerializableRefTyp
             }
             bMap = new BMap<>(structInfo.getType());
         } else {
-            bMap = new BMap<>();
+            bMap = new BMap<>(this.bType);
         }
         nativeData.forEach((s, o) -> bMap.addNativeData(s, state.deserialize(o, programFile, deserializer)));
         map.forEach((k, v) -> bMap.put(k, (V) state.deserialize(v, programFile, deserializer)));

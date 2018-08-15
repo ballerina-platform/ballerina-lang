@@ -101,6 +101,15 @@ class JsonDeserializer implements BValueDeserializer {
             return jValue.stringValue();
         }
         if (jValue instanceof BInteger) {
+            if (targetType == Short.class || targetType == short.class) {
+                return (short) ((BInteger) jValue).intValue();
+            }
+            if (targetType == Integer.class || targetType == int.class) {
+                return (int) ((BInteger) jValue).intValue();
+            }
+            if (targetType == Byte.class || targetType == byte.class) {
+                return (byte) ((BInteger) jValue).intValue();
+            }
             return ((BInteger) jValue).intValue();
         }
         if (jValue instanceof BFloat) {

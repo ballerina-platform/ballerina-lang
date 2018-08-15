@@ -34,6 +34,7 @@ import java.util.ArrayList;
  * Provide mapping between {@link Class} and {@link BValue} representation of it.
  */
 public class ArrayListBValueProvider implements SerializationBValueProvider<ArrayList> {
+
     @Override
     public String typeName() {
         return getType().getName();
@@ -64,8 +65,12 @@ public class ArrayListBValueProvider implements SerializationBValueProvider<Arra
             BInteger length = (BInteger) wrapper.get(JsonSerializerConst.LENGTH_TAG);
             ArrayList arrayList = new ArrayList((int) length.intValue());
 
-            for (int i = 0; i < array.size(); i++) {
-                arrayList.add(array.get(i));
+            int i = 0;
+            for (; i < array.size(); i++) {
+                arrayList.add(bValueDeserializer.deserialize(array.get(i), null));
+            }
+            for (; i < length.intValue(); i++) {
+                arrayList.add(i, null);
             }
             return arrayList;
         }

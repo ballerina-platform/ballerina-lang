@@ -66,8 +66,8 @@ class BValueHelper {
         int hash;
         try {
             hash = obj.hashCode();
-        } catch (NullPointerException e) {
-            hash = -1;
+        } catch (NullPointerException | UnsupportedOperationException e) {
+            hash = -2;
         }
         sb.append(hash);
         if (sufix != null) {

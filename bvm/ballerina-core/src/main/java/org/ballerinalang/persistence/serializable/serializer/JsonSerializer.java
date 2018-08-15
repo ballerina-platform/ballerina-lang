@@ -38,6 +38,7 @@ import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.BI
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.BMapBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.BRefValueArrayBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.BStringBValueProvider;
+import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.BTypeBValueProviders;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.BallerinaBrokerByteBufBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.ClassBValueProvider;
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.ConcurrentHashMapBValueProvider;
@@ -83,6 +84,10 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         bValueProvider.register(new BIntegerBValueProvider());
         bValueProvider.register(new BBooleanBValueProvider());
         bValueProvider.register(new ArrayListBValueProvider());
+        bValueProvider.register(new BTypeBValueProviders.BObjectTypeBValueProvider());
+        bValueProvider.register(new BTypeBValueProviders.BRecordTypeBValueProvider());
+        bValueProvider.register(new BTypeBValueProviders.BAnyTypeBValueProvider());
+        bValueProvider.register(new BTypeBValueProviders.BArrayTypeBValueProvider());
     }
 
     private static String getBValuePackagePath() {
@@ -249,6 +254,9 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         }
         if (obj instanceof Character) {
             return new BInteger((long) ((Character) obj).charValue());
+        }
+        if (obj instanceof Short) {
+            return new BInteger(((Short) obj).intValue());
         }
         if (obj instanceof Integer) {
             return new BInteger(((Integer) obj).longValue());
