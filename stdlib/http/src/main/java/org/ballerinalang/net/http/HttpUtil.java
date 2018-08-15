@@ -232,7 +232,7 @@ public class HttpUtil {
             if (entityBodyRequired && !byteChannelAlreadySet) {
                 populateEntityBody(context, httpMessageStruct, entity, isRequest);
             }
-            
+
             // Entity cannot be null, since it is not a nullable field in http:Request or http:Response
             if (entity.isEmpty()) {
                 entity = createNewEntity(context, httpMessageStruct);
@@ -1170,5 +1170,26 @@ public class HttpUtil {
         sslConfiguration.setTrustStoreFile(String.valueOf(
                 Paths.get(System.getProperty("ballerina.home"), "bre", "security", "ballerinaTruststore.p12")));
         sslConfiguration.setTrustStorePass("ballerina");
+    }
+
+    public static String sanitizeBasePath(String basePath) {
+        basePath = basePath.trim();
+
+        if (!basePath.startsWith(HttpConstants.DEFAULT_BASE_PATH)) {
+            basePath = HttpConstants.DEFAULT_BASE_PATH.concat(basePath);
+        }
+
+        if ((basePath.endsWith(HttpConstants.DEFAULT_BASE_PATH) && basePath.length() != 1)) {
+            basePath = basePath.substring(0, basePath.length() - 1);
+        }
+
+        if (basePath.endsWith("*")) {
+            basePath = basePath.substring(0, basePath.length() - 1);
+        }
+
+        return basePath;
+    }
+
+    private HttpUtil() {
     }
 }

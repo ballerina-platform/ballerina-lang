@@ -56,11 +56,15 @@ function testFilterQuery() {
     forever {
         from inputStream
         select inputStream.name, inputStream.age
-        having age > 25
+        having age > getMaxAge() && age > 25
         => (Employee[] emp) {
             outputStream.publish(emp);
         }
     }
+}
+
+function getMaxAge() returns int  {
+    return 25;
 }
 
 function printTeachers(Employee e) {

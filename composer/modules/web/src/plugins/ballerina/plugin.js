@@ -300,7 +300,7 @@ class BallerinaPlugin extends Plugin {
                     cmdID: WORKSPACE_EVENTS.FILE_OPENED,
                     handler: ({ file }) => {
                         parseFile(file)
-                            .then(({ programDirPath = undefined }) => {
+                            .then(({ programDirPath = undefined, debugPackagePath }) => {
                                 const { workspace, command: { dispatch } } = this.appContext;
                                 if (programDirPath && !workspace.isFilePathOpenedInExplorer(programDirPath)) {
                                     dispatch(LAYOUT_COMMANDS.POPUP_DIALOG, {
@@ -313,6 +313,9 @@ class BallerinaPlugin extends Plugin {
                                             },
                                         },
                                     });
+                                }
+                                if (debugPackagePath) {
+                                    file.debugPackagePath = debugPackagePath;
                                 }
                             });
                     },
