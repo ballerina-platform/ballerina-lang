@@ -100,7 +100,12 @@ public class SourceDirectoryManager {
     public PackageID getPackageID(String sourcePackage) {
         List<String> sourceFileNames = this.sourceDirectory.getSourceFileNames();
         if (sourceFileNames.contains(sourcePackage)) {
-            return new PackageID(sourcePackage);
+            Manifest manifest = getManifest();
+            Name sourcePkg = names.fromString(sourcePackage);
+            PackageID pkgId = new PackageID(getOrgName(manifest), sourcePkg, new Name(manifest.getVersion()));
+            pkgId.isUnnamed = true;
+            pkgId.sourceFileName = sourcePkg;
+            return pkgId;
         }
 
         List<String> packageNames = this.sourceDirectory.getSourcePackageNames();
