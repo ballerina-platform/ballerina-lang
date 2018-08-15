@@ -1075,12 +1075,14 @@ public class PackageInfoReader {
         int variableIndex = dataInStream.readInt();
 
         int typeSigCPIndex = dataInStream.readInt();
+        int scopeStartLineNumber = dataInStream.readInt();
+        int scopeEndLineNumber = dataInStream.readInt();
 
         UTF8CPEntry typeSigCPEntry = (UTF8CPEntry) constantPool.getCPEntry(typeSigCPIndex);
 
         BType type = getBTypeFromDescriptor(packageInfo, typeSigCPEntry.getValue());
         LocalVariableInfo localVariableInfo = new LocalVariableInfo(varNameCPEntry.getValue(), varNameCPIndex,
-                variableIndex, typeSigCPIndex, type);
+                variableIndex, typeSigCPIndex, type, scopeStartLineNumber, scopeEndLineNumber);
         int attchmntIndexesLength = dataInStream.readShort();
         int[] attachmentIndexes = new int[attchmntIndexesLength];
         for (int i = 0; i < attchmntIndexesLength; i++) {

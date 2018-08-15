@@ -26,6 +26,7 @@ import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -66,8 +67,9 @@ public class GetXml extends BlockingNativeCallableUnit {
                     if (dataSource instanceof BXML) {
                         result = (BXML) dataSource;
                     } else {
-                        // else, build the XML from the string representation of the payload.
-                        result = XMLUtils.parse(dataSource.stringValue());
+                        // Build the XML from string representation of the payload.
+                        BString payload = MimeUtil.getMessageAsString(dataSource);
+                        result = XMLUtils.parse(payload.stringValue());
                     }
                 } else {
                     result = EntityBodyHandler.constructXmlDataSource(entityStruct);
