@@ -22,6 +22,7 @@ package org.wso2.transport.http.netty.contractimpl.websocket.message;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -144,6 +145,7 @@ public class DefaultWebSocketHandshaker implements WebSocketHandshaker {
                 responseFuture = ctx.writeAndFlush(new DefaultFullHttpResponse(
                         HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(responseStatusCode)));
             }
+            responseFuture.addListener((ChannelFutureListener) future -> ctx.close());
             return responseFuture;
         } finally {
             cancelled = true;
