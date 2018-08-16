@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.persistence.serializable;
 
-import com.google.gson.Gson;
 import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.values.BRefType;
@@ -42,8 +41,6 @@ import java.util.Map;
  * @since 0.981.1
  */
 public class SerializableState {
-    private static final Logger log = LoggerFactory.getLogger(SerializableState.class);
-
     private String id;
 
     public String currentContextKey;
@@ -65,11 +62,8 @@ public class SerializableState {
     }
 
     public static SerializableState deserialize(String json) {
-        long t = System.nanoTime();
-        SerializableState deserialize = Serializer.getStateSerializer().deserialize(json, SerializableState.class);
-        long diff = System.nanoTime() - t;
-        log.error("d - time: " + diff / 1000 + " us");
-        return deserialize;
+        ObjectToJsonSerializer stateSerializer = Serializer.getStateSerializer();
+        return stateSerializer.deserialize(json, SerializableState.class);
     }
 
     public SerializableState(WorkerExecutionContext executionContext, int ip) {
@@ -83,12 +77,8 @@ public class SerializableState {
     }
 
     public String serialize() {
-        long t = System.nanoTime();
-        String serialize = Serializer.getStateSerializer().serialize(this);
-        long diff = System.nanoTime() - t;
-        log.error("s - time: " + diff / 1000 + " us");
-        return serialize;
-
+        ObjectToJsonSerializer stateSerializer = Serializer.getStateSerializer();
+        return stateSerializer.serialize(this);
     }
 
     public WorkerExecutionContext getExecutionContext(ProgramFile programFile, Deserializer deserializer) {
