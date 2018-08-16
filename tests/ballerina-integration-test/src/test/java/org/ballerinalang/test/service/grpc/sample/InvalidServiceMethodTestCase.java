@@ -26,12 +26,9 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.IntegrationTestCase;
-import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -41,25 +38,23 @@ import java.nio.file.Paths;
 /**
  * Test class for invalid service methods.
  */
-public class InvalidServiceMethodTestCase extends IntegrationTestCase {
+@Test(groups = "grpc-test")
+public class InvalidServiceMethodTestCase extends BaseTest {
+    private CompileResult result;
 
-    private ServerInstance ballerinaServer;
-    
     @BeforeClass
     private void setup() throws Exception {
-        ballerinaServer = ServerInstance.initBallerinaServer(9090);
-        Path serviceBalPath = Paths.get("src", "test", "resources", "grpc", "invalid_resource_service.bal");
-        ballerinaServer.startBallerinaServer(serviceBalPath.toAbsolutePath().toString());
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "clients", "invalid_resource_client.bal");
+        result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         TestUtils.prepareBalo(this);
     }
 
     @Test(description = "Test invoking service method with invalid method name. Connector error is expected " +
             "with missing method descriptor.")
     public void testInvalidRemoteMethod() {
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "invalid_resource_client.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BString request = new BString("WSO2");
-        final String expectedMsg = "Error from Connector: No registered method descriptor for 'HelloWorld/hello1'";
+        final String expectedMsg = "Error from Connector: No registered method descriptor for " +
+                "'grpcservices.HelloWorld98/hello1'";
 
         BValue[] responses = BRunUtil.invoke(result, "testInvalidRemoteMethod", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);
@@ -70,9 +65,6 @@ public class InvalidServiceMethodTestCase extends IntegrationTestCase {
     @Test(description = "Test invoking service method with invalid input value type. Null value is expected at " +
             "service level")
     public void testInvalidInputParameter() {
-
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "invalid_resource_client.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BInteger request = new BInteger(10);
         final int serverMsg = -1;
 
@@ -85,12 +77,8 @@ public class InvalidServiceMethodTestCase extends IntegrationTestCase {
     @Test(description = "Test invoking service method and expecting response value with different type. Connector " +
             "error is expected with Invalid protobuf byte sequence")
     public void testInvalidOutputResponse() {
-
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "invalid_resource_client.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BFloat request = new BFloat(1000.5);
-        final String expectedMsg = "Error from Connector: Status{ code CANCELLED, description Failed to read message" +
-                "., cause INTERNAL: Invalid protobuf byte sequence}";
+        final String expectedMsg = "Error from Connector: 'string' cannot be cast to 'float'";
 
         BValue[] responses = BRunUtil.invoke(result, "testInvalidOutputResponse", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);
@@ -100,22 +88,12 @@ public class InvalidServiceMethodTestCase extends IntegrationTestCase {
     @Test(description = "Test invoking non existence remote method. Connector error is expected with method not found" +
             " message")
     public void testNonExistenceRemoteMethod() {
-
-        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "invalid_resource_client.bal");
-        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         BBoolean request = new BBoolean(false);
-        final String expectedMsg = "Error from Connector: Status{ code UNIMPLEMENTED, description HTTP status code " +
-                "404\n" +
-                "invalid content-type: text/plain\n" +
-                "MESSAGE DATA: method not found: HelloWorld/testBoolean, cause null}";
+        final String expectedMsg = "Error from Connector: No registered method descriptor for " +
+                "'grpcservices.HelloWorld98/testBoolean'";
 
         BValue[] responses = BRunUtil.invoke(result, "testNonExistenceRemoteMethod", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);
         Assert.assertEquals(responses[0].stringValue(), expectedMsg);
-    }
-    
-    @AfterClass
-    private void cleanup() throws BallerinaTestException {
-        ballerinaServer.stopServer();
     }
 }

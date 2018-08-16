@@ -18,7 +18,6 @@
 package org.ballerinalang.test.packaging;
 
 import org.awaitility.Duration;
-import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.LogLeecher;
@@ -53,7 +52,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 /**
  * Testing pushing, pulling, searching a package from central and installing package to home repository.
  */
-public class PackagingTestCase extends IntegrationTestCase {
+public class PackagingTestCase {
     private ServerInstance ballerinaClient;
     private String serverZipPath;
     private Path tempHomeDirectory;
