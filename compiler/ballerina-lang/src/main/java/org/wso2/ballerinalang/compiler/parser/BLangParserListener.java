@@ -2163,8 +2163,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             if ((node = ctx.floatingPointLiteral().DecimalFloatingPointNumber()) != null) {
                 this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getNodeValue(ctx, node)));
             } else if ((node = ctx.floatingPointLiteral().HexadecimalFloatingPointLiteral()) != null) {
-                this.pkgBuilder
-                        .addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getHexNodeValue(ctx, node)));
+                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT,
+                        Double.parseDouble(getHexNodeValue(ctx, node)));
             }
         } else if ((node = ctx.BooleanLiteral()) != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BOOLEAN, Boolean.parseBoolean(node.getText()));
