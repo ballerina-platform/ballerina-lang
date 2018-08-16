@@ -55,9 +55,13 @@ public class ZipConverter extends PathConverter {
                     pathToZip.getQuery(), pathToZip.getFragment());
             initFS(pathInZip);
             return Paths.get(pathInZip);
-        } catch (URISyntaxException ex) {
-            return Paths.get(pathToZip);
+        } catch (URISyntaxException ignore) {
+            // This exception occurs when trying to read the balo which is inside the package zip. An exception can
+            // occur when creating the URI needed to create the zip file system provider which will be used to read the
+            // content inside the zip/jar file. So if such an error occurs, we just return the path to the zip/jar file
+            // instead of throwing the exception.
         }
+        return Paths.get(pathToZip);
     }
 
     private static void initFS(URI uri) {
@@ -98,9 +102,12 @@ public class ZipConverter extends PathConverter {
                 }
             }
             return pathList.stream();
-        } catch (IOException ex) {
-            return Stream.of();
+        } catch (IOException ignore) {
+            // An I/O exception occurs when opening the directory specified when listing the files inside it. Since
+            // this is done during dependency resolution, we don't throw an exception to the user so instead we
+            // return an empty stream.
         }
+        return Stream.of();
     }
 
     /**
@@ -131,8 +138,10 @@ public class ZipConverter extends PathConverter {
                 return (version >= ProgramFileConstants.MIN_SUPPORTED_VERSION) &&
                         (version <= ProgramFileConstants.MAX_SUPPORTED_VERSION);
             }
-        } catch (IOException ex) {
-            return false;
+        } catch (IOException ignore) {
+            // An I/O exception can occur when opening the balo file which will return an input stream to read the balo
+            // version. Since this is done during dependency resolution, we don't throw an exception instead we return
+            // false
         }
         return false;
     }
