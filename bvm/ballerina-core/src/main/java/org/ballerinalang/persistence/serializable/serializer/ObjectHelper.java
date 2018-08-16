@@ -17,6 +17,10 @@
  */
 package org.ballerinalang.persistence.serializable.serializer;
 
+import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BValue;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -25,6 +29,8 @@ import java.util.HashMap;
  * Helper methods to operate on Objects.
  */
 public class ObjectHelper {
+    private static final String BVALUE_PACKAGE_PATH = getBValuePackagePath();
+
     private ObjectHelper() {
     }
 
@@ -118,6 +124,40 @@ public class ObjectHelper {
 
     private static char getChar(Long obj) {
         return (char) obj.byteValue();
+    }
+
+    static String getTrimmedClassName(Object obj) {
+        Class<?> clazz = obj.getClass();
+        return getTrimmedClassName(clazz);
+    }
+
+    static String getTrimmedClassName(Class<?> clazz) {
+        String className = clazz.getName();
+        // if obj is a BValue, trim fully qualified name to class name.
+        if (BValue.class.isAssignableFrom(clazz) && className.startsWith(BVALUE_PACKAGE_PATH)) {
+            className = className.substring(BVALUE_PACKAGE_PATH.length() + 1);
+        }
+        return className;
+    }
+
+
+    private static String getBValuePackagePath() {
+        return BValue.class.getPackage().getName();
+    }
+
+    static Class<?> findComponentType(BRefValueArray valueArray, Class<?> targetType) {
+        // if target type is a array then find its component type.
+        // else (i.e. target type is Object) infer component type from JSON representation.
+        if (valueArray.size() > 0 && !targetType.isArray()) {
+            if (valueArray.get(0).getType().equals(org.ballerinalang.model.types.BTypes.typeString)) {
+                return String.class;
+            } else if (valueArray.get(0).getType().equals(org.ballerinalang.model.types.BTypes.typeInt)) {
+                return Long.class;
+            } else if (valueArray.get(0).getType().equals(BTypes.typeFloat)) {
+                return Double.class;
+            }
+        }
+        return targetType.getComponentType();
     }
 
 }

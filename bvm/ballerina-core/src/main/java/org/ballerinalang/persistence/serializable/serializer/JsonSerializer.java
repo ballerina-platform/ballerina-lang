@@ -63,6 +63,7 @@ import static org.ballerinalang.persistence.serializable.serializer.BValueHelper
 import static org.ballerinalang.persistence.serializable.serializer.BValueHelper.createBString;
 import static org.ballerinalang.persistence.serializable.serializer.BValueHelper.getHashCode;
 import static org.ballerinalang.persistence.serializable.serializer.BValueHelper.wrapObject;
+import static org.ballerinalang.persistence.serializable.serializer.ObjectHelper.getTrimmedClassName;
 
 /**
  * Serialize @{@link SerializableState} into JSON and back.
@@ -71,7 +72,6 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
     private final IdentityHashMap<Object, Object> identityMap = new IdentityHashMap<>();
     private final HashSet<String> repeatedReferenceSet = new HashSet<>();
     private final BValueProvider bValueProvider = BValueProvider.getInstance();
-    private static final String BVALUE_PACKAGE_PATH = getBValuePackagePath();
 
     public JsonSerializer() {
         bValueProvider.register(new NumericBValueProviders.BigIntegerBValueProvider());
@@ -90,10 +90,6 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         bValueProvider.register(new BTypeBValueProviders.BAnyTypeBValueProvider());
         bValueProvider.register(new BTypeBValueProviders.BArrayTypeBValueProvider());
         bValueProvider.register(new SerializedKeyBValueProvider());
-    }
-
-    private static String getBValuePackagePath() {
-        return BValue.class.getPackage().getName();
     }
 
     /**
@@ -233,50 +229,54 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         if (obj == null) {
             return null;
         }
-        if (obj instanceof int[]) {
-            return toBValue((int[]) obj);
+        if (obj instanceof String) {
+            return createBString((String) obj);
         }
-        if (obj instanceof long[]) {
-            return toBValue((long[]) obj);
-        }
-        if (obj instanceof double[]) {
-            return toBValue((double[]) obj);
-        }
-        if (obj instanceof String[]) {
-            return toBValue((String[]) obj);
-        }
-        if (obj instanceof Byte[][]) {
-            return toBValue((Byte[][]) obj);
-        }
-        if (obj instanceof Byte[]) {
-            return toBValue((Byte[]) obj);
-        }
-        if (obj instanceof Byte) {
-            return new BInteger(((Byte) obj).longValue());
+        if (obj.getClass().isArray()) {
+            if (obj instanceof int[]) {
+                return toBValue((int[]) obj);
+            }
+            if (obj instanceof long[]) {
+                return toBValue((long[]) obj);
+            }
+            if (obj instanceof double[]) {
+                return toBValue((double[]) obj);
+            }
+            if (obj instanceof String[]) {
+                return toBValue((String[]) obj);
+            }
+            if (obj instanceof Byte[][]) {
+                return toBValue((Byte[][]) obj);
+            }
+            if (obj instanceof Byte[]) {
+                return toBValue((Byte[]) obj);
+            }
         }
         if (obj instanceof Character) {
             return new BInteger((long) ((Character) obj).charValue());
         }
-        if (obj instanceof Short) {
-            return new BInteger(((Short) obj).intValue());
-        }
-        if (obj instanceof Integer) {
-            return new BInteger(((Integer) obj).longValue());
-        }
-        if (obj instanceof Long) {
-            return new BInteger((Long) obj);
-        }
-        if (obj instanceof Float) {
-            return new BFloat(((Float) obj).doubleValue());
-        }
-        if (obj instanceof Double) {
-            return new BFloat((Double) obj);
+        if (obj instanceof Number) {
+            if (obj instanceof Integer) {
+                return new BInteger(((Integer) obj).longValue());
+            }
+            if (obj instanceof Long) {
+                return new BInteger((Long) obj);
+            }
+            if (obj instanceof Float) {
+                return new BFloat(((Float) obj).doubleValue());
+            }
+            if (obj instanceof Double) {
+                return new BFloat((Double) obj);
+            }
+            if (obj instanceof Byte) {
+                return new BInteger(((Byte) obj).longValue());
+            }
+            if (obj instanceof Short) {
+                return new BInteger(((Short) obj).intValue());
+            }
         }
         if (obj instanceof Boolean) {
             return new BBoolean((Boolean) obj);
-        }
-        if (obj instanceof String) {
-            return createBString((String) obj);
         }
         if (obj instanceof Enum) {
             return toBValue((Enum) obj);
@@ -332,20 +332,6 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         String trimmedName = getTrimmedClassName(componentType);
         bMap.put(JsonSerializerConst.COMPONENT_TYPE, createBString(trimmedName));
         return bMap;
-    }
-
-    static String getTrimmedClassName(Object obj) {
-        Class<?> clazz = obj.getClass();
-        return getTrimmedClassName(clazz);
-    }
-
-    static String getTrimmedClassName(Class<?> clazz) {
-        String className = clazz.getName();
-        // if obj is a BValue, trim fully qualified name to class name.
-        if (BValue.class.isAssignableFrom(clazz) && className.startsWith(BVALUE_PACKAGE_PATH)) {
-            className = className.substring(BVALUE_PACKAGE_PATH.length() + 1);
-        }
-        return className;
     }
 
     private BMap<String, BValue> createExistingReferenceNode(Object obj) {
