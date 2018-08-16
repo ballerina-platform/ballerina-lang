@@ -42,7 +42,7 @@ public class ComplexObjectGraphSerializationTest {
         // Consider using SerializableBValueProviders to minimize output size.
         String serialize = new JsonSerializer().serialize(response);
         HttpResponse deserializedResponse = new JsonSerializer()
-                .deserialize(serialize.getBytes(), DefaultFullHttpResponse.class);
+                .deserialize(serialize, DefaultFullHttpResponse.class);
 
         Assert.assertTrue(deserializedResponse.status().equals(HttpResponseStatus.OK));
     }
@@ -51,7 +51,7 @@ public class ComplexObjectGraphSerializationTest {
     public void testJsonDeserializeFieldShadowing() {
         Shadower sh = new Shadower(55.55, 2);
         String serialize = new JsonSerializer().serialize(sh);
-        Shadower newSh = new JsonSerializer().deserialize(serialize.getBytes(), Shadower.class);
+        Shadower newSh = new JsonSerializer().deserialize(serialize, Shadower.class);
         Assert.assertEquals(newSh.i, sh.i);
         Assert.assertEquals(((Shadowee) newSh).i, ((Shadowee) sh).i);
     }

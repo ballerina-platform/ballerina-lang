@@ -46,13 +46,11 @@ import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.Nu
 import org.ballerinalang.persistence.serializable.serializer.providers.bvalue.SerializedKeyBValueProvider;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
@@ -66,7 +64,9 @@ import static org.ballerinalang.persistence.serializable.serializer.BValueHelper
 import static org.ballerinalang.persistence.serializable.serializer.ObjectHelper.getTrimmedClassName;
 
 /**
- * Serialize @{@link SerializableState} into JSON and back.
+ * Serialize {@link SerializableState} into JSON and back.
+ *
+ * Note that {@link JsonSerializer} is not thread safe and each thread needs to have it's own instance.
  */
 public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer {
     private final IdentityHashMap<Object, Object> identityMap = new IdentityHashMap<>();
@@ -366,10 +366,8 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
     }
 
     @Override
-    public <T> T deserialize(byte[] bytes, Class<T> destinationType) {
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
-        InputStreamReader inputStreamReader = new InputStreamReader(byteArrayInputStream, StandardCharsets.UTF_8);
-        BRefType<?> objTree = JsonParser.parse(inputStreamReader);
+    public <T> T deserialize(String serialized, Class<T> destinationType) {
+        BRefType<?> objTree = JsonParser.parse(new StringReader(serialized));
         JsonDeserializer jsonDeserializer = new JsonDeserializer(objTree);
         return destinationType.cast(jsonDeserializer.deserialize(destinationType));
     }

@@ -160,7 +160,7 @@ public class JsonSerializerTest {
         JsonSerializer jsonSerializer = new JsonSerializer();
         String serialize = jsonSerializer.serialize(mockComplexKeyMap());
 
-        Map map = jsonSerializer.deserialize(serialize.getBytes(), HashMap.class);
+        Map map = jsonSerializer.deserialize(serialize, HashMap.class);
         boolean matchedKey1 = map.keySet().stream().anyMatch(k -> ((StringFieldA) k).a.equals("Key1"));
         boolean matchedKey2 = map.keySet().stream().anyMatch(k -> ((StringFieldA) k).a.equals("Key2"));
         Assert.assertTrue(matchedKey1 && matchedKey2);
@@ -178,7 +178,7 @@ public class JsonSerializerTest {
         array.append(bint);
 
         String serialize = new JsonSerializer().serialize(array);
-        Object deserialize = new JsonSerializer().deserialize(serialize.getBytes(), BRefValueArray.class);
+        Object deserialize = new JsonSerializer().deserialize(serialize, BRefValueArray.class);
 
         Assert.assertTrue(deserialize instanceof BRefValueArray);
         BRefValueArray deArray = (BRefValueArray) deserialize;
@@ -207,7 +207,7 @@ public class JsonSerializerTest {
         array.append(map3);
 
         String serialize = new JsonSerializer().serialize(array);
-        Object deserialize = new JsonSerializer().deserialize(serialize.getBytes(), BRefValueArray.class);
+        Object deserialize = new JsonSerializer().deserialize(serialize, BRefValueArray.class);
 
         Assert.assertTrue(deserialize instanceof BRefValueArray);
         BRefValueArray deArray = (BRefValueArray) deserialize;
@@ -224,7 +224,7 @@ public class JsonSerializerTest {
         StringFieldA[] array = {sf0, sf1, sf1};
 
         String serialize = new JsonSerializer().serialize(array);
-        Object deserialize = new JsonSerializer().deserialize(serialize.getBytes(), StringFieldA[].class);
+        Object deserialize = new JsonSerializer().deserialize(serialize, StringFieldA[].class);
 
         StringFieldA[] array1 = (StringFieldA[]) deserialize;
         Assert.assertEquals(array1.length, array.length);
@@ -243,7 +243,7 @@ public class JsonSerializerTest {
         array[1] = 44;
 
         String serialize = new JsonSerializer().serialize(array);
-        int[] array1 = new JsonSerializer().deserialize(serialize.getBytes(), int[].class);
+        int[] array1 = new JsonSerializer().deserialize(serialize, int[].class);
 
         Assert.assertEquals(array1.length, array.length);
         Assert.assertEquals(array1[0], array[0]);
@@ -255,7 +255,7 @@ public class JsonSerializerTest {
         ArrayList<Integer> integers = new ArrayList<>(5);
 
         String serialize = new JsonSerializer().serialize(integers);
-        ArrayList array1 = new JsonSerializer().deserialize(serialize.getBytes(), ArrayList.class);
+        ArrayList array1 = new JsonSerializer().deserialize(serialize, ArrayList.class);
 
         Assert.assertEquals(array1.size(), integers.size());
     }
@@ -267,7 +267,7 @@ public class JsonSerializerTest {
         StringFieldA[][] array = {new StringFieldA[]{sf0, sf1, sf1}, new StringFieldA[]{sf0, sf1, sf1}};
 
         String serialize = new JsonSerializer().serialize(array);
-        Object deserialize = new JsonSerializer().deserialize(serialize.getBytes(), StringFieldA[][].class);
+        Object deserialize = new JsonSerializer().deserialize(serialize, StringFieldA[][].class);
 
         StringFieldA[][] array1 = (StringFieldA[][]) deserialize;
         Assert.assertEquals(array1.length, array.length);
@@ -284,7 +284,7 @@ public class JsonSerializerTest {
         ArrayField af = new ArrayField(new int[]{1, 2, 3, 4});
 
         String serialize = new JsonSerializer().serialize(af);
-        Object deserialize = new JsonSerializer().deserialize(serialize.getBytes(), ArrayField.class);
+        Object deserialize = new JsonSerializer().deserialize(serialize, ArrayField.class);
 
         ArrayField temp = (ArrayField) deserialize;
         Assert.assertEquals(temp.array[0], 1);
@@ -301,7 +301,7 @@ public class JsonSerializerTest {
                 new TestClass("Item2")};
         TestClass testClassInst = new TestClass(items);
         String serialize = new JsonSerializer().serialize(testClassInst);
-        TestClass targetClass = new JsonSerializer().deserialize(serialize.getBytes(), TestClass.class);
+        TestClass targetClass = new JsonSerializer().deserialize(serialize, TestClass.class);
         TestClass[] arr = (TestClass[]) targetClass.obj;
 
         Assert.assertTrue(arr[0].obj.equals("Item1"));
