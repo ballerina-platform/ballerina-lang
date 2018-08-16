@@ -118,10 +118,16 @@ public class LSPackageCache {
         public void remove(PackageID packageID) {
             // TODO: Revisit cache update/ compiler context reuse process
             if (packageID != null) {
-                this.packageMap.entrySet().forEach(entry -> {
+                this.packageMap.forEach((key, value) -> {
                     String alias = packageID.getName().toString();
-                    if (entry.getKey().contains(alias + ":") || entry.getKey().contains(alias)) {
-                        this.packageMap.remove(entry.getKey());
+                    if (key.contains(alias + ":") || key.contains(alias)) {
+                        this.packageMap.remove(key);
+                    }
+                });
+                this.packageSymbolMap.forEach((key, value) -> {
+                    String alias = packageID.getName().toString();
+                    if (key.contains(alias + ":") || key.contains(alias)) {
+                        this.packageSymbolMap.remove(key);
                     }
                 });
                 this.packageSymbolMap.entrySet().forEach(entry -> {
