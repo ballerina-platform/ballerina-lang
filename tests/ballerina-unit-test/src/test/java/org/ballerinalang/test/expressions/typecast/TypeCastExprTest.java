@@ -449,12 +449,10 @@ public class TypeCastExprTest {
                 + "name:\"Jane\"}, {id:2, name:\"Anne\"}]}");
     }
 
-    @Test(description = "Test casting a null as any type to json",
-            expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: ballerina/runtime:NullReferenceException.*")
+    @Test(description = "Test casting a null as any type to json")
     public void testAnyNullToJson() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToJson");
-        Assert.assertEquals(returns[0], null);
+        Assert.assertNull(returns[0]);
     }
 
     @Test(description = "Test casting an array as any type to json",

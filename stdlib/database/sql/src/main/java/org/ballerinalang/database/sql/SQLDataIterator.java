@@ -144,97 +144,96 @@ public class SQLDataIterator extends TableIterator {
                     BType fieldType = field.getFieldType();
                     String fieldName = field.fieldName;
                     switch (sqlType) {
-                    case Types.ARRAY:
-                        Array data = rs.getArray(index);
-                        handleArrayValue(bStruct, fieldName, data, fieldType);
-                        break;
-                    case Types.CHAR:
-                    case Types.VARCHAR:
-                    case Types.LONGVARCHAR:
-                    case Types.NCHAR:
-                    case Types.NVARCHAR:
-                    case Types.LONGNVARCHAR:
-                        String sValue = rs.getString(index);
-                        handleStringValue(sValue, fieldName, bStruct, fieldType);
-                        break;
-                    case Types.BINARY:
-                    case Types.VARBINARY:
-                    case Types.LONGVARBINARY:
-                        byte[] binaryValue = rs.getBytes(index);
-                        handleBinaryValue(bStruct, fieldName, binaryValue, fieldType);
-                        break;
-                    case Types.BLOB:
-                        Blob blobValue = rs.getBlob(index);
-                        handleBinaryValue(bStruct, fieldName,
-                                blobValue == null ? null : blobValue.getBytes(1L, (int) blobValue.length()), fieldType);
-                        break;
-                    case Types.CLOB:
-                        String clobValue = SQLDatasourceUtils.getString((rs.getClob(index)));
-                        handleStringValue(clobValue, fieldName, bStruct, fieldType);
-                        break;
-                    case Types.NCLOB:
-                        String nClobValue = SQLDatasourceUtils.getString((rs.getNClob(index)));
-                        handleStringValue(nClobValue, fieldName, bStruct, fieldType);
-                        break;
-                    case Types.DATE:
-                        Date date = rs.getDate(index);
-                        handleDateValue(bStruct, fieldName, date, fieldType);
-                        break;
-                    case Types.TIME:
-                    case Types.TIME_WITH_TIMEZONE:
-                        Time time = rs.getTime(index, utcCalendar);
-                        handleDateValue(bStruct, fieldName, time, fieldType);
-                        break;
-                    case Types.TIMESTAMP:
-                    case Types.TIMESTAMP_WITH_TIMEZONE:
-                        Timestamp timestamp = rs.getTimestamp(index, utcCalendar);
-                        handleDateValue(bStruct, fieldName, timestamp, fieldType);
-                        break;
-                    case Types.ROWID:
-                        sValue = new String(rs.getRowId(index).getBytes(), "UTF-8");
-                        handleStringValue(sValue, fieldName, bStruct, fieldType);
-                        break;
-                    case Types.TINYINT:
-                    case Types.SMALLINT:
-                        long iValue = rs.getInt(index);
-                        handleLongValue(iValue, bStruct, fieldName, fieldType);
-                        break;
-                    case Types.INTEGER:
-                    case Types.BIGINT:
-                        long lValue = rs.getLong(index);
-                        handleLongValue(lValue, bStruct, fieldName, fieldType);
-                        break;
-                    case Types.REAL:
-                    case Types.FLOAT:
-                        double fValue = rs.getFloat(index);
-                        handleDoubleValue(fValue, bStruct, fieldName, fieldType);
-                        break;
-                    case Types.DOUBLE:
-                        double dValue = rs.getDouble(index);
-                        handleDoubleValue(dValue, bStruct, fieldName, fieldType);
-                        break;
-                    case Types.NUMERIC:
-                    case Types.DECIMAL:
-                        double decimalValue = 0;
-                        BigDecimal bigDecimalValue = rs.getBigDecimal(index);
-                        if (bigDecimalValue != null) {
-                            decimalValue = bigDecimalValue.doubleValue();
-                        }
-                        handleDoubleValue(decimalValue, bStruct, fieldName, fieldType);
-                        break;
-                    case Types.BIT:
-                    case Types.BOOLEAN:
-                        boolean boolValue = rs.getBoolean(index);
-                        handleBooleanValue(bStruct, fieldName, boolValue, fieldType);
-                        break;
-                    case Types.STRUCT:
-                        Struct structData = (Struct) rs.getObject(index);
-                        handleStructValue(bStruct, fieldName, structData, fieldType);
-                        break;
-                    default:
-                        throw new BallerinaException(
-                                "unsupported sql type " + sqlType + " found for the column " + columnName + " index:"
-                                        + index);
+                        case Types.ARRAY:
+                            Array data = rs.getArray(index);
+                            handleArrayValue(bStruct, fieldName, data, fieldType);
+                            break;
+                        case Types.CHAR:
+                        case Types.VARCHAR:
+                        case Types.LONGVARCHAR:
+                        case Types.NCHAR:
+                        case Types.NVARCHAR:
+                        case Types.LONGNVARCHAR:
+                            String sValue = rs.getString(index);
+                            handleStringValue(sValue, fieldName, bStruct, fieldType);
+                            break;
+                        case Types.BINARY:
+                        case Types.VARBINARY:
+                        case Types.LONGVARBINARY:
+                            byte[] binaryValue = rs.getBytes(index);
+                            handleBinaryValue(bStruct, fieldName, binaryValue, fieldType);
+                            break;
+                        case Types.BLOB:
+                            Blob blobValue = rs.getBlob(index);
+                            handleBinaryValue(bStruct, fieldName, blobValue == null ?
+                                    null : blobValue.getBytes(1L, (int) blobValue.length()), fieldType);
+                            break;
+                        case Types.CLOB:
+                            String clobValue = SQLDatasourceUtils.getString((rs.getClob(index)));
+                            handleStringValue(clobValue, fieldName, bStruct, fieldType);
+                            break;
+                        case Types.NCLOB:
+                            String nClobValue = SQLDatasourceUtils.getString((rs.getNClob(index)));
+                            handleStringValue(nClobValue, fieldName, bStruct, fieldType);
+                            break;
+                        case Types.DATE:
+                            Date date = rs.getDate(index);
+                            handleDateValue(bStruct, fieldName, date, fieldType);
+                            break;
+                        case Types.TIME:
+                        case Types.TIME_WITH_TIMEZONE:
+                            Time time = rs.getTime(index, utcCalendar);
+                            handleDateValue(bStruct, fieldName, time, fieldType);
+                            break;
+                        case Types.TIMESTAMP:
+                        case Types.TIMESTAMP_WITH_TIMEZONE:
+                            Timestamp timestamp = rs.getTimestamp(index, utcCalendar);
+                            handleDateValue(bStruct, fieldName, timestamp, fieldType);
+                            break;
+                        case Types.ROWID:
+                            sValue = new String(rs.getRowId(index).getBytes(), "UTF-8");
+                            handleStringValue(sValue, fieldName, bStruct, fieldType);
+                            break;
+                        case Types.TINYINT:
+                        case Types.SMALLINT:
+                            long iValue = rs.getInt(index);
+                            handleLongValue(iValue, bStruct, fieldName, fieldType);
+                            break;
+                        case Types.INTEGER:
+                        case Types.BIGINT:
+                            long lValue = rs.getLong(index);
+                            handleLongValue(lValue, bStruct, fieldName, fieldType);
+                            break;
+                        case Types.REAL:
+                        case Types.FLOAT:
+                            double fValue = rs.getFloat(index);
+                            handleDoubleValue(fValue, bStruct, fieldName, fieldType);
+                            break;
+                        case Types.DOUBLE:
+                            double dValue = rs.getDouble(index);
+                            handleDoubleValue(dValue, bStruct, fieldName, fieldType);
+                            break;
+                        case Types.NUMERIC:
+                        case Types.DECIMAL:
+                            double decimalValue = 0;
+                            BigDecimal bigDecimalValue = rs.getBigDecimal(index);
+                            if (bigDecimalValue != null) {
+                                decimalValue = bigDecimalValue.doubleValue();
+                            }
+                            handleDoubleValue(decimalValue, bStruct, fieldName, fieldType);
+                            break;
+                        case Types.BIT:
+                        case Types.BOOLEAN:
+                            boolean boolValue = rs.getBoolean(index);
+                            handleBooleanValue(bStruct, fieldName, boolValue, fieldType);
+                            break;
+                        case Types.STRUCT:
+                            Struct structData = (Struct) rs.getObject(index);
+                            handleStructValue(bStruct, fieldName, structData, fieldType);
+                            break;
+                        default:
+                            throw new BallerinaException("unsupported sql type "
+                                    + sqlType + " found for the column " + columnName + " index:" + index);
                     }
                 }
             }
@@ -336,9 +335,10 @@ public class SQLDataIterator extends TableIterator {
             if (fieldTypeTag == TypeTags.UNION_TAG) {
                 nonNilType = retrieveNonNilType(((BUnionType) fieldType).getMemberTypes());
             }
-            // The dataArray is created from the array returned from the database. There, a Union Type is
+            // The dataArray is created from the array returned from the database. There, an array of Union Type is
             // created only if the array includes NULL elements.
-            boolean containsNull = dataArray.getType().getTag() == TypeTags.UNION_TAG;
+            boolean containsNull = dataArray.getType().getTag() == TypeTags.ARRAY_TAG
+                    && ((BArrayType) dataArray.getType()).getElementType().getTag() == TypeTags.UNION_TAG;
             handleMappingArrayValue(nonNilType, bStruct, dataArray, fieldName, containsNull);
         } else {
             if (fieldTypeTag == TypeTags.UNION_TAG) {
@@ -376,14 +376,14 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void handleMappingArrayElementToUnionType(BArrayType expectedArrayType, BNewArray arrayTobeSet,
-            String fieldName, BMap<String, BValue> bStruct) {
-        BType actualArrayElementType = arrayTobeSet.getType();
-        if (actualArrayElementType.getTag() == TypeTags.NULL_TAG) {
+                                                      String fieldName, BMap<String, BValue> bStruct) {
+        BArrayType arrayType = (BArrayType) arrayTobeSet.getType();
+        if (arrayType.getElementType().getTag() == TypeTags.NULL_TAG) {
             bStruct.put(fieldName, arrayTobeSet);
         } else {
             BUnionType expectedArrayElementUnionType = (BUnionType) expectedArrayType.getElementType();
             BType expectedNonNilArrayElementType = retrieveNonNilType(expectedArrayElementUnionType.getMemberTypes());
-            BType actualNonNilArrayElementType = getActualNonNilArrayElementType(actualArrayElementType);
+            BType actualNonNilArrayElementType = getActualNonNilArrayElementType(arrayType.getElementType());
             validateAndSetRefRecordField(bStruct, fieldName, expectedNonNilArrayElementType
                     .getTag(), actualNonNilArrayElementType.getTag(), arrayTobeSet, UNASSIGNABLE_UNIONTYPE_EXCEPTION);
         }
@@ -393,7 +393,7 @@ public class SQLDataIterator extends TableIterator {
         if (actualArrayElementType.getTag() == TypeTags.UNION_TAG) {
             return (((BUnionType) actualArrayElementType).getMemberTypes()).get(0);
         } else {
-            return ((BArrayType) actualArrayElementType).getElementType();
+            return actualArrayElementType;
         }
     }
 
