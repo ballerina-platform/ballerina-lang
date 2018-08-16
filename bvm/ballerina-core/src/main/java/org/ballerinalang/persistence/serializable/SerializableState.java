@@ -40,6 +40,8 @@ import java.util.Map;
  * @since 0.981.1
  */
 public class SerializableState {
+    private static final Logger log = LoggerFactory.getLogger(SerializableState.class);
+
     private String id;
 
     public String currentContextKey;
@@ -61,8 +63,12 @@ public class SerializableState {
     }
 
     public static SerializableState deserialize(String json) {
+        long t = System.nanoTime();
         Gson gson = Serializer.getGson();
-        return gson.fromJson(json, SerializableState.class);
+        SerializableState deserialize = gson.fromJson(json, SerializableState.class);
+        long diff = System.nanoTime() - t;
+        log.error("d - time: " + diff / 1000 + "  us");
+        return deserialize;
     }
 
     public SerializableState(WorkerExecutionContext executionContext, int ip) {
@@ -76,7 +82,11 @@ public class SerializableState {
     }
 
     public String serialize() {
-        return Serializer.getGson().toJson(this);
+        long t = System.nanoTime();
+        String s = Serializer.getGson().toJson(this);
+        long diff = System.nanoTime() - t;
+        log.error("s - time: " + diff / 1000 + "  us");
+        return s;
     }
 
     public WorkerExecutionContext getExecutionContext(ProgramFile programFile, Deserializer deserializer) {
