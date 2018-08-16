@@ -102,6 +102,204 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target name="mergeReports">
+                                <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.plugin.classpath" />
+                                <if>
+                                    <and>
+                                        <available file="${ballerina.unit.test.coverage}/${individual.test.report.name}" />
+                                        <available file="${ballerina.integration.test.coverage}/${individual.test.report.name}" />
+                                        <available file="${ballerina.compiler.plugin.test.coverage}/${individual.test.report.name}" />
+                                        <available file="${siddhi.core.test.coverage}/${individual.test.report.name}" />
+                                        <available file="${siddhi.query.api.test.coverage}/${individual.test.report.name}" />
+                                        <available file="${siddhi.query.compiler.test.coverage}/${individual.test.report.name}" />
+                                        <available file="${docerina.test.coverage}/${individual.test.report.name}" />
+                                        <available file="${ballerina.metrics.extension.test.coverage}/${individual.test.report.name}" />
+                                        <available file="${ballerina.to.swagger.test.coverage}/${individual.test.report.name}" />
+                                        <available file="${swagger.to.ballerina.test.coverage}/${individual.test.report.name}" />
+                                        <available file="${testerina.test.coverage}/${individual.test.report.name}" />
+                                    </and>
+                                    <then>
+                                        <taskdef name="report" classname="org.jacoco.ant.ReportTask">
+                                            <classpath path="${basedir}/target/jacoco-jars/org.jacoco.ant.jar" />
+                                        </taskdef>
+                                        <mkdir dir="${basedir}/../../target/coverage-report" />
+                                        <report>
+                                            <executiondata>
+                                                <fileset dir="${ballerina.unit.test.coverage}">
+                                                    <include name="${individual.test.report.name}" />
+                                                </fileset>
+                                                <fileset dir="${ballerina.integration.test.coverage}">
+                                                    <include name="${individual.test.report.name}" />
+                                                </fileset>
+                                                <fileset dir="${ballerina.compiler.plugin.test.coverage}">
+                                                    <include name="${individual.test.report.name}" />
+                                                </fileset>
+                                                <fileset dir="${siddhi.core.test.coverage}">
+                                                    <include name="${individual.test.report.name}" />
+                                                </fileset>
+                                                <fileset dir="${siddhi.query.api.test.coverage}">
+                                                    <include name="${individual.test.report.name}" />
+                                                </fileset>
+                                                <fileset dir="${siddhi.query.compiler.test.coverage}">
+                                                    <include name="${individual.test.report.name}" />
+                                                </fileset>
+                                                <fileset dir="${docerina.test.coverage}">
+                                                    <include name="${individual.test.report.name}" />
+                                                </fileset>
+                                                <fileset dir="${ballerina.metrics.extension.test.coverage}">
+                                                    <include name="${individual.test.report.name}" />
+                                                </fileset>
+                                                <fileset dir="${ballerina.to.swagger.test.coverage}">
+                                                    <include name="${individual.test.report.name}" />
+                                                </fileset>
+                                                <fileset dir="${swagger.to.ballerina.test.coverage}">
+                                                    <include name="${individual.test.report.name}" />
+                                                </fileset>
+                                                <fileset dir="${testerina.test.coverage}">
+                                                    <include name="${individual.test.report.name}" />
+                                                </fileset>
+                                            </executiondata>
+                                            <structure name="Ballerina Coverage Report">
+                                                <group name="ballerina">
+                                                    <classfiles>
+                                                        <fileset dir="${basedir}/../../bvm/ballerina-config/target/classes" />
+                                                        <fileset dir="${basedir}/../../bvm/ballerina-core/target/classes" />
+                                                        <fileset dir="${basedir}/../../bvm/ballerina-logging/target/classes" />
+                                                        <fileset dir="${basedir}/../../bvm/ballerina-streaming/siddhi-annotations/target/classes" />
+                                                        <fileset dir="${basedir}/../../bvm/ballerina-streaming/siddhi-core/target/classes" />
+                                                        <fileset dir="${basedir}/../../bvm/ballerina-streaming/siddhi-query-api/target/classes" />
+                                                        <fileset dir="${basedir}/../../bvm/ballerina-streaming/siddhi-query-compiler/target/classes" />
+                                                        <fileset dir="${basedir}/../../cli/ballerina-cli-utils/target/classes" />
+                                                        <fileset dir="${basedir}/../../cli/ballerina-launcher/target/classes" />
+                                                        <fileset dir="${basedir}/../../cli/ballerina-packerina/target/classes" />
+                                                        <fileset dir="${basedir}/../../compiler/ballerina-lang/target/classes">
+                                                            <exclude name="org/wso2/ballerinalang/compiler/parser/antlr4/*" />
+                                                        </fileset>
+                                                        <fileset dir="${basedir}/../../misc/docerina/target/classes" />
+                                                        <fileset dir="${basedir}/../../misc/lib-creator/target/classes" />
+                                                        <fileset dir="${basedir}/../../misc/metrics-extensions/modules/ballerina-metrics-extension/target/classes" />
+                                                        <fileset dir="${basedir}/../../misc/metrics-extensions/modules/ballerina-prometheus-extension/target/classes" />
+                                                        <fileset dir="${basedir}/../../misc/protobuf-ballerina/target/classes" />
+                                                        <fileset dir="${basedir}/../../misc/swagger-ballerina/modules/ballerina-code-generator/target/classes" />
+                                                        <fileset dir="${basedir}/../../misc/swagger-ballerina/modules/ballerina-to-swagger/target/classes" />
+                                                        <fileset dir="${basedir}/../../misc/swagger-ballerina/modules/swagger-to-ballerina-generator/target/classes" />
+                                                        <fileset dir="${basedir}/../../misc/testerina/modules/testerina-core/target/classes" />
+                                                        <fileset dir="${basedir}/../../misc/toml-parser/target/classes" />
+                                                        <fileset dir="${basedir}/../../misc/tracing-extensions/modules/ballerina-jaeger-extension/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/builtin/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/config-api/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/crypto/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/database/h2/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/database/jdbc/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/database/mysql/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/database/sql/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/file/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/grpc/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/http/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/internal/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/io/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/jms/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/log-api/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/math/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/mime/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/observability/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/reflect/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/runtime/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/streams/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/system/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/task/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/time/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/transactions/target/classes" />
+                                                        <fileset dir="${basedir}/../../stdlib/websub/target/classes" />
+                                                    </classfiles>
+                                                    <sourcefiles encoding="UTF-8">
+                                                        <fileset dir="${basedir}/../../bvm/ballerina-config/src/main/java" />
+                                                        <fileset dir="${basedir}/../../bvm/ballerina-core/src/main/java" />
+                                                        <fileset dir="${basedir}/../../bvm/ballerina-logging/src/main/java" />
+                                                        <fileset dir="${basedir}/../../bvm/ballerina-streaming/siddhi-annotations/src/main/java" />
+                                                        <fileset dir="${basedir}/../../bvm/ballerina-streaming/siddhi-core/src/main/java" />
+                                                        <fileset dir="${basedir}/../../bvm/ballerina-streaming/siddhi-query-api/src/main/java" />
+                                                        <fileset dir="${basedir}/../../bvm/ballerina-streaming/siddhi-query-compiler/src/main/java" />
+                                                        <fileset dir="${basedir}/../../cli/ballerina-cli-utils/src/main/java" />
+                                                        <fileset dir="${basedir}/../../cli/ballerina-launcher/src/main/java" />
+                                                        <fileset dir="${basedir}/../../cli/ballerina-packerina/src/main/java" />
+                                                        <fileset dir="${basedir}/../../compiler/ballerina-lang/src/main/java" />
+                                                        <fileset dir="${basedir}/../../misc/docerina/src/main/java" />
+                                                        <fileset dir="${basedir}/../../misc/lib-creator/src/main/java" />
+                                                        <fileset dir="${basedir}/../../misc/metrics-extensions/modules/ballerina-metrics-extension/src/main/java" />
+                                                        <fileset dir="${basedir}/../../misc/metrics-extensions/modules/ballerina-prometheus-extension/src/main/java" />
+                                                        <fileset dir="${basedir}/../../misc/protobuf-ballerina/src/main/java" />
+                                                        <fileset dir="${basedir}/../../misc/swagger-ballerina/modules/ballerina-code-generator/src/main/java" />
+                                                        <fileset dir="${basedir}/../../misc/swagger-ballerina/modules/ballerina-to-swagger/src/main/java" />
+                                                        <fileset dir="${basedir}/../../misc/swagger-ballerina/modules/swagger-to-ballerina-generator/src/main/java" />
+                                                        <fileset dir="${basedir}/../../misc/testerina/modules/testerina-core/src/main/java" />
+                                                        <fileset dir="${basedir}/../../misc/toml-parser/src/main/java" />
+                                                        <fileset dir="${basedir}/../../misc/tracing-extensions/modules/ballerina-jaeger-extension/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/builtin/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/config-api/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/crypto/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/database/h2/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/database/jdbc/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/database/mysql/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/database/sql/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/file/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/grpc/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/http/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/internal/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/io/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/jms/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/log-api/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/math/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/mime/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/observability/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/reflect/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/runtime/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/streams/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/system/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/task/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/time/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/transactions/src/main/java" />
+                                                        <fileset dir="${basedir}/../../stdlib/websub/src/main/java" />
+                                                    </sourcefiles>
+                                                </group>
+                                            </structure>
+                                            <html destdir="${basedir}/../../target/coverage-report/site" />
+                                        </report>
+                                    </then>
+                                </if>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>org.jacoco.ant</artifactId>
+                        <version>${jacoco.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>ant-contrib</groupId>
+                        <artifactId>ant-contrib</artifactId>
+                        <version>${ant.contrib.plugin.version}</version>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>ant</groupId>
+                                <artifactId>ant</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                </dependencies>
+            </plugin>
         </plugins>
     </build>
     <properties>
@@ -111,5 +309,18 @@
             **/generated/**,
             **/generated-sources/**
         </maven.checkstyleplugin.excludes>
+
+        <ballerina.unit.test.coverage>${basedir}/../ballerina-unit-test/target/coverage-reports</ballerina.unit.test.coverage>
+        <ballerina.integration.test.coverage>${basedir}/../ballerina-integration-test/target/coverage-reports</ballerina.integration.test.coverage>
+        <ballerina.compiler.plugin.test.coverage>${basedir}/../ballerina-compiler-plugin-test/target/coverage-reports</ballerina.compiler.plugin.test.coverage>
+        <siddhi.core.test.coverage>${basedir}/../../bvm/ballerina-streaming/siddhi-core/target/coverage-reports</siddhi.core.test.coverage>
+        <siddhi.query.api.test.coverage>${basedir}/../../bvm/ballerina-streaming/siddhi-query-api/target/coverage-reports</siddhi.query.api.test.coverage>
+        <siddhi.query.compiler.test.coverage>${basedir}/../../bvm/ballerina-streaming/siddhi-query-api/target/coverage-reports</siddhi.query.compiler.test.coverage>
+        <docerina.test.coverage>${basedir}/../../misc/docerina/target/coverage-reports</docerina.test.coverage>
+        <ballerina.metrics.extension.test.coverage>${basedir}/../../misc/metrics-extensions/modules/ballerina-metrics-extension/target/coverage-reports</ballerina.metrics.extension.test.coverage>
+        <ballerina.to.swagger.test.coverage>${basedir}/../../misc/swagger-ballerina/modules/ballerina-to-swagger/target/coverage-reports</ballerina.to.swagger.test.coverage>
+        <swagger.to.ballerina.test.coverage>${basedir}/../../misc/swagger-ballerina/modules/swagger-to-ballerina-generator/target/coverage-reports</swagger.to.ballerina.test.coverage>
+        <testerina.test.coverage>${basedir}/../../misc/testerina/modules/testerina-core/target/coverage-reports</testerina.test.coverage>
+        <individual.test.report.name>jacoco.exec</individual.test.report.name>
     </properties>
 </project>
