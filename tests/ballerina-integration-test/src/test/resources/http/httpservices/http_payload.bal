@@ -16,20 +16,20 @@
 
 import ballerina/http;
 
-endpoint http:Client clientEP1 {
-    url: "http://localhost:9091/"
+endpoint http:Client clientEP19 {
+    url: "http://localhost:9119/"
 };
 
 @http:ServiceConfig {
     basePath: "/test"
 }
-service<http:Service> testService bind { port: 9090 } {
+service<http:Service> testService16 bind { port: 9118 } {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
     }
     getPayload(endpoint caller, http:Request request) {
-        http:Response res = check clientEP1->get("/payloadTest", message = ());
+        http:Response res = check clientEP19->get("/payloadTest", message = ());
         //First get the payload as a byte array, then take it as an xml
         byte[] binaryPayload = check res.getBinaryPayload();
         xml payload = check res.getXmlPayload();
@@ -41,7 +41,7 @@ service<http:Service> testService bind { port: 9090 } {
 @http:ServiceConfig {
     basePath: "/payloadTest"
 }
-service<http:Service> testPayload bind { port: 9091 } {
+service<http:Service> testPayload17 bind { port: 9119 } {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
