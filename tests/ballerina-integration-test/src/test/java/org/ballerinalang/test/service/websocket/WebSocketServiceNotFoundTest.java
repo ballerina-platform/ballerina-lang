@@ -30,7 +30,7 @@ import java.net.URISyntaxException;
 /**
  * This Class tests the not finding a service/resource to handle a webSocket request.
  */
-public class WebSocketServiceNotFoundTest extends WebSocketIntegrationTest {
+public class WebSocketServiceNotFoundTest extends WebSocketTestCommons {
 
     private WebSocketTestClient client;
 

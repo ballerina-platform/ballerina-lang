@@ -95,9 +95,9 @@ public class JSONUtils {
     }
 
     /**
-     * Convert {@link BIntArray} to {@link BJSON}.
+     * Convert {@link BIntArray} to JSON.
      *
-     * @param intArray {@link BIntArray} to be converted to {@link BJSON}
+     * @param intArray {@link BIntArray} to be converted to JSON
      * @return JSON representation of the provided intArray
      */
     public static BRefValueArray convertArrayToJSON(BIntArray intArray) {
@@ -110,9 +110,9 @@ public class JSONUtils {
     }
 
     /**
-     * Convert {@link BFloatArray} to {@link BJSON}.
+     * Convert {@link BFloatArray} to JSON.
      *
-     * @param floatArray {@link BFloatArray} to be converted to {@link BJSON}
+     * @param floatArray {@link BFloatArray} to be converted to JSON
      * @return JSON representation of the provided floatArray
      */
     public static BRefValueArray convertArrayToJSON(BFloatArray floatArray) {
@@ -125,9 +125,9 @@ public class JSONUtils {
     }
 
     /**
-     * Convert {@link BStringArray} to {@link BJSON}.
+     * Convert {@link BStringArray} to JSON.
      *
-     * @param stringArray {@link BStringArray} to be converted to {@link BJSON}
+     * @param stringArray {@link BStringArray} to be converted to JSON
      * @return JSON representation of the provided stringArray
      */
     public static BRefValueArray convertArrayToJSON(BStringArray stringArray) {
@@ -140,9 +140,9 @@ public class JSONUtils {
     }
 
     /**
-     * Convert {@link BBooleanArray} to {@link BJSON}.
+     * Convert {@link BBooleanArray} to JSON.
      *
-     * @param booleanArray {@link BBooleanArray} to be converted to {@link BJSON}
+     * @param booleanArray {@link BBooleanArray} to be converted to JSON
      * @return JSON representation of the provided booleanArray
      */
     public static BRefValueArray convertArrayToJSON(BBooleanArray booleanArray) {
@@ -155,9 +155,9 @@ public class JSONUtils {
     }
 
     /**
-     * Convert {@link BNewArray} to {@link BJSON}.
+     * Convert {@link BNewArray} to JSON.
      *
-     * @param bArray {@link BNewArray} to be converted to {@link BJSON}
+     * @param bArray {@link BNewArray} to be converted to JSON
      * @return JSON representation of the provided bArray
      */
     public static BRefValueArray convertArrayToJSON(BNewArray bArray) {
@@ -178,9 +178,9 @@ public class JSONUtils {
     }
 
     /**
-     * Convert {@link BRefValueArray} to {@link BJSON}.
+     * Convert {@link BRefValueArray} to JSON.
      *
-     * @param refValueArray {@link BRefValueArray} to be converted to {@link BJSON}
+     * @param refValueArray {@link BRefValueArray} to be converted to JSON
      * @return JSON representation of the provided refValueArray
      */
     @SuppressWarnings({ "rawtypes" })
@@ -213,7 +213,7 @@ public class JSONUtils {
     }
 
     /**
-     * Convert map value to {@link BJSON}.
+     * Convert map value to JSON.
      *
      * @param map value {@link BMap} to be converted to JSON
      * @param targetType the target JSON type to be convert to
@@ -369,24 +369,7 @@ public class JSONUtils {
         }
 
         try {
-            switch (((BArrayType) jsonArray.getType()).getElementType().getTag()) {
-                case TypeTags.BOOLEAN_TAG:
-                    BBooleanArray bBooleanArray = (BBooleanArray) jsonArray;
-                    int i = bBooleanArray.get(index);
-                    return i == 0 ? new BBoolean(false) : new BBoolean(true);
-                case TypeTags.FLOAT_TAG:
-                    BFloatArray bFloatArray = (BFloatArray) jsonArray;
-                    return new BFloat(bFloatArray.get(index));
-                case TypeTags.INT_TAG:
-                    BIntArray bIntArray = (BIntArray) jsonArray;
-                    return new BInteger(bIntArray.get(index));
-                case TypeTags.STRING_TAG:
-                    BStringArray bStringArray = (BStringArray) jsonArray;
-                    return new BString(bStringArray.get(index));
-                default:
-                    BRefValueArray bRefValueArray = (BRefValueArray) jsonArray;
-                    return bRefValueArray.get(index);
-            }
+            return ListUtils.execListGetOperation((BNewArray) jsonArray, index);
         } catch (Throwable t) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, t.getMessage());
         }
@@ -413,28 +396,7 @@ public class JSONUtils {
         }
 
         try {
-            switch (jsonArray.getElementType().getTag()) {
-                case TypeTags.BOOLEAN_TAG:
-                    BBooleanArray bBooleanArray = (BBooleanArray) json;
-                    bBooleanArray.add(index, ((BBoolean) element).value() ? 1 : 0);
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    BFloatArray bFloatArray = (BFloatArray) json;
-                    bFloatArray.add(index, (double) element.value());
-                    break;
-                case TypeTags.INT_TAG:
-                    BIntArray bIntArray = (BIntArray) json;
-                    bIntArray.add(index, (long) element.value());
-                    break;
-                case TypeTags.STRING_TAG:
-                    BStringArray bStringArray = (BStringArray) json;
-                    bStringArray.add(index, (String) element.value());
-                    break;
-                default:
-                    BRefValueArray bRefValueArray = (BRefValueArray) json;
-                    bRefValueArray.add(index, element);
-                    break;
-            }
+            ListUtils.execListAddOperation((BNewArray) json, index, element);
         } catch (Throwable t) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_SET_ERROR, t.getMessage());
         }
@@ -751,7 +713,7 @@ public class JSONUtils {
     /**
      * Returns the keys of a JSON as a {@link BStringArray}.
      * 
-     * @param json {@link BJSON} to get the keys
+     * @param json JSON to get the keys
      * @return Keys of the JSON as a {@link BStringArray}
      */
     public static BStringArray getKeys(BValue json) {

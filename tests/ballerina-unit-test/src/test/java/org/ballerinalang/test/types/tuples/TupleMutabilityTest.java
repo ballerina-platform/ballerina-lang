@@ -52,6 +52,12 @@ public class TupleMutabilityTest {
         Assert.assertEquals(((BInteger) returnValues[1]).intValue(), 100, "Expected value of 100");
     }
 
+    @Test
+    public void testWithTryCatch() {
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testWithTryCatch");
+        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Expected value of 5");
+    }
+
     @Test(description = "Check if correct type is saved in covariant tuple with record type ",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =

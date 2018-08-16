@@ -153,6 +153,14 @@ public class ArrayMutabilityTest {
         BRunUtil.invoke(compileResult, "testJsonArrayMutability2");
     }
 
+    @Test(description = "Test mutation of arrays through chained assignments",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp =
+                    ".*message: incompatible types: expected 'int\\|string', found 'boolean'.*")
+    public void testChainingAssignment() {
+        BRunUtil.invoke(compileResult, "testChainingAssignment");
+    }
+
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
         int i = 0;

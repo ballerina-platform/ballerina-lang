@@ -68,6 +68,7 @@
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingArrayValueTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ServiceUnavailableTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.InvalidServiceMethodTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.sample.InvalidMessageTypeTestCase" />
             <class name="org.ballerinalang.test.service.grpc.tool.ClientStubGeneratorTestCase" />
             <class name="org.ballerinalang.test.service.grpc.tool.InvalidServiceContractTestCase" />
         </classes>

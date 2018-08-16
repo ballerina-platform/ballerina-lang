@@ -174,3 +174,14 @@ function testJsonArrayMutability2() {
     x2[2] = true;
     x2[3] = "json"; // Runtime Exception
 }
+
+function testChainingAssignment() {
+    (int|string)[] first;
+    (int|string?)[] second = first;
+    (int|string|boolean?)[] thrid = second;
+    (int|string|boolean|Person?)[] fourth = thrid;
+
+    fourth[0] = 1;
+    fourth[1] = "string";
+    fourth[2] = true; // Runtime Exception
+}

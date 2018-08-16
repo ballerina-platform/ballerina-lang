@@ -112,8 +112,7 @@ public abstract class ConnectionAction implements NativeCallableUnit {
                                           OutputStream messageOutputStream) {
         try {
             if (outboundMessageSource != null) {
-                if (MimeUtil.isJSONContentType(entityStruct) &&
-                        MimeUtil.isJSONCompatible(outboundMessageSource.getType())) {
+                if (MimeUtil.generateAsJSON(outboundMessageSource, entityStruct)) {
                     JsonGenerator gen = new JsonGenerator(messageOutputStream);
                     gen.serialize(outboundMessageSource);
                     gen.flush();
