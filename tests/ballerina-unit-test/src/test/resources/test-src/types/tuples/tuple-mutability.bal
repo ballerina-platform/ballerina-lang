@@ -45,7 +45,7 @@ type Student record {
 Person person1 = { name: "John" };
 Employee employee1 = { name: "John", intern: true };
 Intern intern1 = { name: "John", intern: true, salary: 100 };
-Student student1 = { name: "John", studentId: 001 };
+Student student1 = { name: "John", studentId: 1 };
 
 function testValidTupleAssignment() returns (boolean, int) {
 
