@@ -65,15 +65,15 @@ import static org.ballerinalang.persistence.serializable.serializer.ObjectHelper
 
 /**
  * Serialize {@link SerializableState} into JSON and back.
- *
+ * <p>
  * Note that {@link JsonSerializer} is not thread safe and each thread needs to have it's own instance.
  */
 public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer {
     private final IdentityHashMap<Object, Object> identityMap = new IdentityHashMap<>();
     private final HashSet<String> repeatedReferenceSet = new HashSet<>();
-    private final BValueProvider bValueProvider = BValueProvider.getInstance();
+    private static final BValueProvider bValueProvider = BValueProvider.getInstance();
 
-    public JsonSerializer() {
+    static {
         bValueProvider.register(new NumericBValueProviders.BigIntegerBValueProvider());
         bValueProvider.register(new NumericBValueProviders.BigDecimalBValueProvider());
         bValueProvider.register(new BStringBValueProvider());
@@ -90,6 +90,9 @@ public class JsonSerializer implements ObjectToJsonSerializer, BValueSerializer 
         bValueProvider.register(new BTypeBValueProviders.BAnyTypeBValueProvider());
         bValueProvider.register(new BTypeBValueProviders.BArrayTypeBValueProvider());
         bValueProvider.register(new SerializedKeyBValueProvider());
+    }
+
+    public JsonSerializer() {
     }
 
     /**
