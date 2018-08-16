@@ -383,7 +383,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private BLangArrayLiteral createAggregatorArray(BLangSelectClause selectClause) {
         BLangArrayLiteral expr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
         expr.exprs = new ArrayList<>();
-        expr.type = symTable.anyType;
+        expr.type = new BArrayType(symTable.anyType);
 
         List<SelectExpressionNode> selectExpressions = selectClause.getSelectExpressions();
         for (SelectExpressionNode select : selectExpressions) {
@@ -1291,7 +1291,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             }
         }
         expression.opSymbol = (BOperatorSymbol) symResolver.resolveBinaryOperator(
-                expression.opKind, symTable.intType, symTable.intType);
+                expression.opKind, expression.lhsExpr.type, expression.rhsExpr.type);
     }
 
     private static BLangFieldBasedAccess createFieldBasedAccessExpr(DiagnosticPos pos, BField field) {
