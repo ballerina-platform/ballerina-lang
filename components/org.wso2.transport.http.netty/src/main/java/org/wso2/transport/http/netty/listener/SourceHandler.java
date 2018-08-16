@@ -160,7 +160,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
                 outboundRespFuture.setHttpConnectorListener(
                         new HttpOutboundRespListener(ctx, httpRequestMsg, chunkConfig, keepAliveConfig, serverName,
-                                sourceErrorHandler, continueRequest));
+                                                     sourceErrorHandler, continueRequest));
                 this.serverConnectorFuture.notifyHttpListener(httpRequestMsg);
             } catch (Exception e) {
                 log.error("Error while notifying listeners", e);
@@ -223,8 +223,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (evt instanceof IdleStateEvent) {
             this.idleTimeout = true;
             boolean inCompleteRequest = sourceErrorHandler.getState() == RECEIVING_ENTITY_BODY;
-            ChannelFuture outboundRespFuture = sourceErrorHandler.handleIdleErrorScenario(inboundRequestMsg, ctx,
-                                                                                          (IdleStateEvent) evt);
+            ChannelFuture outboundRespFuture = sourceErrorHandler.handleIdleErrorScenario(inboundRequestMsg, ctx);
             if (outboundRespFuture == null) {
                 this.channelInactive(ctx);
             } else {
