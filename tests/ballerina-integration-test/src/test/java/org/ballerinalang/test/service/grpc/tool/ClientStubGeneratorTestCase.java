@@ -49,8 +49,7 @@ public class ClientStubGeneratorTestCase {
     }
 
     @Test
-    public void testUnaryHelloWorld() throws IllegalAccessException,
-            ClassNotFoundException, InstantiationException {
+    public void testUnaryHelloWorld() throws IllegalAccessException, ClassNotFoundException, InstantiationException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
         Path sourcePath = Paths.get("grpc", "tool");
@@ -79,8 +78,8 @@ public class ClientStubGeneratorTestCase {
     }
 
     @Test
-    public void testClientStreamingHelloWorld() throws IllegalAccessException,
-            ClassNotFoundException, InstantiationException {
+    public void testClientStreamingHelloWorld() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
         Path sourcePath = Paths.get("grpc", "tool");
@@ -125,8 +124,7 @@ public class ClientStubGeneratorTestCase {
     }
 
     @Test
-    public void testStandardDataTypes() throws IllegalAccessException,
-            ClassNotFoundException, InstantiationException {
+    public void testStandardDataTypes() throws IllegalAccessException, ClassNotFoundException, InstantiationException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
         Path sourcePath = Paths.get("grpc", "tool");
@@ -157,8 +155,8 @@ public class ClientStubGeneratorTestCase {
     }
 
     @Test
-    public void testDifferentOutputPath() throws IllegalAccessException,
-            ClassNotFoundException, InstantiationException {
+    public void testDifferentOutputPath() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
         Path sourcePath = Paths.get("grpc", "client");

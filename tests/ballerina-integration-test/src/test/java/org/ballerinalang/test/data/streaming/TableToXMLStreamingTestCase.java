@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.data.streaming;
 
-import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.SQLDBUtils;
@@ -40,20 +40,18 @@ import java.util.Map;
 /**
  * This test case tests the scenario of streaming the data from a table converted to XML.
  */
-public class TableToXMLStreamingTestCase {
-    private ServerInstance ballerinaServer;
+public class TableToXMLStreamingTestCase extends BaseTest {
     private TestDatabase testDatabase;
     private static final String DB_DIRECTORY = "./target/tempdb/";
 
     @BeforeClass
     private void setup() throws Exception {
         setUpDatabase();
-        ballerinaServer = ServerInstance.initBallerinaServer();
         String balFile = Paths.get("src", "test", "resources", "data", "streaming", "xml_streaming_test.bal")
                 .toAbsolutePath().toString();
         Map<String, String> envProperties = new HashMap<>(1);
         envProperties.put("JAVA_OPTS", "-Xms100m -Xmx100m");
-        ballerinaServer.startBallerinaServer(balFile, envProperties);
+        serverInstance.startBallerinaServer(balFile, envProperties);
     }
 
     private void setUpDatabase() throws SQLException {
@@ -65,7 +63,7 @@ public class TableToXMLStreamingTestCase {
     @Test(description = "Tests streaming a large amount of data from a table, converted to XML")
     public void testStreamingLargeXML() throws Exception {
         HttpResponse response = HttpClientRequest
-                .doGet(ballerinaServer.getServiceURLHttp("dataService/getData"), 60000, responseBuilder);
+                .doGet(serverInstance.getServiceURLHttp("dataService/getData"), 60000, responseBuilder);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 200);
         Assert.assertEquals(Integer.parseInt(response.getData()), 211288909);
@@ -73,7 +71,7 @@ public class TableToXMLStreamingTestCase {
 
     @AfterClass(alwaysRun = true)
     private void cleanup() throws Exception {
-        ballerinaServer.stopServer();
+        serverInstance.stopServer();
         if (testDatabase != null) {
             testDatabase.stop();
         }
