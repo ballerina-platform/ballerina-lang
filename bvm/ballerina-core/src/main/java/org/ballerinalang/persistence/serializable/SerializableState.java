@@ -24,7 +24,6 @@ import org.ballerinalang.persistence.Deserializer;
 import org.ballerinalang.persistence.Serializer;
 import org.ballerinalang.persistence.serializable.reftypes.Serializable;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
-import org.ballerinalang.persistence.serializable.serializer.ObjectToJsonSerializer;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.slf4j.Logger;
@@ -62,8 +61,8 @@ public class SerializableState {
     }
 
     public static SerializableState deserialize(String json) {
-        ObjectToJsonSerializer stateSerializer = Serializer.getStateSerializer();
-        return stateSerializer.deserialize(json, SerializableState.class);
+        Gson gson = Serializer.getGson();
+        return gson.fromJson(json, SerializableState.class);
     }
 
     public SerializableState(WorkerExecutionContext executionContext, int ip) {
@@ -77,8 +76,7 @@ public class SerializableState {
     }
 
     public String serialize() {
-        ObjectToJsonSerializer stateSerializer = Serializer.getStateSerializer();
-        return stateSerializer.serialize(this);
+        return Serializer.getGson().toJson(this);
     }
 
     public WorkerExecutionContext getExecutionContext(ProgramFile programFile, Deserializer deserializer) {
