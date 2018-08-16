@@ -28,8 +28,9 @@ import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.persistence.serializable.serializer.ObjectToJsonSerializer;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,9 +42,8 @@ import java.util.Map;
  * @since 0.981.1
  */
 public class SerializableState {
+    private static final Logger log = LoggerFactory.getLogger(SerializableState.class);
 
-    // TODO: Switch-ability between Gson and JsonSerializer is only for convenience when testing, remove when done.
-    private static final boolean JSON_SERIALIZER = true;
     private String id;
 
     public String currentContextKey;
@@ -65,14 +65,11 @@ public class SerializableState {
     }
 
     public static SerializableState deserialize(String json) {
-        if (JSON_SERIALIZER) {
-            ObjectToJsonSerializer stateSerializer = Serializer.getStateSerializer();
-            return stateSerializer.deserialize(
-                    json.getBytes(StandardCharsets.UTF_8), SerializableState.class);
-        } else {
-            Gson gson = Serializer.getGson();
-            return gson.fromJson(json, SerializableState.class);
-        }
+        long t = System.nanoTime();
+        SerializableState deserialize = Serializer.getStateSerializer().deserialize(json, SerializableState.class);
+        long diff = System.nanoTime() - t;
+        log.error("d - time: " + diff / 1000 + " us");
+        return deserialize;
     }
 
     public SerializableState(WorkerExecutionContext executionContext, int ip) {
@@ -81,17 +78,17 @@ public class SerializableState {
         }
         currentContextKey = String.valueOf(executionContext.hashCode());
         SerializableContext serializableContext = new SerializableContext(currentContextKey, executionContext,
-                                                                          this, ip);
+                this, ip);
         sContexts.put(currentContextKey, serializableContext);
     }
 
     public String serialize() {
-        if (JSON_SERIALIZER) {
-            ObjectToJsonSerializer stateSerializer = Serializer.getStateSerializer();
-            return stateSerializer.serialize(this);
-        } else {
-            return Serializer.getGson().toJson(this);
-        }
+        long t = System.nanoTime();
+        String serialize = Serializer.getStateSerializer().serialize(this);
+        long diff = System.nanoTime() - t;
+        log.error("s - time: " + diff / 1000 + " us");
+        return serialize;
+
     }
 
     public WorkerExecutionContext getExecutionContext(ProgramFile programFile, Deserializer deserializer) {
@@ -131,14 +128,14 @@ public class SerializableState {
     public CallableWorkerResponseContext getResponseContext(String respCtxKey, ProgramFile programFile,
                                                             CallableUnitInfo callableUnitInfo,
                                                             Deserializer deserializer) {
-        CallableWorkerResponseContext responseContext = deserializer.getRespContexts().get(respCtxKey);
-        if (responseContext != null) {
-            return responseContext;
+        CallableWorkerResponseContext responseContext = deserializer.getTempRespContexts().get(respCtxKey);
+        if (responseContext == null) {
+            SerializableRespContext serializableRespContext = sRespContexts.get(respCtxKey);
+            responseContext =
+                    serializableRespContext.getResponseContext(programFile, callableUnitInfo,
+                            this, deserializer);
+            deserializer.getTempRespContexts().put(respCtxKey, responseContext);
         }
-        SerializableRespContext serializableRespContext = sRespContexts.get(respCtxKey);
-        responseContext = serializableRespContext.getResponseContext(programFile, callableUnitInfo,
-                                                                     this, deserializer);
-        deserializer.getRespContexts().put(respCtxKey, responseContext);
         return responseContext;
     }
 
