@@ -22,7 +22,6 @@ endpoint http:Listener echo15 {
 };
 
 @http:ServiceConfig {
-     endpoints:[echo15],
      basePath:"/echo"
 }
 
@@ -45,7 +44,10 @@ endpoint http:Listener echoDummy15 {
 };
 
 @http:ServiceConfig {
+<<<<<<< HEAD:tests/ballerina-integration-test/src/test/resources/http/httpservices/mutualSSLServer.bal
       endpoints:[echoDummy15],
+=======
+>>>>>>> 0230f597119be631b88f6ffdbc723b86359b5f66:tests/ballerina-integration-test/src/test/resources/mutualSSL/mutualSSLServer.bal
       basePath:"/echoDummy"
 }
 service<http:Service> echoDummyService15 bind echoDummy15 {

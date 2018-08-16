@@ -27,7 +27,7 @@ public enum RuntimeErrors {
     CASTING_ANY_TYPE_WITHOUT_INIT("casting.any.without.init", "RUNTIME_0002"),
     INDEX_NUMBER_TOO_LARGE("index.number.too.large", "RUNTIME_0003"),
     ARRAY_INDEX_OUT_OF_RANGE("array.index.out.of.range", "RUNTIME_0004"),
-    INCOMPATIBLE_TYPE_FOR_CASTING("incompatible.types", "RUNTIME_0005"),
+    INCOMPATIBLE_TYPE("incompatible.types", "RUNTIME_0005"),
     CASTING_WITHOUT_REQUIRED_FIELD("casting.without.required.field", "RUNTIME_0006"),
     CASTING_FAILED_WITH_CAUSE("casting.failed.with.cause", "RUNTIME_0007"),
     MISSING_FIELD_IN_JSON("missing.field.in.json", "RUNTIME_0008"),
@@ -50,7 +50,7 @@ public enum RuntimeErrors {
     INVALID_TASK_CONFIG("invalid.task.config", "RUNTIME_0025"),
     TASK_ALREADY_RUNNING("task.already.running", "RUNTIME_0026"),
     TASK_NOT_RUNNING("task.not.running", "RUNTIME_0027");
-    
+
     private String errorMsgKey;
     private String errorCode;
 
