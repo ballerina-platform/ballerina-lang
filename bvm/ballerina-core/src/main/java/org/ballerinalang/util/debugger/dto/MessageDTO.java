@@ -84,7 +84,9 @@ public class MessageDTO {
     @Override
     public String toString() {
         StringBuilder br = new StringBuilder();
-        br.append("====BreakPointInfo {").append(location.toString()).append("}====\n");
+        if(location != null) {
+            br.append("====BreakPointInfo {").append(location.toString()).append("}====\n");
+        }
         br.append("Frames ->\n");
         for (FrameDTO frame : frames) {
             br.append("    ").append(frame.toString()).append("\n");
