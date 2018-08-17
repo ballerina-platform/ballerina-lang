@@ -50,7 +50,7 @@ public class InstallCommand implements BLauncherCmd {
             description = "path to the directory containing source files and packages")
     private String sourceRoot;
 
-    @Parameter(names = {"--build"}, description = "build on push")
+    @Parameter(names = {"--build"}, description = "build sources before installing to the home repository")
     private boolean build;
 
     @Override

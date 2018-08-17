@@ -40,7 +40,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URI;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -109,14 +108,6 @@ public class PushUtils {
                                           "artifact before pushing or run `ballerina push --build` to build and push " +
                                           "the artifact at once");
                 return;
-            } else {
-                outStream.print("The artifact to be pushed already exists. Push this artifact [yes/y, no/n]: (y) ");
-                Scanner scanner = new Scanner(System.in, Charset.defaultCharset().name());
-                String buildOnPush = scanner.nextLine().trim();
-
-                if (buildOnPush.equalsIgnoreCase("no") || buildOnPush.equalsIgnoreCase("n")) {
-                    return;
-                }
             }
         }
 
