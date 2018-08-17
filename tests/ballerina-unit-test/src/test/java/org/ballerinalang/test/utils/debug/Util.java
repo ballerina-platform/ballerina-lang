@@ -21,6 +21,8 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.debugger.dto.BreakPointDTO;
 import org.ballerinalang.util.debugger.dto.VariableDTO;
 
+import java.util.Map;
+
 /**
  * Test Util class with helper methods.
  *
@@ -29,8 +31,8 @@ import org.ballerinalang.util.debugger.dto.VariableDTO;
 public class Util {
 
     public static DebugPoint createDebugPoint(String packagePath, String fileName, int lineNo, Step nextStep,
-                                              int noOfHits) {
-        return new DebugPoint(new BreakPointDTO(packagePath, fileName, lineNo), nextStep, noOfHits);
+                                              int noOfHits, Map<String, String> expressionsMap) {
+        return new DebugPoint(new BreakPointDTO(packagePath, fileName, lineNo), nextStep, noOfHits, expressionsMap);
     }
 
     public static BreakPointDTO[] createBreakNodeLocations(String packagePath, String fileName, int... lineNos) {
