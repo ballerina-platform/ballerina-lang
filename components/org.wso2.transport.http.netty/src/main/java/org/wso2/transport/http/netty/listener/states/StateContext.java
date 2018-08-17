@@ -19,18 +19,30 @@
 package org.wso2.transport.http.netty.listener.states;
 
 
+import org.wso2.transport.http.netty.listener.states.listener.ListenerState;
+import org.wso2.transport.http.netty.listener.states.sender.SenderState;
+
 /**
- * Context class to manipulate current state.
+ * Context class to manipulate current listenerState.
  */
-public class ListenerStateContext {
+public class StateContext {
 
-    private ListenerState state;
+    private ListenerState listenerState;
+    private SenderState senderState;
 
-    public void setState(ListenerState state) {
-        this.state = state;
+    public void setListenerState(ListenerState state) {
+        this.listenerState = state;
     }
 
-    public ListenerState getState() {
-        return state;
+    public ListenerState getListenerState() {
+        return listenerState;
+    }
+
+    public SenderState getSenderState() {
+        return senderState;
+    }
+
+    public void setSenderState(SenderState senderState) {
+        this.senderState = senderState;
     }
 }

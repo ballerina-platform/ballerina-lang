@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.listener.states;
+package org.wso2.transport.http.netty.listener.states.listener;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -31,6 +31,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
+import org.wso2.transport.http.netty.listener.states.StateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.IOException;
@@ -54,11 +55,11 @@ public class SendingHeaders implements ListenerState {
     private static Logger log = LoggerFactory.getLogger(SendingHeaders.class);
     private final HttpOutboundRespListener outboundResponseListener;
     boolean keepAlive;
-    private final ListenerStateContext stateContext;
+    private final StateContext stateContext;
     ChunkConfig chunkConfig;
     HttpResponseFuture outboundRespStatusFuture;
 
-    SendingHeaders(HttpOutboundRespListener outboundResponseListener, ListenerStateContext stateContext) {
+    SendingHeaders(HttpOutboundRespListener outboundResponseListener, StateContext stateContext) {
         this.outboundResponseListener = outboundResponseListener;
         this.stateContext = stateContext;
         this.chunkConfig = outboundResponseListener.getChunkConfig();
@@ -122,9 +123,9 @@ public class SendingHeaders implements ListenerState {
     }
 
     private void writeResponse(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent, boolean headersWritten) {
-        stateContext.setState(new SendingEntityBody(stateContext, outboundRespStatusFuture, headersWritten));
-        stateContext.getState().writeOutboundResponseEntityBody(outboundResponseListener, outboundResponseMsg,
-                                                                httpContent);
+        stateContext.setListenerState(new SendingEntityBody(stateContext, outboundRespStatusFuture, headersWritten));
+        stateContext.getListenerState().writeOutboundResponseEntityBody(outboundResponseListener, outboundResponseMsg,
+                                                                        httpContent);
     }
 
     boolean checkChunkingCompatibility(HttpOutboundRespListener outboundResponseListener) {

@@ -16,26 +16,26 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.listener.senderstates;
+package org.wso2.transport.http.netty.listener.states.sender;
 
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.timeout.IdleStateEvent;
-import org.wso2.transport.http.netty.contract.ServerConnectorException;
+import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
+import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 
 /**
  * SenderStates of target handler.
  */
 public interface SenderState {
 
-    void writeOutboundRequestHeaders();
+    void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest,
+                                     HttpContent httpContent) throws Exception;
 
-    void writeOutboundRequestEntityBody();
+    void writeOutboundRequestEntityBody(HttpCarbonMessage httpOutboundRequest,
+                                        HttpContent httpContent);
 
     void readInboundResponseHeaders();
 
@@ -43,6 +43,6 @@ public interface SenderState {
 
     void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture);
 
-    ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
-                                                     ChannelHandlerContext ctx, IdleStateEvent evt);
+    void handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture, ChannelHandlerContext ctx,
+                                            IdleStateEvent evt);
 }

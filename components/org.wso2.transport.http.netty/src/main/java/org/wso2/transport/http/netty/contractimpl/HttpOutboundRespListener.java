@@ -31,7 +31,7 @@ import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.listener.RequestDataHolder;
 import org.wso2.transport.http.netty.listener.SourceHandler;
-import org.wso2.transport.http.netty.listener.states.ListenerStateContext;
+import org.wso2.transport.http.netty.listener.states.StateContext;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -44,7 +44,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
     private static final Logger log = LoggerFactory.getLogger(HttpOutboundRespListener.class);
     private final SourceHandler sourceHandler;
-    private final ListenerStateContext stateContext;
+    private final StateContext stateContext;
 
     private ChannelHandlerContext sourceContext;
     private RequestDataHolder requestDataHolder;
@@ -103,7 +103,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     }
 
     private void writeOutboundResponse(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        stateContext.getState().writeOutboundResponseEntityBody(this, outboundResponseMsg, httpContent);
+        stateContext.getListenerState().writeOutboundResponseEntityBody(this, outboundResponseMsg, httpContent);
     }
 
 //    private void resetOutboundListenerState() {

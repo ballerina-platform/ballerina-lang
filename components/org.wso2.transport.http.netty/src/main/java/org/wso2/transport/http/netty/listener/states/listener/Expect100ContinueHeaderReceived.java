@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.listener.states;
+package org.wso2.transport.http.netty.listener.states.listener;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
@@ -39,22 +39,25 @@ import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.listener.SourceHandler;
+import org.wso2.transport.http.netty.listener.states.StateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static io.netty.buffer.Unpooled.copiedBuffer;
-import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.common.Constants
+        .IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
+import static org.wso2.transport.http.netty.common.Constants
+        .REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE;
 
 /**
- * State between end of payload read and start of response headers write
+ * Special state of receiving request with expect:100-continue header
  */
-public class EntityBodyReceived implements ListenerState {
+public class Expect100ContinueHeaderReceived implements ListenerState {
 
-    private static Logger log = LoggerFactory.getLogger(EntityBodyReceived.class);
-    private final ListenerStateContext stateContext;
+    private static Logger log = LoggerFactory.getLogger(Expect100ContinueHeaderReceived.class);
+    private final StateContext stateContext;
     private final SourceHandler sourceHandler;
 
-    public EntityBodyReceived(ListenerStateContext stateContext, SourceHandler sourceHandler) {
+    Expect100ContinueHeaderReceived(StateContext stateContext, SourceHandler sourceHandler) {
         this.stateContext = stateContext;
         this.sourceHandler = sourceHandler;
     }
@@ -77,15 +80,16 @@ public class EntityBodyReceived implements ListenerState {
     @Override
     public void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundResponseListener,
                                                 HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
-        stateContext.setState(new SendingHeaders(outboundResponseListener, stateContext));
-        stateContext.getState().writeOutboundResponseHeaders(outboundResponseMsg, httpContent);
+        stateContext.setListenerState(new Response100ContinueSent(outboundResponseListener, sourceHandler, stateContext));
+        stateContext.getListenerState().writeOutboundResponseEntityBody(outboundResponseListener, outboundResponseMsg,
+                                                                        httpContent);
     }
 
     @Override
     public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture) {
         try {
             serverConnectorFuture.notifyErrorListener(
-                    new ServerConnectorException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE));
+                    new ServerConnectorException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_100_CONTINUE_RESPONSE));
         } catch (ServerConnectorException e) {
             log.error("Error while notifying error state to server-connector listener");
         }
@@ -112,7 +116,7 @@ public class EntityBodyReceived implements ListenerState {
 
         try {
             serverConnectorFuture.notifyErrorListener(
-                    new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE));
+                    new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_100_CONTINUE_RESPONSE));
         } catch (ServerConnectorException e) {
             log.error("Error while notifying error state to server-connector listener");
         }

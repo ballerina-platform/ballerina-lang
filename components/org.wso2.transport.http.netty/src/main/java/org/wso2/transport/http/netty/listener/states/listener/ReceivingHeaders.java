@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.listener.states;
+package org.wso2.transport.http.netty.listener.states.listener;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
@@ -43,6 +43,7 @@ import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.listener.SourceHandler;
+import org.wso2.transport.http.netty.listener.states.StateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static io.netty.buffer.Unpooled.EMPTY_BUFFER;
@@ -59,11 +60,11 @@ public class ReceivingHeaders implements ListenerState {
     private static Logger log = LoggerFactory.getLogger(ReceivingHeaders.class);
     private final SourceHandler sourceHandler;
     private final HandlerExecutor handlerExecutor;
-    private final ListenerStateContext stateContext;
+    private final StateContext stateContext;
     private HttpCarbonMessage inboundRequestMsg;
     private boolean continueRequest;
 
-    public ReceivingHeaders(SourceHandler sourceHandler, ListenerStateContext stateContext) {
+    public ReceivingHeaders(SourceHandler sourceHandler, StateContext stateContext) {
         this.sourceHandler = sourceHandler;
         this.handlerExecutor = HttpTransportContextHolder.getInstance().getHandlerExecutor();
         this.stateContext = stateContext;
@@ -74,7 +75,7 @@ public class ReceivingHeaders implements ListenerState {
         this.inboundRequestMsg = inboundRequestMsg;
         continueRequest = is100ContinueRequest(inboundRequestMsg);
         if (continueRequest) {
-            stateContext.setState(new Expect100ContinueHeaderReceived(stateContext, sourceHandler));
+            stateContext.setListenerState(new Expect100ContinueHeaderReceived(stateContext, sourceHandler));
         }
         notifyRequestListener(inboundRequestMsg);
 
@@ -107,8 +108,8 @@ public class ReceivingHeaders implements ListenerState {
 
     @Override
     public void readInboundRequestEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
-        stateContext.setState(new ReceivingEntityBody(stateContext, inboundRequestMsg, sourceHandler));
-        stateContext.getState().readInboundRequestEntityBody(inboundRequestEntityBody);
+        stateContext.setListenerState(new ReceivingEntityBody(stateContext, inboundRequestMsg, sourceHandler));
+        stateContext.getListenerState().readInboundRequestEntityBody(inboundRequestEntityBody);
     }
 
     @Override

@@ -33,6 +33,10 @@ import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.listener.HttpTraceLoggingHandler;
 import org.wso2.transport.http.netty.listener.SourceHandler;
+import org.wso2.transport.http.netty.listener.states.StateContext;
+import org.wso2.transport.http.netty.listener.states.sender.SenderState;
+import org.wso2.transport.http.netty.listener.states.sender.SendingEntityBody;
+import org.wso2.transport.http.netty.listener.states.sender.SendingHeaders;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.sender.ConnectionAvailabilityFuture;
 import org.wso2.transport.http.netty.sender.ForwardedHeaderUpdater;
@@ -195,6 +199,10 @@ public class TargetChannel {
 
         resetTargetChannelState();
 
+        StateContext stateContext = new StateContext();
+        httpOutboundRequest.setStateContext(stateContext);
+        httpOutboundRequest.getStateContext().setSenderState(new SendingHeaders(httpVersion, chunkConfig, this.getChannel()));
+
         httpOutboundRequest.getHttpContentAsync().setMessageListener((httpContent ->
                 this.channel.eventLoop().execute(() -> {
                     try {
@@ -209,7 +217,10 @@ public class TargetChannel {
     }
 
     private void writeOutboundRequest(HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) throws Exception {
-        targetErrorHandler.setState(SENDING_ENTITY_BODY);
+        httpOutboundRequest.getStateContext().getSenderState().writeOutboundRequestEntityBody(httpOutboundRequest, httpContent);
+//        targetErrorHandler.setState(SENDING_ENTITY_BODY);
+
+
         if (Util.isLastHttpContent(httpContent)) {
             if (!this.requestHeaderWritten) {
                 // this means we need to send an empty payload
@@ -263,14 +274,6 @@ public class TargetChannel {
         contentLength = 0;
     }
 
-    private String getHttpMethod(HttpCarbonMessage httpOutboundRequest) throws Exception {
-        String httpMethod = (String) httpOutboundRequest.getProperty(Constants.HTTP_METHOD);
-        if (httpMethod == null) {
-            throw new Exception("Couldn't get the HTTP method from the outbound request");
-        }
-        return httpMethod;
-    }
-
     private void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest) {
         this.setHttpVersionProperty(httpOutboundRequest);
         HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
@@ -279,14 +282,7 @@ public class TargetChannel {
         targetErrorHandler.notifyIfHeaderFailure(outboundHeaderFuture);
     }
 
-    private void setHttpVersionProperty(HttpCarbonMessage httpOutboundRequest) {
-        if (Float.valueOf(httpVersion) == Constants.HTTP_2_0) {
-            // Upgrade request of HTTP/2 should be a HTTP/1.1 request
-            httpOutboundRequest.setProperty(Constants.HTTP_VERSION, String.valueOf(Constants.HTTP_1_1));
-        } else {
-            httpOutboundRequest.setProperty(Constants.HTTP_VERSION, httpVersion);
-        }
-    }
+
 
     public void setForwardedExtension(ForwardedExtensionConfig forwardedConfig, HttpCarbonMessage httpOutboundRequest) {
         if (forwardedConfig == ForwardedExtensionConfig.DISABLE) {

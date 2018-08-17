@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.listener.states;
+package org.wso2.transport.http.netty.listener.states.listener;
 
 import io.netty.buffer.CompositeByteBuf;
 import io.netty.buffer.Unpooled;
@@ -38,6 +38,7 @@ import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.HttpTransportContextHolder;
 import org.wso2.transport.http.netty.listener.SourceHandler;
+import org.wso2.transport.http.netty.listener.states.StateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.IOException;
@@ -60,7 +61,7 @@ public class SendingEntityBody implements ListenerState {
     private static Logger log = LoggerFactory.getLogger(SendingEntityBody.class);
     private final HandlerExecutor handlerExecutor;
     private final HttpResponseFuture outboundRespStatusFuture;
-    private final ListenerStateContext stateContext;
+    private final StateContext stateContext;
     private final boolean headersWritten;
     private long contentLength = 0;
     private boolean headRequest;
@@ -69,7 +70,7 @@ public class SendingEntityBody implements ListenerState {
     private ChannelHandlerContext sourceContext;
     private SourceHandler sourceHandler;
 
-    SendingEntityBody(ListenerStateContext stateContext, HttpResponseFuture outboundRespStatusFuture,
+    SendingEntityBody(StateContext stateContext, HttpResponseFuture outboundRespStatusFuture,
                       boolean headersWritten) {
         this.stateContext = stateContext;
         this.outboundRespStatusFuture = outboundRespStatusFuture;
@@ -201,7 +202,7 @@ public class SendingEntityBody implements ListenerState {
             } else {
                 outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
             }
-            stateContext.setState(new ResponseCompleted(sourceHandler, stateContext, inboundRequestMsg));
+            stateContext.setListenerState(new ResponseCompleted(sourceHandler, stateContext, inboundRequestMsg));
             resetOutboundListenerState();
         });
     }

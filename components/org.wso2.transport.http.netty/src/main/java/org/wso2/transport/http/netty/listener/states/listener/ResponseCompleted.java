@@ -16,72 +16,70 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.listener.senderstates;
+package org.wso2.transport.http.netty.listener.states.listener;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.timeout.IdleStateEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
-import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
 import org.wso2.transport.http.netty.listener.SourceHandler;
-import org.wso2.transport.http.netty.listener.states.ListenerState;
-import org.wso2.transport.http.netty.listener.states.ListenerStateContext;
-import org.wso2.transport.http.netty.listener.states.ReceivingHeaders;
+import org.wso2.transport.http.netty.listener.states.StateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-
-import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE;
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE;
 
 /**
  * State of successfully written response
  */
-public class EntityBodySent implements SenderState {
+public class ResponseCompleted implements ListenerState {
 
-    private static Logger log = LoggerFactory.getLogger(EntityBodySent.class);
+    private final SourceHandler sourceHandler;
+    private final StateContext stateContext;
 
-    @Override
-    public void writeOutboundRequestHeaders() {
+    ResponseCompleted(SourceHandler sourceHandler, StateContext stateContext,
+                      HttpCarbonMessage inboundRequestMsg) {
+        this.sourceHandler = sourceHandler;
+        this.stateContext = stateContext;
+        cleanup(inboundRequestMsg);
+    }
 
+    private void cleanup(HttpCarbonMessage inboundRequestMsg) {
+        sourceHandler.removeRequestEntry(inboundRequestMsg);
     }
 
     @Override
-    public void writeOutboundRequestEntityBody() {
-
+    public void readInboundRequestHeaders(HttpCarbonMessage inboundRequestMsg, HttpRequest inboundRequestHeaders) {
+        stateContext.setListenerState(new ReceivingHeaders(sourceHandler, stateContext));
+        stateContext.getListenerState().readInboundRequestHeaders(inboundRequestMsg, inboundRequestHeaders);
     }
 
     @Override
-    public void readInboundResponseHeaders() {
-
+    public void readInboundRequestEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
+        // Not a dependant action of this state.
     }
 
     @Override
-    public void readInboundResponseEntityBody() {
+    public void writeOutboundResponseHeaders(HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
+        // Not a dependant action of this state.
+    }
 
+    @Override
+    public void writeOutboundResponseEntityBody(HttpOutboundRespListener outboundRespListener,
+                                                HttpCarbonMessage outboundResponseMsg, HttpContent httpContent) {
+        // Not a dependant action of this state.
     }
 
     @Override
     public void handleAbruptChannelClosure(ServerConnectorFuture serverConnectorFuture) {
-        httpResponseFuture.notifyHttpListener(
-                new ServerConnectorException(REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE));
-        log.error(REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE);
-
+        // Not a dependant action of this state.
     }
 
     @Override
     public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
                                                             ChannelHandlerContext ctx, IdleStateEvent evt) {
-        httpResponseFuture.notifyHttpListener(new EndpointTimeOutException(channelID,
-                                                                           IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
-                                                                           HttpResponseStatus.GATEWAY_TIMEOUT.code()));
-        log.error("Error in HTTP client: {}", IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE);
-
+        // Not a dependant action of this state.
         return null;
     }
 }

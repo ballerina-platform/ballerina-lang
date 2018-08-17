@@ -16,55 +16,71 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.listener.senderstates;
+package org.wso2.transport.http.netty.listener.states.sender;
 
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.ChunkConfig;
-import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
-import org.wso2.transport.http.netty.listener.states.ListenerState;
-import org.wso2.transport.http.netty.listener.states.ListenerStateContext;
-import org.wso2.transport.http.netty.listener.states.SendingEntityBody;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
-import java.io.IOException;
-import java.nio.channels.ClosedChannelException;
-
-import static org.wso2.transport.http.netty.common.Constants.CHUNKING_CONFIG;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST;
-import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE;
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST;
-import static org.wso2.transport.http.netty.common.Util.createHttpResponse;
 import static org.wso2.transport.http.netty.common.Util.isLastHttpContent;
-import static org.wso2.transport.http.netty.common.Util.isVersionCompatibleForChunking;
 import static org.wso2.transport.http.netty.common.Util.setupChunkedRequest;
-import static org.wso2.transport.http.netty.common.Util.shouldEnforceChunkingforHttpOneZero;
 
 /**
- * State between start and end of outbound response headers write
+ * State between start and end of outbound response entity body write
  */
-public class SendingHeaders implements SenderState {
+public class SendingEntityBody implements SenderState {
 
-    private static Logger log = LoggerFactory.getLogger(SendingHeaders.class);
+    private static Logger log = LoggerFactory.getLogger(SendingEntityBody.class);
 
     @Override
-    public void writeOutboundRequestHeaders() {
+    public void writeOutboundRequestHeaders(HttpCarbonMessage httpOutboundRequest,
+                                            HttpContent httpContent) {
 
     }
 
     @Override
-    public void writeOutboundRequestEntityBody() {
+    public void writeOutboundRequestEntityBody(
+            HttpCarbonMessage httpOutboundRequest, HttpContent httpContent) {
+
+
+
+        if (isLastHttpContent(httpContent)) {
+            if (!this.requestHeaderWritten) {
+                // this means we need to send an empty payload
+                // depending on the http verb
+                if (Util.isEntityBodyAllowed(getHttpMethod(httpOutboundRequest))) {
+                    if (chunkConfig == ChunkConfig.ALWAYS && checkChunkingCompatibility()) {
+                        setupChunkedRequest(httpOutboundRequest);
+                    } else {
+                        contentLength += httpContent.content().readableBytes();
+                        Util.setupContentLengthRequest(httpOutboundRequest, contentLength);
+                    }
+                }
+                writeOutboundRequestHeaders(httpOutboundRequest);
+            }
+
+            writeOutboundRequestBody(httpContent);
+        } else {
+            if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO) &&
+                    checkChunkingCompatibility()) {
+                if (!this.requestHeaderWritten) {
+                    setupChunkedRequest(httpOutboundRequest);
+                    writeOutboundRequestHeaders(httpOutboundRequest);
+                }
+                this.getChannel().writeAndFlush(httpContent);
+            } else {
+                this.contentList.add(httpContent);
+                contentLength += httpContent.content().readableBytes();
+            }
+        }
 
     }
 
@@ -86,11 +102,10 @@ public class SendingHeaders implements SenderState {
     }
 
     @Override
-    public ChannelFuture handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
+    public void handleIdleTimeoutConnectionClosure(ServerConnectorFuture serverConnectorFuture,
                                                             ChannelHandlerContext ctx,
                                                             IdleStateEvent evt) {
         // HttpResponseFuture will be notified asynchronously via Target channel.
         log.error("Error in HTTP client: {}", IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST);
-        return null;
     }
 }

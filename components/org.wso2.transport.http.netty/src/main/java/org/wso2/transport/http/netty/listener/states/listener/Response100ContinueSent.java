@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.listener.states;
+package org.wso2.transport.http.netty.listener.states.listener;
 
 import io.netty.buffer.CompositeByteBuf;
 import io.netty.buffer.Unpooled;
@@ -34,6 +34,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.HttpOutboundRespListener;
 import org.wso2.transport.http.netty.listener.SourceHandler;
+import org.wso2.transport.http.netty.listener.states.StateContext;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.IOException;
@@ -52,13 +53,13 @@ import static org.wso2.transport.http.netty.common.Util.setupChunkedRequest;
 public class Response100ContinueSent extends SendingHeaders {
 
     private static Logger log = LoggerFactory.getLogger(Response100ContinueSent.class);
-    private final ListenerStateContext stateContext;
+    private final StateContext stateContext;
     private final HttpOutboundRespListener outboundResponseListener;
     private final SourceHandler sourceHandler;
 
     Response100ContinueSent(HttpOutboundRespListener outboundResponseListener,
                                    SourceHandler sourceHandler,
-                                   ListenerStateContext stateContext) {
+                                   StateContext stateContext) {
         super(outboundResponseListener, stateContext);
         this.outboundResponseListener = outboundResponseListener;
         this.chunkConfig = outboundResponseListener.getChunkConfig();
@@ -74,9 +75,9 @@ public class Response100ContinueSent extends SendingHeaders {
 
     @Override
     public void readInboundRequestEntityBody(Object inboundRequestEntityBody) throws ServerConnectorException {
-        stateContext.setState(new ReceivingEntityBody(stateContext, outboundResponseListener.getInboundRequestMsg(),
-                                                      sourceHandler));
-        stateContext.getState().readInboundRequestEntityBody(inboundRequestEntityBody);
+        stateContext.setListenerState(new ReceivingEntityBody(stateContext, outboundResponseListener.getInboundRequestMsg(),
+                                                              sourceHandler));
+        stateContext.getListenerState().readInboundRequestEntityBody(inboundRequestEntityBody);
     }
 
     @Override
