@@ -314,7 +314,7 @@ public class IterableAnalyzer {
             } else if (op.arity == 2) {
                 return Lists.of(symTable.stringType, type.constraint);
             }
-            logTooMayVariablesError(op);
+            logTooManyVariablesError(op);
             return Lists.of(symTable.errType);
         }
 
@@ -328,7 +328,7 @@ public class IterableAnalyzer {
             } else if (op.arity == 2) {
                 return Lists.of(symTable.intType, symTable.xmlType);
             }
-            logTooMayVariablesError(op);
+            logTooManyVariablesError(op);
             return Lists.of(symTable.errType);
         }
 
@@ -340,7 +340,7 @@ public class IterableAnalyzer {
             } else if (op.arity == 1) {
                 return Lists.of(symTable.jsonType);
             }
-            logTooMayVariablesError(op);
+            logTooManyVariablesError(op);
             return Lists.of(symTable.errType);
         }
 
@@ -354,7 +354,7 @@ public class IterableAnalyzer {
             } else if (op.arity == 2) {
                 return Lists.of(symTable.intType, type.eType);
             }
-            logTooMayVariablesError(op);
+            logTooManyVariablesError(op);
             return Lists.of(symTable.errType);
         }
 
@@ -366,7 +366,7 @@ public class IterableAnalyzer {
             } else if (op.arity == 1) {
                 return Lists.of(type.getConstraint());
             }
-            logTooMayVariablesError(op);
+            logTooManyVariablesError(op);
             return Lists.of(symTable.errType);
         }
 
@@ -383,7 +383,7 @@ public class IterableAnalyzer {
             } else if (op.arity == 2) {
                 return Lists.of(symTable.stringType, symTable.anyType);
             }
-            logTooMayVariablesError(op);
+            logTooManyVariablesError(op);
             return Lists.of(symTable.errType);
         }
 
@@ -393,7 +393,7 @@ public class IterableAnalyzer {
             if (type.tupleTypes.size() == op.arity) {
                 return type.tupleTypes;
             } else if (type.tupleTypes.size() < op.arity) {
-                logTooMayVariablesError(op);
+                logTooManyVariablesError(op);
                 return Lists.of(symTable.errType);
             }
             logNotEnoughVariablesError(op, type.tupleTypes.size());

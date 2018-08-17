@@ -114,7 +114,7 @@ public abstract class BIterableTypeVisitor implements BTypeVisitor<Operation, Li
 
     /* Util functions */
 
-    protected void logTooMayVariablesError(Operation op) {
+    protected void logTooManyVariablesError(Operation op) {
         dlog.error(op.pos, DiagnosticCode.ITERABLE_TOO_MANY_VARIABLES, op.collectionType);
     }
 
