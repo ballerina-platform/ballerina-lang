@@ -1556,15 +1556,9 @@ function testCloseConnectionPool(string jdbcUrl, string userName, string passwor
     return count;
 }
 
-function testReInitEndpoint(string jdbcUrl, string userName, string password) returns int {
+function testReInitEndpoint(string jdbcUrl, string userName, string password, string jdbcurl2, string validationQuery)
+             returns int {
     endpoint jdbc:Client testDB {
-        url: jdbcUrl,
-        username: userName,
-        password: password,
-        poolOptions: { maximumPoolSize: 1 }
-    };
-
-    jdbc:ClientEndpointConfiguration config = {
         url: jdbcUrl,
         username: userName,
         password: password,
@@ -1573,9 +1567,16 @@ function testReInitEndpoint(string jdbcUrl, string userName, string password) re
 
     testDB.stop();
 
+    jdbc:ClientEndpointConfiguration config = {
+        url: jdbcurl2,
+        username: userName,
+        password: password,
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
     testDB.init(config);
 
-    table dt = check testDB->select("select 1 from Customers", ResultCount);
+    table dt = check testDB->select(validationQuery, ResultCount);
 
     int count;
     while (dt.hasNext()) {
