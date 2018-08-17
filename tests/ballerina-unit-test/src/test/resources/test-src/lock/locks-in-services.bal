@@ -31,13 +31,13 @@ service<http:Service> sample1 bind echoEP {
 
     int requestCount = 0;
 
-    float price = 0;
+    float price = 0.0;
 
     string finalText = "";
 
     Person person = {age:2, name:"a", address:{no:5, line1:"", line2:"ppp"}};
 
-    float[] floatArr = [1, 2];
+    float[] floatArr = [1.0, 2.0];
 
     map mapVal = {name:""};
 
@@ -114,14 +114,14 @@ string finalText1 = "";
 
 Person person1 = {age:2, name:"a", address:{no:5, line1:"", line2:"ppp"}};
 
-float[] floatArr1 = [1, 2];
+float[] floatArr1 = [1.0, 2.0];
 
 @http:ServiceConfig {}
 service<http:Service> sample2 bind echoEP {
 
     int requestCount = 0;
 
-    float price = 0;
+    float price = 0.0;
 
     map mapVal = {name:""};
 

@@ -24,3 +24,11 @@ function testStructToStruct() returns (Person) {
     Person p = s;
     return p;
 }
+
+function intToFloatImpCast() {
+    float[] numbers;
+    numbers = [999,95,889];
+    float val1 = 160.0;
+    float val2 = <float> 160;
+    float val3 = 160;
+}

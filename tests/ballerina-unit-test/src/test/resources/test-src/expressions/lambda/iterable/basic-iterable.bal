@@ -29,7 +29,7 @@ function filterIntNegative (int i) returns boolean {
 
 float fadd;
 function testFloat1() returns (float, int, float, float, float, float){
-    fadd = 0;
+    fadd = 0.0;
     float[] fa = [1.1, 2.2, -3.3, 4.4, 5.5];
     fa.foreach((float i) => { fadd = fadd + i;});
     float fsum = fadd;
