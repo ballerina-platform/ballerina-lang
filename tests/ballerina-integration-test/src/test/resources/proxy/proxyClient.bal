@@ -11,7 +11,7 @@ endpoint http:Client clientEP {
 
 function main (string... args) {
     http:Request req = new;
-    var resp = clientEP -> post("/proxy/server", req);
+    var resp = clientEP->post("/proxy/server", req);
     match resp {
         error err => io:println(err.message);
         http:Response response => {

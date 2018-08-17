@@ -52,12 +52,12 @@ function sendRequest(string url, http:Request req, http:Listener conn) {
     var response = clientEP->forward("", req);
     match response {
         http:Response httpResponse => {
-            _ = listenerEP -> respond(httpResponse);
+            _ = listenerEP->respond(httpResponse);
         }
         http:error err => {
             http:Response errorResponse = new;
             errorResponse.setTextPayload(err.message);
-            _ = listenerEP -> respond(errorResponse);
+            _ = listenerEP->respond(errorResponse);
         }
     }
 }
