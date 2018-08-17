@@ -1,4 +1,4 @@
-import org.test;
+import org/test;
 
 function test () {
     test:/*ref*/a = 10;

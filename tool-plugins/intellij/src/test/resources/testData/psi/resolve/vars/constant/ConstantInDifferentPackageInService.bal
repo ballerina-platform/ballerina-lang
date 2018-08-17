@@ -1,4 +1,4 @@
-import org.test;
+import org/test;
 import ballerina/http;
 
 service<http:Service> hello bind { port: 9090 } {
