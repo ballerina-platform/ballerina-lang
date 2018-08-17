@@ -50,50 +50,103 @@ public class RecordIterationTest {
 
     @Test
     public void testNegativesWithOpenRecords() {
+        int index = 0;
         Assert.assertEquals(openRecNegatives.getErrorCount(), 15);
-        BAssertUtil.validateError(openRecNegatives, 0, "operation 'sum' does not support given collection type", 15, 15);
-        BAssertUtil.validateError(openRecNegatives, 1, "operation 'average' does not support given collection type", 19, 15);
-        BAssertUtil.validateError(openRecNegatives, 2, "operation 'max' does not support given collection type", 23, 15);
-        BAssertUtil.validateError(openRecNegatives, 3, "operation 'min' does not support given collection type", 27, 15);
+        BAssertUtil.validateError(openRecNegatives, index++, "operation 'sum' does not support given collection type",
+                                  15, 15);
+        BAssertUtil.validateError(openRecNegatives, index++,
+                                  "operation 'average' does not support given collection type",
+                                  19, 15);
+        BAssertUtil.validateError(openRecNegatives, index++, "operation 'max' does not support given collection type",
+                                  23, 15);
+        BAssertUtil.validateError(openRecNegatives, index++, "operation 'min' does not support given collection type",
+                                  27, 15);
 
-        BAssertUtil.validateError(openRecNegatives, 4, "iterable type 'Person' requires '2' variables", 34, 20);
+        // Test invalid no. of args with foreach loop
+        BAssertUtil.validateError(openRecNegatives, index++, "iterable type 'Person' requires '2' variables", 34, 20);
 
-        BAssertUtil.validateError(openRecNegatives, 5, "not enough variables are defined for iterable type 'Person', require at least '2' variables", 41, 15);
-        BAssertUtil.validateError(openRecNegatives, 6, "too many variables are defined for iterable type 'Person'", 44, 15);
+        // Test invalid foreach iterable operation
+        BAssertUtil.validateError(openRecNegatives, index++,
+                                  "not enough variables are defined for iterable type 'Person', require at least '2' " +
+                                          "variables", 41, 15);
+        BAssertUtil.validateError(openRecNegatives, index++,
+                                  "too many variables are defined for iterable type 'Person'",
+                                  44, 15);
 
-        BAssertUtil.validateError(openRecNegatives, 7, "not enough variables are defined for iterable type 'Person', require at least '2' variables", 49, 25);
-        BAssertUtil.validateError(openRecNegatives, 8, "too many variables are defined for iterable type 'Person'", 53, 18);
-        BAssertUtil.validateError(openRecNegatives, 9, "incompatible types: expected 'Person', found '(any) collection'", 57, 18);
-        BAssertUtil.validateError(openRecNegatives, 10, "incompatible types: expected 'Person', found '(string,any,string) collection'", 61, 18);
+        // Test invalid map iterable operation
+        BAssertUtil.validateError(openRecNegatives, index++,
+                                  "not enough variables are defined for iterable type 'Person', require at least '2' " +
+                                          "variables", 49, 25);
+        BAssertUtil.validateError(openRecNegatives, index++,
+                                  "too many variables are defined for iterable type 'Person'",
+                                  53, 18);
+        BAssertUtil.validateError(openRecNegatives, index++,
+                                  "incompatible types: expected 'Person', found '(any) collection'", 57, 18);
+        BAssertUtil.validateError(openRecNegatives, index++,
+                                  "incompatible types: expected 'Person', found '(string,any,string) collection'",
+                                  61, 18);
 
-        BAssertUtil.validateError(openRecNegatives, 11, "not enough variables are defined for iterable type 'Person', require at least '2' variables", 67, 28);
-        BAssertUtil.validateError(openRecNegatives, 12, "too many variables are defined for iterable type 'Person'", 71, 21);
-        BAssertUtil.validateError(openRecNegatives, 13, "incompatible lambda function types: expected 'boolean', found 'string'", 75, 21);
-        BAssertUtil.validateError(openRecNegatives, 14, "too many return arguments are defined for operation 'filter'", 79, 21);
+        // Test invalid filter iterable operation
+        BAssertUtil.validateError(openRecNegatives, index++,
+                                  "not enough variables are defined for iterable type 'Person', require at least '2' " +
+                                          "variables", 67, 28);
+        BAssertUtil.validateError(openRecNegatives, index++,
+                                  "too many variables are defined for iterable type 'Person'",
+                                  71, 21);
+        BAssertUtil.validateError(openRecNegatives, index++,
+                                  "incompatible lambda function types: expected 'boolean', found 'string'", 75, 21);
+        BAssertUtil.validateError(openRecNegatives, index++,
+                                  "too many return arguments are defined for operation 'filter'",
+                                  79, 21);
     }
 
     @Test
     public void testNegativesWithClosedRecords() {
+        int index = 0;
         Assert.assertEquals(closedRecNegatives.getErrorCount(), 15);
-        BAssertUtil.validateError(closedRecNegatives, 0, "operation 'sum' does not support given collection type", 15, 15);
-        BAssertUtil.validateError(closedRecNegatives, 1, "operation 'average' does not support given collection type", 19, 15);
-        BAssertUtil.validateError(closedRecNegatives, 2, "operation 'max' does not support given collection type", 23, 15);
-        BAssertUtil.validateError(closedRecNegatives, 3, "operation 'min' does not support given collection type", 27, 15);
+        BAssertUtil.validateError(closedRecNegatives, index++, "operation 'sum' does not support given collection type",
+                                  15, 15);
+        BAssertUtil.validateError(closedRecNegatives, index++,
+                                  "operation 'average' does not support given collection type",
+                                  19, 15);
+        BAssertUtil.validateError(closedRecNegatives, index++, "operation 'max' does not support given collection type",
+                                  23, 15);
+        BAssertUtil.validateError(closedRecNegatives, index++, "operation 'min' does not support given collection type",
+                                  27, 15);
 
-        BAssertUtil.validateError(closedRecNegatives, 4, "iterable type 'ClosedPerson' requires '2' variables", 34, 20);
+        // Test invalid no. of args with foreach loop
+        BAssertUtil.validateError(closedRecNegatives, index++, "iterable type 'ClosedPerson' requires '2' variables",
+                                  34, 20);
 
-        BAssertUtil.validateError(closedRecNegatives, 5, "not enough variables are defined for iterable type 'ClosedPerson', require at least '2' variables", 41, 15);
-        BAssertUtil.validateError(closedRecNegatives, 6, "too many variables are defined for iterable type 'ClosedPerson'", 44, 15);
+        // Test invalid foreach iterable operation
+        BAssertUtil.validateError(closedRecNegatives, index++,
+                                  "not enough variables are defined for iterable type 'ClosedPerson', require at " +
+                                          "least '2' variables", 41, 15);
+        BAssertUtil.validateError(closedRecNegatives, index++,
+                                  "too many variables are defined for iterable type 'ClosedPerson'", 44, 15);
 
-        BAssertUtil.validateError(closedRecNegatives, 7, "not enough variables are defined for iterable type 'ClosedPerson', require at least '2' variables", 49, 31);
-        BAssertUtil.validateError(closedRecNegatives, 8, "too many variables are defined for iterable type 'ClosedPerson'", 53, 18);
-        BAssertUtil.validateError(closedRecNegatives, 9, "incompatible types: expected 'ClosedPerson', found '(any) collection'", 57, 18);
-        BAssertUtil.validateError(closedRecNegatives, 10, "incompatible types: expected 'ClosedPerson', found '(string,any,string) collection'", 61, 18);
+        // Test invalid map iterable operation
+        BAssertUtil.validateError(closedRecNegatives, index++,
+                                  "not enough variables are defined for iterable type 'ClosedPerson', require at " +
+                                          "least '2' variables", 49, 31);
+        BAssertUtil.validateError(closedRecNegatives, index++,
+                                  "too many variables are defined for iterable type 'ClosedPerson'", 53, 18);
+        BAssertUtil.validateError(closedRecNegatives, index++,
+                                  "incompatible types: expected 'ClosedPerson', found '(any) collection'", 57, 18);
+        BAssertUtil.validateError(closedRecNegatives, index++,
+                                  "incompatible types: expected 'ClosedPerson', found '(string,any,string) collection'",
+                                  61, 18);
 
-        BAssertUtil.validateError(closedRecNegatives, 11, "not enough variables are defined for iterable type 'ClosedPerson', require at least '2' variables", 67, 34);
-        BAssertUtil.validateError(closedRecNegatives, 12, "too many variables are defined for iterable type 'ClosedPerson'", 71, 21);
-        BAssertUtil.validateError(closedRecNegatives, 13, "incompatible lambda function types: expected 'boolean', found 'string'", 75, 21);
-        BAssertUtil.validateError(closedRecNegatives, 14, "too many return arguments are defined for operation 'filter'", 79, 21);
+        // Test invalid filter iterable operation
+        BAssertUtil.validateError(closedRecNegatives, index++,
+                                  "not enough variables are defined for iterable type 'ClosedPerson', require at " +
+                                          "least '2' variables", 67, 34);
+        BAssertUtil.validateError(closedRecNegatives, index++,
+                                  "too many variables are defined for iterable type 'ClosedPerson'", 71, 21);
+        BAssertUtil.validateError(closedRecNegatives, index++,
+                                  "incompatible lambda function types: expected 'boolean', found 'string'", 75, 21);
+        BAssertUtil.validateError(closedRecNegatives, index++,
+                                  "too many return arguments are defined for operation 'filter'", 79, 21);
     }
 
     // TEST CASES FOR OPEN RECORDS
